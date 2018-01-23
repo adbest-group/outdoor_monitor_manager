@@ -1,9 +1,7 @@
 package com.bt.om.service.impl;
 
 import com.bt.om.entity.AdMonitorTask;
-import com.bt.om.entity.vo.AdActivityVo;
 import com.bt.om.enums.MonitorTaskStatus;
-import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.mapper.AdMonitorTaskMapper;
 import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.vo.web.SearchDataVo;
@@ -11,7 +9,6 @@ import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import sun.jvmstat.perfdata.monitor.MonitorStatus;
 
 import java.util.ArrayList;
 

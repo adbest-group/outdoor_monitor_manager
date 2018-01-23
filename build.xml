@@ -1,0 +1,172 @@
+<!-- 统一复用库构建脚本 -->
+<!--ant 脚本文件 -->
+<!--author: tany -->
+<!--date:2015-09-17 -->
+
+<project xmlns:ivy="antlib:org.apache.ivy.ant">
+
+	<property environment="env" />
+	<property name="module.home" value="." />
+	<property name="module.name" value="outdoor_monitor_manager" />
+	<property name="module.version" value="1.0.0" />
+	<property name="module.main.src" value="${module.home}/src/main/java" />
+	<property name="module.main.resources" value="${module.home}/src/main/resources" />
+	<property name="module.test.src" value="${module.home}/src/test/java" />
+	<property name="module.test.resources" value="${module.home}/src/test/resources" />
+	<property name="module.target" value="${module.home}/target" />
+	<property name="module.test.report" value="${module.target}/report/junit" />
+	<property name="dist.bin" value="${module.target}/bin" />
+	<property name="compile.debug" value="on" />
+	<property name="compile.deprecation" value="false" />
+	<property name="compile.optimize" value="false" />
+	<property name="compile.encoding" value="UTF-8" />
+	<property name="compile.source" value="1.7" />
+	<property name="compile.target" value="1.7" />
+
+	<property name="module.test.coverage" value="${module.target}/report/coverage" />
+	<property name="bin.instrument.dir" location="${module.test.coverage}/instrbin" />
+
+	<ivy:settings file="${module.home}/ivysettings.xml" />
+
+	<target name="ivy-clean" description="--> clean ivy cache">
+		<ivy:cleancache />
+	</target>
+
+	<target name="resolve" description="--> retreive dependencies with ivy">
+		<ivy:retrieve pattern="${module.target}/lib/[conf]/[artifact]-[revision]-[type].[ext]" conf="compile,test,runtime" type="jar,bundle" />
+	</target>
+
+	<target name="ivy-report" depends="resolve" description="--> generates a report of dependencies">
+		<ivy:report todir="${module.target}/ivyreport" />
+	</target>
+
+	<tstamp prefix="build.">
+		<format property="timeStamp" pattern="yyyyMMdd-HHmmss" />
+	</tstamp>
+
+	<path id="compile.classpath">
+		<path location="${module.target}/src/classes" />
+		<path location="${module.target}/test/classes" />
+		<fileset dir="${module.target}/lib/compile">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<path id="test.classpath">
+		<path location="${module.target}/src/classes" />
+		<path location="${module.target}/test/classes" />
+		<fileset dir="${module.target}/lib/test">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<target name="usage" description="显示可选任务">
+		<echo message="Build 文件" />
+		<echo message="------------------------------------------------------" />
+		<echo message="" />
+		<echo message="可选Target:" />
+		<echo message="" />
+		<echo message="ivy-clean          	--&gt; 清理ivy缓存" />
+		<echo message="resolve          --&gt; 获取ivy依赖" />
+		<echo message="ivy-report          	--&gt; 生成ivy报告" />
+		<echo message="clean          		--&gt; 清理" />
+		<echo message="init          		--&gt; 初始化" />
+		<echo message="compile       		--&gt; 编译源代码" />
+		<echo message="test		       		--&gt; 运行测试" />
+		<echo message="jar				    --&gt; 源程序打包" />
+		<echo message="jar-test				--&gt; 测试程序打包" />
+		<echo message="source-jar		    --&gt; 源代码打包为jar文件" />
+		<echo message="doc-jar		    	--&gt; javadoc打包为jar文件" />
+		<echo message="publish-snapshot   	--&gt; 发布jar至sanpshot仓库" />
+		<echo message="publish-release    	--&gt; 发布jar至release仓库" />
+		<echo message="" />
+		<input message="请选择一个Target " validargs="ivy-clean,resolve,ivy-report,clean,init,compile,test,jar,source-jar,jar-test,doc-jar,publish-release,publish" addproperty="ant.task" />
+		<antcall target="${ant.task}" />
+	</target>
+
+	<target name="clean">
+		<delete includeEmptyDirs="true" failonerror="false">
+			<fileset dir="${module.target}">
+				<exclude name=".svn" />
+			</fileset>
+		</delete>
+	</target>
+
+	<!--初始化目录 -->
+	<target name="init" depends="clean">
+		<echo>+---------------------------------------------------+</echo>
+		<echo>| |</echo>
+		<echo>| B U I L D I N G ${module.name} |</echo>
+		<echo>| |</echo>
+		<echo>+---------------------------------------------------+</echo>
+		<mkdir dir="${module.target}/src/classes" />
+		<mkdir dir="${module.target}/test/classes" />
+		<mkdir dir="${module.target}/source" />
+		<mkdir dir="${module.target}/resource" />
+		<mkdir dir="${module.target}/docs" />
+		<mkdir dir="${module.test.report}" />
+	</target>
+
+	<target name="hudson-dist-revision" if="env.SVN_REVISION">
+		<property name="dist.revision" value="${env.SVN_REVISION}" />
+	</target>
+
+	<target name="default-dist-revision" unless="env.SVN_REVISION">
+		<property name="dist.revision" value="unformal" />
+	</target>
+
+	<target name="hudson-dist-build-number" if="env.BUILD_NUMBER">
+		<property name="dist.build.number" value="${env.BUILD_NUMBER}" />
+	</target>
+
+	<target name="default-dist-build-number" unless="env.BUILD_NUMBER">
+		<property name="dist.build.number" value="unknown" />
+	</target>
+
+	<target name="hudson-dist-build-id" if="env.BUILD_ID">
+		<property name="dist.build.id" value="${env.BUILD_ID}" />
+	</target>
+
+	<target name="default-dist-build-id" unless="env.BUILD_ID">
+		<property name="dist.build.id" value="${build.timeStamp}" />
+	</target>
+
+	<target name="prepare-dep" depends="hudson-dist-revision
+	                ,default-dist-revision
+	                ,hudson-dist-build-number
+	                ,default-dist-build-number
+	                ,hudson-dist-build-id
+	                ,default-dist-build-id
+	    	">
+	</target>
+
+	<!--执行编译JAVA文件 -->
+	<target name="compile" depends="init, prepare-dep, resolve">
+		<echo>编译源代码并拷贝资源文件</echo>
+		<javac srcdir="${module.main.src}" destdir="${module.target}/src/classes" target="${compile.target}" source="${compile.source}" debug="${compile.debug}" encoding="${compile.encoding}" failonerror="true" includeAntRuntime="false">
+			<classpath refid="compile.classpath" />
+		</javac>
+
+		<copy todir="${module.target}/src/classes">
+			<fileset dir="${module.main.resources}">
+				<include name="**/*.*" />
+				<exclude name="**/*.properties" />
+				<exclude name="**/*.xml" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="compile-test" depends="compile">
+		<echo>编译测试类源代码并拷贝资源文件</echo>
+
+		<javac srcdir="${module.test.src}" destdir="${module.target}/test/classes" target="${compile.target}" source="${compile.source}" debug="${compile.debug}" encoding="${compile.encoding}" failonerror="false" includeAntRuntime="false">
+			<classpath refid="test.classpath" />
+		</javac>
+		<copy todir="${module.target}/test/classes">
+			<fileset dir="${module.test.resources}">
+				<include name="**/*.*" />
+			</fileset>
+		</copy>
+	</target>
+
+</project>

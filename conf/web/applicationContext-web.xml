@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<!-- 把标记了@Controller注解的类转换为bean -->
+	<context:component-scan base-package="com.bt.om.web" />
+
+	<aop:aspectj-autoproxy />
+
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="ignoreResourceNotFound" value="true" />
+		<property name="locations">
+			<list>
+				<value>classpath:/config.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="jsonMessageConverter"
+		class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter" />
+
+	<!-- 开启注解功能 -->
+	<bean
+		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+		<property name="customArgumentResolvers">
+			<list>
+				<bean class="com.bt.om.web.resolver.VOValueResolver" />
+			</list>
+		</property>
+		<property name="messageConverters">
+			<list>
+				<!-- 解析json请求数据，将json转换为java对象 -->
+				<ref bean="jsonMessageConverter" />
+				<!--可以增加其他数据类型,请参考spring的API -->
+			</list>
+		</property>
+	</bean>
+
+	<!-- freemarker的配置 -->
+	<bean id="freemarkerConfigurer"
+		class="com.bt.om.security.ShiroTagFreeMarkerConfigurer">
+		<property name="templateLoaderPaths" value="/WEB-INF/pages/" />
+		<property name="defaultEncoding" value="UTF-8" />
+		<property name="configLocation" value="classpath:/freemarker.properties" />
+	</bean>
+
+	<!-- freemarker视图解析器 -->
+	<bean id="freemarkerViewResolver"
+		class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+		<property name="cache" value="true" />
+		<property name="prefix" value="/" />
+		<property name="suffix" value=".ftl" />
+		<property name="exposeSpringMacroHelpers" value="true" /><!--是否使用spring对宏定义的支持 -->
+		<property name="exposeRequestAttributes" value="true" /><!--request属性支持 -->
+		<property name="exposeSessionAttributes" value="true" /><!--request属性支持 -->
+		<property name="requestContextAttribute" value="request" /><!--request属性引用名称 -->
+		<property name="contentType" value="text/html;charset=UTF-8" />
+	</bean>
+
+	<!-- for file upload -->
+	<bean id="multipartResolver" 
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding">
+			<value>UTF-8</value>
+		</property>
+		<property name="maxUploadSize" value="104857600"/>
+		<!-- 设置在文件上传时允许写到内存中的最大值，以字节为单位计算，默认是10240 -->
+        <!-- 但是经实验，上传文件大小若小于此参数，则不会生成临时文件，很尴尬 -->
+		<property name="maxInMemorySize" value="1024" />  
+	</bean>
+
+	<!--freemarker 拦截器 -->
+	<bean id="freemarkerInterceptor" class="com.bt.om.web.interceptor.FreemarkerInterceptor">
+		<property name="staticClassMap">
+			<map>
+				<entry key="${fm.static.key.string}" value="${fm.static.value.string}" />
+				<entry key="${fm.static.key.number}" value="${fm.static.value.number}" />
+				<entry key="${fm.static.key.date}" value="${fm.static.value.date}" />
+				<!--<entry key="${fm.static.key.cache}" value="${fm.static.value.cache}" />-->
+			</map>
+		</property>
+	</bean>
+
+	<bean class="com.bt.om.exception.web.WebExceptionResolver">
+		<property name="messageConverters">
+			<list>
+				<ref bean="jsonMessageConverter" />
+			</list>
+		</property>
+	</bean>
+
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/**" />
+			<bean class="com.bt.om.web.interceptor.ParameterInterceptor" />
+		</mvc:interceptor>
+
+		<mvc:interceptor>
+			<mvc:mapping path="/**" />
+			<!--登录 -->
+			<mvc:exclude-mapping path="/login" />
+			<bean class="com.bt.om.web.interceptor.LoginInterceptor" />
+		</mvc:interceptor>
+
+		<mvc:interceptor>
+			<mvc:mapping path="/**" />
+			<ref bean="freemarkerInterceptor" />
+		</mvc:interceptor>
+
+	</mvc:interceptors>
+
+</beans>

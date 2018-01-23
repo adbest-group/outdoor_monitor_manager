@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivysettings>
+	<property name="repo.urlbase" value="http://10.2.30.68:8081/nexus/content" />
+	<settings defaultResolver="default" defaultConflictManager="latest-revision" />
+	<!-- <properties file="private/ivysettings-file.properties" /> -->
+	<credentials host="10.2.30.68" realm="Sonatype Nexus Repository Manager"
+		username="admin" passwd="admin123" />
+	<resolvers>
+		<chain name="default" returnFirst="false">
+			<url name="inner-snapshot" m2compatible="true">
+				<ivy
+					pattern="${repo.urlbase}/repositories/snapshots/[organisation]/[module]/[revision]-SNAPSHOT/ivy-[revision]-SNAPSHOT.xml" />
+				<artifact
+					pattern="${repo.urlbase}/repositories/snapshots/[organisation]/[module]/[revision]-SNAPSHOT/[artifact]-[revision]-SNAPSHOT(-[type]).[ext]" />
+			</url>
+			<url name="inner-release" m2compatible="true">
+				<ivy
+					pattern="${repo.urlbase}/repositories/releases/[organisation]/[module]/[revision]/ivy-[revision].xml" />
+				<artifact
+					pattern="${repo.urlbase}/repositories/releases/[organisation]/[module]/[revision]/[artifact]-[revision](-[type]).[ext]" />
+			</url>
+			<ibiblio name="public" m2compatible="true"
+				root="${repo.urlbase}/groups/public/" />
+		</chain>
+		<url name="share-snapshot" m2compatible="true">
+			<ivy
+				pattern="${repo.urlbase}/repositories/snapshots/[organisation]/[module]/[revision]-SNAPSHOT/ivy-[revision]-SNAPSHOT.xml" />
+			<artifact
+				pattern="${repo.urlbase}/repositories/snapshots/[organisation]/[module]/[revision]-SNAPSHOT/[artifact]-[revision]-SNAPSHOT(-[type]).[ext]" />
+		</url>
+		<url name="share-release" m2compatible="true">
+			<ivy
+				pattern="${repo.urlbase}/repositories/releases/[organisation]/[module]/[revision]/ivy-[revision].xml" />
+			<artifact
+				pattern="${repo.urlbase}/repositories/releases/[organisation]/[module]/[revision]/[artifact]-[revision](-[type]).[ext]" />
+		</url>
+	</resolvers>
+</ivysettings>

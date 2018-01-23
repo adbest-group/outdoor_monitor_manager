@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xml-stylesheet type="text/xsl" href="./config/ivy/ivy-doc.xsl"?>
+<ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+	<info organisation="com.bt.om" module="outdoor_monitor_manager" revision="1.0.0" status="release"/>
+	
+   <configurations>
+		<conf name="compile" visibility="public" />
+		<conf name="test" visibility="private" extends="compile" />
+		<conf name="runtime" visibility="public" extends="compile" />
+		<conf name="develop" visibility="public" extends="compile" />
+	</configurations>
+	
+	<publications>
+		<artifact name="outdoor_monitor_manager" type="jar" ext="jar" conf="compile" />
+		<artifact name="outdoor_monitor_manager" type="" ext="jar" conf="compile" />
+		<artifact name="outdoor_monitor_manager" type="source" ext="jar"  conf="compile" />
+		<artifact name="outdoor_monitor_manager" type="sources" ext="jar" conf="compile" />
+		<artifact name="outdoor_monitor_manager" type="javadoc" ext="jar" conf="compile" />
+		<artifact name="outdoor_monitor_manager" type="" ext="pom" conf="compile" />
+	</publications>
+
+	<dependencies>
+		<!--Mybatis-->
+		<dependency org="org.mybatis" name="mybatis-spring" rev="1.2.2"  conf="compile,test->default(*)"/>
+		<dependency org="org.mybatis" name="mybatis" rev="3.2.7"  conf="compile,test->default(*)"/>
+		<dependency org="com.alibaba" name="druid" rev="1.0.5"  conf="compile,test->default(*)"/>
+		<!--Spring-->
+		<dependency org="org.springframework" name="spring-aop" rev="4.2.0.RELEASE"   conf="compile,test->default(*)"/>
+		<dependency org="org.springframework" name="spring-beans" rev="4.2.0.RELEASE"   conf="compile,test->default(*)"/>
+		<dependency org="org.springframework" name="spring-context" rev="4.2.0.RELEASE"   conf="compile,test->default(*)"/>
+		<dependency org="org.springframework" name="spring-core" rev="4.2.0.RELEASE"   conf="compile,test->default(*)"/>
+		<dependency org="org.springframework" name="spring-jdbc" rev="4.2.0.RELEASE"   conf="compile,test->default(*)"/>
+		<dependency org="org.springframework" name="spring-expression" rev="4.2.0.RELEASE"   conf="compile,test->default(*)"/>
+		<dependency org="org.springframework" name="spring-tx" rev="4.2.0.RELEASE"   conf="compile,test->default(*)"/>
+		<dependency org="org.springframework" name="spring-test" rev="4.2.0.RELEASE"   conf="compile,test->default(*)"/>
+		<dependency org="org.springframework" name="spring-context-support" rev="4.2.0.RELEASE"   conf="compile,test->default(*)"/>
+		<!--shiro-->
+		<dependency org="org.apache.shiro" name="shiro-core" rev="1.2.2" conf="compile,test->default(*)"></dependency>
+		<dependency org="org.apache.shiro" name="shiro-web" rev="1.2.2" conf="compile,test->default(*)"></dependency>
+		<dependency org="org.apache.shiro" name="shiro-spring" rev="1.2.2" conf="compile,test->default(*)"></dependency>
+		<!--<dependency org="com.jagregory" name="shiro-freemarker-tags" rev="0.1" conf="compile,test->default(*)"></dependency>-->
+		<!--Httpclient-->
+		<dependency org="commons-httpclient" name="commons-httpclient" rev="3.1"/>
+		<dependency org="com.alibaba" name="fastjson" rev="1.2.3" conf="compile,test->default(*)" />
+		<!--Spring Web-->
+		<dependency org="org.springframework" name="spring-webmvc" rev="4.2.0.RELEASE" conf="compile,test->default(*)"/>
+		<dependency org="org.springframework" name="spring-web" rev="4.2.0.RELEASE" conf="compile,test->default(*)"/>
+		<!--Spring 要用到 面向切面的框架-->
+		<dependency org="org.aspectj" name="aspectjweaver" rev="1.8.4"   conf="compile,test->default(*)"/>
+		<!--在运行期扩展Java类与实现Java接口，工具包-->
+		<dependency org="cglib" name="cglib" rev="2.2.2"  conf="compile,test->default(*)"/>
+		<!--日志相关，Spring要用-->
+		<dependency org="log4j" name="log4j" rev="1.2.16"   conf="compile,test->default(*)"/>
+		<!--<dependency org="org.apache.logging.log4j" name="log4j-api" rev="2.7"   conf="compile,test->default(*)"/>
+		<dependency org="org.apache.logging.log4j" name="log4j-core" rev="2.7"   conf="compile,test->default(*)"/>-->
+		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.4"   conf="compile,test->default(*)"/>
+		<!--作为容器类的补充,操作类的补充,辅助类的补充-->
+		<dependency org="commons-collections" name="commons-collections" rev="3.2.1"  conf="compile,test->default(*)"/>
+		<!--动态的获取/设值Java Bean的属性-->
+		<dependency org="commons-beanutils" name="commons-beanutils" rev="1.8.3"  conf="compile,test->default(*)"/>
+		<!--IO处理-->
+		<dependency org="commons-io" name="commons-io" rev="2.4" conf="compile,test->default(*)" />
+		<!--编码处理-->
+		<dependency org="commons-codec" name="commons-codec" rev="1.6" />
+		<!--配置读取-->
+		<dependency org="commons-configuration" name="commons-configuration" rev="1.8" conf="compile,test->default(*)" />
+		<!--验证-->
+		<dependency org="commons-validator" name="commons-validator" rev="1.4.0" conf="compile,test->default(*)" />
+		<!--JSON-->
+		<dependency org="com.google.code.gson" name="gson" rev="2.2.4" conf="compile,test->default(*)" />
+		<!--加密解密-->
+		<dependency org="org.bouncycastle" name="bcprov-jdk14" rev="1.50" conf="compile,test->default(*)" />
+		<!--Mysql-->
+		<dependency org="mysql" name="mysql-connector-java" rev="5.1.36"  conf="compile,test->default(*)" />
+		<!--Redis-->
+		<dependency org="redis.clients" name="jedis" rev="2.7.2" conf="compile,test->default(*)" />
+		<!--GoogleJAVA开源库-->
+		<dependency org="com.google.guava" name="guava" rev="18.0" conf="compile,test->default(*)" />
+		<!--Jetty-->
+		<dependency org="org.eclipse.jetty" name="jetty-server" rev="9.2.13.v20150730" conf="compile,test->default(*)"/>
+		<dependency org="org.eclipse.jetty" name="jetty-servlet" rev="9.2.13.v20150730" conf="compile,test->default(*)"/>
+		<dependency org="org.eclipse.jetty" name="jetty-webapp" rev="9.2.13.v20150730" conf="compile,test->default(*)"/>
+		<!--Freemarker-->
+		<dependency org="org.freemarker" name="freemarker" rev="2.3.22" conf="compile,test->default(*)"/>
+		<!--文件上传-->
+		<dependency org="commons-fileupload" name="commons-fileupload" rev="1.2.2" conf="compile,test->default(*)"/>
+		<dependency org="commons-io" name="commons-io" rev="2.4" conf="compile,test->default(*)"/>
+		<!--jackson-->
+		<dependency org="com.fasterxml.jackson.core" name="jackson-core" rev="2.5.2" conf="compile,test->default(*)"/>
+		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.5.2" conf="compile,test->default(*)"/>
+		<!--私有库-->
+		<dependency org="com.adtime.common" name="toolkit-netty-transport" rev="1.0.3" changing="true" conf="compile,test->default(*)" />
+		<dependency org="com.adtime.common" name="toolkit-common-lang" rev="1.0.0" changing="true" conf="compile,test->default(compile)" /> 
+ 		<dependency org="com.brooksandrus" name="swfheader" rev="1.0" changing="true" conf="compile,test->default(*)" />
+ 		<!--<dependency org="com.adtime.ottv" name="ottv-protobuf" rev="2.0.0" changing="true" conf="compile,test->default(*)" />-->
+ 		<!--dom4j-->
+ 		<dependency org="dom4j" name="dom4j" rev="1.6.1" conf="compile,test->default(*)"/>		
+		<dependency org="junit" name="junit" rev="4.11" conf="test->default(*)" />		
+		<dependency org="org.csource" name="fdfs" rev="1.0.0" conf="compile,test->default(*)" />
+		<!--Hadoop-->
+		<!--<dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="2.6.0" conf="compile,test->default(*)"/>
+		<dependency org="org.apache.hadoop" name="hadoop-common" rev="2.6.0" conf="compile,test->default(*)"/>-->
+		<!--quartz-->
+		<dependency org="org.quartz-scheduler" name="quartz" rev="2.2.1" conf="compile,test->default(compile)"/>		
+		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.1" conf="compile,test->default(compile)"/>		
+		<dependency org="com.sun.mail" name="javax.mail" rev="1.5.2" conf="compile,test->default(compile)"/>
+		<!--elasticsearch-->
+		<!--<dependency org="com.adtime.dmp" name="dmp-es-service" rev="1.0.0" changing="true" conf="compile,test->default(compile)"  />
+		<dependency org="org.elasticsearch.client" name="transport" rev="5.1.1" conf="compile,test->default(compile)"/>-->
+		<!--引入x-pack后访问ES需要授权的jar包-->
+		<!--<dependency org="org.elasticsearch.client" name="x-pack-transport" rev="5.1.2" conf="compile,test->default(compile)"/>
+		<dependency org="org.elasticsearch.client" name="x-pack" rev="5.1.1" conf="compile,test->default(compile)"/>
+		<dependency org="org.elasticsearch.client" name="unboundid-ldapsdk" rev="3.2.0" conf="compile,test->default(compile)"/>
+		<dependency org="org.bouncycastle" name="bcprov-ext-jdk14" rev="1.50" conf="compile,test->default(compile)"/>-->
+		<!--excel-->
+		<dependency org="org.apache.poi" name="poi" rev="3.14" conf="compile,test->default(*)"/>
+		<dependency org="org.apache.poi" name="poi-ooxml" rev="3.14" conf="compile,test->default(*)"/>
+		<!--https://mvnrepository.com/artifact/net.sourceforge.jexcelapi/jxl-->
+		<dependency org="net.sourceforge.jexcelapi" name="jxl" rev="2.6.12"/>
+		
+	</dependencies>	
+</ivy-module>

@@ -118,6 +118,11 @@
 		<dependency org="org.apache.poi" name="poi-ooxml" rev="3.14" conf="compile,test->default(*)"/>
 		<!--https://mvnrepository.com/artifact/net.sourceforge.jexcelapi/jxl-->
 		<dependency org="net.sourceforge.jexcelapi" name="jxl" rev="2.6.12"/>
-		
+
+		<!-- zxing -->
+		<!--<dependency org="com.google.zxing" name="core" rev="3.3.1" conf="compile,test->default(*)"/>-->
+		<dependency org="com.google.zxing" name="javase" rev="3.3.1" conf="compile,test->default(*)"/>
+
+
 	</dependencies>	
 </ivy-module>

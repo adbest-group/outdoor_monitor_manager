@@ -131,8 +131,14 @@
 			   <!--enableUpdateByExample="false">-->
 		<!--</table>-->
 
-		<table schema="outdoor-monitor" tableName="ad_jiucuo_task_feedback"
-			   domainObjectName="AdJiucuoTaskFeedback" enableCountByExample="false"
+		<!--<table schema="outdoor-monitor" tableName="ad_jiucuo_task_feedback"-->
+			   <!--domainObjectName="AdJiucuoTaskFeedback" enableCountByExample="false"-->
+			   <!--enableDeleteByExample="false" enableSelectByExample="false"-->
+			   <!--enableUpdateByExample="false">-->
+		<!--</table>-->
+
+		<table schema="outdoor-monitor" tableName="sys_user_execute"
+			   domainObjectName="SysUserExecute" enableCountByExample="false"
 			   enableDeleteByExample="false" enableSelectByExample="false"
 			   enableUpdateByExample="false">
 		</table>

@@ -75,8 +75,9 @@ public class LoginController extends BasicController {
 	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/doLogin", method = { RequestMethod.POST, RequestMethod.GET })
-	public String doLogin(Model model, SysUser user, HttpServletRequest request) {
-
+	public String doLogin(Model model, SysUser user, HttpServletRequest request, HttpServletResponse response) {
+		response.setHeader("Access-Control-Allow-Origin",request.getHeader("origin"));
+		response.setHeader("Access-Control-Allow-Credentials","true");
 		// 获取页面输入验证码
 		String code = RequestUtil.getParameter(request, "code");
 
@@ -174,7 +175,7 @@ public class LoginController extends BasicController {
 	 * @param response
 	 * @throws IOException
 	 */
-	@RequestMapping(value = "/getCode", method = RequestMethod.GET)
+	@RequestMapping(value = {"/getCode","/api/getCode"}, method = RequestMethod.GET)
 	public void getCode(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
 		// 创建一张空白的图片
@@ -196,7 +197,7 @@ public class LoginController extends BasicController {
 		String num = getNumber(5);
 
 		// 验证码的内容保存到session中
-		HttpSession session = request.getSession();
+		HttpSession session = request.getSession();System.out.println(session.getId());
 		session.setAttribute(SessionKey.SESSION_CODE.toString(), num);
 		g.drawString(num, 5, 25);
 

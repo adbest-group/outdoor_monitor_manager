@@ -241,7 +241,7 @@
     select
     <include refid="Base_Column_List" />
     from ad_monitor_task_feedback
-    where monitor_task_id = #{task_id,jdbcType=INTEGER}
+    where monitor_task_id = #{taskId,jdbcType=INTEGER}
     <if test="status != null">
       and status = #{status,jdbcType=INTEGER}
     </if>

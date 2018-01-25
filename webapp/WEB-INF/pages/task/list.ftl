@@ -260,8 +260,7 @@
                         "id": id,
                         "status":status,
                         "reason":reason
-                    }
-                }
+                    },
                     cache: false,
                     dataType: "json",
                     success: function(datas) {

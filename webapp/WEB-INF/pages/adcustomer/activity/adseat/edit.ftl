@@ -259,7 +259,7 @@
                         "brand" : "可口可乐",
                         "dts":"2018-02-01",
                         "dt":"2018-03-01",
-                        "mg-demo-bak":"http://www.dealswill.com/static/demo.png"
+                        "mg-demo-bak":"/static/upload/demo.png"
                     }
                     $.each(demo_data,function(key,value){
                         $("#"+key).val(value);

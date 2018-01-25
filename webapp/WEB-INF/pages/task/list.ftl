@@ -76,6 +76,8 @@
                             <td>
                                 <#if task.status==1><a href="javascript:assign('${task.id}')">指派</a></#if>
                                 <#if task.status==2><a href="javascript:assign('${task.id}')">重新指派</a></#if>
+                                <#if task.status==3><a href="javascript:pass('${task.id}')">通过</a></#if>
+                                <#if task.status==3><a href="javascript:reject('${task.id}')">拒绝</a></#if>
                                 <#--<#if task.status==1><a href="javascript:del('${task.id}')">删除</a></#if>-->
                             </td>
                         </tr>
@@ -207,6 +209,70 @@
                                 icon: 1,
                                 btn: ['确定'] //按钮
                             },function () {
+                                window.location.reload();
+                            });
+                        }
+                    },
+                    error: function(e) {
+                        layer.confirm("服务忙，请稍后再试", {
+                            icon: 5,
+                            btn: ['确定'] //按钮
+                        });
+                    }
+                });
+            }
+
+            //审核通过
+            pass = function(id){
+                layer.confirm("确认审核通过？", {
+                    icon: 3,
+                    btn: ['确定', '取消'] //按钮
+                }, function(){
+                    verify(id,4);
+                });
+            }
+
+            //审核不通过
+            reject = function(id){
+                layer.confirm("确认审核不通过？", {
+                    icon: 3,
+                    btn: ['确定', '取消'] //按钮
+                }, function(){
+                    layer.prompt({title:'请填写审核意见',formType:2},function (val,index) {
+//                        if(val.length>33){
+//                            layer.
+//                        }
+                        verify(id,5，val);
+                    });
+
+                });
+            }
+
+            //发起审核请求
+            verify = function (id,status,reason) {
+                $.ajax({
+                    url: "/task/verify",
+                    type: "post",
+                    data: {
+                        "id": id,
+                        "status":status,
+                        "reason":reason
+                    }
+                }
+                    cache: false,
+                    dataType: "json",
+                    success: function(datas) {
+                        var resultRet = datas.ret;
+                        if (resultRet.code == 101) {
+                            layer.confirm(resultRet.resultDes, {
+                                icon: 2,
+                                btn: ['确定'] //按钮
+                            });
+                        } else {
+                            layer.confirm("审核成功", {
+                                icon: 1,
+                                btn: ['确定'] //按钮
+                            }, function(){
                                 window.location.reload();
                             });
                         }

@@ -180,6 +180,20 @@
     <result column="realname" jdbcType="VARCHAR" property="realname" />
   </resultMap>
 
+  <resultMap id="MobileResultMap" extends="BaseResultMap" type="com.bt.om.entity.vo.AdMonitorTaskMobileVo">
+    <result column="activity_name" jdbcType="VARCHAR" property="activityName" />
+    <result column="sample_pic_url" jdbcType="VARCHAR" property="samplePicUrl" />
+    <result column="monitor_start" jdbcType="VARCHAR" property="monitorStart" />
+    <result column="monitor_end" jdbcType="VARCHAR" property="monitorEnd" />
+    <result column="ad_seat_name" jdbcType="VARCHAR" property="adSeatName" />
+    <result column="pic_url1" jdbcType="VARCHAR" property="picUrl1" />
+    <result column="pic_url2" jdbcType="VARCHAR" property="picUrl2" />
+    <result column="pic_url3" jdbcType="VARCHAR" property="picUrl3" />
+    <result column="pic_url4" jdbcType="VARCHAR" property="picUrl4" />
+    <result column="reason" jdbcType="VARCHAR" property="reason" />
+    <result column="feedback_time" jdbcType="VARCHAR" property="feedbackTime" />
+  </resultMap>
+
   <insert id="insertList" parameterType="java.util.List">
     insert into ad_monitor_task (id, activity_id, activity_adseat_id,
     task_type, user_id, status,
@@ -244,4 +258,18 @@
     </if>
     order by a.id desc
   </select>
+
+  <select id="selectByUserId" resultMap="MobileResultMap">
+    select a.id, a.activity_id, a.activity_adseat_id, a.task_type, a.user_id, a.status, a.create_time, a.update_time,
+    b.activity_name,c.sample_pic_url,c.monitor_start,c.monitor_end,d.`name` as ad_seat_name,e.pic_url1,e.pic_url2,e.pic_url3,e.pic_url4,e.create_time as feedback_time
+    from ad_monitor_task a
+    left join ad_activity b on a.activity_id = b.id
+    left join ad_activity_adseat c on a.activity_adseat_id = c.id
+    left join ad_seat_info d on c.ad_seat_id = d.id
+    left join ad_monitor_task_feedback e on e.monitor_task_id = a.id and e.`status` = 1
+    where a.user_id = #{userId,jdbcType=INTEGER}
+    order by a.id desc
+  </select>
+
+
 </mapper>

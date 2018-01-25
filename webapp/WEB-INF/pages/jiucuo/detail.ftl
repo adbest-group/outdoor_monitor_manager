@@ -118,7 +118,12 @@
             icon: 3,
             btn: ['确定', '取消'] //按钮
         }, function(){
-            verify(id,3);
+            layer.prompt({title:'请填写审核意见',formType:2},function (val,index) {
+//                        if(val.length>33){
+//                            layer.
+//                        }
+                verify(id,3，val);
+            });
         });
     }
 

@@ -94,7 +94,7 @@ public class JiucuoController extends BasicController {
         return PageConst.JIUCUO_DETAIL;
     }
 
-    //确认活动
+    //审核纠错
     @RequestMapping(value="/verify")
     @ResponseBody
     public Model confirm(Model model, HttpServletRequest request,

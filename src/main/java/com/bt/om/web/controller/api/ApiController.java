@@ -2,23 +2,29 @@ package com.bt.om.web.controller.api;
 
 import com.bt.om.common.SysConst;
 import com.bt.om.entity.AdActivity;
+import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
+import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
+import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
+import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.util.QRcodeUtil;
-import com.bt.om.vo.api.SysUserExecuteVo;
+import com.bt.om.vo.api.*;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.web.BasicController;
+import com.bt.om.web.util.UploadFileUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
 import com.google.zxing.ReaderException;
 import com.google.zxing.Result;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.protocol.HTTP;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -33,10 +39,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
+import java.io.*;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by caiting on 2018/1/22.
@@ -49,6 +54,8 @@ public class ApiController extends BasicController {
     private IAdActivityService adActivityService;
     @Autowired
     private ISysUserExecuteService sysUserExecuteService;
+    @Autowired
+    private IAdMonitorTaskService adMonitorTaskService;
 
     //测试用
     @RequestMapping(value="/aaa/bbb/aaa")
@@ -119,14 +126,14 @@ public class ApiController extends BasicController {
     //登录
     @RequestMapping(value="/login",method = RequestMethod.POST)
     @ResponseBody
-    public Model login(Model model, HttpServletRequest request, HttpServletResponse response,
-                         @RequestParam(value = "username", required = false) String username,
-                       @RequestParam(value = "password", required = false) String password,
-                       @RequestParam(value = "vcode", required = false) String vcode) {
+    public Model login(Model model, HttpServletRequest request, HttpServletResponse response) {
         ResultVo<SysUserExecuteVo> result = new ResultVo<>();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("登录成功");
         model = new ExtendedModelMap();
+        String username = null;
+        String password = null;
+        String vcode = null;
 
         try {
             InputStream is = request.getInputStream();
@@ -136,7 +143,10 @@ public class ApiController extends BasicController {
             password = obj.get("password").getAsString();
             vcode = obj.get("vcode").getAsString();
         } catch (IOException e) {
-            e.printStackTrace();
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
         }
 
         // 账户必须验证
@@ -165,7 +175,7 @@ public class ApiController extends BasicController {
         HttpSession session = request.getSession();
 		String sessionCode = session.getAttribute(SessionKey.SESSION_CODE.toString()) == null ? ""
 				: session.getAttribute(SessionKey.SESSION_CODE.toString()).toString();
-System.out.println(session.getId()+"|"+vcode+"|"+sessionCode);
+
 		// 验证码有效验证
 		if (!vcode.equalsIgnoreCase(sessionCode)) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -217,40 +227,177 @@ System.out.println(session.getId()+"|"+vcode+"|"+sessionCode);
         return model;
     }
 
-//    //保存在本服务器
-//    private String saveFile(String path,String filename,InputStream is){
-//        String ext = filename.substring(filename.lastIndexOf("."));
-//        filename = UUID.randomUUID().toString().toLowerCase()+"."+ext.toLowerCase();
-//        FileOutputStream fos = null;
-//        try {
-//            fos = new FileOutputStream(path+filename);
-//            int len = 0;
-//            byte[] buff = new byte[1024];
-//            while((len=is.read(buff))>0){
-//                fos.write(buff);
-//            }
-//            return "/static/upload/"+filename;
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }finally {
-//            if(fos!=null){
-//                try {
-//                    fos.flush();
-//                    fos.close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//            if(is!=null){
-//                try {
-//                    is.close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
+    //请求列表任务或纠错列表
+    @RequestMapping(value="/gettasklist")
+    @ResponseBody
+    public Model taskList(Model model, HttpServletRequest request, HttpServletResponse response) {
+        ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("获取成功");
+        model = new ExtendedModelMap();
+
+        //验证登录
+        if(!checkLogin(model,result,request)){
+            return model;
+        }
+
+        Integer type = null;
+
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            type = obj.get("type").getAsInt();
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        HttpSession session = request.getSession();
+        if(type == 1){
+            SysUserExecute user = (SysUserExecute)session.getAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+
+            List<AdMonitorTaskMobileVo> tasks = adMonitorTaskService.getByUserIdForMobile(user.getId());
+            MonitorTaskListResultVo resultVo = new MonitorTaskListResultVo();
+            for(AdMonitorTaskMobileVo task:tasks){
+                if(task.getStatus() == MonitorTaskStatus.TO_CARRY_OUT.getId()){
+                    MonitorTaskWaitToExecutedVo vo = new MonitorTaskWaitToExecutedVo(task);
+                    resultVo.getWait_to_executed().add(vo);
+                }else if(task.getStatus() == MonitorTaskStatus.UNVERIFY.getId()){
+                    MonitorTaskExecutingVo vo = new MonitorTaskExecutingVo(task);
+                    resultVo.getExecuting().add(vo);
+                }else if(task.getStatus() == MonitorTaskStatus.VERIFIED.getId() || task.getStatus() == MonitorTaskStatus.VERIFY_FAILURE.getId()){
+                    MonitorTaskCheckedVo vo = new MonitorTaskCheckedVo(task);
+                    resultVo.getChecked().add(vo);
+                }
+            }
+            result.setResult(resultVo);
+        }
+
+
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin",request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials","true");
+        return model;
+    }
+
+
+    //提交监测任务反馈
+    @RequestMapping(value="/tasksubmit")
+    @ResponseBody
+    public Model feedback(Model model, HttpServletRequest request, HttpServletResponse response,
+                              @RequestParam(value = "type", required = false) Integer type,
+                              @RequestParam(value = "task_id", required = false) Integer taskId,
+                              @RequestParam(value = "lon", required = false) Double lon,
+                              @RequestParam(value = "lat", required = false) Double lat,
+                              @RequestParam(value = "problem", required = false) String problem,
+                              @RequestParam(value = "other", required = false) String other,
+//                              @RequestParam(value = "pic", required = false) MultipartFile[] files) {
+                              @RequestParam(value = "pic1", required = false) MultipartFile file1,
+                          @RequestParam(value = "pic2", required = false) MultipartFile file2,
+                          @RequestParam(value = "pic3", required = false) MultipartFile file3,
+                          @RequestParam(value = "pic4", required = false) MultipartFile file4) {
+        ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("提交成功");
+        model = new ExtendedModelMap();
+
+        //验证登录
+//        if(!checkLogin(model,result,request)){
+//            return model;
 //        }
-//        return "error";
-//    }
+
+        //参数不对
+//        if(type==null||taskId==null||file==null||files.length<1){
+        if(type==null||taskId==null||file1==null||file2==null||file3==null||file4==null){
+            result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
+            result.setResultDes("参数有误！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+            String path = request.getRealPath("/");
+            path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"upload"+File.separatorChar;
+//            String imageName = file.getOriginalFilename();
+//            saveFile(path,imageName,is);
+        if(type == 1){
+//            if(files.length<4){
+//                result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
+//                result.setResultDes("参数有误！");
+//                model.addAttribute(SysConst.RESULT_KEY, result);
+//                return model;
+//            }
+            InputStream is1 = null;
+            InputStream is2 = null;
+            InputStream is3 = null;
+            InputStream is4 = null;
+            String filename1 = null;
+            String filename2 = null;
+            String filename3 = null;
+            String filename4 = null;
+
+            try {
+                is1 = file1.getInputStream();
+                filename1 = UploadFileUtil.saveFile(path,file1.getOriginalFilename(),is1);
+                is2 = file2.getInputStream();
+                filename2 = UploadFileUtil.saveFile(path,file2.getOriginalFilename(),is2);
+                is3 = file3.getInputStream();
+                filename3 = UploadFileUtil.saveFile(path,file3.getOriginalFilename(),is3);
+                is4 = file4.getInputStream();
+                filename4 = UploadFileUtil.saveFile(path,file4.getOriginalFilename(),is4);
+                if(filename1==null||filename2==null||filename3==null|filename4==null){
+                    result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
+                    result.setResultDes("上传出错！");
+                    model.addAttribute(SysConst.RESULT_KEY, result);
+                    return model;
+                }
+                AdMonitorTaskFeedback feedback = new AdMonitorTaskFeedback();
+                feedback.setLat(lat);
+                feedback.setLon(lon);
+                feedback.setPicUrl1("/static/upload/"+filename1);
+                feedback.setPicUrl2("/static/upload/"+filename2);
+                feedback.setPicUrl3("/static/upload/"+filename3);
+                feedback.setPicUrl4("/static/upload/"+filename4);
+                feedback.setProblem(problem);
+                feedback.setProblemOther(other);
+                feedback.setStatus(1);
+                try {
+                    adMonitorTaskService.feedback(taskId, feedback);
+                }catch(Exception e){
+                    result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
+                    result.setResultDes("保存出错！");
+                    model.addAttribute(SysConst.RESULT_KEY, result);
+                    return model;
+                }
+            } catch (IOException e) {
+                result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
+                result.setResultDes("上传出错！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+            }
+        }
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin",request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials","true");
+        return model;
+    }
+
+
+
+
+    private Boolean checkLogin(Model model,ResultVo result,HttpServletRequest request){
+        boolean isLogin = true;
+        HttpSession session = request.getSession();
+        SysUserExecute user = (SysUserExecute)session.getAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        if(user == null){
+            isLogin = false;
+            result.setCode(ResultCode.RESULT_NOLOGIN.getCode());
+            result.setResultDes("未登录！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+        }
+        return isLogin;
+    }
+
 }

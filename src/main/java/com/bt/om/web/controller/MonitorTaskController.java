@@ -2,6 +2,8 @@ package com.bt.om.web.controller;
 
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
+import com.bt.om.entity.AdJiucuoTask;
+import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.service.IAdMonitorTaskService;
@@ -128,6 +130,34 @@ public class MonitorTaskController extends BasicController {
         }catch (Exception e){
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("指派失败！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+    }
+
+    //审核纠错
+    @RequestMapping(value="/verify")
+    @ResponseBody
+    public Model verify(Model model, HttpServletRequest request,
+                         @RequestParam(value = "id", required = false) Integer id,
+                         @RequestParam(value = "status", required = false) Integer status) {
+        ResultVo<String> result = new ResultVo<String>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("审核成功");
+        model = new ExtendedModelMap();
+
+        AdMonitorTask task = new AdMonitorTask();
+        task.setId(id);
+        task.setStatus(status);
+        try{
+            adMonitorTaskService.update(task);
+        }catch (Exception e){
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("审核失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }

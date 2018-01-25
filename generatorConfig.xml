@@ -137,8 +137,14 @@
 			   <!--enableUpdateByExample="false">-->
 		<!--</table>-->
 
-		<table schema="outdoor-monitor" tableName="sys_user_execute"
-			   domainObjectName="SysUserExecute" enableCountByExample="false"
+		<!--<table schema="outdoor-monitor" tableName="sys_user_execute"-->
+			   <!--domainObjectName="SysUserExecute" enableCountByExample="false"-->
+			   <!--enableDeleteByExample="false" enableSelectByExample="false"-->
+			   <!--enableUpdateByExample="false">-->
+		<!--</table>-->
+
+		<table schema="outdoor-monitor" tableName="ad_monitor_task_feedback"
+			   domainObjectName="AdMonitorTaskFeedback" enableCountByExample="false"
 			   enableDeleteByExample="false" enableSelectByExample="false"
 			   enableUpdateByExample="false">
 		</table>

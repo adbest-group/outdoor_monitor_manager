@@ -35,7 +35,7 @@
 		
 		<property name="filterChainDefinitions">
 			<value>
-				/static/* = anon
+				/static/** = anon
 				/login* = anon
 				/doLogin* = anon
 				/autoLogin* = anon

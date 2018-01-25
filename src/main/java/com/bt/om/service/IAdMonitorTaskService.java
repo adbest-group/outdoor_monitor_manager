@@ -19,6 +19,8 @@ public interface IAdMonitorTaskService {
 
     public void update(AdMonitorTask task);
 
+    public void reject(AdMonitorTask task,String reason);
+
     public List<AdMonitorTaskMobileVo> getByUserIdForMobile(Integer userId);
 
     public void feedback(Integer taskId, AdMonitorTaskFeedback feedback);

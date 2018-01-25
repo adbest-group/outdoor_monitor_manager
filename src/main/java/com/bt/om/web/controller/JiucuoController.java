@@ -14,6 +14,7 @@ import com.bt.om.enums.SessionKey;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
+import com.bt.om.util.StringUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
@@ -99,7 +100,8 @@ public class JiucuoController extends BasicController {
     @ResponseBody
     public Model confirm(Model model, HttpServletRequest request,
                           @RequestParam(value = "id", required = false) Integer id,
-                          @RequestParam(value = "status", required = false) Integer status) {
+                          @RequestParam(value = "status", required = false) Integer status,
+                          @RequestParam(value = "reason", required = false) String reason) {
         ResultVo<String> result = new ResultVo<String>();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("审核成功");
@@ -108,6 +110,7 @@ public class JiucuoController extends BasicController {
         AdJiucuoTask task = new AdJiucuoTask();
         task.setId(id);
         task.setStatus(status);
+        task.setReason(StringUtil.isEmpty(reason)?"":reason);
         try{
             adJiucuoTaskService.update(task);
         }catch (Exception e){

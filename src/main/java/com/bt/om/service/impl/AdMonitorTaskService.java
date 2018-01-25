@@ -56,6 +56,17 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void reject(AdMonitorTask task, String reason) {
+        adMonitorTaskMapper.updateByPrimaryKeySelective(task);
+        List<AdMonitorTaskFeedback> feedbacks = adMonitorTaskFeedbackMapper.selectByTaskId(task.getId(),1);
+        for(AdMonitorTaskFeedback feedback : feedbacks){
+            feedback.setReason(reason);
+            adMonitorTaskFeedbackMapper.updateByPrimaryKeySelective(feedback);
+        }
+    }
+
+    @Override
     public List<AdMonitorTaskMobileVo> getByUserIdForMobile(Integer userId) {
         return adMonitorTaskMapper.selectByUserId(userId);
     }

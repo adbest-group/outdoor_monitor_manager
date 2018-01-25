@@ -1,16 +1,17 @@
 package com.bt.om.web.controller.api;
 
 import com.bt.om.common.SysConst;
-import com.bt.om.entity.AdActivity;
-import com.bt.om.entity.AdMonitorTaskFeedback;
-import com.bt.om.entity.SysUser;
-import com.bt.om.entity.SysUserExecute;
+import com.bt.om.entity.*;
+import com.bt.om.entity.vo.AdActivityAdseatVo;
+import com.bt.om.entity.vo.AdJiucuoTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
+import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
+import com.bt.om.service.IAdJiucuoTaskService;
 import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.util.QRcodeUtil;
@@ -25,6 +26,7 @@ import com.google.zxing.ReaderException;
 import com.google.zxing.Result;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.protocol.HttpProcessor;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -56,6 +58,8 @@ public class ApiController extends BasicController {
     private ISysUserExecuteService sysUserExecuteService;
     @Autowired
     private IAdMonitorTaskService adMonitorTaskService;
+    @Autowired
+    private IAdJiucuoTaskService adJiucuoTaskService;
 
     //测试用
     @RequestMapping(value="/aaa/bbb/aaa")
@@ -78,7 +82,7 @@ public class ApiController extends BasicController {
     @ResponseBody
     public Model decodeQR(Model model, HttpServletRequest request,
                           @RequestParam(value = "pic", required = false) MultipartFile file) {
-        ResultVo<String> result = new ResultVo<>();
+        ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("解析成功");
         result.setResult("");
@@ -95,20 +99,22 @@ public class ApiController extends BasicController {
 //            String imageName = file.getOriginalFilename();
 //            saveFile(path,imageName,is);
 
-            Result res = QRcodeUtil.readQRCodeResult(is);
-            result.setResult(res.getText());
+//            Result res = QRcodeUtil.readQRCodeResult(is);
+//            result.setResult(res.getText());
+            result.setResult(new QRCodeInfoVo((AdActivityAdseatVo) adActivityService.getActivitySeatById(6)));
+
         } catch (IOException e) {
             e.printStackTrace();
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("二维码解析失败失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
-        } catch (ReaderException e) {
-            e.printStackTrace();
-            result.setCode(ResultCode.RESULT_FAILURE.getCode());
-            result.setResultDes("二维码解析失败失败！");
-            model.addAttribute(SysConst.RESULT_KEY, result);
-            return model;
+//        } catch (ReaderException e) {
+//            e.printStackTrace();
+//            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+//            result.setResultDes("二维码解析失败失败！");
+//            model.addAttribute(SysConst.RESULT_KEY, result);
+//            return model;
         }finally {
             if (is!=null){
                 try {
@@ -255,9 +261,9 @@ public class ApiController extends BasicController {
             return model;
         }
         HttpSession session = request.getSession();
+        SysUserExecute user = (SysUserExecute)session.getAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        //任务列表
         if(type == 1){
-            SysUserExecute user = (SysUserExecute)session.getAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-
             List<AdMonitorTaskMobileVo> tasks = adMonitorTaskService.getByUserIdForMobile(user.getId());
             MonitorTaskListResultVo resultVo = new MonitorTaskListResultVo();
             for(AdMonitorTaskMobileVo task:tasks){
@@ -270,6 +276,18 @@ public class ApiController extends BasicController {
                 }else if(task.getStatus() == MonitorTaskStatus.VERIFIED.getId() || task.getStatus() == MonitorTaskStatus.VERIFY_FAILURE.getId()){
                     MonitorTaskCheckedVo vo = new MonitorTaskCheckedVo(task);
                     resultVo.getChecked().add(vo);
+                }
+            }
+            result.setResult(resultVo);
+        //纠错列表
+        }else if(type == 2){
+            List<AdJiucuoTaskMobileVo> tasks = adJiucuoTaskService.getByUserIdForMobile(user.getId());
+            JiucuoTaskListResultVo resultVo = new JiucuoTaskListResultVo();
+            for(AdJiucuoTaskMobileVo task:tasks){
+                if(task.getStatus() == JiucuoTaskStatus.UNVERIFY.getId()){
+                    resultVo.getJiucuo_submit().add(new JiucuoTaskVo(task));
+                }else if(task.getStatus() == JiucuoTaskStatus.VERIFIED.getId()||task.getStatus() == JiucuoTaskStatus.VERIFY_FAILURE.getId()){
+                    resultVo.getJiucuo_success().add(new JiucuoTaskVo(task));
                 }
             }
             result.setResult(resultVo);
@@ -292,6 +310,7 @@ public class ApiController extends BasicController {
                               @RequestParam(value = "task_id", required = false) Integer taskId,
                               @RequestParam(value = "lon", required = false) Double lon,
                               @RequestParam(value = "lat", required = false) Double lat,
+                              @RequestParam(value = "ad_activity_seat_id", required = false) Integer adActivitySeatId,
                               @RequestParam(value = "problem", required = false) String problem,
                               @RequestParam(value = "other", required = false) String other,
 //                              @RequestParam(value = "pic", required = false) MultipartFile[] files) {
@@ -305,13 +324,12 @@ public class ApiController extends BasicController {
         model = new ExtendedModelMap();
 
         //验证登录
-//        if(!checkLogin(model,result,request)){
-//            return model;
-//        }
+        if(!checkLogin(model,result,request)){
+            return model;
+        }
 
         //参数不对
-//        if(type==null||taskId==null||file==null||files.length<1){
-        if(type==null||taskId==null||file1==null||file2==null||file3==null||file4==null){
+        if(type==null){
             result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
             result.setResultDes("参数有误！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -319,15 +337,15 @@ public class ApiController extends BasicController {
         }
             String path = request.getRealPath("/");
             path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"upload"+File.separatorChar;
-//            String imageName = file.getOriginalFilename();
-//            saveFile(path,imageName,is);
         if(type == 1){
-//            if(files.length<4){
-//                result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
-//                result.setResultDes("参数有误！");
-//                model.addAttribute(SysConst.RESULT_KEY, result);
-//                return model;
-//            }
+            //参数不对
+            if(type==null||taskId==null||file1==null||file2==null||file3==null||file4==null){
+                result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
+                result.setResultDes("参数有误！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+            }
+
             InputStream is1 = null;
             InputStream is2 = null;
             InputStream is3 = null;
@@ -376,6 +394,67 @@ public class ApiController extends BasicController {
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
             }
+        }else if(type == 2){
+            //参数不对
+            if(type==null||adActivitySeatId==null||file1==null){
+                result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
+                result.setResultDes("参数有误！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+            }
+            AdActivityAdseat seat = adActivityService.getActivitySeatById(adActivitySeatId);
+            if(seat == null){
+                result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
+                result.setResultDes("无效广告位信息！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+            }
+            InputStream is1 = null;
+            String filename1 = null;
+            HttpSession session = request.getSession();
+            SysUserExecute user = (SysUserExecute)session.getAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+
+            try {
+                is1 = file1.getInputStream();
+                filename1 = UploadFileUtil.saveFile(path,file1.getOriginalFilename(),is1);
+                if(filename1==null){
+                    result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
+                    result.setResultDes("上传出错！");
+                    model.addAttribute(SysConst.RESULT_KEY, result);
+                    return model;
+                }
+
+                AdJiucuoTask task = new AdJiucuoTask();
+                AdJiucuoTaskFeedback feedback = new AdJiucuoTaskFeedback();
+                task.setStatus(JiucuoTaskStatus.UNVERIFY.getId());
+                task.setActivityId(seat.getActivityId());
+                task.setAdSeatId(seat.getAdSeatId());
+                task.setUserId(user.getId());
+                feedback.setLat(lat);
+                feedback.setLon(lon);
+                feedback.setPicUrl1("/static/upload/"+filename1);
+                feedback.setProblem(problem);
+                feedback.setProblemOther(other);
+
+                try {
+                    adJiucuoTaskService.feedback(task,feedback);
+                }catch(Exception e){
+                    result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
+                    result.setResultDes("保存出错！");
+                    model.addAttribute(SysConst.RESULT_KEY, result);
+                    return model;
+                }
+            } catch (IOException e) {
+                result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
+                result.setResultDes("上传出错！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+            }
+        }else{
+            result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
+            result.setResultDes("参数错误！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
         }
 
         model.addAttribute(SysConst.RESULT_KEY, result);

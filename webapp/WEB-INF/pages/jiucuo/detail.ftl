@@ -118,23 +118,27 @@
             icon: 3,
             btn: ['确定', '取消'] //按钮
         }, function(){
+            layer.close(index);
             layer.prompt({title:'请填写审核意见',formType:2},function (val,index) {
-//                        if(val.length>33){
-//                            layer.
-//                        }
-                verify(id,3，val);
+                if(val.trim().length<1||val.trim().length>33){
+                    layer.alert("请填写30字以内！",{icon:2});
+                    return;
+                }
+                layer.close(index);
+                verify(id,3,val);
             });
         });
     }
 
     //发起审核请求
-    verify = function (id,status) {
+    verify = function (id,status,reason) {
         $.ajax({
             url: "/jiucuo/verify",
             type: "post",
             data: {
                 "id": id,
-                "status":status
+                "status":status,
+                "reason":reason
             },
             cache: false,
             dataType: "json",

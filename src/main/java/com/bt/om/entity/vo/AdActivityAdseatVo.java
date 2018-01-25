@@ -8,6 +8,9 @@ import com.bt.om.entity.AdActivityAdseat;
 public class AdActivityAdseatVo extends AdActivityAdseat {
     private String adSeatName;
     private String mediaName;
+    private String activityName;
+    private Double lon;
+    private Double lat;
 
     public String getAdSeatName() {
         return adSeatName;
@@ -23,5 +26,29 @@ public class AdActivityAdseatVo extends AdActivityAdseat {
 
     public void setMediaName(String mediaName) {
         this.mediaName = mediaName;
+    }
+
+    public String getActivityName() {
+        return activityName;
+    }
+
+    public void setActivityName(String activityName) {
+        this.activityName = activityName;
+    }
+
+    public Double getLon() {
+        return lon;
+    }
+
+    public void setLon(Double lon) {
+        this.lon = lon;
+    }
+
+    public Double getLat() {
+        return lat;
+    }
+
+    public void setLat(Double lat) {
+        this.lat = lat;
     }
 }

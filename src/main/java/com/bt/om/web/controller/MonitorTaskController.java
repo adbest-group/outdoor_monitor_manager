@@ -144,7 +144,8 @@ public class MonitorTaskController extends BasicController {
     @ResponseBody
     public Model verify(Model model, HttpServletRequest request,
                          @RequestParam(value = "id", required = false) Integer id,
-                         @RequestParam(value = "status", required = false) Integer status) {
+                         @RequestParam(value = "status", required = false) Integer status,
+                        @RequestParam(value = "reason", required = false) String reason) {
         ResultVo<String> result = new ResultVo<String>();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("审核成功");
@@ -154,7 +155,11 @@ public class MonitorTaskController extends BasicController {
         task.setId(id);
         task.setStatus(status);
         try{
-            adMonitorTaskService.update(task);
+            if(task.getStatus()==MonitorTaskStatus.VERIFIED.getId()){
+                adMonitorTaskService.update(task);
+            }else{
+                adMonitorTaskService.reject(task,reason);
+            }
         }catch (Exception e){
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("审核失败！");

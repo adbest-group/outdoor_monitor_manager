@@ -258,4 +258,14 @@ public class AdJiucuoTask extends ID {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
+
+    private String reason;
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
 }

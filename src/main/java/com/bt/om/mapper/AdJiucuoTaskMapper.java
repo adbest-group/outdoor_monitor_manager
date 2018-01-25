@@ -1,7 +1,9 @@
 package com.bt.om.mapper;
 
 import com.bt.om.entity.AdJiucuoTask;
+import com.bt.om.entity.vo.AdJiucuoTaskMobileVo;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
 import java.util.List;
@@ -61,4 +63,6 @@ public interface AdJiucuoTaskMapper {
     List<AdJiucuoTaskVo> getPageData(Map<String, Object> searchMap, RowBounds rowBounds);
 
     AdJiucuoTaskVo selectVoByPrimaryKey(Integer id);
+
+    List<AdJiucuoTaskMobileVo> selectByUserId(@Param("userId")Integer userId);
 }

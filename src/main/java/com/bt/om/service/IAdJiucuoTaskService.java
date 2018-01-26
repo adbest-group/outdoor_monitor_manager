@@ -19,6 +19,14 @@ public interface IAdJiucuoTaskService {
     public AdJiucuoTaskFeedback getFeadBackById(Integer id);
     public AdJiucuoTaskFeedback getFeadBackByTaskId(Integer id);
     public void update(AdJiucuoTask task);
+    /**
+     *  审核通过
+     **/
+    public void pass(AdJiucuoTask task);
+    /**
+     *  审核不通过
+     **/
+    public void reject(AdJiucuoTask task,String reason);
     public void feedback(AdJiucuoTask task,AdJiucuoTaskFeedback feedback);
     public List<AdJiucuoTaskMobileVo> getByUserIdForMobile(Integer userId);
 }

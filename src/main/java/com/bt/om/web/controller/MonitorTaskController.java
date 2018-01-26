@@ -156,7 +156,8 @@ public class MonitorTaskController extends BasicController {
         task.setStatus(status);
         try{
             if(task.getStatus()==MonitorTaskStatus.VERIFIED.getId()){
-                adMonitorTaskService.update(task);
+//                adMonitorTaskService.update(task);
+                adMonitorTaskService.pass(task);
             }else{
                 adMonitorTaskService.reject(task,reason);
             }

@@ -1,6 +1,7 @@
 package com.bt.om.service.impl;
 
 import com.bt.om.entity.*;
+import com.bt.om.entity.vo.ActivityMobileReportVo;
 import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdActivityVo;
 import com.bt.om.enums.ActivityStatus;
@@ -9,6 +10,7 @@ import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.mapper.*;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.vo.web.SearchDataVo;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
 import org.apache.ibatis.session.RowBounds;
@@ -37,6 +39,8 @@ public class AdActivityService implements IAdActivityService {
     AdActivityAreaMapper adActivityAreaMapper;
     @Autowired
     AdMonitorTaskMapper adMonitorTaskMapper;
+    @Autowired
+    SysUserMapper sysUserMapper;
 
     @Override
     public void save(AdActivity adActivity) {
@@ -47,25 +51,25 @@ public class AdActivityService implements IAdActivityService {
     @Transactional(rollbackFor = Exception.class)
     public void add(AdActivityVo adActivityVo) {
         //保存活动
-        int n = adActivityMapper.insert((AdActivity)adActivityVo);
+        int n = adActivityMapper.insert((AdActivity) adActivityVo);
 //        if(n<1){
 //            throw new RuntimeException("保存广告活动失败！");
 //        }
 
         //保存广告活动区域
-        for(AdActivityArea area:adActivityVo.getActivityAreas()){
+        for (AdActivityArea area : adActivityVo.getActivityAreas()) {
             area.setActivityId(adActivityVo.getId());
             adActivityAreaMapper.insert(area);
         }
 
         //保存广告活动媒体
-        for(AdActivityMedia media:adActivityVo.getActivityMedias()){
+        for (AdActivityMedia media : adActivityVo.getActivityMedias()) {
             media.setActivityId(adActivityVo.getId());
             adActivityMediaMapper.insert(media);
         }
 
         //保存广告活动广告位
-        for(AdActivityAdseat seat:adActivityVo.getActivitySeats()){
+        for (AdActivityAdseat seat : adActivityVo.getActivitySeats()) {
             seat.setActivityId(adActivityVo.getId());
             adActivityAdseatMapper.insert(seat);
         }
@@ -75,18 +79,18 @@ public class AdActivityService implements IAdActivityService {
     @Override
     public void modify(AdActivityVo adActivityVo) {
         //保存活动
-        int n = adActivityMapper.updateByPrimaryKeySelective((AdActivity)adActivityVo);
+        int n = adActivityMapper.updateByPrimaryKeySelective((AdActivity) adActivityVo);
 
         //保存广告活动区域
         adActivityAreaMapper.deleteByActivityId(adActivityVo.getId());
-        for(AdActivityArea area:adActivityVo.getActivityAreas()){
+        for (AdActivityArea area : adActivityVo.getActivityAreas()) {
             area.setActivityId(adActivityVo.getId());
             adActivityAreaMapper.insert(area);
         }
 
         //保存广告活动媒体
         adActivityMediaMapper.deleteByActivityId(adActivityVo.getId());
-        for(AdActivityMedia media:adActivityVo.getActivityMedias()){
+        for (AdActivityMedia media : adActivityVo.getActivityMedias()) {
             media.setActivityId(adActivityVo.getId());
             adActivityMediaMapper.insert(media);
 
@@ -94,7 +98,7 @@ public class AdActivityService implements IAdActivityService {
 
         //保存广告活动广告位
         adActivityAdseatMapper.deleteByActivityId(adActivityVo.getId());
-        for(AdActivityAdseat seat:adActivityVo.getActivitySeats()){
+        for (AdActivityAdseat seat : adActivityVo.getActivitySeats()) {
             seat.setActivityId(adActivityVo.getId());
             adActivityAdseatMapper.insert(seat);
         }
@@ -104,9 +108,9 @@ public class AdActivityService implements IAdActivityService {
     public void getPageData(SearchDataVo vo) {
         int count = adActivityMapper.getPageCount(vo.getSearchMap());
         vo.setCount(count);
-        if(count>0){
+        if (count > 0) {
             vo.setList(adActivityMapper.getPageData(vo.getSearchMap(), new RowBounds(vo.getStart(), vo.getSize())));
-        }else{
+        } else {
             vo.setList(new ArrayList<AdActivityVo>());
         }
 
@@ -123,33 +127,33 @@ public class AdActivityService implements IAdActivityService {
 
         List<AdActivityAdseatVo> seats = adActivityAdseatMapper.selectByActivityId(id);
         List<AdMonitorTask> tasks = new ArrayList<>();
-        for(AdActivityAdseatVo seat : seats){
+        for (AdActivityAdseatVo seat : seats) {
             //如果需要上刊监测
-            if(seat.getUpMonitor()==1){
-                AdMonitorTask task = generateMonitorTask(id,seat);
+            if (seat.getUpMonitor() == 1) {
+                AdMonitorTask task = generateMonitorTask(id, seat);
                 task.setTaskType(MonitorTaskType.UP_MONITOR.getId());
                 tasks.add(task);
             }
             //如果需要投放期间监测
-            if(seat.getDurationMonitor()==1){
-                AdMonitorTask task = generateMonitorTask(id,seat);
+            if (seat.getDurationMonitor() == 1) {
+                AdMonitorTask task = generateMonitorTask(id, seat);
                 task.setTaskType(MonitorTaskType.DURATION_MONITOR.getId());
                 tasks.add(task);
             }
             //如果需要下刊监测
-            if(seat.getDownMonitor()==1){
-                AdMonitorTask task = generateMonitorTask(id,seat);
+            if (seat.getDownMonitor() == 1) {
+                AdMonitorTask task = generateMonitorTask(id, seat);
                 task.setTaskType(MonitorTaskType.DOWNMONITOR.getId());
                 tasks.add(task);
             }
         }
         //保存监测任务
 //        adMonitorTaskMapper.insertList(tasks);
-        for(AdMonitorTask task:tasks){
+        for (AdMonitorTask task : tasks) {
             adMonitorTaskMapper.insert(task);
         }
         //修改广告活动广告位的创建任务状态
-        for(AdActivityAdseatVo seat : seats){
+        for (AdActivityAdseatVo seat : seats) {
             seat.setTaskCreate(2);
             adActivityAdseatMapper.updateByPrimaryKeySelective(seat);
         }
@@ -177,8 +181,8 @@ public class AdActivityService implements IAdActivityService {
 
     @Override
     public List<AdActivity> getByUerId(Integer userId) {
-        Map<String,Object> map = Maps.newHashMap();
-        map.put("userId",userId);
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("userId", userId);
         return adActivityMapper.selectByMap(map);
     }
 
@@ -187,8 +191,18 @@ public class AdActivityService implements IAdActivityService {
         return adActivityAdseatMapper.selectVoById(id);
     }
 
-    private AdMonitorTask generateMonitorTask(Integer activityId,AdActivityAdseat seat){
-        Date now  = new Date();
+    @Override
+    public List<ActivityMobileReportVo> getMobileReport(SysUserExecute user) {
+        SysUser sysUser = sysUserMapper.findByUsername(user.getUsername());
+        if (sysUser != null) {
+            return adActivityMapper.selectActivityReportForMobile(sysUser.getId());
+        } else {
+            return Lists.newArrayList();
+        }
+    }
+
+    private AdMonitorTask generateMonitorTask(Integer activityId, AdActivityAdseat seat) {
+        Date now = new Date();
         AdMonitorTask task = new AdMonitorTask();
         task.setActivityId(activityId);
         task.setActivityAdseatId(seat.getId());

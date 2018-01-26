@@ -9,6 +9,7 @@ import com.bt.om.entity.AdJiucuoTaskFeedback;
 import com.bt.om.entity.vo.AdActivityVo;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.SysUserVo;
+import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.security.ShiroUtils;
@@ -43,7 +44,7 @@ public class JiucuoController extends BasicController {
     @Autowired
     private IAdActivityService adActivityService;
 
-    @RequestMapping(value="/list")
+    @RequestMapping(value = "/list")
     public String joucuoList(Model model, HttpServletRequest request,
                              @RequestParam(value = "activityId", required = false) Integer activityId,
                              @RequestParam(value = "status", required = false) Integer status,
@@ -52,32 +53,34 @@ public class JiucuoController extends BasicController {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
 
-        if(activityId != null){
-            vo.putSearchParam("activityId",activityId.toString(),activityId);
+        if (activityId != null) {
+            vo.putSearchParam("activityId", activityId.toString(), activityId);
         }
-        if(status!=null){
-            vo.putSearchParam("status",status.toString(),status);
+        if (status != null) {
+            vo.putSearchParam("status", status.toString(), status);
         }
-        if(startDate!=null){
+        if (startDate != null) {
             try {
-                vo.putSearchParam("startDate",startDate,sdf.parse(startDate));
-            } catch (ParseException e) {}
+                vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
+            } catch (ParseException e) {
+            }
         }
-        if(endDate!=null){
+        if (endDate != null) {
             try {
-                vo.putSearchParam("endDate",endDate,sdf.parse(endDate));
-            } catch (ParseException e) {}
+                vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
+            } catch (ParseException e) {
+            }
         }
 
         adJiucuoTaskService.getPageData(vo);
-        SearchUtil.putToModel(model,vo);
+        SearchUtil.putToModel(model, vo);
 
         return PageConst.JIUCUO_LIST;
     }
 
-    @RequestMapping(value="/detail")
+    @RequestMapping(value = "/detail")
     public String showDetail(Model model, HttpServletRequest request,
-                          @RequestParam(value = "id", required = false) Integer id) {
+                             @RequestParam(value = "id", required = false) Integer id) {
         //纠错任务
         AdJiucuoTaskVo task = adJiucuoTaskService.getVoById(id);
         //上传内容
@@ -88,20 +91,20 @@ public class JiucuoController extends BasicController {
         AdActivityAdseat seat = adActivityService.getActivitySeatById(task.getActivityAdseatId());
 
 
-        model.addAttribute("task",task);
-        model.addAttribute("activity",activity);
-        model.addAttribute("seat",seat);
-        model.addAttribute("feedback",feedback);
+        model.addAttribute("task", task);
+        model.addAttribute("activity", activity);
+        model.addAttribute("seat", seat);
+        model.addAttribute("feedback", feedback);
         return PageConst.JIUCUO_DETAIL;
     }
 
     //审核纠错
-    @RequestMapping(value="/verify")
+    @RequestMapping(value = "/verify")
     @ResponseBody
     public Model confirm(Model model, HttpServletRequest request,
-                          @RequestParam(value = "id", required = false) Integer id,
-                          @RequestParam(value = "status", required = false) Integer status,
-                          @RequestParam(value = "reason", required = false) String reason) {
+                         @RequestParam(value = "id", required = false) Integer id,
+                         @RequestParam(value = "status", required = false) Integer status,
+                         @RequestParam(value = "reason", required = false) String reason) {
         ResultVo<String> result = new ResultVo<String>();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("审核成功");
@@ -109,11 +112,13 @@ public class JiucuoController extends BasicController {
 
         AdJiucuoTask task = new AdJiucuoTask();
         task.setId(id);
-        task.setStatus(status);
-        task.setReason(StringUtil.isEmpty(reason)?"":reason);
-        try{
-            adJiucuoTaskService.update(task);
-        }catch (Exception e){
+        try {
+            if (status == JiucuoTaskStatus.VERIFIED.getId()) {//审核通过
+                adJiucuoTaskService.pass(task);
+            } else if (status == JiucuoTaskStatus.VERIFY_FAILURE.getId()) {//审核不通过
+                adJiucuoTaskService.reject(task,reason);
+            }
+        } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("审核失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);

@@ -239,4 +239,20 @@
     </if>
   </select>
 
+  <resultMap id="MobileReportMap" extends="BaseResultMap" type="com.bt.om.entity.vo.ActivityMobileReportVo" >
+    <id column="delivery_num" property="deliveryNum" jdbcType="INTEGER" />
+    <result column="monitor_num" property="monitorNum" jdbcType="INTEGER" />
+    <result column="error_num" property="errorNum" jdbcType="INTEGER" />
+  </resultMap>
+
+  <select id="selectActivityReportForMobile" resultMap="MobileReportMap">
+    select
+    <include refid="Base_Column_List" />,
+    (select count(id) from ad_activity_adseat where activity_id = a.id) as delivery_num,
+    (select count(id) from ad_monitor_task where activity_id = a.id and status = 2) as monitor_num,
+    (select count(id) from ad_jiucuo_task where activity_id = a.id) as error_num
+    from ad_activity a
+    where user_id = #{userId,jdbcType=INTEGER}
+  </select>
+
 </mapper>

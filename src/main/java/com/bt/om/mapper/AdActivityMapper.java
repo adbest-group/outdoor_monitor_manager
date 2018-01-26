@@ -1,7 +1,9 @@
 package com.bt.om.mapper;
 
 import com.bt.om.entity.AdActivity;
+import com.bt.om.entity.vo.ActivityMobileReportVo;
 import com.bt.om.entity.vo.AdActivityVo;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
 import java.util.List;
@@ -63,4 +65,6 @@ public interface AdActivityMapper {
     AdActivityVo selectVoByPrimaryKey(Integer id);
 
     List<AdActivity> selectByMap(Map map);
+
+    List<ActivityMobileReportVo> selectActivityReportForMobile(@Param("userId")Integer UserId);
 }

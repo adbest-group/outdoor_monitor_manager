@@ -1,12 +1,16 @@
 package com.bt.om.service.impl;
 
-import com.bt.om.entity.AdJiucuoTask;
-import com.bt.om.entity.AdJiucuoTaskFeedback;
-import com.bt.om.entity.AdMonitorTask;
+import com.bt.om.entity.*;
 import com.bt.om.entity.vo.AdJiucuoTaskMobileVo;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
+import com.bt.om.enums.JiucuoTaskStatus;
+import com.bt.om.enums.RewardTaskType;
+import com.bt.om.enums.RewardType;
+import com.bt.om.enums.SysUserExecuteType;
 import com.bt.om.mapper.AdJiucuoTaskFeedbackMapper;
 import com.bt.om.mapper.AdJiucuoTaskMapper;
+import com.bt.om.mapper.AdMonitorRewardMapper;
+import com.bt.om.mapper.SysUserExecuteMapper;
 import com.bt.om.service.IAdJiucuoTaskService;
 import com.bt.om.vo.web.SearchDataVo;
 import org.apache.ibatis.session.RowBounds;
@@ -27,6 +31,10 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
     private AdJiucuoTaskMapper adJiucuoTaskMapper;
     @Autowired
     private AdJiucuoTaskFeedbackMapper adJiucuoTaskFeedbackMapper;
+    @Autowired
+    private SysUserExecuteMapper sysUserExecuteMapper;
+    @Autowired
+    private AdMonitorRewardMapper adMonitorRewardMapper;
 
     @Override
     public void getPageData(SearchDataVo vo) {
@@ -61,6 +69,36 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
 
     @Override
     public void update(AdJiucuoTask task) {
+        adJiucuoTaskMapper.updateByPrimaryKeySelective(task);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void pass(AdJiucuoTask task) {
+        task.setStatus(JiucuoTaskStatus.VERIFIED.getId());
+        adJiucuoTaskMapper.updateByPrimaryKeySelective(task);
+        task = adJiucuoTaskMapper.selectByPrimaryKey(task.getId());
+        SysUserExecute user = sysUserExecuteMapper.selectByPrimaryKey(task.getUserId());
+        if(user.getId() == SysUserExecuteType.WORKER.getId()) {
+            Date now = new Date();
+            AdMonitorReward reward = new AdMonitorReward();
+            reward.setMonitorTaskId(task.getId());
+            reward.setType(RewardType.ADD.getId());
+            reward.setTaskType(RewardTaskType.JIUCUO.getId());
+            reward.setUserId(task.getUserId());
+            //? 奖励点数设计，这里随便写死15点
+            reward.setRewardPoints(15);
+            reward.setCreateTime(now);
+            reward.setUpdateTime(now);
+            adMonitorRewardMapper.insert(reward);
+        }
+
+    }
+
+    @Override
+    public void reject(AdJiucuoTask task, String reason) {
+        task.setReason(reason);
+        task.setStatus(JiucuoTaskStatus.VERIFY_FAILURE.getId());
         adJiucuoTaskMapper.updateByPrimaryKeySelective(task);
     }
 

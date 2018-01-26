@@ -1,9 +1,13 @@
 package com.bt.om.service.impl;
 
+import com.bt.om.entity.AdMonitorReward;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.enums.MonitorTaskStatus;
+import com.bt.om.enums.RewardTaskType;
+import com.bt.om.enums.RewardType;
+import com.bt.om.mapper.AdMonitorRewardMapper;
 import com.bt.om.mapper.AdMonitorTaskFeedbackMapper;
 import com.bt.om.mapper.AdMonitorTaskMapper;
 import com.bt.om.service.IAdMonitorTaskService;
@@ -26,6 +30,8 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     private AdMonitorTaskMapper adMonitorTaskMapper;
     @Autowired
     private AdMonitorTaskFeedbackMapper adMonitorTaskFeedbackMapper;
+    @Autowired
+    private AdMonitorRewardMapper adMonitorRewardMapper;
 
     @Override
     public void getPageData(SearchDataVo vo) {
@@ -53,6 +59,24 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     @Override
     public void update(AdMonitorTask task) {
         adMonitorTaskMapper.updateByPrimaryKeySelective(task);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void pass(AdMonitorTask task) {
+        Date now = new Date();
+        adMonitorTaskMapper.updateByPrimaryKeySelective(task);
+        task = adMonitorTaskMapper.selectByPrimaryKey(task.getId());
+        AdMonitorReward reward = new AdMonitorReward();
+        reward.setMonitorTaskId(task.getId());
+        reward.setType(RewardType.ADD.getId());
+        reward.setTaskType(RewardTaskType.MONITOR.getId());
+        reward.setUserId(task.getUserId());
+        //? 奖励点数设计，这里随便写死10点
+        reward.setRewardPoints(10);
+        reward.setCreateTime(now);
+        reward.setUpdateTime(now);
+        adMonitorRewardMapper.insert(reward);
     }
 
     @Override

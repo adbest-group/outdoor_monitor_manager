@@ -19,6 +19,13 @@ public interface IAdMonitorTaskService {
 
     public void update(AdMonitorTask task);
 
+    /**
+     * 审核通过
+     **/
+    public void pass(AdMonitorTask task);
+    /**
+     * 审核不通过
+     **/
     public void reject(AdMonitorTask task,String reason);
 
     public List<AdMonitorTaskMobileVo> getByUserIdForMobile(Integer userId);

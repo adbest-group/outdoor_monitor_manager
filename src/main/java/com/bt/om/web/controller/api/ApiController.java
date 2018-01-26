@@ -2,6 +2,7 @@ package com.bt.om.web.controller.api;
 
 import com.bt.om.common.SysConst;
 import com.bt.om.entity.*;
+import com.bt.om.entity.vo.ActivityMobileReportVo;
 import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdJiucuoTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
@@ -10,15 +11,13 @@ import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.security.ShiroUtils;
-import com.bt.om.service.IAdActivityService;
-import com.bt.om.service.IAdJiucuoTaskService;
-import com.bt.om.service.IAdMonitorTaskService;
-import com.bt.om.service.ISysUserExecuteService;
+import com.bt.om.service.*;
 import com.bt.om.util.QRcodeUtil;
 import com.bt.om.vo.api.*;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.web.BasicController;
 import com.bt.om.web.util.UploadFileUtil;
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
@@ -60,6 +59,8 @@ public class ApiController extends BasicController {
     private IAdMonitorTaskService adMonitorTaskService;
     @Autowired
     private IAdJiucuoTaskService adJiucuoTaskService;
+    @Autowired
+    private IAdMonitorRewardService adMonitorRewardService;
 
     //测试用
     @RequestMapping(value="/aaa/bbb/aaa")
@@ -463,7 +464,64 @@ public class ApiController extends BasicController {
         return model;
     }
 
+    //请求资讯列表
+    @RequestMapping(value="/activity")
+    @ResponseBody
+    public Model activiList(Model model, HttpServletRequest request, HttpServletResponse response) {
+        ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("获取成功");
+        model = new ExtendedModelMap();
 
+        //验证登录
+        if(!checkLogin(model,result,request)){
+            return model;
+        }
+        HttpSession session = request.getSession();
+        SysUserExecute user = (SysUserExecute)session.getAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+
+        List<ActivityMobileReportVo> list = adActivityService.getMobileReport(user);
+        List<ActivityReportVo> apiVoList = Lists.newArrayList();
+        for(ActivityMobileReportVo vo : list){
+            apiVoList.add(new ActivityReportVo(vo));
+        }
+        result.setResult(apiVoList);
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin",request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials","true");
+        return model;
+    }
+
+    //请求资讯列表
+    @RequestMapping(value="/getreward")
+    @ResponseBody
+    public Model getreward(Model model, HttpServletRequest request, HttpServletResponse response) {
+        ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("获取成功");
+        model = new ExtendedModelMap();
+
+        //验证登录
+        if(!checkLogin(model,result,request)){
+            return model;
+        }
+        HttpSession session = request.getSession();
+        SysUserExecute user = (SysUserExecute)session.getAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+
+        List<AdMonitorReward> rewards = adMonitorRewardService.getByUserId(user.getId());
+        RewardResultVo resultVo = new RewardResultVo();
+        resultVo.setTotal_reward(adMonitorRewardService.getTotalRewardByUserId(user.getId()));
+        for(AdMonitorReward reward : rewards){
+            resultVo.getDetail().add(new RewardVo(reward));
+        }
+        result.setResult(resultVo);
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin",request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials","true");
+        return model;
+    }
 
 
     private Boolean checkLogin(Model model,ResultVo result,HttpServletRequest request){

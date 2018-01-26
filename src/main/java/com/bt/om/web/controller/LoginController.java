@@ -219,7 +219,8 @@ public class LoginController extends BasicController {
 		String retNum = "";
 
 		// 定义验证码的范围
-		String codeStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+//		String codeStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+		String codeStr = "1234567890";
 
 		Random r = new Random();
 		for (int i = 0; i < size; i++) {

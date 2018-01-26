@@ -237,7 +237,7 @@
                 layer.confirm("确认审核不通过？", {
                     icon: 3,
                     btn: ['确定', '取消'] //按钮
-                }, function(){
+                }, function(index){
                     layer.close(index);
                     layer.prompt({title:'请填写审核意见',formType:2},function (val,index) {
                         if(val.trim().length<1||val.trim().length>33){

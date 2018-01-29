@@ -1,24 +1,38 @@
-package test.java.com.bt.om;
+package com.taiyiplus.ottv;
 
+import java.util.List;
+
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.mapper.AdMonitorTaskMapper;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath:spring/applicationContext.xml")
 public class Test {
-    public static void main(String[] args) {
-        int[] a = new int[] { 1, 2};
-        int t = a.length % 3 == 0 ? a.length / 3 : a.length / 3 + 1;
-        if (t < 3)
-            t = 3;
-        for (int i = 0; i < t; i++) {
-            System.out.print(i);
-            System.out.print(i+t);
-            System.out.print(i+2*t);
-            
-//            for (int j = 0; j < 3; j++) {
-//                if ((i + (j * 3)) < a.length) {
-//                }else{
-//                    System.out.print("无");
-//                }
-//            }
-            System.out.println();
-        }
+	@Autowired
+	private AdMonitorTaskMapper adMonitorTaskMapper;
 
-    }
+	@org.junit.Test
+	public void test() {
+		List<AdMonitorTaskVo> vo = adMonitorTaskMapper.getSubmitDetails(7);
+		for (AdMonitorTaskVo list : vo) {
+			System.out.println(list.getStatus());
+			System.out.println(list.getActivityName());
+			System.out.println(list.getCreateTime());
+			System.out.println(list.getProvince());
+			System.out.println(list.getCity());
+			System.out.println(list.getRegion());
+			System.out.println(list.getStreet());
+			System.out.println(list.getMonitorsStart());
+			System.out.println(list.getProblem());
+			System.out.println(list.getPic_url1());
+			System.out.println(list.getPic_url2());
+			System.out.println(list.getPic_url3());
+			System.out.println(list.getPic_url4());
+		}
+	}
 }

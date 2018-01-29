@@ -1,9 +1,19 @@
 package com.bt.om.service.impl;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.ibatis.session.RowBounds;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.bt.om.entity.AdMonitorReward;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
+import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.RewardType;
@@ -12,14 +22,6 @@ import com.bt.om.mapper.AdMonitorTaskFeedbackMapper;
 import com.bt.om.mapper.AdMonitorTaskMapper;
 import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.vo.web.SearchDataVo;
-import org.apache.ibatis.session.RowBounds;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Created by caiting on 2018/1/20.
@@ -114,4 +116,18 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         task.setStatus(MonitorTaskStatus.UNVERIFY.getId());
         adMonitorTaskMapper.updateByPrimaryKeySelective(task);
     }
+
+	@Override
+	public AdMonitorTaskVo getTaskDetails(String taskId, String mediaName) {
+		int taskIds = Integer.valueOf(taskId);
+		return adMonitorTaskMapper.getTaskDetails(taskIds, mediaName);
+	}
+
+	@Override
+	public List<AdMonitorTaskVo> getSubmitDetails(String taskId) {
+		int taskIds = Integer.valueOf(taskId);
+		List<AdMonitorTaskVo> list = adMonitorTaskMapper.getSubmitDetails(taskIds);
+		return list;
+	}
+
 }

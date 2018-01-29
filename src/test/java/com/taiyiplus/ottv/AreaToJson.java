@@ -1,4 +1,4 @@
-package test.java.com.bt.om;
+package com.taiyiplus.ottv;
 
 public class AreaToJson extends BaseTest {
 

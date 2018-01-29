@@ -57,7 +57,8 @@
                         <tr>
                             <td width="30">${(bizObj.page.currentPage-1)*20+activity_index+1}</td>
                             <td>
-                                <div class="data-title w200" data-title="${activity.activityName}" data-id="${activity.id}">${activity.activityName?if_exists}</div></td>
+                                <div class="data-title w200" data-title="${activity.activityName}" data-id="${activity.id}">${activity.activityName?if_exists}</div>
+                            </td>
                             <td>${activity.startTime?string('yyyy-MM-dd')} 至 ${activity.endTime?string('yyyy-MM-dd')}</td>
                             <td>${vm.getActivityStatusTextWithColor(activity.status)}</td>
                             <td>

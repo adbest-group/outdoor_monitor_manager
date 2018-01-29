@@ -31,6 +31,7 @@
 		<property name="securityManager" ref="securityManager" />
 		<property name="loginUrl" value="/login" />
 		<property name="successUrl" value="/index" />
+		<!-- 用户无权限访问时访问的路径 -->
 		<property name="unauthorizedUrl" value="/noAuthority" />
 		
 		<property name="filterChainDefinitions">

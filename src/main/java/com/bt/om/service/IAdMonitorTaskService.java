@@ -25,7 +25,7 @@ public interface IAdMonitorTaskService {
 	 * @param taskId
 	 * @return 监测任务详情信息
 	 */
-	public AdMonitorTaskVo getTaskDetails(String taskId, String mediaName);
+	public AdMonitorTaskVo getTaskDetails(String taskId);
 
     public void update(AdMonitorTask task);
 

@@ -179,6 +179,12 @@
 		<result column="monitor_end" jdbcType="TIMESTAMP" property="monitorsEnd" />
 		<result column="monitor_count" jdbcType="INTEGER" property="monitorsCount" />
 		<result column="brand" jdbcType="VARCHAR" property="brand" />
+		<result column="status" jdbcType="INTEGER" property="status"/>
+		<result column="problem" jdbcType="VARCHAR" property="problem"/>
+		<result column="pic_url1" jdbcType="VARCHAR" property="pic_url1"/>
+		<result column="pic_url2" jdbcType="VARCHAR" property="pic_url2"/>
+		<result column="pic_url3" jdbcType="VARCHAR" property="pic_url3"/>
+		<result column="pic_url4" jdbcType="VARCHAR" property="pic_url4"/>
 	</resultMap>
 
   <resultMap id="MobileResultMap" extends="BaseResultMap" type="com.bt.om.entity.vo.AdMonitorTaskMobileVo">
@@ -288,32 +294,32 @@
 			`adseat`.`monitor_count`,
 			`adseat`.`brand`,
 			`adseat`.`sample_pic_url`,
-			`adarea`.`province`,
-			`adarea`.`city`,
-			`adarea`.`region`,
-			`adarea`.`street`,
+			`seatinfo`.`province`,
+			`seatinfo`.`city`,
+			`seatinfo`.`region`,
+			`seatinfo`.`street`,
+			seatinfo.name,
 			`media`.`media_name`
 		from 
 			ad_monitor_task as task 
 			left join `ad_activity` as activity on task.`activity_id`=`activity`.id
-			left join `ad_activity_adseat` as adseat on task.`activity_adseat_id`=`adseat`.id
-			left join `ad_activity_area` as adarea on `activity`.id=`adarea`.`activity_id`
-			left join `ad_activity_media` as aamedia on `activity`.id=`aamedia`.`activity_id`
-			left join `ad_media` as media on `aamedia`.`media_id`=`media`.id
+			left join ad_activity_adseat as adseat on task.activity_adseat_id=adseat.id
+			left join ad_seat_info as seatinfo on adseat.ad_seat_id =seatinfo.id
+			left join ad_media as media on adseat.media_id=media.id
 		where 
 			task.id=#{taskId,jdbcType=INTEGER}
-			and media.media_name=#{mediaName,jdbcType=VARCHAR}
+
 	</select>
 	
 	<select id="getSubmitDetails" resultMap="ExtResultMap">
-		select 
+		select
 			task.status,
 			activity.activity_name,
 			activity.create_time,
-			adarea.province,
-			adarea.city,
-			adarea.region,
-			adarea.street,
+			seatinfo.province,
+			seatinfo.city,
+			seatinfo.region,
+			seatinfo.street,
 			adseat.monitor_start,
 			feedback.problem,
 			feedback.pic_url1,
@@ -323,9 +329,9 @@
 		from
 			`ad_monitor_task` as task 
 			left join ad_activity as activity on task.activity_id=activity.id
-		    left join `ad_activity_area` as adarea on `activity`.id=`adarea`.`activity_id`
-			left join `ad_activity_adseat` as adseat on task.`activity_adseat_id`=`adseat`.id
-			left join ad_monitor_task_feedback as feedback on feedback.monitor_task_id=task.id
+		    left join ad_activity_adseat as adseat on task.activity_adseat_id=adseat.id
+		    left join ad_seat_info as seatinfo on adseat.ad_seat_id=seatinfo.id
+		    left join ad_monitor_task_feedback feedback on task.id=feedback.monitor_task_id
 		where
 			task.id=#{taskId,jdbcType=INTEGER}
 	</select>

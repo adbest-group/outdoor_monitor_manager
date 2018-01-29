@@ -118,9 +118,9 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     }
 
 	@Override
-	public AdMonitorTaskVo getTaskDetails(String taskId, String mediaName) {
+	public AdMonitorTaskVo getTaskDetails(String taskId) {
 		int taskIds = Integer.valueOf(taskId);
-		return adMonitorTaskMapper.getTaskDetails(taskIds, mediaName);
+		return adMonitorTaskMapper.getTaskDetails(taskIds);
 	}
 
 	@Override

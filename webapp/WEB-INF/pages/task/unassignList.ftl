@@ -72,7 +72,7 @@
                             <td>${vm.getMonitorTaskStatusText(task.status)}</td>
                             <td>
                                 <#if task.status==1><a href="javascript:assign('${task.id}')">指派</a></#if>
-                                <#if task.status==1><a href="/task/gotoDetailsPage?task_Id=${task.id}&media_Name=${task.mediaName}">详情</a></#if>
+                                <a href="/task/gotoDetailsPage?task_Id=${task.id}">详情</a>
                             </td>
                         </tr>
                         </#list>

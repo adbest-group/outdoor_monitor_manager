@@ -78,6 +78,7 @@
                                 <#if task.status==2><a href="javascript:assign('${task.id}')">重新指派</a></#if>
                                 <#if task.status==3><a href="javascript:pass('${task.id}')">通过</a></#if>
                                 <#if task.status==3><a href="javascript:reject('${task.id}')">拒绝</a></#if>
+                                <a href="/task/gotoDetailsPage?task_Id=${task.id}">详情</a>
                                 <#--<#if task.status==1><a href="javascript:del('${task.id}')">删除</a></#if>-->
                             </td>
                         </tr>

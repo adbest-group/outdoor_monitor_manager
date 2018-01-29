@@ -74,7 +74,7 @@ public interface AdMonitorTaskMapper {
 	 * @param taskId
 	 * @return 返回监测任务详情
 	 */
-	AdMonitorTaskVo getTaskDetails(@Param("taskId") Integer taskId, @Param("mediaName") String mediaName);
+	AdMonitorTaskVo getTaskDetails(Integer taskId);
 
 	/**
 	 * 获取提交详情

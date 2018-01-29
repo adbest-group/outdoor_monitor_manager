@@ -1,7 +1,6 @@
 package com.bt.om.entity.vo;
 
 import com.bt.om.entity.AdMonitorTask;
-import com.mysql.fabric.xmlrpc.base.Data;
 
 import java.util.Date;
 
@@ -24,12 +23,13 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 	private Date monitorsEnd;// 监测结束时间
 	private Integer monitorsCount;// 监测次数
 	private String brand;// 品牌名
-	private Integer status;//状态
-	private String problem;//反馈问题
-	private String pic_url1;//上传图片1
-	private String pic_url2;//上传图片2
-	private String pic_url3;//上传图片3
-	private String pic_url4;//上传图片4
+	private Integer status;// 状态
+	private String problem;// 反馈问题
+	private String pic_url1;// 上传图片1
+	private String pic_url2;// 上传图片2
+	private String pic_url3;// 上传图片3
+	private String pic_url4;// 上传图片4
+	private String name;
 
 	public Integer getStatus() {
 		return status;
@@ -39,13 +39,7 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 		this.status = status;
 	}
 
-	public String getProblem() {
-		return problem;
-	}
-
-	public void setProblem(String problem) {
-		this.problem = problem;
-	}
+	
 
 	public String getPic_url1() {
 		return pic_url1;
@@ -198,4 +192,21 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 	public void setMonitorsStart(Date monitorsStart) {
 		this.monitorsStart = monitorsStart;
 	}
+
+	public String getProblem() {
+		return problem;
+	}
+
+	public void setProblem(String problem) {
+		this.problem = problem;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
 }

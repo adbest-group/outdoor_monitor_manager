@@ -37,149 +37,149 @@ import java.util.List;
 @Controller
 @RequestMapping("/task")
 public class MonitorTaskController extends BasicController {
-    @Autowired
-    IAdMonitorTaskService adMonitorTaskService;
+	@Autowired
+	IAdMonitorTaskService adMonitorTaskService;
 
-    /**
-     * 监测管理，已分配任务
-     **/
-    @RequestMapping(value="/list")
-    public String getTaskList(Model model, HttpServletRequest request,
-                              @RequestParam(value = "activityId", required = false) Integer activityId,
-                              @RequestParam(value = "status", required = false) Integer status,
-                              @RequestParam(value = "startDate", required = false) String startDate,
-                              @RequestParam(value = "endDate", required = false) String endDate) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        SearchDataVo vo = SearchUtil.getVo();
+	/**
+	 * 监测管理，已分配任务
+	 **/
+	@RequestMapping(value = "/list")
+	public String getTaskList(Model model, HttpServletRequest request,
+			@RequestParam(value = "activityId", required = false) Integer activityId,
+			@RequestParam(value = "status", required = false) Integer status,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		SearchDataVo vo = SearchUtil.getVo();
 
-        if(activityId != null){
-            vo.putSearchParam("activityId",activityId.toString(),activityId);
-        }
-        if(status!=null){
-            vo.putSearchParam("status",status.toString(),status);
-        }
-        if(startDate!=null){
-            try {
-                vo.putSearchParam("startDate",startDate,sdf.parse(startDate));
-            } catch (ParseException e) {}
-        }
-        if(endDate!=null){
-            try {
-                vo.putSearchParam("endDate",endDate,sdf.parse(endDate));
-            } catch (ParseException e) {}
-        }
+		if (activityId != null) {
+			vo.putSearchParam("activityId", activityId.toString(), activityId);
+		}
+		if (status != null) {
+			vo.putSearchParam("status", status.toString(), status);
+		}
+		if (startDate != null) {
+			try {
+				vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
+			} catch (ParseException e) {
+			}
+		}
+		if (endDate != null) {
+			try {
+				vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
+			} catch (ParseException e) {
+			}
+		}
 
-//        vo.putSearchParam("hasUserId","1","1");
-        adMonitorTaskService.getPageData(vo);
+		// vo.putSearchParam("hasUserId","1","1");
+		adMonitorTaskService.getPageData(vo);
 
-        SearchUtil.putToModel(model,vo);
+		SearchUtil.putToModel(model, vo);
 
-        return PageConst.TASK_LIST;
-    }
+		return PageConst.TASK_LIST;
+	}
 
-    /**
-     * 监测管理，未分配任务
-     **/
-    @RequestMapping(value="/unassign")
-    public String getUnAssignList(Model model, HttpServletRequest request,
-                                  @RequestParam(value = "activityId", required = false) Integer activityId,
-                                  @RequestParam(value = "startDate", required = false) String startDate,
-                                  @RequestParam(value = "endDate", required = false) String endDate) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        SearchDataVo vo = SearchUtil.getVo();
-        vo.putSearchParam("status", String.valueOf(MonitorTaskStatus.UNASSIGN.getId()),String.valueOf(MonitorTaskStatus.UNASSIGN.getId()));
+	/**
+	 * 监测管理，未分配任务
+	 **/
+	@RequestMapping(value = "/unassign")
+	public String getUnAssignList(Model model, HttpServletRequest request,
+			@RequestParam(value = "activityId", required = false) Integer activityId,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "endDate", required = false) String endDate) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		SearchDataVo vo = SearchUtil.getVo();
+		vo.putSearchParam("status", String.valueOf(MonitorTaskStatus.UNASSIGN.getId()),
+				String.valueOf(MonitorTaskStatus.UNASSIGN.getId()));
 
+		if (activityId != null) {
+			vo.putSearchParam("activityId", activityId.toString(), activityId);
+		}
+		if (startDate != null) {
+			try {
+				vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
+			} catch (ParseException e) {
+			}
+		}
+		if (endDate != null) {
+			try {
+				vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
+			} catch (ParseException e) {
+			}
+		}
 
+		adMonitorTaskService.getPageData(vo);
+		SearchUtil.putToModel(model, vo);
 
-        if(activityId != null){
-            vo.putSearchParam("activityId",activityId.toString(),activityId);
-        }
-        if(startDate!=null){
-            try {
-                vo.putSearchParam("startDate",startDate,sdf.parse(startDate));
-            } catch (ParseException e) {}
-        }
-        if(endDate!=null){
-            try {
-                vo.putSearchParam("endDate",endDate,sdf.parse(endDate));
-            } catch (ParseException e) {}
-        }
+		return PageConst.UNASSIGN_TASK_LIST;
+	}
 
-        adMonitorTaskService.getPageData(vo);
-        SearchUtil.putToModel(model,vo);
+	/**
+	 * 选择监测人员页面
+	 **/
+	@RequestMapping(value = "/selectUserExecute")
+	public String toSelectUserExecute(Model model, HttpServletRequest request) {
 
-        return PageConst.UNASSIGN_TASK_LIST;
-    }
+		return PageConst.SELECT_USER_EXECUTE;
+	}
 
+	// 删除活动
+	@RequestMapping(value = "/assign")
+	@ResponseBody
+	public Model delete(Model model, HttpServletRequest request,
+			@RequestParam(value = "ids", required = false) String ids,
+			@RequestParam(value = "userId", required = false) Integer userId) {
+		ResultVo<String> result = new ResultVo<String>();
+		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+		result.setResultDes("指派成功");
+		model = new ExtendedModelMap();
 
-    /**
-     * 选择监测人员页面
-     **/
-    @RequestMapping(value="/selectUserExecute")
-    public String toSelectUserExecute(Model model, HttpServletRequest request) {
+		String[] taskIds = ids.split(",");
+		try {
+			adMonitorTaskService.assign(taskIds, userId);
+		} catch (Exception e) {
+			result.setCode(ResultCode.RESULT_FAILURE.getCode());
+			result.setResultDes("指派失败！");
+			model.addAttribute(SysConst.RESULT_KEY, result);
+			return model;
+		}
 
-        return PageConst.SELECT_USER_EXECUTE;
-    }
+		model.addAttribute(SysConst.RESULT_KEY, result);
+		return model;
+	}
 
-    //删除活动
-    @RequestMapping(value="/assign")
-    @ResponseBody
-    public Model delete(Model model, HttpServletRequest request,
-                        @RequestParam(value = "ids", required = false) String ids,
-                        @RequestParam(value = "userId", required = false) Integer userId) {
-        ResultVo<String> result = new ResultVo<String>();
-        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
-        result.setResultDes("指派成功");
-        model = new ExtendedModelMap();
+	// 审核纠错
+	@RequestMapping(value = "/verify")
+	@ResponseBody
+	public Model verify(Model model, HttpServletRequest request,
+			@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "status", required = false) Integer status,
+			@RequestParam(value = "reason", required = false) String reason) {
+		ResultVo<String> result = new ResultVo<String>();
+		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+		result.setResultDes("审核成功");
+		model = new ExtendedModelMap();
 
-        String[] taskIds = ids.split(",");
-        try{
-            adMonitorTaskService.assign(taskIds,userId);
-        }catch (Exception e){
-            result.setCode(ResultCode.RESULT_FAILURE.getCode());
-            result.setResultDes("指派失败！");
-            model.addAttribute(SysConst.RESULT_KEY, result);
-            return model;
-        }
+		AdMonitorTask task = new AdMonitorTask();
+		task.setId(id);
+		task.setStatus(status);
+		try {
+			if (task.getStatus() == MonitorTaskStatus.VERIFIED.getId()) {
+				// adMonitorTaskService.update(task);
+				adMonitorTaskService.pass(task);
+			} else {
+				adMonitorTaskService.reject(task, reason);
+			}
+		} catch (Exception e) {
+			result.setCode(ResultCode.RESULT_FAILURE.getCode());
+			result.setResultDes("审核失败！");
+			model.addAttribute(SysConst.RESULT_KEY, result);
+			return model;
+		}
 
-
-        model.addAttribute(SysConst.RESULT_KEY, result);
-        return model;
-    }
-
-    //审核纠错
-    @RequestMapping(value="/verify")
-    @ResponseBody
-    public Model verify(Model model, HttpServletRequest request,
-                         @RequestParam(value = "id", required = false) Integer id,
-                         @RequestParam(value = "status", required = false) Integer status,
-                        @RequestParam(value = "reason", required = false) String reason) {
-        ResultVo<String> result = new ResultVo<String>();
-        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
-        result.setResultDes("审核成功");
-        model = new ExtendedModelMap();
-
-        AdMonitorTask task = new AdMonitorTask();
-        task.setId(id);
-        task.setStatus(status);
-        try{
-            if(task.getStatus()==MonitorTaskStatus.VERIFIED.getId()){
-//                adMonitorTaskService.update(task);
-                adMonitorTaskService.pass(task);
-            }else{
-                adMonitorTaskService.reject(task,reason);
-            }
-        }catch (Exception e){
-            result.setCode(ResultCode.RESULT_FAILURE.getCode());
-            result.setResultDes("审核失败！");
-            model.addAttribute(SysConst.RESULT_KEY, result);
-            return model;
-        }
-
-
-        model.addAttribute(SysConst.RESULT_KEY, result);
-        return model;
-    }
+		model.addAttribute(SysConst.RESULT_KEY, result);
+		return model;
+	}
 
 	/**
 	 * 查看任务详情
@@ -202,11 +202,11 @@ public class MonitorTaskController extends BasicController {
 	@RequestMapping(value = "/details", method = RequestMethod.GET)
 	@ResponseBody
 	private HashMap<String, Object> gotoDetailsPage(@RequestParam("task_Id") String taskId,
-			@RequestParam("media_Name") String mediaName, HttpServletRequest request) {
+			HttpServletRequest request) {
 		HashMap<String, Object> modelMap = new HashMap<String, Object>();
 		AdMonitorTaskVo vo = new AdMonitorTaskVo();
 		try {
-			vo = adMonitorTaskService.getTaskDetails(taskId, mediaName);
+			vo = adMonitorTaskService.getTaskDetails(taskId);
 			List<AdMonitorTaskVo> list = adMonitorTaskService.getSubmitDetails(taskId);
 			modelMap.put("list", list);
 			modelMap.put("vo", vo);
@@ -229,10 +229,8 @@ public class MonitorTaskController extends BasicController {
 	 * @return DETAILS_PAGE
 	 */
 	@RequestMapping(value = "/gotoDetailsPage", method = RequestMethod.GET)
-	private String gotoDetailPage(HttpServletRequest request, @RequestParam("task_Id") String taskId,
-			@RequestParam("media_Name") String mediaName, Model model) {
+	private String gotoDetailPage(HttpServletRequest request, @RequestParam("task_Id") String taskId, Model model) {
 		model.addAttribute("taskId", taskId);
-		model.addAttribute("mediaName", mediaName);
 		return PageConst.DETAILS_PAGE;
 	}
 

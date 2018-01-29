@@ -35,7 +35,7 @@ public class MonitorTaskExecutingVo extends BasicVo {
         this.img_url_list.add(task.getPicUrl1());
         this.img_url_list.add(task.getPicUrl2());
         this.img_url_list.add(task.getPicUrl3());
-        this.img_url_list.add(task.getPicUrl3());
+        this.img_url_list.add(task.getPicUrl4());
     }
 
     public Integer getTask_id() {

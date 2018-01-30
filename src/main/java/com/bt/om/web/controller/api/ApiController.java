@@ -1,17 +1,14 @@
 package com.bt.om.web.controller.api;
 
-import com.alibaba.fastjson.util.Base64;
 import com.bt.om.common.SysConst;
 import com.bt.om.entity.*;
 import com.bt.om.entity.vo.ActivityMobileReportVo;
-import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdJiucuoTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
-import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.*;
 import com.bt.om.util.GsonUtil;
 import com.bt.om.util.QRcodeUtil;
@@ -22,15 +19,8 @@ import com.bt.om.web.util.UploadFileUtil;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.stream.JsonReader;
-import com.google.zxing.ReaderException;
-import com.google.zxing.Result;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpProcessor;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,14 +28,12 @@ import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import sun.misc.BASE64Decoder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.*;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by caiting on 2018/1/22.

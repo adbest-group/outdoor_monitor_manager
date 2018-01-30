@@ -259,12 +259,12 @@
                         "brand" : "可口可乐",
                         "dts":"2018-02-01",
                         "dt":"2018-03-01",
-                        "mg-demo-bak":"/static/upload/demo.png"
+                        "img-demo-bak":"/static/upload/demo.png"
                     }
                     $.each(demo_data,function(key,value){
                         $("#"+key).val(value);
                     })
-                    $("#img-demo-img").attr("src",demo_data["mg-demo-bak"]);
+                    $("#img-demo-img").attr("src",demo_data["img-demo-bak"]);
                 }).show();
             }
 

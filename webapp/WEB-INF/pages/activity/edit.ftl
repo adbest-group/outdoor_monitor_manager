@@ -509,7 +509,7 @@
             closeBtn:0,
             shadeClose:true,
             // skin: 'layui-layer-rim', //加上边框
-            area: ['250px', '250px'], //宽高
+            area: ['400px', '400px'], //宽高
             content: '<img src="/activity/getQrcode?id='+id+'" style="display:block;width:100%;height:auto;"/>'
         });
     }

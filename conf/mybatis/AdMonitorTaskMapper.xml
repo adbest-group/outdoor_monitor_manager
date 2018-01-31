@@ -177,16 +177,16 @@
 		<result column="realname" jdbcType="VARCHAR" property="realname" />
 		<result column="monitor_start" jdbcType="TIMESTAMP" property="monitorsStart" />
 		<result column="monitor_end" jdbcType="TIMESTAMP" property="monitorsEnd" />
-		<result column="monitor_count" jdbcType="INTEGER" property="monitorsCount" />
 		<result column="brand" jdbcType="VARCHAR" property="brand" />
 		<result column="status" jdbcType="INTEGER" property="status"/>
 		<result column="problem" jdbcType="VARCHAR" property="problem"/>
 		<result column="problem_other" jdbcType="VARCHAR" property="problemOther"/>
-		<result column="pic_url1" jdbcType="VARCHAR" property="pic_url1"/>
-		<result column="pic_url2" jdbcType="VARCHAR" property="pic_url2"/>
-		<result column="pic_url3" jdbcType="VARCHAR" property="pic_url3"/>
-		<result column="pic_url4" jdbcType="VARCHAR" property="pic_url4"/>
-		<result column="feedbackstatus" jdbcType="INTEGER" property="feedbackstatus"/>
+		<result column="pic_url1" jdbcType="VARCHAR" property="picUrl1"/>
+		<result column="pic_url2" jdbcType="VARCHAR" property="picUrl2"/>
+		<result column="pic_url3" jdbcType="VARCHAR" property="picUrl3"/>
+		<result column="pic_url4" jdbcType="VARCHAR" property="picUrl4"/>
+		<result column="feedbackstatus" jdbcType="INTEGER" property="feedbackStatus"/>
+		<result column="feedbackcreatetime" jdbcType="TIMESTAMP" property="feedbackCreateTime"/>
 	</resultMap>
 
   <resultMap id="MobileResultMap" extends="BaseResultMap" type="com.bt.om.entity.vo.AdMonitorTaskMobileVo">
@@ -296,7 +296,6 @@
 			activity.`create_time`,
 			`adseat`.`monitor_start`,
 			`adseat`.`monitor_end`,
-			`adseat`.`monitor_count`,
 			`adseat`.`brand`,
 			`adseat`.`sample_pic_url`,
 			`seatinfo`.`province`,
@@ -320,7 +319,6 @@
 		select
 			task.status,
 			activity.activity_name,
-			activity.create_time,
 			seatinfo.province,
 			seatinfo.city,
 			seatinfo.region,
@@ -332,6 +330,7 @@
 			feedback.pic_url3,
 			feedback.pic_url4,
 			feedback.problem_other,
+			feedback.create_time feedbackcreatetime,
 			feedback.status feedbackstatus
 		from
 			`ad_monitor_task` as task 

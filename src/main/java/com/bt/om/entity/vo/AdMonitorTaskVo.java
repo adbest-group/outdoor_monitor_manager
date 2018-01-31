@@ -21,17 +21,17 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 	private String realname;
 	private Date monitorsStart;// 监测开始时间
 	private Date monitorsEnd;// 监测结束时间
-	private Integer monitorsCount;// 监测次数
 	private String brand;// 品牌名
 	private Integer status;// 状态
 	private String problem;// 反馈问题
 	private String problemOther;
-	private String pic_url1;// 上传图片1
-	private String pic_url2;// 上传图片2
-	private String pic_url3;// 上传图片3
-	private String pic_url4;// 上传图片4
+	private String picUrl1;// 上传图片1
+	private String picUrl2;// 上传图片2
+	private String picUrl3;// 上传图片3
+	private String picUrl4;// 上传图片4
 	private String name;
-	private int feedbackstatus;
+	private int feedbackStatus;
+	private Date feedbackCreateTime;
 
 	public Integer getStatus() {
 		return status;
@@ -41,36 +41,37 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 		this.status = status;
 	}
 
-	public String getPic_url1() {
-		return pic_url1;
+	
+	public String getPicUrl1() {
+		return picUrl1;
 	}
 
-	public void setPic_url1(String pic_url1) {
-		this.pic_url1 = pic_url1;
+	public void setPicUrl1(String picUrl1) {
+		this.picUrl1 = picUrl1;
 	}
 
-	public String getPic_url2() {
-		return pic_url2;
+	public String getPicUrl2() {
+		return picUrl2;
 	}
 
-	public void setPic_url2(String pic_url2) {
-		this.pic_url2 = pic_url2;
+	public void setPicUrl2(String picUrl2) {
+		this.picUrl2 = picUrl2;
 	}
 
-	public String getPic_url3() {
-		return pic_url3;
+	public String getPicUrl3() {
+		return picUrl3;
 	}
 
-	public void setPic_url3(String pic_url3) {
-		this.pic_url3 = pic_url3;
+	public void setPicUrl3(String picUrl3) {
+		this.picUrl3 = picUrl3;
 	}
 
-	public String getPic_url4() {
-		return pic_url4;
+	public String getPicUrl4() {
+		return picUrl4;
 	}
 
-	public void setPic_url4(String pic_url4) {
-		this.pic_url4 = pic_url4;
+	public void setPicUrl4(String picUrl4) {
+		this.picUrl4 = picUrl4;
 	}
 
 	public String getActivityName() {
@@ -169,14 +170,6 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 		this.monitorsEnd = monitorsEnd;
 	}
 
-	public Integer getMonitorsCount() {
-		return monitorsCount;
-	}
-
-	public void setMonitorsCount(Integer monitorsCount) {
-		this.monitorsCount = monitorsCount;
-	}
-
 	public String getBrand() {
 		return brand;
 	}
@@ -209,14 +202,6 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 		this.name = name;
 	}
 
-	public int getFeedbackstatus() {
-		return feedbackstatus;
-	}
-
-	public void setFeedbackstatus(int feedbackstatus) {
-		this.feedbackstatus = feedbackstatus;
-	}
-
 	public String getProblemOther() {
 		return problemOther;
 	}
@@ -225,5 +210,20 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 		this.problemOther = problemOther;
 	}
 
+	public Date getFeedbackCreateTime() {
+		return feedbackCreateTime;
+	}
+
+	public void setFeedbackCreateTime(Date feedbackCreateTime) {
+		this.feedbackCreateTime = feedbackCreateTime;
+	}
+
+	public int getFeedbackStatus() {
+		return feedbackStatus;
+	}
+
+	public void setFeedbackStatus(int feedbackStatus) {
+		this.feedbackStatus = feedbackStatus;
+	}
 
 }

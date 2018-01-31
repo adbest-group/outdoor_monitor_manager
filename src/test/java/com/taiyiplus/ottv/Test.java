@@ -19,10 +19,8 @@ public class Test {
 	public void test() {
 		List<AdMonitorTaskVo> list = adMonitorTaskMapper.getSubmitDetails(7);
 		for (AdMonitorTaskVo vo : list) {
-			System.out.println(vo.getActivityName());
-			System.out.println(vo.getFeedbackstatus());
-			System.out.println(vo.getStatus());
-			System.out.println(vo.getProblemOther());
+			System.out.println(vo.getFeedbackStatus());
+			System.out.println(vo.getFeedbackCreateTime());
 		}
 	}
 }

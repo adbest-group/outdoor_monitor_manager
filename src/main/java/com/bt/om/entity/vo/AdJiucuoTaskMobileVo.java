@@ -16,6 +16,24 @@ public class AdJiucuoTaskMobileVo extends AdJiucuoTask {
     private String picUrl2;
     private String picUrl3;
     private String picUrl4;
+    private String problem;
+    private String problemOther;
+
+    public String getProblem() {
+        return problem;
+    }
+
+    public void setProblem(String problem) {
+        this.problem = problem;
+    }
+
+    public String getProblemOther() {
+        return problemOther;
+    }
+
+    public void setProblemOther(String problemOther) {
+        this.problemOther = problemOther;
+    }
 
     public String getActivityName() {
         return activityName;

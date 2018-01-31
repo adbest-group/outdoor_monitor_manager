@@ -200,6 +200,8 @@
     <result column="pic_url3" jdbcType="VARCHAR" property="picUrl3" />
     <result column="pic_url4" jdbcType="VARCHAR" property="picUrl4" />
     <result column="feedback_time" jdbcType="VARCHAR" property="feedbackTime" />
+    <result column="problem" jdbcType="VARCHAR" property="problem" />
+    <result column="problem_other" jdbcType="VARCHAR" property="problemOther" />
   </resultMap>
 
   <insert id="insertList" parameterType="java.util.List">
@@ -275,7 +277,8 @@
 
   <select id="selectByUserId" resultMap="MobileResultMap">
     select a.id, a.activity_id, a.activity_adseat_id, a.task_type, a.user_id, a.status, a.create_time, a.update_time,
-    b.activity_name,c.sample_pic_url,c.monitor_start,c.monitor_end,d.`name` as ad_seat_name,e.reason,e.pic_url1,e.pic_url2,e.pic_url3,e.pic_url4,e.create_time as feedback_time
+    b.activity_name,c.sample_pic_url,c.monitor_start,c.monitor_end,d.`name` as ad_seat_name,e.reason,e.pic_url1,e.pic_url2,e.pic_url3,e.pic_url4,e.create_time as feedback_time,
+    e.problem,e.problem_other
     from ad_monitor_task a
     left join ad_activity b on a.activity_id = b.id
     left join ad_activity_adseat c on a.activity_adseat_id = c.id

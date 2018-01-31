@@ -19,6 +19,24 @@ public class AdMonitorTaskMobileVo extends AdMonitorTask {
     private Date monitorStart;
     private Date monitorEnd;
     private Date feedbackTime;
+    private String problem;
+    private String problemOther;
+
+    public String getProblem() {
+        return problem;
+    }
+
+    public void setProblem(String problem) {
+        this.problem = problem;
+    }
+
+    public String getProblemOther() {
+        return problemOther;
+    }
+
+    public void setProblemOther(String problemOther) {
+        this.problemOther = problemOther;
+    }
 
     public String getActivityName() {
         return activityName;

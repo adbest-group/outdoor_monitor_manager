@@ -181,10 +181,12 @@
 		<result column="brand" jdbcType="VARCHAR" property="brand" />
 		<result column="status" jdbcType="INTEGER" property="status"/>
 		<result column="problem" jdbcType="VARCHAR" property="problem"/>
+		<result column="problem_other" jdbcType="VARCHAR" property="problemOther"/>
 		<result column="pic_url1" jdbcType="VARCHAR" property="pic_url1"/>
 		<result column="pic_url2" jdbcType="VARCHAR" property="pic_url2"/>
 		<result column="pic_url3" jdbcType="VARCHAR" property="pic_url3"/>
 		<result column="pic_url4" jdbcType="VARCHAR" property="pic_url4"/>
+		<result column="feedbackstatus" jdbcType="INTEGER" property="feedbackstatus"/>
 	</resultMap>
 
   <resultMap id="MobileResultMap" extends="BaseResultMap" type="com.bt.om.entity.vo.AdMonitorTaskMobileVo">
@@ -325,7 +327,9 @@
 			feedback.pic_url1,
 			feedback.pic_url2,
 			feedback.pic_url3,
-			feedback.pic_url4
+			feedback.pic_url4,
+			feedback.problem_other,
+			feedback.status feedbackstatus
 		from
 			`ad_monitor_task` as task 
 			left join ad_activity as activity on task.activity_id=activity.id

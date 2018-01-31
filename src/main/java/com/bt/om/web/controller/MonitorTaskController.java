@@ -182,56 +182,51 @@ public class MonitorTaskController extends BasicController {
 	}
 
 	/**
-	 * 查看任务详情
-	 * 
+	 * 详情页面
 	 * @param taskId
 	 * @param model
 	 * @param request
 	 * @return 详情页面
 	 */
-
-	/*
-	 * @RequestMapping(value = "/details") public String
-	 * gotoDetailsPage(@RequestParam("task_Id") String
-	 * taskId, @RequestParam("media_Name") String mediaName, Model model,
-	 * HttpServletRequest request) { AdMonitorTaskVo vo =
-	 * adMonitorTaskService.getTaskDetails(taskId, mediaName); if (vo != null) {
-	 * model.addAttribute("vo", vo); } return PageConst.DETAILS_PAGE; }
-	 */
-
-	@RequestMapping(value = "/details", method = RequestMethod.GET)
-	@ResponseBody
-	private HashMap<String, Object> gotoDetailsPage(@RequestParam("task_Id") String taskId,
-			HttpServletRequest request) {
-		HashMap<String, Object> modelMap = new HashMap<String, Object>();
-		AdMonitorTaskVo vo = new AdMonitorTaskVo();
-		try {
-			vo = adMonitorTaskService.getTaskDetails(taskId);
-			List<AdMonitorTaskVo> list = adMonitorTaskService.getSubmitDetails(taskId);
-			modelMap.put("list", list);
-			modelMap.put("vo", vo);
-			modelMap.put("success", true);
-			return modelMap;
-		} catch (Exception e) {
-			modelMap.put("success", false);
-			modelMap.put("errMsg", e.getMessage());
+	@RequestMapping(value = "/details")
+	public String gotoDetailsPage(@RequestParam("task_Id") String taskId, Model model, HttpServletRequest request) {
+		AdMonitorTaskVo vo = adMonitorTaskService.getTaskDetails(taskId);
+		List<AdMonitorTaskVo> list = adMonitorTaskService.getSubmitDetails(taskId);
+		
+		if (vo != null && list != null) {
+			model.addAttribute("vo", vo);
+			model.addAttribute("list", list);
+			model.addAttribute("taskId", taskId);
 		}
-		return modelMap;
-	}
-
-	/**
-	 * 路由
-	 * 
-	 * @param request
-	 * @param taskId
-	 * @param mediaName
-	 * @param model
-	 * @return DETAILS_PAGE
-	 */
-	@RequestMapping(value = "/gotoDetailsPage", method = RequestMethod.GET)
-	private String gotoDetailPage(HttpServletRequest request, @RequestParam("task_Id") String taskId, Model model) {
-		model.addAttribute("taskId", taskId);
 		return PageConst.DETAILS_PAGE;
 	}
+
+	/*
+	 * @RequestMapping(value = "/details", method = RequestMethod.GET)
+	 * 
+	 * @ResponseBody private HashMap<String, Object>
+	 * gotoDetailsPage(@RequestParam("task_Id") String taskId, HttpServletRequest
+	 * request) { HashMap<String, Object> modelMap = new HashMap<String, Object>();
+	 * AdMonitorTaskVo vo = new AdMonitorTaskVo(); try { vo =
+	 * adMonitorTaskService.getTaskDetails(taskId); List<AdMonitorTaskVo> list =
+	 * adMonitorTaskService.getSubmitDetails(taskId); modelMap.put("list", list);
+	 * modelMap.put("vo", vo); modelMap.put("success", true); return modelMap; }
+	 * catch (Exception e) { modelMap.put("success", false); modelMap.put("errMsg",
+	 * e.getMessage()); } return modelMap; }
+	 * 
+	 *//**
+		 * 路由
+		 * 
+		 * @param request
+		 * @param taskId
+		 * @param mediaName
+		 * @param model
+		 * @return DETAILS_PAGE
+		 *//*
+			 * @RequestMapping(value = "/gotoDetailsPage", method = RequestMethod.GET)
+			 * private String gotoDetailPage(HttpServletRequest
+			 * request, @RequestParam("task_Id") String taskId, Model model) {
+			 * model.addAttribute("taskId", taskId); return PageConst.DETAILS_PAGE; }
+			 */
 
 }

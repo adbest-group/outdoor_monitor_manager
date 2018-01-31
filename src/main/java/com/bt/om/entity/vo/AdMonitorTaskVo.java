@@ -25,11 +25,13 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 	private String brand;// 品牌名
 	private Integer status;// 状态
 	private String problem;// 反馈问题
+	private String problemOther;
 	private String pic_url1;// 上传图片1
 	private String pic_url2;// 上传图片2
 	private String pic_url3;// 上传图片3
 	private String pic_url4;// 上传图片4
 	private String name;
+	private int feedbackstatus;
 
 	public Integer getStatus() {
 		return status;
@@ -38,8 +40,6 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 	public void setStatus(Integer status) {
 		this.status = status;
 	}
-
-	
 
 	public String getPic_url1() {
 		return pic_url1;
@@ -208,5 +208,22 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 	public void setName(String name) {
 		this.name = name;
 	}
+
+	public int getFeedbackstatus() {
+		return feedbackstatus;
+	}
+
+	public void setFeedbackstatus(int feedbackstatus) {
+		this.feedbackstatus = feedbackstatus;
+	}
+
+	public String getProblemOther() {
+		return problemOther;
+	}
+
+	public void setProblemOther(String problemOther) {
+		this.problemOther = problemOther;
+	}
+
 
 }

@@ -60,9 +60,7 @@
             $.ajax({
                 url:options.dataUrl,
                 type:'GET',
-                crossDomain: options.crossDomain,
                 dataType:options.dataType,
-                jsonpCallback:'jsonp_location',
                 success:function(data){
                     var province,city,area,hasCity;
                     if(options.code){   //如果设置地区编码，则忽略单独设置的信息

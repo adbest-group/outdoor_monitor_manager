@@ -75,10 +75,10 @@
 				                    </div>
 				                    <div>
 				                    	提交照片：</br>
-				                    	<div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;"><img style="vertical-align: top;width:350px" src="${item.pic_url1!""}"></img></div>
-				                    	<div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;"><img style="vertical-align: top;width:350px"" src="${item.pic_url2!""}"></img></div></br>
-				                    	<div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;"><img style="vertical-align: top;width:350px"" src="${item.pic_url3!""}"></img></div>
-				                    	<div style="width: 360px;margin-bottom: 10px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;"><img style="vertical-align: top;width:350px"" src="${item.pic_url4!""}"></img></div>
+				                    	<div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;"><img style="vertical-align: top;width:350px" src="${item.picUrl1!""}"></img></div>
+				                    	<div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;"><img style="vertical-align: top;width:350px"" src="${item.picUrl2!""}"></img></div></br>
+				                    	<div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;"><img style="vertical-align: top;width:350px"" src="${item.picUrl3!""}"></img></div>
+				                    	<div style="width: 360px;margin-bottom: 10px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;"><img style="vertical-align: top;width:350px"" src="${item.picUrl4!""}"></img></div>
 				                    </div>
 				                    <#if item.status==3>
 				                    	<button type="button" class="btn btn-red" style="margin-left:10px;" autocomplete="off" id="searchBtn" onclick="">

@@ -48,7 +48,7 @@ tr {
 					<table>
 						<tbody>
 							<tr>
-								<td> 人群选择1：</td>
+								<td> 人群选择：</td>
 								<td><input type="checkbox" id="male" onclick="checkboxOnclick(this)">男</td>
 							</tr>
 							<tr> 
@@ -162,7 +162,7 @@ tr {
 
 	function myFunction(range) {
 		var x = $(range).val();
-		$(range+"+td+p").html(x + "%");
+		$(range).parent().next().find("p").html(x + "%");
 	}
 
 	/*获取城市  */

@@ -123,7 +123,7 @@
                                                     <#--<td>2018-01-01至2018-02-01</td>-->
                                                     <#--<td>3</td>-->
                                                     <#--<td>上刊、投放期间、下刊</td>-->
-                                                    <#--<td><img src="http://ottstatic2.taiyiplus.com/images/300x250.gif" class="demo"/></td>-->
+                                                    <#--<td><img src="${model.static_domain}/images/300x250.gif" class="demo"/></td>-->
                                                     <#--<td>-->
                                                         <#--<a href="javascript:;">详情</a>-->
                                                         <#--<a href="javascript:;">删除</a>-->
@@ -161,9 +161,9 @@
 <script src="${model.static_domain}/js/ajaxfileupload.js"></script>
 <!-- 时期 -->
 <link href="${model.static_domain}/js/date/daterangepicker.css" rel="stylesheet">
-<script type="text/javascript" src="http://ottstatic2.taiyiplus.com/js/date/moment.min.js"></script>
-<script type="text/javascript" src="http://ottstatic2.taiyiplus.com/js/date/jquery.daterangepicker.js"></script>
-<script type="text/javascript" src="http://ottstatic2.taiyiplus.com/js/date.js"></script>
+<script type="text/javascript" src="${model.static_domain}/js/date/moment.min.js"></script>
+<script type="text/javascript" src="${model.static_domain}/js/date/jquery.daterangepicker.js"></script>
+<script type="text/javascript" src="${model.static_domain}/js/date.js"></script>
 <!-- 图片缩放 -->
 <script type="text/javascript" src="${model.static_domain}/js/jquery.resize.js"></script>
 <!-- formValidator -->

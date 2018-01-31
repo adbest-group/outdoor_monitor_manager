@@ -63,7 +63,7 @@
                             <td>${vm.getActivityStatusTextWithColor(activity.status)}</td>
                             <td>
                                 <#if activity.status==1><a href="javascript:queren('${activity.id}')">确认</a></#if>
-                                <#if activity.status==1><a href="/activity/edit?id=${activity.id}">修改</a></#if>
+                                <#if activity.status==1 || activity.status==2><a href="/activity/edit?id=${activity.id}">修改</a></#if>
                                 <#if activity.status==1><a href="javascript:del('${activity.id}')">删除</a></#if>
                             </td>
                         </tr>
@@ -82,15 +82,15 @@
 </div>
 </div>
 </div>
-<script type="text/javascript" src="http://ottstatic2.taiyiplus.com/js/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="~/js/jquery-2.1.4.min.js"></script>
 <!-- 下拉 -->
-<link href="http://ottstatic2.taiyiplus.com/js/select/jquery.searchableSelect.css" rel="stylesheet">
-<script src="http://ottstatic2.taiyiplus.com/js/select/jquery.searchableSelect.js"></script>
+<link href="${model.static_domain}/js/select/jquery.searchableSelect.css" rel="stylesheet">
+<script src="${model.static_domain}/js/select/jquery.searchableSelect.js"></script>
 <!-- 时期 -->
 <link href="${model.static_domain}/js/date/daterangepicker.css" rel="stylesheet">
-<script type="text/javascript" src="http://ottstatic2.taiyiplus.com/js/date/moment.min.js"></script>
-<script type="text/javascript" src="http://ottstatic2.taiyiplus.com/js/date/jquery.daterangepicker.js"></script>
-<script type="text/javascript" src="http://ottstatic2.taiyiplus.com/js/date.js"></script>
+<script type="text/javascript" src="${model.static_domain}/js/date/moment.min.js"></script>
+<script type="text/javascript" src="${model.static_domain}/js/date/jquery.daterangepicker.js"></script>
+<script type="text/javascript" src="${model.static_domain}/js/date.js"></script>
 
 <script type="text/javascript">
             $(function(){

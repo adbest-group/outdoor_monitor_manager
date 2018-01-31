@@ -121,9 +121,9 @@
 	<script src="${model.static_domain}/js/select/jquery.searchableSelect.js"></script>
 	<!-- 时期 -->
 	<link href="${model.static_domain}/js/date/daterangepicker.css" rel="stylesheet">
-	<script type="text/javascript" src="http://ottstatic2.taiyiplus.com/js/date/moment.min.js"></script>
-	<script type="text/javascript" src="http://ottstatic2.taiyiplus.com/js/date/jquery.daterangepicker.js"></script>
-	<script type="text/javascript" src="http://ottstatic2.taiyiplus.com/js/date.js"></script>
+	<script type="text/javascript" src="${model.static_domain}/js/date/moment.min.js"></script>
+	<script type="text/javascript" src="${model.static_domain}/js/date/jquery.daterangepicker.js"></script>
+	<script type="text/javascript" src="${model.static_domain}/js/date.js"></script>
 	<!-- formValidator -->
 	<link type="text/css" rel="stylesheet" href="${model.static_domain}/js/formValidator/style/validator.css"></link>
 	<!--文件上传-->

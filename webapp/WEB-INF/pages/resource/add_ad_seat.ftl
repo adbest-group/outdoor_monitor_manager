@@ -2,8 +2,8 @@
 <#assign webHead in model>
 </#assign>
 <@model.webhead />
-	<link rel="stylesheet" type="text/css" href="http://ottstatic2.taiyiplus.com/css/new_main.css">
-	<link rel="stylesheet" type="text/css" href="http://ottstatic2.taiyiplus.com/css/icon_fonts.css">
+	<link rel="stylesheet" type="text/css" href="${model.static_domain}/css/new_main.css">
+	<link rel="stylesheet" type="text/css" href="${model.static_domain}/css/icon_fonts.css">
 	
     <!-- 头部 -->
     <@model.webMenu current="资源管理" child="资源管理" />
@@ -35,7 +35,7 @@
 	    </div>
 	</div>
 	
-	<script type="text/javascript" src="http://ottstatic2.taiyiplus.com/js/jquery-2.1.4.min.js"></script>
+	<script type="text/javascript" src="${model.static_domain}/js/jquery-2.1.4.min.js"></script>
 	<script type="text/javascript">
         		var $town = $('#demo3 select[name="town"]');
         		var townFormat = function(info){

@@ -28,7 +28,7 @@
                             <p>投放品牌：${seat.brand}</p>
                             <p>监测时间段：${seat.monitorStart?string('yyyy-MM-dd')} 至 ${seat.monitorEnd?string('yyyy-MM-dd')}</p>
                             <p>监测次数：${seat.monitorCount}</p>
-                            <p>创建时间：${seat.createTime?string('yyyy-MM-dd')}</p>
+                            <p>创建时间：${seat.createTime?string('yyyy-MM-dd HH:mm:dd')}</p>
                             <p>广告样例：<img style="vertical-align: top" src="${seat.samplePicUrl}" width="300"/></p>
                         </div>
                     </div>

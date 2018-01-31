@@ -63,7 +63,7 @@
                             <td>
                                 <div class="data-title w200" data-title="${task.activityName}" data-id="${task.id}">${task.activityName?if_exists}</div></td>
                             <td><img width="50" src="${task.picUrl1}"/></td>
-                            <td>${task.submitTime?string('yyyy-MM-dd')}</td>
+                            <td>${task.submitTime?string('yyyy-MM-dd HH:mm:ss')}</td>
                             <td>${task.city}</td>
                             <td>${task.mediaName}</td>
                             <td>${task.adSeatName}</td>

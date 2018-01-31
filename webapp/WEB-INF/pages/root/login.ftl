@@ -9,7 +9,7 @@
 <div class="wrapper clearfix">
 		<header class="clearfix">
 			<div class="head">
-				<h1><img src="${model.static_domain}/images/login_logo.png"></h1>
+				<h1><img src="/static/images/logo2.png" style="width:210px;"></h1>
 				<span class="login-line"></span>
 			</div>
 		</header>
@@ -23,7 +23,7 @@
 				</div>
 				<div class="login-box-line"></div>
 				<div class="login" id="login">
-					<div class="hd"><img src="${model.static_domain}/images/login_l.png"></div>
+					<div class="hd"><img src="/static/images/logo3.png" style="height:60px;"></div>
 					<div class="login-form">
 						<form id="loginform" name="loginform" action="/doLogin" method="post"  style="margin:0px">
 							<div class="login-main">

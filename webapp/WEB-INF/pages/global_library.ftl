@@ -22,7 +22,7 @@
 <div class="wrapper clearfix">
     <div class="sidebar">
         <div class="nav-sidebar">
-            <h2><img src="${model.static_domain}/images/logo.png"></h2>
+            <h2><img src="/static/images/logo2.png" style="width:156px;"></h2>
             <ul>
             <#local menu = vm.getMenuList() />
             <#if (menu?exists && menu?size > 0)>
@@ -51,7 +51,7 @@
         <div class="main-wrap">
             <header class="clearfix">
                 <div class="head">
-                    <h1><img src="${model.static_domain}/images/ott_logo.png"></h1>
+                    <h1><img src="/static/images/logo4.png"></h1>
                     <div class="head-right">
                         <a href="javascript:;" class="user-name"><@shiro.principal /></a>
                         <a href="javascript:;" class="sign-out" title="退出">退出</a>

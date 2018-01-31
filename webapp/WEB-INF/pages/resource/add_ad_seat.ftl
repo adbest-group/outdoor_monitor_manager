@@ -48,7 +48,7 @@ tr {
 					<table>
 						<tbody>
 							<tr>
-								<td> 人群选择：</td>
+								<td> 人群选择1：</td>
 								<td><input type="checkbox" id="male" onclick="checkboxOnclick(this)">男</td>
 							</tr>
 							<tr> 

@@ -43,13 +43,13 @@
                             <p>问题反馈：<span style="color:orangered;">${feedback.problem!""} ${feedback.problemOther!""}</p>
                             <p>执行状态：${vm.getJiucuoTaskStatusText(task.status)}</p>
                             <p>提交照片：<img style="vertical-align: top" src="${feedback.picUrl1}" width="300"/></p>
-                            <#if task.status ==1>
-                            <br/>
-                            <p style="text-align:center;">
-                                <button type="button" class="btn btn-red" style="margin-left:10px;" id="btnPass">通过</button>
-                                <button type="button" class="btn btn-red" style="margin-left:10px;" id="btnReject">拒绝</button>
-                            </p>
-                            </#if>
+                            <#--<#if task.status ==1>-->
+                            <#--<br/>-->
+                            <#--<p style="text-align:center;">-->
+                                <#--<button type="button" class="btn btn-red" style="margin-left:10px;" id="btnPass">通过</button>-->
+                                <#--<button type="button" class="btn btn-red" style="margin-left:10px;" id="btnReject">拒绝</button>-->
+                            <#--</p>-->
+                            <#--</#if>-->
                         </div>
                     </div>
                 </div>

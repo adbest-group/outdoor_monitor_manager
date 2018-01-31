@@ -25,7 +25,7 @@
 						<div>监测时间段：${vo.monitorsStart?string('yyyy-MM-dd')} 至 ${vo.monitorsEnd?string('yyyy-MM-dd')}</div>
 						<div>媒体名称：${vo.mediaName}</div>
 						<div>投放品牌：${vo.brand}</div>
-						<div>创建时间：${vo.createTime?string('yyyy-MM-dd')}</div>
+						<div>创建时间：${vo.createTime?string('yyyy-MM-dd HH:mm')}</div>
 						<div>
 							样例:</br><img style="vertical-align: top" src="${vo.samplePicUrl}"></img>
 						</div>
@@ -51,7 +51,14 @@
 				                    <div style="padding-top:20px">广告活动名称：${item.activityName}</div>
 				                    <div>提交时间：${(item.feedbackCreateTime?string('yyyy-MM-dd HH:mm'))!""}</div>
 				                    <div>提交地区：${item.province}-${item.city}-${item.region}-${item.street}</div>
-				                    <div>检测时间：上刊(${item.monitorsStart?string('yyyy-MM-dd')})</div>
+				                    <div>检测时间：
+				                    	<#if item.taskType==1>
+				                    		上刊
+				                    	<#elseif item.taskType==2>
+				                    		投放期间
+				                    	<#else>
+				                    		下刊
+				                    	</#if>(${item.monitorsStart?string('yyyy-MM-dd HH:mm')})</div>
 				                    <div>问题反馈：${item.problem!""} ${item.problemOther!""}</div>
 				                    <div>
 				                    	执行状态：

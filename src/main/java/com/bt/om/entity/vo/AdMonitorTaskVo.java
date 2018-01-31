@@ -33,6 +33,25 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 	private int feedbackStatus;
 	private Date feedbackCreateTime;
 
+	public int getDownMonitor() {
+		return downMonitor;
+	}
+
+	public void setDownMonitor(int downMonitor) {
+		this.downMonitor = downMonitor;
+	}
+
+	public int getDurationMonitor() {
+		return durationMonitor;
+	}
+
+	public void setDurationMonitor(int durationMonitor) {
+		this.durationMonitor = durationMonitor;
+	}
+
+	private int downMonitor;
+	private int durationMonitor;
+
 	public Integer getStatus() {
 		return status;
 	}
@@ -41,7 +60,6 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 		this.status = status;
 	}
 
-	
 	public String getPicUrl1() {
 		return picUrl1;
 	}

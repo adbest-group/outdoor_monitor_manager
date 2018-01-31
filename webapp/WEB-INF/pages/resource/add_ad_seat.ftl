@@ -32,6 +32,7 @@ tr {
 				</div>
 
 				<form action="">
+					广告位名称：<input type="text"></br>
 					媒体名称：<input type="text"></br>
 					<div id="demo3" class="citys">
 						<p>
@@ -40,6 +41,8 @@ tr {
 								name="town"></select>
 						</p>
 					</div>
+					广告位经度：<input type="text"></br>
+					广告位纬度：<input type="text"></br>	
 					广告位位置：<input type="text"></br> 广告位类型：<input type="text"></br>
 					广告位编号：<input type="text"></br> 广告位尺寸：<input type="text"></br>
 					日均PV：<input type="text"></br> 私家车日均PV：<input type="text"></br>

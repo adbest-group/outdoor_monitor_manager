@@ -331,7 +331,8 @@
 			feedback.pic_url4,
 			feedback.problem_other,
 			feedback.create_time feedbackcreatetime,
-			feedback.status feedbackstatus
+			feedback.status feedbackstatus,
+			task.task_type
 		from
 			`ad_monitor_task` as task 
 			left join ad_activity as activity on task.activity_id=activity.id

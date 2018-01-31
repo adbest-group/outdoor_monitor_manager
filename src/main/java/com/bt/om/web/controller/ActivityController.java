@@ -3,12 +3,16 @@ package com.bt.om.web.controller;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.SysUser;
+import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdActivityVo;
 import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
+import com.bt.om.util.GsonUtil;
+import com.bt.om.util.QRcodeUtil;
+import com.bt.om.vo.api.QRCodeInfoVo;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
@@ -18,12 +22,21 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Random;
 
 /**
  * Created by caiting on 2018/1/20.
@@ -126,5 +139,19 @@ public class ActivityController  extends BasicController {
 
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
+    }
+
+    /**
+     *  根据活动广告位关联id，获取二维码
+     **/
+    @RequestMapping(value = {"/getQrcode"}, method = RequestMethod.GET)
+    public void getCode(HttpServletRequest request, HttpServletResponse response,
+                        @RequestParam(value = "id", required = false) Integer adActivityAdseatId) throws Exception {
+
+        QRCodeInfoVo vo = new QRCodeInfoVo((AdActivityAdseatVo) adActivityService.getActivitySeatById(adActivityAdseatId));
+
+        // 将内存中的图片发送到客户端
+        response.setContentType("image/jpg");
+        QRcodeUtil.encode(GsonUtil.GsonString(vo),response.getOutputStream());
     }
 }

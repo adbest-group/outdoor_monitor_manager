@@ -2,7 +2,6 @@ package com.bt.om.web.controller;
 
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
-import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.enums.MonitorTaskStatus;
@@ -11,15 +10,11 @@ import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
-import com.bt.om.web.Pagination.Page;
 import com.bt.om.web.util.SearchUtil;
-import com.sun.javafx.collections.MappingChange.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;

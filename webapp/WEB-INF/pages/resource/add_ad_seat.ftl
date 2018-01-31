@@ -3,9 +3,9 @@
 <!-- 头部 -->
 <@model.webMenu current="监测管理" child="监测管理" />
 <link rel="stylesheet" type="text/css"
-	href="http://ottstatic2.taiyiplus.com/css/new_main.css">
+	href="${model.static_domain}/css/new_main.css">
 <link rel="stylesheet" type="text/css"
-	href="http://ottstatic2.taiyiplus.com/css/icon_fonts.css">
+	href="${model.static_domain}/css/icon_fonts.css">
 <style type="text/css">
 input {
 	margin: 5px;
@@ -140,7 +140,7 @@ tr {
 </div>
 
 <script type="text/javascript"
-	src="http://ottstatic2.taiyiplus.com/js/jquery-2.1.4.min.js"></script>
+	src="${model.static_domain}/js/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="../static/js/jquery.citys.js"></script>
 <script type="text/javascript">
 	/*复选框选中时拖动条可以拖动  */

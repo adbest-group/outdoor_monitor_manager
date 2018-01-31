@@ -2,10 +2,8 @@
 </#assign> <@model.webhead />
 <!-- 头部 -->
 <@model.webMenu current="监测管理" child="监测管理" />
-<link rel="stylesheet" type="text/css"
-	href="http://ottstatic2.taiyiplus.com/css/new_main.css">
-<link rel="stylesheet" type="text/css"
-	href="http://ottstatic2.taiyiplus.com/css/icon_fonts.css">
+<link rel="stylesheet" type="text/css" href="${model.static_domain}/css/new_main.css">
+<link rel="stylesheet" type="text/css" href="${model.static_domain}/css/icon_fonts.css">
 
 <!-- 特色内容 -->
 <div class="main-container">
@@ -104,7 +102,7 @@
 </div>
 
 <script type="text/javascript"
-	src="http://ottstatic2.taiyiplus.com/js/jquery-2.1.4.min.js"></script>
+	src="${model.static_domain}/js/jquery-2.1.4.min.js"></script>
 <script type="text/javascript">
 	pass = function(id){
 	    layer.confirm("确认审核通过？", {

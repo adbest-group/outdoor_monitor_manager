@@ -123,7 +123,7 @@
                                                     <#--<td>2018-01-01至2018-02-01</td>-->
                                                     <#--<td>3</td>-->
                                                     <#--<td>上刊、投放期间、下刊</td>-->
-                                                    <#--<td><img src="http://ottstatic2.taiyiplus.com/images/300x250.gif" class="demo"/></td>-->
+                                                    <#--<td><img src="${model.static_domain}/images/300x250.gif" class="demo"/></td>-->
                                                     <#--<td>-->
                                                         <#--<a href="javascript:;">详情</a>-->
                                                         <#--<a href="javascript:;">删除</a>-->
@@ -161,9 +161,9 @@
 <script src="${model.static_domain}/js/ajaxfileupload.js"></script>
 <!-- 时期 -->
 <link href="${model.static_domain}/js/date/daterangepicker.css" rel="stylesheet">
-<script type="text/javascript" src="http://ottstatic2.taiyiplus.com/js/date/moment.min.js"></script>
-<script type="text/javascript" src="http://ottstatic2.taiyiplus.com/js/date/jquery.daterangepicker.js"></script>
-<script type="text/javascript" src="http://ottstatic2.taiyiplus.com/js/date.js"></script>
+<script type="text/javascript" src="${model.static_domain}/js/date/moment.min.js"></script>
+<script type="text/javascript" src="${model.static_domain}/js/date/jquery.daterangepicker.js"></script>
+<script type="text/javascript" src="${model.static_domain}/js/date.js"></script>
 <!-- 图片缩放 -->
 <script type="text/javascript" src="${model.static_domain}/js/jquery.resize.js"></script>
 <!-- formValidator -->
@@ -479,7 +479,7 @@
         if(activity_seats.length>0){
             var tab = $('<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead> <tr> <th>序号</th> <th>广告位</th> <th>媒体</th> <th>投放品牌</th> <th>监测时间段</th> <th>监测次数</th> <th>监测时间</th> <th>样例</th> <th>操作</th> </tr> </thead> <tbody></tbody></table>');
             $.each(activity_seats,function(i,as){
-                tab.find("tbody").append("<tr> <td width='30'>"+(i+1)+"</td> <td>"+as.seatName+"</td> <td>"+as.mediaName+"</td> <td>"+as.brand+"</td> <td>"+as.startDate+"至"+as.endDate+"</td> <td>"+as.monitorCount+"</td> <td>"+(as.upMonitor==1?"上刊":"")+"&nbsp;"+(as.durationMonitor==1?"投放期间":"")+"&nbsp;"+(as.downMonitor==1?"下刊":"")+"&nbsp;"+"</td> <td><img src='"+as.samplePicUrl+"' class='demo'/></td> <td> <a href='javascript:modAS("+i+");'>详情</a> <a href='javascript:dealAS("+i+");'>删除</a> </td> </tr>");
+                tab.find("tbody").append("<tr> <td width='30'>"+(i+1)+"</td> <td>"+as.seatName+"</td> <td>"+as.mediaName+"</td> <td>"+as.brand+"</td> <td>"+as.startDate+"至"+as.endDate+"</td> <td>"+as.monitorCount+"</td> <td>"+(as.upMonitor==1?"上刊":"")+"&nbsp;"+(as.durationMonitor==1?"投放期间":"")+"&nbsp;"+(as.downMonitor==1?"下刊":"")+"&nbsp;"+"</td> <td><img src='"+as.samplePicUrl+"' class='demo'/></td> <td> <a href='javascript:modAS("+i+");'>详情</a> "+((!!as.id)?"<a href='javascript:showQR("+as.id+");'>二维码</a>":"")+" <a href='javascript:dealAS("+i+");'>删除</a> </td> </tr>");
             });
             $("#as-container").append(tab);
         }
@@ -498,6 +498,19 @@
             shade: 0.8,
             area: ['820px', '600px'],
             content: '/customer/activity/adseat/edit' //iframe的url
+        });
+    }
+
+    showQR=function(id){
+        layer.open({
+            type: 1,
+            title:false,
+            shade:[0.9,'#000'],
+            closeBtn:0,
+            shadeClose:true,
+           // skin: 'layui-layer-rim', //加上边框
+            area: ['250px', '250px'], //宽高
+            content: '<img src="/activity/getQrcode?id='+id+'" style="display:block;width:100%;height:auto;"/>'
         });
     }
 

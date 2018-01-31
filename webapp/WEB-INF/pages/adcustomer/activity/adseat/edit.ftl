@@ -121,9 +121,9 @@
 	<script src="${model.static_domain}/js/select/jquery.searchableSelect.js"></script>
 	<!-- 时期 -->
 	<link href="${model.static_domain}/js/date/daterangepicker.css" rel="stylesheet">
-	<script type="text/javascript" src="http://ottstatic2.taiyiplus.com/js/date/moment.min.js"></script>
-	<script type="text/javascript" src="http://ottstatic2.taiyiplus.com/js/date/jquery.daterangepicker.js"></script>
-	<script type="text/javascript" src="http://ottstatic2.taiyiplus.com/js/date.js"></script>
+	<script type="text/javascript" src="${model.static_domain}/js/date/moment.min.js"></script>
+	<script type="text/javascript" src="${model.static_domain}/js/date/jquery.daterangepicker.js"></script>
+	<script type="text/javascript" src="${model.static_domain}/js/date.js"></script>
 	<!-- formValidator -->
 	<link type="text/css" rel="stylesheet" href="${model.static_domain}/js/formValidator/style/validator.css"></link>
 	<!--文件上传-->
@@ -259,12 +259,12 @@
                         "brand" : "可口可乐",
                         "dts":"2018-02-01",
                         "dt":"2018-03-01",
-                        "mg-demo-bak":"/static/upload/demo.png"
+                        "img-demo-bak":"/static/upload/demo.png"
                     }
                     $.each(demo_data,function(key,value){
                         $("#"+key).val(value);
                     })
-                    $("#img-demo-img").attr("src",demo_data["mg-demo-bak"]);
+                    $("#img-demo-img").attr("src",demo_data["img-demo-bak"]);
                 }).show();
             }
 

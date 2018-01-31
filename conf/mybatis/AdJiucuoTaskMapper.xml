@@ -198,7 +198,8 @@
     <result column="pic_url2" jdbcType="VARCHAR" property="picUrl2" />
     <result column="pic_url3" jdbcType="VARCHAR" property="picUrl3" />
     <result column="pic_url4" jdbcType="VARCHAR" property="picUrl4" />
-    <result column="reason" jdbcType="VARCHAR" property="reason" />
+    <result column="problem" jdbcType="VARCHAR" property="problem" />
+    <result column="problem_other" jdbcType="VARCHAR" property="problemOther" />
     <result column="feedback_time" jdbcType="VARCHAR" property="feedbackTime" />
   </resultMap>
 
@@ -267,7 +268,8 @@
 
   <select id="selectByUserId" resultMap="MobileResultMap">
     select a.id, a.activity_id, a.ad_seat_id, a.submit_time, a.user_id, a.status,a.reason, a.create_time, a.update_time,
-    b.pic_url1,b.pic_url2,b.pic_url3,b.pic_url4,b.create_time as feedback_time,c.activity_name,e.`name` as ad_seat_name
+    b.pic_url1,b.pic_url2,b.pic_url3,b.pic_url4,b.create_time as feedback_time,c.activity_name,e.`name` as ad_seat_name,
+    b.problem,b.problem_other
     from ad_jiucuo_task a
     left join ad_jiucuo_task_feedback b on a.id = b.jiucuo_task_id
     left join ad_activity c on a.activity_id = c.id

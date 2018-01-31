@@ -18,6 +18,8 @@ public class JiucuoTaskVo extends BasicVo{
     private Integer ad_status;
     private List<String> img_url_list;
     private String reason;
+    private String problem;
+    private String problem_other;
 
     public JiucuoTaskVo(AdJiucuoTaskMobileVo task){
         this.task_id = task.getId();
@@ -27,8 +29,26 @@ public class JiucuoTaskVo extends BasicVo{
         this.ad_location = task.getAdSeatName();
         this.ad_status = task.getStatus();
         this.reason = task.getReason();
+        this.problem = task.getProblem();
+        this.problem_other = task.getProblemOther();
         this.img_url_list = Lists.newArrayList();
         this.img_url_list.add(task.getPicUrl1());
+    }
+
+    public String getProblem() {
+        return problem;
+    }
+
+    public void setProblem(String problem) {
+        this.problem = problem;
+    }
+
+    public String getProblem_other() {
+        return problem_other;
+    }
+
+    public void setProblem_other(String problem_other) {
+        this.problem_other = problem_other;
     }
 
     public String getReason() {

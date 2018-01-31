@@ -21,6 +21,8 @@ public class MonitorTaskExecutingVo extends BasicVo {
     private String ad_location;
     private Integer ad_status;
     private List<String> img_url_list;
+    private String problem;
+    private String problem_other;
 
     public MonitorTaskExecutingVo(AdMonitorTaskMobileVo task){
         this.task_id = task.getId();
@@ -36,6 +38,24 @@ public class MonitorTaskExecutingVo extends BasicVo {
         this.img_url_list.add(task.getPicUrl2());
         this.img_url_list.add(task.getPicUrl3());
         this.img_url_list.add(task.getPicUrl4());
+        this.problem = task.getProblem();
+        this.problem_other = task.getProblemOther();
+    }
+
+    public String getProblem() {
+        return problem;
+    }
+
+    public void setProblem(String problem) {
+        this.problem = problem;
+    }
+
+    public String getProblem_other() {
+        return problem_other;
+    }
+
+    public void setProblem_other(String problem_other) {
+        this.problem_other = problem_other;
     }
 
     public Integer getTask_id() {

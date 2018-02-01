@@ -24,7 +24,7 @@
                     <td>
                         <div class="select-box select-box-140 un-inp-select">
                             <select name="user" class="select" id="user">
-                                <option value="1">蔡挺</option>
+                                <option value="1">监测员1号</option>
                             </select>
                         </div>
                     </td>

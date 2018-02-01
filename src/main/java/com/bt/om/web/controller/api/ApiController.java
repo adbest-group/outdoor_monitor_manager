@@ -286,6 +286,23 @@ public class ApiController extends BasicController {
         return model;
     }
 
+    //登录
+    @RequestMapping(value = "/logout", method = RequestMethod.POST)
+    @ResponseBody
+    public Model logOut(Model model, HttpServletRequest request, HttpServletResponse response) {
+        ResultVo<SysUserExecuteVo> result = new ResultVo<>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("登出成功");
+        model = new ExtendedModelMap();
+
+        HttpSession session = request.getSession();
+        session.removeAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+
     //请求列表任务或纠错列表
     @RequestMapping(value = "/gettasklist")
     @ResponseBody

@@ -94,22 +94,22 @@ public class LoginController extends BasicController {
 			return PageConst.LOGIN_PAGE;
 		}
 
-//		// 验证码必须验证
-//		if (StringUtils.isEmpty(code)) {
-//			model.addAttribute(SysConst.RESULT_KEY, "请输入验证码");
-//			model.addAttribute("username", user.getUsername());
-//			return PageConst.LOGIN_PAGE;
-//		}
-//
-//		String sessionCode = request.getSession().getAttribute(SessionKey.SESSION_CODE.toString()) == null ? ""
-//				: request.getSession().getAttribute(SessionKey.SESSION_CODE.toString()).toString();
-//
-//		// 验证码有效验证
-//		if (!code.equalsIgnoreCase(sessionCode)) {
-//			model.addAttribute(SysConst.RESULT_KEY, "验证码错误");
-//			model.addAttribute("username", user.getUsername());
-//			return PageConst.LOGIN_PAGE;
-//		}
+		// 验证码必须验证
+		if (StringUtils.isEmpty(code)) {
+			model.addAttribute(SysConst.RESULT_KEY, "请输入验证码");
+			model.addAttribute("username", user.getUsername());
+			return PageConst.LOGIN_PAGE;
+		}
+
+		String sessionCode = request.getSession().getAttribute(SessionKey.SESSION_CODE.toString()) == null ? ""
+				: request.getSession().getAttribute(SessionKey.SESSION_CODE.toString()).toString();
+
+		// 验证码有效验证
+		if (!code.equalsIgnoreCase(sessionCode)) {
+			model.addAttribute(SysConst.RESULT_KEY, "验证码错误");
+			model.addAttribute("username", user.getUsername());
+			return PageConst.LOGIN_PAGE;
+		}
 
 		Subject subject = SecurityUtils.getSubject();
 		String md5Pwd = new Md5Hash(user.getPassword(), user.getUsername()).toString();

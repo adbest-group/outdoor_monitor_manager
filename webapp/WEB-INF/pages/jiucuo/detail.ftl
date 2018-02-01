@@ -41,7 +41,7 @@
                             <p>提交时间：${task.submitTime?string('yyyy-MM-dd HH:mm:dd')}</p>
                             <p>提交人：${task.realname}</p>
                             <p>问题反馈：<span style="color:orangered;">${feedback.problem!""} ${feedback.problemOther!""}</p>
-                            <p>执行状态：${vm.getJiucuoTaskStatusText(task.status)}</p>
+                            <p>执行状态：${vm.getJiucuoTaskStatusText(task.status)} <#if task.reason?exists>（${task.reason}）</#if></p>
                             <p>提交照片：<img style="vertical-align: top" src="${feedback.picUrl1}" width="300"/></p>
                             <#if task.status ==1>
                             <br/>

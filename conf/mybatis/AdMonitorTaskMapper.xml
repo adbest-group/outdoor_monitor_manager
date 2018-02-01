@@ -194,6 +194,7 @@
     <result column="sample_pic_url" jdbcType="VARCHAR" property="samplePicUrl" />
     <result column="monitor_start" jdbcType="VARCHAR" property="monitorStart" />
     <result column="monitor_end" jdbcType="VARCHAR" property="monitorEnd" />
+    <result column="ad_seat_id" jdbcType="INTEGER" property="adSeatId" />
     <result column="ad_seat_name" jdbcType="VARCHAR" property="adSeatName" />
     <result column="pic_url1" jdbcType="VARCHAR" property="picUrl1" />
     <result column="pic_url2" jdbcType="VARCHAR" property="picUrl2" />
@@ -277,7 +278,7 @@
 
   <select id="selectByUserId" resultMap="MobileResultMap">
     select a.id, a.activity_id, a.activity_adseat_id, a.task_type, a.user_id, a.status, a.create_time, a.update_time,
-    b.activity_name,c.sample_pic_url,c.monitor_start,c.monitor_end,d.`name` as ad_seat_name,e.reason,e.pic_url1,e.pic_url2,e.pic_url3,e.pic_url4,e.create_time as feedback_time,
+    b.activity_name,c.sample_pic_url,c.monitor_start,c.monitor_end,c.ad_seat_id,d.`name` as ad_seat_name,e.reason,e.pic_url1,e.pic_url2,e.pic_url3,e.pic_url4,e.create_time as feedback_time,
     e.problem,e.problem_other
     from ad_monitor_task a
     left join ad_activity b on a.activity_id = b.id

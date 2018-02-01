@@ -4,7 +4,7 @@ package com.bt.om.enums;
  * Created by caiting on 2018/1/20.
  */
 public enum MonitorTaskStatus {
-    UNASSIGN(1,"待指派"),TO_CARRY_OUT(2,"待执行"),UNVERIFY(3,"待审核"),VERIFIED(4,"通过审核"),VERIFY_FAILURE(5,"审核未通过");
+    UNASSIGN(1,"待指派"),TO_CARRY_OUT(2,"待执行"),UNVERIFY(3,"待审核"),VERIFIED(4,"通过审核"),VERIFY_FAILURE(5,"审核未通过"),UN_FINISHED(6,"未完成");
 
     private Integer id;
     private String text;

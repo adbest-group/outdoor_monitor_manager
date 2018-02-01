@@ -19,9 +19,10 @@ public class MonitorTaskWaitToExecutedVo extends BasicVo{
     private String monitor_end;
     private String ad_activity_name;
     private String ad_name;
+    private Integer ad_seat_id;
     private String ad_location;
     private Integer ad_status;
-    private List<String> img_url_list;
+    private String sample_url;
 
     public MonitorTaskWaitToExecutedVo(AdMonitorTaskMobileVo task) {
         this.task_id = task.getId();
@@ -31,10 +32,18 @@ public class MonitorTaskWaitToExecutedVo extends BasicVo{
         this.monitor_end = sdf.format(task.getMonitorEnd());
         this.ad_activity_name = task.getActivityName();
         this.ad_name = task.getAdSeatName();
+        this.ad_seat_id = task.getAdSeatId();
         this.ad_location = task.getAdSeatName();
         this.ad_status = task.getStatus();
-        this.img_url_list = new ArrayList<>();
-        this.img_url_list.add(task.getSamplePicUrl());
+        this.sample_url = task.getSamplePicUrl();
+    }
+
+    public Integer getAd_seat_id() {
+        return ad_seat_id;
+    }
+
+    public void setAd_seat_id(Integer ad_seat_id) {
+        this.ad_seat_id = ad_seat_id;
     }
 
     public String getMonitor_start() {
@@ -109,11 +118,11 @@ public class MonitorTaskWaitToExecutedVo extends BasicVo{
         this.ad_status = ad_status;
     }
 
-    public List<String> getImg_url_list() {
-        return img_url_list;
+    public String getSample_url() {
+        return sample_url;
     }
 
-    public void setImg_url_list(List<String> img_url_list) {
-        this.img_url_list = img_url_list;
+    public void setSample_url(String sample_url) {
+        this.sample_url = sample_url;
     }
 }

@@ -29,7 +29,7 @@
 							<div class="login-main">
 								<div class="inp">
 								   <div class="u-icon userbg "></div>
-									<input type="text" autocomplete="off" name="username" class="username" value="testkh@adbest.com" placeholder="请输入用户名" value="${userName!}">
+									<input type="text" autocomplete="off" name="username" class="username" value="customer@adbest.com" placeholder="请输入用户名" value="${userName!}">
 								</div>
 								<div class="inp">
 									<div class="u-icon passwordbg"></div>

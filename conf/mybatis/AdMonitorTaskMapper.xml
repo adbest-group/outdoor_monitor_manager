@@ -334,11 +334,11 @@
 			feedback.status feedbackstatus,
 			task.task_type
 		from
-			`ad_monitor_task` as task 
+			ad_monitor_task_feedback feedback
+            left join `ad_monitor_task` as task on task.id=feedback.monitor_task_id
 			left join ad_activity as activity on task.activity_id=activity.id
 		    left join ad_activity_adseat as adseat on task.activity_adseat_id=adseat.id
 		    left join ad_seat_info as seatinfo on adseat.ad_seat_id=seatinfo.id
-		    left join ad_monitor_task_feedback feedback on task.id=feedback.monitor_task_id
 		where
 			task.id=#{taskId,jdbcType=INTEGER}
 	</select>

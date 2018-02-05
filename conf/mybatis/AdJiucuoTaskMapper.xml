@@ -278,7 +278,7 @@
   </select>
 
   <select id="selectByUserId" resultMap="MobileResultMap">
-    select a.id, a.activity_id, a.ad_seat_id, a.submit_time, a.user_id, a.status,a.reason,a.problem_status a.create_time, a.update_time,
+    select a.id, a.activity_id, a.ad_seat_id, a.submit_time, a.user_id, a.status,a.reason,a.problem_status,a.create_time, a.update_time,
     b.pic_url1,b.pic_url2,b.pic_url3,b.pic_url4,b.create_time as feedback_time,c.activity_name,e.`name` as ad_seat_name,
     b.problem,b.problem_other
     from ad_jiucuo_task a

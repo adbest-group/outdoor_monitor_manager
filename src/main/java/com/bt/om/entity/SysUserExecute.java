@@ -610,4 +610,14 @@ public class SysUserExecute extends ID {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
+
+    private Integer operateId;
+
+    public Integer getOperateId() {
+        return operateId;
+    }
+
+    public void setOperateId(Integer operateId) {
+        this.operateId = operateId;
+    }
 }

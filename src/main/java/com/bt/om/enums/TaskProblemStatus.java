@@ -1,21 +1,21 @@
 package com.bt.om.enums;
 
 /**
- * Created by caiting on 2018/1/20.
+ * Created by caiting on 2018/2/2.
  */
-public enum MonitorTaskStatus {
-    UNASSIGN(1,"待指派"),TO_CARRY_OUT(2,"待执行"),UN_FINISHED(6,"未完成"),UNVERIFY(3,"待审核"),VERIFIED(4,"通过审核"),VERIFY_FAILURE(5,"审核未通过");
+public enum TaskProblemStatus {
+    UNMONITOR(1,"未监测"),NO_PROBLEM(2,"无问题"),PROBLEM(3,"有问题"),FIXED(4,"已解决"),CLOSED(5,"已闭环");
 
     private Integer id;
     private String text;
 
-    MonitorTaskStatus(int id, String text) {
+    TaskProblemStatus(int id, String text) {
         this.id = id;
         this.text = text;
     }
 
     public static String getText(int id){
-        for(MonitorTaskStatus e : MonitorTaskStatus.values()){
+        for(TaskProblemStatus e : TaskProblemStatus.values()){
             if(e.getId() == id){
                 return e.getText();
             }
@@ -24,7 +24,7 @@ public enum MonitorTaskStatus {
     }
 
     public static Integer getId(String text){
-        for(MonitorTaskStatus e : MonitorTaskStatus.values()){
+        for(TaskProblemStatus e : TaskProblemStatus.values()){
             if(e.getText().equals(text)){
                 return e.getId();
             }

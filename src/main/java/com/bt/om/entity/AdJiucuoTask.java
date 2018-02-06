@@ -260,6 +260,24 @@ public class AdJiucuoTask extends ID {
     }
 
     private String reason;
+    private Integer problemStatus;
+    private Integer subCreated;
+
+    public Integer getSubCreated() {
+        return subCreated;
+    }
+
+    public void setSubCreated(Integer subCreated) {
+        this.subCreated = subCreated;
+    }
+
+    public Integer getProblemStatus() {
+        return problemStatus;
+    }
+
+    public void setProblemStatus(Integer problemStatus) {
+        this.problemStatus = problemStatus;
+    }
 
     public String getReason() {
         return reason;

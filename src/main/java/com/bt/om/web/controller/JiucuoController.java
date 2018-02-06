@@ -2,16 +2,14 @@ package com.bt.om.web.controller;
 
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
-import com.bt.om.entity.AdActivity;
-import com.bt.om.entity.AdActivityAdseat;
-import com.bt.om.entity.AdJiucuoTask;
-import com.bt.om.entity.AdJiucuoTaskFeedback;
+import com.bt.om.entity.*;
 import com.bt.om.entity.vo.AdActivityVo;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
+import com.bt.om.enums.TaskProblemStatus;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
@@ -48,6 +46,7 @@ public class JiucuoController extends BasicController {
     public String joucuoList(Model model, HttpServletRequest request,
                              @RequestParam(value = "activityId", required = false) Integer activityId,
                              @RequestParam(value = "status", required = false) Integer status,
+                             @RequestParam(value = "problemStatus", required = false) Integer problemStatus,
                              @RequestParam(value = "startDate", required = false) String startDate,
                              @RequestParam(value = "endDate", required = false) String endDate) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -58,6 +57,9 @@ public class JiucuoController extends BasicController {
         }
         if (status != null) {
             vo.putSearchParam("status", status.toString(), status);
+        }
+        if (problemStatus != null) {
+            vo.putSearchParam("problemStatus", problemStatus.toString(), problemStatus);
         }
         if (startDate != null) {
             try {
@@ -125,6 +127,34 @@ public class JiucuoController extends BasicController {
             return model;
         }
 
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+    }
+
+
+
+    //关闭纠错问题任务
+    @RequestMapping(value = "/close")
+    @ResponseBody
+    public Model close(Model model, HttpServletRequest request,
+                       @RequestParam(value = "id", required = false) Integer id) {
+        ResultVo<String> result = new ResultVo<String>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("关闭成功");
+        model = new ExtendedModelMap();
+
+        AdJiucuoTask task = new AdJiucuoTask();
+        task.setProblemStatus(TaskProblemStatus.CLOSED.getId());
+        task.setId(id);
+        try {
+            adJiucuoTaskService.update(task);
+        } catch (Exception e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("关闭失败！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
 
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;

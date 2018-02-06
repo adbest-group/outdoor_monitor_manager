@@ -18,6 +18,7 @@ public class MonitorTaskExecutingVo extends BasicVo {
     private String ad_activity_name;
     private String ad_name;
     private String monitor_time;
+    private Integer ad_seat_id;
     private String ad_location;
     private Integer ad_status;
     private List<String> img_url_list;
@@ -31,6 +32,7 @@ public class MonitorTaskExecutingVo extends BasicVo {
         this.ad_activity_name = task.getActivityName();
         this.ad_name = task.getAdSeatName();
         this.monitor_time = sdf.format(task.getFeedbackTime());
+        this.ad_seat_id = task.getAdSeatId();
         this.ad_location = task.getAdSeatName();
         this.ad_status = task.getStatus();
         this.img_url_list = new ArrayList<>();
@@ -40,6 +42,14 @@ public class MonitorTaskExecutingVo extends BasicVo {
         this.img_url_list.add(task.getPicUrl4());
         this.problem = task.getProblem();
         this.problem_other = task.getProblemOther();
+    }
+
+    public Integer getAd_seat_id() {
+        return ad_seat_id;
+    }
+
+    public void setAd_seat_id(Integer ad_seat_id) {
+        this.ad_seat_id = ad_seat_id;
     }
 
     public String getProblem() {

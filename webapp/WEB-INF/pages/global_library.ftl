@@ -244,6 +244,26 @@
 	</#if>
 </#macro>
 
+<#-- 媒体端问题状态下拉选项，只筛选有问题之后的状态  -->
+<#macro showMediaProblemStatusList value="-1">
+	<#local list = vm.getMediaProblemStatusList() />
+    <#if (list?exists && list?size > 0)>
+		<#list list as res>
+			<@showOption value="${res.id?if_exists}" title="${res.text?if_exists}" select="${value?if_exists}" />
+		</#list>
+	</#if>
+</#macro>
+
+<#-- 问题状态下拉选项  -->
+<#macro showProblemStatusList value="-1">
+	<#local list = vm.getProblemStatusList() />
+    <#if (list?exists && list?size > 0)>
+		<#list list as res>
+			<@showOption value="${res.id?if_exists}" title="${res.text?if_exists}" select="${value?if_exists}" />
+		</#list>
+	</#if>
+</#macro>
+
 <#-- 所有活动下拉选项  -->
 <#macro showAllActivityOps value="-1">
 	<#local list = vm.getAllActivity() />

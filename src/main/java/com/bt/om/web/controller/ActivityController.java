@@ -12,6 +12,7 @@ import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.util.GsonUtil;
 import com.bt.om.util.QRcodeUtil;
+import com.bt.om.vo.api.AdActivitySeatInfoInQRVO;
 import com.bt.om.vo.api.QRCodeInfoVo;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -148,7 +149,7 @@ public class ActivityController  extends BasicController {
     public void getCode(HttpServletRequest request, HttpServletResponse response,
                         @RequestParam(value = "id", required = false) Integer adActivityAdseatId) throws Exception {
 
-        QRCodeInfoVo vo = new QRCodeInfoVo((AdActivityAdseatVo) adActivityService.getActivitySeatById(adActivityAdseatId));
+        AdActivitySeatInfoInQRVO vo = new AdActivitySeatInfoInQRVO((AdActivityAdseatVo) adActivityService.getActivitySeatById(adActivityAdseatId));
 
         // 将内存中的图片发送到客户端
         response.setContentType("image/jpg");

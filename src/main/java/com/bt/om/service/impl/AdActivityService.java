@@ -7,6 +7,7 @@ import com.bt.om.entity.vo.AdActivityVo;
 import com.bt.om.enums.ActivityStatus;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
+import com.bt.om.enums.TaskProblemStatus;
 import com.bt.om.mapper.*;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.vo.web.SearchDataVo;
@@ -192,6 +193,11 @@ public class AdActivityService implements IAdActivityService {
     }
 
     @Override
+    public List<AdActivityAdseatVo> getActivitySeatBySeatId(Integer id) {
+        return adActivityAdseatMapper.selectVoBySeatId(id);
+    }
+
+    @Override
     public List<ActivityMobileReportVo> getMobileReport(SysUserExecute user) {
         SysUser sysUser = sysUserMapper.findByUsername(user.getUsername());
         if (sysUser != null) {
@@ -207,6 +213,7 @@ public class AdActivityService implements IAdActivityService {
         task.setActivityId(activityId);
         task.setActivityAdseatId(seat.getId());
         task.setStatus(MonitorTaskStatus.UNASSIGN.getId());
+        task.setProblemStatus(TaskProblemStatus.UNMONITOR.getId());
         task.setCreateTime(now);
         task.setUpdateTime(now);
         return task;

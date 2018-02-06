@@ -6,6 +6,9 @@ import com.bt.om.service.ISysUserExecuteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Created by caiting on 2018/1/23.
  */
@@ -17,5 +20,10 @@ public class SysUserExecuteService implements ISysUserExecuteService {
     @Override
     public SysUserExecute getByUsername(String username) {
         return sysUserExecuteMapper.selectByUsername(username);
+    }
+
+    @Override
+    public List<SysUserExecute> getByConditionMap(Map map) {
+        return sysUserExecuteMapper.selectByConditionMap(map);
     }
 }

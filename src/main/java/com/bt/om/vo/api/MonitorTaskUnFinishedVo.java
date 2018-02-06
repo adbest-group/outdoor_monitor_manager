@@ -3,15 +3,13 @@ package com.bt.om.vo.api;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.enums.MonitorTaskType;
 
-import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by caiting on 2018/1/24.
  */
-public class MonitorTaskCheckedVo extends BasicVo {
+public class MonitorTaskUnFinishedVo extends BasicVo {
     private Integer task_id;
     private Integer task_type;
     private String task_type_text;
@@ -21,12 +19,12 @@ public class MonitorTaskCheckedVo extends BasicVo {
     private Integer ad_seat_id;
     private String ad_location;
     private Integer ad_status;
-    private String reason;
     private List<String> img_url_list;
     private String problem;
     private String problem_other;
+    private String sample_url;
 
-    public MonitorTaskCheckedVo(AdMonitorTaskMobileVo task){
+    public MonitorTaskUnFinishedVo(AdMonitorTaskMobileVo task){
         this.task_id = task.getId();
         this.task_type = task.getTaskType();
         this.task_type_text = MonitorTaskType.getText(task.getTaskType());
@@ -36,7 +34,6 @@ public class MonitorTaskCheckedVo extends BasicVo {
         this.ad_seat_id = task.getAdSeatId();
         this.ad_location = task.getAdSeatName();
         this.ad_status = task.getStatus();
-        this.reason = task.getReason();
         this.img_url_list = new ArrayList<>();
         this.img_url_list.add(task.getPicUrl1());
         this.img_url_list.add(task.getPicUrl2());
@@ -44,6 +41,23 @@ public class MonitorTaskCheckedVo extends BasicVo {
         this.img_url_list.add(task.getPicUrl4());
         this.problem = task.getProblem();
         this.problem_other = task.getProblemOther();
+        this.sample_url = task.getSamplePicUrl();
+    }
+
+    public Integer getAd_seat_id() {
+        return ad_seat_id;
+    }
+
+    public void setAd_seat_id(Integer ad_seat_id) {
+        this.ad_seat_id = ad_seat_id;
+    }
+
+    public String getSample_url() {
+        return sample_url;
+    }
+
+    public void setSample_url(String sample_url) {
+        this.sample_url = sample_url;
     }
 
     public String getProblem() {
@@ -124,14 +138,6 @@ public class MonitorTaskCheckedVo extends BasicVo {
 
     public void setAd_status(Integer ad_status) {
         this.ad_status = ad_status;
-    }
-
-    public String getReason() {
-        return reason;
-    }
-
-    public void setReason(String reason) {
-        this.reason = reason;
     }
 
     public List<String> getImg_url_list() {

@@ -30,6 +30,11 @@ public class PageConst {
 	public static final String CUSTOMER_JIUCUO_LIST = "adcustomer/jiucuo/list";
 	public static final String CUSTOMER_JIUCUO_DETAIL = "adcustomer/jiucuo/detail";
 
+	/*** 媒体端任务列表 ***/
+	public static final String MEDIA_TASK_LIST = "admedia/task/list";
+	public static final String MEDIA_PROBLEM_TASK_LIST = "admedia/task/problemList";
+	public static final String MEDIA_JIUCUO_LIST = "admedia/jiucuo/list";
+
 	/*** 活动管理 ***/
 	public static final String ACTIVITY_LIST = "activity/list";
 	public static final String ACTIVITY_EDIT = "activity/edit";

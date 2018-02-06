@@ -24,6 +24,12 @@
                             <@model.showMonitorTaskStatusOps value="${bizObj.queryMap.status?if_exists}" />
                         </select>
                     </div>
+                    <div class="select-box select-box-100 un-inp-select ll">
+                        <select class="select" name="problemStatus">
+                            <option value="">所有问题状态</option>
+                        <@model.showProblemStatusList value="${bizObj.queryMap.problemStatus?if_exists}" />
+                        </select>
+                    </div>
                     <div class="ll inputs-date">
                         <#--<input class="ui-date-button" type="button" value="昨天" alt="-1" name="">-->
                         <#--<input class="ui-date-button" type="button" value="近7天" alt="-6" name="">-->
@@ -54,6 +60,7 @@
                         <th>执行人员</th>
                         <th>监测时间点</th>
                         <th>状态</th>
+                        <th>问题状态</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -73,9 +80,12 @@
                             <td>${task.realname!""}</td>
                             <td>${vm.getMonitorTaskTypeText(task.taskType)}</td>
                             <td>${vm.getMonitorTaskStatusText(task.status)}</td>
+                            <td>${vm.getProblemStatusText(task.problemStatus!0)}</td>
                             <td>
-                                <#if task.status==1><a href="javascript:assign('${task.id}')">指派</a></#if>
-                                <#if task.status==2><a href="javascript:assign('${task.id}')">重新指派</a></#if>
+                                <#--<#if task.status==1><a href="javascript:assign('${task.id}')">指派</a></#if>-->
+                                <#--<#if task.status==2><a href="javascript:assign('${task.id}')">重新指派</a></#if>-->
+                                <#if (task.status==4&&task.problemStatus?exists&&task.problemStatus==4&&task.subCreated==2)><a href="javascript:createTask('${task.id}');">创建监测</a></#if>
+                                <#if (task.status==4 && task.problemStatus?exists&&task.problemStatus==4)><a href="javascript:close('${task.id}')">关闭</a></#if>
                                 <#if task.status==3><a href="javascript:pass('${task.id}')">通过</a></#if>
                                 <#if task.status==3><a href="javascript:reject('${task.id}')">拒绝</a></#if>
                                 <a href="/task/details?task_Id=${task.id}">详情</a>
@@ -189,6 +199,12 @@
             }
             //选择执行人后的回调
             selectUserExecuteHandle = function (userId) {
+                layer.closeAll();
+                if(!userId){
+                    layer.alert("并没有指定执行人员");
+                    return;
+                }
+
                 $.ajax({
                     url: "/task/assign",
                     type: "post",
@@ -286,6 +302,88 @@
                             btn: ['确定'] //按钮
                         });
                     }
+                });
+            }
+
+            //处理问题
+            close = function(id){
+                layer.confirm("确认关闭问题任务？", {
+                    icon: 3,
+                    btn: ['确定', '取消'] //按钮
+                }, function(){
+                    $.ajax({
+                        url: "/task/close",
+                        type: "post",
+                        data: {
+                            "id": id
+                        },
+                        cache: false,
+                        dataType: "json",
+                        success: function(datas) {
+                            var resultRet = datas.ret;
+                            if (resultRet.code == 101) {
+                                layer.confirm(resultRet.resultDes, {
+                                    icon: 2,
+                                    btn: ['确定'] //按钮
+                                });
+                            } else {
+                                layer.confirm("关闭成功", {
+                                    icon: 1,
+                                    btn: ['确定'] //按钮
+                                }, function(){
+                                    window.location.reload();
+                                });
+                            }
+                        },
+                        error: function(e) {
+                            layer.confirm("服务忙，请稍后再试", {
+                                icon: 5,
+                                btn: ['确定'] //按钮
+                            });
+                        }
+                    });
+                });
+            }
+
+            //创建子任务
+            createTask = function(id){
+                layer.alert("暂未开放！谢谢！");
+                return;
+                layer.confirm("确认关闭问题任务？", {
+                    icon: 3,
+                    btn: ['确定', '取消'] //按钮
+                }, function(){
+                    $.ajax({
+                        url: "/task/createTask",
+                        type: "post",
+                        data: {
+                            "id": id
+                        },
+                        cache: false,
+                        dataType: "json",
+                        success: function(datas) {
+                            var resultRet = datas.ret;
+                            if (resultRet.code == 101) {
+                                layer.confirm(resultRet.resultDes, {
+                                    icon: 2,
+                                    btn: ['确定'] //按钮
+                                });
+                            } else {
+                                layer.confirm("关闭成功", {
+                                    icon: 1,
+                                    btn: ['确定'] //按钮
+                                }, function(){
+                                    window.location.reload();
+                                });
+                            }
+                        },
+                        error: function(e) {
+                            layer.confirm("服务忙，请稍后再试", {
+                                icon: 5,
+                                btn: ['确定'] //按钮
+                            });
+                        }
+                    });
                 });
             }
 

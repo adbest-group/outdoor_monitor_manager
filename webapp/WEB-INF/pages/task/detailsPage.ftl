@@ -61,6 +61,9 @@
 					                    	${vm.getMonitorTaskStatusText(item.status)}
 					                    <#elseif item.feedbackStatus==2>
 					                    	审核未通过
+					                    	<#if (item.reason!="" && item.reason!="null") >
+					                    		(${item.reason})
+					                    	</#if>
 				                    	</#if>
 				                    </div>
 				                    <div>
@@ -70,17 +73,21 @@
 				                    	<div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;"><img style="vertical-align: top;width:350px"" src="${item.picUrl3!""}"></img></div>
 				                    	<div style="width: 360px;margin-bottom: 10px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;"><img style="vertical-align: top;width:350px"" src="${item.picUrl4!""}"></img></div>
 				                    </div>
+				                     
+				                    <p style="text-align: center;">
 				                    <#if (item.status==3 && item.feedbackStatus==1)>
-				                    	<button type="button" onclick="javascript:pass('${Request.taskId}')" class="btn btn-red" style="margin-left:10px;" autocomplete="off" id="searchBtn" onclick="">
+				                    	<button style="margin-top: 10px" type="button" onclick="javascript:pass('${Request.taskId}')" class="btn btn-red" style="margin-left:10px;" autocomplete="off" id="searchBtn" onclick="">
 				                    		通过
 				                    	</button>
 				                    </#if>
 				                    
+				                  
 				                    <#if (item.status==3 && item.feedbackStatus==1)>
-				                    	<button type="button" onclick="javascript:reject('${Request.taskId}')" class="btn btn-red" style="margin-left:10px;" autocomplete="off" id="searchBtn">
+				                    	<button style="margin-top: 10px" type="button" onclick="javascript:reject('${Request.taskId}')" class="btn btn-red" style="margin-left:10px;" autocomplete="off" id="searchBtn">
 				                    		拒绝
 				                    	</button>
 				                    </#if>
+				                    </p>
 				                    <div style="border-bottom: 1px solid #ddd;padding-top: 20px"></div>
 				            	</#if>   
 			                </#list>  

@@ -332,7 +332,8 @@
 			feedback.problem_other,
 			feedback.create_time feedbackcreatetime,
 			feedback.status feedbackstatus,
-			task.task_type
+			task.task_type,
+			feedback.reason
 		from
 			ad_monitor_task_feedback feedback
             left join `ad_monitor_task` as task on task.id=feedback.monitor_task_id

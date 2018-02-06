@@ -143,16 +143,21 @@
 	<input type="hidden" name="interactionActualPath${type}" value="" id="file${type}actualPath"/>
 	<input type="hidden" name="interactionSize${type}" value="" id="file${type}size"/>
 </#macro>
+
 <#--列表翻页共同处理-->
 <#macro showPage url p parEnd colsnum hasExport="0" hasBatch="0" startname="start" sizename="size">
 <#assign split = "?" />
-<#if (url?index_of("?")>0)><#assign split = "&" /></#if>
-<#if (!parEnd?starts_with("&"))><#local parEnd = "&"+parEnd /></#if>
+<#if (url?index_of("?")>0)>
+	<#assign split = "&" />
+</#if>
+<#if (!parEnd?starts_with("&"))>
+	<#local parEnd = "&"+parEnd />
+</#if>
 <tfoot>
 	<tr>
 		<td colspan="${colsnum}">
 			<#if hasExport == "1">
-			<a href="javascript:void(0);" id="exportBtn" class="btn btn-primary">导出</a>
+				<a href="javascript:void(0);" id="exportBtn" class="btn btn-primary">导出</a>
 			</#if>
 			<div class="page">
 				<a>共${p.totalRow}条</a>
@@ -255,6 +260,16 @@
 	<#if (list?exists && list?size > 0)>
 		<#list list as res>
 			<@showOption value="${res.id?if_exists}" title="${res.activityName?if_exists}" select="${value?if_exists}" />
+		</#list>
+	</#if>
+</#macro>
+
+<#-- 所有媒体下拉选项  -->
+<#macro showAllMediaOps value="-1">
+	<#local list = vm.getAllMedia() />
+	<#if (list?exists && list?size > 0)>
+		<#list list as media>
+			<@showOption value="${media.id?if_exists}" title="${media.mediaName?if_exists}" select="${value?if_exists}" />
 		</#list>
 	</#if>
 </#macro>

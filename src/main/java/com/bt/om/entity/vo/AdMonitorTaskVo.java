@@ -32,6 +32,7 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 	private String name;
 	private int feedbackStatus;
 	private Date feedbackCreateTime;
+	private String reason;
 
 	public int getDownMonitor() {
 		return downMonitor;
@@ -242,6 +243,14 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 
 	public void setFeedbackStatus(int feedbackStatus) {
 		this.feedbackStatus = feedbackStatus;
+	}
+
+	public String getReason() {
+		return reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
 	}
 
 }

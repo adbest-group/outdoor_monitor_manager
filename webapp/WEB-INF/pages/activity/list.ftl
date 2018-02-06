@@ -82,7 +82,7 @@
 </div>
 </div>
 </div>
-<script type="text/javascript" src="~/js/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="${model.static_domain}/js/jquery-2.1.4.min.js"></script>
 <!-- 下拉 -->
 <link href="${model.static_domain}/js/select/jquery.searchableSelect.css" rel="stylesheet">
 <script src="${model.static_domain}/js/select/jquery.searchableSelect.js"></script>

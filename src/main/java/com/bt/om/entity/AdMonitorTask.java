@@ -262,6 +262,15 @@ public class AdMonitorTask extends ID{
     private Integer problemStatus;
     private Integer parentId;
     private Integer parentType;
+    private Integer subCreated;
+
+    public Integer getSubCreated() {
+        return subCreated;
+    }
+
+    public void setSubCreated(Integer subCreated) {
+        this.subCreated = subCreated;
+    }
 
     public Integer getProblemStatus() {
         return problemStatus;

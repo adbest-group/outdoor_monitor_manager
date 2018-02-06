@@ -314,4 +314,19 @@
     from sys_user_execute
     where username = #{username,jdbcType=VARCHAR}
   </select>
+
+  <select id="selectByConditionMap" parameterType="map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from sys_user_execute
+    where 1=1
+    <if test="operateId != null" >
+      and operate_id = #{operateId,jdbcType=INTEGER}
+    </if>
+    <if test="usertype != null" >
+      and usertype = #{usertype,jdbcType=INTEGER}
+    </if>
+  </select>
+
+
 </mapper>

@@ -24,7 +24,11 @@
                     <td>
                         <div class="select-box select-box-140 un-inp-select">
                             <select name="user" class="select" id="user">
-                                <option value="1">监测员1号</option>
+								<#if (userList?exists&&userList?size >0)>
+									<#list userList as user>
+                                        <option value="${user.id}">${user.realname}</option>
+									</#list>
+								</#if>
                             </select>
                         </div>
                     </td>
@@ -63,7 +67,6 @@
         $(function(){
             $("#btnSave").click(function () {
                 parent.window.selectUserExecuteHandle($("#user").val());
-                parent.window.layer.closeAll();
             });
         });
 	</script>

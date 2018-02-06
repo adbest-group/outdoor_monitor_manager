@@ -3,12 +3,10 @@ package com.bt.om.web.controller.api;
 import com.bt.om.common.SysConst;
 import com.bt.om.entity.*;
 import com.bt.om.entity.vo.ActivityMobileReportVo;
+import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdJiucuoTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
-import com.bt.om.enums.JiucuoTaskStatus;
-import com.bt.om.enums.MonitorTaskStatus;
-import com.bt.om.enums.ResultCode;
-import com.bt.om.enums.SessionKey;
+import com.bt.om.enums.*;
 import com.bt.om.service.*;
 import com.bt.om.util.GsonUtil;
 import com.bt.om.util.QRcodeUtil;
@@ -144,11 +142,16 @@ public class ApiController extends BasicController {
 //            String imageName = "qrcode.jpg";
 //            imageName = UploadFileUtil.saveFile(path, imageName, is);
 //            System.out.println(path+imageName);
-//            Result res = QRcodeUtil.readQRCodeResult(is);
-//            result.setResult(res.getText());
+
+
             String code = QRcodeUtil.decode(is);
-            result.setResult(GsonUtil.GsonToBean(code,QRCodeInfoVo.class));
-//            result.setResult(new QRCodeInfoVo((AdActivityAdseatVo) adActivityService.getActivitySeatById(6)));
+            List<AdActivityAdseatVo> list = adActivityService.getActivitySeatBySeatId(Integer.valueOf(code));
+            QRCodeInfoVo qr = new QRCodeInfoVo();
+            qr.setAd_seat_id(Integer.valueOf(code));
+            for(AdActivityAdseatVo vo:list){
+                qr.getAd_activity_seats().add(new AdActivitySeatInfoInQRVO(vo));
+            }
+            result.setResult(qr);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -156,12 +159,6 @@ public class ApiController extends BasicController {
             result.setResultDes("二维码解析失败失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
-//        } catch (ReaderException e) {
-//            e.printStackTrace();
-//            result.setCode(ResultCode.RESULT_FAILURE.getCode());
-//            result.setResultDes("二维码解析失败失败！");
-//            model.addAttribute(SysConst.RESULT_KEY, result);
-//            return model;
         } catch (Exception e) {
             e.printStackTrace();
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -346,6 +343,8 @@ public class ApiController extends BasicController {
                 } else if (task.getStatus() == MonitorTaskStatus.VERIFIED.getId() || task.getStatus() == MonitorTaskStatus.VERIFY_FAILURE.getId()) {
                     MonitorTaskCheckedVo vo = new MonitorTaskCheckedVo(task);
                     resultVo.getChecked().add(vo);
+                }else if(task.getStatus() == MonitorTaskStatus.UN_FINISHED.getId()){
+                    resultVo.getUn_finished().add(new MonitorTaskUnFinishedVo(task));
                 }
             }
             result.setResult(resultVo);
@@ -499,6 +498,7 @@ public class ApiController extends BasicController {
                 task.setActivityId(seat.getActivityId());
                 task.setAdSeatId(seat.getAdSeatId());
                 task.setUserId(user.getId());
+                task.setProblemStatus(TaskProblemStatus.PROBLEM.getId());
                 feedback.setLat(lat);
                 feedback.setLon(lon);
                 feedback.setPicUrl1("/static/upload/" + filename1);
@@ -574,6 +574,19 @@ public class ApiController extends BasicController {
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
             }
+            //不是以data:image/jpeg;base64,开头的说明并没有重新拍照
+            if(!file1.startsWith("data:image/jpeg;base64,")){
+                file1 = null;
+            }
+            if(!file2.startsWith("data:image/jpeg;base64,")){
+                file2 = null;
+            }
+            if(!file3.startsWith("data:image/jpeg;base64,")){
+                file3 = null;
+            }
+            if(!file4.startsWith("data:image/jpeg;base64,")){
+                file4 = null;
+            }
 
             InputStream is1 = null;
             InputStream is2 = null;
@@ -585,19 +598,27 @@ public class ApiController extends BasicController {
             String filename4 = null;
 
             try {
-                file1 = file1.replaceAll("data:image/jpeg;base64,", "");
-                is1 = new ByteArrayInputStream(java.util.Base64.getDecoder().decode(file1));
-                filename1 = UploadFileUtil.saveFile(path, "image.jpg", is1);
-                file2 = file2.replaceAll("data:image/jpeg;base64,", "");
-                is2 = new ByteArrayInputStream(java.util.Base64.getDecoder().decode(file2));
-                filename2 = UploadFileUtil.saveFile(path, "image.jpg", is2);
-                file3 = file3.replaceAll("data:image/jpeg;base64,", "");
-                is3 = new ByteArrayInputStream(java.util.Base64.getDecoder().decode(file3));
-                filename3 = UploadFileUtil.saveFile(path, "image.jpg", is3);
-                file4 = file4.replaceAll("data:image/jpeg;base64,", "");
-                is4 = new ByteArrayInputStream(java.util.Base64.getDecoder().decode(file4));
-                filename4 = UploadFileUtil.saveFile(path, "image.jpg", is4);
-                if (filename1 == null || filename2 == null || filename3 == null | filename4 == null) {
+                if(file1!=null) {
+                    file1 = file1.replaceAll("data:image/jpeg;base64,", "");
+                    is1 = new ByteArrayInputStream(java.util.Base64.getDecoder().decode(file1));
+                    filename1 = UploadFileUtil.saveFile(path, "image.jpg", is1);
+                }
+                if(file2!=null) {
+                    file2 = file2.replaceAll("data:image/jpeg;base64,", "");
+                    is2 = new ByteArrayInputStream(java.util.Base64.getDecoder().decode(file2));
+                    filename2 = UploadFileUtil.saveFile(path, "image.jpg", is2);
+                }
+                if(file3!=null) {
+                    file3 = file3.replaceAll("data:image/jpeg;base64,", "");
+                    is3 = new ByteArrayInputStream(java.util.Base64.getDecoder().decode(file3));
+                    filename3 = UploadFileUtil.saveFile(path, "image.jpg", is3);
+                }
+                if(file4!=null) {
+                    file4 = file4.replaceAll("data:image/jpeg;base64,", "");
+                    is4 = new ByteArrayInputStream(java.util.Base64.getDecoder().decode(file4));
+                    filename4 = UploadFileUtil.saveFile(path, "image.jpg", is4);
+                }
+                if (filename1 == null && filename2 == null && filename3 == null && filename4 == null) {
                     result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
                     result.setResultDes("上传出错！");
                     model.addAttribute(SysConst.RESULT_KEY, result);
@@ -606,10 +627,18 @@ public class ApiController extends BasicController {
                 AdMonitorTaskFeedback feedback = new AdMonitorTaskFeedback();
                 feedback.setLat(lat);
                 feedback.setLon(lon);
-                feedback.setPicUrl1("/static/upload/" + filename1);
-                feedback.setPicUrl2("/static/upload/" + filename2);
-                feedback.setPicUrl3("/static/upload/" + filename3);
-                feedback.setPicUrl4("/static/upload/" + filename4);
+                if(filename1!=null) {
+                    feedback.setPicUrl1("/static/upload/" + filename1);
+                }
+                if(filename2!=null) {
+                    feedback.setPicUrl2("/static/upload/" + filename2);
+                }
+                if(file3!=null) {
+                    feedback.setPicUrl3("/static/upload/" + filename3);
+                }
+                if(file4!=null) {
+                    feedback.setPicUrl4("/static/upload/" + filename4);
+                }
                 feedback.setProblem(problem);
                 feedback.setProblemOther(other);
                 feedback.setStatus(1);
@@ -665,6 +694,7 @@ public class ApiController extends BasicController {
                 task.setActivityId(seat.getActivityId());
                 task.setAdSeatId(seat.getAdSeatId());
                 task.setUserId(user.getId());
+                task.setProblemStatus(TaskProblemStatus.PROBLEM.getId());
                 feedback.setLat(lat);
                 feedback.setLon(lon);
                 feedback.setPicUrl1("/static/upload/" + filename1);
@@ -772,6 +802,6 @@ public class ApiController extends BasicController {
     }
 
     public static void main(String[] args) {
-
+        System.out.println(new Md5Hash("123456", "media4@adbest.com").toString());
     }
 }

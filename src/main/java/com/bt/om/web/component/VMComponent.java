@@ -10,6 +10,10 @@ import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.util.ConfigUtil;
 import com.bt.om.util.StringUtil;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
+import org.apache.commons.collections.ArrayStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -158,6 +162,30 @@ public class VMComponent {
 	 * */
 	public JiucuoTaskStatus[] getJiucuoTaskStatusList(){
 		return JiucuoTaskStatus.values();
+	}
+	/**
+	 * 获取问题状态状态文字
+	 * */
+	public String getProblemStatusText(int id){
+		return TaskProblemStatus.getText(id);
+	}
+	/**
+	 * 获取问题状态列表
+	 * */
+	public TaskProblemStatus[] getProblemStatusList(){
+		return TaskProblemStatus.values();
+	}
+	/**
+	 * 获取媒体用户用到的问题状态列表，不包括未监测和没问题
+	 * */
+	public Collection<TaskProblemStatus> getMediaProblemStatusList(){
+		Collection<TaskProblemStatus> status = Collections2.filter(Lists.newArrayList(TaskProblemStatus.values()), new Predicate<TaskProblemStatus>() {
+			@Override
+			public boolean apply(TaskProblemStatus input) {
+				return input.getId()>=TaskProblemStatus.PROBLEM.getId();
+			}
+		});
+		return status;
 	}
 
 	/***************************** 下面是工具类 ****************************************/

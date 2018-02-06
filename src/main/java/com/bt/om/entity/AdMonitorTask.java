@@ -258,4 +258,41 @@ public class AdMonitorTask extends ID{
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
+
+    private Integer problemStatus;
+    private Integer parentId;
+    private Integer parentType;
+    private Integer subCreated;
+
+    public Integer getSubCreated() {
+        return subCreated;
+    }
+
+    public void setSubCreated(Integer subCreated) {
+        this.subCreated = subCreated;
+    }
+
+    public Integer getProblemStatus() {
+        return problemStatus;
+    }
+
+    public void setProblemStatus(Integer problemStatus) {
+        this.problemStatus = problemStatus;
+    }
+
+    public Integer getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Integer parentId) {
+        this.parentId = parentId;
+    }
+
+    public Integer getParentType() {
+        return parentType;
+    }
+
+    public void setParentType(Integer parentType) {
+        this.parentType = parentType;
+    }
 }

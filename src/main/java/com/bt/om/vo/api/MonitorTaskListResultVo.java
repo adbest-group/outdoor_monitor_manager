@@ -9,6 +9,7 @@ import java.util.List;
  */
 public class MonitorTaskListResultVo implements Serializable {
     List<MonitorTaskWaitToExecutedVo> wait_to_executed;
+    List<MonitorTaskUnFinishedVo> un_finished;
     List<MonitorTaskExecutingVo> executing;
     List<MonitorTaskCheckedVo> checked;
 
@@ -16,6 +17,15 @@ public class MonitorTaskListResultVo implements Serializable {
         this.wait_to_executed = new ArrayList<>();
         this.executing = new ArrayList<>();
         this.checked = new ArrayList<>();
+        this.un_finished = new ArrayList<>();
+    }
+
+    public List<MonitorTaskUnFinishedVo> getUn_finished() {
+        return un_finished;
+    }
+
+    public void setUn_finished(List<MonitorTaskUnFinishedVo> un_finished) {
+        this.un_finished = un_finished;
     }
 
     public List<MonitorTaskWaitToExecutedVo> getWait_to_executed() {

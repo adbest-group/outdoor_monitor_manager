@@ -1,13 +1,14 @@
 package com.bt.om.web.component;
 
-
 import com.bt.om.entity.AdActivity;
+import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.*;
 import com.bt.om.enums.*;
 //import com.bt.om.mapper.SysDictMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
+import com.bt.om.service.IResourceService;
 import com.bt.om.util.ConfigUtil;
 import com.bt.om.util.StringUtil;
 import com.google.common.base.Predicate;
@@ -36,6 +37,8 @@ public class VMComponent {
 	@Autowired
 	IAdActivityService adActivityService;
 
+	@Autowired
+	IResourceService resourceService;
 
 	public String getEvnVariable() {
 		return ConfigUtil.getString("is_test_evn", "off");
@@ -96,71 +99,78 @@ public class VMComponent {
 
 	/**
 	 * 获取广告活动
-	 * */
-	public List<AdActivity> getAllActivity(){
+	 */
+	public List<AdActivity> getAllActivity() {
 		return adActivityService.getAll();
 	}
 
 	/**
 	 * 获取拥有的广告活动
-	 * */
-	public List<AdActivity> getOwnActivity(){
+	 */
+	public List<AdActivity> getOwnActivity() {
 		Object userObj = ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-		return adActivityService.getByUerId(((SysUser)userObj).getId());
+		return adActivityService.getByUerId(((SysUser) userObj).getId());
 	}
 
 	/**
 	 * 获取广告活动状态文字（带颜色）
-	 * */
-	public String getActivityStatusTextWithColor(int id){
+	 */
+	public String getActivityStatusTextWithColor(int id) {
 		String color = "";
-		if(id==ActivityStatus.UNCONFIRM.getId()){
+		if (id == ActivityStatus.UNCONFIRM.getId()) {
 			color = "style='color:red;'";
-		}else if(id==ActivityStatus.COMPLETE.getId()){
+		} else if (id == ActivityStatus.COMPLETE.getId()) {
 			color = "style='color:green;'";
 		}
-		return "<span "+color+" >"+ActivityStatus.getText(id)+"</span>";
+		return "<span " + color + " >" + ActivityStatus.getText(id) + "</span>";
 	}
+
 	/**
 	 * 获取广告活动状态文字
-	 * */
-	public String getActivityStatusText(int id){
+	 */
+	public String getActivityStatusText(int id) {
 		return ActivityStatus.getText(id);
 	}
+
 	/**
 	 * 获取广告活动状态列表
-	 * */
-	public ActivityStatus[] getActivityStatusList(){
+	 */
+	public ActivityStatus[] getActivityStatusList() {
 		return ActivityStatus.values();
 	}
+
 	/**
 	 * 获取广告活动监测任务状态文字
-	 * */
-	public String getMonitorTaskStatusText(int id){
+	 */
+	public String getMonitorTaskStatusText(int id) {
 		return MonitorTaskStatus.getText(id);
 	}
+
 	/**
 	 * 获取广告活动监测任务状态列表
-	 * */
-	public MonitorTaskStatus[] getMonitorTaskStatusList(){
+	 */
+	public MonitorTaskStatus[] getMonitorTaskStatusList() {
 		return MonitorTaskStatus.values();
 	}
+
 	/**
 	 * 获取广告活动监测任务类型文字
-	 * */
-	public String getMonitorTaskTypeText(int id){
+	 */
+	public String getMonitorTaskTypeText(int id) {
 		return MonitorTaskType.getText(id);
 	}
+
 	/**
 	 * 获取广告活动纠错任务状态文字
-	 * */
-	public String getJiucuoTaskStatusText(int id){
+	 */
+	public String getJiucuoTaskStatusText(int id) {
 		return JiucuoTaskStatus.getText(id);
 	}
+
 	/**
 	 * 获取广告活动纠错任务状态列表
-	 * */
-	public JiucuoTaskStatus[] getJiucuoTaskStatusList(){
+	 */
+	public JiucuoTaskStatus[] getJiucuoTaskStatusList() {
 		return JiucuoTaskStatus.values();
 	}
 	/**
@@ -188,6 +198,13 @@ public class VMComponent {
 		return status;
 	}
 
+	/**
+	 * 获取媒体
+	 */
+	public List<AdMedia> getAllMedia() {
+		return resourceService.getAll();
+	}
+
 	/***************************** 下面是工具类 ****************************************/
 	private HashMap<String, String> getParams(String qs) {
 		HashMap<String, String> params = new HashMap<String, String>();
@@ -203,92 +220,101 @@ public class VMComponent {
 		return params;
 	}
 
-//	public List<OttvUserinfoAdvertiserVo> getAdvUserList() {
-//
-//		OttvUserVo user = (OttvUserVo) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-//		List<OttvUserinfoAdvertiserVo> ottvUserinfoAdvertiserList = null;
-//		Map<String, Object> searchMap = new HashMap<String, Object>();
-//
-//		if (user.isSale()) {
-//			searchMap.put("saleId", user.getId());
-//			ottvUserinfoAdvertiserList = ottvUserInfoService.getAdvUserList(searchMap);
-//		} else {
-//			ottvUserinfoAdvertiserList = ottvUserInfoService.getAdvUserList(searchMap);
-//		}
-//
-//		return ottvUserinfoAdvertiserList;
-//	}
-//
-//	public List<OttvOrder> getOttvOrderNameList() {
-//		OttvUserVo user = (OttvUserVo) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-//		List<OttvOrder> ottvOrderList = null;
-//		if (user.isSale()) {
-//			ottvOrderList = ottvOrderService.getOrderNameList(user.getId());
-//		} else {
-//			ottvOrderList = ottvOrderService.getOrderNameList(null);
-//		}
-//		return ottvOrderList;
-//	}
-//
-//	public List<String> getAreaNeedAssigned(Integer orderId) {
-//		List<String> areaList = new ArrayList<String>();
-//
-//		OttvOrder ottvOrder = ottvOrderService.selectByPrimaryKey(orderId);
-//		String area = ottvOrder.getArea();
-//		SearchDataVo vo = SearchUtil.getVo();
-//
-//		if (orderId != null) {
-//			vo.putSearchParam("id", orderId + "", orderId);
-//		}
-//
-//		if (area != null && area != "") {
-//			Map<String, Object> map = GsonUtil.GsonToMaps(area);
-//			for (Entry<String, Object> en : map.entrySet()) {
-//				try {
-//					Map<String, Object> map2 = GsonUtil.GsonToMaps(GsonUtil.GsonString(en.getValue()));
-//					Map<String, String> map3 = GsonUtil.GsonToMaps(GsonUtil.GsonString(map2.get("child")));
-//					String proName = (String) map2.get("name");
-//					for (Entry<String, String> en2 : map3.entrySet()) {
-//						if ("北京".equals(proName.trim()) || "上海".equals(proName.trim()) || "天津".equals(proName.trim()) || "重庆".equals(proName.trim())
-//								|| "澳门".equals(proName.trim()) || "澳门".equals(proName.trim())) {
-//
-//							areaList.add("" + (GsonUtil.GsonToMaps(GsonUtil.GsonString(en2.getValue()))).get("name"));
-//						} else {
-//							areaList.add(proName + "-"
-//									+ (GsonUtil.GsonToMaps(GsonUtil.GsonString(en2.getValue()))).get("name"));
-//						}
-//					}
-//				} catch (Exception e) {
-//
-//				}
-//			}
-//		}
-//
-//        List<OttvOrderPlanVo> ottvOrderPlanVoList = ottvOrderPlanService.getOrderPlanListByOrderId(vo);
-//        List<Integer> planIds = new ArrayList<Integer>();
-//        for (OttvOrderPlan ottvOrderPlan : ottvOrderPlanVoList) {
-//            planIds.add(ottvOrderPlan.getId());
-//        }
-//
-//        Set<String> set = new HashSet<String>();
-//		if(CollectionUtils.isNotEmpty(planIds)){
-//            List<OttvOrderPlanResource> ottvOrderPlanResourceList = ottvOrderPlanResourceService.getOrderPlanListByOrderPlanId(planIds);
-//            for (OttvOrderPlanResource ottvOrderPlanResource : ottvOrderPlanResourceList) {
-//                set.add(ottvOrderPlanResource.getAreaName());
-//            }
-//
-//            Iterator<String> iterator = areaList.iterator();
-//            while(iterator.hasNext()) {
-//                String areaName = iterator.next().trim();
-//                for (String areaStr : set) {
-//                    if (areaName.contains(areaStr.trim()) || areaName.equals(areaStr.trim())) {
-//                        iterator.remove();
-//                    }
-//                }
-//            }
-//        }
-//
-//		return areaList;
-//	}
+	// public List<OttvUserinfoAdvertiserVo> getAdvUserList() {
+	//
+	// OttvUserVo user = (OttvUserVo)
+	// ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+	// List<OttvUserinfoAdvertiserVo> ottvUserinfoAdvertiserList = null;
+	// Map<String, Object> searchMap = new HashMap<String, Object>();
+	//
+	// if (user.isSale()) {
+	// searchMap.put("saleId", user.getId());
+	// ottvUserinfoAdvertiserList = ottvUserInfoService.getAdvUserList(searchMap);
+	// } else {
+	// ottvUserinfoAdvertiserList = ottvUserInfoService.getAdvUserList(searchMap);
+	// }
+	//
+	// return ottvUserinfoAdvertiserList;
+	// }
+	//
+	// public List<OttvOrder> getOttvOrderNameList() {
+	// OttvUserVo user = (OttvUserVo)
+	// ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+	// List<OttvOrder> ottvOrderList = null;
+	// if (user.isSale()) {
+	// ottvOrderList = ottvOrderService.getOrderNameList(user.getId());
+	// } else {
+	// ottvOrderList = ottvOrderService.getOrderNameList(null);
+	// }
+	// return ottvOrderList;
+	// }
+	//
+	// public List<String> getAreaNeedAssigned(Integer orderId) {
+	// List<String> areaList = new ArrayList<String>();
+	//
+	// OttvOrder ottvOrder = ottvOrderService.selectByPrimaryKey(orderId);
+	// String area = ottvOrder.getArea();
+	// SearchDataVo vo = SearchUtil.getVo();
+	//
+	// if (orderId != null) {
+	// vo.putSearchParam("id", orderId + "", orderId);
+	// }
+	//
+	// if (area != null && area != "") {
+	// Map<String, Object> map = GsonUtil.GsonToMaps(area);
+	// for (Entry<String, Object> en : map.entrySet()) {
+	// try {
+	// Map<String, Object> map2 =
+	// GsonUtil.GsonToMaps(GsonUtil.GsonString(en.getValue()));
+	// Map<String, String> map3 =
+	// GsonUtil.GsonToMaps(GsonUtil.GsonString(map2.get("child")));
+	// String proName = (String) map2.get("name");
+	// for (Entry<String, String> en2 : map3.entrySet()) {
+	// if ("北京".equals(proName.trim()) || "上海".equals(proName.trim()) ||
+	// "天津".equals(proName.trim()) || "重庆".equals(proName.trim())
+	// || "澳门".equals(proName.trim()) || "澳门".equals(proName.trim())) {
+	//
+	// areaList.add("" +
+	// (GsonUtil.GsonToMaps(GsonUtil.GsonString(en2.getValue()))).get("name"));
+	// } else {
+	// areaList.add(proName + "-"
+	// + (GsonUtil.GsonToMaps(GsonUtil.GsonString(en2.getValue()))).get("name"));
+	// }
+	// }
+	// } catch (Exception e) {
+	//
+	// }
+	// }
+	// }
+	//
+	// List<OttvOrderPlanVo> ottvOrderPlanVoList =
+	// ottvOrderPlanService.getOrderPlanListByOrderId(vo);
+	// List<Integer> planIds = new ArrayList<Integer>();
+	// for (OttvOrderPlan ottvOrderPlan : ottvOrderPlanVoList) {
+	// planIds.add(ottvOrderPlan.getId());
+	// }
+	//
+	// Set<String> set = new HashSet<String>();
+	// if(CollectionUtils.isNotEmpty(planIds)){
+	// List<OttvOrderPlanResource> ottvOrderPlanResourceList =
+	// ottvOrderPlanResourceService.getOrderPlanListByOrderPlanId(planIds);
+	// for (OttvOrderPlanResource ottvOrderPlanResource : ottvOrderPlanResourceList)
+	// {
+	// set.add(ottvOrderPlanResource.getAreaName());
+	// }
+	//
+	// Iterator<String> iterator = areaList.iterator();
+	// while(iterator.hasNext()) {
+	// String areaName = iterator.next().trim();
+	// for (String areaStr : set) {
+	// if (areaName.contains(areaStr.trim()) || areaName.equals(areaStr.trim())) {
+	// iterator.remove();
+	// }
+	// }
+	// }
+	// }
+	//
+	// return areaList;
+	// }
 
 }

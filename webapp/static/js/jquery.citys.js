@@ -39,12 +39,12 @@
             dataType:'json',          //数据库类型:'json'或'jsonp'
             provinceField:'province', //省份字段名
             cityField:'city',         //城市字段名
-            areaField:'area',         //地区字段名
+            regionField:'region',         //地区字段名
             valueType:'code',         //下拉框值的类型,code行政区划代码,name地名
             code:0,                   //地区编码
             province:0,               //省份,可以为地区编码或者名称
             city:0,                   //城市,可以为地区编码或者名称
-            area:0,                   //地区,可以为地区编码或者名称
+            region:0,                   //地区,可以为地区编码或者名称
             required: true,           //是否必须选一个
             nodata: 'hidden',         //当无数据时的表现形式:'hidden'隐藏,'disabled'禁用,为空不做任何处理
             onChange:function(){}     //地区切换时触发,回调函数传入地区数据
@@ -56,13 +56,13 @@
             var $this = $(this);
             var $province = $this.find('select[name="'+options.provinceField+'"]'),
                 $city = $this.find('select[name="'+options.cityField+'"]'),
-                $area = $this.find('select[name="'+options.areaField+'"]');
+                $region = $this.find('select[name="'+options.regionField+'"]');
             $.ajax({
                 url:options.dataUrl,
                 type:'GET',
                 dataType:options.dataType,
                 success:function(data){
-                    var province,city,area,hasCity;
+                    var province,city,region,hasCity;
                     if(options.code){   //如果设置地区编码，则忽略单独设置的信息
                         var c = options.code - options.code%1e4;
                         if(data[c]){
@@ -74,11 +74,11 @@
                         }
                         c = options.code%1e2 ? options.code : 0;
                         if(data[c]){
-                            options.area = c;
+                            options.region = c;
                         }
                     }
                     var updateData = function(){
-                        province = {},city={},area={};
+                        province = {},city={},region={};
                         hasCity = false;       //判断是非有地级城市
                         for(var code in data){
                             if(!(code%1e4)){     //获取所有的省级行政单位
@@ -113,19 +113,19 @@
                                     }else if(hasCity){                  //非直辖市
                                         var c = code-options.city;
                                         if(options.city&&c>0&&c<100){     //同个城市的地区
-                                            area[code]=data[code];
-                                            if(options.required&&!options.area){
-                                                options.area = code;
-                                            }else if(isNaN(options.area)&&data[code].indexOf(options.area)>-1){
-                                                options.area = code;
+                                            region[code]=data[code];
+                                            if(options.required&&!options.region){
+                                                options.region = code;
+                                            }else if(isNaN(options.region)&&data[code].indexOf(options.region)>-1){
+                                                options.region = code;
                                             }
                                         }
                                     }else{
-                                        area[code] = data[code];            //直辖市
-                                        if(options.required&&!options.area){
-                                            options.area = code;
-                                        }else if(isNaN(options.area)&&data[code].indexOf(options.area)>-1){
-                                            options.area = code;
+                                        region[code] = data[code];            //直辖市
+                                        if(options.required&&!options.region){
+                                            options.region = code;
+                                        }else if(isNaN(options.region)&&data[code].indexOf(options.region)>-1){
+                                            options.region = code;
                                         }
                                     }
                                 }
@@ -167,29 +167,29 @@
                                 if(options.city){
                                     var value = options.valueType=='code'?options.city:city[options.city];
                                     $city.val(value);
-                                }else if(options.area){
-                                    var value = options.valueType=='code'?options.area:city[options.area];
+                                }else if(options.region){
+                                    var value = options.valueType=='code'?options.region:city[options.region];
                                     $city.val(value);
                                 }
                             }
-                            this.area();
+                            this.region();
                         },
-                        area:function(){
-                            $area.empty();
+                        region:function(){
+                            $region.empty();
                             if(!options.required){
-                                $area.append('<option value=""> - 请选择 - </option>');
+                                $region.append('<option value=""> - 请选择 - </option>');
                             }
                             if(options.nodata=='disabled'){
-                                $area.prop('disabled',$.isEmptyObject(area));
+                                $region.prop('disabled',$.isEmptyObject(region));
                             }else if(options.nodata=='hidden'){
-                                $area.css('display',$.isEmptyObject(area)?'none':'');
+                                $region.css('display',$.isEmptyObject(region)?'none':'');
                             }
-                            for(var i in area){
-                                $area.append('<option value="'+(options.valueType=='code'?i:area[i])+'" data-code="'+i+'">'+area[i]+'</option>');
+                            for(var i in region){
+                                $region.append('<option value="'+(options.valueType=='code'?i:region[i])+'" data-code="'+i+'">'+region[i]+'</option>');
                             }
-                            if(options.area){
-                                var value = options.valueType=='code'?options.area:area[options.area];
-                                $area.val(value);
+                            if(options.region){
+                                var value = options.valueType=='code'?options.region:region[options.region];
+                                $region.val(value);
                             }
                         }
                     };
@@ -199,8 +199,8 @@
                             direct:!hasCity,
                             province:data[options.province]||'',
                             city:data[options.city]||'',
-                            area:data[options.area]||'',
-                            code:options.area||options.city||options.province
+                            region:data[options.region]||'',
+                            code:options.region||options.city||options.province
                         };
                         return status;
                     };
@@ -208,20 +208,20 @@
                     $province.on('change',function(){
                         options.province = $(this).find('option:selected').data('code')||0; //选中节点的区划代码
                         options.city = 0;
-                        options.area = 0;
+                        options.region = 0;
                         updateData();
                         format.city();
                         options.onChange(_api.getInfo());
                     });
                     $city.on('change',function(){
                         options.city = $(this).find('option:selected').data('code')||0; //选中节点的区划代码
-                        options.area = 0;
+                        options.region = 0;
                         updateData();
-                        format.area();
+                        format.region();
                         options.onChange(_api.getInfo());
                     });
-                    $area.on('change',function(){
-                        options.area = $(this).find('option:selected').data('code')||0; //选中节点的区划代码
+                    $region.on('change',function(){
+                        options.region = $(this).find('option:selected').data('code')||0; //选中节点的区划代码
                         options.onChange(_api.getInfo());
                     });
                     //初始化

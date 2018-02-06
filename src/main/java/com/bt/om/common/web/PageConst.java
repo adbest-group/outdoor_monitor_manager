@@ -48,8 +48,10 @@ public class PageConst {
 	/*** 纠错管理 ***/
 	public static final String JIUCUO_LIST = "jiucuo/list";
 	public static final String JIUCUO_DETAIL = "jiucuo/detail";
-	
-	/***资源管理***/
+
+	/*** 资源管理 ***/
 	public static final String RESOURCE_ADD = "resource/add_ad_seat";
+	public static final String RESOURCE_LIST = "resource/list";
+	public static final String RESOURCE_DETAILS = "resource/detail";
 
 }

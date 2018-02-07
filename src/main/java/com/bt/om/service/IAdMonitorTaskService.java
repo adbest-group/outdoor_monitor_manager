@@ -41,6 +41,11 @@ public interface IAdMonitorTaskService {
     public List<AdMonitorTaskMobileVo> getByUserIdForMobile(Integer userId);
 
     public void feedback(Integer taskId, AdMonitorTaskFeedback feedback);
+
+    /**
+	 * 根据当前任务编号生成子任务
+	 **/
+    public void createSubTask(Integer taskId);
 	/**
 	 * 获取提交详情
 	 * 

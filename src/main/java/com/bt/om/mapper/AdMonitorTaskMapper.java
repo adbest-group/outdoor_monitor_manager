@@ -84,4 +84,9 @@ public interface AdMonitorTaskMapper {
 	 */
 	List<AdMonitorTaskVo> getSubmitDetails(Integer taskId);
 
+	/**
+	 * 根据父id和父类型查询子任务和有效提交列表，放在详情里
+	 **/
+	List<AdMonitorTaskVo> selectVoByParent(@Param("parentId") Integer parentId,@Param("parentType") Integer parentType);
+
 }

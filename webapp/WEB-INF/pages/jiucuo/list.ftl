@@ -65,7 +65,7 @@
                     <tbody>
                     <#if (bizObj.list?exists && bizObj.list?size>0) >
                         <#list bizObj.list as task>
-                        <tr>
+                        <tr id="task_${task.id}">
                             <td width="30">${(bizObj.page.currentPage-1)*20+task_index+1}</td>
                             <td>
                                 <div class="data-title w200" data-title="${task.activityName}"
@@ -83,9 +83,11 @@
                                 <#if task.status==1><a href="javascript:reject('${task.id}');">拒绝</a></#if>
                                 <#if (task.status==2&&task.problemStatus?exists&&task.problemStatus==4&&task.subCreated==2)>
                                     <a href="javascript:createTask('${task.id}');">创建监测</a></#if>
+                                <#if (task.status==2&&task.problemStatus?exists&&task.problemStatus==4&&task.subCreated==1)>
+                                    <a href="/task/list?pid=${task.id}&ptype=2">查看监测</a></#if>
                                 <#if (task.status==2&&task.problemStatus?exists&&task.problemStatus==4)><a
                                         href="javascript:close('${task.id}');">关闭</a></#if>
-                                <a href="/jiucuo/detail?id=${task.id}">查看</a>
+                                <a href="/jiucuo/detail?id=${task.id}">详情</a>
                             </td>
                         </tr>
                         </#list>
@@ -291,9 +293,9 @@
 
     //创建监测任务
     createTask = function (id) {
-        layer.alert("暂未开放！谢谢！");
-        return;
-        layer.confirm("确认关闭问题任务？", {
+//        layer.alert("暂未开放！谢谢！");
+//        return;
+        layer.confirm("确认创建监测任务？", {
             icon: 3,
             btn: ['确定', '取消'] //按钮
         }, function () {
@@ -313,7 +315,7 @@
                             btn: ['确定'] //按钮
                         });
                     } else {
-                        layer.confirm("关闭成功", {
+                        layer.confirm("创建成功，请及时指派检测人员执行！", {
                             icon: 1,
                             btn: ['确定'] //按钮
                         }, function () {
@@ -328,6 +330,18 @@
                     });
                 }
             });
+        });
+    }
+
+    showTask = function(id){
+        layer.open({
+            type: 1,
+            title: false,
+            closeBtn: 1,
+            shadeClose: true,
+            skin: 'data-report',
+            area:['50%','50%'],
+            content: ''
         });
     }
 </script>

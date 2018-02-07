@@ -9,9 +9,9 @@
 <div class="main-container">
 	<div class="clearfix">
 		<div class="main-box">
-			<div class="crumb-nav">
-				<a href="/task/list">监测管理</a> > 任务指派
-			</div>
+			<#--<div class="crumb-nav">-->
+				<#--<a href="/task/list">监测管理</a> > 任务指派-->
+			<#--</div>-->
 			<div class="bd new-active">
 				<div class="hd mt-10">
 					<h3>任务详情</h3>

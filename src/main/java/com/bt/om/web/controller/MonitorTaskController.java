@@ -5,10 +5,7 @@ import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
-import com.bt.om.enums.MonitorTaskStatus;
-import com.bt.om.enums.MonitorTaskType;
-import com.bt.om.enums.ResultCode;
-import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.enums.*;
 import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.vo.web.ResultVo;
@@ -52,7 +49,9 @@ public class MonitorTaskController extends BasicController {
                               @RequestParam(value = "status", required = false) Integer status,
                               @RequestParam(value = "problemStatus", required = false) Integer problemStatus,
                               @RequestParam(value = "startDate", required = false) String startDate,
-                              @RequestParam(value = "endDate", required = false) String endDate) {
+                              @RequestParam(value = "endDate", required = false) String endDate,
+                              @RequestParam(value = "pid", required = false) Integer pid,
+                              @RequestParam(value = "ptype", required = false) Integer ptype) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
 
@@ -64,6 +63,17 @@ public class MonitorTaskController extends BasicController {
         }
         if (problemStatus != null) {
             vo.putSearchParam("problemStatus", problemStatus.toString(), problemStatus);
+        }
+        //pid和ptype配合用于从纠纠错复查监测任务和监测任务查复查监测任务用，好像有点绕
+        //如果查纠错的复查监测任务
+        if (pid != null&& ptype!=null) {
+            if(ptype == RewardTaskType.JIUCUO.getId()) {
+                vo.putSearchParam("parentId", pid.toString(), pid);
+                vo.putSearchParam("parentType", ptype.toString(), ptype);
+            }else{
+                //任务和对应的复查任务都是监测任务，这里一起查出来方便查看，mapper里注意一下写法
+                vo.putSearchParam("idpid", pid.toString(), pid);
+            }
         }
         if (startDate != null) {
             try {
@@ -99,7 +109,7 @@ public class MonitorTaskController extends BasicController {
         vo.putSearchParam("status", String.valueOf(MonitorTaskStatus.UNASSIGN.getId()),
                 String.valueOf(MonitorTaskStatus.UNASSIGN.getId()));
         //运营平台指派任务只指派监测期间的任务
-        vo.putSearchParam("taskType", null, String.valueOf(MonitorTaskType.DURATION_MONITOR.getId()));
+        vo.putSearchParam("taskTypes", null, new Integer[]{MonitorTaskType.DURATION_MONITOR.getId(),MonitorTaskType.FIX_CONFIRM.getId()});
 
         if (activityId != null) {
             vo.putSearchParam("activityId", activityId.toString(), activityId);
@@ -214,6 +224,33 @@ public class MonitorTaskController extends BasicController {
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("关闭失败！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+    }
+
+    //创建子任务
+    @RequestMapping(value = "/createTask")
+    @ResponseBody
+    public Model newSub(Model model, HttpServletRequest request,
+                       @RequestParam(value = "id", required = false) Integer id) {
+        ResultVo<String> result = new ResultVo<String>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("创建成功");
+        model = new ExtendedModelMap();
+
+        AdMonitorTask task = new AdMonitorTask();
+        task.setProblemStatus(TaskProblemStatus.CLOSED.getId());
+        task.setId(id);
+        try {
+            adMonitorTaskService.createSubTask(id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("创建失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }

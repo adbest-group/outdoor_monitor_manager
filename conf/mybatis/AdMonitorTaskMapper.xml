@@ -123,16 +123,16 @@
                 #{status,jdbcType=INTEGER},
             </if>
             <if test="problemStatus != null">
-                #{problem_status,jdbcType=INTEGER},
+                #{problemStatus,jdbcType=INTEGER},
             </if>
             <if test="subCreated != null">
-                #{sub_created,jdbcType=INTEGER},
+                #{subCreated,jdbcType=INTEGER},
             </if>
             <if test="parentId != null">
-                #{parent_id,jdbcType=INTEGER},
+                #{parentId,jdbcType=INTEGER},
             </if>
             <if test="parentType != null">
-                #{parent_type,jdbcType=INTEGER},
+                #{parentType,jdbcType=INTEGER},
             </if>
             <if test="createTime != null">
                 #{createTime,jdbcType=TIMESTAMP},
@@ -226,6 +226,7 @@
         <result column="monitor_end" jdbcType="TIMESTAMP" property="monitorsEnd"/>
         <result column="brand" jdbcType="VARCHAR" property="brand"/>
         <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="reason" jdbcType="VARCHAR" property="reason"/>
         <result column="problem" jdbcType="VARCHAR" property="problem"/>
         <result column="problem_other" jdbcType="VARCHAR" property="problemOther"/>
         <result column="pic_url1" jdbcType="VARCHAR" property="picUrl1"/>
@@ -248,6 +249,7 @@
         <result column="pic_url3" jdbcType="VARCHAR" property="picUrl3"/>
         <result column="pic_url4" jdbcType="VARCHAR" property="picUrl4"/>
         <result column="feedback_time" jdbcType="VARCHAR" property="feedbackTime"/>
+        <result column="reason" jdbcType="VARCHAR" property="reason"/>
         <result column="problem" jdbcType="VARCHAR" property="problem"/>
         <result column="problem_other" jdbcType="VARCHAR" property="problemOther"/>
     </resultMap>
@@ -260,7 +262,8 @@
         <foreach collection="tasks" item="task" separator=",">
             (#{id,jdbcType=INTEGER}, #{activityId,jdbcType=INTEGER}, #{activityAdseatId,jdbcType=INTEGER},
             #{taskType,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{status,jdbcType=INTEGER},
-            #{problemStatus,jdbcType=INTEGER}, #{subCreated,jdbcType=INTEGER}, #{parentId,jdbcType=INTEGER}, #{parentType,jdbcType=INTEGER},
+            #{problemStatus,jdbcType=INTEGER}, #{subCreated,jdbcType=INTEGER}, #{parentId,jdbcType=INTEGER},
+            #{parentType,jdbcType=INTEGER},
             #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
         </foreach>
     </insert>
@@ -307,6 +310,15 @@
             <foreach collection="taskTypes" separator="," open="(" close=")" item="task">#{task,jdbcType=INTEGER}
             </foreach>
         </if>
+        <if test="parentId != null">
+            and a.parent_id = #{parentId,jdbcType=INTEGER}
+        </if>
+        <if test="parentType != null">
+            and a.parent_type = #{parentType,jdbcType=INTEGER}
+        </if>
+        <if test="idpid != null">
+            and (a.id = #{idpid,jdbcType=INTEGER} or a.parent_id = #{idpid,jdbcType=INTEGER} and a.parent_type=1)
+        </if>
         <if test="startDate != null">
             and b.start_time >= DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
         </if>
@@ -352,6 +364,15 @@
             and a.task_type in
             <foreach collection="taskTypes" separator="," open="(" close=")" item="task">#{task,jdbcType=INTEGER}
             </foreach>
+        </if>
+        <if test="parentId != null">
+            and a.parent_id = #{parentId,jdbcType=INTEGER}
+        </if>
+        <if test="parentType != null">
+            and a.parent_type = #{parentType,jdbcType=INTEGER}
+        </if>
+        <if test="idpid != null">
+            and (a.id = #{idpid,jdbcType=INTEGER} or a.parent_id = #{idpid,jdbcType=INTEGER} and a.parent_type=1)
         </if>
         <if test="startDate != null">
             and b.start_time >= DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
@@ -430,4 +451,18 @@
 		where
 			task.id=#{taskId,jdbcType=INTEGER}
 	</select>
+
+    <select id="selectVoByParent" resultMap="ExtResultMap">
+        select a.id, a.activity_id, a.activity_adseat_id, a.task_type, a.user_id,
+        a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type,
+        a.create_time, a.update_time,
+        b.pic_url1,b.pic_url2,b.pic_url3,b.pic_url4,b.create_time as feedbackcreatetime,b.reason,
+        b.problem,b.problem_other,b.lon,b.lat,c.realname
+        from ad_monitor_task a
+        inner join ad_monitor_task_feedback b on a.id = b.monitor_task_id and b.`status` = 1
+        left join sys_user_execute c on a.user_id = c.id
+        where a.parent_id = #{parentId,jdbcType=INTEGER}
+        and a.parent_type = #{parentType,jdbcType=INTEGER}
+
+    </select>
 </mapper>

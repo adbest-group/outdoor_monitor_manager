@@ -297,4 +297,12 @@
     and a.ad_seat_id = #{seatId,jdbcType=INTEGER}
     order by id
   </select>
+
+  <select id="selectByActivityAndSeatId" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from ad_activity_adseat
+    where activity_id = #{activityId,jdbcType=INTEGER}
+    and ad_seat_id = #{seatId,jdbcType=INTEGER}
+  </select>
 </mapper>

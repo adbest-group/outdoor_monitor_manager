@@ -36,22 +36,6 @@
 						</select>
 					</div>
 
-					<div style="float: left; margin-left: 40px; font-size: 12px">
-						人群选择: <select style="height: 30px" name="sex">
-							<option value="">性别</option>
-							<option value="1">男</option>
-							<option value="2">女</option>
-						</select> <select style="height: 30px" name="agePart">
-							<option value="">年龄段</option>
-							<option value="1"><18</option>
-							<option value="2">19-24</option>
-							<option value="3">25-29</option>
-							<option value="4">30-39</option>
-							<option value="5">40-49</option>
-							<option value="6">50-59</option>
-							<option value="7">>60</option>
-						</select>
-					</div>
 					<button type="button" class="btn btn-red"
 						style="margin-left: 10px;" autocomplete="off" id="searchBtn">查询</button>
 				</form>
@@ -86,11 +70,11 @@
 							<td>${resource.adSize!""}</td>
 							<td>${resource.name!""}</td>
 							<td>${resource.pv!""}</td>
-							<td style="width: 80px"><a href="#"
-								style="margin-right: 5px">数据上传</a> <a
-								href="javascript:deleteAdSeat('${resource.id}');"
-								style="margin-right: 5px">删除</a> <a
-								href="/resource/showDetails?id=${resource.id}">详情</a></td>
+							<td style="width: 80px">
+								<a href="#" style="margin-right: 5px">数据上传</a> 
+								<a href="javascript:deleteAdSeat('${resource.id}');" style="margin-right: 5px">删除</a>
+								<a href="/resource/edit?id=${resource.id}" style="margin-right: 5px">编辑</a>  
+								<a href="/resource/showDetails?id=${resource.id}">详情</a></td>
 						</tr>
 						</#list> <#else>
 						<tr>

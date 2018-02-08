@@ -300,6 +300,8 @@
 		<result column="typename" jdbcType="VARCHAR" property="typeName"/>
 		<result column="sex" jdbcType="INTEGER" property="sex"/>
 		<result column="age_part" jdbcType="INTEGER" property="agePart"/>
+		<result column="mediaid" jdbcType="INTEGER" property="mediaId"/>
+		<result column="typeid" jdbcType="INTEGER" property="typeId"/>
 	</resultMap>
 
 	<select id="getPageCount" parameterType="map" resultType="int">
@@ -308,7 +310,7 @@
 		from ad_seat_info as a
 		left join ad_media as b on a.media_id=b.id
 		left join ad_seat_type as c on a.ad_seat_type=c.id
-		left join ad_crowd as d on d.ad_seat_id=a.id
+		left join (select * FROM ad_crowd limit 1) d on d.ad_seat_id=a.id
 		 where 1=1
 	    <if test="province != null" >
 	      and a.province = #{province,jdbcType=INTEGER}
@@ -324,12 +326,6 @@
 	    </if>
 	    <if test="mediaId != null" >
 	      and b.id = #{mediaId,jdbcType=INTEGER}
-	    </if>
-	    <if test="sex != null" >
-	      and d.sex = #{sex,jdbcType=INTEGER}
-	    </if>
-	    <if test="agePart != null" >
-	      and d.age_part = #{agePart,jdbcType=INTEGER}
 	    </if>
 		order by a.id asc
 	</select>
@@ -347,7 +343,7 @@
 			ad_seat_info as a
 			left join ad_media as b on a.media_id=b.id
 			left join ad_seat_type as c on a.ad_seat_type=c.id
-			left join ad_crowd as d on d.ad_seat_id=a.id
+			left join (select * FROM ad_crowd limit 1) d on d.ad_seat_id=a.id
 		 where 1=1
 	    <if test="province != null" >
 	      and a.province = #{province,jdbcType=INTEGER}
@@ -363,12 +359,6 @@
 	    </if>
 	    <if test="mediaId != null" >
 	      and b.id = #{mediaId,jdbcType=INTEGER}
-	    </if>
-	    <if test="sex != null" >
-	      and d.sex = #{sex,jdbcType=INTEGER}
-	    </if>
-	    <if test="agePart != null" >
-	      and d.age_part = #{agePart,jdbcType=INTEGER}
 	    </if>
 		order by a.id asc
 	</select>
@@ -389,7 +379,9 @@
 			a.private_car_pv,
 			a.bus_pv,
 			a.lon,
-			a.lat
+			a.lat,
+			b.id as mediaid,
+			c.id as typeid
 		from
 			ad_seat_info as a
 			left join ad_media as b on a.media_id=b.id

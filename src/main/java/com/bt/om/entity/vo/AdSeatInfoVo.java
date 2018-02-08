@@ -3,15 +3,31 @@ package com.bt.om.entity.vo;
 import com.bt.om.entity.AdSeatInfo;
 
 public class AdSeatInfoVo extends AdSeatInfo {
-	private String name;
-
 	private String mediaName;
 
 	private String typeName;
 
-	private Integer sex;
-
 	private Integer agePart;
+	
+	private Integer mediaId;
+
+	private Integer typeId;
+
+	public Integer getMediaId() {
+		return mediaId;
+	}
+
+	public void setMediaId(Integer mediaId) {
+		this.mediaId = mediaId;
+	}
+
+	public Integer getTypeId() {
+		return typeId;
+	}
+
+	public void setTypeId(Integer typeId) {
+		this.typeId = typeId;
+	}
 
 	public String getTypeName() {
 		return typeName;
@@ -27,22 +43,6 @@ public class AdSeatInfoVo extends AdSeatInfo {
 
 	public void setMediaName(String mediaName) {
 		this.mediaName = mediaName;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public Integer getSex() {
-		return sex;
-	}
-
-	public void setSex(Integer sex) {
-		this.sex = sex;
 	}
 
 	public Integer getAgePart() {

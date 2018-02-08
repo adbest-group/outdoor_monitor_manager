@@ -1,7 +1,5 @@
 package com.bt.om.entity.vo;
 
-import java.util.List;
-
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.AdSeatType;
@@ -12,8 +10,6 @@ public class ResourceVo {
 	private AdSeatType adSeatType;
 
 	private AdMedia adMedia;
-
-	private List<AdCrowdVo> list;
 
 	private AdCrowdVo adCrowdVo;
 
@@ -47,13 +43,5 @@ public class ResourceVo {
 
 	public void setAdCrowdVo(AdCrowdVo adCrowdVo) {
 		this.adCrowdVo = adCrowdVo;
-	}
-
-	public List<AdCrowdVo> getList() {
-		return list;
-	}
-
-	public void setList(List<AdCrowdVo> list) {
-		this.list = list;
 	}
 }

@@ -55,6 +55,8 @@ public interface AdCrowdMapper {
 	int updateByPrimaryKey(AdCrowd record);
 
 	int insertAdCrowdVoMale(AdCrowdVo vo);
-	
+
 	int insertAdCrowdVoFemale(AdCrowdVo vo);
+
+	List<AdCrowdVo> getAgePartListByAdSeatId(Integer seatId);
 }

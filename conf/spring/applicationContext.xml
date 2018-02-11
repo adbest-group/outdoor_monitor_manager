@@ -58,6 +58,7 @@
 
 	<!-- 使用annotation定义事务 -->
 	<tx:annotation-driven transaction-manager="transactionManager" />
+	
 
-	<import resource="classpath*:/spring/applicationContext-service.xml" />
+	<import resource="classpath*:/spring/applicationContext-*.xml" />
 </beans>

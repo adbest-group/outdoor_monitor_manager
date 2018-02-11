@@ -4,7 +4,7 @@
 	<settings defaultResolver="default" defaultConflictManager="latest-revision" />
 	<!-- <properties file="private/ivysettings-file.properties" /> -->
 	<credentials host="10.2.30.68" realm="Sonatype Nexus Repository Manager"
-		username="admin" passwd="admin123" />
+		username="admin" passwd="J10elsrkVqLk67TqsTl7" />
 	<resolvers>
 		<chain name="default" returnFirst="false">
 			<url name="inner-snapshot" m2compatible="true">

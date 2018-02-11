@@ -1,18 +1,13 @@
 package com.bt.om.web.component;
 
 
-import com.bt.om.entity.AdActivity;
-import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.*;
 import com.bt.om.enums.*;
-//import com.bt.om.mapper.SysDictMapper;
 import com.bt.om.security.ShiroUtils;
-import com.bt.om.service.IAdActivityService;
 import com.bt.om.util.ConfigUtil;
 import com.bt.om.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -28,9 +23,6 @@ import java.util.Map.Entry;
 public class VMComponent {
 
 	protected final Logger logger = LoggerFactory.getLogger(VMComponent.class);
-
-	@Autowired
-	IAdActivityService adActivityService;
 
 
 	public String getEvnVariable() {
@@ -88,21 +80,6 @@ public class VMComponent {
 			return sb.toString();
 		}
 		return url;
-	}
-
-	/**
-	 * 获取广告活动
-	 * */
-	public List<AdActivity> getAllActivity(){
-		return adActivityService.getAll();
-	}
-
-	/**
-	 * 获取拥有的广告活动
-	 * */
-	public List<AdActivity> getOwnActivity(){
-		Object userObj = ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-		return adActivityService.getByUerId(((SysUser)userObj).getId());
 	}
 
 	/**

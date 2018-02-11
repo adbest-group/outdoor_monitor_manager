@@ -74,7 +74,7 @@
 		<!--Mysql-->
 		<dependency org="mysql" name="mysql-connector-java" rev="5.1.36"  conf="compile,test->default(*)" />
 		<!--Redis-->
-		<dependency org="redis.clients" name="jedis" rev="2.7.2" conf="compile,test->default(*)" />
+		<dependency org="com.adtime.common" name="toolkit-jedis" rev="1.0.0" conf="compile,test->default(*)" />
 		<!--GoogleJAVA开源库-->
 		<dependency org="com.google.guava" name="guava" rev="18.0" conf="compile,test->default(*)" />
 		<!--Jetty-->
@@ -122,7 +122,9 @@
 		<!-- zxing -->
 		<!--<dependency org="com.google.zxing" name="core" rev="3.3.1" conf="compile,test->default(*)"/>-->
 		<dependency org="com.google.zxing" name="javase" rev="3.3.1" conf="compile,test->default(*)"/>
-
+		
+		<!-- taobao sms api-->
+		<dependency org="com.taobao" name="taobao-sdk-java-auto" rev="1.0" changing="true" conf="compile,test->default(*)" />
 
 	</dependencies>	
 </ivy-module>

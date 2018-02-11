@@ -1,0 +1,24 @@
+2018-02-07 19:34:09,827 DEBUG [qtp1509514333-19] (BaseJdbcLogger.java:139) - ==>  Preparing: select t1.id, t1.`username`, t1.`password`, t1.`status`,t2.id as userinf_id from sys_user t1,sys_user_detail t2 where t1.id = t2.user_id and t1.username = ? 
+2018-02-07 19:34:09,921 DEBUG [qtp1509514333-19] (BaseJdbcLogger.java:139) - ==> Parameters: admin@adbest.com(String)
+2018-02-07 19:34:09,986 DEBUG [qtp1509514333-19] (BaseJdbcLogger.java:139) - ====>  Preparing: select distinct t1.* from sys_menu t1, sys_role_menu t2 where t1.id = t2.menu_id and t1.platform = 1 and t1.display = 'y' and exists ( select t3.id from sys_user t3, sys_user_role t4 where t3.id = t4.user_id and t4.role_id = t2.role_id and t4.platform = 1 and t3.username = ? ) order by t1.id asc 
+2018-02-07 19:34:09,988 DEBUG [qtp1509514333-19] (BaseJdbcLogger.java:139) - ====> Parameters: admin@adbest.com(String)
+2018-02-07 19:34:10,012 DEBUG [qtp1509514333-19] (BaseJdbcLogger.java:139) - <====      Total: 1
+2018-02-07 19:34:10,015 DEBUG [qtp1509514333-19] (BaseJdbcLogger.java:139) - <==      Total: 1
+2018-02-07 19:37:39,882 DEBUG [qtp1509514333-19] (BaseJdbcLogger.java:139) - ==>  Preparing: select t1.id, t1.`username`, t1.`password`, t1.`status`,t2.id as userinf_id from sys_user t1,sys_user_detail t2 where t1.id = t2.user_id and t1.username = ? 
+2018-02-07 19:37:39,883 DEBUG [qtp1509514333-19] (BaseJdbcLogger.java:139) - ==> Parameters: admin@adbest.com(String)
+2018-02-07 19:37:39,914 DEBUG [qtp1509514333-19] (BaseJdbcLogger.java:139) - ====>  Preparing: select distinct t1.* from sys_menu t1, sys_role_menu t2 where t1.id = t2.menu_id and t1.platform = 1 and t1.display = 'y' and exists ( select t3.id from sys_user t3, sys_user_role t4 where t3.id = t4.user_id and t4.role_id = t2.role_id and t4.platform = 1 and t3.username = ? ) order by t1.id asc 
+2018-02-07 19:37:39,916 DEBUG [qtp1509514333-19] (BaseJdbcLogger.java:139) - ====> Parameters: admin@adbest.com(String)
+2018-02-07 19:37:39,931 DEBUG [qtp1509514333-19] (BaseJdbcLogger.java:139) - <====      Total: 1
+2018-02-07 19:37:39,933 DEBUG [qtp1509514333-19] (BaseJdbcLogger.java:139) - <==      Total: 1
+2018-02-07 19:40:53,105 DEBUG [qtp1509514333-19] (BaseJdbcLogger.java:139) - ==>  Preparing: select t1.id, t1.`username`, t1.`password`, t1.`status`,t2.id as userinf_id from sys_user t1,sys_user_detail t2 where t1.id = t2.user_id and t1.username = ? 
+2018-02-07 19:40:53,198 DEBUG [qtp1509514333-19] (BaseJdbcLogger.java:139) - ==> Parameters: admin@adbest.com(String)
+2018-02-07 19:40:53,269 DEBUG [qtp1509514333-19] (BaseJdbcLogger.java:139) - ====>  Preparing: select distinct t1.* from sys_menu t1, sys_role_menu t2 where t1.id = t2.menu_id and t1.platform = 1 and t1.display = 'y' and exists ( select t3.id from sys_user t3, sys_user_role t4 where t3.id = t4.user_id and t4.role_id = t2.role_id and t4.platform = 1 and t3.username = ? ) order by t1.id asc 
+2018-02-07 19:40:53,271 DEBUG [qtp1509514333-19] (BaseJdbcLogger.java:139) - ====> Parameters: admin@adbest.com(String)
+2018-02-07 19:40:53,297 DEBUG [qtp1509514333-19] (BaseJdbcLogger.java:139) - <====      Total: 1
+2018-02-07 19:40:53,300 DEBUG [qtp1509514333-19] (BaseJdbcLogger.java:139) - <==      Total: 1
+2018-02-07 19:44:25,996 DEBUG [qtp1509514333-16] (BaseJdbcLogger.java:139) - ==>  Preparing: select t1.id, t1.`username`, t1.`password`, t1.`status`,t2.id as userinf_id from sys_user t1,sys_user_detail t2 where t1.id = t2.user_id and t1.username = ? 
+2018-02-07 19:44:26,108 DEBUG [qtp1509514333-16] (BaseJdbcLogger.java:139) - ==> Parameters: admin@adbest.com(String)
+2018-02-07 19:44:26,161 DEBUG [qtp1509514333-16] (BaseJdbcLogger.java:139) - ====>  Preparing: select distinct t1.* from sys_menu t1, sys_role_menu t2 where t1.id = t2.menu_id and t1.platform = 1 and t1.display = 'y' and exists ( select t3.id from sys_user t3, sys_user_role t4 where t3.id = t4.user_id and t4.role_id = t2.role_id and t4.platform = 1 and t3.username = ? ) order by t1.id asc 
+2018-02-07 19:44:26,163 DEBUG [qtp1509514333-16] (BaseJdbcLogger.java:139) - ====> Parameters: admin@adbest.com(String)
+2018-02-07 19:44:26,190 DEBUG [qtp1509514333-16] (BaseJdbcLogger.java:139) - <====      Total: 1
+2018-02-07 19:44:26,194 DEBUG [qtp1509514333-16] (BaseJdbcLogger.java:139) - <==      Total: 1

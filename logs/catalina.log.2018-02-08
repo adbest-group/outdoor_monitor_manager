@@ -1,0 +1,56 @@
+2018-02-08 10:49:49,490 DEBUG [qtp1509514333-17] (BaseJdbcLogger.java:139) - ==>  Preparing: select id, mobile, password, alipay_account, alipay_name, weixin_account, balance, create_time, update_time from user where mobile = ? 
+2018-02-08 10:49:49,550 DEBUG [qtp1509514333-17] (BaseJdbcLogger.java:139) - ==> Parameters: 13732203065(String)
+2018-02-08 10:49:49,597 DEBUG [qtp1509514333-17] (BaseJdbcLogger.java:139) - <==      Total: 0
+2018-02-08 10:51:30,408 DEBUG [qtp1509514333-18] (BaseJdbcLogger.java:139) - ==>  Preparing: select id, mobile, password, alipay_account, alipay_name, weixin_account, balance, create_time, update_time from user where mobile = ? 
+2018-02-08 10:51:30,410 DEBUG [qtp1509514333-18] (BaseJdbcLogger.java:139) - ==> Parameters: 13732203065(String)
+2018-02-08 10:51:30,434 DEBUG [qtp1509514333-18] (BaseJdbcLogger.java:139) - <==      Total: 1
+2018-02-08 10:55:47,395 DEBUG [qtp1509514333-16] (BaseJdbcLogger.java:139) - ==>  Preparing: select id, mobile, password, alipay_account, alipay_name, weixin_account, balance, create_time, update_time from user where mobile = ? 
+2018-02-08 10:55:47,396 DEBUG [qtp1509514333-16] (BaseJdbcLogger.java:139) - ==> Parameters: 13732203065(String)
+2018-02-08 10:55:47,416 DEBUG [qtp1509514333-16] (BaseJdbcLogger.java:139) - <==      Total: 1
+2018-02-08 11:03:41,880 DEBUG [qtp1509514333-16] (BaseJdbcLogger.java:139) - ==>  Preparing: select id, mobile, password, alipay_account, alipay_name, weixin_account, balance, create_time, update_time from user where mobile = ? 
+2018-02-08 11:03:41,881 DEBUG [qtp1509514333-16] (BaseJdbcLogger.java:139) - ==> Parameters: 13732203063(String)
+2018-02-08 11:03:41,889 DEBUG [qtp1509514333-16] (BaseJdbcLogger.java:139) - <==      Total: 0
+2018-02-08 17:08:19,296 DEBUG [qtp1252585652-16] (BaseJdbcLogger.java:139) - ==>  Preparing: select id, mobile, password, alipay_account, alipay_name, weixin_account, balance, create_time, update_time from user where mobile = ? 
+2018-02-08 17:08:19,449 DEBUG [qtp1252585652-16] (BaseJdbcLogger.java:139) - ==> Parameters: 13732203063(String)
+2018-02-08 17:08:19,511 DEBUG [qtp1252585652-16] (BaseJdbcLogger.java:139) - <==      Total: 0
+2018-02-08 17:13:58,195 DEBUG [qtp1252585652-16] (BaseJdbcLogger.java:139) - ==>  Preparing: select id, mobile, password, alipay_account, alipay_name, weixin_account, balance, create_time, update_time from user where mobile = ? 
+2018-02-08 17:13:58,281 DEBUG [qtp1252585652-16] (BaseJdbcLogger.java:139) - ==> Parameters: 13732203063(String)
+2018-02-08 17:13:58,350 DEBUG [qtp1252585652-16] (BaseJdbcLogger.java:139) - <==      Total: 0
+2018-02-08 17:14:33,123 DEBUG [qtp1252585652-17] (BaseJdbcLogger.java:139) - ==>  Preparing: select id, mobile, password, alipay_account, alipay_name, weixin_account, balance, create_time, update_time from user where mobile = ? 
+2018-02-08 17:14:33,124 DEBUG [qtp1252585652-17] (BaseJdbcLogger.java:139) - ==> Parameters: 13732203063(String)
+2018-02-08 17:14:33,141 DEBUG [qtp1252585652-17] (BaseJdbcLogger.java:139) - <==      Total: 0
+2018-02-08 17:28:59,566 DEBUG [qtp1252585652-14] (BaseJdbcLogger.java:139) - ==>  Preparing: select id, mobile, password, alipay_account, alipay_name, weixin_account, balance, create_time, update_time from user where mobile = ? 
+2018-02-08 17:28:59,636 DEBUG [qtp1252585652-14] (BaseJdbcLogger.java:139) - ==> Parameters: 13732203063(String)
+2018-02-08 17:28:59,695 DEBUG [qtp1252585652-14] (BaseJdbcLogger.java:139) - <==      Total: 0
+2018-02-08 17:32:06,227 DEBUG [qtp1252585652-15] (BaseJdbcLogger.java:139) - ==>  Preparing: select id, mobile, password, alipay_account, alipay_name, weixin_account, balance, create_time, update_time from user where mobile = ? 
+2018-02-08 17:32:06,315 DEBUG [qtp1252585652-15] (BaseJdbcLogger.java:139) - ==> Parameters: 13732203063(String)
+2018-02-08 17:32:06,379 DEBUG [qtp1252585652-15] (BaseJdbcLogger.java:139) - <==      Total: 0
+2018-02-08 17:33:19,541 DEBUG [qtp1252585652-18] (BaseJdbcLogger.java:139) - ==>  Preparing: select id, mobile, password, alipay_account, alipay_name, weixin_account, balance, create_time, update_time from user where mobile = ? 
+2018-02-08 17:33:19,543 DEBUG [qtp1252585652-18] (BaseJdbcLogger.java:139) - ==> Parameters: 13732203065(String)
+2018-02-08 17:33:19,621 DEBUG [qtp1252585652-18] (BaseJdbcLogger.java:139) - <==      Total: 0
+2018-02-08 18:01:41,541 DEBUG [qtp1252585652-19] (BaseJdbcLogger.java:139) - ==>  Preparing: select id, product_id, product_name, product_img_url, product_info_url, product_cat, tk_link, price, month_sales, income_rate, commission, seller_wangwang, seller_id, shop_name, platform_type, coupon_id, coupon_total, coupon_rest, coupon_miane, coupon_start, coupon_end, coupon_link, coupon_promo_link, create_time, update_time from product_info where product_id = ? 
+2018-02-08 18:01:41,671 DEBUG [qtp1252585652-19] (BaseJdbcLogger.java:139) - ==> Parameters: 564270143510(String)
+2018-02-08 18:01:41,766 DEBUG [qtp1252585652-19] (BaseJdbcLogger.java:139) - <==      Total: 1
+2018-02-08 18:02:43,575 DEBUG [qtp1252585652-14] (BaseJdbcLogger.java:139) - ==>  Preparing: select id, product_id, product_name, product_img_url, product_info_url, product_cat, tk_link, price, month_sales, income_rate, commission, seller_wangwang, seller_id, shop_name, platform_type, coupon_id, coupon_total, coupon_rest, coupon_miane, coupon_start, coupon_end, coupon_link, coupon_promo_link, create_time, update_time from product_info where product_id = ? 
+2018-02-08 18:02:43,577 DEBUG [qtp1252585652-14] (BaseJdbcLogger.java:139) - ==> Parameters: 5642701435101(String)
+2018-02-08 18:02:43,606 DEBUG [qtp1252585652-14] (BaseJdbcLogger.java:139) - <==      Total: 0
+2018-02-08 18:04:01,609 DEBUG [qtp1252585652-16] (BaseJdbcLogger.java:139) - ==>  Preparing: select id, product_id, product_name, product_img_url, product_info_url, product_cat, tk_link, price, month_sales, income_rate, commission, seller_wangwang, seller_id, shop_name, platform_type, coupon_id, coupon_total, coupon_rest, coupon_miane, coupon_start, coupon_end, coupon_link, coupon_promo_link, create_time, update_time from product_info where product_id = ? 
+2018-02-08 18:04:01,680 DEBUG [qtp1252585652-16] (BaseJdbcLogger.java:139) - ==> Parameters: 5642701435101(String)
+2018-02-08 18:04:01,739 DEBUG [qtp1252585652-16] (BaseJdbcLogger.java:139) - <==      Total: 0
+2018-02-08 18:04:17,627 DEBUG [qtp1252585652-18] (BaseJdbcLogger.java:139) - ==>  Preparing: select id, product_id, product_name, product_img_url, product_info_url, product_cat, tk_link, price, month_sales, income_rate, commission, seller_wangwang, seller_id, shop_name, platform_type, coupon_id, coupon_total, coupon_rest, coupon_miane, coupon_start, coupon_end, coupon_link, coupon_promo_link, create_time, update_time from product_info where product_id = ? 
+2018-02-08 18:04:17,628 DEBUG [qtp1252585652-18] (BaseJdbcLogger.java:139) - ==> Parameters: 564270143510(String)
+2018-02-08 18:04:17,665 DEBUG [qtp1252585652-18] (BaseJdbcLogger.java:139) - <==      Total: 1
+2018-02-08 18:29:18,378 DEBUG [qtp1252585652-13] (BaseJdbcLogger.java:139) - ==>  Preparing: select id, product_id, product_name, product_img_url, product_info_url, product_cat, tk_link, price, month_sales, income_rate, commission, seller_wangwang, seller_id, shop_name, platform_type, coupon_id, coupon_total, coupon_rest, coupon_miane, coupon_start, coupon_end, coupon_link, coupon_promo_link, create_time, update_time from product_info where product_id in (?) 
+2018-02-08 18:29:18,450 DEBUG [qtp1252585652-13] (BaseJdbcLogger.java:139) - ==> Parameters: 564270143510,564270143510(String)
+2018-02-08 18:29:18,551 DEBUG [qtp1252585652-13] (BaseJdbcLogger.java:139) - <==      Total: 0
+2018-02-08 18:47:41,141 DEBUG [qtp1252585652-17] (BaseJdbcLogger.java:139) - ==>  Preparing: select id, product_id, product_name, product_img_url, product_info_url, product_cat, tk_link, price, month_sales, income_rate, commission, seller_wangwang, seller_id, shop_name, platform_type, coupon_id, coupon_total, coupon_rest, coupon_miane, coupon_start, coupon_end, coupon_link, coupon_promo_link, create_time, update_time from product_info where product_id in (?) 
+2018-02-08 18:47:41,211 DEBUG [qtp1252585652-17] (BaseJdbcLogger.java:139) - ==> Parameters: 564270143510,564270143510(String)
+2018-02-08 18:47:41,284 DEBUG [qtp1252585652-17] (BaseJdbcLogger.java:139) - <==      Total: 0
+2018-02-08 19:04:51,279 DEBUG [qtp1252585652-15] (BaseJdbcLogger.java:139) - ==>  Preparing: select id, product_id, product_name, product_img_url, product_info_url, product_cat, tk_link, price, month_sales, income_rate, commission, seller_wangwang, seller_id, shop_name, platform_type, coupon_id, coupon_total, coupon_rest, coupon_miane, coupon_start, coupon_end, coupon_link, coupon_promo_link, create_time, update_time from product_info where product_id in (?) 
+2018-02-08 19:04:51,356 DEBUG [qtp1252585652-15] (BaseJdbcLogger.java:139) - ==> Parameters: 564270143510,564270143510(String)
+2018-02-08 19:04:51,413 DEBUG [qtp1252585652-15] (BaseJdbcLogger.java:139) - <==      Total: 0
+2018-02-08 19:09:47,600 DEBUG [qtp1252585652-15] (BaseJdbcLogger.java:139) - ==>  Preparing: select id, product_id, product_name, product_img_url, product_info_url, product_cat, tk_link, price, month_sales, income_rate, commission, seller_wangwang, seller_id, shop_name, platform_type, coupon_id, coupon_total, coupon_rest, coupon_miane, coupon_start, coupon_end, coupon_link, coupon_promo_link, create_time, update_time from product_info where product_id in (?) 
+2018-02-08 19:09:47,671 DEBUG [qtp1252585652-15] (BaseJdbcLogger.java:139) - ==> Parameters: "564270143510","564270143510"(String)
+2018-02-08 19:09:47,737 DEBUG [qtp1252585652-15] (BaseJdbcLogger.java:139) - <==      Total: 0
+2018-02-08 19:17:21,977 DEBUG [qtp1252585652-16] (BaseJdbcLogger.java:139) - ==>  Preparing: select id, product_id, product_name, product_img_url, product_info_url, product_cat, tk_link, price, month_sales, income_rate, commission, seller_wangwang, seller_id, shop_name, platform_type, coupon_id, coupon_total, coupon_rest, coupon_miane, coupon_start, coupon_end, coupon_link, coupon_promo_link, create_time, update_time from product_info where product_id in (@{productId,jdbcType=VARCHAR}) 
+2018-02-08 19:17:22,061 DEBUG [qtp1252585652-16] (BaseJdbcLogger.java:139) - ==> Parameters: 

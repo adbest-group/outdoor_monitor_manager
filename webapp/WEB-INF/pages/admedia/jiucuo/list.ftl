@@ -77,7 +77,7 @@
                             <td>
                                 <#if (task.status==2&&task.problemStatus==3)><a
                                         href="javascript:fix('${task.id}');">解决</a></#if>
-                                <a href="/jiucuo/detail?id=${task.id}">查看</a>
+                                <a href="/platmedia/jiucuo/detail?id=${task.id}">查看</a>
                             </td>
                         </tr>
                         </#list>

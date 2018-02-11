@@ -3,7 +3,7 @@
 </#assign>
 <@model.webhead />
     <!-- 头部 -->
-    <@model.webMenu current="监测管理" child="纠错管理" />
+    <@model.webMenu current="纠错处理" child="纠错处理" />
 
 	<!-- 特色内容 -->
 <#include "../../jiucuo/detailContent.ftl">

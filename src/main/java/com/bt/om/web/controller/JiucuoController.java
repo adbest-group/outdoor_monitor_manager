@@ -5,6 +5,7 @@ import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.*;
 import com.bt.om.entity.vo.AdActivityVo;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
+import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.ResultCode;
@@ -13,11 +14,14 @@ import com.bt.om.enums.TaskProblemStatus;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
+import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.util.StringUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
 import com.bt.om.web.util.SearchUtil;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ExtendedModelMap;
@@ -29,6 +33,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 /**
  * Created by caiting on 2018/1/20.
@@ -41,9 +46,13 @@ public class JiucuoController extends BasicController {
     private IAdJiucuoTaskService adJiucuoTaskService;
     @Autowired
     private IAdActivityService adActivityService;
+    @Autowired
+    IAdMonitorTaskService adMonitorTaskService;
 
+    @RequiresRoles("admin")
     @RequestMapping(value = "/list")
     public String joucuoList(Model model, HttpServletRequest request,
+                             @RequestParam(value = "id", required = false) Integer id,
                              @RequestParam(value = "activityId", required = false) Integer activityId,
                              @RequestParam(value = "status", required = false) Integer status,
                              @RequestParam(value = "problemStatus", required = false) Integer problemStatus,
@@ -52,6 +61,9 @@ public class JiucuoController extends BasicController {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
 
+        if (id != null) {
+            vo.putSearchParam("id", id.toString(), id);
+        }
         if (activityId != null) {
             vo.putSearchParam("activityId", activityId.toString(), activityId);
         }
@@ -80,6 +92,7 @@ public class JiucuoController extends BasicController {
         return PageConst.JIUCUO_LIST;
     }
 
+    @RequiresRoles(value = {"admin", "media", "customer"}, logical = Logical.OR)
     @RequestMapping(value = "/detail")
     public String showDetail(Model model, HttpServletRequest request,
                              @RequestParam(value = "id", required = false) Integer id) {
@@ -91,16 +104,19 @@ public class JiucuoController extends BasicController {
         AdActivity activity = adActivityService.getVoById(task.getActivityId());
         //广告活动广告位
         AdActivityAdseat seat = adActivityService.getActivitySeatById(task.getActivityAdseatId());
-
+        //因当前纠错发起的子监测任务
+        List<AdMonitorTaskVo> subs = adJiucuoTaskService.getSubTask(id);
 
         model.addAttribute("task", task);
         model.addAttribute("activity", activity);
         model.addAttribute("seat", seat);
         model.addAttribute("feedback", feedback);
+        model.addAttribute("subs", subs);
         return PageConst.JIUCUO_DETAIL;
     }
 
     //审核纠错
+    @RequiresRoles("admin")
     @RequestMapping(value = "/verify")
     @ResponseBody
     public Model confirm(Model model, HttpServletRequest request,
@@ -118,7 +134,7 @@ public class JiucuoController extends BasicController {
             if (status == JiucuoTaskStatus.VERIFIED.getId()) {//审核通过
                 adJiucuoTaskService.pass(task);
             } else if (status == JiucuoTaskStatus.VERIFY_FAILURE.getId()) {//审核不通过
-                adJiucuoTaskService.reject(task,reason);
+                adJiucuoTaskService.reject(task, reason);
             }
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -133,8 +149,8 @@ public class JiucuoController extends BasicController {
     }
 
 
-
     //关闭纠错问题任务
+    @RequiresRoles("admin")
     @RequestMapping(value = "/close")
     @ResponseBody
     public Model close(Model model, HttpServletRequest request,
@@ -160,26 +176,32 @@ public class JiucuoController extends BasicController {
         return model;
     }
 
-//    //删除活动
-//    @RequestMapping(value="/delete")
-//    @ResponseBody
-//    public Model delete(Model model, HttpServletRequest request,
-//                         @RequestParam(value = "id", required = false) Integer id) {
-//        ResultVo<String> result = new ResultVo<String>();
-//        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
-//        result.setResult("删除成功");
-//        model = new ExtendedModelMap();
-//        try{
-//            adActivityService.delete(id);
-//        }catch (Exception e){
-//            result.setCode(ResultCode.RESULT_FAILURE.getCode());
-//            result.setResultDes("删除失败！");
-//            model.addAttribute(SysConst.RESULT_KEY, result);
-//            return model;
-//        }
-//
-//
-//        model.addAttribute(SysConst.RESULT_KEY, result);
-//        return model;
-//    }
+    //创建复查子任务
+    @RequiresRoles("admin")
+    @RequestMapping(value = "/createTask")
+    @ResponseBody
+    public Model newSub(Model model, HttpServletRequest request,
+                        @RequestParam(value = "id", required = false) Integer id) {
+        ResultVo<String> result = new ResultVo<String>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("创建成功");
+        model = new ExtendedModelMap();
+
+        AdMonitorTask task = new AdMonitorTask();
+        task.setProblemStatus(TaskProblemStatus.CLOSED.getId());
+        task.setId(id);
+        try {
+            adJiucuoTaskService.createSubTask(id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("创建失败！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+    }
+
 }

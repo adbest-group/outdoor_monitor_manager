@@ -213,6 +213,9 @@
         <result column="media_name" jdbcType="VARCHAR" property="mediaName"/>
         <result column="ad_seat_name" jdbcType="VARCHAR" property="adSeatName"/>
         <result column="realname" jdbcType="VARCHAR" property="realname"/>
+        <result column="problem" jdbcType="VARCHAR" property="problem"/>
+        <result column="problem_other" jdbcType="VARCHAR" property="problemOther"/>
+        <result column="feedback_time" jdbcType="VARCHAR" property="feedbackTime"/>
     </resultMap>
 
     <resultMap id="MobileResultMap" extends="BaseResultMap" type="com.bt.om.entity.vo.AdJiucuoTaskMobileVo">
@@ -239,6 +242,9 @@
         <if test="activityId != null">
             and a.activity_id = #{activityId,jdbcType=INTEGER}
         </if>
+        <if test="id != null">
+            and a.id = #{id,jdbcType=INTEGER}
+        </if>
         <if test="status != null">
             and a.status = #{status,jdbcType=INTEGER}
         </if>
@@ -252,6 +258,9 @@
         </if>
         <if test="mediaUserId != null">
             and f.user_id = #{mediaUserId,jdbcType=INTEGER}
+        </if>
+        <if test="customerUserId != null">
+            and c.user_id = #{customerUserId,jdbcType=INTEGER}
         </if>
         <if test="startDate != null">
             and c.start_time >= DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
@@ -276,6 +285,9 @@
         <if test="activityId != null">
             and a.activity_id = #{activityId,jdbcType=INTEGER}
         </if>
+        <if test="id != null">
+            and a.id = #{id,jdbcType=INTEGER}
+        </if>
         <if test="status != null">
             and a.status = #{status,jdbcType=INTEGER}
         </if>
@@ -290,6 +302,9 @@
         <if test="mediaUserId != null">
             and f.user_id = #{mediaUserId,jdbcType=INTEGER}
         </if>
+        <if test="customerUserId != null">
+            and c.user_id = #{customerUserId,jdbcType=INTEGER}
+        </if>
         <if test="startDate != null">
             and c.start_time >= DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
         </if>
@@ -301,7 +316,7 @@
 
     <select id="selectVoByPrimaryKey" resultMap="ExtResultMap" parameterType="java.lang.Integer">
     select a.id, a.activity_id, a.ad_seat_id, a.submit_time, a.user_id, a.status,a.reason,a.problem_status,a.sub_created, a.create_time, a.update_time,
-    b.pic_url1,c.activity_name,e.province,e.city,e.region,e.street,d.id as activity_adseat_id,d.media_id,
+    b.pic_url1,b.problem,b.problem_other,b.create_time as feedback_time,c.activity_name,e.province,e.city,e.region,e.street,d.id as activity_adseat_id,d.media_id,
     f.media_name,e.`name` as ad_seat_name,g.realname
     from ad_jiucuo_task a
     left join ad_jiucuo_task_feedback b on a.id = b.jiucuo_task_id

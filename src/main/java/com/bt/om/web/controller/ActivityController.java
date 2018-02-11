@@ -18,6 +18,7 @@ import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
 import com.bt.om.web.util.SearchUtil;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ExtendedModelMap;
@@ -44,12 +45,13 @@ import java.util.Random;
  */
 @Controller
 @RequestMapping(value = "/activity")
-public class ActivityController  extends BasicController {
+public class ActivityController extends BasicController {
 
     @Autowired
     private IAdActivityService adActivityService;
 
-    @RequestMapping(value="/list")
+    @RequiresRoles("admin")
+    @RequestMapping(value = "/list")
     public String customerList(Model model, HttpServletRequest request,
                                @RequestParam(value = "activityId", required = false) Integer activityId,
                                @RequestParam(value = "status", required = false) Integer status,
@@ -59,55 +61,59 @@ public class ActivityController  extends BasicController {
 
         SearchDataVo vo = SearchUtil.getVo();
 
-        if(activityId != null){
-            vo.putSearchParam("activityId",activityId.toString(),activityId);
+        if (activityId != null) {
+            vo.putSearchParam("activityId", activityId.toString(), activityId);
         }
-        if(status!=null){
-            vo.putSearchParam("status",status.toString(),status);
+        if (status != null) {
+            vo.putSearchParam("status", status.toString(), status);
         }
-        if(startDate!=null){
+        if (startDate != null) {
             try {
-                vo.putSearchParam("startDate",startDate,sdf.parse(startDate));
-            } catch (ParseException e) {}
+                vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
+            } catch (ParseException e) {
+            }
         }
-        if(endDate!=null){
+        if (endDate != null) {
             try {
-                vo.putSearchParam("endDate",endDate,sdf.parse(endDate));
-            } catch (ParseException e) {}
+                vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
+            } catch (ParseException e) {
+            }
         }
 
         adActivityService.getPageData(vo);
 
-        SearchUtil.putToModel(model,vo);
+        SearchUtil.putToModel(model, vo);
 
         return PageConst.ACTIVITY_LIST;
     }
 
+    @RequiresRoles("admin")
     //前往编辑活动
-    @RequestMapping(value="/edit")
+    @RequestMapping(value = "/edit")
     public String customerEdit(Model model, HttpServletRequest request,
                                @RequestParam(value = "id", required = false) Integer id) {
         AdActivityVo activity = adActivityService.getVoById(id);
 
-        if(activity!=null){
-            model.addAttribute("activity",activity);
+        if (activity != null) {
+            model.addAttribute("activity", activity);
         }
 
         return PageConst.ACTIVITY_EDIT;
     }
 
     //确认活动
-    @RequestMapping(value="/confirm")
+    @RequiresRoles("admin")
+    @RequestMapping(value = "/confirm")
     @ResponseBody
     public Model confirm(Model model, HttpServletRequest request,
-                          @RequestParam(value = "id", required = false) Integer id) {
+                         @RequestParam(value = "id", required = false) Integer id) {
         ResultVo<String> result = new ResultVo<String>();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("确认成功");
         model = new ExtendedModelMap();
-        try{
+        try {
             adActivityService.confirm(id);
-        }catch (Exception e){
+        } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("确认失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -120,17 +126,18 @@ public class ActivityController  extends BasicController {
     }
 
     //删除活动
-    @RequestMapping(value="/delete")
+    @RequiresRoles("admin")
+    @RequestMapping(value = "/delete")
     @ResponseBody
     public Model delete(Model model, HttpServletRequest request,
-                         @RequestParam(value = "id", required = false) Integer id) {
+                        @RequestParam(value = "id", required = false) Integer id) {
         ResultVo<String> result = new ResultVo<String>();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("删除成功");
         model = new ExtendedModelMap();
-        try{
+        try {
             adActivityService.delete(id);
-        }catch (Exception e){
+        } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("删除失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -143,7 +150,7 @@ public class ActivityController  extends BasicController {
     }
 
     /**
-     *  根据活动广告位关联id，获取二维码
+     * 根据活动广告位关联id，获取二维码
      **/
     @RequestMapping(value = {"/getQrcode"}, method = RequestMethod.GET)
     public void getCode(HttpServletRequest request, HttpServletResponse response,
@@ -153,6 +160,6 @@ public class ActivityController  extends BasicController {
 
         // 将内存中的图片发送到客户端
         response.setContentType("image/jpg");
-        QRcodeUtil.encode(GsonUtil.GsonString(vo),response.getOutputStream());
+        QRcodeUtil.encode(GsonUtil.GsonString(vo), response.getOutputStream());
     }
 }

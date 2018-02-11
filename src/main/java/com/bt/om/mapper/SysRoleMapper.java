@@ -56,4 +56,6 @@ public interface SysRoleMapper {
     int updateByPrimaryKey(SysRole record);
 
     List<SysRoleVo> findRoleByUserId(@Param("userId") Integer userId);
+
+    List<SysRole> selectByUserId(@Param("userId") Integer userId);
 }

@@ -54,4 +54,8 @@ public interface IAdMonitorTaskService {
 	 */
 	public List<AdMonitorTaskVo> getSubmitDetails(String taskId);
 
+	/**
+	 * 根据id获取任务详情（包含有效的监测提交）
+	 **/
+	public AdMonitorTaskVo getTaskVoById(Integer id);
 }

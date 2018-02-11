@@ -111,6 +111,6 @@
 	</error-page>
 	<error-page>
 		<error-code>500</error-code>
-		<location>/error.html</location>
+		<location>/error.htm</location>
 	</error-page>
 </web-app>

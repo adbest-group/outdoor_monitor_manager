@@ -89,4 +89,9 @@ public interface AdMonitorTaskMapper {
 	 **/
 	List<AdMonitorTaskVo> selectVoByParent(@Param("parentId") Integer parentId,@Param("parentType") Integer parentType);
 
+	/**
+	 * 根据父id和父类型查询子任务和有效的监测反馈
+	 **/
+	AdMonitorTaskVo selectVoByPrimaryKey(@Param("id") Integer id);
+
 }

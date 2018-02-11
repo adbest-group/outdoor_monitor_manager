@@ -2,6 +2,8 @@ package com.bt.om.entity.vo;
 
 import com.bt.om.entity.AdJiucuoTask;
 
+import java.util.Date;
+
 /**
  * Created by caiting on 2018/1/21.
  */
@@ -17,6 +19,33 @@ public class AdJiucuoTaskVo extends AdJiucuoTask {
     private String mediaName;
     private String adSeatName;
     private String realname;
+    private String problem;
+    private String problemOther;
+    private Date feedbackTime;
+
+    public String getProblem() {
+        return problem;
+    }
+
+    public void setProblem(String problem) {
+        this.problem = problem;
+    }
+
+    public String getProblemOther() {
+        return problemOther;
+    }
+
+    public void setProblemOther(String problemOther) {
+        this.problemOther = problemOther;
+    }
+
+    public Date getFeedbackTime() {
+        return feedbackTime;
+    }
+
+    public void setFeedbackTime(Date feedbackTime) {
+        this.feedbackTime = feedbackTime;
+    }
 
     public String getPicUrl1() {
         return picUrl1;

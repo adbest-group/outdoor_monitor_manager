@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.enums.*;
+import com.bt.om.mapper.AdJiucuoTaskMapper;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,8 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     private AdMonitorTaskFeedbackMapper adMonitorTaskFeedbackMapper;
     @Autowired
     private AdMonitorRewardMapper adMonitorRewardMapper;
+    @Autowired
+    private AdJiucuoTaskMapper jiucuoTaskMapper;
 
     @Override
     public void getPageData(SearchDataVo vo) {
@@ -75,6 +79,28 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         }
         adMonitorTaskMapper.updateByPrimaryKeySelective(task);
         task = adMonitorTaskMapper.selectByPrimaryKey(task.getId());
+        //如果当前任务是子任务，如果有问题，父任务的状态恢复到有问题，如果没有问题，则关闭父任务，这里分父任务是监测或纠错
+        if(task.getParentId()!=null){
+            if(task.getParentType()==RewardTaskType.MONITOR.getId()){
+                AdMonitorTask monitor = new AdMonitorTask();
+                monitor.setId(task.getParentId());
+                if(task.getProblemStatus()==TaskProblemStatus.PROBLEM.getId()) {
+                    monitor.setProblemStatus(TaskProblemStatus.PROBLEM.getId());
+                }else{
+                    monitor.setProblemStatus(TaskProblemStatus.CLOSED.getId());
+                }
+                adMonitorTaskMapper.updateByPrimaryKeySelective(monitor);
+            }else if(task.getParentType()==RewardTaskType.JIUCUO.getId()){
+                AdJiucuoTask jiucuo  = new AdJiucuoTask();
+                jiucuo.setId(task.getParentId());
+                if(task.getProblemStatus()==TaskProblemStatus.PROBLEM.getId()) {
+                    jiucuo.setProblemStatus(TaskProblemStatus.PROBLEM.getId());
+                }else{
+                    jiucuo.setProblemStatus(TaskProblemStatus.CLOSED.getId());
+                }
+                jiucuoTaskMapper.updateByPrimaryKeySelective(jiucuo);
+            }
+        }
         AdMonitorReward reward = new AdMonitorReward();
         reward.setMonitorTaskId(task.getId());
         reward.setType(RewardType.ADD.getId());
@@ -182,6 +208,11 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         int taskIds = Integer.valueOf(taskId);
         List<AdMonitorTaskVo> list = adMonitorTaskMapper.getSubmitDetails(taskIds);
         return list;
+    }
+
+    @Override
+    public AdMonitorTaskVo getTaskVoById(Integer id) {
+        return adMonitorTaskMapper.selectVoByPrimaryKey(id);
     }
 
 }

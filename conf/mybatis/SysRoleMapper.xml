@@ -160,4 +160,12 @@
     t1.platform = 1
     order by t1.id desc
   </select>
+
+  <select id="selectByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    a.id, a.platform, a.role_name, a.desc, a.create_time, a.update_time
+    from sys_role a,sys_user_role b
+    where a.id = b.role_id
+    and b.user_id = #{userId,jdbcType=INTEGER}
+  </select>
 </mapper>

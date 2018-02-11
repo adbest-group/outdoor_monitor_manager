@@ -4,10 +4,13 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.bt.om.web.component.VMComponent;
+import org.apache.shiro.authz.UnauthorizedException;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
@@ -34,16 +37,19 @@ public class WebExceptionResolver extends SimpleMappingExceptionResolver {
 
 	private HttpMessageConverter<?>[] messageConverters;
 
+	@Resource
+	private VMComponent vmComponent;
+
 	@Override
 	protected ModelAndView doResolveException(HttpServletRequest request, HttpServletResponse response, Object handler,
 			Exception ex) {
 		ModelAndView mv = new ModelAndView();
-		if (ex instanceof Exception) {
+		if (ex instanceof PermissionException || ex instanceof UnauthorizedException) {
 			ResultVo<Boolean> ret = new ResultVo<Boolean>();
 			ret.setCode(ResultCode.RESULT_FAILURE.getCode());
 			ret.setResultDes(ex.getMessage());
 			mv.addObject(SysConst.RESULT_KEY, ret);
-			mv.setViewName(PageConst.ERROR);
+			mv.setViewName(PageConst.NO_AUTHORITY);
 			if (RequestUtil.isAjax(request)) {
 				try {
 					return handleAjax(mv.getModel(), request, response);
@@ -51,8 +57,9 @@ public class WebExceptionResolver extends SimpleMappingExceptionResolver {
 					e.printStackTrace();
 				}
 			}
+			mv.addObject("vm", vmComponent);
 			return mv;
-		} else if (ex instanceof PermissionException) {
+		} else if (ex instanceof Exception) {
 			ResultVo<Boolean> ret = new ResultVo<Boolean>();
 			ret.setCode(ResultCode.RESULT_NOAUTH.getCode());
 			ret.setResultDes(ex.getMessage());
@@ -65,6 +72,7 @@ public class WebExceptionResolver extends SimpleMappingExceptionResolver {
 					e.printStackTrace();
 				}
 			}
+			mv.addObject("vm", vmComponent);
 			return mv;
 		}
 		return super.doResolveException(request, response, handler, ex);

@@ -5,9 +5,8 @@ import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.*;
 import com.bt.om.entity.vo.AdActivityVo;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
-import com.bt.om.enums.ActivityStatus;
-import com.bt.om.enums.ResultCode;
-import com.bt.om.enums.SessionKey;
+import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.enums.*;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
@@ -18,9 +17,8 @@ import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
 import com.bt.om.web.util.SearchUtil;
 import com.google.gson.JsonObject;
-import freemarker.template.SimpleDate;
-import org.apache.commons.lang.StringUtils;
-import org.apache.shiro.crypto.hash.Md5Hash;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ExtendedModelMap;
@@ -48,7 +46,8 @@ public class CustomerActivityControl extends BasicController {
     @Autowired
     private IAdJiucuoTaskService adJiucuoTaskService;
 
-    @RequestMapping(value="/activity/list")
+    @RequiresRoles("customer")
+    @RequestMapping(value = "/activity/list")
     public String customerList(Model model, HttpServletRequest request,
                                @RequestParam(value = "activityId", required = false) Integer activityId,
                                @RequestParam(value = "status", required = false) Integer status,
@@ -56,50 +55,54 @@ public class CustomerActivityControl extends BasicController {
                                @RequestParam(value = "endDate", required = false) String endDate) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
-        SysUser user = (SysUser)ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
 
         SearchDataVo vo = SearchUtil.getVo();
-        vo.putSearchParam("userId",user.getId().toString(),user.getId().toString());
+        vo.putSearchParam("userId", user.getId().toString(), user.getId().toString());
 
-        if(activityId != null){
-            vo.putSearchParam("activityId",activityId.toString(),activityId);
+        if (activityId != null) {
+            vo.putSearchParam("activityId", activityId.toString(), activityId);
         }
-        if(status!=null){
-            vo.putSearchParam("status",status.toString(),status);
+        if (status != null) {
+            vo.putSearchParam("status", status.toString(), status);
         }
-        if(startDate!=null){
+        if (startDate != null) {
             try {
-                vo.putSearchParam("startDate",startDate,sdf.parse(startDate));
-            } catch (ParseException e) {}
+                vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
+            } catch (ParseException e) {
+            }
         }
-        if(endDate!=null){
+        if (endDate != null) {
             try {
-                vo.putSearchParam("endDate",endDate,sdf.parse(endDate));
-            } catch (ParseException e) {}
+                vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
+            } catch (ParseException e) {
+            }
         }
 
         adActivityService.getPageData(vo);
 
-        SearchUtil.putToModel(model,vo);
+        SearchUtil.putToModel(model, vo);
 
         return PageConst.CUSTOMER_ACTIVITY_LIST;
     }
 
 
-    @RequestMapping(value="/activity/edit")
+    @RequiresRoles("customer")
+    @RequestMapping(value = "/activity/edit")
     public String customerEdit(Model model, HttpServletRequest request,
                                @RequestParam(value = "id", required = false) Integer id) {
         AdActivityVo activity = adActivityService.getVoById(id);
 
-        if(activity!=null){
-            model.addAttribute("activity",activity);
+        if (activity != null) {
+            model.addAttribute("activity", activity);
         }
 
         return PageConst.CUSTOMER_ACTIVITY_EDIT;
     }
 
 
-    @RequestMapping(value="/activity/adseat/edit")
+    @RequiresRoles(value = {"admin", "customer"}, logical = Logical.OR)
+    @RequestMapping(value = "/activity/adseat/edit")
     public String adSeatEdit(Model model, HttpServletRequest request) {
 
 
@@ -109,6 +112,7 @@ public class CustomerActivityControl extends BasicController {
     /**
      * 新增/编辑代理商
      */
+    @RequiresRoles(value = {"admin", "customer"}, logical = Logical.OR)
     @ResponseBody
     @RequestMapping("/activity/save")
     public Model save(Model model, HttpServletRequest request, HttpServletResponse response,
@@ -126,7 +130,7 @@ public class CustomerActivityControl extends BasicController {
         result.setResult("保存成功");
         model = new ExtendedModelMap();
 
-        SysUser user = (SysUser)ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
 
         AdActivityVo adActivityVo = new AdActivityVo();
         adActivityVo.setActivityName(activityName);
@@ -138,7 +142,8 @@ public class CustomerActivityControl extends BasicController {
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
 
-        }try {
+        }
+        try {
             adActivityVo.setEndTime(sdf.parse(endDate));
         } catch (ParseException e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -148,7 +153,7 @@ public class CustomerActivityControl extends BasicController {
         }
         //构造活动媒体
         String[] mediaArr = media.split(",");
-        for(String mediaId:mediaArr){
+        for (String mediaId : mediaArr) {
             AdActivityMedia am = new AdActivityMedia();
             am.setMediaId(new Integer(mediaId));
             am.setCreateTime(now);
@@ -157,9 +162,9 @@ public class CustomerActivityControl extends BasicController {
         }
 
         //构造活动地区
-        List<JsonObject> areas = GsonUtil.getObjectList(area,JsonObject.class);
-        if(areas.size()>0){
-            for(JsonObject obj : areas){
+        List<JsonObject> areas = GsonUtil.getObjectList(area, JsonObject.class);
+        if (areas.size() > 0) {
+            for (JsonObject obj : areas) {
                 AdActivityArea aa = new AdActivityArea();
                 aa.setProvince(obj.get("province").getAsInt());
                 aa.setCity(obj.get("city").getAsInt());
@@ -172,9 +177,9 @@ public class CustomerActivityControl extends BasicController {
         }
 
         //构造活动广告位
-        List<JsonObject> seats = GsonUtil.getObjectList(activeSeat,JsonObject.class);
-        if(seats.size()>0){
-            for(JsonObject obj : seats){
+        List<JsonObject> seats = GsonUtil.getObjectList(activeSeat, JsonObject.class);
+        if (seats.size() > 0) {
+            for (JsonObject obj : seats) {
                 AdActivityAdseat as = new AdActivityAdseat();
                 as.setAdSeatId(obj.get("seatId").getAsInt());
                 as.setBrand(obj.get("brand").getAsString());
@@ -201,13 +206,13 @@ public class CustomerActivityControl extends BasicController {
         }
 
         //新增
-        if(StringUtil.isEmpty(id)){
+        if (StringUtil.isEmpty(id)) {
             adActivityVo.setStatus(ActivityStatus.UNCONFIRM.getId());
             adActivityVo.setUserId(user.getId());
             adActivityVo.setCreateTime(now);
             adActivityVo.setUpdateTime(now);
             adActivityService.add(adActivityVo);
-        }else{//更新
+        } else {//更新
             adActivityVo.setId(new Integer(id));
             adActivityVo.setUpdateTime(now);
             adActivityService.modify(adActivityVo);
@@ -217,18 +222,51 @@ public class CustomerActivityControl extends BasicController {
         return model;
     }
 
-    @RequestMapping(value="/jiucuo/list")
-    public String jiucuoList(Model model, HttpServletRequest request) {
+    @RequiresRoles("customer")
+    @RequestMapping(value = "/jiucuo/list")
+    public String jiucuoList(Model model, HttpServletRequest request,
+                             @RequestParam(value = "activityId", required = false) Integer activityId,
+                             @RequestParam(value = "problemStatus", required = false) Integer problemStatus,
+                             @RequestParam(value = "startDate", required = false) String startDate,
+                             @RequestParam(value = "endDate", required = false) String endDate) {
 
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
-        adJiucuoTaskService.getPageData(vo);
 
-        SearchUtil.putToModel(model,vo);
+        if (activityId != null) {
+            vo.putSearchParam("activityId", activityId.toString(), activityId);
+        }
+        //只查询处于审核通过，有问题，已解决或闭环的纠错
+        if (problemStatus != null) {
+            vo.putSearchParam("problemStatus", problemStatus.toString(), problemStatus);
+        }
+
+        vo.putSearchParam("status", null, JiucuoTaskStatus.VERIFIED.getId());
+        //只查询本客户有关的纠错
+        SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        vo.putSearchParam("customerUserId", null, user.getId());
+
+        if (startDate != null) {
+            try {
+                vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
+            } catch (ParseException e) {
+            }
+        }
+        if (endDate != null) {
+            try {
+                vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
+            } catch (ParseException e) {
+            }
+        }
+
+        adJiucuoTaskService.getPageData(vo);
+        SearchUtil.putToModel(model, vo);
 
         return PageConst.CUSTOMER_JIUCUO_LIST;
     }
 
-    @RequestMapping(value="/jiucuo/detail")
+    @RequiresRoles("customer")
+    @RequestMapping(value = "/jiucuo/detail")
     public String showDetail(Model model, HttpServletRequest request,
                              @RequestParam(value = "id", required = false) Integer id) {
         //纠错任务
@@ -239,12 +277,14 @@ public class CustomerActivityControl extends BasicController {
         AdActivity activity = adActivityService.getVoById(task.getActivityId());
         //广告活动广告位
         AdActivityAdseat seat = adActivityService.getActivitySeatById(task.getActivityAdseatId());
+        //因当前纠错发起的子监测任务
+        List<AdMonitorTaskVo> subs = adJiucuoTaskService.getSubTask(id);
 
-
-        model.addAttribute("task",task);
-        model.addAttribute("activity",activity);
-        model.addAttribute("seat",seat);
-        model.addAttribute("feedback",feedback);
+        model.addAttribute("task", task);
+        model.addAttribute("activity", activity);
+        model.addAttribute("seat", seat);
+        model.addAttribute("feedback", feedback);
+        model.addAttribute("subs", subs);
         return PageConst.CUSTOMER_JIUCUO_DETAIL;
     }
 

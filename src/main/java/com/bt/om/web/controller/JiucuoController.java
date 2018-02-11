@@ -20,6 +20,8 @@ import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
 import com.bt.om.web.util.SearchUtil;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ExtendedModelMap;
@@ -47,6 +49,7 @@ public class JiucuoController extends BasicController {
     @Autowired
     IAdMonitorTaskService adMonitorTaskService;
 
+    @RequiresRoles("admin")
     @RequestMapping(value = "/list")
     public String joucuoList(Model model, HttpServletRequest request,
                              @RequestParam(value = "id", required = false) Integer id,
@@ -89,6 +92,7 @@ public class JiucuoController extends BasicController {
         return PageConst.JIUCUO_LIST;
     }
 
+    @RequiresRoles(value = {"admin", "media", "customer"}, logical = Logical.OR)
     @RequestMapping(value = "/detail")
     public String showDetail(Model model, HttpServletRequest request,
                              @RequestParam(value = "id", required = false) Integer id) {
@@ -112,6 +116,7 @@ public class JiucuoController extends BasicController {
     }
 
     //审核纠错
+    @RequiresRoles("admin")
     @RequestMapping(value = "/verify")
     @ResponseBody
     public Model confirm(Model model, HttpServletRequest request,
@@ -129,7 +134,7 @@ public class JiucuoController extends BasicController {
             if (status == JiucuoTaskStatus.VERIFIED.getId()) {//审核通过
                 adJiucuoTaskService.pass(task);
             } else if (status == JiucuoTaskStatus.VERIFY_FAILURE.getId()) {//审核不通过
-                adJiucuoTaskService.reject(task,reason);
+                adJiucuoTaskService.reject(task, reason);
             }
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -144,8 +149,8 @@ public class JiucuoController extends BasicController {
     }
 
 
-
     //关闭纠错问题任务
+    @RequiresRoles("admin")
     @RequestMapping(value = "/close")
     @ResponseBody
     public Model close(Model model, HttpServletRequest request,
@@ -172,6 +177,7 @@ public class JiucuoController extends BasicController {
     }
 
     //创建复查子任务
+    @RequiresRoles("admin")
     @RequestMapping(value = "/createTask")
     @ResponseBody
     public Model newSub(Model model, HttpServletRequest request,

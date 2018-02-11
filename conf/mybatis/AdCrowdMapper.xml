@@ -151,47 +151,59 @@
 	<insert id="insertAdCrowdVoMale" parameterType="com.bt.om.entity.vo.AdCrowdVo">
 		insert into ad_crowd
 		(
-			ad_seat_id,
-			sex,
-			age_part,
-			nums,
-			create_time,
-			update_time
+		ad_seat_id,
+		sex,
+		age_part,
+		nums,
+		create_time,
+		update_time
 		)
 		values
-		<foreach separator="," collection="num" item="num" index="index">
+		<foreach separator="," collection="maleNum" item="maleNum"
+			index="index">
 			(
-				#{adSeatId,jdbcType=INTEGER},
-				#{male,jdbcType=INTEGER},
-				#{index}+1,
-				#{num,jdbcType=INTEGER},
-				#{createTime,jdbcType=TIMESTAMP},
-				#{updateTime,jdbcType=TIMESTAMP}
+			#{adSeatId,jdbcType=INTEGER},
+			#{male,jdbcType=INTEGER},
+			#{index}+1,
+			#{maleNum,jdbcType=INTEGER},
+			#{createTime,jdbcType=TIMESTAMP},
+			#{updateTime,jdbcType=TIMESTAMP}
 			)
 		</foreach>
 	</insert>
-	
+
 	<insert id="insertAdCrowdVoFemale" parameterType="com.bt.om.entity.vo.AdCrowdVo">
 		insert into ad_crowd
 		(
-			ad_seat_id,
-			sex,
-			age_part,
-			nums,
-			create_time,
-			update_time
+		ad_seat_id,
+		sex,
+		age_part,
+		nums,
+		create_time,
+		update_time
 		)
 		values
-		<foreach separator="," collection="num" item="num" index="index">
+		<foreach separator="," collection="femaleNum" item="femaleNum"
+			index="index">
 			(
-				#{adSeatId,jdbcType=INTEGER},
-				#{female,jdbcType=INTEGER},
-				#{index}+1,
-				#{num,jdbcType=INTEGER},
-				#{createTime,jdbcType=TIMESTAMP},
-				#{updateTime,jdbcType=TIMESTAMP}
+			#{adSeatId,jdbcType=INTEGER},
+			#{female,jdbcType=INTEGER},
+			#{index}+1,
+			#{femaleNum,jdbcType=INTEGER},
+			#{createTime,jdbcType=TIMESTAMP},
+			#{updateTime,jdbcType=TIMESTAMP}
 			)
 		</foreach>
 	</insert>
+
+	<resultMap id="ExtResultMap" extends="BaseResultMap"
+		type="com.bt.om.entity.vo.AdCrowdVo">
+
+	</resultMap>
+
+	<select id="getAgePartListByAdSeatId" parameterType="INTEGER"
+		resultType="com.bt.om.entity.AdCrowd">
+		select * from ad_crowd where ad_seat_id=#{seatId,jdbcType=INTEGER}
+	</select>
 
 </mapper>

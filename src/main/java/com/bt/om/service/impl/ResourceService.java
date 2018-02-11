@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdMonitorTask;
-import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.AdSeatType;
 import com.bt.om.entity.vo.AdCrowdVo;
 import com.bt.om.entity.vo.AdSeatInfoVo;
@@ -38,18 +37,8 @@ public class ResourceService implements IResourceService {
 	private AdCrowdMapper adCrowdMapper;
 
 	@Override
+	@Transactional
 	public void insertAdSeatInfo(ResourceVo adSeatInfoVo) {
-
-		// 插入ad_media
-		adSeatInfoVo.getAdMedia().setCreateTime(new Date());
-		adSeatInfoVo.getAdMedia().setUpdateTime(new Date());
-		adMediaMapper.insertSelective(adSeatInfoVo.getAdMedia());
-
-		// 插入ad_seat_type
-		adSeatInfoVo.getAdSeatType().setCreateTime(new Date());
-		adSeatInfoVo.getAdSeatType().setUpdateTime(new Date());
-		adSeatTypeMapper.insertSelective(adSeatInfoVo.getAdSeatType());
-
 		// 插入ad_seat_info
 		adSeatInfoVo.getAdSeatInfo().setCreateTime(new Date());
 		adSeatInfoVo.getAdSeatInfo().setUpdateTime(new Date());
@@ -61,9 +50,10 @@ public class ResourceService implements IResourceService {
 		adSeatInfoVo.getAdCrowdVo().setAdSeatId(adSeatInfoVo.getAdSeatInfo().getId());
 		adSeatInfoVo.getAdCrowdVo().setCreateTime(new Date());
 		adSeatInfoVo.getAdCrowdVo().setUpdateTime(new Date());
+		adSeatInfoVo.getAdCrowdVo().setMale(1);// 男
+		adSeatInfoVo.getAdCrowdVo().setFemale(2);// 女
 		adCrowdMapper.insertAdCrowdVoMale(adSeatInfoVo.getAdCrowdVo());
 		adCrowdMapper.insertAdCrowdVoFemale(adSeatInfoVo.getAdCrowdVo());
-
 	}
 
 	@Override
@@ -93,4 +83,13 @@ public class ResourceService implements IResourceService {
 		return adSeatInfoMapper.deleteByPrimaryKey(id);
 	}
 
+	@Override
+	public List<AdSeatType> getSeatTypeAll() {
+		return adSeatTypeMapper.getSeatTypeAll();
+	}
+
+	public List<AdCrowdVo> getAgePartListByAdSeatId(String seatId) {
+		Integer ids = Integer.valueOf(seatId);
+		return adCrowdMapper.getAgePartListByAdSeatId(ids);
+	}
 }

@@ -7,15 +7,9 @@ public class AdCrowdVo extends AdCrowd {
 
 	private int female;
 
-	private Integer num[];
+	private Integer maleNum[];
 
-	public Integer[] getNum() {
-		return num;
-	}
-
-	public void setNum(Integer num[]) {
-		this.num = num;
-	}
+	private Integer femaleNum[];
 
 	public int getMale() {
 		return male;
@@ -31,6 +25,22 @@ public class AdCrowdVo extends AdCrowd {
 
 	public void setFemale(int female) {
 		this.female = female;
+	}
+
+	public Integer[] getMaleNum() {
+		return maleNum;
+	}
+
+	public void setMaleNum(Integer maleNum[]) {
+		this.maleNum = maleNum;
+	}
+
+	public Integer[] getFemaleNum() {
+		return femaleNum;
+	}
+
+	public void setFemaleNum(Integer femaleNum[]) {
+		this.femaleNum = femaleNum;
 	}
 
 }

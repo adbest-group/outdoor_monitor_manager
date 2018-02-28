@@ -130,4 +130,14 @@ public class AdMedia {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
+
+    private Integer userId;
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
 }

@@ -1,7 +1,7 @@
 <#assign webTitle="资源管理" in model> <#assign webHead in model> </#assign>
 <@model.webhead />
 <!-- 头部 -->
-<@model.webMenu current="资源管理" child="资源管理" />
+<@model.webMenu current="资源管理" child="广告位管理" />
 <link rel="stylesheet" type="text/css"
 	href="${model.static_domain}/css/new_main.css">
 <link rel="stylesheet" type="text/css"

@@ -55,4 +55,8 @@ public class PageConst {
 	public static final String RESOURCE_DETAILS = "resource/detail";
 	public static final String RESOURCE_EDIT = "resource/edit";
 
+	/*** 媒体管理 ***/
+	public static final String MEDIA_LIST = "media/list";
+	public static final String MEDIA_EDIT = "media/edit";
+
 }

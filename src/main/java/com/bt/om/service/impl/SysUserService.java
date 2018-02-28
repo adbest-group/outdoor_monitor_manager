@@ -10,6 +10,8 @@ import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +66,14 @@ public class SysUserService implements ISysUserService {
 	 */
 	@Override
 	public List<SysUserVo> getPageData(SearchDataVo vo) {
-		return sysUserMapper.getPageData(vo.getSearchMap(), new RowBounds(vo.getStart(), vo.getSize()));
+		int count = sysUserMapper.getPageCount(vo.getSearchMap());
+		vo.setCount(count);
+		if(count>0){
+			vo.setList(sysUserMapper.getPageData(vo.getSearchMap(), new RowBounds(vo.getStart(), vo.getSize())));
+		}else{
+			vo.setList(new ArrayList<>());
+		}
+		return (List<SysUserVo>)vo.getList();
 	}
 	
 	/*
@@ -75,7 +84,16 @@ public class SysUserService implements ISysUserService {
 	public List<SysUser> isExistsName(String username) {
 		return sysUserMapper.isExistsName(username);
 	}
-	
+
+	@Override
+	public int update(SysUserVo user) {
+		if(user.getId()!=null){
+			user.setUpdateTime(new Date());
+			return sysUserMapper.updateByPrimaryKeySelective(user);
+		}
+		return -1;
+	}
+
 //	/*
 //	 * (non-Javadoc)
 //	 * @see com.bt.om.service.IOttvUserService#saveUser(com.bt.om.entity.vo.OttvUserVo, java.lang.String)

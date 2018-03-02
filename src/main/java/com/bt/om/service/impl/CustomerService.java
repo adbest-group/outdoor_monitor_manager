@@ -8,6 +8,7 @@ import com.bt.om.mapper.AdMediaMapper;
 import com.bt.om.mapper.SysUserDetailMapper;
 import com.bt.om.mapper.SysUserMapper;
 import com.bt.om.mapper.SysUserRoleMapper;
+import com.bt.om.service.ICustomerService;
 import com.bt.om.service.IMediaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,14 +21,12 @@ import java.util.Date;
  * Created by caiting on 2018/2/27.
  */
 @Service
-public class MediaService implements IMediaService {
+public class CustomerService implements ICustomerService {
 
     @Autowired
     private SysUserMapper sysUserMapper;
     @Autowired
     private SysUserDetailMapper sysUserDetailMapper;
-    @Autowired
-    private AdMediaMapper adMediaMapper;
     @Autowired
     private SysUserRoleMapper sysUserRoleMapper;
 
@@ -62,12 +61,6 @@ public class MediaService implements IMediaService {
         userRole.setCreateTime(now);
         userRole.setUpdateTime(now);
         sysUserRoleMapper.insertSelective(userRole);
-        AdMedia media = new AdMedia();
-        media.setMediaName(user.getRealname());
-        media.setUserId(user.getId());
-        media.setCreateTime(now);
-        media.setUpdateTime(now);
-        adMediaMapper.insertSelective(media);
     }
 
     @Override
@@ -81,12 +74,6 @@ public class MediaService implements IMediaService {
             detail.setTelephone(user.getTelephone());
             detail.setUpdateTime(now);
             sysUserDetailMapper.updateByPrimaryKeySelective(detail);
-        }
-        AdMedia media = adMediaMapper.selectByUserId(user.getId());
-        if(!media.getMediaName().equals(user.getRealname())){
-            media.setMediaName(user.getRealname());
-            media.setUpdateTime(now);
-            adMediaMapper.updateByPrimaryKeySelective(media);
         }
     }
 }

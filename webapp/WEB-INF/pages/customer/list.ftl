@@ -3,11 +3,11 @@
 </#assign>
 <@model.webhead />
 <!-- 头部 -->
-<@model.webMenu current="资源管理" child="媒体管理" />
+<@model.webMenu current="账户管理" child="客户账号管理" />
 <div class="main-container" style="height: auto;">
     <div class="main-box ott-market">
         <div class="title clearfix">
-            <a href="javascript:;" class="add-new-btn ll" id="add_media"><i></i> 新建媒体</a>
+            <a href="javascript:;" class="add-new-btn ll" id="add_media"><i></i> 新建客户账号</a>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <div class="inp">
                     <input type="text" value="${nameOrUsername?if_exists}" placeholder="请输入媒体名/登录账户" id="nameOrUsername"
@@ -24,7 +24,7 @@
                     <thead>
                     <tr>
                         <th>序号</th>
-                        <th>媒体名称</th>
+                        <th>客户名称</th>
                         <th>登录账户</th>
                         <th>联系电话</th>
                         <th>状态</th>
@@ -65,22 +65,22 @@
         //iframe层
         layer.open({
             type: 2,
-            title: '编辑媒体',
+            title: '编辑客户账号',
             shadeClose: true,
             shade: 0.8,
             area: ['600px', '480px'],
-            content: '/media/edit' //iframe的url
+            content: '/customer/edit' //iframe的url
         });
     });
 
     function edit(id) {
         layer.open({
             type: 2,
-            title: '编辑账户',
+            title: '编辑客户账号',
             shadeClose: true,
             shade: 0.8,
             area: ['600px', '480px'],
-            content: '/media/edit?id=' + id //iframe的url
+            content: '/customer/edit?id=' + id //iframe的url
         });
     }
 
@@ -88,11 +88,11 @@
     $("#searchBtn").on("click", function () {
         var strParam = "";
         var nameOrUsername = $("#nameOrUsername").val();
-        if (nameOrUsername != null && $.trim(nameOrUsername).length) {
+        if (nameOrUsername != null && $.trim(nameOrUsername).length>0) {
             strParam = strParam + "?name=" + nameOrUsername;
         }
 
-        window.location.href = "/media/list" + strParam;
+        window.location.href = "/customer/list" + strParam;
     });
 
     // 删除账户
@@ -102,7 +102,7 @@
             btn: ['确定', '取消'] //按钮
         }, function () {
             $.ajax({
-                url: "/deleteAccount",
+                url: "/customer/deleteAccount",
                 type: "post",
                 data: {
                     "id": id
@@ -121,7 +121,7 @@
                             icon: 1,
                             btn: ['确定'] //按钮
                         }, function () {
-                            window.location.href = "/system/account/list?nameOrUsername=" + $("#nameOrUsername").val();
+                            window.location.reload();
                         });
                     }
                 },
@@ -158,7 +158,7 @@
         }
 
         $.ajax({
-            url: "/media/updateAccountStatus",
+            url: "/customer/updateAccountStatus",
             type: "post",
             data: {
                 "id": id,

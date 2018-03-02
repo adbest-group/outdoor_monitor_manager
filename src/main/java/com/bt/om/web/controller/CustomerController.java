@@ -5,11 +5,8 @@ import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.SysRole;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.SysUserVo;
-import com.bt.om.enums.MonitorTaskStatus;
-import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.ResultCode;
-import com.bt.om.enums.SessionKey;
-import com.bt.om.security.ShiroUtils;
+import com.bt.om.service.ICustomerService;
 import com.bt.om.service.IMediaService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.vo.web.ResultVo;
@@ -27,24 +24,22 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
  * Created by caiting on 2018/2/27.
  */
 @Controller
-@RequestMapping(value = "/media")
-public class MediaController {
+@RequestMapping(value = "/customer")
+public class CustomerController {
 
     @Autowired
     private ISysUserService sysUserService;
     @Autowired
-    private IMediaService mediaService;
+    private ICustomerService customerService;
 
     /**
-     * 媒体管理列表
+     * 客户管理列表
      **/
     @RequiresRoles("admin")
     @RequestMapping(value = "/list")
@@ -52,7 +47,7 @@ public class MediaController {
                           @RequestParam(value = "name", required = false) String name) {
         SearchDataVo vo = SearchUtil.getVo();
 
-        vo.putSearchParam("usertype", null, 3);
+        vo.putSearchParam("usertype", null, 2);
         // 名称或登录账号
         if (StringUtils.isNotBlank(name)) {
             vo.putSearchParam("nameOrUsername", name, "%" + name + "%");
@@ -62,11 +57,11 @@ public class MediaController {
 
         SearchUtil.putToModel(model, vo);
 
-        return PageConst.MEDIA_LIST;
+        return PageConst.CUSTOMER_LIST;
     }
 
     /**
-     * 媒体编辑
+     * 客户编辑
      **/
     @RequiresRoles("admin")
     @RequestMapping(value = "/edit")
@@ -80,7 +75,7 @@ public class MediaController {
             }
         }
 
-        return PageConst.MEDIA_EDIT;
+        return PageConst.CUSTOMER_EDIT;
     }
 
     /**
@@ -109,7 +104,7 @@ public class MediaController {
     }
 
     /**
-     * 保存媒体
+     * 保存客户
      **/
     @RequiresRoles("admin")
     @RequestMapping(value = {"/save"}, method = {RequestMethod.POST})
@@ -130,9 +125,9 @@ public class MediaController {
                 user.setRealname(name);
                 user.setTelephone(telephone);
                 user.setPlatform(1);
-                user.setUsertype(3);
+                user.setUsertype(2);
                 user.setStatus(1);
-                mediaService.add(user);
+                customerService.add(user);
             } else {//修改
                 SysUserVo user = new SysUserVo();
                 user.setId(id);
@@ -142,7 +137,7 @@ public class MediaController {
                 }
                 user.setRealname(name);
                 user.setTelephone(telephone);
-                mediaService.modify(user);
+                customerService.modify(user);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -154,7 +149,9 @@ public class MediaController {
         return model;
     }
 
-
+    /**
+     * 修改客户账号状态
+     **/
     @RequiresRoles("admin")
     @RequestMapping(value = {"/updateAccountStatus"}, method = {RequestMethod.POST})
     @ResponseBody

@@ -3,6 +3,7 @@ package com.bt.om.mapper;
 import java.util.List;
 
 import com.bt.om.entity.AdMedia;
+import org.apache.ibatis.annotations.Param;
 
 public interface AdMediaMapper {
     /**
@@ -54,4 +55,6 @@ public interface AdMediaMapper {
     int updateByPrimaryKey(AdMedia record);
     
     List<AdMedia> getAll();
+
+    AdMedia selectByUserId(@Param("id") Integer id);
 }

@@ -175,7 +175,7 @@ public class LoginController extends BasicController {
      * @param response
      * @throws IOException
      */
-    @RequestMapping(value = {"/getCode", "/api/getCode"}, method = RequestMethod.GET)
+    @RequestMapping(value = {"/getCode","/api/getCode"}, method = RequestMethod.GET)
     public void getCode(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         // 创建一张空白的图片

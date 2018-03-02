@@ -66,8 +66,8 @@
                                 <div class="data-title w200" data-title="${task.activityName}" data-id="${task.id}">${task.activityName?if_exists}</div>
                             </td>
                             <td><img width="50" src="${task.samplePicUrl}"/> </td>
-                            <td>${task.startTime?string('yyyy-MM-dd')} 至 ${task.endTime?string('yyyy-MM-dd')}</td>
-                            <td>${task.city!""}</td>
+                            <td>${task.startTime?string('yyyy-MM-dd')}<br/>${task.endTime?string('yyyy-MM-dd')}</td>
+                            <td>${vm.getCityNameFull(task.street!task.region,"-")!""}</td>
                             <td>${task.mediaName}</td>
                             <td>${task.adSeatName}</td>
                             <td>${task.realname!""}</td>

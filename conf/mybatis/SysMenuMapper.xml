@@ -239,6 +239,6 @@
     and t3.username = #{username}
     )
     order by
-    t1.id asc
+    t1.seq,t1.id
   </select>
 </mapper>

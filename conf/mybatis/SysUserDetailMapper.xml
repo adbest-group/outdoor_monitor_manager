@@ -214,4 +214,11 @@
       update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}
   </update>
+
+  <select id="selectByUserId" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from sys_user_detail
+    where user_id = #{id,jdbcType=INTEGER}
+  </select>
 </mapper>

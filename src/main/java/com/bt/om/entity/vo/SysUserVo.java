@@ -1,6 +1,7 @@
 package com.bt.om.entity.vo;
 
 import com.bt.om.entity.SysUser;
+import com.bt.om.entity.SysUserDetail;
 
 import java.util.List;
 
@@ -9,6 +10,24 @@ import java.util.List;
  */
 public class SysUserVo extends SysUser {
     private List<SysMenuVo> menuList;
+    private String telephone;
+    private SysUserDetail userinfo;
+
+    public SysUserDetail getUserinfo() {
+        return userinfo;
+    }
+
+    public void setUserinfo(SysUserDetail userinfo) {
+        this.userinfo = userinfo;
+    }
+
+    public String getTelephone() {
+        return telephone;
+    }
+
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
+    }
 
     public List<SysMenuVo> getMenuList() {
         return menuList;

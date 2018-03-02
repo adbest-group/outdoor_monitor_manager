@@ -52,6 +52,8 @@ public interface ISysUserService {
      */
     List<SysUser> isExistsName(String username);
 
+    int update(SysUserVo user);
+
 //	/**
 //	 * 保存用户信息
 //	 *

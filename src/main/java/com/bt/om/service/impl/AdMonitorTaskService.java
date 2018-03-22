@@ -164,7 +164,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             if (task.getTaskType()== MonitorTaskType.SET_UP_MONITOR.getId()) {
                 AdSeatInfo seatInfo = adSeatInfoMapper.getAdSeatInfoByAdActivitySeatId(task.getActivityAdseatId());
                 //如果广告位没绑定二维码，本次绑定激活
-                if(seatInfo.getAdCode() == null){
+                if(StringUtil.isEmpty(seatInfo.getAdCode())){
                     if(StringUtil.isEmpty(adSeatCode)){
                         throw new RuntimeException("广告位未激活，需提供广告位二维码");
                     }

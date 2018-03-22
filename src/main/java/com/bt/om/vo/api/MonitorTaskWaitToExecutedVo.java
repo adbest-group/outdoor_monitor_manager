@@ -20,6 +20,7 @@ public class MonitorTaskWaitToExecutedVo extends BasicVo{
     private String ad_activity_name;
     private String ad_name;
     private Integer ad_seat_id;
+    private String ad_seat_code;
     private String ad_location;
     private Integer ad_status;
     private String sample_url;
@@ -33,9 +34,18 @@ public class MonitorTaskWaitToExecutedVo extends BasicVo{
         this.ad_activity_name = task.getActivityName();
         this.ad_name = task.getAdSeatName();
         this.ad_seat_id = task.getAdSeatId();
+        this.ad_seat_code = task.getAdSeatCode();
         this.ad_location = task.getAdSeatName();
         this.ad_status = task.getStatus();
         this.sample_url = task.getSamplePicUrl();
+    }
+
+    public String getAd_seat_code() {
+        return ad_seat_code;
+    }
+
+    public void setAd_seat_code(String ad_seat_code) {
+        this.ad_seat_code = ad_seat_code;
     }
 
     public Integer getAd_seat_id() {

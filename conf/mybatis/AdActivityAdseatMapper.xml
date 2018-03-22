@@ -298,6 +298,19 @@
     order by id
   </select>
 
+  <select id="selectVoBySeatCode" resultMap="ExtResultMap">
+    select
+    a.id, a.activity_id, a.media_id, a.ad_seat_id, a.brand, a.monitor_start, a.monitor_end, a.monitor_count,
+    a.up_monitor, a.down_monitor, a.duration_monitor, a.sample_pic_url, a.task_create, a.create_time,
+    a.update_time,b.media_name,c.name as ad_seat_name,c.lon,c.lat,d.activity_name
+    from ad_activity_adseat a,ad_media b,ad_seat_info c,ad_activity d
+    where a.media_id = b.id and a.ad_seat_id = c.id and a.activity_id = d.id
+    and a.monitor_start &lt;= now()
+    and a.monitor_end >= date_add(NOW(),INTERVAL -1 DAY)
+    and c.ad_code = #{adSeatCode,jdbcType=INTEGER}
+    order by id
+  </select>
+
   <select id="selectByActivityAndSeatId" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />

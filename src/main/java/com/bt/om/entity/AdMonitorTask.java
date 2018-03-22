@@ -263,6 +263,8 @@ public class AdMonitorTask extends ID{
     private Integer parentId;
     private Integer parentType;
     private Integer subCreated;
+    private Date monitorDate;
+    private Date verifyTime;
 
     public Integer getSubCreated() {
         return subCreated;
@@ -294,5 +296,21 @@ public class AdMonitorTask extends ID{
 
     public void setParentType(Integer parentType) {
         this.parentType = parentType;
+    }
+
+    public Date getMonitorDate() {
+        return monitorDate;
+    }
+
+    public void setMonitorDate(Date monitorDate) {
+        this.monitorDate = monitorDate;
+    }
+
+    public Date getVerifyTime() {
+        return verifyTime;
+    }
+
+    public void setVerifyTime(Date verifyTime) {
+        this.verifyTime = verifyTime;
     }
 }

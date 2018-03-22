@@ -26,18 +26,20 @@ public class DiclectStatementHandlerByMysqlInterceptor implements Interceptor {
 
     public Object intercept(Invocation invocation) throws Throwable {
         RoutingStatementHandler statement = (RoutingStatementHandler) invocation.getTarget();
-        PreparedStatementHandler handler = (PreparedStatementHandler) ReflectUtil.getFieldValue(
-            statement, "delegate");
-        RowBounds rowBounds = (RowBounds) ReflectUtil.getFieldValue(handler, "rowBounds");
+        if(ReflectUtil.getFieldValue(statement, "delegate") instanceof PreparedStatementHandler) {
+            PreparedStatementHandler handler = (PreparedStatementHandler) ReflectUtil.getFieldValue(
+                    statement, "delegate");
+            RowBounds rowBounds = (RowBounds) ReflectUtil.getFieldValue(handler, "rowBounds");
 
-        if (rowBounds.getLimit() > 0 && rowBounds.getLimit() < RowBounds.NO_ROW_LIMIT) {
-            BoundSql boundSql = statement.getBoundSql();
-            String sql = boundSql.getSql();
+            if (rowBounds.getLimit() > 0 && rowBounds.getLimit() < RowBounds.NO_ROW_LIMIT) {
+                BoundSql boundSql = statement.getBoundSql();
+                String sql = boundSql.getSql();
 
-            MySQLDialect dialect = (MySQLDialect) Class.forName(DIALECT).newInstance();
-            sql = dialect.getLimitString(sql, rowBounds.getOffset(), rowBounds.getLimit());
+                MySQLDialect dialect = (MySQLDialect) Class.forName(DIALECT).newInstance();
+                sql = dialect.getLimitString(sql, rowBounds.getOffset(), rowBounds.getLimit());
 
-            ReflectUtil.setFieldValue(boundSql, "sql", sql);
+                ReflectUtil.setFieldValue(boundSql, "sql", sql);
+            }
         }
         return invocation.proceed();
     }

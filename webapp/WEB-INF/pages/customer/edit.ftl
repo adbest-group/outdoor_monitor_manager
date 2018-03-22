@@ -31,7 +31,7 @@
 						</div><input type="password" id="password" name="password" value="<#if (obj.id)?exists>******</#if>" autocomplete="off" class="form-control"> <br><span id="passwordTip"></span></td>
 				</tr>
 				<tr>
-					<td class="a-title">客户名称：</td>
+					<td class="a-title">联 系 人：</td>
 					<td><input type="text" id="name" name="name" value="${(obj.realname)?if_exists}" autocomplete="off" class="form-control"> <br><span id="nameTip"></span></td>
 				</tr>
 				<tr>

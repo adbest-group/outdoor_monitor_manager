@@ -11,7 +11,16 @@ import java.util.List;
 public class SysUserVo extends SysUser {
     private List<SysMenuVo> menuList;
     private String telephone;
+    private String prefix;
     private SysUserDetail userinfo;
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
 
     public SysUserDetail getUserinfo() {
         return userinfo;

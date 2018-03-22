@@ -29,11 +29,16 @@ public class PageConst {
 	public static final String CUSTOMER_ACTIVITY_ADSEAT_EDIT = "adcustomer/activity/adseat/edit";
 	public static final String CUSTOMER_JIUCUO_LIST = "adcustomer/jiucuo/list";
 	public static final String CUSTOMER_JIUCUO_DETAIL = "adcustomer/jiucuo/detail";
+	public static final String CUSTOMER_RESOURCE = "adcustomer/resource/index";
+	public static final String CUSTOMER_REPORT = "adcustomer/report/index";
 
 	/*** 媒体端任务列表 ***/
 	public static final String MEDIA_TASK_LIST = "admedia/task/list";
 	public static final String MEDIA_PROBLEM_TASK_LIST = "admedia/task/problemList";
+	public static final String MEDIA_TASK_DETAIL = "admedia/task/detail";
 	public static final String MEDIA_JIUCUO_LIST = "admedia/jiucuo/list";
+	public static final String MEDIA_ADSEAT_LIST = "admedia/adseat/list";
+	public static final String MEDIA_ADSEAT_EDIT = "admedia/adseat/edit";
 
 	/*** 活动管理 ***/
 	public static final String ACTIVITY_LIST = "activity/list";
@@ -51,9 +56,9 @@ public class PageConst {
 
 	/*** 资源管理 ***/
 	public static final String RESOURCE_ADD = "resource/add_ad_seat";
-	public static final String RESOURCE_LIST = "resource/list";
+	public static final String ADSEAT_LIST = "adseat/list";
 	public static final String RESOURCE_DETAILS = "resource/detail";
-	public static final String RESOURCE_EDIT = "resource/edit";
+	public static final String ADSEAT_EDIT = "adseat/edit";
 
 	/*** 媒体管理 ***/
 	public static final String MEDIA_LIST = "media/list";

@@ -2,6 +2,7 @@ package com.bt.om.service;
 
 import java.util.List;
 
+import com.bt.om.entity.AdCrowd;
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdSeatType;
 import com.bt.om.entity.vo.AdCrowdVo;
@@ -13,7 +14,7 @@ public interface IResourceService {
 	/**
 	 * 新增广告位信息
 	 * 
-	 * @param adSeatInfo
+	 * @param adSeatInfoVo
 	 */
 	void insertAdSeatInfo(ResourceVo adSeatInfoVo);
 
@@ -32,5 +33,5 @@ public interface IResourceService {
 
 	List<AdSeatType> getSeatTypeAll();
 
-	public List<AdCrowdVo> getAgePartListByAdSeatId(String seatId);
+	public List<AdCrowd> getAgePartListByAdSeatId(Integer seatId);
 }

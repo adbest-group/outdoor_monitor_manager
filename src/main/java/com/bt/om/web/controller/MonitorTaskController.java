@@ -116,7 +116,7 @@ public class MonitorTaskController extends BasicController {
         vo.putSearchParam("status", String.valueOf(MonitorTaskStatus.UNASSIGN.getId()),
                 String.valueOf(MonitorTaskStatus.UNASSIGN.getId()));
         //运营平台指派任务只指派监测期间的任务
-        vo.putSearchParam("taskTypes", null, new Integer[]{MonitorTaskType.DURATION_MONITOR.getId(), MonitorTaskType.FIX_CONFIRM.getId()});
+        vo.putSearchParam("taskTypes", null, new Integer[]{MonitorTaskType.UP_MONITOR.getId(),MonitorTaskType.DURATION_MONITOR.getId(),MonitorTaskType.DOWNMONITOR.getId(), MonitorTaskType.FIX_CONFIRM.getId()});
 
         if (activityId != null) {
             vo.putSearchParam("activityId", activityId.toString(), activityId);
@@ -157,7 +157,7 @@ public class MonitorTaskController extends BasicController {
     }
 
     // 分配任务
-    @RequiresRoles("admin")
+    @RequiresRoles(value = {"admin","media"},logical = Logical.OR)
     @RequestMapping(value = "/assign")
     @ResponseBody
     public Model assign(Model model, HttpServletRequest request,

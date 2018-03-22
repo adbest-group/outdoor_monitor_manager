@@ -98,6 +98,7 @@ public class ActivityController extends BasicController {
             model.addAttribute("activity", activity);
         }
 
+//        return PageConst.ACTIVITY_EDIT;
         return PageConst.ACTIVITY_EDIT;
     }
 

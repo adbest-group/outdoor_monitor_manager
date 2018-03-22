@@ -58,5 +58,5 @@ public interface AdCrowdMapper {
 
 	int insertAdCrowdVoFemale(AdCrowdVo vo);
 
-	List<AdCrowdVo> getAgePartListByAdSeatId(Integer seatId);
+	List<AdCrowd> getAgePartListByAdSeatId(Integer seatId);
 }

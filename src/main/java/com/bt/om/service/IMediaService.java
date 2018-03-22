@@ -1,5 +1,6 @@
 package com.bt.om.service;
 
+import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.vo.SysUserVo;
 
 /**
@@ -8,4 +9,5 @@ import com.bt.om.entity.vo.SysUserVo;
 public interface IMediaService {
     public void add(SysUserVo user);
     public void modify(SysUserVo user);
+    public AdMedia getMediaByUserId(Integer id);
 }

@@ -12,10 +12,10 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 	private String samplePicUrl;// 样例图片
 	private Date startTime;// 投放开始时间
 	private Date endTime;// 投放结束时间
-	private Integer province;// 省
-	private Integer city;// 市
-	private Integer region;// 区
-	private Integer street;// 街道
+	private Long province;// 省
+	private Long city;// 市
+	private Long region;// 区
+	private Long street;// 街道
 	private String mediaName;// 媒体名
 	private String adSeatName;//
 	private String realname;
@@ -125,35 +125,35 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 		this.endTime = endTime;
 	}
 
-	public Integer getProvince() {
+	public Long getProvince() {
 		return province;
 	}
 
-	public void setProvince(Integer province) {
+	public void setProvince(Long province) {
 		this.province = province;
 	}
 
-	public Integer getCity() {
+	public Long getCity() {
 		return city;
 	}
 
-	public void setCity(Integer city) {
+	public void setCity(Long city) {
 		this.city = city;
 	}
 
-	public Integer getRegion() {
+	public Long getRegion() {
 		return region;
 	}
 
-	public void setRegion(Integer region) {
+	public void setRegion(Long region) {
 		this.region = region;
 	}
 
-	public Integer getStreet() {
+	public Long getStreet() {
 		return street;
 	}
 
-	public void setStreet(Integer street) {
+	public void setStreet(Long street) {
 		this.street = street;
 	}
 

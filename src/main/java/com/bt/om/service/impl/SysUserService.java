@@ -1,7 +1,9 @@
 package com.bt.om.service.impl;
 
 import com.bt.om.entity.SysUser;
+import com.bt.om.entity.SysUserDetail;
 import com.bt.om.entity.vo.SysUserVo;
+import com.bt.om.mapper.SysUserDetailMapper;
 import com.bt.om.mapper.SysUserMapper;
 import com.bt.om.mapper.SysUserRoleMapper;
 import com.bt.om.service.ISysUserService;
@@ -30,6 +32,8 @@ public class SysUserService implements ISysUserService {
 	SysUserMapper sysUserMapper;
 	@Autowired
 	SysUserRoleMapper sysUserRoleMapper;
+	@Autowired
+	SysUserDetailMapper sysUserDetailMapper;
 //	@Autowired
 //	OttvUserinfoManagerMapper ottvUserinfoManagerMapper;
 	
@@ -92,6 +96,12 @@ public class SysUserService implements ISysUserService {
 			return sysUserMapper.updateByPrimaryKeySelective(user);
 		}
 		return -1;
+	}
+
+	@Override
+	public boolean isExistsPrefix(String prefix,Integer id) {
+		List<SysUserDetail> details = sysUserDetailMapper.isExistsPrefix(prefix,id);
+		return details!=null&&details.size()>0;
 	}
 
 //	/*

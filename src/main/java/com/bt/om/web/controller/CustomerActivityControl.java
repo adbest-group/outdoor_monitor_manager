@@ -17,6 +17,7 @@ import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
 import com.bt.om.web.util.SearchUtil;
 import com.google.gson.JsonObject;
+import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -122,6 +124,7 @@ public class CustomerActivityControl extends BasicController {
                       @RequestParam(value = "endDate", required = false) String endDate,
                       @RequestParam(value = "area", required = false) String area,
                       @RequestParam(value = "media", required = false) String media,
+                      @RequestParam(value = "dels", required = false) String dels,
                       @RequestParam(value = "activeSeat", required = false) String activeSeat) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date now = new Date();
@@ -166,10 +169,10 @@ public class CustomerActivityControl extends BasicController {
         if (areas.size() > 0) {
             for (JsonObject obj : areas) {
                 AdActivityArea aa = new AdActivityArea();
-                aa.setProvince(obj.get("province").getAsInt());
-                aa.setCity(obj.get("city").getAsInt());
-                aa.setRegion(obj.get("region").getAsInt());
-                aa.setStreet(obj.get("street").getAsInt());
+                aa.setProvince(obj.get("province").getAsLong());
+                aa.setCity(obj.get("city").getAsLong());
+                aa.setRegion(obj.get("region").getAsLong());
+                aa.setStreet(obj.get("street").getAsLong());
                 aa.setCreateTime(now);
                 aa.setUpdateTime(now);
                 adActivityVo.getActivityAreas().add(aa);
@@ -286,6 +289,42 @@ public class CustomerActivityControl extends BasicController {
         model.addAttribute("feedback", feedback);
         model.addAttribute("subs", subs);
         return PageConst.CUSTOMER_JIUCUO_DETAIL;
+    }
+
+    @RequestMapping(value = "/resource", method = { RequestMethod.GET, RequestMethod.POST })
+    public String index(Model model, @RequestParam(value = "tag", required = false) String tag,
+                        @RequestParam(value = "startDate", required = false) String startDate,
+                        @RequestParam(value = "endDate", required = false) String endDate,
+                        @RequestParam(value = "cpcUserId", required = false) String cpcUserId,
+                        @RequestParam(value = "mediaFlag", required = false) String mediaFlag,
+                        @RequestParam(value = "agentName", required = false) Integer agentName,
+                        @RequestParam(value = "customerId", required = false) Integer customerId) {
+
+        String today = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        if (StringUtils.isBlank(startDate) && StringUtils.isBlank(endDate)) {
+            startDate = today;
+            endDate = today;
+        }
+
+        return PageConst.CUSTOMER_RESOURCE;
+    }
+
+    @RequestMapping(value = "/report", method = { RequestMethod.GET, RequestMethod.POST })
+    public String toReport(Model model, @RequestParam(value = "tag", required = false) String tag,
+                        @RequestParam(value = "startDate", required = false) String startDate,
+                        @RequestParam(value = "endDate", required = false) String endDate,
+                        @RequestParam(value = "cpcUserId", required = false) String cpcUserId,
+                        @RequestParam(value = "mediaFlag", required = false) String mediaFlag,
+                        @RequestParam(value = "agentName", required = false) Integer agentName,
+                        @RequestParam(value = "customerId", required = false) Integer customerId) {
+
+        String today = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        if (StringUtils.isBlank(startDate) && StringUtils.isBlank(endDate)) {
+            startDate = today;
+            endDate = today;
+        }
+
+        return PageConst.CUSTOMER_REPORT;
     }
 
 //    public static void main(String[] args) {

@@ -293,3 +293,13 @@
 		</#list>
 	</#if>
 </#macro>
+
+<#-- 所有广告位类型下拉选项  -->
+<#macro showAllAdSeatTypeOps value="-1">
+	<#local list = vm.getAllAdSeatTypes() />
+	<#if (list?exists && list?size > 0)>
+		<#list list as type>
+			<@showOption value="${type.id?if_exists}" title="${type.name?if_exists}" select="${value?if_exists}" />
+		</#list>
+	</#if>
+</#macro>

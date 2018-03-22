@@ -46,7 +46,7 @@ public class WebExceptionResolver extends SimpleMappingExceptionResolver {
 		ModelAndView mv = new ModelAndView();
 		if (ex instanceof PermissionException || ex instanceof UnauthorizedException) {
 			ResultVo<Boolean> ret = new ResultVo<Boolean>();
-			ret.setCode(ResultCode.RESULT_FAILURE.getCode());
+			ret.setCode(ResultCode.RESULT_NOAUTH.getCode());
 			ret.setResultDes(ex.getMessage());
 			mv.addObject(SysConst.RESULT_KEY, ret);
 			mv.setViewName(PageConst.NO_AUTHORITY);
@@ -61,10 +61,10 @@ public class WebExceptionResolver extends SimpleMappingExceptionResolver {
 			return mv;
 		} else if (ex instanceof Exception) {
 			ResultVo<Boolean> ret = new ResultVo<Boolean>();
-			ret.setCode(ResultCode.RESULT_NOAUTH.getCode());
+			ret.setCode(ResultCode.RESULT_FAILURE.getCode());
 			ret.setResultDes(ex.getMessage());
 			mv.addObject(SysConst.RESULT_KEY, ret);
-			mv.setViewName(PageConst.NO_AUTHORITY);
+			mv.setViewName(PageConst.ERROR);
 			if (RequestUtil.isAjax(request)) {
 				try {
 					return handleAjax(mv.getModel(), request, response);

@@ -10,6 +10,7 @@ import java.util.Date;
 public class AdMonitorTaskMobileVo extends AdMonitorTask {
     private String activityName;
     private Integer adSeatId;
+    private String adSeatCode;
     private String adSeatName;
     private String samplePicUrl;
     private String picUrl1;
@@ -22,6 +23,14 @@ public class AdMonitorTaskMobileVo extends AdMonitorTask {
     private Date feedbackTime;
     private String problem;
     private String problemOther;
+
+    public String getAdSeatCode() {
+        return adSeatCode;
+    }
+
+    public void setAdSeatCode(String adSeatCode) {
+        this.adSeatCode = adSeatCode;
+    }
 
     public Integer getAdSeatId() {
         return adSeatId;

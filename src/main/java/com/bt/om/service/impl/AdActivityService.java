@@ -19,10 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 /**
  * Created by caiting on 2018/1/18.
@@ -106,6 +107,11 @@ public class AdActivityService implements IAdActivityService {
     }
 
     @Override
+    public void modify(AdActivityVo adActivityVo, Integer[] activitySeatDels) {
+
+    }
+
+    @Override
     public void getPageData(SearchDataVo vo) {
         int count = adActivityMapper.getPageCount(vo.getSearchMap());
         vo.setCount(count);
@@ -129,22 +135,33 @@ public class AdActivityService implements IAdActivityService {
         List<AdActivityAdseatVo> seats = adActivityAdseatMapper.selectByActivityId(id);
         List<AdMonitorTask> tasks = new ArrayList<>();
         for (AdActivityAdseatVo seat : seats) {
+            //安装人员上刊安装
+            AdMonitorTask taskSetUp = generateMonitorTask(id, seat);
+            taskSetUp.setTaskType(MonitorTaskType.SET_UP_MONITOR.getId());
+            taskSetUp.setStatus(MonitorTaskStatus.UNASSIGN.getId());
+            taskSetUp.setMonitorDate(seat.getMonitorStart());
+
+            tasks.add(taskSetUp);
             //如果需要上刊监测
             if (seat.getUpMonitor() == 1) {
                 AdMonitorTask task = generateMonitorTask(id, seat);
                 task.setTaskType(MonitorTaskType.UP_MONITOR.getId());
+                task.setMonitorDate(Date.from(seat.getMonitorStart().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
                 tasks.add(task);
             }
             //如果需要投放期间监测
             if (seat.getDurationMonitor() == 1) {
                 AdMonitorTask task = generateMonitorTask(id, seat);
                 task.setTaskType(MonitorTaskType.DURATION_MONITOR.getId());
+                long betweenDays = ChronoUnit.DAYS.between(seat.getMonitorStart().toInstant(),seat.getMonitorEnd().toInstant());
+                task.setMonitorDate(Date.from(seat.getMonitorStart().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().plusDays(betweenDays/2).atStartOfDay(ZoneId.systemDefault()).toInstant()));
                 tasks.add(task);
             }
             //如果需要下刊监测
             if (seat.getDownMonitor() == 1) {
                 AdMonitorTask task = generateMonitorTask(id, seat);
                 task.setTaskType(MonitorTaskType.DOWNMONITOR.getId());
+                task.setMonitorDate(Date.from(seat.getMonitorEnd().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().minusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
                 tasks.add(task);
             }
         }
@@ -198,6 +215,11 @@ public class AdActivityService implements IAdActivityService {
     }
 
     @Override
+    public List<AdActivityAdseatVo> getActivitySeatBySeatCode(String adSeatCode) {
+        return adActivityAdseatMapper.selectVoBySeatCode(adSeatCode);
+    }
+
+    @Override
     public List<ActivityMobileReportVo> getMobileReport(SysUserExecute user) {
         SysUser sysUser = sysUserMapper.findByUsername(user.getUsername());
         if (sysUser != null) {
@@ -212,7 +234,7 @@ public class AdActivityService implements IAdActivityService {
         AdMonitorTask task = new AdMonitorTask();
         task.setActivityId(activityId);
         task.setActivityAdseatId(seat.getId());
-        task.setStatus(MonitorTaskStatus.UNASSIGN.getId());
+        task.setStatus(MonitorTaskStatus.UN_ACTIVE.getId());
         task.setProblemStatus(TaskProblemStatus.UNMONITOR.getId());
         task.setCreateTime(now);
         task.setUpdateTime(now);

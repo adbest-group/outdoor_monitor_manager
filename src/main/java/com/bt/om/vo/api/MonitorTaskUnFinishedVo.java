@@ -16,7 +16,10 @@ public class MonitorTaskUnFinishedVo extends BasicVo {
     private String ad_activity_name;
     private String ad_name;
     private String monitor_time;
+    private String monitor_start;
+    private String monitor_end;
     private Integer ad_seat_id;
+    private String ad_seat_code;
     private String ad_location;
     private Integer ad_status;
     private List<String> img_url_list;
@@ -31,7 +34,10 @@ public class MonitorTaskUnFinishedVo extends BasicVo {
         this.ad_activity_name = task.getActivityName();
         this.ad_name = task.getAdSeatName();
         this.monitor_time = sdf.format(task.getFeedbackTime());
+        this.monitor_start = sdf.format(task.getMonitorStart());
+        this.monitor_end = sdf.format(task.getMonitorEnd());
         this.ad_seat_id = task.getAdSeatId();
+        this.ad_seat_code = task.getAdSeatCode();
         this.ad_location = task.getAdSeatName();
         this.ad_status = task.getStatus();
         this.img_url_list = new ArrayList<>();
@@ -42,6 +48,14 @@ public class MonitorTaskUnFinishedVo extends BasicVo {
         this.problem = task.getProblem();
         this.problem_other = task.getProblemOther();
         this.sample_url = task.getSamplePicUrl();
+    }
+
+    public String getAd_seat_code() {
+        return ad_seat_code;
+    }
+
+    public void setAd_seat_code(String ad_seat_code) {
+        this.ad_seat_code = ad_seat_code;
     }
 
     public Integer getAd_seat_id() {
@@ -146,5 +160,21 @@ public class MonitorTaskUnFinishedVo extends BasicVo {
 
     public void setImg_url_list(List<String> img_url_list) {
         this.img_url_list = img_url_list;
+    }
+
+    public String getMonitor_start() {
+        return monitor_start;
+    }
+
+    public void setMonitor_start(String monitor_start) {
+        this.monitor_start = monitor_start;
+    }
+
+    public String getMonitor_end() {
+        return monitor_end;
+    }
+
+    public void setMonitor_end(String monitor_end) {
+        this.monitor_end = monitor_end;
     }
 }

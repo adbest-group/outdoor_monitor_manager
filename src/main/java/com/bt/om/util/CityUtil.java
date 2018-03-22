@@ -100,7 +100,7 @@ public class CityUtil {
 //        writer.close();
 //        System.out.println(area);
 
-//        System.out.println(getProvinceCode(653130103001l));
+        System.out.println(getProvinceCode(330100l));
 //        System.out.println(getCityCode(653130103001l));
 //        System.out.println(getRegionCode(653130103001l));
     }

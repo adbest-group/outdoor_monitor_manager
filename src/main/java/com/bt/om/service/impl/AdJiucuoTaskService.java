@@ -74,12 +74,13 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void pass(AdJiucuoTask task) {
+        Date now = new Date();
         task.setStatus(JiucuoTaskStatus.VERIFIED.getId());
+        task.setVerifyTime(now);
         adJiucuoTaskMapper.updateByPrimaryKeySelective(task);
         task = adJiucuoTaskMapper.selectByPrimaryKey(task.getId());
         SysUserExecute user = sysUserExecuteMapper.selectByPrimaryKey(task.getUserId());
         if(user.getId() == SysUserExecuteType.WORKER.getId()) {
-            Date now = new Date();
             AdMonitorReward reward = new AdMonitorReward();
             reward.setMonitorTaskId(task.getId());
             reward.setType(RewardType.ADD.getId());
@@ -98,6 +99,7 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
     public void reject(AdJiucuoTask task, String reason) {
         task.setReason(reason);
         task.setStatus(JiucuoTaskStatus.VERIFY_FAILURE.getId());
+        task.setVerifyTime(new Date());
         adJiucuoTaskMapper.updateByPrimaryKeySelective(task);
     }
 

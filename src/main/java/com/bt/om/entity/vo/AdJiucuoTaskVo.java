@@ -10,10 +10,10 @@ import java.util.Date;
 public class AdJiucuoTaskVo extends AdJiucuoTask {
     private String picUrl1;
     private String activityName;
-    private Integer province;
-    private Integer city;
-    private Integer region;
-    private Integer street;
+    private Long province;
+    private Long city;
+    private Long region;
+    private Long street;
     private Integer activityAdseatId;
     private Integer mediaId;
     private String mediaName;
@@ -63,35 +63,35 @@ public class AdJiucuoTaskVo extends AdJiucuoTask {
         this.activityName = activityName;
     }
 
-    public Integer getProvince() {
+    public Long getProvince() {
         return province;
     }
 
-    public void setProvince(Integer province) {
+    public void setProvince(Long province) {
         this.province = province;
     }
 
-    public Integer getCity() {
+    public Long getCity() {
         return city;
     }
 
-    public void setCity(Integer city) {
+    public void setCity(Long city) {
         this.city = city;
     }
 
-    public Integer getRegion() {
+    public Long getRegion() {
         return region;
     }
 
-    public void setRegion(Integer region) {
+    public void setRegion(Long region) {
         this.region = region;
     }
 
-    public Integer getStreet() {
+    public Long getStreet() {
         return street;
     }
 
-    public void setStreet(Integer street) {
+    public void setStreet(Long street) {
         this.street = street;
     }
 

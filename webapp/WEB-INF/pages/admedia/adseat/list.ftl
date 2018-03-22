@@ -1,7 +1,7 @@
 <#assign webTitle="资源管理" in model> <#assign webHead in model> </#assign>
 <@model.webhead />
 <!-- 头部 -->
-<@model.webMenu current="资源管理" child="广告位管理" />
+<@model.webMenu current="广告位管理" child="" />
 <link rel="stylesheet" type="text/css"
 	href="${model.static_domain}/css/new_main.css">
 <link rel="stylesheet" type="text/css"
@@ -12,11 +12,11 @@
 		<div class="title clearfix" style="display: block;">
 			<div class="search-box search-ll" style="margin: 0 0 0 20px">
 				<button type="button" class="btn btn-red" autocomplete="off"
-					onclick="javascrtpt:window.location.href='/resource/add'">新增广告位</button>
-				<button style="margin: 10px" type="button" class="btn"
-					autocomplete="off" onclick="">批量导入</button>
-				<div style="border-bottom: 1px solid black; margin-bottom: 10px"></div>
-				<form id="form" method="get" action="/resource/list">
+					onclick="window.location.href='/platmedia/adseat/edit'">新增广告位</button>
+				<#--<button style="margin-left: 10px" type="button" class="btn"-->
+					<#--autocomplete="off" onclick="">批量导入</button>-->
+				<div style="border-bottom: 1px solid black; margin:10px auto"></div>
+				<form id="form" method="get" action="/platmedia/adseat/list">
 					<!--销售下拉框-->
 					<div id="demo3" class="citys" style="float: left; font-size: 12px">
 						<p>
@@ -29,15 +29,10 @@
 						</p>
 					</div>
 
-					<div style="float: left; margin-left: 40px; font-size: 12px">
-						媒体: <select style="height: 30px" name="mediaId">
-							<option value="">所有媒体</option> <@model.showAllMediaOps
-							value="${bizObj.queryMap.mediaName?if_exists}" />
-						</select>
-					</div>
-
 					<button type="button" class="btn btn-red"
 						style="margin-left: 10px;" autocomplete="off" id="searchBtn">查询</button>
+                    <button type="button" class="btn btn-primary"
+                            style="margin-left: 10px;" autocomplete="off" id="clear">清除条件</button>
 				</form>
 			</div>
 		</div>
@@ -52,29 +47,28 @@
 							<th width="30">序号</th>
 							<th>区域</th>
 							<th>所属媒体</th>
+							<#--<th>媒体广告位编号</th>-->
 							<th>广告位位置</th>
 							<th>广告位尺寸</th>
 							<th>广告位类型</th>
-							<th>日均PV</th>
 							<th>操作</th>
 						</tr>
 					</thead>
 					<tbody>
 						<#if (bizObj.list?exists && bizObj.list?size>0) > <#list
-						bizObj.list as resource>
+						bizObj.list as adseat>
 						<tr>
-							<td>${resource.id}</td>
-							<td>${resource.street!""}</td>
-							<td>${resource.mediaName!""}</td>
-							<td>${resource.location!""}</td>
-							<td>${resource.adSize!""}</td>
-							<td>${resource.name!""}</td>
-							<td>${resource.pv!""}</td>
+							<td>${(bizObj.page.currentPage-1)*20+adseat_index+1}</td>
+							<td>${vm.getCityNameFull(adseat.street!adseat.region,"-")!""}</td>
+							<td>${adseat.mediaName!""}</td>
+							<#--<td>${adseat.adCode!""}</td>-->
+							<td>${adseat.location!""}</td>
+							<td>${adseat.adSize!""}</td>
+							<td>${adseat.typeName!""}</td>
 							<td style="width: 80px">
-								<a href="#" style="margin-right: 5px">数据上传</a> 
-								<a href="javascript:deleteAdSeat('${resource.id}');" style="margin-right: 5px">删除</a>
-								<a href="/resource/edit?id=${resource.id}" style="margin-right: 5px">编辑</a>  
-								<a href="/resource/showDetails?id=${resource.id}">详情</a></td>
+								<#--<a href="#" style="margin-right: 5px">数据上传</a> -->
+								<a href="/platmedia/adseat/edit?id=${adseat.id}" style="margin-right: 5px">编辑</a>
+                                    <a href="javascript:deleteSeat('${adseat.id}');" style="margin-right: 5px">删除</a>
 						</tr>
 						</#list> <#else>
 						<tr>
@@ -102,49 +96,56 @@
 <script
 	src="${model.static_domain}/js/select/jquery.searchableSelect.js"></script>
 
-<script type="text/javascript" src="../static/js/jquery.citys.js"></script>
+<script type="text/javascript" src="/static/js/jquery.citys.js"></script>
 
 
 <script type="text/javascript">
-	deleteAdSeat = function(id){
+	var deleteSeat = function(id){
 	    layer.confirm("确认删除？", {
 	        icon: 3,
 	        btn: ['确定', '取消'] //按钮
 	    }, function(){
-	        verify(id);
-	    });
-	}
-	
-	verify = function (id) {
-        $.ajax({
-            url: "/resource/verify",
-            type: "post",
-            data: {
-                "id": id,
-            },
-            cache: false,
-            dataType: "json",
-            success: function(datas) {
-                if(datas.success){
-                	 layer.confirm("删除成功", {
-                         icon: 2,
-                         btn: ['确定'] //按钮
-                     }, function() {
-  						window.location.reload();
-  					});
-                }else{
-                	layer.confirm("删除失败，请稍后再试", {
+            $.ajax({
+                url: "/platmedia/adseat/delete",
+                type: "post",
+                data: {
+                    "id": id,
+                },
+                cache: false,
+                dataType: "json",
+                success: function(datas) {
+					var resultRet = datas.ret;
+					if (resultRet.code == 101) {
+						layer.confirm(resultRet.resultDes, {
+							icon: 2,
+							btn: ['确定'] //按钮
+						});
+					} else {
+						layer.confirm("删除成功", {
+							icon: 1,
+							btn: ['确定'] //按钮
+						}, function () {
+							window.location.reload();
+						});
+					}
+                },
+                error: function(e) {
+                    layer.confirm("服务忙，请稍后再试", {
                         icon: 5,
                         btn: ['确定'] //按钮
                     });
                 }
-            }
-        });
-    }
+            });
+	    });
+	};
+
 
 	$("#searchBtn").on("click", function() {
 		$("#form").submit();
 	});
+	$("#clear").click(function () {
+        $("#demo3 select").val("");
+    });
 
 	/*获取城市  */
 	var $town = $('#demo3 select[name="street"]');
@@ -157,8 +158,9 @@
 				dataType : 'json',
 				success : function(town) {
 					$town.show();
+                    $town.append('<option value> - 请选择 - </option>');
 					for (i in town) {
-						$town.append('<option value="'+i+'">' + town[i]
+						$town.append('<option value="'+i+'" <#if (street?exists&&street?length>0)>'+(i==${street!0}?"selected":"")+'</#if>>' + town[i]
 								+ '</option>');
 					}
 				}
@@ -166,9 +168,10 @@
 		}
 	};
 	$('#demo3').citys({
-		province : '所有城市',
-		city : '厦门',
-		region : '思明',
+		required:false,
+		province : '${province!"所有城市"}',
+		city : '${city!""}',
+		region : '${region!""}',
 		onChange : function(info) {
 			townFormat(info);
 		}

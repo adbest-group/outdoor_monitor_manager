@@ -386,4 +386,14 @@ public class SysUserDetail extends ID {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
+
+    private String prefix;
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
 }

@@ -109,6 +109,32 @@ public class MediaController {
     }
 
     /**
+     * 检查是否前缀prefix重复
+     **/
+    @RequestMapping(value = {"isExistsPrefix"}, method = {RequestMethod.POST})
+    @ResponseBody
+    public Model isExistsPrefix(Model model,
+                                     @RequestParam(value = "prefix", required = true) String prefix,
+                                @RequestParam(value = "id", required = true) Integer id) {
+
+        ResultVo<List<SysUser>> resultVo = new ResultVo<List<SysUser>>();
+        try {
+            boolean isExists = sysUserService.isExistsPrefix(prefix,id);
+            if (isExists) {
+                resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
+                resultVo.setResultDes("已存在该前缀，请修改");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
+            resultVo.setResultDes("服务忙，请稍后再试");
+        }
+
+        model.addAttribute(SysConst.RESULT_KEY, resultVo);
+        return model;
+    }
+
+    /**
      * 保存媒体
      **/
     @RequiresRoles("admin")
@@ -119,7 +145,8 @@ public class MediaController {
                       @RequestParam(value = "username", required = true) String username,
                       @RequestParam(value = "password", required = true) String password,
                       @RequestParam(value = "name", required = true) String name,
-                      @RequestParam(value = "telephone", required = true) String telephone) {
+                      @RequestParam(value = "telephone", required = true) String telephone,
+                      @RequestParam(value = "prefix", required = true) String prefix) {
 
         ResultVo<List<SysUser>> resultVo = new ResultVo<List<SysUser>>();
         try {
@@ -132,6 +159,7 @@ public class MediaController {
                 user.setPlatform(1);
                 user.setUsertype(3);
                 user.setStatus(1);
+                user.setPrefix(prefix);
                 mediaService.add(user);
             } else {//修改
                 SysUserVo user = new SysUserVo();
@@ -140,6 +168,7 @@ public class MediaController {
                 if (!"******".equals(password)) {
                     user.setPassword(new Md5Hash(password, username).toString());
                 }
+                user.setPrefix(prefix);
                 user.setRealname(name);
                 user.setTelephone(telephone);
                 mediaService.modify(user);

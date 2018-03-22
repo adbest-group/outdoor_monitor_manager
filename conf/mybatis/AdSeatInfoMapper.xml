@@ -7,10 +7,10 @@
 			13:48:16 CST 2018. -->
 		<id column="id" property="id" jdbcType="INTEGER" />
 		<result column="name" property="name" jdbcType="VARCHAR" />
-		<result column="province" property="province" jdbcType="INTEGER" />
-		<result column="city" property="city" jdbcType="INTEGER" />
-		<result column="region" property="region" jdbcType="INTEGER" />
-		<result column="street" property="street" jdbcType="INTEGER" />
+		<result column="province" property="province" jdbcType="BIGINT" />
+		<result column="city" property="city" jdbcType="BIGINT" />
+		<result column="region" property="region" jdbcType="BIGINT" />
+		<result column="street" property="street" jdbcType="BIGINT" />
 		<result column="media_id" property="mediaId" jdbcType="INTEGER" />
 		<result column="ad_seat_type" property="adSeatType" jdbcType="INTEGER" />
 		<result column="ad_code" property="adCode" jdbcType="VARCHAR" />
@@ -69,9 +69,9 @@
 		)
 		values
 		(#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
-		#{province,jdbcType=INTEGER},
-		#{city,jdbcType=INTEGER},
-		#{region,jdbcType=INTEGER}, #{street,jdbcType=INTEGER},
+		#{province,jdbcType=BIGINT},
+		#{city,jdbcType=BIGINT},
+		#{region,jdbcType=BIGINT}, #{street,jdbcType=BIGINT},
 		#{mediaId,jdbcType=INTEGER}, #{adSeatType,jdbcType=INTEGER},
 		#{adCode,jdbcType=VARCHAR},
 		#{location,jdbcType=VARCHAR},
@@ -152,16 +152,16 @@
 				#{name,jdbcType=VARCHAR},
 			</if>
 			<if test="province != null">
-				#{province,jdbcType=INTEGER},
+				#{province,jdbcType=BIGINT},
 			</if>
 			<if test="city != null">
-				#{city,jdbcType=INTEGER},
+				#{city,jdbcType=BIGINT},
 			</if>
 			<if test="region != null">
-				#{region,jdbcType=INTEGER},
+				#{region,jdbcType=BIGINT},
 			</if>
 			<if test="street != null">
-				#{street,jdbcType=INTEGER},
+				#{street,jdbcType=BIGINT},
 			</if>
 			<if test="mediaId != null">
 				#{mediaId,jdbcType=INTEGER},
@@ -212,16 +212,16 @@
 				name = #{name,jdbcType=VARCHAR},
 			</if>
 			<if test="province != null">
-				province = #{province,jdbcType=INTEGER},
+				province = #{province,jdbcType=BIGINT},
 			</if>
 			<if test="city != null">
-				city = #{city,jdbcType=INTEGER},
+				city = #{city,jdbcType=BIGINT},
 			</if>
 			<if test="region != null">
-				region = #{region,jdbcType=INTEGER},
+				region = #{region,jdbcType=BIGINT},
 			</if>
 			<if test="street != null">
-				street = #{street,jdbcType=INTEGER},
+				street = #{street,jdbcType=BIGINT},
 			</if>
 			<if test="mediaId != null">
 				media_id = #{mediaId,jdbcType=INTEGER},
@@ -269,11 +269,11 @@
 		update ad_seat_info
 		set name = #{name,jdbcType=VARCHAR},
 		province =
-		#{province,jdbcType=INTEGER},
-		city = #{city,jdbcType=INTEGER},
+		#{province,jdbcType=BIGINT},
+		city = #{city,jdbcType=BIGINT},
 		region =
-		#{region,jdbcType=INTEGER},
-		street = #{street,jdbcType=INTEGER},
+		#{region,jdbcType=BIGINT},
+		street = #{street,jdbcType=BIGINT},
 		media_id = #{mediaId,jdbcType=INTEGER},
 		ad_seat_type =
 		#{adSeatType,jdbcType=INTEGER},
@@ -313,32 +313,40 @@
 		left join (select * FROM ad_crowd limit 1) d on d.ad_seat_id=a.id
 		 where 1=1
 	    <if test="province != null" >
-	      and a.province = #{province,jdbcType=INTEGER}
+	      and a.province = #{province,jdbcType=BIGINT}
 	    </if>
 	    <if test="city != null" >
-	      and a.city = #{city,jdbcType=INTEGER}
+	      and a.city = #{city,jdbcType=BIGINT}
 	    </if>
 	    <if test="region != null" >
-	      and a.region = #{region,jdbcType=INTEGER}
+	      and a.region = #{region,jdbcType=BIGINT}
 	    </if>
 	    <if test="street != null" >
-	      and a.street = #{street,jdbcType=INTEGER}
+	      and a.street = #{street,jdbcType=BIGINT}
 	    </if>
 	    <if test="mediaId != null" >
 	      and b.id = #{mediaId,jdbcType=INTEGER}
 	    </if>
+		<if test="userId != null" >
+			and b.user_id = #{userId,jdbcType=INTEGER}
+		</if>
+		<if test="adCode != null" >
+			and a.ad_code = #{adCode,jdbcType=VARCHAR}
+		</if>
+		<if test="exceptId != null" >
+			and a.id &lt;> #{exceptId,jdbcType=INTEGER}
+		</if>
 		order by a.id asc
 	</select>
 
 	<select id="getPageData" parameterType="map" resultMap="ExtResultMap">
 		select
-			a.id,
-			a.street,
+			a.id, a.name, a.province, a.city, a.region, a.street, a.media_id, a.ad_seat_type,
+			a.ad_code, a.location,
+			a.ad_size, a.pv, a.private_car_pv, a.bus_pv, a.lon, a.lat,
+			a.create_time, a.update_time,
 			b.media_name,
-			a.location,
-			a.ad_size,
-			c.name,
-			a.pv
+			c.name as typeName
 		from
 			ad_seat_info as a
 			left join ad_media as b on a.media_id=b.id
@@ -346,20 +354,29 @@
 			left join (select * FROM ad_crowd limit 1) d on d.ad_seat_id=a.id
 		 where 1=1
 	    <if test="province != null" >
-	      and a.province = #{province,jdbcType=INTEGER}
+	      and a.province = #{province,jdbcType=BIGINT}
 	    </if>
 	    <if test="city != null" >
-	      and a.city = #{city,jdbcType=INTEGER}
+	      and a.city = #{city,jdbcType=BIGINT}
 	    </if>
 	    <if test="region != null" >
-	      and a.region = #{region,jdbcType=INTEGER}
+	      and a.region = #{region,jdbcType=BIGINT}
 	    </if>
 	    <if test="street != null" >
-	      and a.street = #{street,jdbcType=INTEGER}
+	      and a.street = #{street,jdbcType=BIGINT}
 	    </if>
 	    <if test="mediaId != null" >
 	      and b.id = #{mediaId,jdbcType=INTEGER}
 	    </if>
+		<if test="userId != null" >
+			and b.user_id = #{userId,jdbcType=INTEGER}
+		</if>
+		<if test="adCode != null" >
+			and a.ad_code = #{adCode,jdbcType=VARCHAR}
+		</if>
+		<if test="exceptId != null" >
+			and a.id &lt;> #{exceptId,jdbcType=INTEGER}
+		</if>
 		order by a.id asc
 	</select>
 	
@@ -387,5 +404,27 @@
 			left join ad_media as b on a.media_id=b.id
 			left join ad_seat_type as c on a.ad_seat_type=c.id
 		where a.id=#{id,jdbcType=INTEGER}
+	</select>
+
+	<select id="getAdSeatInfoByStreetAndMediaUserId" resultMap="BaseResultMap">
+		select a.id, a.name, a.province, a.city, a.region, a.street, a.media_id, a.ad_seat_type,
+		a.ad_code, a.location,
+		a.ad_size, a.pv, a.private_car_pv, a.bus_pv, a.lon, a.lat,
+		a.create_time, a.update_time
+		from ad_seat_info a
+		left join ad_media b on a.media_id = b.id
+		where b.user_id = #{userId,jdbcType=INTEGER}
+		and a.street = #{street,jdbcType=BIGINT}
+		order by id;
+	</select>
+
+	<select id="getAdSeatInfoByAdActivitySeatId" resultMap="BaseResultMap">
+		select a.id, a.name, a.province, a.city, a.region, a.street, a.media_id, a.ad_seat_type,
+		a.ad_code, a.location,
+		a.ad_size, a.pv, a.private_car_pv, a.bus_pv, a.lon, a.lat,
+		a.create_time, a.update_time
+		from ad_seat_info a
+		left join ad_activity_adseat b on a.id = b.ad_seat_id
+		where b.id = #{adActivitySeatId,jdbcType=INTEGER}
 	</select>
 </mapper>

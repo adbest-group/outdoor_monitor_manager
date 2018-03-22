@@ -7,8 +7,11 @@
     <!-- 指定数据连接驱动jar地址 -->
     <!-- <classPathEntry location="/home/admin/workspace5/shawj-crawler-system/libs/ext/mysql-connector-java-5.1.32.jar"
         /> -->
+    <!--<classPathEntry-->
+            <!--location="C:/Users/liangwc/.ivy2/cache/mysql/mysql-connector-java/jars/mysql-connector-java-5.1.36.jar"/>-->
     <classPathEntry
-            location="C:/Users/liangwc/.ivy2/cache/mysql/mysql-connector-java/jars/mysql-connector-java-5.1.36.jar"/>
+            location="/Users/caiting/.ivy2/cache/mysql/mysql-connector-java/jars/mysql-connector-java-5.1.36.jar" />
+
 
     <!-- 一个数据库一个context -->
     <context id="infoGuardian">
@@ -169,17 +172,25 @@
                enableUpdateByExample="false">
         </table> -->
 
-        <table schema="outdoor-monitor" tableName="ad_crowd"
-               domainObjectName="AdCrowd" enableCountByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false"
-               enableUpdateByExample="false">
-        </table>
+        <!--<table schema="outdoor-monitor" tableName="ad_crowd"-->
+               <!--domainObjectName="AdCrowd" enableCountByExample="false"-->
+               <!--enableDeleteByExample="false" enableSelectByExample="false"-->
+               <!--enableUpdateByExample="false">-->
+        <!--</table>-->
+
+
 
         <!-- <table schema="outdoor-monitor" tableName="ad_media"
                domainObjectName="AdMedia" enableCountByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false"
                enableUpdateByExample="false">
         </table> -->
+
+        <table schema="outdoor-monitor" tableName="monitor_daily_report"
+               domainObjectName="MonitorDailyReport" enableCountByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false"
+               enableUpdateByExample="false">
+        </table>
 
     </context>
 </generatorConfiguration>

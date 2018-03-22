@@ -17,10 +17,10 @@
     <result column="usertype" jdbcType="INTEGER" property="usertype" />
     <result column="operate_id" jdbcType="INTEGER" property="operateId" />
     <result column="status" jdbcType="INTEGER" property="status" />
-    <result column="province" jdbcType="INTEGER" property="province" />
-    <result column="city" jdbcType="INTEGER" property="city" />
-    <result column="region" jdbcType="INTEGER" property="region" />
-    <result column="street" jdbcType="INTEGER" property="street" />
+    <result column="province" jdbcType="BIGINT" property="province" />
+    <result column="city" jdbcType="BIGINT" property="city" />
+    <result column="region" jdbcType="BIGINT" property="region" />
+    <result column="street" jdbcType="BIGINT" property="street" />
     <result column="remark" jdbcType="VARCHAR" property="remark" />
     <result column="login_ip" jdbcType="VARCHAR" property="loginIp" />
     <result column="login_time" jdbcType="TIMESTAMP" property="loginTime" />
@@ -74,8 +74,8 @@
     values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
       #{realname,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR}, #{company,jdbcType=VARCHAR}, 
       #{headImgUrl,jdbcType=VARCHAR}, #{usertype,jdbcType=INTEGER}, #{operateId,jdbcType=INTEGER}, #{status,jdbcType=INTEGER},
-      #{province,jdbcType=INTEGER}, #{city,jdbcType=INTEGER}, #{region,jdbcType=INTEGER}, 
-      #{street,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{loginIp,jdbcType=VARCHAR}, 
+      #{province,jdbcType=BIGINT}, #{city,jdbcType=BIGINT}, #{region,jdbcType=BIGINT},
+      #{street,jdbcType=BIGINT}, #{remark,jdbcType=VARCHAR}, #{loginIp,jdbcType=VARCHAR},
       #{loginTime,jdbcType=TIMESTAMP}, #{defaultPage,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
       #{updateTime,jdbcType=TIMESTAMP})
   </insert>
@@ -180,16 +180,16 @@
         #{status,jdbcType=INTEGER},
       </if>
       <if test="province != null">
-        #{province,jdbcType=INTEGER},
+        #{province,jdbcType=BIGINT},
       </if>
       <if test="city != null">
-        #{city,jdbcType=INTEGER},
+        #{city,jdbcType=BIGINT},
       </if>
       <if test="region != null">
-        #{region,jdbcType=INTEGER},
+        #{region,jdbcType=BIGINT},
       </if>
       <if test="street != null">
-        #{street,jdbcType=INTEGER},
+        #{street,jdbcType=BIGINT},
       </if>
       <if test="remark != null">
         #{remark,jdbcType=VARCHAR},
@@ -247,16 +247,16 @@
         status = #{status,jdbcType=INTEGER},
       </if>
       <if test="province != null">
-        province = #{province,jdbcType=INTEGER},
+        province = #{province,jdbcType=BIGINT},
       </if>
       <if test="city != null">
-        city = #{city,jdbcType=INTEGER},
+        city = #{city,jdbcType=BIGINT},
       </if>
       <if test="region != null">
-        region = #{region,jdbcType=INTEGER},
+        region = #{region,jdbcType=BIGINT},
       </if>
       <if test="street != null">
-        street = #{street,jdbcType=INTEGER},
+        street = #{street,jdbcType=BIGINT},
       </if>
       <if test="remark != null">
         remark = #{remark,jdbcType=VARCHAR},
@@ -295,10 +295,10 @@
       usertype = #{usertype,jdbcType=INTEGER},
       operate_id = #{operateId,jdbcType=INTEGER},
       status = #{status,jdbcType=INTEGER},
-      province = #{province,jdbcType=INTEGER},
-      city = #{city,jdbcType=INTEGER},
-      region = #{region,jdbcType=INTEGER},
-      street = #{street,jdbcType=INTEGER},
+      province = #{province,jdbcType=BIGINT},
+      city = #{city,jdbcType=BIGINT},
+      region = #{region,jdbcType=BIGINT},
+      street = #{street,jdbcType=BIGINT},
       remark = #{remark,jdbcType=VARCHAR},
       login_ip = #{loginIp,jdbcType=VARCHAR},
       login_time = #{loginTime,jdbcType=TIMESTAMP},

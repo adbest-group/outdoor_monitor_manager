@@ -1,18 +1,9 @@
 package com.bt.om.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import org.apache.ibatis.session.RowBounds;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import com.bt.om.entity.AdCrowd;
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdSeatType;
-import com.bt.om.entity.vo.AdCrowdVo;
 import com.bt.om.entity.vo.AdSeatInfoVo;
 import com.bt.om.entity.vo.ResourceVo;
 import com.bt.om.mapper.AdCrowdMapper;
@@ -21,6 +12,14 @@ import com.bt.om.mapper.AdSeatInfoMapper;
 import com.bt.om.mapper.AdSeatTypeMapper;
 import com.bt.om.service.IResourceService;
 import com.bt.om.vo.web.SearchDataVo;
+import org.apache.ibatis.session.RowBounds;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Service
 public class ResourceService implements IResourceService {
@@ -88,7 +87,7 @@ public class ResourceService implements IResourceService {
 		return adSeatTypeMapper.getSeatTypeAll();
 	}
 
-	public List<AdCrowdVo> getAgePartListByAdSeatId(String seatId) {
+	public List<AdCrowd> getAgePartListByAdSeatId(Integer seatId) {
 		Integer ids = Integer.valueOf(seatId);
 		return adCrowdMapper.getAgePartListByAdSeatId(ids);
 	}

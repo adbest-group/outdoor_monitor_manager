@@ -3,6 +3,8 @@ package com.bt.om.mapper;
 import java.util.List;
 import java.util.Map;
 
+import com.sun.istack.internal.NotNull;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
 import com.bt.om.entity.AdSeatInfo;
@@ -64,5 +66,6 @@ public interface AdSeatInfoMapper {
     List<AdSeatInfo> getPageData(Map<String, Object> searchMap, RowBounds rowBounds);
     
     AdSeatInfoVo getAdSeatInfoById(Integer id);
-    
+    List<AdSeatInfo> getAdSeatInfoByStreetAndMediaUserId(@Param("userId") @NotNull Integer userId, @Param("street") @NotNull Long street);
+    AdSeatInfo getAdSeatInfoByAdActivitySeatId(@Param("adActivitySeatId") @NotNull Integer adActivitySeatId);
 }

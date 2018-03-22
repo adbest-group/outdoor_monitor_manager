@@ -4,22 +4,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.bt.om.entity.AdJiucuoTask;
+import com.bt.om.entity.*;
 import com.bt.om.enums.*;
-import com.bt.om.mapper.AdJiucuoTaskMapper;
+import com.bt.om.mapper.*;
+import com.bt.om.util.StringUtil;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.bt.om.entity.AdMonitorReward;
-import com.bt.om.entity.AdMonitorTask;
-import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
-import com.bt.om.mapper.AdMonitorRewardMapper;
-import com.bt.om.mapper.AdMonitorTaskFeedbackMapper;
-import com.bt.om.mapper.AdMonitorTaskMapper;
 import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.vo.web.SearchDataVo;
 import sun.jvmstat.perfdata.monitor.MonitorStatus;
@@ -37,6 +32,8 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     private AdMonitorRewardMapper adMonitorRewardMapper;
     @Autowired
     private AdJiucuoTaskMapper jiucuoTaskMapper;
+    @Autowired
+    private AdSeatInfoMapper adSeatInfoMapper;
 
     @Override
     public void getPageData(SearchDataVo vo) {
@@ -77,6 +74,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         } else {
             task.setProblemStatus(TaskProblemStatus.NO_PROBLEM.getId());
         }
+        task.setVerifyTime(now);
         adMonitorTaskMapper.updateByPrimaryKeySelective(task);
         task = adMonitorTaskMapper.selectByPrimaryKey(task.getId());
         //如果当前任务是子任务，如果有问题，父任务的状态恢复到有问题，如果没有问题，则关闭父任务，这里分父任务是监测或纠错
@@ -116,6 +114,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void reject(AdMonitorTask task, String reason) {
+        task.setVerifyTime(new Date());
         adMonitorTaskMapper.updateByPrimaryKeySelective(task);
         List<AdMonitorTaskFeedback> feedbacks = adMonitorTaskFeedbackMapper.selectByTaskId(task.getId(), 1);
         for (AdMonitorTaskFeedback feedback : feedbacks) {
@@ -131,7 +130,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void feedback(Integer taskId, AdMonitorTaskFeedback feedback) {
+    public void feedback(Integer taskId, AdMonitorTaskFeedback feedback,String adSeatCode) {
         Date now = new Date();
         //获取监测任务
         AdMonitorTask task = adMonitorTaskMapper.selectByPrimaryKey(taskId);
@@ -148,15 +147,34 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             feedback.setUpdateTime(now);
             feedback.setMonitorTaskId(taskId);
             adMonitorTaskFeedbackMapper.insertSelective(feedback);
-            //如果本次提交的照片不足，任务状态设置为"未完成"，否则进入待审核
-            if (feedback.getPicUrl1() == null || feedback.getPicUrl2() == null || feedback.getPicUrl3() == null || feedback.getPicUrl4() == null) {
-                task.setStatus(MonitorTaskStatus.UN_FINISHED.getId());
-            } else {
+            if(task.getTaskType()==MonitorTaskType.SET_UP_MONITOR.getId()){
+                //上刊安装任务不提供未完成状态
                 task.setStatus(MonitorTaskStatus.UNVERIFY.getId());
+            }else {
+                //如果本次提交的照片不足，任务状态设置为"未完成"，否则进入待审核
+                if (feedback.getPicUrl1() == null || feedback.getPicUrl2() == null || feedback.getPicUrl3() == null || feedback.getPicUrl4() == null) {
+                    task.setStatus(MonitorTaskStatus.UN_FINISHED.getId());
+                } else {
+                    task.setStatus(MonitorTaskStatus.UNVERIFY.getId());
+                }
             }
             adMonitorTaskMapper.updateByPrimaryKeySelective(task);
-            //如果检测任务当前处于"未完成"
+
+            //上刊安装任务，判断是否二维码已绑定广告位
+            if (task.getTaskType()== MonitorTaskType.SET_UP_MONITOR.getId()) {
+                AdSeatInfo seatInfo = adSeatInfoMapper.getAdSeatInfoByAdActivitySeatId(task.getActivityAdseatId());
+                //如果广告位没绑定二维码，本次绑定激活
+                if(seatInfo.getAdCode() == null){
+                    if(StringUtil.isEmpty(adSeatCode)){
+                        throw new RuntimeException("广告位未激活，需提供广告位二维码");
+                    }
+                    seatInfo.setAdCode(adSeatCode);
+                    adSeatInfoMapper.updateByPrimaryKeySelective(seatInfo);
+                }
+            }
+
         } else if (task.getStatus() == MonitorTaskStatus.UN_FINISHED.getId()) {
+            //如果检测任务当前处于"未完成"
             //获取未完成的feedback，流程正常情况下只有一条
             List<AdMonitorTaskFeedback> old_feed = adMonitorTaskFeedbackMapper.selectByTaskId(taskId, 1);
             AdMonitorTaskFeedback old = old_feed.get(old_feed.size() - 1);

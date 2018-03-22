@@ -38,6 +38,10 @@
 					<td class="a-title">联系方式：</td>
 					<td><input type="text" id="telephone" name="telephone" value="${(obj.telephone)?if_exists}" autocomplete="off" class="form-control"> <br><span id="telephoneTip"></span></td>
 				</tr>
+                 <tr>
+                     <td class="a-title">广告位前缀：</td>
+                     <td><input type="text" id="prefix" name="prefix" value="${(obj.prefix)?if_exists}" autocomplete="off" class="form-control"> <br><span id="prefixTip"></span></td>
+                 </tr>
 				<tr>
 					<td class="a-title">&nbsp;</td>
 					<td>
@@ -60,7 +64,7 @@ $(function() {
 	<#if !((obj.id)?exists)>
 	   $("")
 	</#if>
-             
+
     var id = $("#id").val();
     // 新建账户处理
 			$.formValidator.initConfig({
@@ -74,7 +78,8 @@ $(function() {
 	                var name = $("#name").val();
 	                var telephone = $("#telephone").val();
 	                var password = $("#password").val();
-             
+	                var prefix = $("#prefix").val();
+
 //		             var selRoles = "";
 //				            $("input[name='role']:checked").each(function(i) {
 //				            	if (0==i) {
@@ -91,7 +96,8 @@ $(function() {
 		                    "username": username,
 		                    "password": password,
 		                    "name": name,
-		                    "telephone": telephone
+		                    "telephone": telephone,
+							"prefix":prefix
 		                },
 		                cache: false,
 		                dataType: "json",
@@ -178,12 +184,44 @@ $(function() {
     		$("#name").formValidator({
 				validatorGroup:"2",
     			onShow:"　",
-    			onFocus:"请输入联系人",
+    			onFocus:"请输入媒体名称",
     			onCorrect:"　"
     		}).regexValidator({
     			regExp:"^\\S+$",
-    			onError:"联系人不能为空，请输入"
+    			onError:"媒体名称不能为空，请输入"
     		});
+
+	    	// 广告位编号前缀
+    		$("#prefix").formValidator({
+				validatorGroup:"2",
+    			onShow:"　",
+    			onFocus:"请输入广告位编号前缀,以'-'结尾",
+    			onCorrect:"　"
+    		}).regexValidator({
+    			regExp:"^\\S{1,10}-$",
+    			onError:"前缀必须包含1-10位其他字符，并以-结尾，请输入"
+    		}).ajaxValidator({
+                type: "post",
+                dataType: "json",
+				data:{id:$("#id").val(),f:Math.random()},
+                async: false,
+                url: "/media/isExistsPrefix",
+                buttons: $("#button"),
+                success: function(result) {
+                    if (result.ret.code == 100) {
+                        return true;
+                    }
+                    return false;
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    layer.confirm("服务忙，请稍后再试", {
+                        icon: 5,
+                        btn: ['确定'] //按钮
+                    });
+                },
+                onError: "已存在该前缀，请修改",
+                onWait: "正在对广告位编号前缀进行校验，请稍候..."
+            }).defaultPassed();
     		
     		// 联系电话
         	$("#telephone").formValidator({

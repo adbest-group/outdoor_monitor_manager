@@ -1,10 +1,8 @@
 package com.bt.om.web.component;
 
+import com.bt.om.cache.AdSeatTypeCache;
 import com.bt.om.cache.CityCache;
-import com.bt.om.entity.AdActivity;
-import com.bt.om.entity.AdMedia;
-import com.bt.om.entity.City;
-import com.bt.om.entity.SysUser;
+import com.bt.om.entity.*;
 import com.bt.om.entity.vo.*;
 import com.bt.om.enums.*;
 //import com.bt.om.mapper.SysDictMapper;
@@ -45,6 +43,9 @@ public class VMComponent {
     @Autowired
     CityCache cityCache;
 
+    @Autowired
+    AdSeatTypeCache adSeatTypeCache;
+
     public String getCityName(Long code) {
         return cityCache.getCityName(code);
     }
@@ -65,13 +66,13 @@ public class VMComponent {
         StringBuilder sb = new StringBuilder();
         sb.append(cityCache.getCityName(CityUtil.getProvinceCode(code)));
         Long sub = CityUtil.getCityCode(code);
-        if (sub > 0) {
+        if (sub != null) {
             String subName = cityCache.getCityName(sub);
             if (StringUtil.isNotEmpty(subName)) {
                 sb.append(split).append(subName);
             }
             sub = CityUtil.getRegionCode(code);
-            if (sub > 0) {
+            if (sub != null) {
                 subName = cityCache.getCityName(sub);
                 if (StringUtil.isNotEmpty(subName)) {
                     sb.append(split).append(subName);
@@ -82,6 +83,10 @@ public class VMComponent {
             }
         }
         return sb.toString();
+    }
+
+    public List<AdSeatType> getAllAdSeatTypes(){
+        return adSeatTypeCache.getTypes();
     }
 
     public String getEvnVariable() {

@@ -1,5 +1,6 @@
 package com.bt.om.web.controller.api;
 
+import com.bt.om.cache.CityCache;
 import com.bt.om.common.SysConst;
 import com.bt.om.entity.*;
 import com.bt.om.entity.vo.ActivityMobileReportVo;
@@ -8,6 +9,7 @@ import com.bt.om.entity.vo.AdJiucuoTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.enums.*;
 import com.bt.om.service.*;
+import com.bt.om.util.CityUtil;
 import com.bt.om.util.QRcodeUtil;
 import com.bt.om.vo.api.*;
 import com.bt.om.vo.web.ResultVo;
@@ -56,7 +58,11 @@ public class ApiController extends BasicController {
     @Autowired
     private IAdMonitorRewardService adMonitorRewardService;
     @Autowired
+    private IAdSeatService adSeatService;
+    @Autowired
     private SessionByRedis sessionByRedis;
+    @Autowired
+    private CityCache cityCache;
 
     private static ThreadLocal<Boolean> useSession = new ThreadLocal<>();
 
@@ -186,6 +192,61 @@ public class ApiController extends BasicController {
                     e.printStackTrace();
                 }
             }
+        }
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+    }
+
+
+    //获取给定的广告位编号对应的广告位id和相关有效的广告活动
+    @RequestMapping(value = "/seatActivities")
+    @ResponseBody
+    public Model getSeatActivity(Model model, HttpServletRequest request) {
+        ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("获取成功");
+        result.setResult("");
+        model = new ExtendedModelMap();
+
+        InputStream is = null;
+        String seatCode = null;
+
+        try {
+            is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            seatCode = obj==null||obj.get("seatCode") == null ? null : obj.get("seatCode").getAsString();
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        try {
+            List<AdActivityAdseatVo> list = adActivityService.getActivitySeatBySeatCode(seatCode);
+            QRCodeInfoVo qr = new QRCodeInfoVo();
+            qr.setAd_seat_id(Integer.valueOf(seatCode));
+            for (AdActivityAdseatVo vo : list) {
+                qr.getAd_activity_seats().add(new AdActivitySeatInfoInQRVO(vo));
+            }
+            result.setResult(qr);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("获取失败！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
         }
 
         model.addAttribute(SysConst.RESULT_KEY, result);
@@ -508,6 +569,7 @@ public class ApiController extends BasicController {
                           @RequestParam(value = "lon", required = false) Double lon,
                           @RequestParam(value = "lat", required = false) Double lat,
                           @RequestParam(value = "ad_activity_seat_id", required = false) Integer adActivitySeatId,
+                          @RequestParam(value = "ad_seat_code", required = false) String adSeatCode,
                           @RequestParam(value = "problem", required = false) String problem,
                           @RequestParam(value = "other", required = false) String other,
 //                              @RequestParam(value = "pic", required = false) MultipartFile[] files) {
@@ -590,7 +652,7 @@ public class ApiController extends BasicController {
                 feedback.setProblemOther(other);
                 feedback.setStatus(1);
                 try {
-                    adMonitorTaskService.feedback(taskId, feedback);
+                    adMonitorTaskService.feedback(taskId, feedback,adSeatCode);
                 } catch (Exception e) {
                     result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
                     result.setResultDes("保存出错！");
@@ -682,6 +744,7 @@ public class ApiController extends BasicController {
                                 @RequestParam(value = "lon", required = false) Double lon,
                                 @RequestParam(value = "lat", required = false) Double lat,
                                 @RequestParam(value = "ad_activity_seat_id", required = false) Integer adActivitySeatId,
+                                @RequestParam(value = "ad_seat_code", required = false) String adSeatCode,
                                 @RequestParam(value = "problem", required = false) String problem,
                                 @RequestParam(value = "other", required = false) String other,
                                 @RequestParam(value = "pic1", required = false) String file1,
@@ -721,23 +784,23 @@ public class ApiController extends BasicController {
         path = path + (path.endsWith(File.separator) ? "" : File.separatorChar) + "static" + File.separatorChar + "upload" + File.separatorChar;
         if (type == 1) {
             //参数不对
-            if (type == null || taskId == null || file1 == null || file2 == null || file3 == null || file4 == null) {
+            if (type == null || taskId == null || (file1 == null && file2 == null && file3 == null && file4 == null)) {
                 result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
                 result.setResultDes("参数有误！");
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
             }
             //不是以data:image/jpeg;base64,开头的说明并没有重新拍照
-            if (!file1.startsWith("data:image/jpeg;base64,")) {
+            if (file1!=null&&!file1.startsWith("data:image/jpeg;base64,")) {
                 file1 = null;
             }
-            if (!file2.startsWith("data:image/jpeg;base64,")) {
+            if (file2!=null&&!file2.startsWith("data:image/jpeg;base64,")) {
                 file2 = null;
             }
-            if (!file3.startsWith("data:image/jpeg;base64,")) {
+            if (file3!=null&&!file3.startsWith("data:image/jpeg;base64,")) {
                 file3 = null;
             }
-            if (!file4.startsWith("data:image/jpeg;base64,")) {
+            if (file4!=null&&!file4.startsWith("data:image/jpeg;base64,")) {
                 file4 = null;
             }
 
@@ -753,22 +816,27 @@ public class ApiController extends BasicController {
             try {
                 if (file1 != null) {
                     file1 = file1.replaceAll("data:image/jpeg;base64,", "");
-                    is1 = new ByteArrayInputStream(Base64.getDecoder().decode(file1));
+//                    is1 = new ByteArrayInputStream(Base64.getDecoder().decode(file1));
+                    is1 = new ByteArrayInputStream(org.apache.commons.codec.binary.Base64.decodeBase64(file1));
                     filename1 = UploadFileUtil.saveFile(path, "image.jpg", is1);
                 }
                 if (file2 != null) {
                     file2 = file2.replaceAll("data:image/jpeg;base64,", "");
-                    is2 = new ByteArrayInputStream(Base64.getDecoder().decode(file2));
+//                    is2 = new ByteArrayInputStream(Base64.getDecoder().decode(file2));
+                    is2 = new ByteArrayInputStream(org.apache.commons.codec.binary.Base64.decodeBase64(file2));
+
                     filename2 = UploadFileUtil.saveFile(path, "image.jpg", is2);
                 }
                 if (file3 != null) {
                     file3 = file3.replaceAll("data:image/jpeg;base64,", "");
-                    is3 = new ByteArrayInputStream(Base64.getDecoder().decode(file3));
+//                    is3 = new ByteArrayInputStream(Base64.getDecoder().decode(file3));
+                    is3 = new ByteArrayInputStream(org.apache.commons.codec.binary.Base64.decodeBase64(file3));
                     filename3 = UploadFileUtil.saveFile(path, "image.jpg", is3);
                 }
                 if (file4 != null) {
                     file4 = file4.replaceAll("data:image/jpeg;base64,", "");
-                    is4 = new ByteArrayInputStream(Base64.getDecoder().decode(file4));
+//                    is4 = new ByteArrayInputStream(Base64.getDecoder().decode(file4));
+                    is4 = new ByteArrayInputStream(org.apache.commons.codec.binary.Base64.decodeBase64(file4));
                     filename4 = UploadFileUtil.saveFile(path, "image.jpg", is4);
                 }
                 if (filename1 == null && filename2 == null && filename3 == null && filename4 == null) {
@@ -796,7 +864,7 @@ public class ApiController extends BasicController {
                 feedback.setProblemOther(other);
                 feedback.setStatus(1);
                 try {
-                    adMonitorTaskService.feedback(taskId, feedback);
+                    adMonitorTaskService.feedback(taskId, feedback,adSeatCode);
                 } catch (Exception e) {
                     result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
                     result.setResultDes("保存出错！");
@@ -804,6 +872,7 @@ public class ApiController extends BasicController {
                     return model;
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
                 result.setResultDes("上传出错！");
                 model.addAttribute(SysConst.RESULT_KEY, result);
@@ -831,7 +900,7 @@ public class ApiController extends BasicController {
             try {
 
                 file1 = file1.replaceAll("data:image/jpeg;base64,", "");
-                is1 = new ByteArrayInputStream(Base64.getDecoder().decode(file1));
+                is1 = new ByteArrayInputStream(org.apache.commons.codec.binary.Base64.decodeBase64(file1));
                 filename1 = UploadFileUtil.saveFile(path, "image.jpg", is1);
                 if (filename1 == null) {
                     result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
@@ -935,7 +1004,7 @@ public class ApiController extends BasicController {
         return model;
     }
 
-    //请求资讯列表
+    //请求奖励列表
     @RequestMapping(value = "/getreward")
     @ResponseBody
     public Model getreward(Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -984,6 +1053,218 @@ public class ApiController extends BasicController {
             resultVo.getDetail().add(new RewardVo(reward));
         }
         result.setResult(resultVo);
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+
+    //请求省列表
+    @RequestMapping(value = "/getProvince")
+    @ResponseBody
+    public Model getProvince(Model model, HttpServletRequest request, HttpServletResponse response) {
+        ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("获取成功");
+        model = new ExtendedModelMap();
+
+        result.setResult(cityCache.getAllProvince());
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+
+    //请求城市列表，参数为省id
+    @RequestMapping(value = "/getCity")
+    @ResponseBody
+    public Model getCity(Model model, HttpServletRequest request, HttpServletResponse response) {
+        ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("获取成功");
+        model = new ExtendedModelMap();
+
+        Long provinceId = null;
+
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            provinceId = obj.get("provinceId") == null ? null : obj.get("provinceId").getAsLong();
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        if(provinceId!=null){
+            List<City> citys = cityCache.getCity(provinceId);
+            if(citys.size()<1){
+                City city = new City();
+                city.setId(provinceId);
+                city.setName(cityCache.getCityName(provinceId));
+                citys.add(city);
+            }
+            result.setResult(citys);
+        }else{
+            result.setResult(Lists.newArrayList());
+        }
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+
+    //请求省的区县列表，参数为省id，适用于直辖市
+    @RequestMapping(value = "/getProvinceRegion")
+    @ResponseBody
+    public Model getProvinceRegion(Model model, HttpServletRequest request, HttpServletResponse response) {
+        ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("获取成功");
+        model = new ExtendedModelMap();
+
+        Long provinceId = null;
+
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            provinceId = obj.get("provinceId") == null ? null : obj.get("provinceId").getAsLong();
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        result.setResult(provinceId==null?Lists.newArrayList():cityCache.getRegionByProvince(provinceId));
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+
+    //请求市的区县列表，参数为市id
+    @RequestMapping(value = "/getRegion")
+    @ResponseBody
+    public Model getRegion(Model model, HttpServletRequest request, HttpServletResponse response) {
+        ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("获取成功");
+        model = new ExtendedModelMap();
+
+        Long cityId = null;
+
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            cityId = obj.get("cityId") == null ? null : obj.get("cityId").getAsLong();
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        if(CityUtil.isProvince(cityId)) {
+            result.setResult(cityCache.getRegionByProvince(cityId));
+        }else{
+            result.setResult(cityId == null ? Lists.newArrayList() : cityCache.getRegion(cityId));
+        }
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+
+    //请求区县的街道列表，参数为区县id
+    @RequestMapping(value = "/getStreet")
+    @ResponseBody
+    public Model getStreet(Model model, HttpServletRequest request, HttpServletResponse response) {
+        ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("获取成功");
+        model = new ExtendedModelMap();
+
+        Long regionId = null;
+
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            regionId = obj.get("regionId") == null ? null : obj.get("regionId").getAsLong();
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        result.setResult(regionId==null?Lists.newArrayList():cityCache.getStreet(regionId));
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+
+    //请求当前媒体工作人员的街道的广告位列表
+    @RequestMapping(value = "/getAdSeatList")
+    @ResponseBody
+    public Model getAdSeatList(Model model, HttpServletRequest request, HttpServletResponse response) {
+        ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("获取成功");
+        model = new ExtendedModelMap();
+
+        String token = null;
+        Long street=null;
+
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            street = obj.get("street") == null ? null : obj.get("street").getAsLong();
+            if (token != null) {
+                useSession.set(Boolean.FALSE);
+                this.sessionByRedis.setToken(token);
+            } else {
+                useSession.set(Boolean.TRUE);
+            }
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        //验证登录
+        if (useSession.get()) {
+            if (!checkLogin(model, result, request)) {
+                return model;
+            }
+        } else {
+            if (!checkLogin(model, result, token)) {
+                return model;
+            }
+        }
+
+        SysUserExecute user = getLoginUser(request, token);
+
+        if(user.getUsertype()==3){
+            result.setResult(adSeatService.getByStreetAndMediaUserId(street,user.getOperateId()));
+        }else{
+            result.setResult(Lists.newArrayList());
+        }
 
         model.addAttribute(SysConst.RESULT_KEY, result);
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));

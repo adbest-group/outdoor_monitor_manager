@@ -3,7 +3,7 @@
 </#assign>
 <@model.webhead />
 <!-- 头部 -->
-<@model.webMenu current="资源管理" child="媒体管理" />
+<@model.webMenu current="账户管理" child="媒体账号管理" />
 <div class="main-container" style="height: auto;">
     <div class="main-box ott-market">
         <div class="title clearfix">

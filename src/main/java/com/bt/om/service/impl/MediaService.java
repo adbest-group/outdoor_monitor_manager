@@ -52,6 +52,7 @@ public class MediaService implements IMediaService {
         SysUserDetail detail = new SysUserDetail();
         detail.setUserId(user.getId());
         detail.setTelephone(user.getTelephone());
+        detail.setPrefix(user.getPrefix());
         detail.setCreateTime(now);
         detail.setUpdateTime(now);
         sysUserDetailMapper.insertSelective(detail);
@@ -77,8 +78,9 @@ public class MediaService implements IMediaService {
         user.setUpdateTime(now);
         sysUserMapper.updateByPrimaryKeySelective(user);
         SysUserDetail detail = sysUserDetailMapper.selectByUserId(user.getId());
-        if(!detail.getTelephone().equals(user.getTelephone())) {
+        if(!detail.getTelephone().equals(user.getTelephone())||detail.getPrefix()==null||!detail.getPrefix().equals(user.getPrefix())) {
             detail.setTelephone(user.getTelephone());
+            detail.setPrefix(user.getPrefix());
             detail.setUpdateTime(now);
             sysUserDetailMapper.updateByPrimaryKeySelective(detail);
         }
@@ -88,5 +90,10 @@ public class MediaService implements IMediaService {
             media.setUpdateTime(now);
             adMediaMapper.updateByPrimaryKeySelective(media);
         }
+    }
+
+    @Override
+    public AdMedia getMediaByUserId(Integer id) {
+        return null;
     }
 }

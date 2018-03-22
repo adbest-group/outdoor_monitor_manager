@@ -202,7 +202,7 @@
 	</resultMap>
 
 	<select id="getAgePartListByAdSeatId" parameterType="INTEGER"
-		resultType="com.bt.om.entity.AdCrowd">
+		resultMap="BaseResultMap">
 		select * from ad_crowd where ad_seat_id=#{seatId,jdbcType=INTEGER}
 	</select>
 

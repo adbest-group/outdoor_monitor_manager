@@ -7,8 +7,6 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -21,7 +19,7 @@ import org.apache.commons.validator.routines.EmailValidator;
  */
 public class StringUtil {
 	private static final EmailValidator emailValidator = EmailValidator.getInstance();
-
+	
 	/**
 	 * 将下划线连接的字符串替换为驼峰风格,方便JavaBean拷贝
 	 * 
@@ -52,7 +50,7 @@ public class StringUtil {
 	public static String toCamelCasing(String str) {
 		return CAMEL_CASE_TOKENIZER.parse(str);
 	}
-
+	
 	/**
 	 * 判断字符串是否只包含unicode数字。
 	 * 
@@ -129,7 +127,7 @@ public class StringUtil {
 			}
 		}
 	};
-
+	
 	/**
 	 * 解析出下列语法所构成的<code>SENTENCE</code>。
 	 * 
@@ -195,7 +193,8 @@ public class StringUtil {
 					// 3. wordIndex > index，说明index到wordIndex -
 					// 1处全部是大写，以upperCaseWord处理。
 					if ((wordIndex == length) || (wordIndex > index)) {
-						index = parseUpperCaseWord(builder, str, index, wordIndex);
+						index = parseUpperCaseWord(builder, str, index,
+								wordIndex);
 					} else {
 						index = parseTitleCaseWord(builder, str, index);
 					}
@@ -222,7 +221,8 @@ public class StringUtil {
 			return builder.toString();
 		}
 
-		private int parseUpperCaseWord(StringBuilder builder, String str, int index, int length) {
+		private int parseUpperCaseWord(StringBuilder builder, String str,
+				int index, int length) {
 			char ch = str.charAt(index++);
 
 			// 首字母，必然存在且为大写。
@@ -241,7 +241,8 @@ public class StringUtil {
 			return index - 1;
 		}
 
-		private int parseLowerCaseWord(StringBuilder builder, String str, int index) {
+		private int parseLowerCaseWord(StringBuilder builder, String str,
+				int index) {
 			char ch = str.charAt(index++);
 
 			// 首字母，必然存在且为小写。
@@ -267,7 +268,8 @@ public class StringUtil {
 			return index - 1;
 		}
 
-		private int parseTitleCaseWord(StringBuilder builder, String str, int index) {
+		private int parseTitleCaseWord(StringBuilder builder, String str,
+				int index) {
 			char ch = str.charAt(index++);
 
 			// 首字母，必然存在且为大写。
@@ -320,7 +322,8 @@ public class StringUtil {
 		}
 
 		protected boolean isDelimiter(char ch) {
-			return !Character.isUpperCase(ch) && !Character.isLowerCase(ch) && !Character.isDigit(ch);
+			return !Character.isUpperCase(ch) && !Character.isLowerCase(ch)
+					&& !Character.isDigit(ch);
 		}
 
 		protected abstract void startSentence(StringBuilder builder, char ch);
@@ -329,7 +332,8 @@ public class StringUtil {
 
 		protected abstract void inWord(StringBuilder builder, char ch);
 
-		protected abstract void startDigitSentence(StringBuilder builder, char ch);
+		protected abstract void startDigitSentence(StringBuilder builder,
+				char ch);
 
 		protected abstract void startDigitWord(StringBuilder builder, char ch);
 
@@ -337,7 +341,7 @@ public class StringUtil {
 
 		protected abstract void inDelimiter(StringBuilder builder, char ch);
 	}
-
+	
 	/**
 	 * 除去字符串头尾部的指定字符，如果字符串是<code>null</code>，依然返回<code>null</code>。
 	 * 
@@ -361,7 +365,7 @@ public class StringUtil {
 	 * 
 	 * @return 除去指定字符后的的字符串，如果原字串为<code>null</code>，则返回<code>null</code>
 	 */
-	public static String trim(String str, String stripChars, int mode) {
+	public static String trim(String str, String stripChars, int mode) {	
 		if (str == null) {
 			return null;
 		}
@@ -373,13 +377,15 @@ public class StringUtil {
 		// 扫描字符串头部
 		if (mode <= 0) {
 			if (stripChars == null) {
-				while ((start < end) && (Character.isWhitespace(str.charAt(start)))) {
+				while ((start < end)
+						&& (Character.isWhitespace(str.charAt(start)))) {
 					start++;
 				}
 			} else if (stripChars.length() == 0) {
 				return str;
 			} else {
-				while ((start < end) && (stripChars.indexOf(str.charAt(start)) != -1)) {
+				while ((start < end)
+						&& (stripChars.indexOf(str.charAt(start)) != -1)) {
 					start++;
 				}
 			}
@@ -388,13 +394,15 @@ public class StringUtil {
 		// 扫描字符串尾部
 		if (mode >= 0) {
 			if (stripChars == null) {
-				while ((start < end) && (Character.isWhitespace(str.charAt(end - 1)))) {
+				while ((start < end)
+						&& (Character.isWhitespace(str.charAt(end - 1)))) {
 					end--;
 				}
 			} else if (stripChars.length() == 0) {
 				return str;
 			} else {
-				while ((start < end) && (stripChars.indexOf(str.charAt(end - 1)) != -1)) {
+				while ((start < end)
+						&& (stripChars.indexOf(str.charAt(end - 1)) != -1)) {
 					end--;
 				}
 			}
@@ -406,7 +414,7 @@ public class StringUtil {
 
 		return str;
 	}
-
+	
 	/**
 	 * url编码
 	 * 
@@ -484,8 +492,7 @@ public class StringUtil {
 	public static String toScriptStr(String str) {
 		if (StringUtil.isEmpty(str))
 			return "";
-		str = str.replace("\\", "\\\\").replace("\n", "\\n").replace("\"", "\\\"").replaceAll("	", " ")
-				.replaceAll("  ", " ").replace("\r", "");
+		str = str.replace("\\", "\\\\").replace("\n", "\\n").replace("\"", "\\\"").replaceAll("	", " ").replaceAll("  ", " ").replace("\r", "");
 		return str;
 	}
 
@@ -528,8 +535,7 @@ public class StringUtil {
 	 */
 	public static String toHtml(String str) {
 		String temp = str;
-		temp = temp.replaceAll(" ", "&nbsp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("\n", "<br />")
-				.replaceAll("\r", "");
+		temp = temp.replaceAll(" ", "&nbsp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("\n", "<br />").replaceAll("\r", "");
 		return temp;
 	}
 
@@ -627,7 +633,7 @@ public class StringUtil {
 					buf.append("0");
 				buf.append(Integer.toHexString(i));
 			}
-			// System.out.println("result: " + buf.toString());// 32位的加密
+//			System.out.println("result: " + buf.toString());// 32位的加密
 			return buf.toString().substring(8, 24);// 16位的加密
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
@@ -843,8 +849,7 @@ public class StringUtil {
 	public static String toSafeStr(String str) {
 		if (str == null)
 			return "";
-		str = str.replaceAll("\"", "＂").replaceAll("'", "＇").replaceAll("	", " ").replaceAll("  ", " ")
-				.replaceAll("\r", "").replaceAll("\n", "\\n");
+		str = str.replaceAll("\"", "＂").replaceAll("'", "＇").replaceAll("	", " ").replaceAll("  ", " ").replaceAll("\r", "").replaceAll("\n", "\\n");
 		return str;
 	}
 
@@ -1067,68 +1072,12 @@ public class StringUtil {
 	public static String getFrist2LowerCase(String str) {
 		return str.substring(0, 1).toLowerCase() + str.substring(1);
 	}
-
-	public static int[] stringArray2int(String[] arr) {
-		int[] tmparr = new int[arr.length];
-		for (int i = 0; i < arr.length; i++) {
-			tmparr[i] = NumberUtil.parseInt(arr[i]);
+	
+	public static int[] stringArray2int(String[] arr){
+		int[] tmparr=new int[arr.length];
+		for(int i=0;i<arr.length;i++){
+			tmparr[i]=NumberUtil.parseInt(arr[i]);
 		}
 		return tmparr;
-	}
-
-	/**
-	 * 去掉url中的路径，留下请求参数部分
-	 * 
-	 * @param strURL
-	 *            url地址
-	 * @return url请求参数部分
-	 * @author lzf
-	 */
-	private static String TruncateUrlPage(String strURL) {
-		String strAllParam = null;
-		String[] arrSplit = null;
-		strURL = strURL.trim().toLowerCase();
-		arrSplit = strURL.split("[?]");
-		if (strURL.length() > 1) {
-			if (arrSplit.length > 1) {
-				for (int i = 1; i < arrSplit.length; i++) {
-					strAllParam = arrSplit[i];
-				}
-			}
-		}
-		return strAllParam;
-	}
-
-	/**
-	 * 解析出url参数中的键值对 如 "index.jsp?Action=del&id=123"，解析出Action:del,id:123存入map中
-	 * 
-	 * @param URL
-	 *            url地址
-	 * @return url请求参数部分
-	 * @author lzf
-	 */
-	public static Map<String, String> urlSplit(String URL) {
-		Map<String, String> mapRequest = new HashMap<String, String>();
-		String[] arrSplit = null;
-		String strUrlParam = TruncateUrlPage(URL);
-		if (strUrlParam == null) {
-			return mapRequest;
-		}
-		arrSplit = strUrlParam.split("[&]");
-		for (String strSplit : arrSplit) {
-			String[] arrSplitEqual = null;
-			arrSplitEqual = strSplit.split("[=]");
-			// 解析出键值
-			if (arrSplitEqual.length > 1) {
-				// 正确解析
-				mapRequest.put(arrSplitEqual[0], arrSplitEqual[1]);
-			} else {
-				if (arrSplitEqual[0] != "") {
-					// 只有参数没有值，不加入
-					mapRequest.put(arrSplitEqual[0], "");
-				}
-			}
-		}
-		return mapRequest;
 	}
 }

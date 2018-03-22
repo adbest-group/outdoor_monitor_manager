@@ -7,26 +7,19 @@
 	http://www.springframework.org/schema/context 
 	http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
-	<bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+	<!-- <bean id="jedisPoolConfig" class="refdis.clients.jedis.JedisPoolConfig">
 		<property name="maxIdle" value="${redis.maxIdle}" />
 		<property name="maxTotal" value="${redis.maxTotal}" />
 		<property name="timeBetweenEvictionRunsMillis" value="${redis.timeBetweenEvictionRunsMillis}" />
 		<property name="minEvictableIdleTimeMillis" value="${redis.minEvictableIdleTimeMillis}" />
 		<property name="testOnBorrow" value="${redis.testOnBorrow}" />
-	</bean>
+	</bean> -->
 
 	<!-- jedis shard pool配置 -->
-	<bean id="jedisPool" class="com.bt.om.cache.JedisPool" scope="singleton">
+	<!--  <bean id="jedisPool" class="com.qunju.os.cache.JedisPool" scope="singleton">
 		<constructor-arg index="0" ref="jedisPoolConfig" />
 		<constructor-arg index="1" value="${redis.pool.list}" />
-	</bean>
-
-	<!-- jedis clutcher配置 -->
-	<!--  <bean id="JedisClutcherTemplate" class="com.bt.om.cache.JedisClutcherTemplate"
-		scope="singleton">
-		<constructor-arg index="0" ref="jedisPoolConfig" />
-		<constructor-arg index="1" value="${redis.pool.list}" />
-	</bean> -->
+	</bean>-->
 	
 	<!-- 配置权限管理器 -->
 	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
@@ -44,7 +37,6 @@
 		<property name="filterChainDefinitions">
 			<value>
 				/static/** = anon
-				/pc/** = anon
 				/login* = anon
 				/doLogin* = anon
 				/autoLogin* = anon
@@ -65,5 +57,30 @@
 			</value>
 		</property>
 	</bean>
+	
+	<!-- <bean id="zkClient" class="com.github.zkclient.ZkClient">
+	   <constructor-arg index="0" value="${zookeeper.list}" />
+	</bean>
+        
+    <bean id="serverManager" class="com.adtime.netty.zk.DefaultServerManager">
+        <constructor-arg index="0" ref="zkClient" />
+        <constructor-arg index="1" value="${server.manager.project}" />
+    </bean> -->
+	
+	<!-- internalClient -->
+    <!-- <bean id="internalClient" class="com.adtime.netty.client.DefaultClient">
+        <property name="sender">
+            <bean class="com.adtime.netty.client.ConnectorGroup">
+                <property name="server" value="${internal.server.name}" />
+                <property name="serverManager" ref="serverManager" />
+                <property name="initializerFactory">
+                    <bean class="com.adtime.netty.initializer.factory.ProtoBufCodecHandlerInitializerFactory">
+                        <constructor-arg index="0" value="false" />
+                        <constructor-arg index="1" value="com.adtime.ottv.protocol.AdtimeInfo$InternalResponse" />
+                    </bean>
+                </property>
+            </bean>
+        </property>
+    </bean> -->
 
 </beans>

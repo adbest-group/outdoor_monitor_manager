@@ -4,7 +4,7 @@ package com.bt.om.enums;
  * Created by caiting on 2018/1/20.
  */
 public enum MonitorTaskType {
-    UP_MONITOR(1,"上刊监测"),DURATION_MONITOR(2,"投放期间监测"),DOWNMONITOR(3,"下刊监测");
+    SET_UP_MONITOR(5,"上刊安装"),UP_MONITOR(1,"上刊监测"),DURATION_MONITOR(2,"投放期间监测"),DOWNMONITOR(3,"下刊监测"),FIX_CONFIRM(4,"复查监测");
 
     private Integer id;
     private String text;

@@ -74,7 +74,8 @@
 		<!--Mysql-->
 		<dependency org="mysql" name="mysql-connector-java" rev="5.1.36"  conf="compile,test->default(*)" />
 		<!--Redis-->
-		<dependency org="redis.clients" name="jedis" rev="2.7.2" conf="compile,test->default(*)" />
+		<dependency org="redis.clients" name="jedis" rev="2.9.0" conf="compile,test->default(*)" />
+		<dependency org="org.springframework.data" name="spring-data-redis" rev="1.6.0.RELEASE" conf="compile,test->default(*)" />
 		<!--GoogleJAVA开源库-->
 		<dependency org="com.google.guava" name="guava" rev="18.0" conf="compile,test->default(*)" />
 		<!--Jetty-->
@@ -122,6 +123,8 @@
 		<!-- zxing -->
 		<!--<dependency org="com.google.zxing" name="core" rev="3.3.1" conf="compile,test->default(*)"/>-->
 		<dependency org="com.google.zxing" name="javase" rev="3.3.1" conf="compile,test->default(*)"/>
+		<!-- 图片处理包 -->
+		<dependency org="net.coobird" name="thumbnailator" rev="0.4.8" conf="compile,test->default(*)"/>
 
 
 	</dependencies>	

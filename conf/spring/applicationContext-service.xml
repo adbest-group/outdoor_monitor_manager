@@ -1,73 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans 
-	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
 	http://www.springframework.org/schema/context 
 	http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
-	<!-- <bean id="jedisPoolConfig" class="refdis.clients.jedis.JedisPoolConfig">
-		<property name="maxIdle" value="${redis.maxIdle}" />
-		<property name="maxTotal" value="${redis.maxTotal}" />
-		<property name="timeBetweenEvictionRunsMillis" value="${redis.timeBetweenEvictionRunsMillis}" />
-		<property name="minEvictableIdleTimeMillis" value="${redis.minEvictableIdleTimeMillis}" />
-		<property name="testOnBorrow" value="${redis.testOnBorrow}" />
-	</bean> -->
+    <!-- 配置权限管理器 -->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="realm" ref="shiroService"></property>
+    </bean>
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
+          depends-on="lifecycleBeanPostProcessor"/>
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
 
-	<!-- jedis shard pool配置 -->
-	<!--  <bean id="jedisPool" class="com.qunju.os.cache.JedisPool" scope="singleton">
-		<constructor-arg index="0" ref="jedisPoolConfig" />
-		<constructor-arg index="1" value="${redis.pool.list}" />
-	</bean>-->
-	
-	<!-- 配置权限管理器 -->
-	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
-		<property name="realm" ref="shiroService"></property>
-	</bean>
-	
-	<!-- 配置shiro的过滤工厂类，id-shiroFilter要和web.xml中配置的一致 -->
-	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
-		<property name="securityManager" ref="securityManager" />
-		<property name="loginUrl" value="/login" />
-		<property name="successUrl" value="/index" />
-		<!-- 用户无权限访问时访问的路径 -->
-		<property name="unauthorizedUrl" value="/noAuthority" />
-		
-		<property name="filterChainDefinitions">
-			<value>
-				/static/** = anon
-				/login* = anon
-				/doLogin* = anon
-				/autoLogin* = anon
-				/noAuthority* = anon
-				/getCode* = anon
-				/error.htm = anon
-				/index.htm = anon
-				/nofind.htm = anon
+    <!-- 配置shiro的过滤工厂类，id-shiroFilter要和web.xml中配置的一致 -->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager"/>
+        <property name="loginUrl" value="/login"/>
+        <property name="successUrl" value="/index"/>
+        <!-- 用户无权限访问时访问的路径 -->
+        <property name="unauthorizedUrl" value="/noAuthority"/>
+
+        <property name="filterChainDefinitions">
+            <value>
+                /static/** = anon
+                /login* = anon
+                /doLogin* = anon
+                /autoLogin* = anon
+                /noAuthority* = anon
+                /getCode* = anon
+                /error.htm = anon
+                /error.html = anon
+                /themes/** = anon
+                /index.htm = anon
+                /nofind.htm = anon
                 /accountSetup*=anon
-				/site* = anon
-				/api/** = anon
-				/throwThree*= anon
-				/throwThree/*= anon
-				<!-- /index*=roles[ADMIN]
-				/user=perms[user:query] -->
-				/oauth* = anon
-				/** = authc
-			</value>
-		</property>
-	</bean>
-	
-	<!-- <bean id="zkClient" class="com.github.zkclient.ZkClient">
-	   <constructor-arg index="0" value="${zookeeper.list}" />
-	</bean>
+                /site* = anon
+                /api/** = anon
+                /throwThree*= anon
+                /throwThree/*= anon
+                <!-- /index*=roles[ADMIN]
+                /user=perms[user:query] -->
+                /oauth* = anon
+                /** = authc
+            </value>
+        </property>
+        <property name="filters">
+            <util:map>
+                <entry key="permission" value-ref="urlPermissionFilter"/>
+            </util:map>
+        </property>
+    </bean>
+
+    <!-- <bean id="zkClient" class="com.github.zkclient.ZkClient">
+       <constructor-arg index="0" value="${zookeeper.list}" />
+    </bean>
         
     <bean id="serverManager" class="com.adtime.netty.zk.DefaultServerManager">
         <constructor-arg index="0" ref="zkClient" />
         <constructor-arg index="1" value="${server.manager.project}" />
     </bean> -->
-	
-	<!-- internalClient -->
+
+    <!-- internalClient -->
     <!-- <bean id="internalClient" class="com.adtime.netty.client.DefaultClient">
         <property name="sender">
             <bean class="com.adtime.netty.client.ConnectorGroup">

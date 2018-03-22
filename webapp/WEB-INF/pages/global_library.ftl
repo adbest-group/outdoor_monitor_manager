@@ -143,16 +143,21 @@
 	<input type="hidden" name="interactionActualPath${type}" value="" id="file${type}actualPath"/>
 	<input type="hidden" name="interactionSize${type}" value="" id="file${type}size"/>
 </#macro>
+
 <#--列表翻页共同处理-->
 <#macro showPage url p parEnd colsnum hasExport="0" hasBatch="0" startname="start" sizename="size">
 <#assign split = "?" />
-<#if (url?index_of("?")>0)><#assign split = "&" /></#if>
-<#if (!parEnd?starts_with("&"))><#local parEnd = "&"+parEnd /></#if>
+<#if (url?index_of("?")>0)>
+	<#assign split = "&" />
+</#if>
+<#if (!parEnd?starts_with("&"))>
+	<#local parEnd = "&"+parEnd />
+</#if>
 <tfoot>
 	<tr>
 		<td colspan="${colsnum}">
 			<#if hasExport == "1">
-			<a href="javascript:void(0);" id="exportBtn" class="btn btn-primary">导出</a>
+				<a href="javascript:void(0);" id="exportBtn" class="btn btn-primary">导出</a>
 			</#if>
 			<div class="page">
 				<a>共${p.totalRow}条</a>
@@ -239,6 +244,26 @@
 	</#if>
 </#macro>
 
+<#-- 媒体端问题状态下拉选项，只筛选有问题之后的状态  -->
+<#macro showMediaProblemStatusList value="-1">
+	<#local list = vm.getMediaProblemStatusList() />
+    <#if (list?exists && list?size > 0)>
+		<#list list as res>
+			<@showOption value="${res.id?if_exists}" title="${res.text?if_exists}" select="${value?if_exists}" />
+		</#list>
+	</#if>
+</#macro>
+
+<#-- 问题状态下拉选项  -->
+<#macro showProblemStatusList value="-1">
+	<#local list = vm.getProblemStatusList() />
+    <#if (list?exists && list?size > 0)>
+		<#list list as res>
+			<@showOption value="${res.id?if_exists}" title="${res.text?if_exists}" select="${value?if_exists}" />
+		</#list>
+	</#if>
+</#macro>
+
 <#-- 所有活动下拉选项  -->
 <#macro showAllActivityOps value="-1">
 	<#local list = vm.getAllActivity() />
@@ -255,6 +280,26 @@
 	<#if (list?exists && list?size > 0)>
 		<#list list as res>
 			<@showOption value="${res.id?if_exists}" title="${res.activityName?if_exists}" select="${value?if_exists}" />
+		</#list>
+	</#if>
+</#macro>
+
+<#-- 所有媒体下拉选项  -->
+<#macro showAllMediaOps value="-1">
+	<#local list = vm.getAllMedia() />
+	<#if (list?exists && list?size > 0)>
+		<#list list as media>
+			<@showOption value="${media.id?if_exists}" title="${media.mediaName?if_exists}" select="${value?if_exists}" />
+		</#list>
+	</#if>
+</#macro>
+
+<#-- 所有广告位类型下拉选项  -->
+<#macro showAllAdSeatTypeOps value="-1">
+	<#local list = vm.getAllAdSeatTypes() />
+	<#if (list?exists && list?size > 0)>
+		<#list list as type>
+			<@showOption value="${type.id?if_exists}" title="${type.name?if_exists}" select="${value?if_exists}" />
 		</#list>
 	</#if>
 </#macro>

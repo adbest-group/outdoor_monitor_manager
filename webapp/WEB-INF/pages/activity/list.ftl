@@ -63,7 +63,7 @@
                             <td>${vm.getActivityStatusTextWithColor(activity.status)}</td>
                             <td>
                                 <#if activity.status==1><a href="javascript:queren('${activity.id}')">确认</a></#if>
-                                <#if activity.status==1 || activity.status==2><a href="/activity/edit?id=${activity.id}">修改</a></#if>
+                                <#if activity.status gt 0 ><a href="/activity/edit?id=${activity.id}">详情</a></#if>
                                 <#if activity.status==1><a href="javascript:del('${activity.id}')">删除</a></#if>
                             </td>
                         </tr>
@@ -82,7 +82,7 @@
 </div>
 </div>
 </div>
-<script type="text/javascript" src="~/js/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="${model.static_domain}/js/jquery-2.1.4.min.js"></script>
 <!-- 下拉 -->
 <link href="${model.static_domain}/js/select/jquery.searchableSelect.css" rel="stylesheet">
 <script src="${model.static_domain}/js/select/jquery.searchableSelect.js"></script>
@@ -158,7 +158,7 @@
 
     //活动确认
     queren = function(activityId){
-        layer.confirm("确认该活动将生成对应的的检测任务", {
+        layer.confirm("确认该活动将生成对应的的监测任务", {
             icon: 3,
             btn: ['确定', '取消'] //按钮
         }, function(){

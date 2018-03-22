@@ -60,4 +60,9 @@ public interface AdActivityAdseatMapper {
     int deleteByActivityId(@Param("activityId") Integer activityId);
 
     AdActivityAdseatVo selectVoById(@Param("id") Integer id);
+
+    List<AdActivityAdseatVo> selectVoBySeatId(@Param("seatId") Integer seatId);
+    List<AdActivityAdseatVo> selectVoBySeatCode(@Param("adSeatCode") String adSeatCode);
+
+    AdActivityAdseat selectByActivityAndSeatId(@Param("activityId") Integer activityId,@Param("seatId") Integer seatId);
 }

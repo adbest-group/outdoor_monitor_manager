@@ -52,6 +52,11 @@ public interface ISysUserService {
      */
     List<SysUser> isExistsName(String username);
 
+    int update(SysUserVo user);
+
+    //传参数id用于修改时，判断排除当前id的prefix
+    boolean isExistsPrefix(String prefix,Integer id);
+
 //	/**
 //	 * 保存用户信息
 //	 *

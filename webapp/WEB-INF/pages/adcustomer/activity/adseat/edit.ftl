@@ -36,7 +36,7 @@
                         <div class="select-box select-box-140 un-inp-select">
                             <select name="seat" class="select" id="seat">
                             </select>
-                        </div>
+                        </div> <span id="seatTip"></span>
                     </td>
                 </tr>
 
@@ -57,7 +57,7 @@
                                 <input id="dt" class="Wdate" type="text">
                             </div>
                         </div>
-                        <span id="usernameTip"></span>
+                        <span id="dateTip"></span>
                     </td>
                 </tr>
 
@@ -73,6 +73,8 @@
                         <label>
                             <input type="checkbox" checked id="durationMonitor" name="monitor_time" value="0"  > 下刊
                         </label>
+
+                        <span id="monitorTimeTip"></span>
                     </td>
                 </tr>
 
@@ -91,7 +93,7 @@
                         <div class="btn-file" style="width:74px;height:28px;top:0px;">
 							<a class="addBtn" href="javascript:;" id="resource_sel">上传</a>
 							<input type="file" id="img-demo" name="file" onchange="uploadPic('img-demo')">
-						</div>
+						</div> <span id="img-demoTip"></span>
                     </td>
                 </tr>
 
@@ -106,6 +108,7 @@
 						<td class="a-title">&nbsp;</td>
 						<td>
 							<button type="button" class="btn btn-red" autocomplete="off" id="btnSave">保　存</button>
+							<button type="button" class="btn btn-primary" autocomplete="off" id="btnCancel">关  闭</button>
 						</td>
 					</tr>
 				</tbody>
@@ -131,36 +134,12 @@
 	<script src="${model.static_domain}/js/ajaxfileupload.js"></script>
 	
 	<script>
+
 		$(document).ready(function() {
              var id = $("#id").val();
              
 
 		});
-	     
-		$(function(){
-		
-			// 下拉
-//			$('.select').searchableSelect();
-            $("form").submit(function(){return false;});
-            //日期
-            $('.inputs-date').dateRangePicker({
-                separator : ' 至 ',
-                showShortcuts:false,
-                getValue: function()
-                {
-                    if ($('#dts').val() && $('#dt').val() )
-                        return $('#dts').val() + ' 至 ' + $('#dt').val();
-                    else
-                        return '';
-                },
-                setValue: function(s,s1,s2)
-                {
-                    $('#dts').val(s1);
-                    $('#dt').val(s2);
-
-                }
-            });
-		})
 		
 		function uploadPic(id){
 		    var picName = $("#"+id).val();
@@ -217,30 +196,100 @@
         $(function(){
             var media_seat = parent.window.checked_media;
             var as = parent.window.mod_activity_seat;
-            $.each(media_seat,function(i,media){
-                $("#media").append("<option value='"+media.id+"'>"+media.name+"</option>");
-            })
-            $.each(media_seat[0].seats,function(j,seat){
-                $("#seat").append("<option value='"+seat.id+"'>"+seat.name+"</option>");
-            })
-            $('.select').searchableSelect();
+            var activity_seats = parent.window.activity_seats;
+            var editMode = parent.window.editMode;
 
-            $("#media").siblings().find(".searchable-select-item").click(function(){
+
+            var $province = parent.window.$province;
+            var $city = parent.window.$city;
+            var $region = parent.window.$region;
+            var $street = parent.window.$street;
+            var $dts = parent.window.$dts;
+            var $dt = parent.window.$dt;
+
+            $("form").submit(function(){return false;});
+            //日期
+            var dateRangePickerOption = {
+                separator : ' 至 ',
+                showShortcuts:false,
+                startDate:moment($dts.val()),
+                endDate:moment($dt.val()),
+                minDate:moment($dts.val()),
+                maxDate:moment($dt.val()),
+                getValue: function()
+                {
+                    if ($('#dts').val() && $('#dt').val() )
+                        return $('#dts').val() + ' 至 ' + $('#dt').val();
+                    else
+                        return '';
+                },
+                setValue: function(s,s1,s2)
+                {
+                    $('#dts').val(s1);
+                    $('#dt').val(s2);
+
+                }
+            }
+//            if($dts.val().length>0){
+//                dateRangePickerOption["minDate"] = "2018-03-02";
+//            }
+//            if($dt.val().length>0){
+//                dateRangePickerOption["maxDate"] = "2018-03-18";
+//            }
+            //console.log(dateRangePickerOption);
+            if(editMode) {
+                $('.inputs-date').dateRangePicker(dateRangePickerOption);
+            }
+
+            $.each(media_seat,function(i,media){
+                $("#media").append("<option value='"+media.id+"' "+(i==0?"selected":"")+">"+media.name+"</option>");
+            })
+
+            selectSeatOps = function(mediaId) {
                 $("#seat").empty();
                 $("#seat").siblings(".searchable-select").remove();
-                $.each(media_seat,function(i,media){
-                    if(media.id==$("#media").val()*1){
-                        $.each(media.seats,function(j,seat){
-                            $("#seat").append("<option value='"+seat.id+"'>"+seat.name+"</option>");
-                        })
-                        $('#seat').searchableSelect();
+                $.ajax({
+                    url: "/adseat/selectSeat",
+                    type: "post",
+                    data: {
+                        "mediaId": mediaId,
+                        "province": $province.val(),
+                        "city": $city.val(),
+                        "region": $region.val(),
+                        "street": $street.val()
+                    },
+                    cache: false,
+                    dataType: "json",
+                    success: function (datas) {
+                        var resultRet = datas.ret;
+                        if (resultRet.code == 100&&resultRet.result&&resultRet.result.length>0) {
+                            $.each(resultRet.result, function (i, seat) {
+                                var name = seat.name;
+                                $.each(activity_seats,function(j,n){
+                                    if( (!as || as.seatId != n.seatId) && n.seatId == seat.id){
+                                        name += "(已添加)";
+                                        return false;
+                                    }
+                                });
+                                $("#seat").append("<option value='" + seat.id + "' "+((!!as&&as.seatId==seat.id||i==0)?"selected":"")+">" + name + "</option>");
+                            });
+                            $('#seat.select').searchableSelect();
+                        }else{
+                            $("#seat").append("<option value=''>- 请选择 -</option>");
+                            $('#seat.select').searchableSelect();
+
+                        }
+                        if(!editMode){
+                            $('#seat.select').siblings(".searchable-select").find(".searchable-select-dropdown").hide();
+                        }
                     }
-                })
-            });
+                });
+            }
+
 
             if(!!as){
                 $("#id").val(as.id);
-                        mediaId : $("#media").val(as.mediaId); //媒体id
+                        $("#media").val(as.mediaId); //媒体id
                         //mediaName:$("#media").siblings().find(".searchable-select-holder").text(),
                         $("#seat").val(as.seatId); //媒体id
                         //seatName : $("#seat").siblings().find(".searchable-select-holder").text(),
@@ -257,8 +306,8 @@
                 $("#btnDemo").click(function(){
                     var demo_data = {
                         "brand" : "可口可乐",
-                        "dts":"2018-02-01",
-                        "dt":"2018-03-01",
+                        "dts":$dts.val(),
+                        "dt":$dt.val(),
                         "img-demo-bak":"/static/upload/demo.png"
                     }
                     $.each(demo_data,function(key,value){
@@ -266,12 +315,30 @@
                     })
                     $("#img-demo-img").attr("src",demo_data["img-demo-bak"]);
                 }).show();
+                $("#dts").val($dts.val())
+                $("#dt").val($dt.val())
             }
+
+            selectSeatOps(as&&as.mediaId || media_seat[0].id);
+            $('#media.select').searchableSelect();
+            $("#media").siblings().find(".searchable-select-item").click(function(){
+                selectSeatOps($("#media").val());
+            });
 
             $("input[name='monitor_time']").change(function(){
                 $("#monitorCount").val($("input[name='monitor_time']:checked").length);
             });
+            $("#btnCancel").click(function(){
+                parent.window.layer.closeAll();
+            });
 
+            //判断是否可编辑
+            if(!editMode){
+                $(".select").siblings(".searchable-select").find(".searchable-select-dropdown").hide();
+                $("#brand,#dts,#dt,input:checkbox[name='monitor_time']").attr("disabled",true);
+                $("#resource_sel").parent().hide();
+                $("#btnSave").hide();
+            }
 
             //表单处理
             $.formValidator.initConfig({
@@ -308,5 +375,68 @@
                 submitAfterAjaxPrompt: '有数据正在异步验证，请稍等...'
             });
 
+            //广告位
+            $("#seat").formValidator({
+                validatorGroup: "2",
+                onShow: "　",
+                onFocus: "",
+                onCorrect: ""
+            }).functionValidator({
+                fun: function(val){
+                    if(val&&val.length>0){
+                        return true
+                    }
+                    return false;
+                },
+                onError: "请选择广告位"
+            }).functionValidator({
+                fun: function(val){
+                    var ret = true;
+                    if(activity_seats&&activity_seats.length>0){
+                        $.each(activity_seats,function(i,n){
+                            if((!as || as.seatId != n.seatId) && n.seatId == val ){
+                                ret = false;return false;
+                            }
+                        });
+                    }
+                    return ret;
+                },
+                onError: "该广告位已添加"
+            });
+
+            //品牌
+            $("#brand").formValidator({
+                validatorGroup: "2",
+                onShow: "　",
+                onFocus: "请输入品牌，30字以内",
+                onCorrect: ""
+            }).inputValidator({
+                min: 1,
+                max: 30,
+                onError: "请输入品牌，30字以内"
+            });
+
+            //监测时间
+            $("input:checkbox[name='monitor_time']").formValidator({
+                validatorGroup: "2",
+                tipID:"monitorTimeTip",
+                onShow: "　",
+                onCorrect: "",
+                onFocus:""
+            }).inputValidator({
+                min: 1,
+                onError: "请选择监测时间"
+            });
+
+            //样例
+            $("#img-demo-bak").formValidator({
+                validatorGroup: "2",
+                tipID:"img-demoTip",
+                onShow: "　",
+                onCorrect: ""
+            }).inputValidator({
+                min: 1,
+                onError: "请上传样例"
+            });
         });
 	</script>

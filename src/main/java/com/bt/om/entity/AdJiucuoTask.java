@@ -260,6 +260,25 @@ public class AdJiucuoTask extends ID {
     }
 
     private String reason;
+    private Integer problemStatus;
+    private Integer subCreated;
+    private Date verifyTime;
+
+    public Integer getSubCreated() {
+        return subCreated;
+    }
+
+    public void setSubCreated(Integer subCreated) {
+        this.subCreated = subCreated;
+    }
+
+    public Integer getProblemStatus() {
+        return problemStatus;
+    }
+
+    public void setProblemStatus(Integer problemStatus) {
+        this.problemStatus = problemStatus;
+    }
 
     public String getReason() {
         return reason;
@@ -267,5 +286,13 @@ public class AdJiucuoTask extends ID {
 
     public void setReason(String reason) {
         this.reason = reason;
+    }
+
+    public Date getVerifyTime() {
+        return verifyTime;
+    }
+
+    public void setVerifyTime(Date verifyTime) {
+        this.verifyTime = verifyTime;
     }
 }

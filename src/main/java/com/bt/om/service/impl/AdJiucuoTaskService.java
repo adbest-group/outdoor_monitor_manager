@@ -3,14 +3,9 @@ package com.bt.om.service.impl;
 import com.bt.om.entity.*;
 import com.bt.om.entity.vo.AdJiucuoTaskMobileVo;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
-import com.bt.om.enums.JiucuoTaskStatus;
-import com.bt.om.enums.RewardTaskType;
-import com.bt.om.enums.RewardType;
-import com.bt.om.enums.SysUserExecuteType;
-import com.bt.om.mapper.AdJiucuoTaskFeedbackMapper;
-import com.bt.om.mapper.AdJiucuoTaskMapper;
-import com.bt.om.mapper.AdMonitorRewardMapper;
-import com.bt.om.mapper.SysUserExecuteMapper;
+import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.enums.*;
+import com.bt.om.mapper.*;
 import com.bt.om.service.IAdJiucuoTaskService;
 import com.bt.om.vo.web.SearchDataVo;
 import org.apache.ibatis.session.RowBounds;
@@ -35,6 +30,10 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
     private SysUserExecuteMapper sysUserExecuteMapper;
     @Autowired
     private AdMonitorRewardMapper adMonitorRewardMapper;
+    @Autowired
+    private AdActivityAdseatMapper adActivityAdseatMapper;
+    @Autowired
+    private AdMonitorTaskMapper adMonitorTaskMapper;
 
     @Override
     public void getPageData(SearchDataVo vo) {
@@ -75,12 +74,13 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void pass(AdJiucuoTask task) {
+        Date now = new Date();
         task.setStatus(JiucuoTaskStatus.VERIFIED.getId());
+        task.setVerifyTime(now);
         adJiucuoTaskMapper.updateByPrimaryKeySelective(task);
         task = adJiucuoTaskMapper.selectByPrimaryKey(task.getId());
         SysUserExecute user = sysUserExecuteMapper.selectByPrimaryKey(task.getUserId());
         if(user.getId() == SysUserExecuteType.WORKER.getId()) {
-            Date now = new Date();
             AdMonitorReward reward = new AdMonitorReward();
             reward.setMonitorTaskId(task.getId());
             reward.setType(RewardType.ADD.getId());
@@ -99,6 +99,7 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
     public void reject(AdJiucuoTask task, String reason) {
         task.setReason(reason);
         task.setStatus(JiucuoTaskStatus.VERIFY_FAILURE.getId());
+        task.setVerifyTime(new Date());
         adJiucuoTaskMapper.updateByPrimaryKeySelective(task);
     }
 
@@ -119,5 +120,32 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
     @Override
     public List<AdJiucuoTaskMobileVo> getByUserIdForMobile(Integer userId) {
         return adJiucuoTaskMapper.selectByUserId(userId);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void createSubTask(Integer taskId) {
+        Date now = new Date();
+        AdJiucuoTask task = adJiucuoTaskMapper.selectByPrimaryKey(taskId);
+        AdMonitorTask sub = new AdMonitorTask();
+        sub.setTaskType(MonitorTaskType.FIX_CONFIRM.getId());
+        //通过活动编号和广告位编号获取 活动和广告位的关联编号
+        sub.setActivityAdseatId(adActivityAdseatMapper.selectByActivityAndSeatId(task.getActivityId(),task.getAdSeatId()).getId());
+        sub.setStatus(MonitorTaskStatus.UNASSIGN.getId());
+        sub.setProblemStatus(TaskProblemStatus.UNMONITOR.getId());
+        sub.setActivityId(task.getActivityId());
+        sub.setParentId(task.getId());
+        sub.setParentType(RewardTaskType.JIUCUO.getId());
+        sub.setSubCreated(2);
+        sub.setCreateTime(now);
+        sub.setUpdateTime(now);
+        adMonitorTaskMapper.insertSelective(sub);
+        task.setSubCreated(1);
+        adJiucuoTaskMapper.updateByPrimaryKeySelective(task);
+    }
+
+    @Override
+    public List<AdMonitorTaskVo> getSubTask(Integer id) {
+        return adMonitorTaskMapper.selectVoByParent(id,2);
     }
 }

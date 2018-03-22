@@ -2,6 +2,7 @@ package com.bt.om.service.impl;
 
 import java.util.List;
 
+import com.bt.om.entity.SysRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +27,7 @@ public class SysRoleServiceImpl implements ISysRoleService {
 	 * @see com.bt.om.service.ISysRoleService#getRoleListByUserId(java.lang.Integer)
 	 */
 	@Override
-	public List<SysRoleVo> findRoleByUserId(Integer userId) {		
-		return sysRoleMapper.findRoleByUserId(userId);
+	public List<SysRole> findRoleByUserId(Integer userId) {
+		return sysRoleMapper.selectByUserId(userId);
 	}
 }

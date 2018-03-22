@@ -19,9 +19,9 @@
                         </select>
                     </div>
                     <div class="select-box select-box-100 un-inp-select ll">
-                        <select class="select" name="status">
-                            <option value="">所有状态</option>
-                        <@model.showJiucuoTaskStatusOps value="${bizObj.queryMap.status?if_exists}"/>
+                        <select class="select" name="problemStatus">
+                            <option value="">所有问题状态</option>
+                        <@model.showMediaProblemStatusList value="${bizObj.queryMap.problemStatus?if_exists}"/>
                         </select>
                     </div>
                     <div class="ll inputs-date">
@@ -52,6 +52,7 @@
                         <th>媒体</th>
                         <th>广告位</th>
                         <th>状态</th>
+                        <th>问题状态</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -64,10 +65,11 @@
                                 <div class="data-title w200" data-title="${task.activityName}" data-id="${task.id}">${task.activityName?if_exists}</div></td>
                             <td><img width="50" src="${task.picUrl1}"/></td>
                             <td>${task.submitTime?string('yyyy-MM-dd HH:mm:ss')}</td>
-                            <td>${task.city}</td>
+                            <td>${vm.getCityNameFull(task.street!task.region,"-")!""}</td>
                             <td>${task.mediaName}</td>
                             <td>${task.adSeatName}</td>
                             <td>${vm.getJiucuoTaskStatusText(task.status)}</td>
+                            <td>${vm.getProblemStatusText(task.problemStatus!0)}</td>
                             <td>
                                 <a href="/customer/jiucuo/detail?id=${task.id}">查看</a>
                             </td>

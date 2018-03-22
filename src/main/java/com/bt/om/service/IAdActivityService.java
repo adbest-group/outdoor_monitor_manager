@@ -4,6 +4,7 @@ import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdActivityAdseat;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.ActivityMobileReportVo;
+import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdActivityVo;
 import com.bt.om.vo.web.SearchDataVo;
 
@@ -18,6 +19,8 @@ public interface IAdActivityService {
     public void add(AdActivityVo adActivityVo);
 
     public void modify(AdActivityVo adActivityVo);
+
+    public void modify(AdActivityVo adActivityVo,Integer[] activitySeatDels);
 
     public void getPageData(SearchDataVo vo);
 
@@ -35,6 +38,16 @@ public interface IAdActivityService {
      *  根据id获取 广告活动广告位信息
      **/
     public AdActivityAdseat getActivitySeatById(Integer id);
+
+    /**
+     *  根据广告位id获取 广告活动广告位信息，主要用于二维码中提供广告位id时使用
+     **/
+    public List<AdActivityAdseatVo> getActivitySeatBySeatId(Integer id);
+
+    /**
+     *  根据广告位ad_code获取 广告活动广告位信息，主要用于二维码中提供广告位code时使用
+     **/
+    public List<AdActivityAdseatVo> getActivitySeatBySeatCode(String adSeatCode);
 
     /**
      * 手机端客户获取活动列表报表

@@ -1,6 +1,7 @@
 package com.bt.om.vo.api;
 
 import com.bt.om.entity.vo.AdActivityAdseatVo;
+import com.google.common.collect.Lists;
 
 import java.io.Serializable;
 import java.sql.JDBCType;
@@ -12,6 +13,10 @@ import java.util.List;
 public class QRCodeInfoVo implements Serializable {
     private Integer ad_seat_id;
     private List<AdActivitySeatInfoInQRVO> ad_activity_seats;
+
+    public QRCodeInfoVo(){
+        ad_activity_seats = Lists.newArrayList();
+    }
 
     public Integer getAd_seat_id() {
         return ad_seat_id;

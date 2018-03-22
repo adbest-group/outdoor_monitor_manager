@@ -1,6 +1,9 @@
 package com.bt.om.mapper;
 
 import com.bt.om.entity.SysUserDetail;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface SysUserDetailMapper {
     /**
@@ -50,4 +53,9 @@ public interface SysUserDetailMapper {
      * @mbggenerated Tue Jan 16 19:05:23 CST 2018
      */
     int updateByPrimaryKey(SysUserDetail record);
+
+
+    public SysUserDetail selectByUserId(@Param("id") Integer id);
+
+    public List<SysUserDetail> isExistsPrefix(@Param("prefix") String prefix,@Param("id") Integer id);
 }

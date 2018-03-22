@@ -2,6 +2,7 @@ package com.bt.om.service;
 
 import java.util.List;
 
+import com.bt.om.entity.SysRole;
 import com.bt.om.entity.vo.SysRoleVo;
 
 /**
@@ -19,7 +20,7 @@ public interface ISysRoleService {
 
 	// List<SysRole> getRoleData(SearchDataVo vo);
 
-	List<SysRoleVo> findRoleByUserId(Integer userId);
+	List<SysRole> findRoleByUserId(Integer userId);
 
 	// List<SysRole> isExistsName(Map<String, Object> map);
 

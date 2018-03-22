@@ -1,26 +1,14 @@
 package com.bt.om.web.controller;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
 import com.bt.om.common.SysConst;
-import com.bt.om.entity.AdCrowd;
+import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.MonitorDailyReport;
-import com.bt.om.entity.SysUser;
-import com.bt.om.enums.AgePart;
 import com.bt.om.enums.ResultCode;
-import com.bt.om.enums.SessionKey;
-import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IMonitorDailyReportService;
 import com.bt.om.vo.report.ManageIndexReportVo;
 import com.bt.om.vo.web.ResultVo;
-import com.google.common.collect.Lists;
+import com.bt.om.web.BasicController;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +20,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.bt.om.common.web.PageConst;
-import com.bt.om.web.BasicController;
+import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Date;
+import java.util.Map;
 
 /**
  * 首页Controller

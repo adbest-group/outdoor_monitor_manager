@@ -146,7 +146,7 @@
                                     ${vm.getMonitorTaskStatusText(item.status)}
                                     <#elseif item.feedbackStatus==2>
                                         审核未通过
-                                        <#if (item.reason!="" && item.reason!="null") >
+                                        <#if (item.reason?exists && item.reason!="" && item.reason!="null") >
                                             <span style="color:orangered;">(${item.reason})</span>
                                         </#if>
                                     </#if>

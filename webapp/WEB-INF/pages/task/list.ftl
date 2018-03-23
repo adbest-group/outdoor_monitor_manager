@@ -19,6 +19,12 @@
                         </select>
                     </div>
                     <div class="select-box select-box-100 un-inp-select ll">
+                        <select class="select" name="taskType">
+                            <option value="">任务类型</option>
+                        <@model.showMonitorTaskTypeOps value="${bizObj.queryMap.taskType?if_exists}" />
+                        </select>
+                    </div>
+                    <div class="select-box select-box-100 un-inp-select ll">
                         <select class="select" name="status">
                             <option value="">所有状态</option>
                         <@model.showMonitorTaskStatusOps value="${bizObj.queryMap.status?if_exists}" />
@@ -89,13 +95,13 @@
                             <td>
                             <#--<#if task.status==1><a href="javascript:assign('${task.id}')">指派</a></#if>-->
                             <#--<#if task.status==2><a href="javascript:assign('${task.id}')">重新指派</a></#if>-->
-                                <#if (task.status==4&&task.problemStatus?exists&&task.problemStatus==4&&task.subCreated==2)>
+                                <#if (task.status==4&&task.problemStatus?exists&&task.problemStatus==4&&(!task.subCreated?exists||task.subCreated==2))>
                                     <a href="javascript:createTask('${task.id}');">创建复查</a></#if>
                                 <#if (task.parentId?exists&&task.parentType=1)>
                                     <a href="/task/list?pid=${task.parentId}&ptype=1">复查配对</a></#if>
                                 <#if (task.parentId?exists&&task.parentType=2)>
                                     <a href="/jiucuo/list?id=${task.parentId}">查看纠错</a></#if>
-                                <#if (task.status==4&&task.problemStatus?exists&&task.problemStatus==4&&task.subCreated==1)>
+                                <#if (task.status==4&&task.problemStatus?exists&&task.problemStatus==4&&task.subCreated?exists&&task.subCreated==1)>
                                     <a href="/task/list?pid=${task.id}&ptype=1">复查配对</a></#if>
                                 <#if (task.status==4 && task.problemStatus?exists&&task.problemStatus==4)><a
                                         href="javascript:close('${task.id}')">关闭</a></#if>

@@ -14,6 +14,7 @@ public interface IAdSeatService {
     public void getPageData(SearchDataVo vo);
     public AdSeatInfo getById(Integer id);
     public List<AdSeatInfo> getByStreetAndMediaUserId( Long street, Integer userId);
+    public int getCountByAdCode(String adSeatCode);
     public void save(AdSeatInfo adSeatInfo);
     public void save(AdSeatInfo adSeatInfo,Integer userId);
     public void modify(AdSeatInfo adSeatInfo);

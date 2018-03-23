@@ -204,9 +204,9 @@
 
   <select id="getSumReport" parameterType="map" resultMap="BaseResultMap">
     select
-    sum(task_count) as task_count,
-    sum(problem_count) as problem_count,
-    sum(complete_count) as complete_count,
+    IFNULL(sum(task_count),0) as task_count,
+    IFNULL(sum(problem_count),0) as problem_count,
+    IFNULL(sum(complete_count),0) as complete_count,
     report_date
     from monitor_daily_report
     where

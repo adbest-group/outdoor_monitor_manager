@@ -94,4 +94,8 @@ public interface AdMonitorTaskMapper {
 	 **/
 	AdMonitorTaskVo selectVoByPrimaryKey(@Param("id") Integer id);
 
+	/**
+	 * 上刊任务的活动广告位关联id，激活该id所有监测任务
+	 **/
+	int activeTask(@Param("activitySeatId") Integer activitySeatId);
 }

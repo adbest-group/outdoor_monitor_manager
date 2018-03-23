@@ -65,4 +65,5 @@ public interface AdSeatInfoMapper {
     AdSeatInfoVo getAdSeatInfoById(Integer id);
     List<AdSeatInfo> getAdSeatInfoByStreetAndMediaUserId(@Param("userId")  Integer userId, @Param("street")  Long street);
     AdSeatInfo getAdSeatInfoByAdActivitySeatId(@Param("adActivitySeatId")  Integer adActivitySeatId);
+    int getCountByAdCode(@Param("adSeatCode")String adSeatCode);
 }

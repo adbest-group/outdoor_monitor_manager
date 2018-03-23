@@ -3,11 +3,9 @@ package com.bt.om.web.controller.api;
 import com.bt.om.cache.CityCache;
 import com.bt.om.common.SysConst;
 import com.bt.om.entity.*;
-import com.bt.om.entity.vo.ActivityMobileReportVo;
-import com.bt.om.entity.vo.AdActivityAdseatVo;
-import com.bt.om.entity.vo.AdJiucuoTaskMobileVo;
-import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
+import com.bt.om.entity.vo.*;
 import com.bt.om.enums.*;
+import com.bt.om.mapper.SysUserDetailMapper;
 import com.bt.om.service.*;
 import com.bt.om.util.CityUtil;
 import com.bt.om.util.QRcodeUtil;
@@ -57,6 +55,8 @@ public class ApiController extends BasicController {
     private IAdJiucuoTaskService adJiucuoTaskService;
     @Autowired
     private IAdMonitorRewardService adMonitorRewardService;
+    @Autowired
+    private ISysUserService sysUserService;
     @Autowired
     private IAdSeatService adSeatService;
     @Autowired
@@ -235,7 +235,7 @@ public class ApiController extends BasicController {
         try {
             List<AdActivityAdseatVo> list = adActivityService.getActivitySeatBySeatCode(seatCode);
             QRCodeInfoVo qr = new QRCodeInfoVo();
-            qr.setAd_seat_id(Integer.valueOf(seatCode));
+//            qr.setAd_seat_id(Integer.valueOf(seatCode));
             for (AdActivityAdseatVo vo : list) {
                 qr.getAd_activity_seats().add(new AdActivitySeatInfoInQRVO(vo));
             }
@@ -1265,6 +1265,78 @@ public class ApiController extends BasicController {
         }else{
             result.setResult(Lists.newArrayList());
         }
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+
+    //绑定广告位二维码时检验
+    @RequestMapping(value = "/checkAdSeatCode")
+    @ResponseBody
+    public Model checkAdSeatCode(Model model, HttpServletRequest request, HttpServletResponse response) {
+        ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("检查成功");
+        model = new ExtendedModelMap();
+
+        String token = null;
+        String adSeatCode=null;
+
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            adSeatCode = obj.get("adSeatCode") == null ? null : obj.get("adSeatCode").getAsString();
+            if (token != null) {
+                useSession.set(Boolean.FALSE);
+                this.sessionByRedis.setToken(token);
+            } else {
+                useSession.set(Boolean.TRUE);
+            }
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        if(adSeatCode==null){
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("参数有误！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        //验证登录
+        if (useSession.get()) {
+            if (!checkLogin(model, result, request)) {
+                return model;
+            }
+        } else {
+            if (!checkLogin(model, result, token)) {
+                return model;
+            }
+        }
+
+        SysUserExecute user = getLoginUser(request, token);
+
+        SysUserVo operate = sysUserService.findUserinfoById(user.getOperateId());
+        AdSeatCodeCheckInfo checkInfo = new AdSeatCodeCheckInfo();
+
+        if(!adSeatCode.startsWith(operate.getPrefix())){
+            checkInfo.setValid(false);
+            checkInfo.setErr_msg("该广告位二维码有误或媒体不匹配！");
+        }else{
+            if(adSeatService.getCountByAdCode(adSeatCode)>0){
+                checkInfo.setValid(false);
+                checkInfo.setErr_msg("该广告位已激活！");
+            }
+        }
+
+        result.setResult(checkInfo);
 
         model.addAttribute(SysConst.RESULT_KEY, result);
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));

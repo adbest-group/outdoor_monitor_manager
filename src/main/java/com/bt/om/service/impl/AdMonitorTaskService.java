@@ -52,12 +52,14 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             task.setId(Integer.valueOf(taskId));
             task.setUserId(userId);
             task.setStatus(MonitorTaskStatus.TO_CARRY_OUT.getId());
+            task.setUpdateTime(new Date());
             adMonitorTaskMapper.updateByPrimaryKeySelective(task);
         }
     }
 
     @Override
     public void update(AdMonitorTask task) {
+        task.setUpdateTime(new Date());
         adMonitorTaskMapper.updateByPrimaryKeySelective(task);
     }
 
@@ -73,6 +75,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             task.setProblemStatus(TaskProblemStatus.NO_PROBLEM.getId());
         }
         task.setVerifyTime(now);
+        task.setUpdateTime(now);
         adMonitorTaskMapper.updateByPrimaryKeySelective(task);
         task = adMonitorTaskMapper.selectByPrimaryKey(task.getId());
         //如果当前任务是子任务，如果有问题，父任务的状态恢复到有问题，如果没有问题，则关闭父任务，这里分父任务是监测或纠错
@@ -85,6 +88,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
                 }else{
                     monitor.setProblemStatus(TaskProblemStatus.CLOSED.getId());
                 }
+                monitor.setUpdateTime(now);
                 adMonitorTaskMapper.updateByPrimaryKeySelective(monitor);
             }else if(task.getParentType()==RewardTaskType.JIUCUO.getId()){
                 AdJiucuoTask jiucuo  = new AdJiucuoTask();
@@ -94,8 +98,13 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
                 }else{
                     jiucuo.setProblemStatus(TaskProblemStatus.CLOSED.getId());
                 }
+                jiucuo.setUpdateTime(now);
                 jiucuoTaskMapper.updateByPrimaryKeySelective(jiucuo);
             }
+        }
+        //如果是上刊安装，激活其他任务
+        if(task.getTaskType().equals(MonitorTaskType.SET_UP_MONITOR.getId())){
+            adMonitorTaskMapper.activeTask(task.getActivityAdseatId());
         }
         AdMonitorReward reward = new AdMonitorReward();
         reward.setMonitorTaskId(task.getId());
@@ -112,11 +121,14 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void reject(AdMonitorTask task, String reason) {
-        task.setVerifyTime(new Date());
+        Date now = new Date();
+        task.setVerifyTime(now);
+        task.setUpdateTime(now);
         adMonitorTaskMapper.updateByPrimaryKeySelective(task);
         List<AdMonitorTaskFeedback> feedbacks = adMonitorTaskFeedbackMapper.selectByTaskId(task.getId(), 1);
         for (AdMonitorTaskFeedback feedback : feedbacks) {
             feedback.setReason(reason);
+            feedback.setUpdateTime(now);
             adMonitorTaskFeedbackMapper.updateByPrimaryKeySelective(feedback);
         }
     }
@@ -156,6 +168,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
                     task.setStatus(MonitorTaskStatus.UNVERIFY.getId());
                 }
             }
+            task.setUpdateTime(now);
             adMonitorTaskMapper.updateByPrimaryKeySelective(task);
 
             //上刊安装任务，判断是否二维码已绑定广告位
@@ -167,6 +180,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
                         throw new RuntimeException("广告位未激活，需提供广告位二维码");
                     }
                     seatInfo.setAdCode(adSeatCode);
+                    seatInfo.setUpdateTime(now);
                     adSeatInfoMapper.updateByPrimaryKeySelective(seatInfo);
                 }
             }
@@ -188,6 +202,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             } else {
                 task.setStatus(MonitorTaskStatus.UNVERIFY.getId());
             }
+            task.setUpdateTime(now);
             adMonitorTaskMapper.updateByPrimaryKeySelective(task);
         }
     }
@@ -210,6 +225,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         sub.setUpdateTime(now);
         adMonitorTaskMapper.insertSelective(sub);
         task.setSubCreated(1);
+        task.setUpdateTime(now);
         adMonitorTaskMapper.updateByPrimaryKeySelective(task);
     }
 

@@ -52,6 +52,7 @@ public class MonitorTaskController extends BasicController {
     @RequestMapping(value = "/list")
     public String getTaskList(Model model, HttpServletRequest request,
                               @RequestParam(value = "activityId", required = false) Integer activityId,
+                              @RequestParam(value = "taskType", required = false) Integer taskType,
                               @RequestParam(value = "status", required = false) Integer status,
                               @RequestParam(value = "problemStatus", required = false) Integer problemStatus,
                               @RequestParam(value = "startDate", required = false) String startDate,
@@ -63,6 +64,9 @@ public class MonitorTaskController extends BasicController {
 
         if (activityId != null) {
             vo.putSearchParam("activityId", activityId.toString(), activityId);
+        }
+        if (taskType != null) {
+            vo.putSearchParam("taskType", taskType.toString(), taskType);
         }
         if (status != null) {
             vo.putSearchParam("status", status.toString(), status);

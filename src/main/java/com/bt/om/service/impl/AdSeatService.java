@@ -59,6 +59,11 @@ public class AdSeatService implements IAdSeatService {
     }
 
     @Override
+    public int getCountByAdCode(String adSeatCode) {
+        return adSeatInfoMapper.getCountByAdCode(adSeatCode);
+    }
+
+    @Override
     public void save(AdSeatInfo adSeatInfo) {
         adSeatInfoMapper.insertSelective(adSeatInfo);
     }

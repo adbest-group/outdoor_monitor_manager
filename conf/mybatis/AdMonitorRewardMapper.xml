@@ -167,7 +167,7 @@
   </update>
 
   <select id="selectTotalRewardByUserId" resultType="java.lang.Integer">
-    select sum(reward_points) from ad_monitor_reward
+    select IFNULL(sum(reward_points),0) from ad_monitor_reward
     where user_id = #{userId,jdbcType=INTEGER}
   </select>
 

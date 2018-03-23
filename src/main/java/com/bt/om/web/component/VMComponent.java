@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.management.monitor.Monitor;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -200,6 +201,13 @@ public class VMComponent {
      */
     public MonitorTaskStatus[] getMonitorTaskStatusList() {
         return MonitorTaskStatus.values();
+    }
+
+    /**
+     * 获取广告活动监测任务类型列表
+     */
+    public MonitorTaskType[] getMonitorTaskTypeList() {
+        return MonitorTaskType.values();
     }
 
     /**

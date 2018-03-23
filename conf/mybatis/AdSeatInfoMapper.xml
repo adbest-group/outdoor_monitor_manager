@@ -427,4 +427,10 @@
 		left join ad_activity_adseat b on a.id = b.ad_seat_id
 		where b.id = #{adActivitySeatId,jdbcType=INTEGER}
 	</select>
+
+	<select id="getCountByAdCode" resultType="int">
+		select count(a.id)
+		from ad_seat_info a
+		where a.ad_code = #{adSeatCode,jdbcType=VARCHAR}
+	</select>
 </mapper>

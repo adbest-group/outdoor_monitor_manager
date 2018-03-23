@@ -406,7 +406,7 @@
         <if test="endDate != null">
             and b.end_time &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
         </if>
-        order by a.id desc
+        order by a.update_time desc,a.id desc
     </select>
 
     <select id="selectByUserId" resultMap="MobileResultMap">
@@ -419,7 +419,7 @@
     left join ad_seat_info d on c.ad_seat_id = d.id
     left join ad_monitor_task_feedback e on e.monitor_task_id = a.id and e.`status` = 1
     where a.user_id = #{userId,jdbcType=INTEGER}
-    order by a.id desc
+    order by a.update_time desc,a.id desc
   </select>
 
     <select id="getTaskDetails" resultMap="ExtResultMap">
@@ -505,4 +505,12 @@
         where a.id = #{id,jdbcType=INTEGER}
 
     </select>
+
+    <update id="activeTask">
+        update ad_monitor_task a
+        set status = 1,
+            update_time = sysdate()
+        where a.activity_adseat_id = #{activitySeatId,jdbcType=INTEGER}
+        and a.status = 7
+    </update>
 </mapper>

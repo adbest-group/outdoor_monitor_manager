@@ -92,7 +92,7 @@
                     </div>
                 </#list>
             <#else>
-                <#if task.subCreated == 1>
+                <#if (task.subCreated?exists&&task.subCreated == 1)>
                     <div class="hd mt-10"><h3>已创建复查监测子任务，目前还没有监测反馈 <@shiro.hasRole name="admin">&nbsp;&nbsp;&nbsp;<a
                             href="/task/list?pid=${task.id}&ptype=2">去查看任务</a></@shiro.hasRole></h3></div>
 

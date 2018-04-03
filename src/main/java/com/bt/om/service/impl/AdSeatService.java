@@ -1,8 +1,16 @@
 package com.bt.om.service.impl;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.ibatis.session.RowBounds;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.bt.om.entity.AdCrowd;
 import com.bt.om.entity.AdMedia;
-import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.vo.AdSeatInfoVo;
 import com.bt.om.mapper.AdCrowdMapper;
@@ -10,15 +18,6 @@ import com.bt.om.mapper.AdMediaMapper;
 import com.bt.om.mapper.AdSeatInfoMapper;
 import com.bt.om.service.IAdSeatService;
 import com.bt.om.vo.web.SearchDataVo;
-import org.apache.ibatis.session.RowBounds;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Created by caiting on 2018/3/5.
@@ -110,4 +109,24 @@ public class AdSeatService implements IAdSeatService {
     public List<AdCrowd> getCrowdsBySeatId(Integer adSeatId) {
         return adCrowdMapper.getAgePartListByAdSeatId(adSeatId);
     }
+    
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int insertBatchByExcel(List<AdSeatInfo> adSeatInfos, Integer userId) {
+    	Date now = new Date();
+    	if(adSeatInfos != null && adSeatInfos.size() > 0) {
+    		AdMedia media = adMediaMapper.selectByUserId(userId);
+            if(media != null){
+                for (AdSeatInfo adSeatInfo : adSeatInfos) {
+                	adSeatInfo.setMediaId(media.getId());
+                	adSeatInfo.setCreateTime(now);
+                	adSeatInfo.setUpdateTime(now);
+    			}
+        		int count = adSeatInfoMapper.insertBatchByExcel(adSeatInfos);
+        		return count;
+            }
+    	}
+    	return 0;
+    }
+
 }

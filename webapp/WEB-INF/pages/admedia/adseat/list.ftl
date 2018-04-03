@@ -13,8 +13,8 @@
 			<div class="search-box search-ll" style="margin: 0 0 0 20px">
 				<button type="button" class="btn btn-red" autocomplete="off"
 					onclick="window.location.href='/platmedia/adseat/edit'">新增广告位</button>
-				<#--<button style="margin-left: 10px" type="button" class="btn"-->
-					<#--autocomplete="off" onclick="">批量导入</button>-->
+				<button style="margin-left: 10px" type="button" class="btn" id="insertBatchId"
+					autocomplete="off" onclick="">批量导入</button>
 				<div style="border-bottom: 1px solid black; margin:10px auto"></div>
 				<form id="form" method="get" action="/platmedia/adseat/list">
 					<!--销售下拉框-->
@@ -64,7 +64,7 @@
 							<#--<td>${adseat.adCode!""}</td>-->
 							<td>${adseat.location!""}</td>
 							<td>${adseat.adSize!""}</td>
-							<td>${adseat.typeName!""}</td>
+							<td>${adseat.adSeatTypeText!""}</td>
 							<td style="width: 80px">
 								<#--<a href="#" style="margin-right: 5px">数据上传</a> -->
 								<a href="/platmedia/adseat/edit?id=${adseat.id}" style="margin-right: 5px">编辑</a>
@@ -201,6 +201,32 @@
 	$(function() {
 		$('.select').searchableSelect();
 	});
+	
+	//批量导入
+	layui.use('upload', function(){
+	  var upload = layui.upload;
+	  
+	  //执行实例
+	  var uploadInst = upload.render({
+	    elem: '#insertBatchId' //绑定元素
+	    ,accept: 'file' //指定只允许上次文件
+	    ,exts: 'xlsx|xls' //指定只允许上次xlsx和xls格式的excel文件
+	    ,field: 'excelFile' //设置字段名
+	    ,url: '/excel/insertBatch' //上传接口
+	    ,done: function(res){
+	    	if(res.ret.code == 100){
+	    		layer.alert('导入成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
+	    		window.location.reload();
+	    	} else if (res.ret.code == 101){
+	    		layer.alert(res.ret.resultDes, {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	}
+	    }
+	    ,error: function(res){
+	       console.log(res);
+	    }
+	  });
+	});
+	
 </script>
 <!-- 特色内容 -->
 <@model.webend />

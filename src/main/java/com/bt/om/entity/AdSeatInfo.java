@@ -601,4 +601,23 @@ public class AdSeatInfo {
     public void setHeight(Integer height) {
         this.height = height;
     }
+    
+    private Integer mapStandard;
+    private String adSeatTypeText;
+    
+    public Integer getMapStandard() {
+		return mapStandard;
+	}
+    
+    public void setMapStandard(Integer mapStandard) {
+		this.mapStandard = mapStandard;
+	}
+    
+    public String getAdSeatTypeText() {
+		return adSeatTypeText;
+	}
+    
+    public void setAdSeatTypeText(String adSeatTypeText) {
+		this.adSeatTypeText = adSeatTypeText;
+	}
 }

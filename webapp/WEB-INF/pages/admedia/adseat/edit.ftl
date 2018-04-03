@@ -52,6 +52,15 @@ img.demo {
                                     <span id="locationTip"></span>
 								</td>
 							</tr>
+							
+							<tr>
+								<td class="a-title"><font class="s-red">*</font>广告位类型：</td>
+								<td><input type="text" style="width: 130px;" id="adSeatTypeText" name="adSeatTypeText" value="<#if (adSeatInfo?exists)>${adSeatInfo.adSeatTypeText!""}</#if>"
+									autocomplete="off" class="form-control">
+                                    <span id="adSeatTypeTextTip"></span>
+								</td>
+							</tr>
+							<#--
 							<tr>
 								<td class="a-title"><font class="s-red">*</font>广告位类型：</td>
 								<td>
@@ -63,6 +72,7 @@ img.demo {
                                     <span id="adSeatTypeTip"></span>
 								</td>
 							</tr>
+							-->
 							<tr>
 								<td class="a-title"><font class="s-red">*</font>所在地区：</td>
 								<td>

@@ -24,6 +24,8 @@ public class MonitorTaskWaitToExecutedVo extends BasicVo{
     private String ad_location;
     private Integer ad_status;
     private String sample_url;
+    private Double lat;
+    private Double lon;
 
     public MonitorTaskWaitToExecutedVo(AdMonitorTaskMobileVo task) {
         this.task_id = task.getId();
@@ -38,6 +40,24 @@ public class MonitorTaskWaitToExecutedVo extends BasicVo{
         this.ad_location = task.getAdSeatName();
         this.ad_status = task.getStatus();
         this.sample_url = task.getSamplePicUrl();
+        this.lon = task.getLon();
+        this.lat = task.getLat();
+    }
+
+    public Double getLat() {
+        return lat;
+    }
+
+    public void setLat(Double lat) {
+        this.lat = lat;
+    }
+
+    public Double getLon() {
+        return lon;
+    }
+
+    public void setLon(Double lon) {
+        this.lon = lon;
     }
 
     public String getAd_seat_code() {

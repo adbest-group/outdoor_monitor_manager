@@ -23,6 +23,42 @@ public class AdMonitorTaskMobileVo extends AdMonitorTask {
     private Date feedbackTime;
     private String problem;
     private String problemOther;
+    private Double lon;
+    private Double lat;
+    private Double feedbackLon;
+    private Double feedbackLat;
+
+    public Double getLon() {
+        return lon;
+    }
+
+    public void setLon(Double lon) {
+        this.lon = lon;
+    }
+
+    public Double getLat() {
+        return lat;
+    }
+
+    public void setLat(Double lat) {
+        this.lat = lat;
+    }
+
+    public Double getFeedbackLon() {
+        return feedbackLon;
+    }
+
+    public void setFeedbackLon(Double feedbackLon) {
+        this.feedbackLon = feedbackLon;
+    }
+
+    public Double getFeedbackLat() {
+        return feedbackLat;
+    }
+
+    public void setFeedbackLat(Double feedbackLat) {
+        this.feedbackLat = feedbackLat;
+    }
 
     public String getAdSeatCode() {
         return adSeatCode;

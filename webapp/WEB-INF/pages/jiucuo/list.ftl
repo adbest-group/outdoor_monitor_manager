@@ -81,9 +81,9 @@
                             <td>
                                 <#if task.status==1><a href="javascript:pass('${task.id}');">通过</a></#if>
                                 <#if task.status==1><a href="javascript:reject('${task.id}');">拒绝</a></#if>
-                                <#if (task.status==2&&task.problemStatus?exists&&task.problemStatus==4&&task.subCreated==2)>
+                                <#if (task.status==2&&task.problemStatus?exists&&task.problemStatus==4&&(!task.subCreated?exists||task.subCreated==2))>
                                     <a href="javascript:createTask('${task.id}');">创建监测</a></#if>
-                                <#if (task.status==2&&task.problemStatus?exists&&task.problemStatus==4&&task.subCreated==1)>
+                                <#if (task.status==2&&task.problemStatus?exists&&task.problemStatus==4&&task.subCreated?exists&&task.subCreated==1)>
                                     <a href="/task/list?pid=${task.id}&ptype=2">查看监测</a></#if>
                                 <#if (task.status==2&&task.problemStatus?exists&&task.problemStatus==4)><a
                                         href="javascript:close('${task.id}');">关闭</a></#if>

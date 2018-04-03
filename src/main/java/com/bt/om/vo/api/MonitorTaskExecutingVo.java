@@ -24,6 +24,10 @@ public class MonitorTaskExecutingVo extends BasicVo {
     private List<String> img_url_list;
     private String problem;
     private String problem_other;
+    private Double lat;
+    private Double lon;
+    private Double feedback_lat;
+    private Double feedback_lon;
 
     public MonitorTaskExecutingVo(AdMonitorTaskMobileVo task){
         this.task_id = task.getId();
@@ -42,6 +46,42 @@ public class MonitorTaskExecutingVo extends BasicVo {
         this.img_url_list.add(task.getPicUrl4());
         this.problem = task.getProblem();
         this.problem_other = task.getProblemOther();
+        this.lon = task.getLon();
+        this.lat = task.getLat();
+        this.feedback_lat = task.getFeedbackLat();
+        this.feedback_lon = task.getFeedbackLon();
+    }
+
+    public Double getLat() {
+        return lat;
+    }
+
+    public void setLat(Double lat) {
+        this.lat = lat;
+    }
+
+    public Double getLon() {
+        return lon;
+    }
+
+    public void setLon(Double lon) {
+        this.lon = lon;
+    }
+
+    public Double getFeedback_lat() {
+        return feedback_lat;
+    }
+
+    public void setFeedback_lat(Double feedback_lat) {
+        this.feedback_lat = feedback_lat;
+    }
+
+    public Double getFeedback_lon() {
+        return feedback_lon;
+    }
+
+    public void setFeedback_lon(Double feedback_lon) {
+        this.feedback_lon = feedback_lon;
     }
 
     public Integer getAd_seat_id() {

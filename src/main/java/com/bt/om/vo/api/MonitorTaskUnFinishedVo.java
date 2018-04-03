@@ -26,6 +26,10 @@ public class MonitorTaskUnFinishedVo extends BasicVo {
     private String problem;
     private String problem_other;
     private String sample_url;
+    private Double lat;
+    private Double lon;
+    private Double feedback_lat;
+    private Double feedback_lon;
 
     public MonitorTaskUnFinishedVo(AdMonitorTaskMobileVo task){
         this.task_id = task.getId();
@@ -48,6 +52,42 @@ public class MonitorTaskUnFinishedVo extends BasicVo {
         this.problem = task.getProblem();
         this.problem_other = task.getProblemOther();
         this.sample_url = task.getSamplePicUrl();
+        this.lon = task.getLon();
+        this.lat = task.getLat();
+        this.feedback_lat = task.getFeedbackLat();
+        this.feedback_lon = task.getFeedbackLon();
+    }
+
+    public Double getLat() {
+        return lat;
+    }
+
+    public void setLat(Double lat) {
+        this.lat = lat;
+    }
+
+    public Double getLon() {
+        return lon;
+    }
+
+    public void setLon(Double lon) {
+        this.lon = lon;
+    }
+
+    public Double getFeedback_lat() {
+        return feedback_lat;
+    }
+
+    public void setFeedback_lat(Double feedback_lat) {
+        this.feedback_lat = feedback_lat;
+    }
+
+    public Double getFeedback_lon() {
+        return feedback_lon;
+    }
+
+    public void setFeedback_lon(Double feedback_lon) {
+        this.feedback_lon = feedback_lon;
     }
 
     public String getAd_seat_code() {

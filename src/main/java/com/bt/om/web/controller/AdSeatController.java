@@ -6,19 +6,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.bt.om.common.SysConst;
-import com.bt.om.entity.*;
-import com.bt.om.enums.AgePart;
-import com.bt.om.enums.SessionKey;
-import com.bt.om.security.ShiroUtils;
-import com.bt.om.service.IAdSeatService;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Table;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,18 +14,31 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
+import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
-import com.bt.om.entity.vo.AdCrowdVo;
+import com.bt.om.entity.AdCrowd;
+import com.bt.om.entity.AdMedia;
+import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.AdSeatType;
+import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AdSeatInfoVo;
 import com.bt.om.entity.vo.ResourceVo;
+import com.bt.om.enums.AgePart;
 import com.bt.om.enums.ResultCode;
+import com.bt.om.enums.SessionKey;
+import com.bt.om.security.ShiroUtils;
+import com.bt.om.service.IAdSeatService;
 import com.bt.om.service.IResourceService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
-import com.bt.om.web.Pagination.Page;
 import com.bt.om.web.util.SearchUtil;
-import org.springframework.web.servlet.ModelAndView;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Table;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 @Controller
 @RequestMapping(value = "/adseat")

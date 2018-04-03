@@ -21,4 +21,5 @@ public interface IAdSeatService {
     public void modify(AdSeatInfo adSeatInfo, List<AdCrowd> crowds);
     public void delete(Integer id);
     public List<AdCrowd> getCrowdsBySeatId(Integer adSeatId);
+	public int insertBatchByExcel(List<AdSeatInfo> adSeatInfos, Integer userId);
 }

@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 @Service
 public class CityCache {
     private Map<Long, City> citys = Maps.newHashMap();
-
+    
     private List<City> province = Lists.newArrayList();
 
     @Autowired

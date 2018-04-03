@@ -9,9 +9,10 @@
         /> -->
     <!--<classPathEntry-->
             <!--location="C:/Users/liangwc/.ivy2/cache/mysql/mysql-connector-java/jars/mysql-connector-java-5.1.36.jar"/>-->
+    <!-- <classPathEntry
+            location="/Users/caiting/.ivy2/cache/mysql/mysql-connector-java/jars/mysql-connector-java-5.1.36.jar" /> -->
     <classPathEntry
-            location="/Users/caiting/.ivy2/cache/mysql/mysql-connector-java/jars/mysql-connector-java-5.1.36.jar" />
-
+            location="C:/Users/Administrator/.ivy2/cache/mysql/mysql-connector-java/jars/mysql-connector-java-5.1.36.jar" />
 
     <!-- 一个数据库一个context -->
     <context id="infoGuardian">
@@ -35,7 +36,7 @@
 
         <!-- 生成实体类地址 -->
         <javaModelGenerator targetPackage="com.bt.om.entity"
-                            targetProject="src/main/java">
+                            targetProject="outdoor_monitor_manager/src/main/java">
             <!-- 是否在当前路径下新加一层schema,eg：fase路径com.oop.eksp.user.model， true:com.oop.eksp.user.model.[schemaName] -->
             <property name="enableSubPackages" value="false"/>
             <!-- 是否针对string类型的字段在set的时候进行trim调用 -->
@@ -43,13 +44,13 @@
         </javaModelGenerator>
         <!-- 生成mapxml文件 -->
         <sqlMapGenerator targetPackage="mybatis"
-                         targetProject="conf">
+                         targetProject="outdoor_monitor_manager/conf">
             <!-- 是否在当前路径下新加一层schema,eg：fase路径com.oop.eksp.user.model， true:com.oop.eksp.user.model.[schemaName] -->
             <property name="enableSubPackages" value="false"/>
         </sqlMapGenerator>
         <!-- 生成mapxml对应client，也就是接口dao -->
         <javaClientGenerator targetPackage="com.bt.om.mapper"
-                             targetProject="src/main/java" type="XMLMAPPER">
+                             targetProject="outdoor_monitor_manager/src/main/java" type="XMLMAPPER">
             <!-- 是否在当前路径下新加一层schema,eg：fase路径com.oop.eksp.user.model， true:com.oop.eksp.user.model.[schemaName] -->
             <property name="enableSubPackages" value="false"/>
         </javaClientGenerator>

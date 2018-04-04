@@ -1,5 +1,6 @@
 package com.bt.om.web.controller.api;
 
+import com.bt.om.cache.AdVersionCache;
 import com.bt.om.cache.CityCache;
 import com.bt.om.common.SysConst;
 import com.bt.om.entity.*;
@@ -63,6 +64,8 @@ public class ApiController extends BasicController {
     private SessionByRedis sessionByRedis;
     @Autowired
     private CityCache cityCache;
+    @Autowired
+    private AdVersionCache adVersionCache;
 
     private static ThreadLocal<Boolean> useSession = new ThreadLocal<>();
 
@@ -1344,6 +1347,104 @@ public class ApiController extends BasicController {
         return model;
     }
 
+    /**
+     * APP一打开调用
+     * @param model
+     * @param request
+     * @param response
+     */
+    @RequestMapping(value = "/checkVersion")
+    @ResponseBody
+    public Model getLatestForceUpdateVersion(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("操作成功");
+        model = new ExtendedModelMap();
+        
+        Integer needForceUpdate = 0; // 0: 不需要更新; 1: 需要强制更新; 2: 存在新版本
+        String appVersion;
+        
+        // 查询最新的需要强制更新的版本号
+        AdVersion version = adVersionCache.getVersion();
+        // 查询最新的版本号
+        AdVersion nowVersion = adVersionCache.getNowVersion();
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            appVersion = obj.get("appVersion") == null ? null : obj.get("appVersion").getAsString();
+            
+            //判断版本号比较, 提示是否需要强制更新
+            if(version == null) {
+            	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+                result.setResultDes("不需要强制更新！");
+                needForceUpdate = 0;
+                result.setResult(needForceUpdate);
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+            } else {
+            	String[] versionSplit = version.getAppVersion().split("\\.");
+            	String[] appVersionSplit = appVersion.split("\\.");
+            	for (int i = 0; i < appVersionSplit.length; i++) {
+        			Integer versionInt = Integer.parseInt(versionSplit[i]);
+        			Integer appVersionInt = Integer.parseInt(appVersionSplit[i]);
+        			if(appVersionInt < versionInt) {
+        				//需要强制更新
+        				needForceUpdate = 1;
+        				break;
+        			} else if(appVersionInt > versionInt) {
+        				//不需要强制更新
+        				needForceUpdate = 0;
+        				break;
+        			}
+        		}
+            	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+			}
+            
+            //判断版本号比较, 提示是否需要强制更新
+            if(nowVersion == null) {
+            	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+                result.setResultDes("不需要强制更新！");
+                needForceUpdate = 0;
+                result.setResult(needForceUpdate);
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+            } else {
+            	if(needForceUpdate != 1) {
+            		String[] versionSplit = nowVersion.getAppVersion().split("\\.");
+                	String[] appVersionSplit = appVersion.split("\\.");
+                	for (int i = 0; i < appVersionSplit.length; i++) {
+            			Integer versionInt = Integer.parseInt(versionSplit[i]);
+            			Integer appVersionInt = Integer.parseInt(appVersionSplit[i]);
+            			if(appVersionInt < versionInt) {
+            				needForceUpdate = 2;
+            				break;
+            			}
+            		}
+            	}
+            	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+			}
+            
+            if(needForceUpdate == 1) {
+        		result.setResultDes("需要强制更新！");
+        	} else if(needForceUpdate == 0) {
+        		result.setResultDes("不需要强制更新！");
+        	} else {
+        		result.setResultDes("存在新版本！");
+        	}
+            result.setResult(needForceUpdate);
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
 
     private Boolean checkLogin(Model model, ResultVo result, HttpServletRequest request) {
         boolean isLogin = true;

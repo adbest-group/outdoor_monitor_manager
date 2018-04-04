@@ -464,5 +464,20 @@
 			)
         </foreach>
 	</insert>
+
+	<select id="getAdSeatByPointAround"  resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />,
+		st_distance(point(lon,lat),point(#{lon,jdbcType=DOUBLE},#{lat,jdbcType=DOUBLE}))*111195 as distance
+		from (
+		select *
+		from ad_seat_info a
+		where exists (select 1 from ad_activity_adseat b where a.id = b.ad_seat_id and b.monitor_start &lt; now() and DATE_ADD(b.monitor_end,INTERVAL 1 day) > now())
+		and a.lon between (#{lon,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lon,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
+		and a.lat between (#{lat,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lat,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
+		) t
+		having distance &lt;= #{metre,jdbcType=DOUBLE}
+		order by distance
+	</select>
 	
 </mapper>

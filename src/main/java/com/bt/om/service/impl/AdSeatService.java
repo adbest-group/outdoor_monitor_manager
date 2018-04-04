@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.bt.om.util.GeoUtil;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -127,6 +128,11 @@ public class AdSeatService implements IAdSeatService {
             }
     	}
     	return 0;
+    }
+
+    @Override
+    public List<AdSeatInfo> getAdseatAround(Double lat, Double lon, Double metre) {
+        return adSeatInfoMapper.getAdSeatByPointAround(lon,lat,metre, GeoUtil.getDegreeFromDistance(metre));
     }
 
 }

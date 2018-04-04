@@ -106,6 +106,17 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         if(task.getTaskType().equals(MonitorTaskType.SET_UP_MONITOR.getId())){
             adMonitorTaskMapper.activeTask(task.getActivityAdseatId());
         }
+        //如果是上刊安装任务，并且广告位上并未记录经纬度,就把安装人员完成任务时的经纬度记录给广告位
+        if(task.getTaskType().equals(MonitorTaskType.SET_UP_MONITOR.getId())){
+            AdSeatInfo seatInfo = adSeatInfoMapper.getAdSeatInfoByAdActivitySeatId(task.getActivityAdseatId());
+            if(seatInfo.getLon()==null||seatInfo.getLat()==null){
+                seatInfo.setLon(feedback.getLon());
+                seatInfo.setLat(feedback.getLat());
+                adSeatInfoMapper.updateByPrimaryKeySelective(seatInfo);
+            }
+        }
+
+        //奖励相关
         AdMonitorReward reward = new AdMonitorReward();
         reward.setMonitorTaskId(task.getId());
         reward.setType(RewardType.ADD.getId());

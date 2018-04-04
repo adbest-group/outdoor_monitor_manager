@@ -1345,6 +1345,70 @@ public class ApiController extends BasicController {
     }
 
 
+    //绑定广告位二维码时检验
+    @RequestMapping(value = "/getAdSeatAround")
+    @ResponseBody
+    public Model getAdSeatAround(Model model, HttpServletRequest request, HttpServletResponse response) {
+        ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("检查成功");
+        model = new ExtendedModelMap();
+
+        String token = null;
+        Double lon = null;
+        Double lat = null;
+        Double metre = null;
+
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            lon = obj.get("lon") == null ? null : obj.get("lon").getAsDouble();
+            lat = obj.get("lat") == null ? null : obj.get("lat").getAsDouble();
+            metre = obj.get("metre") == null ? null : obj.get("metre").getAsDouble();
+            if (token != null) {
+                useSession.set(Boolean.FALSE);
+                this.sessionByRedis.setToken(token);
+            } else {
+                useSession.set(Boolean.TRUE);
+            }
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        if(lon==null||lat==null||metre==null){
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("参数有误！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        //验证登录
+        if (useSession.get()) {
+            if (!checkLogin(model, result, request)) {
+                return model;
+            }
+        } else {
+            if (!checkLogin(model, result, token)) {
+                return model;
+            }
+        }
+
+        List<AdSeatInfo> seats = adSeatService.getAdseatAround(lat,lon,metre);
+
+        result.setResult(seats);
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+
+
     private Boolean checkLogin(Model model, ResultVo result, HttpServletRequest request) {
         boolean isLogin = true;
         HttpSession session = request.getSession();

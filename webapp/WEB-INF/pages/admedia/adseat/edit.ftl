@@ -97,10 +97,11 @@ img.demo {
                                     <span id="heightTip"></span>
 								</td>
 							</tr>
+							<#setting number_format="#0.######" />
 							<tr>
-								<td class="a-title"><font class="s-red">*</font>广告位经度：${adSeatInfo.lon?double}</td>
+								<td class="a-title"><font class="s-red">*</font>广告位经度：</td>
 								<td>
-									<input type="text" style="width: 130px;" id="lon" value="<#if (adSeatInfo?exists&&adSeatInfo.lon?exists)>${adSeatInfo.lon?string("#0.0#")}</#if>" name="lon" autocomplete="off" class="form-control">
+									<input type="text" style="width: 130px;" id="lon" value="<#if (adSeatInfo?exists)>${adSeatInfo.lon!""}</#if>" name="lon" autocomplete="off" class="form-control">
 
                                     <span id="lonTip"></span>
 								</td>

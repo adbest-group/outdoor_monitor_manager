@@ -67,4 +67,6 @@ public interface AdSeatInfoMapper {
     AdSeatInfo getAdSeatInfoByAdActivitySeatId(@Param("adActivitySeatId")  Integer adActivitySeatId);
     int getCountByAdCode(@Param("adSeatCode")String adSeatCode);
     int insertBatchByExcel(@Param("adSeatInfos")List<AdSeatInfo> adSeatInfos);
+
+    List<AdSeatInfo> getAdSeatByPointAround(@Param("lon")Double lon,@Param("lat")Double lat,@Param("metre")Double metre,@Param("metreDegree")Double metreDegree);
 }

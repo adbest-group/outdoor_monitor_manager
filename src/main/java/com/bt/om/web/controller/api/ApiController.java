@@ -66,6 +66,8 @@ public class ApiController extends BasicController {
     private CityCache cityCache;
     @Autowired
     private AdVersionCache adVersionCache;
+    @Autowired
+    private ISendSmsService sendSmsService;
 
     private static ThreadLocal<Boolean> useSession = new ThreadLocal<>();
 
@@ -1509,6 +1511,14 @@ public class ApiController extends BasicController {
         return model;
     }
 
+    //测试短信
+    @RequestMapping(value = "/sendSms")
+    @ResponseBody
+    public void sendSms() {
+    	String cell = "15757786841";
+    	String randomNum = "1234";
+    	sendSmsService.sendSms(cell, randomNum);
+    }
 
     private Boolean checkLogin(Model model, ResultVo result, HttpServletRequest request) {
         boolean isLogin = true;

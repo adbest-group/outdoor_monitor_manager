@@ -15,12 +15,15 @@ public class LocalApplicationListener implements ApplicationListener<ContextRefr
     CityCache cityCache;
     @Autowired
     AdSeatTypeCache adSeatTypeCache;
+    @Autowired
+    AdVersionCache adVersionCache;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         if(event.getApplicationContext().getParent()==null){
             cityCache.init();
             adSeatTypeCache.init();
+            adVersionCache.init();
         }
     }
 }

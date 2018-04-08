@@ -23,6 +23,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -216,12 +217,14 @@ public class ApiController extends BasicController {
 
         InputStream is = null;
         String seatCode = null;
+        Integer adSeatId = null;
 
         try {
             is = request.getInputStream();
             Gson gson = new Gson();
             JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
             seatCode = obj==null||obj.get("seatCode") == null ? null : obj.get("seatCode").getAsString();
+            adSeatId = obj==null||obj.get("adSeatId") == null ? null : obj.get("adSeatId").getAsInt();
         } catch (IOException e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
@@ -238,11 +241,18 @@ public class ApiController extends BasicController {
         }
 
         try {
-            List<AdActivityAdseatVo> list = adActivityService.getActivitySeatBySeatCode(seatCode);
+            List<AdActivityAdseatVo> list = null;
+            if(adSeatId!=null){
+                list = adActivityService.getActivitySeatBySeatId(adSeatId);
+            }else if(seatCode!=null) {
+                list = adActivityService.getActivitySeatBySeatCode(seatCode);
+            }
             QRCodeInfoVo qr = new QRCodeInfoVo();
 //            qr.setAd_seat_id(Integer.valueOf(seatCode));
-            for (AdActivityAdseatVo vo : list) {
-                qr.getAd_activity_seats().add(new AdActivitySeatInfoInQRVO(vo));
+            if(list!=null) {
+                for (AdActivityAdseatVo vo : list) {
+                    qr.getAd_activity_seats().add(new AdActivitySeatInfoInQRVO(vo));
+                }
             }
             result.setResult(qr);
 
@@ -746,6 +756,8 @@ public class ApiController extends BasicController {
                                 @RequestParam(value = "token", required = false) String token,
                                 @RequestParam(value = "type", required = false) Integer type,
                                 @RequestParam(value = "task_id", required = false) Integer taskId,
+                                @RequestParam(value = "seat_lon", required = false) Double seatLon,
+                                @RequestParam(value = "seat_lat", required = false) Double seatLat,
                                 @RequestParam(value = "lon", required = false) Double lon,
                                 @RequestParam(value = "lat", required = false) Double lat,
                                 @RequestParam(value = "ad_activity_seat_id", required = false) Integer adActivitySeatId,
@@ -851,6 +863,8 @@ public class ApiController extends BasicController {
                     return model;
                 }
                 AdMonitorTaskFeedback feedback = new AdMonitorTaskFeedback();
+                feedback.setSeatLat(seatLat);
+                feedback.setSeatLon(seatLon);
                 feedback.setLat(lat);
                 feedback.setLon(lon);
                 if (filename1 != null) {
@@ -921,6 +935,8 @@ public class ApiController extends BasicController {
                 task.setAdSeatId(seat.getAdSeatId());
                 task.setUserId(user.getId());
                 task.setProblemStatus(TaskProblemStatus.PROBLEM.getId());
+                feedback.setSeatLat(seatLat);
+                feedback.setSeatLon(seatLon);
                 feedback.setLat(lat);
                 feedback.setLon(lon);
                 feedback.setPicUrl1("/static/upload/" + filename1);

@@ -604,6 +604,11 @@ public class AdSeatInfo {
     
     private Integer mapStandard;
     private String adSeatTypeText;
+    private String adArea;
+    private String contactName;
+    private String contactCell;
+    private String importResult;
+    private String importErrorMsg;
     
     public Integer getMapStandard() {
 		return mapStandard;
@@ -620,4 +625,45 @@ public class AdSeatInfo {
     public void setAdSeatTypeText(String adSeatTypeText) {
 		this.adSeatTypeText = adSeatTypeText;
 	}
+
+	public String getAdArea() {
+		return adArea;
+	}
+
+	public void setAdArea(String adArea) {
+		this.adArea = adArea;
+	}
+
+	public String getContactName() {
+		return contactName;
+	}
+
+	public void setContactName(String contactName) {
+		this.contactName = contactName;
+	}
+
+	public String getContactCell() {
+		return contactCell;
+	}
+
+	public void setContactCell(String contactCell) {
+		this.contactCell = contactCell;
+	}
+
+	public String getImportResult() {
+		return importResult;
+	}
+
+	public void setImportResult(String importResult) {
+		this.importResult = importResult;
+	}
+
+	public String getImportErrorMsg() {
+		return importErrorMsg;
+	}
+
+	public void setImportErrorMsg(String importErrorMsg) {
+		this.importErrorMsg = importErrorMsg;
+	}
+    
 }

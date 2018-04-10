@@ -201,31 +201,58 @@
 	$(function() {
 		$('.select').searchableSelect();
 	});
+
 	
-	//批量导入
-	layui.use('upload', function(){
-	  var upload = layui.upload;
-	  
-	  //执行实例
-	  var uploadInst = upload.render({
-	    elem: '#insertBatchId' //绑定元素
-	    ,accept: 'file' //指定只允许上次文件
-	    ,exts: 'xlsx|xls' //指定只允许上次xlsx和xls格式的excel文件
-	    ,field: 'excelFile' //设置字段名
-	    ,url: '/excel/insertBatch' //上传接口
-	    ,done: function(res){
-	    	if(res.ret.code == 100){
-	    		layer.alert('导入成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
-	    		window.location.reload();
-	    	} else if (res.ret.code == 101){
-	    		layer.alert(res.ret.resultDes, {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
-	    	}
-	    }
-	    ,error: function(res){
-	       console.log(res);
-	    }
-	  });
-	});
+	$('#insertBatchId').click(function(){
+		layer.open({
+		  type: 1,
+		  area: ['420px', '240px'], //宽高
+		  content: `
+		  	<select id='selectCity' name="city" lay-verify="">
+			  <option value="">请选择一个城市</option>
+			  <option value="010">北京</option>
+			  <option value="021">上海</option>
+			  <option value="0571">杭州</option>
+			</select>
+			<button style="margin-left: 10px" type="button" class="btn" id="insertBatchIdBtn"
+					autocomplete="off" onclick="">批量导入</button>
+		  `,
+		  success() {
+
+			//批量导入
+			layui.use('upload', function(){
+			  var upload = layui.upload;
+			  
+			  //执行实例
+			  var uploadInst = upload.render({
+			    elem: '#insertBatchIdBtn' //绑定元素
+			    ,data: {
+				  city: function() {
+				  	return $('#selectCity').val()
+				  }
+				}
+			    ,accept: 'file' //指定只允许上次文件
+			    ,exts: 'xlsx|xls' //指定只允许上次xlsx和xls格式的excel文件
+			    ,field: 'excelFile' //设置字段名
+			    ,url: '/excel/insertBatch' //上传接口
+			    ,done: function(res){
+			    	if(res.ret.code == 100){
+			    		layer.alert('导入成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
+			    		window.location.reload();
+			    	} else if (res.ret.code == 101){
+			    		layer.alert(res.ret.resultDes, {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+			    	} else if (res.ret.code == 105){
+			    		layer.alert('没有导入权限', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+			    	}
+			    }
+			    ,error: function(res){
+			       layer.alert('导入失败', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+			    }
+			  });
+			});
+		  }
+		});
+	})
 	
 </script>
 <!-- 特色内容 -->

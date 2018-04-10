@@ -1515,9 +1515,17 @@ public class ApiController extends BasicController {
     @RequestMapping(value = "/sendSms")
     @ResponseBody
     public void sendSms() {
-    	String cell = "15757786841";
+    	String cell = "18657478455";
     	String randomNum = "1234";
-    	sendSmsService.sendSms(cell, randomNum);
+    	String signature = "浙江百泰";
+    	String context = "您的验证码为";
+    	StringBuffer buffer = new StringBuffer();
+    	buffer.append("【");
+    	buffer.append(signature);
+    	buffer.append("】");
+    	buffer.append(context);
+    	buffer.append(randomNum);
+    	sendSmsService.sendSms(cell, buffer.toString());
     }
 
     private Boolean checkLogin(Model model, ResultVo result, HttpServletRequest request) {

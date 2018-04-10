@@ -113,19 +113,10 @@ public class AdSeatService implements IAdSeatService {
     
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int insertBatchByExcel(List<AdSeatInfo> adSeatInfos, Integer userId) {
-    	Date now = new Date();
+    public int insertBatchByExcel(List<AdSeatInfo> adSeatInfos) {
     	if(adSeatInfos != null && adSeatInfos.size() > 0) {
-    		AdMedia media = adMediaMapper.selectByUserId(userId);
-            if(media != null){
-                for (AdSeatInfo adSeatInfo : adSeatInfos) {
-                	adSeatInfo.setMediaId(media.getId());
-                	adSeatInfo.setCreateTime(now);
-                	adSeatInfo.setUpdateTime(now);
-    			}
-        		int count = adSeatInfoMapper.insertBatchByExcel(adSeatInfos);
-        		return count;
-            }
+    		int count = adSeatInfoMapper.insertBatchByExcel(adSeatInfos);
+    		return count;
     	}
     	return 0;
     }
@@ -134,5 +125,10 @@ public class AdSeatService implements IAdSeatService {
     public List<AdSeatInfo> getAdseatAround(Double lat, Double lon, Double metre) {
         return adSeatInfoMapper.getAdSeatByPointAround(lon,lat,metre, GeoUtil.getDegreeFromDistance(metre));
     }
+
+	@Override
+	public List<AdSeatInfo> getAdSeatByMediaId(Integer mediaId) {
+		return adSeatInfoMapper.getAdSeatByMediaId(mediaId);
+	}
 
 }

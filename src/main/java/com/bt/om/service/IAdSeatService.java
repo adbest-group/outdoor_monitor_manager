@@ -21,9 +21,11 @@ public interface IAdSeatService {
     public void modify(AdSeatInfo adSeatInfo, List<AdCrowd> crowds);
     public void delete(Integer id);
     public List<AdCrowd> getCrowdsBySeatId(Integer adSeatId);
-	public int insertBatchByExcel(List<AdSeatInfo> adSeatInfos, Integer userId);
+	public int insertBatchByExcel(List<AdSeatInfo> adSeatInfos);
+	
 	/**
      * 查询给定坐标点，半径metre范围内（单位：米）所有的目前有活动的广告位
      **/
 	public List<AdSeatInfo> getAdseatAround(Double lat,Double lon,Double metre);
+	public List<AdSeatInfo> getAdSeatByMediaId(Integer mediaId);
 }

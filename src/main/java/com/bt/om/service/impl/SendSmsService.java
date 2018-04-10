@@ -25,15 +25,14 @@ public class SendSmsService implements ISendSmsService {
 	private AdSmsMapper	adSmsMapper;
 	
 	@Override
-	public String sendSms(String cell, String randomNum) {
+	public String sendSms(String cell, String smsContent) {
 		SmsSingleSenderResult result = new SmsSingleSenderResult();
 		try {
 			appId = ConfigUtil.getInt("sms_appid");
 			appKey = ConfigUtil.getString("sms_appKey");
 			SmsSingleSender sender = new SmsSingleSender(appId, appKey);
-			if(!StringUtils.isEmpty(cell) && !StringUtils.isEmpty(randomNum)) {
+			if(!StringUtils.isEmpty(cell) && !StringUtils.isEmpty(smsContent)) {
 				//短信发送
-				String smsContent = "【浙江百泰】您的验证码为" + randomNum;
 				result = sender.send(0, "86", cell, smsContent, "", "123");
 				//录入数据库
 				AdSms record = new AdSms();

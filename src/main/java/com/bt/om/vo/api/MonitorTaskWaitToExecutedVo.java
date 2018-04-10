@@ -37,7 +37,7 @@ public class MonitorTaskWaitToExecutedVo extends BasicVo{
         this.ad_name = task.getAdSeatName();
         this.ad_seat_id = task.getAdSeatId();
         this.ad_seat_code = task.getAdSeatCode();
-        this.ad_location = task.getAdSeatName();
+        this.ad_location = task.getAdSeatLocation();
         this.ad_status = task.getStatus();
         this.sample_url = task.getSamplePicUrl();
         this.lon = task.getLon();

@@ -42,7 +42,7 @@ public class MonitorTaskUnFinishedVo extends BasicVo {
         this.monitor_end = sdf.format(task.getMonitorEnd());
         this.ad_seat_id = task.getAdSeatId();
         this.ad_seat_code = task.getAdSeatCode();
-        this.ad_location = task.getAdSeatName();
+        this.ad_location = task.getAdSeatLocation();
         this.ad_status = task.getStatus();
         this.img_url_list = new ArrayList<>();
         this.img_url_list.add(task.getPicUrl1());

@@ -328,5 +328,46 @@
     </if>
   </select>
 
+  <select id="getPageCount" parameterType="map" resultType="int">
+    select
+    count(1)
+    from sys_user_execute
+    where 1=1
+    <if test="operateId != null" >
+      and operate_id = #{operateId,jdbcType=INTEGER}
+    </if>
+    <if test="usertype != null" >
+      and usertype = #{usertype,jdbcType=INTEGER}
+    </if>
+    <if test="nameOrUsername != null" >
+      and (username like #{nameOrUsername,jdbcType=VARCHAR} or realname like #{nameOrUsername,jdbcType=VARCHAR})
+    </if>
+  </select>
+
+  <select id="getPageData" parameterType="map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from sys_user_execute
+    where 1=1
+    <if test="operateId != null" >
+      and operate_id = #{operateId,jdbcType=INTEGER}
+    </if>
+    <if test="usertype != null" >
+      and usertype = #{usertype,jdbcType=INTEGER}
+    </if>
+    <if test="nameOrUsername != null" >
+      and (username like #{nameOrUsername,jdbcType=VARCHAR} or realname like #{nameOrUsername,jdbcType=VARCHAR})
+    </if>
+    order by id desc
+  </select>
+
+  <select id="isExistsName" parameterType="map" resultMap="BaseResultMap">
+    select
+    id
+    from
+    sys_user_execute
+    where
+    username = #{username}
+  </select>
 
 </mapper>

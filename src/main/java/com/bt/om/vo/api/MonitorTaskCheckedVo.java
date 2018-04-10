@@ -40,7 +40,7 @@ public class MonitorTaskCheckedVo extends BasicVo {
         this.monitor_time = sdf.format(task.getFeedbackTime());
         this.ad_seat_id = task.getAdSeatId();
         this.ad_seat_code = task.getAdSeatCode();
-        this.ad_location = task.getAdSeatName();
+        this.ad_location = task.getAdSeatLocation();
         this.ad_status = task.getStatus();
         this.reason = task.getReason();
         this.img_url_list = new ArrayList<>();

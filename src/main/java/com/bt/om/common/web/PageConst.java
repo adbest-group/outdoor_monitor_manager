@@ -39,6 +39,8 @@ public class PageConst {
 	public static final String MEDIA_JIUCUO_LIST = "admedia/jiucuo/list";
 	public static final String MEDIA_ADSEAT_LIST = "admedia/adseat/list";
 	public static final String MEDIA_ADSEAT_EDIT = "admedia/adseat/edit";
+	public static final String MEDIA_WORKER_LIST = "admedia/worker/list";
+	public static final String MEDIA_WORKER_EDIT = "admedia/worker/edit";
 
 	/*** 活动管理 ***/
 	public static final String ACTIVITY_LIST = "activity/list";

@@ -37,7 +37,7 @@ public class MonitorTaskExecutingVo extends BasicVo {
         this.ad_name = task.getAdSeatName();
         this.monitor_time = sdf.format(task.getFeedbackTime());
         this.ad_seat_id = task.getAdSeatId();
-        this.ad_location = task.getAdSeatName();
+        this.ad_location = task.getAdSeatLocation();
         this.ad_status = task.getStatus();
         this.img_url_list = new ArrayList<>();
         this.img_url_list.add(task.getPicUrl1());

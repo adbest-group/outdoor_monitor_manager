@@ -6,6 +6,7 @@ import com.bt.om.entity.*;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.entity.vo.ResourceVo;
+import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.*;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.*;
@@ -13,13 +14,16 @@ import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.util.SearchUtil;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -466,5 +470,143 @@ public class MediaManagerController {
             model.addAttribute("taskId", taskId);
         }
         return PageConst.MEDIA_TASK_DETAIL;
+    }
+
+    /**
+     * 媒体安装人员管理列表
+     **/
+    @RequiresRoles("media")
+    @RequestMapping(value = "/worker/list")
+    public String getWorkerList(Model model, HttpServletRequest request,
+                          @RequestParam(value = "name", required = false) String name) {
+        SearchDataVo vo = SearchUtil.getVo();
+
+        vo.putSearchParam("usertype", null, 3);
+        SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        vo.putSearchParam("operateId",null,user.getId());
+        // 名称或登录账号
+        if (StringUtils.isNotBlank(name)) {
+            vo.putSearchParam("nameOrUsername", name, "%" + name + "%");
+        }
+
+        sysUserExecuteService.getPageData(vo);
+
+        SearchUtil.putToModel(model, vo);
+
+        return PageConst.MEDIA_WORKER_LIST;
+    }
+
+    /**
+     * 媒体安装工人编辑
+     **/
+    @RequiresRoles("media")
+    @RequestMapping(value = "/worker/edit")
+    public String toEditWorker(Model model, HttpServletRequest request,
+                         @RequestParam(value = "id", required = false) Integer id) {
+
+        if (id != null) {
+            SysUserExecute user = sysUserExecuteService.getById(id);
+            if (user != null) {
+                model.addAttribute("obj", user);
+            }
+        }
+
+        return PageConst.MEDIA_WORKER_EDIT;
+    }
+
+    /**
+     * 检查媒体工人账号是否重名
+     **/
+    @RequestMapping(value = {"/worker/isExistsAccountName"}, method = {RequestMethod.POST})
+    @ResponseBody
+    public Model isExistsAccountName(Model model,
+                                     @RequestParam(value = "username", required = true) String username) {
+
+        ResultVo<List<SysUser>> resultVo = new ResultVo<List<SysUser>>();
+        try {
+            List<SysUserExecute> userList = sysUserExecuteService.isExistsName(username);
+            if (userList != null && userList.size() > 0) {
+                resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
+                resultVo.setResultDes("已存在该登录账户，请修改");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
+            resultVo.setResultDes("服务忙，请稍后再试");
+        }
+
+        model.addAttribute(SysConst.RESULT_KEY, resultVo);
+        return model;
+    }
+
+    /**
+     * 保存工人
+     **/
+    @RequiresRoles("media")
+    @RequestMapping(value = {"/worker/save"}, method = {RequestMethod.POST})
+    @ResponseBody
+    public Model save(Model model,
+                      @RequestParam(value = "id", required = true) Integer id,
+                      @RequestParam(value = "username", required = true) String username,
+                      @RequestParam(value = "password", required = true) String password,
+                      @RequestParam(value = "name", required = true) String name/*,
+                      @RequestParam(value = "telephone", required = true) String telephone*/) {
+
+        ResultVo resultVo = new ResultVo();
+        SysUser loginuser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        try {
+            if (id == null) {//新增
+                SysUserExecute user = new SysUserExecute();
+                user.setUsername(username);
+                user.setPassword(new Md5Hash(password, username).toString());
+                user.setRealname(name);
+                user.setMobile(username);
+                user.setUsertype(3);
+                user.setStatus(1);
+                user.setOperateId(loginuser.getId());
+                user.setCompany(loginuser.getRealname());
+                sysUserExecuteService.add(user);
+            } else {//修改
+                SysUserExecute user = new SysUserExecute();
+                user.setId(id);
+                user.setUsername(username);
+                if (!"******".equals(password)) {
+                    user.setPassword(new Md5Hash(password, username).toString());
+                }
+                user.setRealname(name);
+                user.setMobile(username);
+                sysUserExecuteService.modify(user);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
+            resultVo.setResultDes("服务忙，请稍后再试");
+        }
+
+        model.addAttribute(SysConst.RESULT_KEY, resultVo);
+        return model;
+    }
+
+
+    @RequiresRoles("media")
+    @RequestMapping(value = {"/worker/updateAccountStatus"}, method = {RequestMethod.POST})
+    @ResponseBody
+    public Model updateAccountStatus(Model model, @RequestParam(value = "id", required = true) Integer id,
+                                     @RequestParam(value = "status", required = true) Integer status) {
+
+        ResultVo resultVo = new ResultVo();
+        try {
+            SysUserExecute user = new SysUserExecute();
+            user.setId(id);
+            user.setStatus(status);
+            sysUserExecuteService.modify(user);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
+            resultVo.setResultDes("服务忙，请稍后再试");
+        }
+
+        model.addAttribute(SysConst.RESULT_KEY, resultVo);
+        return model;
     }
 }

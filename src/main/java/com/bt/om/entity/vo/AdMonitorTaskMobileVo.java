@@ -12,6 +12,7 @@ public class AdMonitorTaskMobileVo extends AdMonitorTask {
     private Integer adSeatId;
     private String adSeatCode;
     private String adSeatName;
+    private String adSeatLocation;
     private String samplePicUrl;
     private String picUrl1;
     private String picUrl2;
@@ -27,6 +28,14 @@ public class AdMonitorTaskMobileVo extends AdMonitorTask {
     private Double lat;
     private Double feedbackLon;
     private Double feedbackLat;
+
+    public String getAdSeatLocation() {
+        return adSeatLocation;
+    }
+
+    public void setAdSeatLocation(String adSeatLocation) {
+        this.adSeatLocation = adSeatLocation;
+    }
 
     public Double getLon() {
         return lon;

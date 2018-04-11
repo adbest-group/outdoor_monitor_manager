@@ -1,7 +1,7 @@
 package com.bt.om.web.controller;
 
+import java.io.File;
 import java.io.InputStream;
-import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -39,6 +40,8 @@ import com.bt.om.exception.web.ExcelException;
 import com.bt.om.mapper.AdMediaMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdSeatService;
+import com.bt.om.service.ISysUserService;
+import com.bt.om.util.ExcelTool;
 import com.bt.om.util.ImportExcelUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.web.BasicController;
@@ -56,6 +59,9 @@ public class ExcelController extends BasicController {
     private IAdSeatService adSeatService;
 	
 	@Autowired
+	private ISysUserService sysUserService;
+	
+	@Autowired
 	private CityCache cityCache;
 	
 	@Autowired
@@ -70,21 +76,25 @@ public class ExcelController extends BasicController {
 	@RequiresRoles(value = {"admin" , "media"}, logical = Logical.OR)
     @RequestMapping(value = "/insertBatch")
 	@ResponseBody
-	public Model insertBatchByExcel(Model model, HttpServletRequest request,
+	public Model insertBatchByExcel(Model model, HttpServletRequest request, HttpServletResponse response,
                                      @RequestParam(value = "excelFile", required = false) MultipartFile file,
-                                     @RequestParam(value = "mediaId", required = false) Integer mediaId,
-                                     @RequestParam(value = "city", required = false) String city) {
+                                     @RequestParam(value = "mediaId", required = false) Integer mediaId) {
+		//相关返回结果
 		ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("查询成功");
         model = new ExtendedModelMap();
-		
+        
+        //导出文件相关
+ 		final String fileName = "导入结果-" + System.currentTimeMillis() + ".xls"; //导出文件名
+        
 		List<City> provinces = cityCache.getAllProvince(); //获取全部省份
 		Map<String, Long> provinceMap = citiesToMap(provinces);
 		
 		//获取登录用户信息
 		Date now = new Date();
     	SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+    	user = sysUserService.findUserinfoById(user.getId());
     	AdMedia media = new AdMedia();
 		Integer usertype = user.getUsertype();
 		if(usertype == 1) {
@@ -243,10 +253,10 @@ public class ExcelController extends BasicController {
                 	
                 	//设置广告位尺寸
                 	if(lo.get(7) != null && lo.get(8) != null) {
-                		DecimalFormat df = new DecimalFormat("0"); // 格式化number String字符
-                		String length = df.format(lo.get(7)).trim();
-                		String width = df.format(lo.get(8)).trim();
-                		info.setAdSize(length + "*" + width); //广告位长度*广告位宽度
+//                		DecimalFormat df = new DecimalFormat("0"); // 格式化number String字符
+//                		String length = df.format(lo.get(7)).trim();
+//                		String width = df.format(lo.get(8)).trim();
+                		info.setAdSize(String.valueOf(lo.get(7)) + "*" + String.valueOf(lo.get(8))); //广告位长度*广告位宽度
                 	} else if (lo.get(7) != null && lo.get(8) == null) {
                 		/*logger.error(MessageFormat.format("批量导入文件尺寸有误, 导入失败", new Object[] {}));
                 		throw new ExcelException("批量导入文件尺寸有误, 导入失败");*/
@@ -306,6 +316,14 @@ public class ExcelController extends BasicController {
 						}
 					}
                 	
+                	//设置联系人信息
+                	if(lo.get(13) != null) {
+                		info.setContactName(String.valueOf(lo.get(13)).trim());
+                	}
+                	if(lo.get(14) != null) {
+                		info.setContactCell(String.valueOf(lo.get(14)).trim());
+                	}
+                	
                 	//设置媒体信息
                 	info.setMediaId(media.getId());
                 	info.setCreateTime(now);
@@ -331,11 +349,26 @@ public class ExcelController extends BasicController {
                     throw new ExcelException("批量导入文件有误, 导入失败");
                 }
             }
+            
+            //正常数据插入到数据库中
             if(insertAdSeatInfos != null && insertAdSeatInfos.size() > 0){
             	adSeatService.insertBatchByExcel(insertAdSeatInfos);
             }
-			
+            
+            //导出到excel
+            List<List<String>> listString = objToString(listob);
+            String[] titleArray = { "广告位名称", "广告位类型", "省", "市", "区", "街道", "详细位置", "广告位长度", "广告位宽度", "面积", "经度", "纬度",
+            		"地图标准（如百度，google，高德）", "联系人姓名", "联系人电话", "导入结果", "导入错误信息"};
+            ExcelTool<List<String>> excelTool = new ExcelTool<List<String>>("importResult");
+//            excelTool.exportExcel(listString, titleArray, response);
+            String path = request.getSession().getServletContext().getRealPath("/");
+    		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"excel"+File.separatorChar+fileName;
+    		excelTool.generateExcel(listString, titleArray, path);
+//    		InputStream is = new FileInputStream(excelFile);
+//            String filepath = saveFile(path, fileName, is);
+            
             result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+            result.setResult("/static/excel/" + fileName);
         } catch (Exception e) {
         	logger.error(MessageFormat.format("批量导入文件有误, 导入失败", new Object[] {}));
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -360,4 +393,22 @@ public class ExcelController extends BasicController {
 		return map;
 	}
 	
+	/**
+	 * 对象转String
+	 * @param listobj
+	 * @return
+	 */
+	private List<List<String>> objToString(List<List<Object>> listobj){
+		List<List<String>> listString = new ArrayList<>();
+		for (List<Object> list : listobj) {
+			if(listobj.indexOf(list) != 0) {
+				List<String> line = new ArrayList<>();
+				for (Object object : list) {
+					line.add(String.valueOf(object));
+				}
+				listString.add(line);
+			}
+		}
+		return listString;
+	}
 }

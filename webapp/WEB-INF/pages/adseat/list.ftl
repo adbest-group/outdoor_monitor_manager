@@ -30,7 +30,7 @@
                     </div>
 
                     <div style="float: left; margin-left: 40px; font-size: 12px">
-                        媒体: <select style="height: 30px" name="mediaId">
+                        媒体: <select style="height: 30px" name="mediaId" onchange="importEnabled()" id="selectMediaId">
                         <option value="">所有媒体</option> <@model.showAllMediaOps
                     value="${bizObj.queryMap.mediaId?if_exists}" />
                     </select>
@@ -40,6 +40,8 @@
                             style="margin-left: 10px;" autocomplete="off" id="searchBtn">查询</button>
                     <button type="button" class="btn btn-primary"
                             style="margin-left: 10px;" autocomplete="off" id="clear">清除条件</button>
+                    <button style="margin-left: 10px" type="button" class="btn" id="insertBatchId"
+							autocomplete="off" disabled="disabled">批量导入</button>
                 </form>
             </div>
         </div>
@@ -208,6 +210,49 @@
     $(function() {
         $('.select').searchableSelect();
     });
+    
+    function importEnabled(){
+    	var mediaId = $('#selectMediaId').val();
+    	if(mediaId){
+    		$('#insertBatchId').removeAttr("disabled");
+    	} else {
+    		$('#insertBatchId').attr("disabled","disabled");
+    	}
+    }
+    
+    //批量导入
+	layui.use('upload', function(){
+	  var upload = layui.upload;
+	  
+	  //执行实例
+	  var uploadInst = upload.render({
+	    elem: '#insertBatchId' //绑定元素
+	    ,data: {
+		  mediaId: function() {
+		  	return $('#selectMediaId').val()
+		  }
+		}
+	    ,accept: 'file' //指定只允许上次文件
+	    ,exts: 'xlsx|xls' //指定只允许上次xlsx和xls格式的excel文件
+	    ,field: 'excelFile' //设置字段名
+	    ,url: '/excel/insertBatch' //上传接口
+	    ,done: function(res){
+	    	if(res.ret.code == 100){
+	    		layer.alert('导入成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
+	    		window.open(res.ret.result);
+	    		window.location.reload();
+	    	} else if (res.ret.code == 101){
+	    		layer.alert(res.ret.resultDes, {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	} else if (res.ret.code == 105){
+	    		layer.alert('没有导入权限', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	}
+	    }
+	    ,error: function(res){
+	       layer.alert('导入失败', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    }
+	  });
+	});
+	
 </script>
 <!-- 特色内容 -->
 <@model.webend />

@@ -62,5 +62,5 @@ public interface SysUserExecuteMapper {
     int getPageCount(Map<String, Object> searchMap);
 
     List<SysUserExecute> getPageData(Map<String, Object> searchMap, RowBounds rowBounds);
-    List<SysUserExecute> isExistsName(@Param("username") String username);
+    List<SysUserExecute> isExistsName(@Param("username") String username,@Param("id") Integer id);
 }

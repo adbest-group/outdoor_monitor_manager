@@ -6,6 +6,7 @@ import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.enums.*;
 import com.bt.om.mapper.*;
 import com.bt.om.service.IAdMonitorTaskService;
+import com.bt.om.util.GeoUtil;
 import com.bt.om.util.StringUtil;
 import com.bt.om.vo.web.SearchDataVo;
 import org.apache.ibatis.session.RowBounds;
@@ -256,6 +257,28 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     @Override
     public AdMonitorTaskVo getTaskVoById(Integer id) {
         return adMonitorTaskMapper.selectVoByPrimaryKey(id);
+    }
+
+    @Override
+    public void getByPointAroundPageData(SearchDataVo vo) {
+        int count = adMonitorTaskMapper.getByPointAroundPageCount(vo.getSearchMap());
+        vo.setCount(count);
+        if (count > 0) {
+            vo.setList(adMonitorTaskMapper.getByPointAroundPageData(vo.getSearchMap(), new RowBounds(vo.getStart(), vo.getSize())));
+        } else {
+            vo.setList(new ArrayList<AdMonitorTaskVo>());
+        }
+    }
+
+    @Override
+    public void getByCurCityPageData(SearchDataVo vo) {
+        int count = adMonitorTaskMapper.getByCurCityPageCount(vo.getSearchMap());
+        vo.setCount(count);
+        if (count > 0) {
+            vo.setList(adMonitorTaskMapper.getByCurCityPageData(vo.getSearchMap(), new RowBounds(vo.getStart(), vo.getSize())));
+        } else {
+            vo.setList(new ArrayList<AdMonitorTaskVo>());
+        }
     }
 
 }

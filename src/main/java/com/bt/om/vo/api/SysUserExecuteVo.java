@@ -7,15 +7,18 @@ import java.io.Serializable;
 /**
  * Created by caiting on 2018/1/23.
  */
-public class SysUserExecuteVo implements Serializable{
+public class SysUserExecuteVo implements Serializable {
     private Integer userId;
     private String realname;
     private String company;
     private Integer usertype;
 
-    public SysUserExecuteVo(SysUserExecute sue){
+    public SysUserExecuteVo(SysUserExecute sue) {
         this.userId = sue.getId();
         this.realname = sue.getRealname();
+        if (this.realname == null) {
+            this.realname = sue.getUsername();
+        }
         this.company = sue.getCompany();
         this.usertype = sue.getUsertype();
     }

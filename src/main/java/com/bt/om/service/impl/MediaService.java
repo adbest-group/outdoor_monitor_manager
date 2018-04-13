@@ -94,6 +94,11 @@ public class MediaService implements IMediaService {
 
     @Override
     public AdMedia getMediaByUserId(Integer id) {
-        return null;
+        return adMediaMapper.selectByUserId(id);
+    }
+
+    @Override
+    public AdMedia getById(Integer id) {
+        return adMediaMapper.selectByPrimaryKey(id);
     }
 }

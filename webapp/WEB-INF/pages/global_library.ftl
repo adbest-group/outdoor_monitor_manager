@@ -274,6 +274,18 @@
 	</#if>
 </#macro>
 
+<#-- APP用户类型下拉选项  -->
+<#macro showUserExecuteTypeList value="-1">
+	<#local list = vm.getUserExecuteTypeList() />
+    <#if (list?exists && list?size > 0)>
+		<#list list as res>
+			<#if res.id != 2>
+			<@showOption value="${res.id?if_exists}" title="${res.text?if_exists}" select="${value?if_exists}" />
+			</#if>
+		</#list>
+	</#if>
+</#macro>
+
 <#-- 所有活动下拉选项  -->
 <#macro showAllActivityOps value="-1">
 	<#local list = vm.getAllActivity() />

@@ -19,6 +19,6 @@ public class GeoUtil {
     }
 
     public static void main(String[] args) {
-        System.out.println(getDegreeFromDistance(500d));
+        System.out.println(getDegreeFromDistance(1d));
     }
 }

@@ -10,4 +10,5 @@ public interface IMediaService {
     public void add(SysUserVo user);
     public void modify(SysUserVo user);
     public AdMedia getMediaByUserId(Integer id);
+    public AdMedia getById(Integer id);
 }

@@ -9,11 +9,15 @@ import com.bt.om.enums.*;
 import com.bt.om.mapper.SysUserDetailMapper;
 import com.bt.om.service.*;
 import com.bt.om.util.CityUtil;
+import com.bt.om.util.GeoUtil;
 import com.bt.om.util.QRcodeUtil;
 import com.bt.om.vo.api.*;
+import com.bt.om.vo.api.SysUserExecuteVo;
 import com.bt.om.vo.web.ResultVo;
+import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
 import com.bt.om.web.session.SessionByRedis;
+import com.bt.om.web.util.SearchUtil;
 import com.bt.om.web.util.UploadFileUtil;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -37,8 +41,10 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 /**
  * Created by caiting on 2018/1/22.
@@ -69,6 +75,11 @@ public class ApiController extends BasicController {
     private AdVersionCache adVersionCache;
     @Autowired
     private ISendSmsService sendSmsService;
+
+    @Value("${sms.checkcode.content.template}")
+    private String SMS_CHECKCODE_CONTENT_TEMPLATE;
+    @Value("${mobile.number.regex}")
+    private String MOBILE_NUMBER_REGEX;
 
     private static ThreadLocal<Boolean> useSession = new ThreadLocal<>();
 
@@ -1464,7 +1475,7 @@ public class ApiController extends BasicController {
         return model;
     }
 
-    //绑定广告位二维码时检验
+    //获取附近有活动的广告位
     @RequestMapping(value = "/getAdSeatAround")
     @ResponseBody
     public Model getAdSeatAround(Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -1522,6 +1533,652 @@ public class ApiController extends BasicController {
         result.setResult(seats);
 
         model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+
+    //获取附近任务
+    @RequestMapping(value = "/getAdMonitorTaskAround")
+    @ResponseBody
+    public Model getAdMonitorTaskAround(Model model, HttpServletRequest request, HttpServletResponse response) {
+        ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("查询成功");
+        model = new ExtendedModelMap();
+
+        String token = null;
+        Double lon = null;
+        Double lat = null;
+        Double metre = null;
+        Integer page = 1;
+        Integer pageSize = 20;
+
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            lon = obj.get("lon") == null ? null : obj.get("lon").getAsDouble();
+            lat = obj.get("lat") == null ? null : obj.get("lat").getAsDouble();
+            metre = obj.get("metre") == null ? null : obj.get("metre").getAsDouble();
+            if(obj.get("page") != null){
+                page = obj.get("page").getAsInt();
+            }
+            if(obj.get("page_size") != null){
+                pageSize = obj.get("page_size").getAsInt();
+            }
+            if (token != null) {
+                useSession.set(Boolean.FALSE);
+                this.sessionByRedis.setToken(token);
+            } else {
+                useSession.set(Boolean.TRUE);
+            }
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        if(lon==null||lat==null||metre==null){
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("参数有误！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        //验证登录
+        if (useSession.get()) {
+            if (!checkLogin(model, result, request)) {
+                return model;
+            }
+        } else {
+            if (!checkLogin(model, result, token)) {
+                return model;
+            }
+        }
+        SearchDataVo vo = new SearchDataVo(null,null,(page-1)*pageSize,pageSize);
+        vo.putSearchParam("lon",null,lon);
+        vo.putSearchParam("lat",null,lat);
+        vo.putSearchParam("metre",null,metre);
+        vo.putSearchParam("metreDegree",null, GeoUtil.getDegreeFromDistance(metre));
+
+        adMonitorTaskService.getByPointAroundPageData(vo);
+        List<MonitorTaskArroundVo> list = Lists.newArrayList();
+
+        for(Object task:vo.getList()){
+            list.add(new MonitorTaskArroundVo((AdMonitorTaskMobileVo) task));
+        }
+
+        result.setResult(list);
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+
+    //获取本市任务
+    @RequestMapping(value = "/getAdMonitorTaskCurCity")
+    @ResponseBody
+    public Model getAdMonitorTaskCurCity(Model model, HttpServletRequest request, HttpServletResponse response) {
+        ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("查询成功");
+        model = new ExtendedModelMap();
+
+        String token = null;
+        Double lon = null;
+        Double lat = null;
+        Double metre = null;
+        Integer page = 1;
+        Integer pageSize = 20;
+        String province = null;
+        String city = null;
+
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            lon = obj.get("lon") == null ? null : obj.get("lon").getAsDouble();
+            lat = obj.get("lat") == null ? null : obj.get("lat").getAsDouble();
+            metre = obj.get("metre") == null ? null : obj.get("metre").getAsDouble();
+            province = obj.get("province") == null ? null : obj.get("province").getAsString();
+            city = obj.get("city") == null ? null : obj.get("city").getAsString();
+            if(obj.get("page") != null){
+                page = obj.get("page").getAsInt();
+            }
+            if(obj.get("page_size") != null){
+                pageSize = obj.get("page_size").getAsInt();
+            }
+            if (token != null) {
+                useSession.set(Boolean.FALSE);
+                this.sessionByRedis.setToken(token);
+            } else {
+                useSession.set(Boolean.TRUE);
+            }
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        Long provinceId = null;
+        Long cityId = null;
+
+
+        for(City prov : cityCache.getAllProvince()){
+            if(prov.getName().contains(province)){
+                provinceId = prov.getId();
+            }
+        }
+        if(provinceId!=null) {
+            for (City vcity : cityCache.getCity(provinceId)) {
+                if (vcity.getName().contains(city)) {
+                    cityId = vcity.getId();
+                }
+            }
+        }
+
+        if(lon==null||lat==null||province==null){
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("参数有误！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        //验证登录
+        if (useSession.get()) {
+            if (!checkLogin(model, result, request)) {
+                return model;
+            }
+        } else {
+            if (!checkLogin(model, result, token)) {
+                return model;
+            }
+        }
+        SearchDataVo vo = new SearchDataVo(null,null,(page-1)*pageSize,pageSize);
+        vo.putSearchParam("lon",null,lon);
+        vo.putSearchParam("lat",null,lat);
+        vo.putSearchParam("province",null,provinceId);
+        vo.putSearchParam("city",null,cityId);
+
+        adMonitorTaskService.getByCurCityPageData(vo);
+        List<MonitorTaskArroundVo> list = Lists.newArrayList();
+
+        for(Object task:vo.getList()){
+            list.add(new MonitorTaskArroundVo((AdMonitorTaskMobileVo) task));
+        }
+
+        result.setResult(list);
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+
+    //短信验证码
+    @RequestMapping(value = "/getSMSCode")
+    @ResponseBody
+    public Model getSMSCode(Model model, HttpServletRequest request, HttpServletResponse response) {
+        ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("获取成功");
+        model = new ExtendedModelMap();
+
+        String mobile = null;
+
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            mobile = obj.get("mobile") == null ? null : obj.get("mobile").getAsString();
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        if(mobile==null||!Pattern.matches(MOBILE_NUMBER_REGEX,mobile)){
+            result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
+            result.setResultDes("参数有误！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        //生成随机数验证码和token
+        String num = getNumber(6);
+        String token = sessionByRedis.initToken();
+        sessionByRedis.setImageCode(num);
+
+        try {
+            sendSmsService.sendSms(mobile, SMS_CHECKCODE_CONTENT_TEMPLATE.replaceAll("\\{\\{code\\}\\}",num));
+        }catch (Exception e){
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        SMSCheckCodeResultVo smsCheckCodeResultVo = new SMSCheckCodeResultVo();
+        smsCheckCodeResultVo.setToken(token);
+        result.setResult(smsCheckCodeResultVo);
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+
+    //app端手机号注册
+    @RequestMapping(value = "/checkSMSCode", method = RequestMethod.POST)
+    @ResponseBody
+    public Model checkSMSCode(Model model, HttpServletRequest request, HttpServletResponse response) {
+        ResultVo<SysUserExecuteVo> result = new ResultVo<>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("检查成功");
+        model = new ExtendedModelMap();
+        String username = null;
+        String vcode = null;
+        String token = null;
+
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            username = obj.get("username") == null ? null : obj.get("username").getAsString();
+            vcode = obj.get("vcode") == null ? null : obj.get("vcode").getAsString();
+            token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            if (token != null) {
+                useSession.set(Boolean.FALSE);
+                this.sessionByRedis.setToken(token);
+            } else {
+                useSession.set(Boolean.TRUE);
+            }
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        // 账户必须验证
+        if (StringUtils.isEmpty(username)||!Pattern.matches(MOBILE_NUMBER_REGEX,username)) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("手机号有误！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        SysUserExecute userExecute = sysUserExecuteService.getByUsername(username);
+        if(userExecute==null){
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("该手机号未注册！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        // 验证码必须验证
+        if (StringUtils.isEmpty(vcode)) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("验证码为必填！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        String sessionCode = null;
+        HttpSession session = request.getSession();
+        if (useSession.get()) {
+            sessionCode = session.getAttribute(SessionKey.SESSION_CODE.toString()) == null ? ""
+                    : session.getAttribute(SessionKey.SESSION_CODE.toString()).toString();
+        } else {
+            sessionCode = sessionByRedis.getImageCode();
+        }
+
+        // 验证码有效验证
+        if (!vcode.equalsIgnoreCase(sessionCode)) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("验证码错误！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+//        response.getHeaders().add("Access-Control-Allow-Credentials","true");
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+
+    //app端手机号注册
+    @RequestMapping(value = "/registMobile", method = RequestMethod.POST)
+    @ResponseBody
+    public Model regist(Model model, HttpServletRequest request, HttpServletResponse response) {
+        ResultVo<SysUserExecuteVo> result = new ResultVo<>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("注册成功");
+        model = new ExtendedModelMap();
+        String username = null;
+        String password = null;
+        String vcode = null;
+        String token = null;
+
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            username = obj.get("username") == null ? null : obj.get("username").getAsString();
+            password = obj.get("password") == null ? null : obj.get("password").getAsString();
+            vcode = obj.get("vcode") == null ? null : obj.get("vcode").getAsString();
+            token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            if (token != null) {
+                useSession.set(Boolean.FALSE);
+                this.sessionByRedis.setToken(token);
+            } else {
+                useSession.set(Boolean.TRUE);
+            }
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        // 账户必须验证
+        if (StringUtils.isEmpty(username)||!Pattern.matches(MOBILE_NUMBER_REGEX,username)) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("手机号有误！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        SysUserExecute userExecute = sysUserExecuteService.getByUsername(username);
+        if(userExecute!=null){
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("该手机号已注册！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        // 密码必须验证
+        if (StringUtils.isEmpty(password)) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("密码为必填！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        // 验证码必须验证
+        if (StringUtils.isEmpty(vcode)) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("验证码为必填！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        String sessionCode = null;
+        HttpSession session = request.getSession();
+        if (useSession.get()) {
+            sessionCode = session.getAttribute(SessionKey.SESSION_CODE.toString()) == null ? ""
+                    : session.getAttribute(SessionKey.SESSION_CODE.toString()).toString();
+        } else {
+            sessionCode = sessionByRedis.getImageCode();
+        }
+
+        // 验证码有效验证
+        if (!vcode.equalsIgnoreCase(sessionCode)) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("验证码错误！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+
+        String md5Pwd = new Md5Hash(password, username).toString();
+
+        userExecute = new SysUserExecute();
+        userExecute.setUsername(username);
+        userExecute.setPassword(md5Pwd);
+        userExecute.setUsertype(UserExecuteType.Social.getId());
+        userExecute.setStatus(1);
+        userExecute.setMobile(username);
+
+        try{
+            sysUserExecuteService.add(userExecute);
+        }catch (Exception e){
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("注册失败！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+//        SysUserExecute userExecute = sysUserExecuteService.getByUsername(username);
+//        if (userExecute == null || !md5Pwd.equals(userExecute.getPassword())) {
+//            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+//            result.setResultDes("用户名或密码有误！");
+//            model.addAttribute(SysConst.RESULT_KEY, result);
+//            return model;
+//        }
+
+        if (useSession.get()) {
+            session.setAttribute(SessionKey.SESSION_LOGIN_USER.toString(), userExecute);
+        } else {
+            sessionByRedis.setAttribute(SessionKey.SESSION_LOGIN_USER.toString(), userExecute);
+        }
+
+        result.setResult(new SysUserExecuteVo(userExecute));
+        model.addAttribute(SysConst.RESULT_KEY, result);
+//        response.getHeaders().add("Access-Control-Allow-Credentials","true");
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+
+    //app端手机号验证码登录
+    @RequestMapping(value = "/smsLogin", method = RequestMethod.POST)
+    @ResponseBody
+    public Model smsLogin(Model model, HttpServletRequest request, HttpServletResponse response) {
+        ResultVo<SysUserExecuteVo> result = new ResultVo<>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("登录成功");
+        model = new ExtendedModelMap();
+        String username = null;
+        String vcode = null;
+        String token = null;
+
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            username = obj.get("username") == null ? null : obj.get("username").getAsString();
+            vcode = obj.get("vcode") == null ? null : obj.get("vcode").getAsString();
+            token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            if (token != null) {
+                useSession.set(Boolean.FALSE);
+                this.sessionByRedis.setToken(token);
+            } else {
+                useSession.set(Boolean.TRUE);
+            }
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        // 账户必须验证
+        if (StringUtils.isEmpty(username)||!Pattern.matches(MOBILE_NUMBER_REGEX,username)) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("手机号有误！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        // 验证码必须验证
+        if (StringUtils.isEmpty(vcode)) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("验证码为必填！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        String sessionCode = null;
+        HttpSession session = request.getSession();
+        if (useSession.get()) {
+            sessionCode = session.getAttribute(SessionKey.SESSION_CODE.toString()) == null ? ""
+                    : session.getAttribute(SessionKey.SESSION_CODE.toString()).toString();
+        } else {
+            sessionCode = sessionByRedis.getImageCode();
+        }
+
+        // 验证码有效验证
+        if (!vcode.equalsIgnoreCase(sessionCode)) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("验证码错误！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+
+        SysUserExecute userExecute = sysUserExecuteService.getByUsername(username);
+        if(userExecute==null){
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("账户不存在！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        if(userExecute.getStatus()==2){
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("账户已停用！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+//        SysUserExecute userExecute = sysUserExecuteService.getByUsername(username);
+//        if (userExecute == null || !md5Pwd.equals(userExecute.getPassword())) {
+//            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+//            result.setResultDes("用户名或密码有误！");
+//            model.addAttribute(SysConst.RESULT_KEY, result);
+//            return model;
+//        }
+
+        if (useSession.get()) {
+            session.setAttribute(SessionKey.SESSION_LOGIN_USER.toString(), userExecute);
+        } else {
+            sessionByRedis.setAttribute(SessionKey.SESSION_LOGIN_USER.toString(), userExecute);
+        }
+
+        result.setResult(new SysUserExecuteVo(userExecute));
+        model.addAttribute(SysConst.RESULT_KEY, result);
+//        response.getHeaders().add("Access-Control-Allow-Credentials","true");
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+
+    //app端手机号验证码验证，修改密码
+    @RequestMapping(value = "/smsResetPassword", method = RequestMethod.POST)
+    @ResponseBody
+    public Model smsResetPassword(Model model, HttpServletRequest request, HttpServletResponse response) {
+        ResultVo<SysUserExecuteVo> result = new ResultVo<>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("重置成功");
+        model = new ExtendedModelMap();
+        String username = null;
+        String password = null;
+        String vcode = null;
+        String token = null;
+
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            username = obj.get("username") == null ? null : obj.get("username").getAsString();
+            password = obj.get("password") == null ? null : obj.get("password").getAsString();
+            vcode = obj.get("vcode") == null ? null : obj.get("vcode").getAsString();
+            token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            if (token != null) {
+                useSession.set(Boolean.FALSE);
+                this.sessionByRedis.setToken(token);
+            } else {
+                useSession.set(Boolean.TRUE);
+            }
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        // 账户必须验证
+        if (StringUtils.isEmpty(username)||!Pattern.matches(MOBILE_NUMBER_REGEX,username)) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("手机号有误！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        // 验证码必须验证
+        if (StringUtils.isEmpty(vcode)) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("验证码为必填！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        String sessionCode = null;
+        HttpSession session = request.getSession();
+        if (useSession.get()) {
+            sessionCode = session.getAttribute(SessionKey.SESSION_CODE.toString()) == null ? ""
+                    : session.getAttribute(SessionKey.SESSION_CODE.toString()).toString();
+        } else {
+            sessionCode = sessionByRedis.getImageCode();
+        }
+
+        // 验证码有效验证
+        if (!vcode.equalsIgnoreCase(sessionCode)) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("验证码错误！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+
+        SysUserExecute userExecute = sysUserExecuteService.getByUsername(username);
+        if(userExecute==null){
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("账户不存在！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        if(userExecute.getStatus()==2){
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("账户已停用！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        try{
+            String md5Pwd = new Md5Hash(password, username).toString();
+            userExecute.setPassword(md5Pwd);
+            userExecute.setUpdateTime(new Date());
+            sysUserExecuteService.modify(userExecute);
+        }catch (Exception e){
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("账户已停用！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        if (useSession.get()) {
+            session.setAttribute(SessionKey.SESSION_LOGIN_USER.toString(), userExecute);
+        } else {
+            sessionByRedis.setAttribute(SessionKey.SESSION_LOGIN_USER.toString(), userExecute);
+        }
+
+        result.setResult(new SysUserExecuteVo(userExecute));
+        model.addAttribute(SysConst.RESULT_KEY, result);
+//        response.getHeaders().add("Access-Control-Allow-Credentials","true");
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");
         return model;
@@ -1602,6 +2259,8 @@ public class ApiController extends BasicController {
     }
 
     public static void main(String[] args) {
-        System.out.println(new Md5Hash("123456", "media@adbest.com").toString());
+//        System.out.println(new Md5Hash("123456", "media@adbest.com").toString());
+        System.out.println("【浙江百泰】您的验证码为${code}".replaceAll("\\$\\{code\\}","122321"));
+
     }
 }

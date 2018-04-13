@@ -48,22 +48,25 @@ public class VMComponent {
     AdSeatTypeCache adSeatTypeCache;
 
     public String getCityName(Long code) {
-        return cityCache.getCityName(code);
+        return code == null ? "" : cityCache.getCityName(code);
     }
 
     public String getCityName(Integer code) {
-        return cityCache.getCityName((long) code);
+        return code == null ? "" : cityCache.getCityName((long) code);
     }
 
     public String getCityName(String code) {
         try {
-            return cityCache.getCityName(Long.valueOf(code));
+            return code == null ? "" : cityCache.getCityName(Long.valueOf(code));
         } catch (Exception e) {
         }
         return "";
     }
 
     public String getCityNameFull(Long code, String split) {
+        if(code==null||split==null){
+            return "";
+        }
         StringBuilder sb = new StringBuilder();
         sb.append(cityCache.getCityName(CityUtil.getProvinceCode(code)));
         Long sub = CityUtil.getCityCode(code);
@@ -86,7 +89,7 @@ public class VMComponent {
         return sb.toString();
     }
 
-    public List<AdSeatType> getAllAdSeatTypes(){
+    public List<AdSeatType> getAllAdSeatTypes() {
         return adSeatTypeCache.getTypes();
     }
 
@@ -173,6 +176,20 @@ public class VMComponent {
             color = "style='color:green;'";
         }
         return "<span " + color + " >" + ActivityStatus.getText(id) + "</span>";
+    }
+
+    /**
+     * 获取app端用户类型名称
+     **/
+    public String getUserExecuteTypeText(int id) {
+        return UserExecuteType.getText(id);
+    }
+
+    /**
+     * 获取app端用户类型列表
+     **/
+    public UserExecuteType[] getUserExecuteTypeList() {
+        return UserExecuteType.values();
     }
 
     /**

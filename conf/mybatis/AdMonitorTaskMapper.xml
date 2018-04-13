@@ -240,10 +240,10 @@
         <result column="sample_pic_url" jdbcType="VARCHAR" property="samplePicUrl"/>
         <result column="start_time" jdbcType="TIMESTAMP" property="startTime"/>
         <result column="end_time" jdbcType="TIMESTAMP" property="endTime"/>
-        <result column="province" jdbcType="INTEGER" property="province"/>
-        <result column="city" jdbcType="INTEGER" property="city"/>
-        <result column="region" jdbcType="INTEGER" property="region"/>
-        <result column="street" jdbcType="INTEGER" property="street"/>
+        <result column="province" jdbcType="BIGINT" property="province"/>
+        <result column="city" jdbcType="BIGINT" property="city"/>
+        <result column="region" jdbcType="BIGINT" property="region"/>
+        <result column="street" jdbcType="BIGINT" property="street"/>
         <result column="media_name" jdbcType="VARCHAR" property="mediaName"/>
         <result column="ad_seat_name" jdbcType="VARCHAR" property="adSeatName"/>
         <result column="realname" jdbcType="VARCHAR" property="realname"/>
@@ -284,6 +284,7 @@
         <result column="problem_other" jdbcType="VARCHAR" property="problemOther"/>
         <result column="feedback_lat" jdbcType="DOUBLE" property="feedbackLat"/>
         <result column="feedback_lon" jdbcType="DOUBLE" property="feedbackLon"/>
+        <result column="distance" jdbcType="DOUBLE" property="distance"/>
     </resultMap>
 
     <insert id="insertList" parameterType="java.util.List">
@@ -360,7 +361,7 @@
     </select>
 
     <select id="getPageData" parameterType="map" resultMap="ExtResultMap">
-        select a.id, a.activity_id, a.activity_adseat_id, a.task_type, a.user_id,
+        select a.id, a.activity_id, a.activity_adseat_id, a.task_type, a.monitor_date,a.user_id,
         a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time,
         b.activity_name,c.sample_pic_url,b.start_time,b.end_time,d.province,d.city,d.region,d.street,e.media_name,d.`name`
         as ad_seat_name,
@@ -416,7 +417,7 @@
     </select>
 
     <select id="selectByUserId" resultMap="MobileResultMap">
-    select a.id, a.activity_id, a.activity_adseat_id, a.task_type, a.user_id, a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time,
+    select a.id, a.activity_id, a.activity_adseat_id, a.task_type, a.monitor_date,a.user_id, a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time,
     b.activity_name,c.sample_pic_url,c.monitor_start,c.monitor_end,c.ad_seat_id,d.`name` as ad_seat_name,d.location as ad_seat_location,d.ad_code as ad_seat_code,d.lon,d.lat,e.reason,e.pic_url1,e.pic_url2,e.pic_url3,e.pic_url4,e.create_time as feedback_time,
     e.problem,e.problem_other,e.lon as feedback_lon,e.lat as feedback_lat
     from ad_monitor_task a
@@ -486,7 +487,7 @@
 	</select>
 
     <select id="selectVoByParent" resultMap="ExtResultMap">
-        select a.id, a.activity_id, a.activity_adseat_id, a.task_type, a.user_id,
+        select a.id, a.activity_id, a.activity_adseat_id, a.task_type,a.monitor_date, a.user_id,
         a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type,
         a.verify_time,a.create_time, a.update_time,
         b.pic_url1,b.pic_url2,b.pic_url3,b.pic_url4,b.create_time as feedbackcreatetime,b.reason,
@@ -500,7 +501,7 @@
     </select>
 
     <select id="selectVoByPrimaryKey" resultMap="ExtResultMap">
-        select a.id, a.activity_id, a.activity_adseat_id, a.task_type, a.user_id,
+        select a.id, a.activity_id, a.activity_adseat_id, a.task_type,a.monitor_date, a.user_id,
         a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type,
         a.verify_time,a.create_time, a.update_time,
         b.pic_url1,b.pic_url2,b.pic_url3,b.pic_url4,b.create_time as feedbackcreatetime,b.reason,
@@ -519,4 +520,87 @@
         where a.activity_adseat_id = #{activitySeatId,jdbcType=INTEGER}
         and a.status = 7
     </update>
+
+    <select id="getByPointAroundPageCount" parameterType="map" resultType="int">
+        select count(1) from (
+        select st_distance(point(lon,lat),point(#{lon,jdbcType=DOUBLE},#{lat,jdbcType=DOUBLE}))*111195 as distance
+        from (
+        select d.lon,d.lat
+        from ad_monitor_task a
+        left join ad_activity b on a.activity_id = b.id
+        left join ad_activity_adseat c on a.activity_adseat_id = c.id
+        left join ad_seat_info d on c.ad_seat_id = d.id
+
+        where a.status = 1 and a.task_type &lt;> 5
+        and d.lon between (#{lon,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lon,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
+        and d.lat between (#{lat,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lat,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
+        ) t ) t2 where t2.distance &lt;= #{metre,jdbcType=DOUBLE}
+    </select>
+
+    <select id="getByPointAroundPageData"  resultMap="MobileResultMap">
+        select
+        t.*,
+        st_distance(point(lon,lat),point(#{lon,jdbcType=DOUBLE},#{lat,jdbcType=DOUBLE}))*111195 as distance
+        from (
+        select a.id, a.activity_id, a.activity_adseat_id, a.task_type,a.monitor_date, a.user_id, a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time,
+        b.activity_name,c.sample_pic_url,c.monitor_start,c.monitor_end,c.ad_seat_id,d.`name` as ad_seat_name,d.location as ad_seat_location,d.ad_code as ad_seat_code,d.lon,d.lat
+        from ad_monitor_task a
+        left join ad_activity b on a.activity_id = b.id
+        left join ad_activity_adseat c on a.activity_adseat_id = c.id
+        left join ad_seat_info d on c.ad_seat_id = d.id
+
+        where a.status = 1 and a.task_type &lt;> 5
+        and d.lon between (#{lon,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lon,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
+        and d.lat between (#{lat,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lat,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
+        ) t
+        having distance &lt;= #{metre,jdbcType=DOUBLE}
+        order by distance,update_time desc
+    </select>
+
+    <select id="getByCurCityPageCount" parameterType="map" resultType="int">
+        select
+        count(a.id)
+        from ad_monitor_task a
+        left join ad_activity b on a.activity_id = b.id
+        left join ad_activity_adseat c on a.activity_adseat_id = c.id
+        left join ad_seat_info d on c.ad_seat_id = d.id
+
+        where a.status = 1 and a.task_type &lt;> 5
+        <if test="province!=null">
+            and d.province = #{province,jdbcType=BIGINT}
+        </if>
+        <if test="city!=null">
+            and d.city = #{city,jdbcType=BIGINT}
+        </if>
+
+    </select>
+
+    <select id="getByCurCityPageData"  resultMap="MobileResultMap">
+        select t.*
+        <if test="lon!=null and lat!=null">
+          ,st_distance(point(lon,lat),point(#{lon,jdbcType=DOUBLE},#{lat,jdbcType=DOUBLE}))*111195 as distance
+        </if>
+        from (
+        select a.id, a.activity_id, a.activity_adseat_id, a.task_type,a.monitor_date, a.user_id, a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time,
+        b.activity_name,c.sample_pic_url,c.monitor_start,c.monitor_end,c.ad_seat_id,d.`name` as ad_seat_name,d.location as ad_seat_location,d.ad_code as ad_seat_code,d.lon,d.lat
+        from ad_monitor_task a
+        left join ad_activity b on a.activity_id = b.id
+        left join ad_activity_adseat c on a.activity_adseat_id = c.id
+        left join ad_seat_info d on c.ad_seat_id = d.id
+
+        where a.status = 1 and a.task_type &lt;> 5
+        <if test="province!=null">
+          and d.province = #{province,jdbcType=BIGINT}
+        </if>
+        <if test="city!=null">
+          and d.city = #{city,jdbcType=BIGINT}
+        </if>
+        ) t
+
+        order by
+        <if test="lon!=null and lat!=null">
+            distance,
+        </if>
+        update_time desc
+    </select>
 </mapper>

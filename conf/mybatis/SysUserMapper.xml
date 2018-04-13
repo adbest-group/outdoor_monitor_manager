@@ -251,7 +251,8 @@
 
   <select id="findUserinfoById" parameterType ="map" resultMap="ExtResultMap">
     select
-    tt1.id, tt1.username,tt1.realname, tt2.id as userinfo_id, tt2.telephone,tt2.prefix, tt1.status, tt3.role_name
+    tt1.id, tt1.username,tt1.realname, tt1.usertype,
+    tt2.id as userinfo_id, tt2.telephone,tt2.prefix, tt1.status, tt3.role_name
     from
     sys_user tt1,
     sys_user_detail tt2,

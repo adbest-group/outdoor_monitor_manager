@@ -1939,6 +1939,7 @@ public class ApiController extends BasicController {
 
         userExecute = new SysUserExecute();
         userExecute.setUsername(username);
+        userExecute.setRealname(username);
         userExecute.setPassword(md5Pwd);
         userExecute.setUsertype(UserExecuteType.Social.getId());
         userExecute.setStatus(1);
@@ -2179,6 +2180,67 @@ public class ApiController extends BasicController {
         result.setResult(new SysUserExecuteVo(userExecute));
         model.addAttribute(SysConst.RESULT_KEY, result);
 //        response.getHeaders().add("Access-Control-Allow-Credentials","true");
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+
+    //社会人员抢单
+    @RequestMapping(value = "/grabTask")
+    @ResponseBody
+    public Model grabTask(Model model, HttpServletRequest request, HttpServletResponse response) {
+        ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("调用成功");
+        model = new ExtendedModelMap();
+
+        String token = null;
+        Integer taskId=null;
+
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            taskId = obj.get("task_id") == null ? null : obj.get("task_id").getAsInt();
+            if (token != null) {
+                useSession.set(Boolean.FALSE);
+                this.sessionByRedis.setToken(token);
+            } else {
+                useSession.set(Boolean.TRUE);
+            }
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        //验证登录
+        if (useSession.get()) {
+            if (!checkLogin(model, result, request)) {
+                return model;
+            }
+        } else {
+            if (!checkLogin(model, result, token)) {
+                return model;
+            }
+        }
+
+        SysUserExecute user = getLoginUser(request, token);
+
+        try{
+            boolean flag = adMonitorTaskService.grabTask(user.getId(),taskId);
+            //flag 即表示任务接取成功或失败，直接赋予 result
+            result.setResult(flag);
+        }catch (Exception e){
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");
         return model;

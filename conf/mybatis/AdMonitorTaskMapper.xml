@@ -603,4 +603,15 @@
         </if>
         update_time desc
     </select>
+    
+    <update id="grabTask">
+        update ad_monitor_task set
+        user_id = #{userId,jdbcType=INTEGER}
+        ,status = 2
+        ,update_time = sysdate()
+        where
+        id = #{id,jdbcType=INTEGER}
+        and user_id is null
+        and update_time = #{updateTime,jdbcType=TIMESTAMP}
+    </update>
 </mapper>

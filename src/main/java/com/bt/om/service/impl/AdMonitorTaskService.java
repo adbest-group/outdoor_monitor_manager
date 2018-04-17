@@ -49,12 +49,20 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     @Transactional(rollbackFor = Exception.class)
     public void assign(String[] taskIds, Integer userId) {
         for (String taskId : taskIds) {
-            AdMonitorTask task = new AdMonitorTask();
-            task.setId(Integer.valueOf(taskId));
-            task.setUserId(userId);
-            task.setStatus(MonitorTaskStatus.TO_CARRY_OUT.getId());
-            task.setUpdateTime(new Date());
-            adMonitorTaskMapper.updateByPrimaryKeySelective(task);
+            Integer id = Integer.valueOf(taskId);
+//            AdMonitorTask task = new AdMonitorTask();
+//            task.setId(Integer.valueOf(taskId));
+//            task.setUserId(userId);
+//            task.setStatus(MonitorTaskStatus.TO_CARRY_OUT.getId());
+//            task.setUpdateTime(new Date());
+//            adMonitorTaskMapper.updateByPrimaryKeySelective(task);
+            //先查询该任务
+            AdMonitorTask task = adMonitorTaskMapper.selectByPrimaryKey(id);
+            //任务未查到或任务执行人已指派，抢任务失败
+            if(task==null||task.getUserId()!=null){
+                continue;
+            }
+            int count = adMonitorTaskMapper.grabTask(userId,id,task.getUpdateTime());
         }
     }
 
@@ -279,6 +287,23 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         } else {
             vo.setList(new ArrayList<AdMonitorTaskVo>());
         }
+    }
+
+    @Override
+    public boolean grabTask(Integer userId, Integer id) {
+        boolean ret = false;
+        //先查询该任务
+        AdMonitorTask task = adMonitorTaskMapper.selectByPrimaryKey(id);
+        //任务未查到或任务执行人已指派，抢任务失败
+        if(task==null||task.getUserId()!=null){
+            return ret;
+        }
+        int count = adMonitorTaskMapper.grabTask(userId,id,task.getUpdateTime());
+        if(count>0){
+            ret = true;
+        }
+
+        return ret;
     }
 
 }

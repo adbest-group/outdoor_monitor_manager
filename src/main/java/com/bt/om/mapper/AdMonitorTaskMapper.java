@@ -6,6 +6,7 @@ import com.bt.om.entity.vo.AdMonitorTaskVo;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -106,4 +107,6 @@ public interface AdMonitorTaskMapper {
 	int getByCurCityPageCount(Map<String, Object> searchMap);
 
 	List<AdMonitorTaskMobileVo> getByCurCityPageData(Map<String, Object> searchMap, RowBounds rowBounds);
+
+	int grabTask(@Param("userId")Integer userId,@Param("id")Integer id,@Param("updateTime")Date update_time);
 }

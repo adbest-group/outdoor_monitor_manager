@@ -28,6 +28,15 @@ public class AdMonitorTaskMobileVo extends AdMonitorTask {
     private Double lat;
     private Double feedbackLon;
     private Double feedbackLat;
+    private Double distance;
+
+    public Double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Double distance) {
+        this.distance = distance;
+    }
 
     public String getAdSeatLocation() {
         return adSeatLocation;

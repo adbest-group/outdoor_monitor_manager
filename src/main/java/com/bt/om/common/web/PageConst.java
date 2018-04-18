@@ -72,4 +72,10 @@ public class PageConst {
 	public static final String CUSTOMER_LIST = "customer/list";
 	public static final String CUSTOMER_EDIT = "customer/edit";
 
+	/*** APP账号管理 ***/
+	public static final String APP_ACCOUNT_LIST = "appAccount/list";
+	public static final String APP_ACCOUNT_EDIT = "appAccount/edit";
+
+
+
 }

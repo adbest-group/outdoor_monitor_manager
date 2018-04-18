@@ -6,6 +6,7 @@ import com.bt.om.entity.vo.AdMonitorTaskVo;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -98,4 +99,14 @@ public interface AdMonitorTaskMapper {
 	 * 上刊任务的活动广告位关联id，激活该id所有监测任务
 	 **/
 	int activeTask(@Param("activitySeatId") Integer activitySeatId);
+
+	int getByPointAroundPageCount(Map<String, Object> searchMap);
+
+	List<AdMonitorTaskMobileVo> getByPointAroundPageData(Map<String, Object> searchMap, RowBounds rowBounds);
+
+	int getByCurCityPageCount(Map<String, Object> searchMap);
+
+	List<AdMonitorTaskMobileVo> getByCurCityPageData(Map<String, Object> searchMap, RowBounds rowBounds);
+
+	int grabTask(@Param("userId")Integer userId,@Param("id")Integer id,@Param("updateTime")Date update_time);
 }

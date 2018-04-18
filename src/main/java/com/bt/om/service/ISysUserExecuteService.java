@@ -21,6 +21,7 @@ public interface ISysUserExecuteService {
 
     public SysUserExecute getById(Integer id);
     List<SysUserExecute> isExistsName(String username);
+    List<SysUserExecute> isExistsName(String username,Integer id);
 
     public void add(SysUserExecute userExecute);
     public void modify(SysUserExecute userExecute);

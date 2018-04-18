@@ -50,7 +50,12 @@ public class SysUserExecuteService implements ISysUserExecuteService {
 
     @Override
     public List<SysUserExecute> isExistsName(String username) {
-        return sysUserExecuteMapper.isExistsName(username);
+        return sysUserExecuteMapper.isExistsName(username,null);
+    }
+
+    @Override
+    public List<SysUserExecute> isExistsName(String username,Integer id) {
+        return sysUserExecuteMapper.isExistsName(username,id);
     }
 
     @Override

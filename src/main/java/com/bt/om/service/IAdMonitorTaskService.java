@@ -17,6 +17,9 @@ public interface IAdMonitorTaskService {
 
 	public void getPageData(SearchDataVo vo);
 
+	/**
+	 * 只适用于首次分配，内部采用和抢任务一样的机制
+	 **/
 	public void assign(String[] taskIds, Integer userId);
 
 	/**
@@ -58,4 +61,9 @@ public interface IAdMonitorTaskService {
 	 * 根据id获取任务详情（包含有效的监测提交）
 	 **/
 	public AdMonitorTaskVo getTaskVoById(Integer id);
+
+	public void getByPointAroundPageData(SearchDataVo vo);
+	public void getByCurCityPageData(SearchDataVo vo);
+
+	public boolean grabTask(Integer userId,Integer id);
 }

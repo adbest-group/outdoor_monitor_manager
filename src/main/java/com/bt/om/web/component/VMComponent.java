@@ -1,30 +1,42 @@
 package com.bt.om.web.component;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.bt.om.cache.AdSeatTypeCache;
 import com.bt.om.cache.CityCache;
-import com.bt.om.entity.*;
-import com.bt.om.entity.vo.*;
-import com.bt.om.enums.*;
+import com.bt.om.entity.AdActivity;
+import com.bt.om.entity.AdMedia;
+import com.bt.om.entity.AdMediaType;
+import com.bt.om.entity.AdSeatType;
+import com.bt.om.entity.SysUser;
+import com.bt.om.entity.vo.SysMenuVo;
+import com.bt.om.entity.vo.SysUserVo;
+import com.bt.om.enums.ActivityStatus;
+import com.bt.om.enums.JiucuoTaskStatus;
+import com.bt.om.enums.MonitorTaskStatus;
+import com.bt.om.enums.MonitorTaskType;
+import com.bt.om.enums.SessionKey;
+import com.bt.om.enums.TaskProblemStatus;
 //import com.bt.om.mapper.SysDictMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
+import com.bt.om.service.IAdMediaTypeService;
 import com.bt.om.service.IResourceService;
-import com.bt.om.service.impl.CityService;
 import com.bt.om.util.CityUtil;
 import com.bt.om.util.ConfigUtil;
 import com.bt.om.util.StringUtil;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
-import org.apache.commons.collections.ArrayStack;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import javax.management.monitor.Monitor;
-import java.util.*;
-import java.util.Map.Entry;
 
 /**
  * @author hl-tanyong
@@ -46,6 +58,9 @@ public class VMComponent {
 
     @Autowired
     AdSeatTypeCache adSeatTypeCache;
+    
+    @Autowired
+    IAdMediaTypeService adMediaTypeService;
 
     public String getCityName(Long code) {
         return cityCache.getCityName(code);
@@ -263,6 +278,20 @@ public class VMComponent {
      */
     public List<AdMedia> getAllMedia() {
         return resourceService.getAll();
+    }
+    
+    /**
+     * 获取全部媒体大类
+     */
+    public List<AdMediaType> getAllParentMediaType() {
+    	return adMediaTypeService.getParentMedia(1);
+    }
+    
+    /**
+     * 获取全部可用媒体大类
+     */
+    public List<AdMediaType> getAllParentMediaTypeAvailable() {
+    	return adMediaTypeService.getParentMediaAvailable(1);
     }
 
     /***************************** 下面是工具类 ****************************************/

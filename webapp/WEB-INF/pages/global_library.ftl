@@ -313,3 +313,23 @@
 		</#list>
 	</#if>
 </#macro>
+
+<#-- 所有媒体大类下拉选项  -->
+<#macro showAllAdMediaTypeOps value="-1">
+	<#local list = vm.getAllParentMediaType() />
+	<#if (list?exists && list?size > 0)>
+		<#list list as type>
+			<@showOption value="${type.id?if_exists}" title="${type.name?if_exists}" select="${value?if_exists}" />
+		</#list>
+	</#if>
+</#macro>
+
+<#-- 所有可用媒体大类下拉选项  -->
+<#macro showAllAdMediaTypeAvailableOps value="-1">
+	<#local list = vm.getAllParentMediaTypeAvailable() />
+	<#if (list?exists && list?size > 0)>
+		<#list list as type>
+			<@showOption value="${type.id?if_exists}" title="${type.name?if_exists}" select="${value?if_exists}" />
+		</#list>
+	</#if>
+</#macro>

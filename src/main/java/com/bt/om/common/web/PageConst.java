@@ -65,6 +65,8 @@ public class PageConst {
 	/*** 媒体管理 ***/
 	public static final String MEDIA_LIST = "media/list";
 	public static final String MEDIA_EDIT = "media/edit";
+	public static final String MEDIA_TYPE_LIST = "media/typeList";
+	public static final String MEDIA_TYPE_EDIT = "media/typeEdit";
 
 	/*** 客户账号管理 ***/
 	public static final String CUSTOMER_LIST = "customer/list";

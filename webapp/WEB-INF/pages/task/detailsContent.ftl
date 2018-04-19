@@ -163,6 +163,10 @@
                                 <div style="width: 360px;margin-bottom: 10px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
                                     <img style="vertical-align: top;width:350px"" src="${item.picUrl4!""}"></img></div>
                                 </p>
+                                <p><br/>
+                                    <#setting number_format="#0.######" />
+                                    <div class="feedbackMap" id="feedback-item.id" data-location="{lon:${item.lon!"null"},lat:${item.lat!"null"},feedbackLon:${item.feedbackLon!"null"},feedbackLat:${item.feedbackLat!"null"}}" style="width:400px;height:275px;"></div>
+                                </p>
                                 <@shiro.hasRole name="admin">
                                     <p style="text-align: center;">
                                         <#if (item.status==3 && item.feedbackStatus==1)>
@@ -197,6 +201,8 @@
 
 <script type="text/javascript"
         src="${model.static_domain}/js/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=T8nSZc6XXTiu1vm5pCwdYu1D5AIb2F1w"></script>
+
 <script type="text/javascript">
     pass = function (id) {
         layer.confirm("确认审核通过？", {
@@ -267,5 +273,36 @@
             $('.main-container').css('height', h);
         });
         $(window).resize();
+
+        //任务提交地图坐标相关
+        $(".feedbackMap").each(function(i,n){
+            // 百度地图API功能
+            var map = new BMap.Map(n.id);    // 创建Map实例
+            var location = eval("("+$(n).data("location")+")");
+            var seatMarker;
+            var feedbackMarker;
+            console.log(location)
+            var feedbackPoint = new BMap.Point(location.feedbackLon, location.feedbackLat);
+            feedbackMarker = new BMap.Marker(feedbackPoint)
+            if(location.lon&&location.lat) {
+                var seatPoint = new BMap.Point(location.lon, location.lat);
+                map.centerAndZoom(seatPoint, 16);  // 初始化地图,设置中心点坐标和地图级别
+                seatMarker = new BMap.Marker(seatPoint);
+                seatMarker.setAnimation(BMAP_ANIMATION_BOUNCE);
+            }else{
+                map.centerAndZoom(feedbackPoint, 16);
+            }
+
+            //添加地图类型控件
+            map.addControl(new BMap.MapTypeControl({
+                mapTypes:[
+                    BMAP_NORMAL_MAP,
+//                BMAP_HYBRID_MAP
+                ]}));
+//            map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
+
+            map.addOverlay(feedbackMarker);
+            map.addOverlay(seatMarker);
+        });
     });
 </script>

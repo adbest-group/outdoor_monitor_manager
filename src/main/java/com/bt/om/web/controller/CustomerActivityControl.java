@@ -187,8 +187,17 @@ public class CustomerActivityControl extends BasicController {
                 as.setAdSeatId(obj.get("seatId").getAsInt());
                 as.setBrand(obj.get("brand").getAsString());
                 as.setUpMonitor(obj.get("upMonitor").getAsInt());
+                if(as.getUpMonitor()==1){
+                    as.setUpMonitorLastDays(obj.get("upMonitorLastDays").getAsInt());
+                }
                 as.setDurationMonitor(obj.get("durationMonitor").getAsInt());
+                if(as.getDurationMonitor()==1){
+                    as.setDurationMonitorLastDays(obj.get("durationMonitorLastDays").getAsInt());
+                }
                 as.setDownMonitor(obj.get("downMonitor").getAsInt());
+                if(as.getDownMonitor()==1){
+                    as.setDownMonitorLastDays(obj.get("downMonitorLastDays").getAsInt());
+                }
                 as.setMediaId(obj.get("mediaId").getAsInt());
                 as.setMonitorCount(obj.get("monitorCount").getAsInt());
                 try {

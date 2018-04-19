@@ -20,6 +20,7 @@ import com.bt.om.web.session.SessionByRedis;
 import com.bt.om.web.util.SearchUtil;
 import com.bt.om.web.util.UploadFileUtil;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Tables;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang.StringUtils;
@@ -383,6 +384,12 @@ public class ApiController extends BasicController {
         if (userExecute == null || !md5Pwd.equals(userExecute.getPassword())) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("用户名或密码有误！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        if (!userExecute.getStatus().equals(Integer.valueOf(1))) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("账号已被停用！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
@@ -2063,6 +2070,13 @@ public class ApiController extends BasicController {
 //            return model;
 //        }
 
+        if (!userExecute.getStatus().equals(Integer.valueOf(1))) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("账号已被停用！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
         if (useSession.get()) {
             session.setAttribute(SessionKey.SESSION_LOGIN_USER.toString(), userExecute);
         } else {
@@ -2323,6 +2337,5 @@ public class ApiController extends BasicController {
     public static void main(String[] args) {
 //        System.out.println(new Md5Hash("123456", "media@adbest.com").toString());
         System.out.println("【浙江百泰】您的验证码为${code}".replaceAll("\\$\\{code\\}","122321"));
-
     }
 }

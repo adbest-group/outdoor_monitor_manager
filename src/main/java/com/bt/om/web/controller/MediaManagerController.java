@@ -71,7 +71,7 @@ public class MediaManagerController {
         //只显示待指派的
         vo.putSearchParam("status", null, MonitorTaskStatus.UNASSIGN.getId());
         //只显示上刊和下刊任务
-        vo.putSearchParam("taskTypes", null, new Integer[]{MonitorTaskType.SET_UP_MONITOR.getId()});
+//        vo.putSearchParam("taskTypes", null, new Integer[]{MonitorTaskType.SET_UP_MONITOR.getId()});
         //只显示本媒体广告位的任务
         SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         vo.putSearchParam("mediaUserId", null, user.getId());

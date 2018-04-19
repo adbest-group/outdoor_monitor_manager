@@ -112,17 +112,27 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             }
         }
         //如果是上刊安装，激活其他任务
-        if(task.getTaskType().equals(MonitorTaskType.SET_UP_MONITOR.getId())){
-            adMonitorTaskMapper.activeTask(task.getActivityAdseatId());
-        }
+        //现在又没有上刊安装任务了
+//        if(task.getTaskType().equals(MonitorTaskType.SET_UP_MONITOR.getId())){
+//            adMonitorTaskMapper.activeTask(task.getActivityAdseatId());
+//        }
         //如果是上刊安装任务，并且广告位上并未记录经纬度,就把安装人员完成任务时的经纬度记录给广告位
-        if(task.getTaskType().equals(MonitorTaskType.SET_UP_MONITOR.getId())){
-            AdSeatInfo seatInfo = adSeatInfoMapper.getAdSeatInfoByAdActivitySeatId(task.getActivityAdseatId());
-            if(seatInfo.getLon()==null||seatInfo.getLat()==null){
-                seatInfo.setLon(feedback.getLon());
-                seatInfo.setLat(feedback.getLat());
-                adSeatInfoMapper.updateByPrimaryKeySelective(seatInfo);
-            }
+        //现在又没有上刊安装任务了
+//        if(task.getTaskType().equals(MonitorTaskType.SET_UP_MONITOR.getId())){
+//            AdSeatInfo seatInfo = adSeatInfoMapper.getAdSeatInfoByAdActivitySeatId(task.getActivityAdseatId());
+//            if(seatInfo.getLon()==null||seatInfo.getLat()==null){
+//                seatInfo.setLon(feedback.getLon());
+//                seatInfo.setLat(feedback.getLat());
+//                adSeatInfoMapper.updateByPrimaryKeySelective(seatInfo);
+//            }
+//        }
+        //现在又没有上刊安装任务了
+        //审核通过时，如果广告位上并未记录经纬度,就把该任务完成时的经纬度记录给广告位
+        AdSeatInfo seatInfo = adSeatInfoMapper.getAdSeatInfoByAdActivitySeatId(task.getActivityAdseatId());
+        if(seatInfo.getLon()==null||seatInfo.getLat()==null){
+            seatInfo.setLon(feedback.getLon());
+            seatInfo.setLat(feedback.getLat());
+            adSeatInfoMapper.updateByPrimaryKeySelective(seatInfo);
         }
 
         //奖励相关
@@ -177,33 +187,41 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             feedback.setUpdateTime(now);
             feedback.setMonitorTaskId(taskId);
             adMonitorTaskFeedbackMapper.insertSelective(feedback);
-            if(task.getTaskType()==MonitorTaskType.SET_UP_MONITOR.getId()){
-                //上刊安装任务不提供未完成状态
+            //现在又没有上刊安装任务了
+//            if(task.getTaskType()==MonitorTaskType.SET_UP_MONITOR.getId()){
+//                //上刊安装任务不提供未完成状态
+//                task.setStatus(MonitorTaskStatus.UNVERIFY.getId());
+//            }else {
+//                //如果本次提交的照片不足，任务状态设置为"未完成"，否则进入待审核
+//                if (feedback.getPicUrl1() == null || feedback.getPicUrl2() == null || feedback.getPicUrl3() == null || feedback.getPicUrl4() == null) {
+//                    task.setStatus(MonitorTaskStatus.UN_FINISHED.getId());
+//                } else {
+//                    task.setStatus(MonitorTaskStatus.UNVERIFY.getId());
+//                }
+//            }
+            //如果本次提交的照片不足，任务状态设置为"未完成"，否则进入待审核
+            if (feedback.getPicUrl1() == null || feedback.getPicUrl2() == null || feedback.getPicUrl3() == null || feedback.getPicUrl4() == null) {
+                task.setStatus(MonitorTaskStatus.UN_FINISHED.getId());
+            } else {
                 task.setStatus(MonitorTaskStatus.UNVERIFY.getId());
-            }else {
-                //如果本次提交的照片不足，任务状态设置为"未完成"，否则进入待审核
-                if (feedback.getPicUrl1() == null || feedback.getPicUrl2() == null || feedback.getPicUrl3() == null || feedback.getPicUrl4() == null) {
-                    task.setStatus(MonitorTaskStatus.UN_FINISHED.getId());
-                } else {
-                    task.setStatus(MonitorTaskStatus.UNVERIFY.getId());
-                }
             }
             task.setUpdateTime(now);
             adMonitorTaskMapper.updateByPrimaryKeySelective(task);
 
             //上刊安装任务，判断是否二维码已绑定广告位
-            if (task.getTaskType()== MonitorTaskType.SET_UP_MONITOR.getId()) {
-                AdSeatInfo seatInfo = adSeatInfoMapper.getAdSeatInfoByAdActivitySeatId(task.getActivityAdseatId());
-                //如果广告位没绑定二维码，本次绑定激活
-                if(StringUtil.isEmpty(seatInfo.getAdCode())){
-                    if(StringUtil.isEmpty(adSeatCode)){
-                        throw new RuntimeException("广告位未激活，需提供广告位二维码");
-                    }
-                    seatInfo.setAdCode(adSeatCode);
-                    seatInfo.setUpdateTime(now);
-                    adSeatInfoMapper.updateByPrimaryKeySelective(seatInfo);
-                }
-            }
+            //现在又没有上刊安装任务了
+//            if (task.getTaskType()== MonitorTaskType.SET_UP_MONITOR.getId()) {
+//                AdSeatInfo seatInfo = adSeatInfoMapper.getAdSeatInfoByAdActivitySeatId(task.getActivityAdseatId());
+//                //如果广告位没绑定二维码，本次绑定激活
+//                if(StringUtil.isEmpty(seatInfo.getAdCode())){
+//                    if(StringUtil.isEmpty(adSeatCode)){
+//                        throw new RuntimeException("广告位未激活，需提供广告位二维码");
+//                    }
+//                    seatInfo.setAdCode(adSeatCode);
+//                    seatInfo.setUpdateTime(now);
+//                    adSeatInfoMapper.updateByPrimaryKeySelective(seatInfo);
+//                }
+//            }
 
         } else if (task.getStatus() == MonitorTaskStatus.UN_FINISHED.getId()) {
             //如果检测任务当前处于"未完成"
@@ -295,7 +313,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         //先查询该任务
         AdMonitorTask task = adMonitorTaskMapper.selectByPrimaryKey(id);
         //任务未查到或任务执行人已指派，抢任务失败
-        if(task==null||task.getUserId()!=null){
+        if(task==null||task.getUserId()!=null&&task.getStatus()!=1){
             return ret;
         }
         int count = adMonitorTaskMapper.grabTask(userId,id,task.getUpdateTime());

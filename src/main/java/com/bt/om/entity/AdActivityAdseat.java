@@ -482,4 +482,32 @@ public class AdActivityAdseat extends ID{
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
+
+    private Integer upMonitorLastDays;
+    private Integer durationMonitorLastDays;
+    private Integer downMonitorLastDays;
+
+    public Integer getUpMonitorLastDays() {
+        return upMonitorLastDays;
+    }
+
+    public void setUpMonitorLastDays(Integer upMonitorLastDays) {
+        this.upMonitorLastDays = upMonitorLastDays;
+    }
+
+    public Integer getDurationMonitorLastDays() {
+        return durationMonitorLastDays;
+    }
+
+    public void setDurationMonitorLastDays(Integer durationMonitorLastDays) {
+        this.durationMonitorLastDays = durationMonitorLastDays;
+    }
+
+    public Integer getDownMonitorLastDays() {
+        return downMonitorLastDays;
+    }
+
+    public void setDownMonitorLastDays(Integer downMonitorLastDays) {
+        this.downMonitorLastDays = downMonitorLastDays;
+    }
 }

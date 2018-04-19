@@ -199,8 +199,16 @@
                enableUpdateByExample="false">
         </table> -->
         
+        <!-- 
         <table schema="outdoor-monitor" tableName="ad_sms"
                domainObjectName="AdSms" enableCountByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false"
+               enableUpdateByExample="false">
+        </table>
+         -->
+        
+        <table schema="outdoor-monitor" tableName="ad_media_type"
+               domainObjectName="AdMediaType" enableCountByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false"
                enableUpdateByExample="false">
         </table>

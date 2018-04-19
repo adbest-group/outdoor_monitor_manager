@@ -1,21 +1,13 @@
 package com.bt.om.web.controller;
 
-import com.bt.om.common.SysConst;
-import com.bt.om.common.web.PageConst;
-import com.bt.om.entity.*;
-import com.bt.om.entity.vo.AdJiucuoTaskVo;
-import com.bt.om.entity.vo.AdMonitorTaskVo;
-import com.bt.om.entity.vo.ResourceVo;
-import com.bt.om.entity.vo.SysUserVo;
-import com.bt.om.enums.*;
-import com.bt.om.security.ShiroUtils;
-import com.bt.om.service.*;
-import com.bt.om.vo.web.ResultVo;
-import com.bt.om.vo.web.SearchDataVo;
-import com.bt.om.web.util.SearchUtil;
-import com.google.common.collect.Maps;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.StringUtils;
-import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +19,35 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpServletRequest;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.bt.om.common.SysConst;
+import com.bt.om.common.web.PageConst;
+import com.bt.om.entity.AdActivity;
+import com.bt.om.entity.AdActivityAdseat;
+import com.bt.om.entity.AdJiucuoTask;
+import com.bt.om.entity.AdJiucuoTaskFeedback;
+import com.bt.om.entity.AdMonitorTask;
+import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.SysUser;
+import com.bt.om.entity.SysUserExecute;
+import com.bt.om.entity.vo.AdJiucuoTaskVo;
+import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.enums.JiucuoTaskStatus;
+import com.bt.om.enums.MonitorTaskStatus;
+import com.bt.om.enums.MonitorTaskType;
+import com.bt.om.enums.ResultCode;
+import com.bt.om.enums.RewardTaskType;
+import com.bt.om.enums.SessionKey;
+import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.security.ShiroUtils;
+import com.bt.om.service.IAdActivityService;
+import com.bt.om.service.IAdJiucuoTaskService;
+import com.bt.om.service.IAdMonitorTaskService;
+import com.bt.om.service.IAdSeatService;
+import com.bt.om.service.ISysUserExecuteService;
+import com.bt.om.vo.web.ResultVo;
+import com.bt.om.vo.web.SearchDataVo;
+import com.bt.om.web.util.SearchUtil;
+import com.google.common.collect.Maps;
 
 /**
  * Created by caiting on 2018/2/5.
@@ -298,7 +313,6 @@ public class MediaManagerController {
                              @RequestParam(value = "mediaId", required = false) Integer mediaId) {
         SearchDataVo vo = SearchUtil.getVo();
 
-
         if (street != null) {
             vo.putSearchParam("street", street.toString(), street);
         } else if (region != null) {
@@ -336,7 +350,6 @@ public class MediaManagerController {
         return PageConst.MEDIA_ADSEAT_EDIT;
     }
 
-
     /**
      * 保存广告位
      **/
@@ -350,7 +363,6 @@ public class MediaManagerController {
         model = new ExtendedModelMap();
 
         adSeatInfo.setAdSize(adSeatInfo.getWidth() + "*" + adSeatInfo.getHeight());
-
 
         try {
             if (adSeatInfo.getId() != null) {
@@ -368,7 +380,6 @@ public class MediaManagerController {
 
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
-
     }
 
     /**
@@ -586,7 +597,6 @@ public class MediaManagerController {
         model.addAttribute(SysConst.RESULT_KEY, resultVo);
         return model;
     }
-
 
     @RequiresRoles("media")
     @RequestMapping(value = {"/worker/updateAccountStatus"}, method = {RequestMethod.POST})

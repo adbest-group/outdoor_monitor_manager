@@ -1,14 +1,39 @@
 package com.bt.om.service.impl;
 
-import com.bt.om.entity.*;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.collections.MapUtils;
+import org.apache.ibatis.session.RowBounds;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.bt.om.entity.AdActivity;
+import com.bt.om.entity.AdActivityAdseat;
+import com.bt.om.entity.AdActivityArea;
+import com.bt.om.entity.AdActivityMedia;
+import com.bt.om.entity.AdMonitorTask;
+import com.bt.om.entity.SysUser;
+import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.ActivityMobileReportVo;
+import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
 import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdActivityVo;
 import com.bt.om.enums.ActivityStatus;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.TaskProblemStatus;
-import com.bt.om.mapper.*;
+import com.bt.om.mapper.AdActivityAdseatMapper;
+import com.bt.om.mapper.AdActivityAreaMapper;
+import com.bt.om.mapper.AdActivityMapper;
+import com.bt.om.mapper.AdActivityMediaMapper;
+import com.bt.om.mapper.AdMonitorTaskMapper;
+import com.bt.om.mapper.SysUserMapper;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.vo.web.SearchDataVo;
 import com.google.common.collect.Lists;
@@ -262,9 +287,19 @@ public class AdActivityService implements IAdActivityService {
         return task;
     }
 
+	@Override
+	public AdActivity getById(Integer id) {
+		return adActivityMapper.selectByPrimaryKey(id);
+	}
+
+	@Override
+	public List<AdActivityAdseatTaskVo> selectAdActivityAdseatTask(Integer activityId) {
+		return adActivityAdseatMapper.selectAdActivityAdseatTask(activityId);
+	}
 //    public static void main(String[] args) {
 //        System.out.println(LocalDate.now());
 //        System.out.println(YearMonth.from(LocalDate.now()));
 //        System.out.println(LocalDate.now().plusYears(1).getMonthValue());
 //    }
+
 }

@@ -1390,7 +1390,7 @@ public class ApiController extends BasicController {
         result.setResultDes("操作成功");
         model = new ExtendedModelMap();
         
-        Integer needForceUpdate = 0; // 0: 有新版本,需要强制更新; 1: 有新版本,可去更新; 2: 最新版本; 3: 版本号有误
+        Integer needForceUpdate = 3; // 0: 有新版本,需要强制更新; 1: 有新版本,可去更新; 2: 最新版本; 3: 版本号有误
         String appVersion;
         
         // 查询最新的需要强制更新的版本号
@@ -1404,14 +1404,7 @@ public class ApiController extends BasicController {
             appVersion = obj.get("appVersion") == null ? null : obj.get("appVersion").getAsString();
             
             //判断版本号比较, 提示是否需要强制更新
-            if(version == null) {
-            	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
-                result.setResultDes("有新版本，可去更新！");
-                needForceUpdate = 1;
-                result.setResult(needForceUpdate);
-                model.addAttribute(SysConst.RESULT_KEY, result);
-                return model;
-            } else {
+            if(version != null) {
             	String[] versionSplit = version.getAppVersion().split("\\.");
             	String[] appVersionSplit = appVersion.split("\\.");
             	for (int i = 0; i < appVersionSplit.length; i++) {
@@ -1428,7 +1421,7 @@ public class ApiController extends BasicController {
         			}
         		}
             	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
-			}
+            }
             
             //判断版本号比较, 提示是否更新
             if(nowVersion == null) {

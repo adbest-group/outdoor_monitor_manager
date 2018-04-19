@@ -139,6 +139,10 @@ public class ExcelController extends BasicController {
 				if(vo.getMonitorEnd().getTime() < now.getTime()) {
 	        		list.add(AdMediaInfoStatus.FINISHED.getText());
 	        	}
+				
+				if(vo.getStatus() == 4 && vo.getProblemStatus() == 3) {
+					
+				}
 			}
         	
             String[] titleArray = {"活动名称", "广告位名称", "媒体大类", "媒体小类", "省", "市", "区（县）", "街道（镇，乡）", "详细位置", "唯一标识", 

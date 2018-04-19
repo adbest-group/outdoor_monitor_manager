@@ -70,7 +70,7 @@
                             <td>${task.startTime?string('yyyy-MM-dd')}<br/>${task.endTime?string('yyyy-MM-dd')}</td>
                             <td>${vm.getCityNameFull(task.street!task.region,"-")!""}</td>
                             <td>${task.mediaName}</td>
-                            <td>${task.adSeatName}</td>
+                            <td>${task.adSeatName!""}</td>
                             <td>${task.realname!""}</td>
                             <td>${vm.getMonitorTaskTypeText(task.taskType)}</td>
                             <td>${vm.getMonitorTaskStatusText(task.status)}</td>

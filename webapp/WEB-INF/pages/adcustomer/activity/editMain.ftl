@@ -200,6 +200,9 @@
                     upMonitor: "${seat.upMonitor}",
                     downMonitor: "${seat.downMonitor}",
                     durationMonitor: "${seat.durationMonitor}",
+                    upMonitorLastDays: "${seat.upMonitorLastDays!"3"}",
+                    downMonitorLastDays: "${seat.downMonitorLastDays!"3"}",
+                    durationMonitorLastDays: "${seat.durationMonitorLastDays!"3"}",
                     monitorCount: "${seat.monitorCount}",
                     samplePicUrl: "${seat.samplePicUrl}"
                 }<#if seat_has_next>,</#if>
@@ -572,9 +575,9 @@
     renderASTable = function () {
         $("#as-container").html("");
         if (activity_seats.length > 0) {
-            var tab = $('<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead> <tr> <th>序号</th> <th>广告位</th> <th>媒体</th> <th>投放品牌</th> <th>监测时间段</th> <th>监测次数</th> <th>监测时间</th> <th>样例</th> <th>操作</th> </tr> </thead> <tbody></tbody></table>');
+            var tab = $('<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead> <tr> <th>序号</th> <th>广告位</th> <th>媒体</th> <th>投放品牌</th> <th>监测时间段</th> <th>监测时间</th> <th>样例</th> <th>操作</th> </tr> </thead> <tbody></tbody></table>');
             $.each(activity_seats, function (i, as) {
-                tab.find("tbody").append("<tr> <td width='30'>" + (i + 1) + "</td> <td>" + as.seatName + "</td> <td>" + as.mediaName + "</td> <td>" + as.brand + "</td> <td>" + as.startDate + "至" + as.endDate + "</td> <td>" + as.monitorCount + "</td> <td>" + (as.upMonitor == 1 ? "上刊" : "") + "&nbsp;" + (as.durationMonitor == 1 ? "投放期间" : "") + "&nbsp;" + (as.downMonitor == 1 ? "下刊" : "") + "&nbsp;" + "</td> <td><img src='" + as.samplePicUrl + "' class='demo'/></td> <td> <a href='javascript:modAS(" + i + ");'>详情</a> "+(editMode?"<a href='javascript:dealAS(" + i + ");'>删除</a>":"")+" </td> </tr>");
+                tab.find("tbody").append("<tr> <td width='30'>" + (i + 1) + "</td> <td>" + as.seatName + "</td> <td>" + as.mediaName + "</td> <td>" + as.brand + "</td> <td>" + as.startDate + "至" + as.endDate + "</td><td>" + (as.upMonitor == 1 ? "上刊" : "") + "&nbsp;" + (as.durationMonitor == 1 ? "投放期间" : "") + "&nbsp;" + (as.downMonitor == 1 ? "下刊" : "") + "&nbsp;" + "</td> <td><img src='" + as.samplePicUrl + "' class='demo'/></td> <td> <a href='javascript:modAS(" + i + ");'>详情</a> "+(editMode?"<a href='javascript:dealAS(" + i + ");'>删除</a>":"")+" </td> </tr>");
             });
             $("#as-container").append(tab);
         }

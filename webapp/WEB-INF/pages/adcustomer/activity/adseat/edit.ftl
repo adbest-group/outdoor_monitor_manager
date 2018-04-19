@@ -68,21 +68,45 @@
                             <input type="checkbox" checked id="upMonitor" name="monitor_time" value="0"  > 上刊
                         </label>
                         <label>
-                            <input type="checkbox" checked id="downMonitor" name="monitor_time" value="0"  > 投放期间
+                            <input type="checkbox" checked id="durationMonitor" name="monitor_time" value="0"  > 投放期间
                         </label>
                         <label>
-                            <input type="checkbox" checked id="durationMonitor" name="monitor_time" value="0"  > 下刊
+                            <input type="checkbox" checked id="downMonitor" name="monitor_time" value="0"  > 下刊
                         </label>
 
                         <span id="monitorTimeTip"></span>
                     </td>
                 </tr>
 
-                <tr>
+                <tr id="upMonitorLastDaysTr" style="display:none;">
+                    <td class="a-title"><font class="s-red">*</font>上刊监测任务<br/>可持续天数：</td>
+                    <td>
+                        <input type="text" style="width:50px;text-align:right;" id="upMonitorLastDays" name="upMonitorLastDays" value="3" autocomplete="off" class="form-control">
+                        <span id="upMonitorLastDays"></span>
+                    </td>
+                </tr>
+
+                <tr id="durationMonitorLastDaysTr" style="display:none;">
+                    <td class="a-title"><font class="s-red">*</font>投放期间监测任务<br/>可持续天数：</td>
+                    <td>
+                        <input type="text" style="width:50px;text-align:right;" id="durationMonitorLastDays" name="durationMonitorLastDays" value="3" autocomplete="off" class="form-control">
+                        <span id="durationMonitorLastDays"></span>
+                    </td>
+                </tr>
+
+                <tr id="downMonitorLastDaysTr" style="display:none;">
+                    <td class="a-title"><font class="s-red">*</font>下刊监测任务<br/>可持续天数：</td>
+                    <td>
+                        <input type="text" style="width:50px;text-align:right;" id="downMonitorLastDays" name="downMonitorLastDays" value="3" autocomplete="off" class="form-control">
+                        <span id="downMonitorLastDays"></span>
+                    </td>
+                </tr>
+
+                <tr style="display:none;">
                     <td class="a-title"><font class="s-red">*</font>监测次数：</td>
                     <td>
                         <input type="text" style="width:50px;text-align:right;" disabled id="monitorCount" name="monitorCount" value="3" autocomplete="off" class="form-control">
-                        <span id="usernameTip"></span>
+                        <span id="monitorCount"></span>
                     </td>
                 </tr>
 
@@ -296,9 +320,27 @@
                         $("#dts").val(as.startDate); //监测开始时间
                         $("#dt").val(as.endDate); //监测结束时间
                         $("#brand").val(as.brand); //品牌
-                        if(as.upMonitor>1)$("#upMonitor").removeAttr("checked");//上刊监测
-                        if(as.downMonitor>1)$("#downMonitor").removeAttr("checked");//下刊监测
-                        if(as.durationMonitor>1)$("#durationMonitor").removeAttr("checked");//投放期间监测
+                        //上刊监测
+                        if(as.upMonitor>1) {
+                            $("#upMonitor").removeAttr("checked");
+                        }else{
+                            $("#upMonitorLastDays").val(as.upMonitorLastDays);
+                            $("#upMonitorLastDaysTr").show();
+                        }
+                        //下刊监测
+                        if(as.downMonitor>1){
+                            $("#downMonitor").removeAttr("checked");
+                        }else{
+                            $("#downMonitorLastDays").val(as.downMonitorLastDays);
+                            $("#downMonitorLastDaysTr").show();
+                        }
+                        //投放期间监测
+                        if(as.durationMonitor>1){
+                            $("#durationMonitor").removeAttr("checked");
+                        }else{
+                            $("#durationMonitorLastDays").val(as.durationMonitorLastDays);
+                            $("#durationMonitorLastDaysTr").show();
+                        }
                         $("#monitorCount").val(as.monitorCount);//监测次数
                         $("#img-demo-bak").val(as.samplePicUrl);//样例图片地址
                         $("#img-demo-img").attr("src",as.samplePicUrl);//样例图片地址
@@ -317,6 +359,10 @@
                 }).show();
                 $("#dts").val($dts.val())
                 $("#dt").val($dt.val())
+
+                $("#upMonitorLastDaysTr").show();
+                $("#downMonitorLastDaysTr").show();
+                $("#durationMonitorLastDaysTr").show();
             }
 
             selectSeatOps(as&&as.mediaId || media_seat[0].id);
@@ -327,6 +373,9 @@
 
             $("input[name='monitor_time']").change(function(){
                 $("#monitorCount").val($("input[name='monitor_time']:checked").length);
+                if($("#upMonitor:checked").length > 0){$("#upMonitorLastDaysTr").show();}else{$("#upMonitorLastDaysTr").hide();}
+                if($("#durationMonitor:checked").length > 0){$("#durationMonitorLastDaysTr").show();}else{$("#durationMonitorLastDaysTr").hide();}
+                if($("#downMonitor:checked").length > 0){$("#downMonitorLastDaysTr").show();}else{$("#downMonitorLastDaysTr").hide();}
             });
             $("#btnCancel").click(function(){
                 parent.window.layer.closeAll();
@@ -335,7 +384,7 @@
             //判断是否可编辑
             if(!editMode){
                 $(".select").siblings(".searchable-select").find(".searchable-select-dropdown").hide();
-                $("#brand,#dts,#dt,input:checkbox[name='monitor_time']").attr("disabled",true);
+                $("#brand,#dts,#dt,input:checkbox[name='monitor_time'],#upMonitorLastDays,#durationMonitorLastDays,#downMonitorLastDays").attr("disabled",true);
                 $("#resource_sel").parent().hide();
                 $("#btnSave").hide();
             }
@@ -358,8 +407,11 @@
                         endDate: $("#dt").val(), //监测结束时间
                         brand: $("#brand").val(), //品牌
                         upMonitor: $("#upMonitor:checked").length > 0 ? 1 : 2,//上刊监测
+                        upMonitorLastDays: $("#upMonitorLastDays").val(),
                         downMonitor: $("#downMonitor:checked").length > 0 ? 1 : 2,//下刊监测
+                        downMonitorLastDays: $("#downMonitorLastDays").val(),
                         durationMonitor: $("#durationMonitor:checked").length > 0 ? 1 : 2,//投放期间监测
+                        durationMonitorLastDays: $("#durationMonitorLastDays").val(),
                         monitorCount: $("#monitorCount").val(),//监测次数
                         samplePicUrl: $("#img-demo-bak").val()//样例图片地址
                     }

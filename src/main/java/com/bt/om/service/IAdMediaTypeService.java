@@ -20,4 +20,5 @@ public interface IAdMediaTypeService {
     public void updateStatusById(AdMediaType adMediaType);
     public void updateNeedById(AdMediaType adMediaType);
     public List<AdMediaTypeVo> selectParentAndSecond();
+    public List<AdMediaType> getAll();
 }

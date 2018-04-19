@@ -61,4 +61,6 @@ public interface AdMediaTypeMapper {
     int updateNeedById(AdMediaType record);
     
     List<AdMediaTypeVo> selectParentAndSecond();
+    
+    List<AdMediaType> getAll();
 }

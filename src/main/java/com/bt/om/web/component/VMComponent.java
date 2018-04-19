@@ -26,6 +26,7 @@ import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.enums.UserExecuteType;
 //import com.bt.om.mapper.SysDictMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
@@ -196,7 +197,7 @@ public class VMComponent {
     /**
      * 获取app端用户类型名称
      **/
-    public String getUserExecuteTypeText(int id) {
+    public String getUserExecuteTypeText(int id) {	
         return UserExecuteType.getText(id);
     }
 

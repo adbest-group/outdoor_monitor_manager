@@ -15,6 +15,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,13 +29,17 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.druid.util.StringUtils;
 import com.bt.om.cache.CityCache;
+import com.bt.om.common.DateUtil;
 import com.bt.om.common.SysConst;
+import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdMediaType;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.City;
 import com.bt.om.entity.SysUser;
+import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
 import com.bt.om.entity.vo.AdMediaTypeVo;
+import com.bt.om.enums.AdMediaInfoStatus;
 import com.bt.om.enums.ExcelImportFailEnum;
 import com.bt.om.enums.MapStandardEnum;
 import com.bt.om.enums.ResultCode;
@@ -42,6 +47,7 @@ import com.bt.om.enums.SessionKey;
 import com.bt.om.exception.web.ExcelException;
 import com.bt.om.mapper.AdMediaMapper;
 import com.bt.om.security.ShiroUtils;
+import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdMediaTypeService;
 import com.bt.om.service.IAdSeatService;
 import com.bt.om.service.ISysUserService;
@@ -75,6 +81,85 @@ public class ExcelController extends BasicController {
 	
 	@Autowired
 	private IAdMediaTypeService adMediaTypeService;
+	
+	@Autowired
+	private IAdActivityService adActivityService;
+	
+	/**
+	 * 
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @param activityId
+	 * @return
+	 */
+	@RequiresRoles(value = {"customer"})
+    @RequestMapping(value = "/exportAdMediaInfo")
+	@ResponseBody
+	public Model exportAdMediaInfo(Model model, HttpServletRequest request, HttpServletResponse response,
+			@RequestParam(value = "mediaId", required = false) Integer activityId) {
+		//相关返回结果
+		ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("查询成功");
+        model = new ExtendedModelMap();
+		Date now = new Date();
+		
+		//查询媒体类型
+		List<AdMediaType> allAdMediaType = adMediaTypeService.getAll();
+		Map<Integer, String> mediaTypeMap = new HashMap<>();
+		for (AdMediaType adMediaType : allAdMediaType) {
+			mediaTypeMap.put(adMediaType.getId(), adMediaType.getName());
+		}
+		
+		//导出文件相关
+		AdActivity adActivity = adActivityService.getById(activityId);
+ 		final String fileName = adActivity.getActivityName() + "-广告位导出结果"+ ".xls"; //导出文件名
+        List<List<String>> listString = new ArrayList<>();
+        
+        try {
+        	List<AdActivityAdseatTaskVo> vos = adActivityService.selectAdActivityAdseatTask(activityId);
+        	for (AdActivityAdseatTaskVo vo : vos) {
+				List<String> list = new ArrayList<>();
+				list.add(adActivity.getActivityName()); //活动名称
+				list.add(vo.getInfo_name()); //广告位名称
+				list.add(mediaTypeMap.get(vo.getInfo_mediaTypeParentId())); //媒体大类
+				list.add(mediaTypeMap.get(vo.getInfo_mediaTypeId())); //媒体小类
+				list.add(cityCache.getCityName(vo.getInfo_province())); //省
+				list.add(cityCache.getCityName(vo.getInfo_city())); //市
+				list.add(cityCache.getCityName(vo.getInfo_region())); //区（县）
+				list.add(cityCache.getCityName(vo.getInfo_street())); //街道（镇，乡）
+				list.add(vo.getInfo_location()); //详细位置
+				list.add(vo.getInfo_uniqueKey()); //唯一标识
+				list.add(DateUtil.dateFormate(vo.getMonitorStart(), "yyyy-MM-dd")); //开始监测时间
+				list.add(DateUtil.dateFormate(vo.getMonitorEnd(), "yyyy-MM-dd")); //结束监测时间
+				if(vo.getMonitorStart().getTime() > now.getTime()) {
+					list.add(AdMediaInfoStatus.NOT_BEGIN.getText());
+				}
+				if(vo.getMonitorEnd().getTime() < now.getTime()) {
+	        		list.add(AdMediaInfoStatus.FINISHED.getText());
+	        	}
+			}
+        	
+            String[] titleArray = {"活动名称", "广告位名称", "媒体大类", "媒体小类", "省", "市", "区（县）", "街道（镇，乡）", "详细位置", "唯一标识", 
+            		"开始监测时间", "结束监测时间", "当前状态",
+            		"广告位尺寸", "面积", "经度", "纬度", "地图标准（如百度，谷歌，高德）", "联系人姓名", "联系人电话", "备注"};
+            ExcelTool<List<String>> excelTool = new ExcelTool<List<String>>("importResult");
+            String path = request.getSession().getServletContext().getRealPath("/");
+    		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"excel"+File.separatorChar+fileName;
+    		excelTool.generateExcel(listString, titleArray, path);
+            result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+            result.setResult("/static/excel/" + fileName);
+		} catch (Exception e) {
+			logger.error(MessageFormat.format("批量误, 导入失败", new Object[] {}));
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+        	result.setResultDes(e.getMessage());
+            e.printStackTrace();
+		}
+        
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+	}
 	
 	/**
 	 * 批量插入广告位
@@ -518,7 +603,6 @@ public class ExcelController extends BasicController {
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
 	}
-	
 	
 	/**
 	 * 设置以媒体大类名称, 媒体小类名称为Key, AdMediaTypeVo为Value的集合

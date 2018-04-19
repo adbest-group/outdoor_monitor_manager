@@ -276,5 +276,11 @@
   		from ad_media_type as a, ad_media_type as b
 		where a.parent_id = b.id;
   	</select>
+  	
+  	<select id="getAll" resultType="com.bt.om.entity.AdMediaType">
+  		select
+  		<include refid="Base_Column_List" />
+  		from ad_media_type
+  	</select>
   
 </mapper>

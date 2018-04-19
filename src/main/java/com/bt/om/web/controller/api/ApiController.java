@@ -1390,7 +1390,7 @@ public class ApiController extends BasicController {
         result.setResultDes("操作成功");
         model = new ExtendedModelMap();
         
-        Integer needForceUpdate = 0; // 0: 不需要更新; 1: 需要强制更新; 2: 存在新版本
+        Integer needForceUpdate = 0; // 0: 有新版本,需要强制更新; 1: 有新版本,可去更新; 2: 最新版本; 3: 版本号有误
         String appVersion;
         
         // 查询最新的需要强制更新的版本号
@@ -1406,8 +1406,8 @@ public class ApiController extends BasicController {
             //判断版本号比较, 提示是否需要强制更新
             if(version == null) {
             	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
-                result.setResultDes("不需要强制更新！");
-                needForceUpdate = 0;
+                result.setResultDes("有新版本，可去更新！");
+                needForceUpdate = 1;
                 result.setResult(needForceUpdate);
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
@@ -1419,35 +1419,37 @@ public class ApiController extends BasicController {
         			Integer appVersionInt = Integer.parseInt(appVersionSplit[i]);
         			if(appVersionInt < versionInt) {
         				//需要强制更新
-        				needForceUpdate = 1;
+        				needForceUpdate = 0;
         				break;
         			} else if(appVersionInt > versionInt) {
         				//不需要强制更新
-        				needForceUpdate = 0;
+        				needForceUpdate = 1;
         				break;
         			}
         		}
             	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
 			}
             
-            //判断版本号比较, 提示是否需要强制更新
+            //判断版本号比较, 提示是否更新
             if(nowVersion == null) {
             	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
-                result.setResultDes("不需要强制更新！");
-                needForceUpdate = 0;
+                result.setResultDes("版本号有误！");
+                needForceUpdate = 3;
                 result.setResult(needForceUpdate);
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
             } else {
-            	if(needForceUpdate != 1) {
+            	if(needForceUpdate != 0) {
             		String[] versionSplit = nowVersion.getAppVersion().split("\\.");
                 	String[] appVersionSplit = appVersion.split("\\.");
                 	for (int i = 0; i < appVersionSplit.length; i++) {
             			Integer versionInt = Integer.parseInt(versionSplit[i]);
             			Integer appVersionInt = Integer.parseInt(appVersionSplit[i]);
             			if(appVersionInt < versionInt) {
-            				needForceUpdate = 2;
+            				needForceUpdate = 1;
             				break;
+            			} else if(appVersionInt == versionInt) {
+            				needForceUpdate = 2;
             			}
             		}
             	}
@@ -1455,11 +1457,11 @@ public class ApiController extends BasicController {
 			}
             
             if(needForceUpdate == 1) {
-        		result.setResultDes("需要强制更新！");
+        		result.setResultDes("有新版本，可去更新！");
         	} else if(needForceUpdate == 0) {
-        		result.setResultDes("不需要强制更新！");
+        		result.setResultDes("有新版本，需要强制更新！");
         	} else {
-        		result.setResultDes("存在新版本！");
+        		result.setResultDes("最新版本！");
         	}
             result.setResult(needForceUpdate);
         } catch (IOException e) {

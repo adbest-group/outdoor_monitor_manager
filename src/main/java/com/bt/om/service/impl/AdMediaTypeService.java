@@ -92,4 +92,9 @@ public class AdMediaTypeService implements IAdMediaTypeService {
 	public List<AdMediaTypeVo> selectParentAndSecond() {
 		return adMediaTypeMapper.selectParentAndSecond();
 	}
+
+	@Override
+	public List<AdMediaType> getAll() {
+		return adMediaTypeMapper.getAll();
+	}
 }

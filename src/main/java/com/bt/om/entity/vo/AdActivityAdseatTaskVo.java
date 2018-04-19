@@ -6,7 +6,7 @@ public class AdActivityAdseatTaskVo extends AdActivityAdseat {
 	private static final long serialVersionUID = 1L;
 	
 	//ad_monitor_task 相关属性
-	private Integer problemStatus; //问题状态 1：未监测 2：无问题 3：有问题 4：已解决 5：已闭环
+	private Integer problemStatus; //问题状态 (1：未监测 2：无问题 3：有问题 4：已解决 5：已闭环)
 	private Integer status; //任务状态(1：待指派 2：待执行 3：审核中 4：通过审核 5：未通过审核)
 	private String statusDesp; //未开始, 监测中, 有问题, 已结束
 	

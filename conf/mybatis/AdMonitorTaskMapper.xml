@@ -339,12 +339,17 @@
         <if test="status != null">
             and a.status = #{status,jdbcType=INTEGER}
         </if>
+        <if test="statuses != null">
+            and a.status in
+            <foreach collection="statuses" separator="," open="(" close=")" item="s">#{s,jdbcType=INTEGER}
+            </foreach>
+        </if>
         <if test="problemStatus != null">
             and a.problem_status = #{problemStatus,jdbcType=INTEGER}
         </if>
         <if test="problemStatuses != null">
             and a.problem_status in
-            <foreach collection="problemStatuses" separator="," open="(" close=")" item="s">#{s,jdbcType=INTEGER}
+            <foreach collection="problemStatuses" separator="," open="(" close=")" item="ps">#{ps,jdbcType=INTEGER}
             </foreach>
         </if>
         <if test="taskType != null">
@@ -394,12 +399,17 @@
         <if test="status != null">
             and a.status = #{status,jdbcType=INTEGER}
         </if>
+        <if test="statuses != null">
+            and a.status in
+            <foreach collection="statuses" separator="," open="(" close=")" item="s">#{s,jdbcType=INTEGER}
+            </foreach>
+        </if>
         <if test="problemStatus != null">
             and a.problem_status = #{problemStatus,jdbcType=INTEGER}
         </if>
         <if test="problemStatuses != null">
             and a.problem_status in
-            <foreach collection="problemStatuses" separator="," open="(" close=")" item="s">#{s,jdbcType=INTEGER}
+            <foreach collection="problemStatuses" separator="," open="(" close=")" item="ps">#{ps,jdbcType=INTEGER}
             </foreach>
         </if>
         <if test="taskType != null">
@@ -550,7 +560,7 @@
         left join ad_activity_adseat c on a.activity_adseat_id = c.id
         left join ad_seat_info d on c.ad_seat_id = d.id
 
-        where a.status = 1 and a.task_type &lt;> 5
+        where a.status = 8
         and d.lon between (#{lon,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lon,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
         and d.lat between (#{lat,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lat,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
         ) t ) t2 where t2.distance &lt;= #{metre,jdbcType=DOUBLE}
@@ -568,7 +578,7 @@
         left join ad_activity_adseat c on a.activity_adseat_id = c.id
         left join ad_seat_info d on c.ad_seat_id = d.id
 
-        where a.status = 1 and a.task_type &lt;> 5
+        where a.status = 8
         and d.lon between (#{lon,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lon,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
         and d.lat between (#{lat,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lat,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
         ) t
@@ -584,7 +594,7 @@
         left join ad_activity_adseat c on a.activity_adseat_id = c.id
         left join ad_seat_info d on c.ad_seat_id = d.id
 
-        where a.status = 1 and a.task_type &lt;> 5
+        where a.status = 8
         <if test="province!=null">
             and d.province = #{province,jdbcType=BIGINT}
         </if>
@@ -607,7 +617,7 @@
         left join ad_activity_adseat c on a.activity_adseat_id = c.id
         left join ad_seat_info d on c.ad_seat_id = d.id
 
-        where a.status = 1 and a.task_type &lt;> 5
+        where a.status = 8
         <if test="province!=null">
           and d.province = #{province,jdbcType=BIGINT}
         </if>

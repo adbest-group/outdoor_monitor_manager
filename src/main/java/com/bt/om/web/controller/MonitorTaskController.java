@@ -114,13 +114,19 @@ public class MonitorTaskController extends BasicController {
     public String getUnAssignList(Model model, HttpServletRequest request,
                                   @RequestParam(value = "activityId", required = false) Integer activityId,
                                   @RequestParam(value = "startDate", required = false) String startDate,
+                                  @RequestParam(value = "status", required = false) Integer status,
                                   @RequestParam(value = "endDate", required = false) String endDate) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
-        vo.putSearchParam("status", String.valueOf(MonitorTaskStatus.UNASSIGN.getId()),
-                String.valueOf(MonitorTaskStatus.UNASSIGN.getId()));
+
+        if (status == null) {
+            vo.putSearchParam("statuses", null,
+                    new Integer[]{MonitorTaskStatus.CAN_GRAB.getId(), MonitorTaskStatus.UNASSIGN.getId()});
+        } else {
+            vo.putSearchParam("status", String.valueOf(status), String.valueOf(status));
+        }
         //运营平台指派任务只指派监测期间的任务
-        vo.putSearchParam("taskTypes", null, new Integer[]{MonitorTaskType.UP_MONITOR.getId(),MonitorTaskType.DURATION_MONITOR.getId(),MonitorTaskType.DOWNMONITOR.getId(), MonitorTaskType.FIX_CONFIRM.getId()});
+//        vo.putSearchParam("taskTypes", null, new Integer[]{MonitorTaskType.UP_MONITOR.getId(),MonitorTaskType.DURATION_MONITOR.getId(),MonitorTaskType.DOWNMONITOR.getId(), MonitorTaskType.FIX_CONFIRM.getId()});
 
         if (activityId != null) {
             vo.putSearchParam("activityId", activityId.toString(), activityId);
@@ -161,7 +167,7 @@ public class MonitorTaskController extends BasicController {
     }
 
     // 分配任务
-    @RequiresRoles(value = {"admin","media"},logical = Logical.OR)
+    @RequiresRoles(value = {"admin", "media"}, logical = Logical.OR)
     @RequestMapping(value = "/assign")
     @ResponseBody
     public Model assign(Model model, HttpServletRequest request,
@@ -290,13 +296,13 @@ public class MonitorTaskController extends BasicController {
         List<AdMonitorTaskVo> list = adMonitorTaskService.getSubmitDetails(taskId);
 
         //获取父任务信息，分监测和纠错
-        if(vo.getParentId()!=null){
-            if(vo.getParentType() == RewardTaskType.MONITOR.getId()){
+        if (vo.getParentId() != null) {
+            if (vo.getParentType() == RewardTaskType.MONITOR.getId()) {
                 //父任务是监测
                 model.addAttribute("pmTask", adMonitorTaskService.getTaskVoById(vo.getParentId()));
-            }else if(vo.getParentType() == RewardTaskType.JIUCUO.getId()){
+            } else if (vo.getParentType() == RewardTaskType.JIUCUO.getId()) {
                 //父任务是纠错
-                model.addAttribute("pjTask",adJiucuoTaskService.getVoById(vo.getParentId()));
+                model.addAttribute("pjTask", adJiucuoTaskService.getVoById(vo.getParentId()));
             }
         }
 

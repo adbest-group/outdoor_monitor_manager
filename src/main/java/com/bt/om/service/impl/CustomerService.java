@@ -2,12 +2,10 @@ package com.bt.om.service.impl;
 
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.SysUserDetail;
+import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.SysUserRole;
 import com.bt.om.entity.vo.SysUserVo;
-import com.bt.om.mapper.AdMediaMapper;
-import com.bt.om.mapper.SysUserDetailMapper;
-import com.bt.om.mapper.SysUserMapper;
-import com.bt.om.mapper.SysUserRoleMapper;
+import com.bt.om.mapper.*;
 import com.bt.om.service.ICustomerService;
 import com.bt.om.service.IMediaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +27,8 @@ public class CustomerService implements ICustomerService {
     private SysUserDetailMapper sysUserDetailMapper;
     @Autowired
     private SysUserRoleMapper sysUserRoleMapper;
+    @Autowired
+    private SysUserExecuteMapper sysUserExecuteMapper;
 
     private ThreadLocal<SimpleDateFormat> localFormat = new ThreadLocal<>();
 
@@ -61,6 +61,18 @@ public class CustomerService implements ICustomerService {
         userRole.setCreateTime(now);
         userRole.setUpdateTime(now);
         sysUserRoleMapper.insertSelective(userRole);
+        //创建app端账号
+        SysUserExecute userExe = new SysUserExecute();
+        userExe.setUsername(user.getUsername());
+        userExe.setPassword(user.getPassword());
+        userExe.setUsertype(2);
+        userExe.setOperateId(user.getId());
+        userExe.setStatus(1);
+        userExe.setRealname(user.getRealname());
+        userExe.setMobile(user.getTelephone());
+        userExe.setCreateTime(now);
+        userExe.setUpdateTime(now);
+        sysUserExecuteMapper.insertSelective(userExe);
     }
 
     @Override
@@ -75,5 +87,12 @@ public class CustomerService implements ICustomerService {
             detail.setUpdateTime(now);
             sysUserDetailMapper.updateByPrimaryKeySelective(detail);
         }
+        SysUserExecute userExe = sysUserExecuteMapper.selectByUsername(user.getUsername());
+        if(user.getPassword()!=null){
+            userExe.setPassword(user.getPassword());
+        }
+        userExe.setRealname(user.getRealname());
+        userExe.setMobile(user.getTelephone());
+        sysUserExecuteMapper.updateByPrimaryKeySelective(userExe);
     }
 }

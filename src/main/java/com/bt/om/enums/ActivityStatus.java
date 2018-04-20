@@ -4,7 +4,7 @@ package com.bt.om.enums;
  * Created by caiting on 2018/1/19.
  */
 public enum ActivityStatus {
-    UNCONFIRM(1,"未确认"),CONFIRMED(2,"已确认"),COMPLETE(3,"已完成");
+    UNCONFIRM(1,"未确认"),CONFIRMED(2,"已确认"),COMPLETE(3,"已结束");
 
     private Integer id;
     private String text;

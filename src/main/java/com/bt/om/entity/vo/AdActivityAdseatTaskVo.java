@@ -11,6 +11,7 @@ public class AdActivityAdseatTaskVo extends AdActivityAdseat {
 	private String statusDesp; //未开始, 监测中, 有问题, 已结束
 	
 	//ad_seat_info 相关属性
+	private Integer problem_count;
 	private String info_name;
     private Long info_province;
     private Long info_city;
@@ -53,6 +54,14 @@ public class AdActivityAdseatTaskVo extends AdActivityAdseat {
 		this.statusDesp = statusDesp;
 	}
 
+	public Integer getProblem_count() {
+		return problem_count;
+	}
+	
+	public void setProblem_count(Integer problem_count) {
+		this.problem_count = problem_count;
+	}
+	
 	public String getInfo_name() {
 		return info_name;
 	}

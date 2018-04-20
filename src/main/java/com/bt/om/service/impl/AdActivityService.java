@@ -1,7 +1,8 @@
 package com.bt.om.service.impl;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -24,6 +25,7 @@ import com.bt.om.entity.vo.ActivityMobileReportVo;
 import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
 import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdActivityVo;
+import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.enums.ActivityStatus;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
@@ -38,21 +40,6 @@ import com.bt.om.service.IAdActivityService;
 import com.bt.om.vo.web.SearchDataVo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import net.sf.cglib.core.Local;
-import org.apache.commons.collections.MapUtils;
-import org.apache.ibatis.session.RowBounds;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.ZoneId;
-import java.time.temporal.ChronoField;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalField;
-import java.util.*;
 
 /**
  * Created by caiting on 2018/1/18.
@@ -302,4 +289,19 @@ public class AdActivityService implements IAdActivityService {
 //        System.out.println(LocalDate.now().plusYears(1).getMonthValue());
 //    }
 
+	@Override
+	public void selectReportPageData(SearchDataVo vo) {
+		int count = adActivityMapper.selectActivityReportByUserIdCount(vo.getSearchMap());
+        vo.setCount(count);
+        if (count > 0) {
+            vo.setList(adActivityMapper.selectActivityReportByUserId(vo.getSearchMap(), new RowBounds(vo.getStart(), vo.getSize())));
+        } else {
+            vo.setList(new ArrayList<AdMonitorTaskVo>());
+        }
+	}
+
+	@Override
+	public List<AdActivityAdseatTaskVo> selectAdSeatTaskReport(Integer activityId) {
+		return adActivityAdseatMapper.selectAdSeatTaskReport(activityId);
+	}
 }

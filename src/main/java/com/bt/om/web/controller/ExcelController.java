@@ -86,7 +86,7 @@ public class ExcelController extends BasicController {
 	private IAdActivityService adActivityService;
 	
 	/**
-	 * 
+	 * 具体活动的广告位excel导出报表
 	 * @param model
 	 * @param request
 	 * @param response
@@ -97,7 +97,7 @@ public class ExcelController extends BasicController {
     @RequestMapping(value = "/exportAdMediaInfo")
 	@ResponseBody
 	public Model exportAdMediaInfo(Model model, HttpServletRequest request, HttpServletResponse response,
-			@RequestParam(value = "mediaId", required = false) Integer activityId) {
+			@RequestParam(value = "activityId", required = false) Integer activityId) {
 		//相关返回结果
 		ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
@@ -133,16 +133,27 @@ public class ExcelController extends BasicController {
 				list.add(vo.getInfo_uniqueKey()); //唯一标识
 				list.add(DateUtil.dateFormate(vo.getMonitorStart(), "yyyy-MM-dd")); //开始监测时间
 				list.add(DateUtil.dateFormate(vo.getMonitorEnd(), "yyyy-MM-dd")); //结束监测时间
+				String status = AdMediaInfoStatus.WATCHING.getText(); //当前状态
 				if(vo.getMonitorStart().getTime() > now.getTime()) {
-					list.add(AdMediaInfoStatus.NOT_BEGIN.getText());
+					status = AdMediaInfoStatus.NOT_BEGIN.getText();
 				}
 				if(vo.getMonitorEnd().getTime() < now.getTime()) {
-	        		list.add(AdMediaInfoStatus.FINISHED.getText());
+					status = AdMediaInfoStatus.FINISHED.getText();
 	        	}
-				
-				if(vo.getStatus() == 4 && vo.getProblemStatus() == 3) {
-					
+				if(vo.getProblem_count() > 0) {
+					status = AdMediaInfoStatus.HAS_PROBLEM.getText();
 				}
+				list.add(status);
+				list.add(vo.getInfo_adSize());
+				list.add(vo.getInfo_adArea());
+				list.add(vo.getInfo_lon() + "");
+				list.add(vo.getInfo_lat() + "");
+				list.add(MapStandardEnum.getText(vo.getInfo_mapStandard()));
+				list.add(vo.getInfo_contactName());
+				list.add(vo.getInfo_contactCell());
+				list.add(vo.getInfo_memo());
+				
+				listString.add(list);
 			}
         	
             String[] titleArray = {"活动名称", "广告位名称", "媒体大类", "媒体小类", "省", "市", "区（县）", "街道（镇，乡）", "详细位置", "唯一标识", 
@@ -155,7 +166,7 @@ public class ExcelController extends BasicController {
             result.setCode(ResultCode.RESULT_SUCCESS.getCode());
             result.setResult("/static/excel/" + fileName);
 		} catch (Exception e) {
-			logger.error(MessageFormat.format("批量误, 导入失败", new Object[] {}));
+			logger.error(MessageFormat.format("批量导出失败", new Object[] {}));
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());
         	result.setResultDes(e.getMessage());
             e.printStackTrace();

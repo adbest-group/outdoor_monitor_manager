@@ -59,4 +59,8 @@ public interface IAdActivityService {
     public List<ActivityMobileReportVo> getMobileReport(SysUserExecute user);
     
     public List<AdActivityAdseatTaskVo> selectAdActivityAdseatTask(Integer activityId);
+    
+    public List<AdActivityAdseatTaskVo> selectAdSeatTaskReport(Integer activityId);
+    
+    public void selectReportPageData(SearchDataVo vo);
 }

@@ -68,4 +68,5 @@ public interface AdActivityAdseatMapper {
     AdActivityAdseat selectByActivityAndSeatId(@Param("activityId") Integer activityId,@Param("seatId") Integer seatId);
     
     List<AdActivityAdseatTaskVo> selectAdActivityAdseatTask(@Param("activityId") Integer activityId);
+    List<AdActivityAdseatTaskVo> selectAdSeatTaskReport(@Param("activityId") Integer activityId);
 }

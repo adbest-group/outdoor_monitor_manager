@@ -1,28 +1,27 @@
 package com.bt.om.web.controller.api;
 
-import com.bt.om.cache.AdVersionCache;
-import com.bt.om.cache.CityCache;
-import com.bt.om.common.SysConst;
-import com.bt.om.entity.*;
-import com.bt.om.entity.vo.*;
-import com.bt.om.enums.*;
-import com.bt.om.mapper.SysUserDetailMapper;
-import com.bt.om.service.*;
-import com.bt.om.util.CityUtil;
-import com.bt.om.util.GeoUtil;
-import com.bt.om.util.QRcodeUtil;
-import com.bt.om.vo.api.*;
-import com.bt.om.vo.api.SysUserExecuteVo;
-import com.bt.om.vo.web.ResultVo;
-import com.bt.om.vo.web.SearchDataVo;
-import com.bt.om.web.BasicController;
-import com.bt.om.web.session.SessionByRedis;
-import com.bt.om.web.util.SearchUtil;
-import com.bt.om.web.util.UploadFileUtil;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Tables;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
+import java.util.regex.Pattern;
+
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.crypto.hash.Md5Hash;
@@ -31,21 +30,76 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.*;
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
-import java.util.regex.Pattern;
+import com.bt.om.cache.AdVersionCache;
+import com.bt.om.cache.CityCache;
+import com.bt.om.common.DateUtil;
+import com.bt.om.common.SysConst;
+import com.bt.om.entity.AdActivity;
+import com.bt.om.entity.AdActivityAdseat;
+import com.bt.om.entity.AdJiucuoTask;
+import com.bt.om.entity.AdJiucuoTaskFeedback;
+import com.bt.om.entity.AdMonitorReward;
+import com.bt.om.entity.AdMonitorTaskFeedback;
+import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.AdVersion;
+import com.bt.om.entity.City;
+import com.bt.om.entity.SysUserExecute;
+import com.bt.om.entity.vo.ActivityMobileReportVo;
+import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
+import com.bt.om.entity.vo.AdActivityAdseatVo;
+import com.bt.om.entity.vo.AdJiucuoTaskMobileVo;
+import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
+import com.bt.om.entity.vo.SysUserVo;
+import com.bt.om.enums.JiucuoTaskStatus;
+import com.bt.om.enums.MonitorTaskStatus;
+import com.bt.om.enums.ResultCode;
+import com.bt.om.enums.SessionKey;
+import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.enums.UserExecuteType;
+import com.bt.om.service.IAdActivityService;
+import com.bt.om.service.IAdJiucuoTaskService;
+import com.bt.om.service.IAdMonitorRewardService;
+import com.bt.om.service.IAdMonitorTaskService;
+import com.bt.om.service.IAdSeatService;
+import com.bt.om.service.ISendSmsService;
+import com.bt.om.service.ISysUserExecuteService;
+import com.bt.om.service.ISysUserService;
+import com.bt.om.util.CityUtil;
+import com.bt.om.util.GeoUtil;
+import com.bt.om.util.QRcodeUtil;
+import com.bt.om.vo.api.ActivityReportVo;
+import com.bt.om.vo.api.AdActivitySeatInfoInQRVO;
+import com.bt.om.vo.api.AdSeatCodeCheckInfo;
+import com.bt.om.vo.api.CustomerActivityReport;
+import com.bt.om.vo.api.ImageCodeResultVo;
+import com.bt.om.vo.api.JiucuoTaskListResultVo;
+import com.bt.om.vo.api.JiucuoTaskVo;
+import com.bt.om.vo.api.MonitorTaskArroundVo;
+import com.bt.om.vo.api.MonitorTaskCheckedVo;
+import com.bt.om.vo.api.MonitorTaskExecutingVo;
+import com.bt.om.vo.api.MonitorTaskListResultVo;
+import com.bt.om.vo.api.MonitorTaskUnFinishedVo;
+import com.bt.om.vo.api.MonitorTaskWaitToExecutedVo;
+import com.bt.om.vo.api.QRCodeInfoVo;
+import com.bt.om.vo.api.RewardResultVo;
+import com.bt.om.vo.api.RewardVo;
+import com.bt.om.vo.api.SMSCheckCodeResultVo;
+import com.bt.om.vo.api.SysUserExecuteVo;
+import com.bt.om.vo.web.ResultVo;
+import com.bt.om.vo.web.SearchDataVo;
+import com.bt.om.web.BasicController;
+import com.bt.om.web.session.SessionByRedis;
+import com.bt.om.web.util.UploadFileUtil;
+import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 /**
  * Created by caiting on 2018/1/22.
@@ -2272,6 +2326,107 @@ public class ApiController extends BasicController {
     	sendSmsService.sendSms(cell, buffer.toString());
     }
 
+    //广告主首页简单报表
+    @RequestMapping(value = "/getActivityReport")
+    @ResponseBody
+    public Model getCustomerActivityReport(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("调用成功");
+        model = new ExtendedModelMap();
+
+        String token = null;
+        Integer taskId = null;
+        Integer page = 1;
+        Integer pageSize = 5;
+        Date now = new Date();
+
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            if(obj.get("page") != null){
+                page = obj.get("page").getAsInt();
+            }
+            if(obj.get("page_size") != null){
+                pageSize = obj.get("page_size").getAsInt();
+            }
+            if (token != null) {
+                useSession.set(Boolean.FALSE);
+                this.sessionByRedis.setToken(token);
+            } else {
+                useSession.set(Boolean.TRUE);
+            }
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        //验证登录
+        if (useSession.get()) {
+            if (!checkLogin(model, result, request)) {
+                return model;
+            }
+        } else {
+            if (!checkLogin(model, result, token)) {
+                return model;
+            }
+        }
+
+        SysUserExecute user = getLoginUser(request, token);
+        Integer operateId = user.getOperateId(); //ad_activity的user_id
+        SearchDataVo vo = new SearchDataVo(null, null, (page-1)*pageSize, pageSize);
+        vo.putSearchParam("userId", null, operateId);
+        
+        //分页查询广告商的活动信息
+        List<CustomerActivityReport> reports = new ArrayList<>();
+        adActivityService.selectReportPageData(vo);
+        for(Object obj : vo.getList()){
+        	AdActivity activity = (AdActivity) obj;
+        	CustomerActivityReport report = new CustomerActivityReport();
+        	report.setActivityId(activity.getId());
+        	report.setActivityName(activity.getActivityName());
+        	report.setCreateTime(DateUtil.dateFormate(activity.getCreateTime(), "yyyy-MM-dd HH:mm:ss"));
+        	report.setStartTime(DateUtil.dateFormate(activity.getStartTime(), "yyyy-MM-dd"));
+        	report.setEndTime(DateUtil.dateFormate(activity.getEndTime(), "yyyy-MM-dd"));
+        	if(activity.getStatus() == 1) {
+        		report.setStatus("未确认");
+        	} else if(activity.getStatus() == 2) {
+        		report.setStatus("已确认");
+        	} else {
+        		report.setStatus("已完成");
+        	}
+        	Integer unstartNum = 0;
+        	Integer watchingNum = 0;
+        	Integer hasProblemNum = 0;
+        	List<AdActivityAdseatTaskVo> adseatTaskVos = adActivityService.selectAdSeatTaskReport(activity.getId());
+        	for (AdActivityAdseatTaskVo adseatTaskVo : adseatTaskVos) {
+        		if(adseatTaskVo.getMonitorStart().getTime() > now.getTime()) {
+        			unstartNum++;
+				}
+				if(adseatTaskVo.getProblem_count() > 0) {
+					hasProblemNum++;
+				}
+        	}
+        	watchingNum = adseatTaskVos.size() - unstartNum - hasProblemNum;
+        	report.setUnstartNum(unstartNum);
+        	report.setWatchingNum(watchingNum);
+        	report.setHasProblemNum(hasProblemNum);
+        	
+        	reports.add(report);
+        }
+        
+        result.setResult(reports);
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+    
     private Boolean checkLogin(Model model, ResultVo result, HttpServletRequest request) {
         boolean isLogin = true;
         HttpSession session = request.getSession();

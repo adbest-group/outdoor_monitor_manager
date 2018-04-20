@@ -1,13 +1,14 @@
 package com.bt.om.mapper;
 
-import com.bt.om.entity.AdActivity;
-import com.bt.om.entity.vo.ActivityMobileReportVo;
-import com.bt.om.entity.vo.AdActivityVo;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
-import java.util.List;
-import java.util.Map;
+import com.bt.om.entity.AdActivity;
+import com.bt.om.entity.vo.ActivityMobileReportVo;
+import com.bt.om.entity.vo.AdActivityVo;
 
 public interface AdActivityMapper {
     /**
@@ -67,4 +68,8 @@ public interface AdActivityMapper {
     List<AdActivity> selectByMap(Map map);
 
     List<ActivityMobileReportVo> selectActivityReportForMobile(@Param("userId")Integer UserId);
+    
+    List<AdActivity> selectActivityReportByUserId(Map<String, Object> searchMap, RowBounds rowBounds);
+    
+    int selectActivityReportByUserIdCount(Map<String, Object> searchMap);
 }

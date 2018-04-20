@@ -11,11 +11,19 @@
         <div class="title clearfix" style="display:block;">
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <form id="form" method="get" action="/task/unassign">
-                    <!--销售下拉框-->
+                    <!--活动下拉框-->
                     <div class="select-box select-box-140 un-inp-select ll">
                         <select name="activityId" class="select" id="activityId">
                             <option value="">所有活动</option>
                         <@model.showAllActivityOps value="${bizObj.queryMap.activityId?if_exists}"/>
+                        </select>
+                    </div>
+                    <!--任务状态下拉框-->
+                    <div class="select-box select-box-140 un-inp-select ll">
+                        <select name="status" class="select" id="status">
+                            <option value="">所有状态</option>
+                            <option value="8" <#if (bizObj.queryMap.status?exists&&bizObj.queryMap.status=="8")>selected</#if> >可抢单</option>
+                            <option value="1" <#if (bizObj.queryMap.status?exists&&bizObj.queryMap.status=="1")>selected</#if> >待指派</option>
                         </select>
                     </div>
                     <div class="ll inputs-date">

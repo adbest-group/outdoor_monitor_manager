@@ -1,14 +1,15 @@
 package com.bt.om.service;
 
+import java.util.List;
+
 import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdActivityAdseat;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.ActivityMobileReportVo;
+import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
 import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdActivityVo;
 import com.bt.om.vo.web.SearchDataVo;
-
-import java.util.List;
 
 /**
  * Created by caiting on 2018/1/18.
@@ -25,6 +26,8 @@ public interface IAdActivityService {
     public void getPageData(SearchDataVo vo);
 
     public AdActivityVo getVoById(Integer id);
+    
+    public AdActivity getById(Integer id);
 
     public void confirm(Integer id);
 
@@ -54,4 +57,10 @@ public interface IAdActivityService {
      * @param user  手机端客户登录的用户对象，主要使用其中username来获取后台SysUser对象;
      * */
     public List<ActivityMobileReportVo> getMobileReport(SysUserExecute user);
+    
+    public List<AdActivityAdseatTaskVo> selectAdActivityAdseatTask(Integer activityId);
+    
+    public List<AdActivityAdseatTaskVo> selectAdSeatTaskReport(Integer activityId);
+    
+    public void selectReportPageData(SearchDataVo vo);
 }

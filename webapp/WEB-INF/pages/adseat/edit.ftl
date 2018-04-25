@@ -56,6 +56,16 @@
                                 <span id="locationTip"></span>
                             </td>
                         </tr>
+                        <#--
+                        <tr>
+							<td class="a-title"><font class="s-red">*</font>广告位类型：</td>
+							<td><input type="text" style="width: 130px;" id="adSeatTypeText" name="adSeatTypeText" value="<#if (adSeatInfo?exists)>${adSeatInfo.adSeatTypeText!""}</#if>"
+								autocomplete="off" class="form-control">
+                                <span id="adSeatTypeTextTip"></span>
+							</td>
+						</tr>
+                        -->
+                        <#--
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>广告位类型：</td>
                             <td>
@@ -67,6 +77,7 @@
                                 <span id="adSeatTypeTip"></span>
                             </td>
                         </tr>
+                        -->
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>所在地区：</td>
                             <td>
@@ -84,6 +95,15 @@
                                 </div>
                             </td>
                         </tr>
+                        
+                        <tr>
+							<td class="a-title"><font class="s-red">*</font>唯一标识：</td>
+							<td><input type="text" style="width: 130px;" id="uniqueKey" name="uniqueKey" value="<#if (adSeatInfo?exists)>${adSeatInfo.uniqueKey!""}</#if>"
+								autocomplete="off" class="form-control">
+                                <span id="uniqueKeyTip"></span>
+							</td>
+						</tr>
+                        
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>广告位尺寸：</td>
                             <td>
@@ -99,6 +119,16 @@
                                 <span id="heightTip"></span>
                             </td>
                         </tr>
+                        
+                        <tr>
+							<td class="a-title"><font class="s-red">*</font>广告位面积：</td>
+							<td><input type="text" style="width: 130px;" id="adArea" name="adArea" value="<#if (adSeatInfo?exists)>${adSeatInfo.adArea!""}</#if>"
+								autocomplete="off" class="form-control">
+                                <span id="adAreaTip"></span>
+							</td>
+						</tr>
+                        
+                        <#setting number_format="#0.######" />
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>广告位经度：</td>
                             <td>
@@ -119,6 +149,45 @@
                                 <span id="latTip"></span>
                             </td>
                         </tr>
+                        
+                        <tr>
+							<td class="a-title"><font class="s-red">*</font>地图标准：</td>
+							<td>
+								<select style="width: 156px;" name="mapStandard" id="mapStandard" class="form-control">
+									<option value="">请选择地图标准</option>
+			                        <option value="1" <#if (adSeatInfo?exists&&((adSeatInfo.mapStandard)!0) == 1)>selected</#if>>百度</option>
+			                        <option value="2" <#if (adSeatInfo?exists&&((adSeatInfo.mapStandard)!0) == 2)>selected</#if>>谷歌</option>
+			                        <option value="3" <#if (adSeatInfo?exists&&((adSeatInfo.mapStandard)!0) == 3)>selected</#if>>高德</option>
+			                    </select>
+								
+                                <span id="mapStandardTip"></span>
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="a-title"><font class="s-red">*</font>联系人姓名：</td>
+							<td><input type="text" style="width: 130px;" id="contactName" name="contactName" value="<#if (adSeatInfo?exists)>${adSeatInfo.contactName!""}</#if>"
+								autocomplete="off" class="form-control">
+                                <span id="contactNameTip"></span>
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="a-title"><font class="s-red">*</font>联系人电话：</td>
+							<td><input type="text" style="width: 130px;" id="contactCell" name="contactCell" value="<#if (adSeatInfo?exists)>${adSeatInfo.contactCell!""}</#if>"
+								autocomplete="off" class="form-control">
+                                <span id="contactCellTip"></span>
+							</td>
+						</tr>
+                        
+                        <tr>
+							<td class="a-title"><font class="s-red">*</font>备注：</td>
+							<td><input type="text" style="width: 130px;" id="memo" name="memo" value="<#if (adSeatInfo?exists)>${adSeatInfo.memo!""}</#if>"
+								autocomplete="off" class="form-control">
+                                <span id="memoTip"></span>
+							</td>
+						</tr>
+                        
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>日均PV：</td>
                             <td>

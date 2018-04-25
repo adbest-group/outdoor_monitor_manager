@@ -1,21 +1,21 @@
 package com.bt.om.enums;
 
 /**
- * Created by caiting on 2018/1/19.
+ * Created by jiayong.mao on 2018/4/19.
  */
-public enum ActivityStatus {
-    UNCONFIRM(1,"未确认"),CONFIRMED(2,"已确认"),COMPLETE(3,"已结束");
+public enum AdMediaInfoStatus {
+    NOT_BEGIN(1, "未开始"),WATCHING(2, "监测中"),HAS_PROBLEM(3, "有问题"),FINISHED(4, "已结束");
 
     private Integer id;
     private String text;
 
-    ActivityStatus(int id,String text) {
+    AdMediaInfoStatus(int id,String text) {
         this.id = id;
         this.text = text;
     }
 
     public static String getText(int id){
-        for(ActivityStatus e : ActivityStatus.values()){
+        for(AdMediaInfoStatus e : AdMediaInfoStatus.values()){
             if(e.getId() == id){
                 return e.getText();
             }
@@ -24,7 +24,7 @@ public enum ActivityStatus {
     }
 
     public static Integer getId(String text){
-        for(ActivityStatus e : ActivityStatus.values()){
+        for(AdMediaInfoStatus e : AdMediaInfoStatus.values()){
             if(e.getText().equals(text)){
                 return e.getId();
             }

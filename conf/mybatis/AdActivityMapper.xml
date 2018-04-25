@@ -255,4 +255,25 @@
     where user_id = #{userId,jdbcType=INTEGER}
   </select>
 
+  <select id="selectActivityReportByUserId" parameterType="map" resultMap="BaseResultMap">
+  	select
+  	<include refid="Base_Column_List" />
+  	from ad_activity
+  	where 1=1
+  	<if test="userId != null" >
+      and user_id = #{userId,jdbcType=INTEGER}
+    </if>
+  	order by create_time desc
+  </select>
+  
+  <select id="selectActivityReportByUserIdCount" parameterType="map" resultType="int">
+    select
+    	count(id)
+    from ad_activity
+    where 1=1
+    <if test="userId != null" >
+      and user_id = #{userId,jdbcType=INTEGER}
+    </if>
+  </select>
+
 </mapper>

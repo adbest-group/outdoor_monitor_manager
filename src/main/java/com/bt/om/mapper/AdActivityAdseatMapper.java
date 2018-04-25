@@ -1,6 +1,7 @@
 package com.bt.om.mapper;
 
 import com.bt.om.entity.AdActivityAdseat;
+import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
 import com.bt.om.entity.vo.AdActivityAdseatVo;
 import org.apache.ibatis.annotations.Param;
 
@@ -65,4 +66,7 @@ public interface AdActivityAdseatMapper {
     List<AdActivityAdseatVo> selectVoBySeatCode(@Param("adSeatCode") String adSeatCode);
 
     AdActivityAdseat selectByActivityAndSeatId(@Param("activityId") Integer activityId,@Param("seatId") Integer seatId);
+    
+    List<AdActivityAdseatTaskVo> selectAdActivityAdseatTask(@Param("activityId") Integer activityId);
+    List<AdActivityAdseatTaskVo> selectAdSeatTaskReport(@Param("activityId") Integer activityId);
 }

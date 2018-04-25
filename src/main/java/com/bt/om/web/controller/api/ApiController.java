@@ -1,27 +1,27 @@
 package com.bt.om.web.controller.api;
 
-import com.bt.om.cache.AdVersionCache;
-import com.bt.om.cache.CityCache;
-import com.bt.om.common.SysConst;
-import com.bt.om.entity.*;
-import com.bt.om.entity.vo.*;
-import com.bt.om.enums.*;
-import com.bt.om.mapper.SysUserDetailMapper;
-import com.bt.om.service.*;
-import com.bt.om.util.CityUtil;
-import com.bt.om.util.GeoUtil;
-import com.bt.om.util.QRcodeUtil;
-import com.bt.om.vo.api.*;
-import com.bt.om.vo.api.SysUserExecuteVo;
-import com.bt.om.vo.web.ResultVo;
-import com.bt.om.vo.web.SearchDataVo;
-import com.bt.om.web.BasicController;
-import com.bt.om.web.session.SessionByRedis;
-import com.bt.om.web.util.SearchUtil;
-import com.bt.om.web.util.UploadFileUtil;
-import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
+import java.util.regex.Pattern;
+
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.crypto.hash.Md5Hash;
@@ -30,21 +30,76 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.*;
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
-import java.util.regex.Pattern;
+import com.bt.om.cache.AdVersionCache;
+import com.bt.om.cache.CityCache;
+import com.bt.om.common.DateUtil;
+import com.bt.om.common.SysConst;
+import com.bt.om.entity.AdActivity;
+import com.bt.om.entity.AdActivityAdseat;
+import com.bt.om.entity.AdJiucuoTask;
+import com.bt.om.entity.AdJiucuoTaskFeedback;
+import com.bt.om.entity.AdMonitorReward;
+import com.bt.om.entity.AdMonitorTaskFeedback;
+import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.AdVersion;
+import com.bt.om.entity.City;
+import com.bt.om.entity.SysUserExecute;
+import com.bt.om.entity.vo.ActivityMobileReportVo;
+import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
+import com.bt.om.entity.vo.AdActivityAdseatVo;
+import com.bt.om.entity.vo.AdJiucuoTaskMobileVo;
+import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
+import com.bt.om.entity.vo.SysUserVo;
+import com.bt.om.enums.JiucuoTaskStatus;
+import com.bt.om.enums.MonitorTaskStatus;
+import com.bt.om.enums.ResultCode;
+import com.bt.om.enums.SessionKey;
+import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.enums.UserExecuteType;
+import com.bt.om.service.IAdActivityService;
+import com.bt.om.service.IAdJiucuoTaskService;
+import com.bt.om.service.IAdMonitorRewardService;
+import com.bt.om.service.IAdMonitorTaskService;
+import com.bt.om.service.IAdSeatService;
+import com.bt.om.service.ISendSmsService;
+import com.bt.om.service.ISysUserExecuteService;
+import com.bt.om.service.ISysUserService;
+import com.bt.om.util.CityUtil;
+import com.bt.om.util.GeoUtil;
+import com.bt.om.util.QRcodeUtil;
+import com.bt.om.vo.api.ActivityReportVo;
+import com.bt.om.vo.api.AdActivitySeatInfoInQRVO;
+import com.bt.om.vo.api.AdSeatCodeCheckInfo;
+import com.bt.om.vo.api.CustomerActivityReport;
+import com.bt.om.vo.api.ImageCodeResultVo;
+import com.bt.om.vo.api.JiucuoTaskListResultVo;
+import com.bt.om.vo.api.JiucuoTaskVo;
+import com.bt.om.vo.api.MonitorTaskArroundVo;
+import com.bt.om.vo.api.MonitorTaskCheckedVo;
+import com.bt.om.vo.api.MonitorTaskExecutingVo;
+import com.bt.om.vo.api.MonitorTaskListResultVo;
+import com.bt.om.vo.api.MonitorTaskUnFinishedVo;
+import com.bt.om.vo.api.MonitorTaskWaitToExecutedVo;
+import com.bt.om.vo.api.QRCodeInfoVo;
+import com.bt.om.vo.api.RewardResultVo;
+import com.bt.om.vo.api.RewardVo;
+import com.bt.om.vo.api.SMSCheckCodeResultVo;
+import com.bt.om.vo.api.SysUserExecuteVo;
+import com.bt.om.vo.web.ResultVo;
+import com.bt.om.vo.web.SearchDataVo;
+import com.bt.om.web.BasicController;
+import com.bt.om.web.session.SessionByRedis;
+import com.bt.om.web.util.UploadFileUtil;
+import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 /**
  * Created by caiting on 2018/1/22.
@@ -383,6 +438,12 @@ public class ApiController extends BasicController {
         if (userExecute == null || !md5Pwd.equals(userExecute.getPassword())) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("用户名或密码有误！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        if (!userExecute.getStatus().equals(Integer.valueOf(1))) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("账号已被停用！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
@@ -1390,7 +1451,7 @@ public class ApiController extends BasicController {
         result.setResultDes("操作成功");
         model = new ExtendedModelMap();
         
-        Integer needForceUpdate = 0; // 0: 不需要更新; 1: 需要强制更新; 2: 存在新版本
+        Integer needForceUpdate = 3; // 0: 有新版本,需要强制更新; 1: 有新版本,可去更新; 2: 最新版本; 3: 版本号有误
         String appVersion;
         
         // 查询最新的需要强制更新的版本号
@@ -1404,14 +1465,7 @@ public class ApiController extends BasicController {
             appVersion = obj.get("appVersion") == null ? null : obj.get("appVersion").getAsString();
             
             //判断版本号比较, 提示是否需要强制更新
-            if(version == null) {
-            	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
-                result.setResultDes("不需要强制更新！");
-                needForceUpdate = 0;
-                result.setResult(needForceUpdate);
-                model.addAttribute(SysConst.RESULT_KEY, result);
-                return model;
-            } else {
+            if(version != null) {
             	String[] versionSplit = version.getAppVersion().split("\\.");
             	String[] appVersionSplit = appVersion.split("\\.");
             	for (int i = 0; i < appVersionSplit.length; i++) {
@@ -1419,35 +1473,37 @@ public class ApiController extends BasicController {
         			Integer appVersionInt = Integer.parseInt(appVersionSplit[i]);
         			if(appVersionInt < versionInt) {
         				//需要强制更新
-        				needForceUpdate = 1;
+        				needForceUpdate = 0;
         				break;
         			} else if(appVersionInt > versionInt) {
         				//不需要强制更新
-        				needForceUpdate = 0;
+        				needForceUpdate = 1;
         				break;
         			}
         		}
             	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
-			}
+            }
             
-            //判断版本号比较, 提示是否需要强制更新
+            //判断版本号比较, 提示是否更新
             if(nowVersion == null) {
             	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
-                result.setResultDes("不需要强制更新！");
-                needForceUpdate = 0;
+                result.setResultDes("版本号有误！");
+                needForceUpdate = 3;
                 result.setResult(needForceUpdate);
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
             } else {
-            	if(needForceUpdate != 1) {
+            	if(needForceUpdate != 0) {
             		String[] versionSplit = nowVersion.getAppVersion().split("\\.");
                 	String[] appVersionSplit = appVersion.split("\\.");
                 	for (int i = 0; i < appVersionSplit.length; i++) {
             			Integer versionInt = Integer.parseInt(versionSplit[i]);
             			Integer appVersionInt = Integer.parseInt(appVersionSplit[i]);
             			if(appVersionInt < versionInt) {
-            				needForceUpdate = 2;
+            				needForceUpdate = 1;
             				break;
+            			} else if(appVersionInt == versionInt) {
+            				needForceUpdate = 2;
             			}
             		}
             	}
@@ -1455,11 +1511,11 @@ public class ApiController extends BasicController {
 			}
             
             if(needForceUpdate == 1) {
-        		result.setResultDes("需要强制更新！");
+        		result.setResultDes("有新版本，可去更新！");
         	} else if(needForceUpdate == 0) {
-        		result.setResultDes("不需要强制更新！");
+        		result.setResultDes("有新版本，需要强制更新！");
         	} else {
-        		result.setResultDes("存在新版本！");
+        		result.setResultDes("最新版本！");
         	}
             result.setResult(needForceUpdate);
         } catch (IOException e) {
@@ -1773,7 +1829,7 @@ public class ApiController extends BasicController {
         return model;
     }
 
-    //app端手机号注册
+    //验证短信验证码
     @RequestMapping(value = "/checkSMSCode", method = RequestMethod.POST)
     @ResponseBody
     public Model checkSMSCode(Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -2063,6 +2119,13 @@ public class ApiController extends BasicController {
 //            return model;
 //        }
 
+        if (!userExecute.getStatus().equals(Integer.valueOf(1))) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("账号已被停用！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
         if (useSession.get()) {
             session.setAttribute(SessionKey.SESSION_LOGIN_USER.toString(), userExecute);
         } else {
@@ -2263,6 +2326,107 @@ public class ApiController extends BasicController {
     	sendSmsService.sendSms(cell, buffer.toString());
     }
 
+    //广告主首页简单报表
+    @RequestMapping(value = "/getActivityReport")
+    @ResponseBody
+    public Model getCustomerActivityReport(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("调用成功");
+        model = new ExtendedModelMap();
+
+        String token = null;
+        Integer taskId = null;
+        Integer page = 1;
+        Integer pageSize = 5;
+        Date now = new Date();
+
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            if(obj.get("page") != null){
+                page = obj.get("page").getAsInt();
+            }
+            if(obj.get("page_size") != null){
+                pageSize = obj.get("page_size").getAsInt();
+            }
+            if (token != null) {
+                useSession.set(Boolean.FALSE);
+                this.sessionByRedis.setToken(token);
+            } else {
+                useSession.set(Boolean.TRUE);
+            }
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        //验证登录
+        if (useSession.get()) {
+            if (!checkLogin(model, result, request)) {
+                return model;
+            }
+        } else {
+            if (!checkLogin(model, result, token)) {
+                return model;
+            }
+        }
+
+        SysUserExecute user = getLoginUser(request, token);
+        Integer operateId = user.getOperateId(); //ad_activity的user_id
+        SearchDataVo vo = new SearchDataVo(null, null, (page-1)*pageSize, pageSize);
+        vo.putSearchParam("userId", null, operateId);
+        
+        //分页查询广告商的活动信息
+        List<CustomerActivityReport> reports = new ArrayList<>();
+        adActivityService.selectReportPageData(vo);
+        for(Object obj : vo.getList()){
+        	AdActivity activity = (AdActivity) obj;
+        	CustomerActivityReport report = new CustomerActivityReport();
+        	report.setActivityId(activity.getId());
+        	report.setActivityName(activity.getActivityName());
+        	report.setCreateTime(DateUtil.dateFormate(activity.getCreateTime(), "yyyy-MM-dd HH:mm:ss"));
+        	report.setStartTime(DateUtil.dateFormate(activity.getStartTime(), "yyyy-MM-dd"));
+        	report.setEndTime(DateUtil.dateFormate(activity.getEndTime(), "yyyy-MM-dd"));
+        	if(activity.getStatus() == 1) {
+        		report.setStatus("未确认");
+        	} else if(activity.getStatus() == 2) {
+        		report.setStatus("已确认");
+        	} else {
+        		report.setStatus("已完成");
+        	}
+        	Integer unstartNum = 0;
+        	Integer watchingNum = 0;
+        	Integer hasProblemNum = 0;
+        	List<AdActivityAdseatTaskVo> adseatTaskVos = adActivityService.selectAdSeatTaskReport(activity.getId());
+        	for (AdActivityAdseatTaskVo adseatTaskVo : adseatTaskVos) {
+        		if(adseatTaskVo.getMonitorStart().getTime() > now.getTime()) {
+        			unstartNum++;
+				}
+				if(adseatTaskVo.getProblem_count() > 0) {
+					hasProblemNum++;
+				}
+        	}
+        	watchingNum = adseatTaskVos.size() - unstartNum - hasProblemNum;
+        	report.setUnstartNum(unstartNum);
+        	report.setWatchingNum(watchingNum);
+        	report.setHasProblemNum(hasProblemNum);
+        	
+        	reports.add(report);
+        }
+        
+        result.setResult(reports);
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+    
     private Boolean checkLogin(Model model, ResultVo result, HttpServletRequest request) {
         boolean isLogin = true;
         HttpSession session = request.getSession();
@@ -2323,6 +2487,5 @@ public class ApiController extends BasicController {
     public static void main(String[] args) {
 //        System.out.println(new Md5Hash("123456", "media@adbest.com").toString());
         System.out.println("【浙江百泰】您的验证码为${code}".replaceAll("\\$\\{code\\}","122321"));
-
     }
 }

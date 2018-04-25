@@ -265,6 +265,15 @@ public class AdMonitorTask extends ID{
     private Integer subCreated;
     private Date monitorDate;
     private Date verifyTime;
+    private Integer monitorLastDays;
+
+    public Integer getMonitorLastDays() {
+        return monitorLastDays;
+    }
+
+    public void setMonitorLastDays(Integer monitorLastDays) {
+        this.monitorLastDays = monitorLastDays;
+    }
 
     public Integer getSubCreated() {
         return subCreated;

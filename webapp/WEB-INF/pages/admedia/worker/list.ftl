@@ -65,7 +65,7 @@
         //iframe层
         layer.open({
             type: 2,
-            title: '编辑媒体',
+            title: '编辑账户',
             shadeClose: true,
             shade: 0.8,
             area: ['600px', '480px'],

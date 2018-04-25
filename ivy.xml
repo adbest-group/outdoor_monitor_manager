@@ -115,8 +115,8 @@
 		<dependency org="org.elasticsearch.client" name="unboundid-ldapsdk" rev="3.2.0" conf="compile,test->default(compile)"/>
 		<dependency org="org.bouncycastle" name="bcprov-ext-jdk14" rev="1.50" conf="compile,test->default(compile)"/>-->
 		<!--excel-->
-		<dependency org="org.apache.poi" name="poi" rev="3.14" conf="compile,test->default(*)"/>
-		<dependency org="org.apache.poi" name="poi-ooxml" rev="3.14" conf="compile,test->default(*)"/>
+		<dependency org="org.apache.poi" name="poi" rev="3.17" conf="compile,test->default(*)"/>
+		<dependency org="org.apache.poi" name="poi-ooxml" rev="3.17" conf="compile,test->default(*)"/>
 		<!--https://mvnrepository.com/artifact/net.sourceforge.jexcelapi/jxl-->
 		<dependency org="net.sourceforge.jexcelapi" name="jxl" rev="2.6.12"/>
 

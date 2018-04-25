@@ -15,7 +15,13 @@ public enum ExcelImportFailEnum {
 	LON_OVERFLOW(9, "经度不在-180到180之间"),
 	LAT_OVERFLOW(10, "纬度不在-90到90之间"),
 	NONE_MAP(11, "有经纬度没有地图标准"),
-	LOC_DUP(12, "广告位地址重复");
+	LOC_DUP(12, "广告位地址重复"),
+	PARENT_NULL(13, "媒体大类不能为空"),
+	PARENT_INVALID(14, "媒体大类无效"),
+	SECOND_NULL(15, "媒体小类不能为空"),
+	SECOND_INVALID(16, "媒体小类无效"),
+	MEDIA_TYPE_INVALID(17, "媒体类型无效"),
+	UNIQUE_KEY_NULL(18, "该媒体类型唯一标识不能为空");
 
     private Integer id;
     private String text;

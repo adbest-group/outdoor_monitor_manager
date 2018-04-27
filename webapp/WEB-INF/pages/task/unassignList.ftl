@@ -36,7 +36,7 @@
                         </div>
                     </div>
                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="searchBtn">查询</button>
-                    <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">指派</button>
+                    <#--<button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">指派</button>-->
                 </form>
             </div>
         </div>
@@ -79,7 +79,7 @@
                             <td>${vm.getMonitorTaskTypeText(task.taskType)}</td>
                             <td>${vm.getMonitorTaskStatusText(task.status)}</td>
                             <td>
-                                <#if task.status==1><a href="javascript:assign('${task.id}')">指派</a></#if>
+                                <#if (task.status==1 || task.status==8)><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if>
                                 <a href="/task/details?task_Id=${task.id}">详情</a>
                             </td>
                         </tr>
@@ -196,19 +196,19 @@
     });
 
     //指派
-    assign = function (id) {
+    assign = function (id,mediaId) {
         assign_ids = id;
-        openSelect();
+        openSelect(mediaId);
     }
 
     //打开选择执行者
-    openSelect = function() {
+    openSelect = function(mediaId) {
         layer.open({
             type: 2,
             title: '选择监测人员',
             shade: 0.8,
             area: ['400px', '220px'],
-            content: '/task/selectUserExecute' //iframe的url
+            content: '/task/selectUserExecute?mediaId='+mediaId //iframe的url
         });
     }
     //选择执行人后的回调

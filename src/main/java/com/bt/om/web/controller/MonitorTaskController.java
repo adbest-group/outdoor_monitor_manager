@@ -2,12 +2,14 @@ package com.bt.om.web.controller;
 
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
+import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.enums.*;
 import com.bt.om.service.IAdJiucuoTaskService;
 import com.bt.om.service.IAdMonitorTaskService;
+import com.bt.om.service.IMediaService;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -44,6 +46,8 @@ public class MonitorTaskController extends BasicController {
     ISysUserExecuteService sysUserExecuteService;
     @Autowired
     IAdJiucuoTaskService adJiucuoTaskService;
+    @Autowired
+    IMediaService mediaService;
 
     /**
      * 监测管理，已分配任务
@@ -155,10 +159,18 @@ public class MonitorTaskController extends BasicController {
      **/
     @RequiresRoles(value = {"admin", "media"}, logical = Logical.OR)
     @RequestMapping(value = "/selectUserExecute")
-    public String toSelectUserExecute(Model model, HttpServletRequest request) {
+    public String toSelectUserExecute(Model model, HttpServletRequest request,
+                                      @RequestParam(value = "mediaId", required = false) Integer mediaId) {
 
         Map condition = Maps.newHashMap();
-        condition.put("usertype", 1);
+        //指派人员改成指派给媒体人员
+//        condition.put("usertype", 1);
+
+        if(mediaId!=null){
+            AdMedia media = mediaService.getById(mediaId);
+            condition.put("operateId", media.getUserId());
+        }
+
 
         List<SysUserExecute> ues = sysUserExecuteService.getByConditionMap(condition);
         model.addAttribute("userList", ues);

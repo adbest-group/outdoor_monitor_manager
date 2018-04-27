@@ -5,6 +5,7 @@ import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.enums.*;
 import com.bt.om.mapper.*;
+import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.util.GeoUtil;
 import com.bt.om.util.StringUtil;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,6 +35,8 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     private AdJiucuoTaskMapper jiucuoTaskMapper;
     @Autowired
     private AdSeatInfoMapper adSeatInfoMapper;
+    @Autowired
+    AdMonitorUserTaskMapper adMonitorUserTaskMapper;
 
     @Override
     public void getPageData(SearchDataVo vo) {
@@ -48,6 +52,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void assign(String[] taskIds, Integer userId) {
+        Date now = new Date();
         for (String taskId : taskIds) {
             Integer id = Integer.valueOf(taskId);
 //            AdMonitorTask task = new AdMonitorTask();
@@ -63,6 +68,19 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
                 continue;
             }
             int count = adMonitorTaskMapper.grabTask(userId,id,task.getUpdateTime());
+            SysUser loginUser = (SysUser)ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+            //添加用户和任务关联关系
+            AdMonitorUserTask userTask = new AdMonitorUserTask();
+            userTask.setUserId(userId);
+            userTask.setAssignUserId(loginUser.getId());
+            userTask.setMonitorTaskId(id);
+            userTask.setStartTime(now);
+            userTask.setEndTime(Date.from(task.getMonitorDate().toInstant().atZone(ZoneId.systemDefault()).plusDays(task.getMonitorLastDays()).minusSeconds(1).toInstant()));
+            userTask.setAssignType(1);
+            userTask.setStatus(1);
+            userTask.setCreateTime(now);
+            userTask.setUpdateTime(now);
+            adMonitorUserTaskMapper.insertSelective(userTask);
         }
     }
 
@@ -309,6 +327,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 
     @Override
     public boolean grabTask(Integer userId, Integer id) {
+        Date now = new Date();
         boolean ret = false;
         //先查询该任务
         AdMonitorTask task = adMonitorTaskMapper.selectByPrimaryKey(id);
@@ -318,6 +337,18 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         }
         int count = adMonitorTaskMapper.grabTask(userId,id,task.getUpdateTime());
         if(count>0){
+            //添加用户和任务关联关系
+            AdMonitorUserTask userTask = new AdMonitorUserTask();
+            userTask.setUserId(userId);
+            userTask.setMonitorTaskId(id);
+            userTask.setStartTime(now);
+            userTask.setEndTime(Date.from(now.toInstant().atZone(ZoneId.systemDefault()).plusHours(12).toInstant()));
+            userTask.setAssignType(2);
+            userTask.setStatus(1);
+            userTask.setCreateTime(now);
+            userTask.setUpdateTime(now);
+            adMonitorUserTaskMapper.insertSelective(userTask);
+
             ret = true;
         }
 

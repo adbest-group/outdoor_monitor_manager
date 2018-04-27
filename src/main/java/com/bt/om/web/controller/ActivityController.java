@@ -18,6 +18,8 @@ import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
 import com.bt.om.web.util.SearchUtil;
+
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -127,7 +129,7 @@ public class ActivityController extends BasicController {
     }
 
     //删除活动
-    @RequiresRoles("admin")
+    @RequiresRoles(value= {"admin", "customer"}, logical = Logical.OR)
     @RequestMapping(value = "/delete")
     @ResponseBody
     public Model delete(Model model, HttpServletRequest request,
@@ -144,8 +146,6 @@ public class ActivityController extends BasicController {
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
-
-
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }

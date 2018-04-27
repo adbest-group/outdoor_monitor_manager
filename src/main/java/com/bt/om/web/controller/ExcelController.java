@@ -1,6 +1,8 @@
 package com.bt.om.web.controller;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
@@ -15,7 +17,6 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.time.DateUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +33,11 @@ import com.bt.om.cache.CityCache;
 import com.bt.om.common.DateUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.entity.AdActivity;
+import com.bt.om.entity.AdCustomerType;
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdMediaType;
+import com.bt.om.entity.AdMonitorTask;
+import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.City;
 import com.bt.om.entity.SysUser;
@@ -48,7 +52,9 @@ import com.bt.om.exception.web.ExcelException;
 import com.bt.om.mapper.AdMediaMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
+import com.bt.om.service.IAdCustomerTypeService;
 import com.bt.om.service.IAdMediaTypeService;
+import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.service.IAdSeatService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.util.ExcelTool;
@@ -57,6 +63,16 @@ import com.bt.om.vo.web.ResultVo;
 import com.bt.om.web.BasicController;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfContentByte;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 
 /**
  * Created by jiayong.mao on 2018/4/4.
@@ -85,6 +101,151 @@ public class ExcelController extends BasicController {
 	@Autowired
 	private IAdActivityService adActivityService;
 	
+	@Autowired
+	private IAdMonitorTaskService adMonitorTaskService;
+	
+	@Autowired
+	private IAdCustomerTypeService adCustomerTypeService;
+	
+	/**
+	 * pdf导出
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @param activityId
+	 * @return
+	 */
+	@RequiresRoles(value = {"admin" , "customer"}, logical = Logical.OR)
+    @RequestMapping(value = "/exportAdMediaPdf")
+	@ResponseBody
+	public Model exportPdf(Model model, HttpServletRequest request, HttpServletResponse response,
+			@RequestParam(value = "activityId", required = false) Integer activityId) {
+		//相关返回结果
+		ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("查询成功");
+        model = new ExtendedModelMap();
+		Date now = new Date();
+		
+		//查询媒体类型
+		List<AdMediaType> allAdMediaType = adMediaTypeService.getAll();
+		Map<Integer, String> mediaTypeMap = new HashMap<>();
+		for (AdMediaType adMediaType : allAdMediaType) {
+			mediaTypeMap.put(adMediaType.getId(), adMediaType.getName());
+		}
+		
+		//导出文件相关
+		AdActivity adActivity = adActivityService.getById(activityId);
+		AdCustomerType customerType = adCustomerTypeService.getById(adActivity.getCustomerTypeId()); //客户类型
+ 		final String fileName = adActivity.getActivityName() + "-广告位导出结果"+ ".pdf"; //导出文件名
+ 		List<List<String>> listString = new ArrayList<>();
+        Map<Integer, List<String>> map = new HashMap<>();
+        Document document = new Document(PageSize.LEDGER);
+        
+        try {
+        	//指定文件保存位置
+	        String path = request.getSession().getServletContext().getRealPath("/");
+			path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"pdf"+File.separatorChar+fileName;
+	        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+	        result.setResult("/static/pdf/" + fileName); //提供下载
+	        
+	        //生成pdf文件
+			PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(path));
+			document.open();
+			PdfContentByte cb = writer.getDirectContent();
+			
+			//生成首页
+		    BaseFont bfChinese = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
+		    //Header  
+	        float y = document.top(368); 
+			cb.beginText();  
+			cb.setFontAndSize(bfChinese, 54);  
+			cb.showTextAligned(PdfContentByte.ALIGN_CENTER, adActivity.getActivityName(), (document.right() + document.left())/2, y, 0);
+			cb.endText();
+			
+			cb = writer.getDirectContent();
+			cb.beginText();  
+			cb.setFontAndSize(bfChinese, 26);  
+			cb.showTextAligned(PdfContentByte.ALIGN_RIGHT, DateUtil.dateFormate(now, "yyyy-MM-dd"), 1000, 150, 0);
+			cb.endText();
+			
+			//查询活动对应的 广告位信息+监测时间+是否有问题
+			document.newPage();
+        	List<AdActivityAdseatTaskVo> vos = adActivityService.selectAdActivityAdseatTask(activityId);
+        	for (AdActivityAdseatTaskVo vo : vos) {
+				List<String> list = new ArrayList<>();
+				list.add(adActivity.getActivityName()); //活动名称 0
+				list.add(vo.getInfo_name()); //广告位名称 1
+				list.add(cityCache.getCityName(vo.getInfo_province())); //省 2
+				list.add(cityCache.getCityName(vo.getInfo_city())); //市 3
+				list.add(cityCache.getCityName(vo.getInfo_region())); //区（县） 4
+				list.add(cityCache.getCityName(vo.getInfo_street())); //街道（镇，乡） 5
+				list.add(vo.getInfo_location()); //详细位置 6
+				list.add(vo.getInfo_uniqueKey()); //唯一标识 7
+				list.add(DateUtil.dateFormate(vo.getMonitorStart(), "yyyy-MM-dd")); //开始监测时间 8
+				list.add(DateUtil.dateFormate(vo.getMonitorEnd(), "yyyy-MM-dd")); //结束监测时间 9
+				String status = AdMediaInfoStatus.WATCHING.getText(); //当前状态 10
+				if(vo.getMonitorStart().getTime() > now.getTime()) {
+					status = AdMediaInfoStatus.NOT_BEGIN.getText();
+				}
+				if(vo.getMonitorEnd().getTime() < now.getTime()) {
+					status = AdMediaInfoStatus.FINISHED.getText();
+	        	}
+				if(vo.getProblem_count() > 0) {
+					status = AdMediaInfoStatus.HAS_PROBLEM.getText();
+				}
+				list.add(status);
+				list.add(vo.getInfo_adSize()); //尺寸 11
+				list.add(vo.getInfo_adArea()); //面积 12
+				list.add(vo.getInfo_lon() + ""); //经度 13
+				list.add(vo.getInfo_lat() + ""); //纬度 14
+				list.add(MapStandardEnum.getText(vo.getInfo_mapStandard())); //地图标准 15
+				list.add(vo.getInfo_contactName()); //联系人姓名 16
+				list.add(vo.getInfo_contactCell()); //联系人电话 17
+				list.add(vo.getInfo_memo()); //备注 18
+				list.add(mediaTypeMap.get(vo.getInfo_mediaTypeParentId())); //媒体大类 19
+				list.add(mediaTypeMap.get(vo.getInfo_mediaTypeId())); //媒体小类 20
+				list.add(vo.getMediaName()); //媒体名称21
+				list.add(customerType.getName()); //客户类型22
+				
+				map.put(vo.getId(), list); //ad_activity_adseat的id
+				listString.add(list);
+			}
+        	
+        	//生成表格页
+			PdfPTable table = createTable1(listString);
+			document.add(table);
+        	
+			//生成图片页
+			List<Integer> ids = new ArrayList<>();
+			List<Integer> activityAdseatIds = new ArrayList<>();
+			//查询每个广告位最新的一条监测任务
+            List<AdMonitorTask> tasks = adMonitorTaskService.selectLatestMonitorTaskIds(activityId);
+            for (AdMonitorTask task : tasks) {
+            	ids.add(task.getId()); //ad_monitor_task的id
+            	activityAdseatIds.add(task.getActivityAdseatId()); //ad_activity_adseat的id
+			}
+            //查询上述监测任务有效的一条反馈
+            List<AdMonitorTaskFeedback> taskFeedbacks = adMonitorTaskService.selectByActivity(ids);
+            for (AdMonitorTaskFeedback feedback : taskFeedbacks) {
+            	//生成广告位图片信息页, 没个广告位一页
+    			document.newPage();
+    			List<String> list = map.get(activityAdseatIds.get(ids.indexOf(feedback.getMonitorTaskId())));
+    			createPage(document, list, feedback, request);
+			}
+		} catch (Exception e) {
+			logger.error(MessageFormat.format("批量导出失败", new Object[] {}));
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+        	result.setResultDes(e.getMessage());
+            e.printStackTrace();
+		} finally {
+			document.close();
+		}
+        
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+	}
+	
 	/**
 	 * 具体活动的广告位excel导出报表
 	 * @param model
@@ -93,7 +254,7 @@ public class ExcelController extends BasicController {
 	 * @param activityId
 	 * @return
 	 */
-	@RequiresRoles(value = {"customer"})
+	@RequiresRoles(value = {"admin" , "customer"}, logical = Logical.OR)
     @RequestMapping(value = "/exportAdMediaInfo")
 	@ResponseBody
 	public Model exportAdMediaInfo(Model model, HttpServletRequest request, HttpServletResponse response,
@@ -113,7 +274,8 @@ public class ExcelController extends BasicController {
 		}
 		
 		//导出文件相关
-		AdActivity adActivity = adActivityService.getById(activityId);
+		AdActivity adActivity = adActivityService.getById(activityId); //活动
+		AdCustomerType customerType = adCustomerTypeService.getById(adActivity.getCustomerTypeId()); //客户类型
  		final String fileName = adActivity.getActivityName() + "-广告位导出结果"+ ".xls"; //导出文件名
         List<List<String>> listString = new ArrayList<>();
         
@@ -122,7 +284,9 @@ public class ExcelController extends BasicController {
         	for (AdActivityAdseatTaskVo vo : vos) {
 				List<String> list = new ArrayList<>();
 				list.add(adActivity.getActivityName()); //活动名称
+				list.add(customerType.getName()); //客户类型
 				list.add(vo.getInfo_name()); //广告位名称
+				list.add(vo.getMediaName()); //媒体名称
 				list.add(mediaTypeMap.get(vo.getInfo_mediaTypeParentId())); //媒体大类
 				list.add(mediaTypeMap.get(vo.getInfo_mediaTypeId())); //媒体小类
 				list.add(cityCache.getCityName(vo.getInfo_province())); //省
@@ -143,20 +307,20 @@ public class ExcelController extends BasicController {
 				if(vo.getProblem_count() > 0) {
 					status = AdMediaInfoStatus.HAS_PROBLEM.getText();
 				}
-				list.add(status);
-				list.add(vo.getInfo_adSize());
-				list.add(vo.getInfo_adArea());
-				list.add(vo.getInfo_lon() + "");
-				list.add(vo.getInfo_lat() + "");
-				list.add(MapStandardEnum.getText(vo.getInfo_mapStandard()));
-				list.add(vo.getInfo_contactName());
-				list.add(vo.getInfo_contactCell());
-				list.add(vo.getInfo_memo());
+				list.add(status); //当前状态
+				list.add(vo.getInfo_adSize()); //广告位尺寸
+				list.add(vo.getInfo_adArea()); //面积
+				list.add(vo.getInfo_lon() + ""); //经度
+				list.add(vo.getInfo_lat() + ""); //纬度
+				list.add(MapStandardEnum.getText(vo.getInfo_mapStandard())); //地图标准（如百度，谷歌，高德）
+				list.add(vo.getInfo_contactName()); //联系人姓名
+				list.add(vo.getInfo_contactCell()); //联系人电话
+				list.add(vo.getInfo_memo()); //备注
 				
 				listString.add(list);
 			}
         	
-            String[] titleArray = {"活动名称", "广告位名称", "媒体大类", "媒体小类", "省", "市", "区（县）", "街道（镇，乡）", "详细位置", "唯一标识", 
+            String[] titleArray = {"活动名称", "客户类型", "广告位名称", "供应商（媒体）", "媒体大类", "媒体小类", "省", "市", "区（县）", "街道（镇，乡）", "详细位置", "唯一标识", 
             		"开始监测时间", "结束监测时间", "当前状态",
             		"广告位尺寸", "面积", "经度", "纬度", "地图标准（如百度，谷歌，高德）", "联系人姓名", "联系人电话", "备注"};
             ExcelTool<List<String>> excelTool = new ExcelTool<List<String>>("importResult");
@@ -599,12 +763,12 @@ public class ExcelController extends BasicController {
             String[] titleArray = { "广告位名称", "媒体大类", "媒体小类", "省", "市", "区（县）", "街道（镇，乡）", "详细位置", "唯一标识", "广告位长度", "广告位宽度", "面积", "经度", "纬度",
             		"地图标准（如百度，谷歌，高德）", "联系人姓名", "联系人电话", "备注", "导入结果", "导入错误信息"};
             ExcelTool<List<String>> excelTool = new ExcelTool<List<String>>("importResult");
-//            excelTool.exportExcel(listString, titleArray, response);
+//          excelTool.exportExcel(listString, titleArray, response);
             String path = request.getSession().getServletContext().getRealPath("/");
     		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"excel"+File.separatorChar+fileName;
     		excelTool.generateExcel(listString, titleArray, path);
 //    		InputStream is = new FileInputStream(excelFile);
-//            String filepath = saveFile(path, fileName, is);
+//          String filepath = saveFile(path, fileName, is);
             
             result.setCode(ResultCode.RESULT_SUCCESS.getCode());
             result.setResult("/static/excel/" + fileName);
@@ -675,5 +839,99 @@ public class ExcelController extends BasicController {
 			}
 		}
 		return listString;
+	}
+	
+	/**
+	 * 每个广告位对应的图片
+	 * @throws IOException
+	 * @throws DocumentException 
+	 */
+	private void createPage(Document document, List<String> list, AdMonitorTaskFeedback feedback, HttpServletRequest request) 
+			throws IOException, DocumentException {
+		//设置字体  
+	    BaseFont bfChinese = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
+	    Font fontChinese = new Font(bfChinese, 20, Font.NORMAL);// 创建字体，设置family，size，style,还可以设置color 
+//	    Font titleChinese = new Font(bfChinese, 20, Font.BOLD);  
+//	    Font BoldChinese = new Font(bfChinese, 20, Font.BOLD);  
+//	    Font subBoldFontChinese = new Font(bfChinese, 20, Font.BOLD); 
+	    
+		Paragraph pt = new Paragraph(list.get(1), fontChinese);//设置字体样式pt.setAlignment(1);//设置文字居中 0靠左   1，居中     2，靠右
+		pt.setAlignment(1);
+		document.add(pt);
+		
+		String path = request.getSession().getServletContext().getRealPath("/");
+		Image image1 = Image.getInstance(path + feedback.getPicUrl1());
+		image1.setAlignment(Image.ALIGN_CENTER);
+//		image1.scalePercent(40);//依照比例缩放
+		image1.scaleAbsolute(360,262);//控制图片大小
+		image1.setAbsolutePosition(222,350);//控制图片位置
+		document.add(image1);
+		
+		Image image2 = Image.getInstance(path + feedback.getPicUrl2());
+		image2.setAlignment(Image.ALIGN_CENTER);
+//		image2.scalePercent(40);//依照比例缩放
+		image2.scaleAbsolute(360,262);//控制图片大小
+		image2.setAbsolutePosition(642,350);//控制图片位置
+		document.add(image2);
+		
+		Image image3 = Image.getInstance(path + feedback.getPicUrl3());
+		image3.setAlignment(Image.ALIGN_CENTER);
+//		image3.scalePercent(40);//依照比例缩放
+		image3.scaleAbsolute(360,262);//控制图片大小
+		image3.setAbsolutePosition(222,48);//控制图片位置
+		document.add(image3);
+		
+		Image image4 = Image.getInstance(path + feedback.getPicUrl4());
+		image4.setAlignment(Image.ALIGN_CENTER);
+//		image4.scalePercent(40);//依照比例缩放
+		image4.scaleAbsolute(360,262);//控制图片大小
+		image4.setAbsolutePosition(642,48);//控制图片位置
+		document.add(image4);
+	}
+	
+	/**
+	 * 生成表格
+	 * @return
+	 * @throws DocumentException
+	 * @throws IOException
+	 */
+	private PdfPTable createTable1(List<List<String>> listString) throws DocumentException, IOException {
+		//设置字体  
+	    BaseFont bfChinese = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
+	    Font fontChinese = new Font(bfChinese, 15, Font.NORMAL);// 创建字体，设置family，size，style,还可以设置color 
+	    Font subBoldFontChinese = new Font(bfChinese, 15, Font.BOLD); 
+//	    Font titleChinese = new Font(bfChinese, 20, Font.BOLD);  
+//	    Font BoldChinese = new Font(bfChinese, 20, Font.BOLD);  
+		
+		PdfPTable table = new PdfPTable(11);
+		table.setWidthPercentage(100);
+		table.setWidths(new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 });
+
+        table.addCell(new Paragraph("广告位名称", fontChinese));
+        table.addCell(new Paragraph("客户类型", fontChinese));
+        table.addCell(new Paragraph("供应商", fontChinese));
+        table.addCell(new Paragraph("地理位置", fontChinese));
+        table.addCell(new Paragraph("详细位置", fontChinese));
+        table.addCell(new Paragraph("媒体大类", fontChinese));
+        table.addCell(new Paragraph("媒体小类", fontChinese));
+        table.addCell(new Paragraph("开始监测时间", fontChinese));
+        table.addCell(new Paragraph("结束监测时间", fontChinese));
+        table.addCell(new Paragraph("当前状态", subBoldFontChinese));
+        table.addCell(new Paragraph("备注", fontChinese));
+        
+        for (List<String> list : listString) {
+        	table.addCell(new Paragraph(list.get(1), fontChinese));
+        	table.addCell(new Paragraph(list.get(22), fontChinese));
+        	table.addCell(new Paragraph(list.get(21), fontChinese));
+            table.addCell(new Paragraph(list.get(2) + list.get(3) + list.get(4) + list.get(5), fontChinese));
+            table.addCell(new Paragraph(list.get(6), fontChinese));
+            table.addCell(new Paragraph(list.get(19), fontChinese));
+            table.addCell(new Paragraph(list.get(20), fontChinese));
+            table.addCell(new Paragraph(list.get(8), fontChinese));
+            table.addCell(new Paragraph(list.get(9), fontChinese));
+            table.addCell(new Paragraph(list.get(10), subBoldFontChinese));
+            table.addCell(new Paragraph(list.get(18), fontChinese));
+		}
+		return table;
 	}
 }

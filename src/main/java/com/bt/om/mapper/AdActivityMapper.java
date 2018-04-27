@@ -1,5 +1,6 @@
 package com.bt.om.mapper;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -72,4 +73,6 @@ public interface AdActivityMapper {
     List<AdActivity> selectActivityReportByUserId(Map<String, Object> searchMap, RowBounds rowBounds);
     
     int selectActivityReportByUserIdCount(Map<String, Object> searchMap);
+    
+    int updateStatusByEndTime(Date nowDate);
 }

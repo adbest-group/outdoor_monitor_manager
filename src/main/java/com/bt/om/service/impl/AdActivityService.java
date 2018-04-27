@@ -304,4 +304,9 @@ public class AdActivityService implements IAdActivityService {
 	public List<AdActivityAdseatTaskVo> selectAdSeatTaskReport(Integer activityId) {
 		return adActivityAdseatMapper.selectAdSeatTaskReport(activityId);
 	}
+
+	@Override
+	public void updateStatusByEndTime(Date nowDate) {
+		adActivityMapper.updateStatusByEndTime(nowDate);
+	}
 }

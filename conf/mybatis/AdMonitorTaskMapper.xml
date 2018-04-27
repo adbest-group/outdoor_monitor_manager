@@ -633,4 +633,26 @@
         and user_id is null
         and update_time = #{updateTime,jdbcType=TIMESTAMP}
     </update>
+    
+    <select id="selectLatestMonitorTaskIds" resultType="com.bt.om.entity.AdMonitorTask" parameterType="int">
+    	select a.id id, a.activity_adseat_id activityAdseatId
+		from (
+			select id, activity_id, activity_adseat_id, monitor_date
+			from ad_monitor_task
+			where activity_id = #{activityId,jdbcType=INTEGER}
+			order by monitor_date desc
+		) as a 
+		group by a.activity_adseat_id;
+    </select>
+    
+    <update id="activateMonitorTask" parameterType="java.util.Date">
+    	update ad_monitor_task
+	    set status = 
+	    case when monitor_last_days = 1 then 1
+	    else 8
+	    end
+	    where status = 7 and 
+	    monitor_date &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+    </update>
+    
 </mapper>

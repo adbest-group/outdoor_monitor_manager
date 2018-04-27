@@ -1,5 +1,6 @@
 package com.bt.om.service;
 
+import java.util.Date;
 import java.util.List;
 
 import com.bt.om.entity.AdActivity;
@@ -63,4 +64,6 @@ public interface IAdActivityService {
     public List<AdActivityAdseatTaskVo> selectAdSeatTaskReport(Integer activityId);
     
     public void selectReportPageData(SearchDataVo vo);
+    
+    public void updateStatusByEndTime(Date nowDate);
 }

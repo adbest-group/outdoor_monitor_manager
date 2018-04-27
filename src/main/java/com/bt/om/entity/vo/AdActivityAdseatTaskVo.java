@@ -4,6 +4,8 @@ import com.bt.om.entity.AdActivityAdseat;
 
 public class AdActivityAdseatTaskVo extends AdActivityAdseat {
 	private static final long serialVersionUID = 1L;
+	//ad_media 相关属性
+	private String mediaName;
 	
 	//ad_monitor_task 相关属性
 	private Integer problemStatus; //问题状态 (1：未监测 2：无问题 3：有问题 4：已解决 5：已闭环)
@@ -30,6 +32,14 @@ public class AdActivityAdseatTaskVo extends AdActivityAdseat {
     private String info_uniqueKey;
     private String info_memo;
 	
+    public String getMediaName() {
+		return mediaName;
+	}
+    
+    public void setMediaName(String mediaName) {
+		this.mediaName = mediaName;
+	}
+    
 	public Integer getProblemStatus() {
 		return problemStatus;
 	}

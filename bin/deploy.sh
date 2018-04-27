@@ -9,6 +9,6 @@
 PRGDIR=`dirname $0`
 SERVER_HOME=$(echo `readlink -f $PRGDIR` | sed 's/\/bin//')
 cd $SERVER_HOME
-svn up
+##svn up
 ant compile
 exit 0

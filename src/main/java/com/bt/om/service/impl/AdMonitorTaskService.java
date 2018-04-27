@@ -1,22 +1,33 @@
 package com.bt.om.service.impl;
 
-import com.bt.om.entity.*;
-import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
-import com.bt.om.entity.vo.AdMonitorTaskVo;
-import com.bt.om.enums.*;
-import com.bt.om.mapper.*;
-import com.bt.om.service.IAdMonitorTaskService;
-import com.bt.om.util.GeoUtil;
-import com.bt.om.util.StringUtil;
-import com.bt.om.vo.web.SearchDataVo;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import com.bt.om.entity.AdJiucuoTask;
+import com.bt.om.entity.AdMonitorReward;
+import com.bt.om.entity.AdMonitorTask;
+import com.bt.om.entity.AdMonitorTaskFeedback;
+import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
+import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.enums.MonitorTaskStatus;
+import com.bt.om.enums.MonitorTaskType;
+import com.bt.om.enums.RewardTaskType;
+import com.bt.om.enums.RewardType;
+import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.mapper.AdJiucuoTaskMapper;
+import com.bt.om.mapper.AdMonitorRewardMapper;
+import com.bt.om.mapper.AdMonitorTaskFeedbackMapper;
+import com.bt.om.mapper.AdMonitorTaskMapper;
+import com.bt.om.mapper.AdSeatInfoMapper;
+import com.bt.om.service.IAdMonitorTaskService;
+import com.bt.om.vo.web.SearchDataVo;
 
 /**
  * Created by caiting on 2018/1/20.
@@ -323,5 +334,20 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 
         return ret;
     }
+
+    @Override
+	public List<AdMonitorTask> selectLatestMonitorTaskIds(Integer activityId) {
+		return adMonitorTaskMapper.selectLatestMonitorTaskIds(activityId);
+	}
+    
+	@Override
+	public List<AdMonitorTaskFeedback> selectByActivity(List<Integer> monitorTaskIds) {
+		return adMonitorTaskFeedbackMapper.selectByActivity(monitorTaskIds);
+	}
+
+	@Override
+	public void activateMonitorTask(Date nowDate) {
+		adMonitorTaskMapper.activateMonitorTask(nowDate);
+	}
 
 }

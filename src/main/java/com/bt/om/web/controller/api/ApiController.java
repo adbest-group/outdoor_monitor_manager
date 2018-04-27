@@ -1829,7 +1829,7 @@ public class ApiController extends BasicController {
         return model;
     }
 
-    //app端手机号注册
+    //验证短信验证码
     @RequestMapping(value = "/checkSMSCode", method = RequestMethod.POST)
     @ResponseBody
     public Model checkSMSCode(Model model, HttpServletRequest request, HttpServletResponse response) {

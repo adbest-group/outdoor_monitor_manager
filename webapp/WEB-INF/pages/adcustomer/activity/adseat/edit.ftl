@@ -81,16 +81,16 @@
                 <tr id="upMonitorLastDaysTr" style="display:none;">
                     <td class="a-title"><font class="s-red">*</font>上刊监测任务<br/>可持续天数：</td>
                     <td>
-                        <input type="text" style="width:50px;text-align:right;" id="upMonitorLastDays" name="upMonitorLastDays" value="3" autocomplete="off" class="form-control">
-                        <span id="upMonitorLastDays"></span>
+                        <input type="text" style="width:50px;text-align:right;" id="upMonitorLastDays" name="upMonitorLastDays" value="2" autocomplete="off" class="form-control">
+                        <span id="upMonitorLastDaysTip"></span>
                     </td>
                 </tr>
 
                 <tr id="durationMonitorLastDaysTr" style="display:none;">
                     <td class="a-title"><font class="s-red">*</font>投放期间监测任务<br/>可持续天数：</td>
                     <td>
-                        <input type="text" style="width:50px;text-align:right;" id="durationMonitorLastDays" name="durationMonitorLastDays" value="3" autocomplete="off" class="form-control">
-                        <span id="durationMonitorLastDays"></span>
+                        <input type="text" style="width:50px;text-align:right;" id="durationMonitorLastDays" name="durationMonitorLastDays" value="2" autocomplete="off" class="form-control">
+                        <span id="durationMonitorLastDaysTip"></span>
                     </td>
                 </tr>
 
@@ -98,7 +98,7 @@
                     <td class="a-title"><font class="s-red">*</font>下刊监测任务<br/>可持续天数：</td>
                     <td>
                         <input type="text" style="width:50px;text-align:right;" id="downMonitorLastDays" name="downMonitorLastDays" value="3" autocomplete="off" class="form-control">
-                        <span id="downMonitorLastDays"></span>
+                        <span id="downMonitorLastDaysTip"></span>
                     </td>
                 </tr>
 
@@ -106,7 +106,7 @@
                     <td class="a-title"><font class="s-red">*</font>监测次数：</td>
                     <td>
                         <input type="text" style="width:50px;text-align:right;" disabled id="monitorCount" name="monitorCount" value="3" autocomplete="off" class="form-control">
-                        <span id="monitorCount"></span>
+                        <span id="monitorCountTip"></span>
                     </td>
                 </tr>
 
@@ -478,6 +478,45 @@
             }).inputValidator({
                 min: 1,
                 onError: "请选择监测时间"
+            });
+
+            //上刊监测持续天数
+            $("#upMonitorLastDays").formValidator({
+                validatorGroup: "2",
+                onShow: "　",
+                onCorrect: "",
+                onFocus:"请填写1-2的数字"
+            }).functionValidator({
+                fun:function(val){
+                    return ($("#durationMonitor:checked").length<1) || /^[1-2]$/.test(val);
+                },
+                onError: "只允许填写1-2的数字"
+            });
+
+            //投放期间监测持续天数
+            $("#durationMonitorLastDays").formValidator({
+                validatorGroup: "2",
+                onShow: "　",
+                onCorrect: "",
+                onFocus:"请填写1-2的数字"
+            }).functionValidator({
+                fun:function(val){
+                    return ($("#durationMonitor:checked").length<1) || /^[1-2]$/.test(val);
+                },
+                onError: "只允许填写1-2的数字"
+            });
+
+            //下刊监测持续天数
+            $("#downMonitorLastDays").formValidator({
+                validatorGroup: "2",
+                onShow: "　",
+                onCorrect: "",
+                onFocus:"请填写1-3的数字"
+            }).functionValidator({
+                fun:function(val){
+                    return ($("#downMonitor:checked").length<1) || /^[1-3]$/.test(val);
+                },
+                onError: "只允许填写1-3的数字"
             });
 
             //样例

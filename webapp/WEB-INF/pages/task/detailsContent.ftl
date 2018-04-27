@@ -143,11 +143,11 @@
                                 <p>
                                     执行状态：
                                     <#if item.feedbackStatus!=2>
-                                    ${vm.getMonitorTaskStatusText(item.status)}
+                                    ${vm.getMonitorTaskStatusText(item.status)} <#if item.status==5><span style="color:orangered;">(审核意见：${item.reason!""})</span></#if>
                                     <#elseif item.feedbackStatus==2>
                                         审核未通过
                                         <#if (item.reason?exists && item.reason!="" && item.reason!="null") >
-                                            <span style="color:orangered;">(${item.reason})</span>
+                                            <span style="color:orangered;">(审核意见：${item.reason})</span>
                                         </#if>
                                     </#if>
                                 </p>

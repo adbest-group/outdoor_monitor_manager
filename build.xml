@@ -20,8 +20,8 @@
 	<property name="compile.deprecation" value="false" />
 	<property name="compile.optimize" value="false" />
 	<property name="compile.encoding" value="UTF-8" />
-	<property name="compile.source" value="1.7" />
-	<property name="compile.target" value="1.7" />
+	<property name="compile.source" value="1.8" />
+	<property name="compile.target" value="1.8" />
 
 	<property name="module.test.coverage" value="${module.target}/report/coverage" />
 	<property name="bin.instrument.dir" location="${module.test.coverage}/instrbin" />

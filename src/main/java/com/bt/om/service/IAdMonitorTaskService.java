@@ -1,14 +1,13 @@
 package com.bt.om.service;
 
+import java.util.Date;
+import java.util.List;
+
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
-import com.bt.om.entity.vo.AdActivityVo;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
-import java.util.List;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.vo.web.SearchDataVo;
-
-import java.util.List;
 
 /**
  * Created by caiting on 2018/1/20.
@@ -66,4 +65,9 @@ public interface IAdMonitorTaskService {
 	public void getByCurCityPageData(SearchDataVo vo);
 
 	public boolean grabTask(Integer userId,Integer id);
+	
+	public List<AdMonitorTask> selectLatestMonitorTaskIds(Integer activityId);
+	public List<AdMonitorTaskFeedback> selectByActivity(List<Integer> monitorTaskIds);
+	
+	public void activateMonitorTask(Date nowDate);
 }

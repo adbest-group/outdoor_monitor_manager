@@ -66,6 +66,7 @@
                                 <#if activity.status==2||activity.status==3><a href="/customer/activity/edit?id=${activity.id}">详情</a></#if>
                                 <#if activity.status==1><a href="javascript:del('${activity.id}')">删除</a></#if>
                                 <a href="javascript:exportExcel('${activity.id}')">导出excel</a>
+                                <a href="javascript:exportPdf('${activity.id}')">导出pdf</a>
                             </td>
                         </tr>
                         </#list>
@@ -173,17 +174,22 @@
                 dataType: "json",
                 success: function(datas) {
                     var resultRet = datas.ret;
-                    if (resultRet.code == 101) {
-                        layer.confirm(resultRet.resultDes, {
-                            icon: 2,
-                            btn: ['确定'] //按钮
-                        });
-                    } else {
+                    if (resultRet.code == 100) {
                         layer.confirm("删除成功", {
                             icon: 1,
                             btn: ['确定'] //按钮
                         }, function(){
                             window.location.reload();
+                        });
+                    } else if (resultRet.code == 105) {
+                    	layer.confirm("没有权限", {
+                            icon: 2,
+                            btn: ['确定'] //按钮
+                        });
+                    } else {
+                        layer.confirm(resultRet.resultDes, {
+                            icon: 2,
+                            btn: ['确定'] //按钮
                         });
                     }
                 },
@@ -252,8 +258,39 @@
         }
     }
     
+    function exportPdf(activityId) {
+    	$.ajax({
+            url: "/excel/exportAdMediaPdf",
+            type: "post",
+            data: {
+                "activityId": activityId
+            },
+            cache: false,
+            dataType: "json",
+            success: function(datas) {
+                var resultRet = datas.ret;
+                if (resultRet.code == 101) {
+                    layer.confirm(resultRet.resultDes, {
+                        icon: 2,
+                        btn: ['确定'] //按钮
+                    });
+                } else {
+                    layer.alert('导出成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
+		    		window.open(resultRet.result);
+		    		window.location.reload();
+                }
+            },
+            error: function(e) {
+                layer.confirm("服务忙，请稍后再试", {
+                    icon: 5,
+                    btn: ['确定'] //按钮
+                });
+            }
+        });
+    }
+    
     function exportExcel(activityId) {
-	 $.ajax({
+		$.ajax({
             url: "/excel/exportAdMediaInfo",
             type: "post",
             data: {

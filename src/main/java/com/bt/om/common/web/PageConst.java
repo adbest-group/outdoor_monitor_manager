@@ -76,6 +76,7 @@ public class PageConst {
 	public static final String APP_ACCOUNT_LIST = "appAccount/list";
 	public static final String APP_ACCOUNT_EDIT = "appAccount/edit";
 
-
-
+	/*** 客户类型管理  ***/
+	public static final String CUSTOMER_TYPE_LIST = "adcustomer/type/list";
+	public static final String CUSTOMER_TYPE_EDIT = "adcustomer/type/edit";
 }

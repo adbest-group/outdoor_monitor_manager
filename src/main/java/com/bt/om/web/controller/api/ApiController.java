@@ -2397,7 +2397,7 @@ public class ApiController extends BasicController {
         	} else if(activity.getStatus() == 2) {
         		report.setStatus("已确认");
         	} else {
-        		report.setStatus("已完成");
+        		report.setStatus("已结束");
         	}
         	Integer unstartNum = 0;
         	Integer watchingNum = 0;
@@ -2420,6 +2420,56 @@ public class ApiController extends BasicController {
         }
         
         result.setResult(reports);
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+
+    //个人中心信息获取
+    @RequestMapping(value = "/getAppUserInfo")
+    @ResponseBody
+    public Model getAppUserInfo(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("调用成功");
+        model = new ExtendedModelMap();
+        
+        String token = null;
+
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            if (token != null) {
+                useSession.set(Boolean.FALSE);
+                this.sessionByRedis.setToken(token);
+            } else {
+                useSession.set(Boolean.TRUE);
+            }
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        //验证登录
+        if (useSession.get()) {
+            if (!checkLogin(model, result, request)) {
+                return model;
+            }
+        } else {
+            if (!checkLogin(model, result, token)) {
+                return model;
+            }
+        }
+
+        SysUserExecute user = getLoginUser(request, token);
+        user = sysUserExecuteService.getById(user.getId());
+        result.setResult(user);
 
         model.addAttribute(SysConst.RESULT_KEY, result);
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));

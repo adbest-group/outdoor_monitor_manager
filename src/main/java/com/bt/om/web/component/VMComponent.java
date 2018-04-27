@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import com.bt.om.cache.AdSeatTypeCache;
 import com.bt.om.cache.CityCache;
 import com.bt.om.entity.AdActivity;
+import com.bt.om.entity.AdCustomerType;
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdMediaType;
 import com.bt.om.entity.AdSeatType;
@@ -30,6 +31,7 @@ import com.bt.om.enums.UserExecuteType;
 //import com.bt.om.mapper.SysDictMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
+import com.bt.om.service.IAdCustomerTypeService;
 import com.bt.om.service.IAdMediaTypeService;
 import com.bt.om.service.IResourceService;
 import com.bt.om.util.CityUtil;
@@ -62,6 +64,9 @@ public class VMComponent {
     
     @Autowired
     IAdMediaTypeService adMediaTypeService;
+    
+    @Autowired
+    IAdCustomerTypeService adCustomerTypeService;
 
     public String getCityName(Long code) {
         return code == null ? "" : cityCache.getCityName(code);
@@ -310,6 +315,13 @@ public class VMComponent {
      */
     public List<AdMediaType> getAllParentMediaTypeAvailable() {
     	return adMediaTypeService.getParentMediaAvailable(1);
+    }
+    
+    /**
+     * 获取全部客户类型
+     */
+    public List<AdCustomerType> getAllCustomerType() {
+    	return adCustomerTypeService.getAll();
     }
 
     /***************************** 下面是工具类 ****************************************/

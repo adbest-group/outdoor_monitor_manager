@@ -1,7 +1,7 @@
 <#if vm.getEvnVariable() == "on">
 <#assign static_domain = "http://ottstatic2.taiyiplus.com">
 <#else>
-<#assign static_domain = "http://ottvstatic2.taiyiplus.com/OTT">
+<#assign static_domain = "http://ottvstatic2.taiyiplus.com/Operation_NEW">
 </#if>
 <#assign static_version = "2015">
 

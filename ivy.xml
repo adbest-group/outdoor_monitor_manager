@@ -75,7 +75,7 @@
 		<dependency org="mysql" name="mysql-connector-java" rev="5.1.36"  conf="compile,test->default(*)" />
 		<!--Redis-->
 		<dependency org="redis.clients" name="jedis" rev="2.9.0" conf="compile,test->default(*)" />
-		<dependency org="org.springframework.data" name="spring-data-redis" rev="2.0.0.RELEASE"/>
+		<dependency org="org.springframework.data" name="spring-data-redis" rev="1.8.7.RELEASE" conf="compile,test->default(*)"/>
 		<!--GoogleJAVA开源库-->
 		<dependency org="com.google.guava" name="guava" rev="18.0" conf="compile,test->default(*)" />
 		<!--Jetty-->

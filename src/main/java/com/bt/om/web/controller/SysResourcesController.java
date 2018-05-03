@@ -16,11 +16,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.SysResources;
-import com.bt.om.entity.SysUser;
 import com.bt.om.enums.ResultCode;
-import com.bt.om.enums.SessionKey;
-import com.bt.om.security.ShiroUtils;
-import com.bt.om.service.ISysGroupService;
+import com.bt.om.service.ISysResourcesService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
@@ -28,55 +25,45 @@ import com.bt.om.web.util.SearchUtil;
 
 @Controller
 @RequestMapping("/sysResources")
-public class SysGroupController extends BasicController{
+public class SysResourcesController extends BasicController {
 
 	@Autowired
-	private ISysGroupService sysGroupService;
+	private ISysResourcesService sysResourcesService;
 	
 	/**
-	 * 部门管理员查询部门列表
+	 * 超级管理员查询部门列表
 	 */
-	@RequiresRoles("departmentadmin")
-    @RequestMapping(value = "/groupList")
+	@RequiresRoles("superadmin")
+    @RequestMapping(value = "/departmentList")
     public String customerList(Model model, HttpServletRequest request,
                                @RequestParam(value = "name", required = false) String name) {
         SearchDataVo vo = SearchUtil.getVo();
-        //查询小组名称
+        //查询部门名称
         if (name != null) {
         	name = "%" + name + "%";
             vo.putSearchParam("name", name, name);
         }
-        //查询类型为2：组
-        String type = "2";
+        //查询类型为1：部门
+        String type = "1";
         vo.putSearchParam("type", type, type);
-        
-        //获取当前登录的后台用户id
-        SysUser sysUser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-        if(sysUser.getUsertype() == 5) {
-        	//部门领导登录, 查询部门领导账号一对一管理的部门信息
-        	SysResources department = sysGroupService.getByUserId(sysUser.getId());
-        	vo.putSearchParam("parentid", null, department.getId());
-        }
-        
-        sysGroupService.getPageData(vo);
+        sysResourcesService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
-        return PageConst.DEPARMENT_ADMIN_GROUP_LIST;
+        return PageConst.SUPER_ADMIN_DEPT_LIST;
     }
-	
+
 	/**
-     * 新增组页面跳转
+     * 新增部门页面跳转
      */
-    @RequestMapping(value = "/addGroup")
+    @RequestMapping(value = "/addDepartment")
     public String gotoAddPage(Model model) {
-    	
-        return PageConst.DEPARMENT_ADMIN_GROUP_EDIT;
+        return PageConst.SUPER_ADMIN_DEPT_EDIT;
     }
     
     /**
-     * 保存组
+     * 保存部门
      **/
-    @RequiresRoles("departmentadmin")
-    @RequestMapping(value = "/saveGroup")
+    @RequiresRoles("superadmin")
+    @RequestMapping(value = "/saveDepartment")
     @ResponseBody
     public Model addInfo(Model model, SysResources sysResources, HttpServletRequest request) {
         ResultVo<String> result = new ResultVo<String>();
@@ -88,14 +75,13 @@ public class SysGroupController extends BasicController{
         try {
             if (sysResources.getId() != null) {
             	sysResources.setUpdateTime(now);
-            	sysGroupService.modify(sysResources);
+            	sysResourcesService.modify(sysResources);
             } else {
             	sysResources.setCreateTime(now);
             	sysResources.setUpdateTime(now);
-            	sysResources.setType("2"); //设置类型为组
-            	sysGroupService.save(sysResources);
-            } 
-           
+            	sysResources.setType("1"); //设置类型为部门
+            	sysResourcesService.save(sysResources);
+            }
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
@@ -108,17 +94,18 @@ public class SysGroupController extends BasicController{
     }
     
     /**
-     * 编辑组页面跳转
+     * 编辑部门 页面跳转
      **/
-    @RequiresRoles("departmentadmin")
-    @RequestMapping(value = "/editGroup")
+    @RequiresRoles("superadmin")
+    @RequestMapping(value = "/editDepartment")
     public String gotoEditPage(Model model, HttpServletRequest request,
                          @RequestParam(value = "id", required = false) Integer id) {
         if (id != null) {
-            SysResources sysResources = sysGroupService.getById(id);
+            SysResources sysResources = sysResourcesService.getById(id);
             model.addAttribute("obj", sysResources);
         }
-        return PageConst.DEPARMENT_ADMIN_GROUP_EDIT ;
+        return PageConst.SUPER_ADMIN_DEPT_EDIT;
     }
+    
     
 }

@@ -15,5 +15,13 @@
     <#include "./index_admin.ftl" />
 </@shiro.hasRole>
 
+<@shiro.hasRole name="superadmin">
+    <#include "./index_admin.ftl" />
+</@shiro.hasRole>
+
+<@shiro.hasRole name="departmentadmin">
+    <#include "./index_admin.ftl" />
+</@shiro.hasRole>
+
 <@model.webend/>
 		

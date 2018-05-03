@@ -345,3 +345,13 @@
 		</#list>
 	</#if>
 </#macro>
+
+<#-- 所有可用媒体大类下拉选项  -->
+<#macro showAllDepartmentLeaderOps value="-1">
+	<#local list = vm.getAllDepartmentLeader() />
+	<#if (list?exists && list?size > 0)>
+		<#list list as type>
+			<@showOption value="${type.id?if_exists}" title="${type.realname?if_exists}" select="${value?if_exists}" />
+		</#list>
+	</#if>
+</#macro>

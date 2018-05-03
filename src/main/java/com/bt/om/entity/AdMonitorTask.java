@@ -266,6 +266,8 @@ public class AdMonitorTask extends ID{
     private Date monitorDate;
     private Date verifyTime;
     private Integer monitorLastDays;
+    private Integer assessorId;
+    private Integer assignorId;
 
     public Integer getMonitorLastDays() {
         return monitorLastDays;
@@ -275,7 +277,23 @@ public class AdMonitorTask extends ID{
         this.monitorLastDays = monitorLastDays;
     }
 
-    public Integer getSubCreated() {
+    public Integer getAssessorId() {
+		return assessorId;
+	}
+
+	public void setAssessorId(Integer assessorId) {
+		this.assessorId = assessorId;
+	}
+
+	public Integer getAssignorId() {
+		return assignorId;
+	}
+
+	public void setAssignorId(Integer assignorId) {
+		this.assignorId = assignorId;
+	}
+
+	public Integer getSubCreated() {
         return subCreated;
     }
 
@@ -322,4 +340,5 @@ public class AdMonitorTask extends ID{
     public void setVerifyTime(Date verifyTime) {
         this.verifyTime = verifyTime;
     }
+    
 }

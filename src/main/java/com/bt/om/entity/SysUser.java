@@ -25,6 +25,7 @@ public class SysUser extends ID {
      *
      * @mbggenerated Tue Jan 16 16:41:44 CST 2018
      */
+    
     private String password;
 
     /**

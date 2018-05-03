@@ -38,7 +38,7 @@ public class AdMediaTypeController {
 	/**
      * 媒体大类, 媒体小类展示
      */
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = "/list")
     public String resourceDetailPage(Model model, HttpServletRequest request,
                                      @RequestParam(value = "name", required = false) String name,
@@ -78,7 +78,7 @@ public class AdMediaTypeController {
     /**
      * 新增媒体大类或媒体小类
      */
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = "/addMediaType")
     @ResponseBody
 	public Map<String, Object> insert(HttpServletRequest request,
@@ -115,7 +115,7 @@ public class AdMediaTypeController {
     /**
      * 编辑媒体类型 页面跳转
      **/
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = "/edit")
     public String gotoEditPage(Model model, HttpServletRequest request,
                          @RequestParam(value = "id", required = false) Integer id) {
@@ -130,7 +130,7 @@ public class AdMediaTypeController {
     /**
      * 保存广告位
      **/
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = "/save")
     @ResponseBody
     public Model addInfo(Model model, AdMediaType adMediaType, HttpServletRequest request) {
@@ -167,7 +167,7 @@ public class AdMediaTypeController {
     /**
      * 修改媒体类型状态： 可用, 不可用
      **/
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = "/updateMediaTypeStatus")
     @ResponseBody
     public Model updateStatus(Model model, Integer id, Integer status, Integer mediaType) {
@@ -196,7 +196,7 @@ public class AdMediaTypeController {
     /**
      * 修改媒体类型是否需要唯一标识
      **/
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = "/updateUniqueTypeNeed")
     @ResponseBody
     public Model updateUniqueTypeNeed(Model model, Integer id, Integer uniqueKeyNeed) {

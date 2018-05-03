@@ -93,7 +93,7 @@ public class MediaController {
 
         ResultVo<List<SysUser>> resultVo = new ResultVo<List<SysUser>>();
         try {
-            List<SysUser> userList = sysUserService.isExistsName(username);
+            List<SysUserVo> userList = sysUserService.isExistsName(username);
             if (userList != null && userList.size() > 0) {
                 resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
                 resultVo.setResultDes("已存在该登录账户，请修改");

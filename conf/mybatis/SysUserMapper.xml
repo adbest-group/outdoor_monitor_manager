@@ -164,6 +164,7 @@
       </if>
     </trim>
   </insert>
+  
   <update id="updateByPrimaryKeySelective" parameterType="com.bt.om.entity.SysUser">
     <!--
       WARNING - @mbggenerated
@@ -251,7 +252,7 @@
 
   <select id="findUserinfoById" parameterType ="map" resultMap="ExtResultMap">
     select
-    tt1.id, tt1.username,tt1.realname, tt1.usertype,
+    tt1.id, tt1.username,tt1.realname, tt1.usertype, tt1.password,
     tt2.id as userinfo_id, tt2.telephone,tt2.prefix, tt1.status, tt3.role_name
     from
     sys_user tt1,
@@ -265,7 +266,8 @@
 
   <select id="findByUsername" parameterType ="map" resultMap="ExtResultMap">
     select
-    t1.id, t1.`username`, t1.`password`, t1.`status`,t2.id as userinf_id
+    t1.id, t1.`username`, t1.`password`, t1.`status`, t1.usertype,
+    t2.id as userinf_id
     from
     sys_user t1,sys_user_detail t2
     where
@@ -294,7 +296,7 @@
 
   <select id="getPageData" parameterType="map" resultMap="ListResultMap">
     select
-    tt1.id, tt1.username, tt2.id as userinfo_id, tt1.realname, tt2.telephone, tt1.status, tt3.role_name
+    tt1.id, tt1.username, tt1.create_time, tt2.id as userinfo_id, tt1.realname, tt2.telephone, tt1.status, tt3.role_name
     from
     sys_user tt1,
     sys_user_detail tt2,
@@ -320,4 +322,60 @@
     where
     username = #{username}
   </select>
+  
+  <select id="getAllByUserType" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+  	select
+  	<include refid="Base_Column_List" />
+    from sys_user
+    where usertype = #{usertype,jdbcType=INTEGER}
+  </select>
+  
+  <!-- 添加管理领导账号 -->
+   <insert id="createDepartmentLeader" parameterType="com.bt.om.entity.SysUser" useGeneratedKeys="true" keyProperty="id">
+    insert into sys_user (id, username, password, platform,
+      realname, mobile, usertype, 
+      status, remark, login_ip, 
+      login_time, default_page, create_time, 
+      update_time)
+    values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{platform,jdbcType=INTEGER},
+      #{realname,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR}, #{usertype,jdbcType=INTEGER}, 
+      #{status,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{loginIp,jdbcType=VARCHAR}, 
+      #{loginTime,jdbcType=TIMESTAMP}, #{defaultPage,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  
+  <!-- 更改管理领导账号密码，真实姓名 -->
+    <update id="updatePasswordAndName" parameterType="com.bt.om.entity.SysUser">
+    update sys_user a, sys_user_detail b
+    set 
+    	a.password = #{password,jdbcType=VARCHAR},
+    	a.realname = #{realname,jdbcType=VARCHAR},
+    	b.telephone = #{mobile,jdbcType=VARCHAR}
+    where 
+    b.user_id = a.id and
+    a.id = #{id,jdbcType=INTEGER}
+  </update>
+  
+    <!-- 更改管理领导账号状态 -->
+    <update id="updateStatus" parameterType="com.bt.om.entity.SysUser">
+    update sys_user
+    set status = #{status,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <!-- 查询列表 -->
+    <select id="findLeaderList" resultMap="BaseResultMap">
+  	select
+  	<include refid="Base_Column_List" />
+    from sys_user
+  </select>
+  
+    <!-- 查询所有任务 -->
+    <select id="findAllTask" resultMap="BaseResultMap">
+  	select
+  	<include refid="Base_Column_List" />
+    from sys_user
+  </select>
 </mapper>
+
+ 

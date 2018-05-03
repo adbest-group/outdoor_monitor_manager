@@ -1,16 +1,16 @@
-<#assign webTitle="组管理" in model>
+<#assign webTitle="资源管理" in model>
 <#assign webHead in model>
 </#assign>
 <@model.webhead />
 <!-- 头部 -->
-<@model.webMenu current="组管理" child="groupList" />
+<@model.webMenu current="资源管理" child="departmentList" />
 <div class="main-container" style="height: auto;">
     <div class="main-box ott-market">
         <div class="title clearfix">
-            <a href="javascript:;" class="add-new-btn ll" id="add_group"><i></i> 新建小组</a>
+            <a href="javascript:;" class="add-new-btn ll" id="add_department"><i></i> 新建部门</a>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <div class="inp">
-                    <input type="text" placeholder="请输入小组名称" value="${searchName?if_exists}" id="searchName" name="searchName">
+                    <input type="text" placeholder="请输入部门名称" value="${searchName?if_exists}" id="searchName" name="searchName">
                 </div>
                 <button type="button" class="btn btn-red" autocomplete="off" id="searchBtn">查询</button>
             </div>
@@ -23,8 +23,8 @@
                     <thead>
                     <tr>
                         <th>序号</th>
-                        <th>小组名称</th>
-                        <th>所属部门名称</th>
+                        <th>部门名称</th>
+                        <th>部门领导</th>
                         <th>创建时间</th>
                         <th>操作</th>
                     </tr>
@@ -35,7 +35,7 @@
                         <tr>
                             <td width="30">${(bizObj.page.currentPage-1)*20+type_index+1}</td>
                             <td>${type.name?if_exists}</td>
-                            <td>${type.departmentName?if_exists}</td>
+                            <td>${type.leaderName?if_exists}</td>
                             <td>${type.createTime?string('yyyy-MM-dd HH:mm')}</td>
                             <td>
                                 <a href="javascript:void(0);" onclick="edit('${type.id}');">编辑</a>
@@ -72,35 +72,34 @@
     $("#searchBtn").on("click", function () {
         var strParam = "";
         var name = $("#searchName").val();
-        var parentId = $("#parentId").val();
         
         if (name != null && $.trim(name).length) {
             strParam = strParam + "?name=" + name;
         }
 
-        window.location.href = "/sysResources/groupList" + strParam;
+        window.location.href = "/sysResources/departmentList" + strParam;
     });
 
-    $("#add_group").on("click", function () {
+    $("#add_department").on("click", function () {
         //iframe层
         layer.open({
             type: 2,
-            title: '添加小组',
+            title: '添加部门',
             shadeClose: true,
             shade: 0.8,
             area: ['600px', '480px'],
-            content: '/sysResources/addGroup' //iframe的url
+            content: '/sysResources/addDepartment' //iframe的url
         });
     });
 
     function edit(id) {
         layer.open({
             type: 2,
-            title: '修改小组',
+            title: '修改部门',
             shadeClose: true,
             shade: 0.8,
             area: ['600px', '480px'],
-            content: '/sysResources/editGroup?id=' + id //iframe的url
+            content: '/sysResources/editDepartment?id=' + id //iframe的url
         });
     }
 </script>

@@ -39,6 +39,5 @@ public interface SysResourcesMapper {
    int updateGroupName(SysResources record);
    int deleteGroup(Integer id);
    List<SysResources> findGroupById(@Param("userId") Integer userId);
-   
-
+   SysResources getByUserId(@Param("userId") Integer userId);
 }

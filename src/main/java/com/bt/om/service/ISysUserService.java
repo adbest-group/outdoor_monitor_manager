@@ -1,11 +1,13 @@
 package com.bt.om.service;
 
-import com.bt.om.entity.SysUser;
-import com.bt.om.entity.vo.SysUserVo;
-import com.bt.om.vo.web.SearchDataVo;
-
 import java.util.List;
 import java.util.Map;
+
+import com.bt.om.entity.SysUser;
+import com.bt.om.entity.SysUserDetail;
+import com.bt.om.entity.SysUserRole;
+import com.bt.om.entity.vo.SysUserVo;
+import com.bt.om.vo.web.SearchDataVo;
 
 /**
  * Created by caiting on 2018/1/17.
@@ -50,7 +52,7 @@ public interface ISysUserService {
      * @param username
      * @return
      */
-    List<SysUser> isExistsName(String username);
+    List<SysUserVo> isExistsName(String username);
 
     int update(SysUserVo user);
 
@@ -63,7 +65,7 @@ public interface ISysUserService {
 //	 * @param SysUser
 //	 * @param roleIds
 //	 */
-//	void saveUser(SysUserVo SysUser, String roleIds);
+//	void saveUser(SysUser SysUser, String roleIds);
 //
 //	/**
 //	 * 删除用户信息
@@ -87,12 +89,20 @@ public interface ISysUserService {
 //	 *
 //	 * @param ottvUser
 //	 */
-//	void addUser(SysUser ottvUser);
+	void addUser(SysUser sysUser);
+	
+	List<SysUserVo> getAllByUserType(Integer userType);
 //
 //	/**
 //	 * 查询所有的销售
 //	 *
 //	 * @return
 //	 */
-//	List<SysUserVo> findAllSale();
+//	List<SysUser> findAllSale();
+    int createDepartmentLeader(SysUser record, SysUserDetail sysUserDetail, SysUserRole sysUserRole);
+	List<SysUser>findLeaderList();
+	int updatePasswordAndName(SysUser record);
+
+	int updateStatus(SysUser status);
+	List<SysUser>findAllTask();
 }

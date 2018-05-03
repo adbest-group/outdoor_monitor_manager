@@ -76,6 +76,16 @@ public class PageConst {
 	public static final String APP_ACCOUNT_LIST = "appAccount/list";
 	public static final String APP_ACCOUNT_EDIT = "appAccount/edit";
 
+	/*** 超级管理员下的部门管理 ***/
+	public static final String SUPER_ADMIN_DEPT_LIST = "resources/departmentList";
+	public static final String SUPER_ADMIN_DEPT_EDIT = "resources/departmentEdit";
 
+	/*** 超级管理员下的领导管理 ***/
+	public static final String SUPER_ADMIN_LEAD_LIST = "sysUser/leaderList";
+	public static final String SUPER_ADMIN_LEAD_EDIT = "sysUser/leaderEdit";
 
+	/*** 部门管理员下的小组管理 ***/
+	public static final String DEPARMENT_ADMIN_GROUP_LIST = "resources/groupList";
+	public static final String DEPARMENT_ADMIN_GROUP_EDIT = "resources/groupEdit";
+	
 }

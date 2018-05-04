@@ -1,6 +1,10 @@
 package com.bt.om.mapper;
 
+import java.util.Date;
+import java.util.List;
+
 import com.bt.om.entity.AdMonitorUserTask;
+import com.bt.om.entity.vo.AbandonTaskVo;
 
 public interface AdMonitorUserTaskMapper {
     /**
@@ -50,4 +54,8 @@ public interface AdMonitorUserTaskMapper {
      * @mbggenerated Wed Apr 25 14:15:20 CST 2018
      */
     int updateByPrimaryKey(AdMonitorUserTask record);
+    
+    List<Integer> selectRecycleTaskIds(Date nowDate);
+    int recycleUserTask(AdMonitorUserTask task);
+    int abandonUserTask(AbandonTaskVo vo);
 }

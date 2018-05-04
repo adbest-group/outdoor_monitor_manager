@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -46,11 +47,13 @@ import com.bt.om.entity.AdActivityAdseat;
 import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.entity.AdJiucuoTaskFeedback;
 import com.bt.om.entity.AdMonitorReward;
+import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.AdVersion;
 import com.bt.om.entity.City;
 import com.bt.om.entity.SysUserExecute;
+import com.bt.om.entity.vo.AbandonTaskVo;
 import com.bt.om.entity.vo.ActivityMobileReportVo;
 import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
 import com.bt.om.entity.vo.AdActivityAdseatVo;
@@ -210,7 +213,6 @@ public class ApiController extends BasicController {
 //        return model;
 //    }
 
-
     //解析上传的二维码照片
     @RequestMapping(value = "/qrcodeanalysis")
     @ResponseBody
@@ -269,7 +271,6 @@ public class ApiController extends BasicController {
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }
-
 
     //获取给定的广告位编号对应的广告位id和相关有效的广告活动
     @RequestMapping(value = "/seatActivities")
@@ -605,22 +606,39 @@ public class ApiController extends BasicController {
         }
 
         SysUserExecute user = getLoginUser(request, token);
-        //任务列表
+        //任务列表(已修改：添加了province, city, region, street, startTime, endTime, assignType)
         if (type == 1) {
             List<AdMonitorTaskMobileVo> tasks = adMonitorTaskService.getByUserIdForMobile(user.getId());
             MonitorTaskListResultVo resultVo = new MonitorTaskListResultVo();
             for (AdMonitorTaskMobileVo task : tasks) {
                 if (task.getStatus() == MonitorTaskStatus.TO_CARRY_OUT.getId()) {
                     MonitorTaskWaitToExecutedVo vo = new MonitorTaskWaitToExecutedVo(task);
+                    vo.setProvince(cityCache.getCityName(task.getProvince()));
+                    vo.setCity(cityCache.getCityName(task.getCity()));
+                    vo.setRegion(cityCache.getCityName(task.getRegion()));
+                    vo.setStreet(cityCache.getCityName(task.getStreet()));
                     resultVo.getWait_to_executed().add(vo);
                 } else if (task.getStatus() == MonitorTaskStatus.UNVERIFY.getId()) {
                     MonitorTaskExecutingVo vo = new MonitorTaskExecutingVo(task);
+                    vo.setProvince(cityCache.getCityName(task.getProvince()));
+                    vo.setCity(cityCache.getCityName(task.getCity()));
+                    vo.setRegion(cityCache.getCityName(task.getRegion()));
+                    vo.setStreet(cityCache.getCityName(task.getStreet()));
                     resultVo.getExecuting().add(vo);
                 } else if (task.getStatus() == MonitorTaskStatus.VERIFIED.getId() || task.getStatus() == MonitorTaskStatus.VERIFY_FAILURE.getId()) {
                     MonitorTaskCheckedVo vo = new MonitorTaskCheckedVo(task);
+                    vo.setProvince(cityCache.getCityName(task.getProvince()));
+                    vo.setCity(cityCache.getCityName(task.getCity()));
+                    vo.setRegion(cityCache.getCityName(task.getRegion()));
+                    vo.setStreet(cityCache.getCityName(task.getStreet()));
                     resultVo.getChecked().add(vo);
                 } else if (task.getStatus() == MonitorTaskStatus.UN_FINISHED.getId()) {
-                    resultVo.getUn_finished().add(new MonitorTaskUnFinishedVo(task));
+                	MonitorTaskUnFinishedVo vo = new MonitorTaskUnFinishedVo(task);
+                	vo.setProvince(cityCache.getCityName(task.getProvince()));
+                    vo.setCity(cityCache.getCityName(task.getCity()));
+                	vo.setRegion(cityCache.getCityName(task.getRegion()));
+                    vo.setStreet(cityCache.getCityName(task.getStreet()));
+                    resultVo.getUn_finished().add(vo);
                 }
             }
             result.setResult(resultVo);
@@ -644,7 +662,6 @@ public class ApiController extends BasicController {
         response.setHeader("Access-Control-Allow-Credentials", "true");
         return model;
     }
-
 
     //提交监测任务反馈
 //    @RequestMapping(value="/tasksubmit")
@@ -1663,8 +1680,17 @@ public class ApiController extends BasicController {
         adMonitorTaskService.getByPointAroundPageData(vo);
         List<MonitorTaskArroundVo> list = Lists.newArrayList();
 
-        for(Object task:vo.getList()){
-            list.add(new MonitorTaskArroundVo((AdMonitorTaskMobileVo) task));
+        for(Object obj : vo.getList()){
+        	AdMonitorTaskMobileVo task = (AdMonitorTaskMobileVo) obj;
+        	MonitorTaskArroundVo arroundVo = new MonitorTaskArroundVo(task);
+        	arroundVo.setProvince(cityCache.getCityName(task.getProvince()));
+        	arroundVo.setCity(cityCache.getCityName(task.getCity()));
+        	arroundVo.setRegion(cityCache.getCityName(task.getRegion()));
+        	arroundVo.setStreet(cityCache.getCityName(task.getStreet()));
+        	arroundVo.setStartTime(DateUtil.dateFormate(task.getMonitorDate(), "yyyy-MM-dd"));
+        	Long timestamp = task.getMonitorDate().getTime() + (task.getMonitorLastDays() - 1)*24*60*60*1000;
+        	arroundVo.setEndTime(DateUtil.dateFormate(new Date(timestamp), "yyyy-MM-dd"));
+        	list.add(arroundVo);
         }
 
         result.setResult(list);
@@ -1765,8 +1791,17 @@ public class ApiController extends BasicController {
         adMonitorTaskService.getByCurCityPageData(vo);
         List<MonitorTaskArroundVo> list = Lists.newArrayList();
 
-        for(Object task:vo.getList()){
-            list.add(new MonitorTaskArroundVo((AdMonitorTaskMobileVo) task));
+        for(Object obj : vo.getList()){
+        	AdMonitorTaskMobileVo task = (AdMonitorTaskMobileVo) obj;
+        	MonitorTaskArroundVo arroundVo = new MonitorTaskArroundVo(task);
+        	arroundVo.setProvince(cityCache.getCityName(task.getProvince()));
+        	arroundVo.setCity(cityCache.getCityName(task.getCity()));
+        	arroundVo.setRegion(cityCache.getCityName(task.getRegion()));
+        	arroundVo.setStreet(cityCache.getCityName(task.getStreet()));
+        	arroundVo.setStartTime(DateUtil.dateFormate(task.getMonitorDate(), "yyyy-MM-dd"));
+        	Long timestamp = task.getMonitorDate().getTime() + (task.getMonitorLastDays() - 1)*24*60*60*1000;
+        	arroundVo.setEndTime(DateUtil.dateFormate(new Date(timestamp), "yyyy-MM-dd"));
+        	list.add(arroundVo);
         }
 
         result.setResult(list);
@@ -2471,6 +2506,88 @@ public class ApiController extends BasicController {
         user = sysUserExecuteService.getById(user.getId());
         result.setResult(user);
 
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+    
+    //社会人员抢单放弃任务
+    @RequestMapping(value = "/abandonMonitorTask")
+    @ResponseBody
+    public Model abandonMonitorTask(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("调用成功");
+        model = new ExtendedModelMap();
+        
+        String token = null;
+        Integer monitorTaskId = null;
+        Date now = new Date();
+
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            monitorTaskId = obj.get("monitorTaskId") == null ? null : obj.get("monitorTaskId").getAsInt();
+            if (token != null) {
+                useSession.set(Boolean.FALSE);
+                this.sessionByRedis.setToken(token);
+            } else {
+                useSession.set(Boolean.TRUE);
+            }
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        //验证登录
+        if (useSession.get()) {
+            if (!checkLogin(model, result, request)) {
+                return model;
+            }
+        } else {
+            if (!checkLogin(model, result, token)) {
+                return model;
+            }
+        }
+        
+        if(monitorTaskId == null){
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("参数有误！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        
+        //[1] 获取该条任务信息
+        AdMonitorTask adMonitorTask = adMonitorTaskService.selectByPrimaryKey(monitorTaskId);
+        if(adMonitorTask.getStatus() == 2 || adMonitorTask.getStatus() == 6) {
+        	//[2] 判断24+12小时的逻辑, 将状态改成 1：待指派 或 8：可抢单
+            /**
+             * monitor_date + monitor_last_days - 2天 + 12小时 < now
+             * 可推出当 monitor_date < now - monitor_last_days + 2天 - 12小时 时改为1：可指派，否则为8：可抢单
+             */
+            AbandonTaskVo vo = new AbandonTaskVo();
+            vo.setId(monitorTaskId);
+            vo.setAbandonTime(now);
+            vo.setUpdateTime(now);
+            vo.setUserTaskStatus(2); //1.正常 2.主动放弃 3.超时回收
+            
+            Date monitorDate = adMonitorTask.getMonitorDate();
+            Integer monitorLastDays = adMonitorTask.getMonitorLastDays();
+            if(monitorDate.getTime() <= now.getTime() - monitorLastDays*24*60*60*1000 + 2*24*60*60*1000 - 12*60*60*1000) {
+            	vo.setTaskStatus(1); //1：可指派
+            } else {
+            	vo.setTaskStatus(8); //8：可抢单
+            }
+            
+            //[3] 联表更新
+            adMonitorTaskService.abandonUserTask(vo);
+        }
+        
         model.addAttribute(SysConst.RESULT_KEY, result);
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");

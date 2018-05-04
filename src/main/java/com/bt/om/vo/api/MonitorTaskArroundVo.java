@@ -3,9 +3,6 @@ package com.bt.om.vo.api;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.enums.MonitorTaskType;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by caiting on 2018/1/24.
  */
@@ -26,6 +23,12 @@ public class MonitorTaskArroundVo extends BasicVo {
     private Double lat;
     private Double lon;
     private Double distance;
+    private String region;
+    private String street;
+    private String province;
+    private String city;
+    private String startTime;
+    private String endTime;
 
     public MonitorTaskArroundVo(AdMonitorTaskMobileVo task){
         this.task_id = task.getId();
@@ -172,4 +175,53 @@ public class MonitorTaskArroundVo extends BasicVo {
     public void setMonitor_end(String monitor_end) {
         this.monitor_end = monitor_end;
     }
+
+	public String getRegion() {
+		return region;
+	}
+
+	public void setRegion(String region) {
+		this.region = region;
+	}
+
+	public String getStreet() {
+		return street;
+	}
+
+	public void setStreet(String street) {
+		this.street = street;
+	}
+
+	public String getProvince() {
+		return province;
+	}
+
+	public void setProvince(String province) {
+		this.province = province;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public String getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(String startTime) {
+		this.startTime = startTime;
+	}
+
+	public String getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(String endTime) {
+		this.endTime = endTime;
+	}
+    
 }

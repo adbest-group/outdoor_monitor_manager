@@ -120,6 +120,7 @@ public class ExcelController extends BasicController {
 	@ResponseBody
 	public Model exportPdf(Model model, HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(value = "activityId", required = false) Integer activityId) {
+		System.setProperty("sun.jnu.encoding", "utf-8");
 		//相关返回结果
 		ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
@@ -154,7 +155,7 @@ public class ExcelController extends BasicController {
 			document.open();
 			PdfContentByte cb = writer.getDirectContent();
 			
-			//生成首页
+			//[1] 生成pdf首页
 		    BaseFont bfChinese = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
 		    //Header  
 	        float y = document.top(368); 
@@ -212,11 +213,11 @@ public class ExcelController extends BasicController {
 				listString.add(list);
 			}
         	
-        	//生成表格页
+        	//[2] 生成pdf表格页
 			PdfPTable table = createTable1(listString);
 			document.add(table);
         	
-			//生成图片页
+			//[3] 生成pdf图片页
 			List<Integer> ids = new ArrayList<>();
 			List<Integer> activityAdseatIds = new ArrayList<>();
 			//查询每个广告位最新的一条监测任务
@@ -234,7 +235,7 @@ public class ExcelController extends BasicController {
     			createPage(document, list, feedback, request);
 			}
 		} catch (Exception e) {
-			logger.error(MessageFormat.format("批量导出失败", new Object[] {}));
+			logger.error(MessageFormat.format("批量导出pdf失败", new Object[] {}));
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());
         	result.setResultDes(e.getMessage());
             e.printStackTrace();
@@ -259,6 +260,8 @@ public class ExcelController extends BasicController {
 	@ResponseBody
 	public Model exportAdMediaInfo(Model model, HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(value = "activityId", required = false) Integer activityId) {
+		System.setProperty("sun.jnu.encoding", "utf-8");
+		
 		//相关返回结果
 		ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());

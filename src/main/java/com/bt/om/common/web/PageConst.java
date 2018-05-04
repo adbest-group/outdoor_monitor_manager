@@ -88,4 +88,8 @@ public class PageConst {
 	public static final String DEPARMENT_ADMIN_GROUP_LIST = "resources/groupList";
 	public static final String DEPARMENT_ADMIN_GROUP_EDIT = "resources/groupEdit";
 	
+	/*** 部门管理员下的员工管理 ***/
+	public static final String DEPARMENT_ADMIN_USER_LIST = "sysUser/list";
+	public static final String DEPARMENT_ADMIN_USER_EDIT = "sysUser/edit";
+	
 }

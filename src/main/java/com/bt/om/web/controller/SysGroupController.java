@@ -93,9 +93,15 @@ public class SysGroupController extends BasicController{
             	sysResources.setCreateTime(now);
             	sysResources.setUpdateTime(now);
             	sysResources.setType("2"); //设置类型为组
-            	sysGroupService.save(sysResources);
+            	//获取当前登录的后台用户id
+                SysUser sysUser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+                if(sysUser.getUsertype() == 5) {
+                	//部门领导登录, 查询部门领导账号一对一管理的部门信息
+                	SysResources department = sysGroupService.getByUserId(sysUser.getId());
+                	sysResources.setParentid(department.getId());
+                }
+            	sysGroupService.insert(sysResources);
             } 
-           
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");

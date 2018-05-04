@@ -99,7 +99,7 @@ public class SysUserService implements ISysUserService {
 		sysUserDetail.setUserId(record.getId());
 		sysUserDetailMapper.insert(sysUserDetail);
 		//[3] 插入sys_user_role表
-		sysUserDetail.setUserId(record.getId());
+		sysUserRole.setUserId(record.getId());
 		sysUserRoleMapper.insert(sysUserRole);
 		return result;
 	}

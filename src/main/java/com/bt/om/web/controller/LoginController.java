@@ -122,7 +122,7 @@ public class LoginController extends BasicController {
             SysUser findUser = getLoginUser();
 
             // 账户停用的时候
-            if (findUser.getStatus() != null && findUser.getStatus() == 2) {
+            if (findUser.getStatus() != null && findUser.getStatus() ==2) {
                 // 清除session中的用户信息
                 ShiroUtils.removeAttribute(SessionKey.SESSION_LOGIN_USER.toString());
                 model.addAttribute(SysConst.RESULT_KEY, "该账户已被停用，请联系管理员");

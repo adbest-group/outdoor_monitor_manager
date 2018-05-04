@@ -68,8 +68,7 @@ $(function() {
                 type: "post",
                 data: {
                 	"id": id,
-                    "name": groupName,
-                    "userId": groupLeaderId
+                    "name": groupName
                 },
                 cache: false,
                 dataType: "json",

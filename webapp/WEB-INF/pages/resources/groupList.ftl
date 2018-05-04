@@ -1,9 +1,9 @@
-<#assign webTitle="组管理" in model>
+<#assign webTitle="组与员工管理" in model>
 <#assign webHead in model>
 </#assign>
 <@model.webhead />
 <!-- 头部 -->
-<@model.webMenu current="组管理" child="groupList" />
+<@model.webMenu current="组与员工管理" child="groupList" />
 <div class="main-container" style="height: auto;">
     <div class="main-box ott-market">
         <div class="title clearfix">

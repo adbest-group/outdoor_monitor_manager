@@ -19,10 +19,18 @@
      
      <!-- 激活任务定时 -->
      <bean id="activateTaskTask" class="com.bt.om.web.quartz.ActivateTaskTask" />
+     
+     <!-- 回收任务定时 -->
+     <bean id="recycleTaskTask" class="com.bt.om.web.quartz.RecycleTaskTask" />
+     
+     <!-- 强制指派定时 -->
+     <bean id="forceAssignTask" class="com.bt.om.web.quartz.ForceAssignTask" />
       
      <!-- 开启任务调度: -->
      <task:scheduled-tasks>
-     	<task:scheduled ref="activityEndTask" method="execute" cron="0 5 0 * * ?" />
-     	<task:scheduled ref="activateTaskTask" method="execute" cron="0 2 0 * * ?" />
+     	<task:scheduled ref="activityEndTask" method="execute" cron="0 5 0 * * ?" /> <!-- 每日00:05分跑一次 -->
+     	<task:scheduled ref="activateTaskTask" method="execute" cron="0 2 0 * * ?" /> <!-- 每日00:02分跑一次 -->
+     	<task:scheduled ref="recycleTaskTask" method="execute" cron="0 0/5 * * * ?" /> <!-- 每5分钟跑一次 -->
+     	<task:scheduled ref="forceAssignTask" method="execute" cron="0 0/5 * * * ?" /> <!-- 每5分钟跑一次 -->
      </task:scheduled-tasks>
 </beans>

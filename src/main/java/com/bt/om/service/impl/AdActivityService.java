@@ -306,6 +306,7 @@ public class AdActivityService implements IAdActivityService {
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public void updateStatusByEndTime(Date nowDate) {
 		adActivityMapper.updateStatusByEndTime(nowDate);
 	}

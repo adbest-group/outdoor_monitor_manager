@@ -1,18 +1,18 @@
 package com.bt.om.vo.api;
 
-import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
-import com.bt.om.enums.MonitorTaskType;
-
-import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.bt.om.common.DateUtil;
+import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
+import com.bt.om.enums.MonitorTaskType;
 
 /**
  * Created by caiting on 2018/1/24.
  */
 public class MonitorTaskExecutingVo extends BasicVo {
-    private Integer task_id;
+	private static final long serialVersionUID = -2193883337064835653L;
+	private Integer task_id;
     private Integer task_type;
     private String task_type_text;
     private String ad_activity_name;
@@ -28,6 +28,13 @@ public class MonitorTaskExecutingVo extends BasicVo {
     private Double lon;
     private Double feedback_lat;
     private Double feedback_lon;
+    private String region;
+    private String street;
+    private String startTime;
+    private String endTime;
+    private Integer assignType;
+    private String province;
+    private String city;
 
     public MonitorTaskExecutingVo(AdMonitorTaskMobileVo task){
         this.task_id = task.getId();
@@ -50,6 +57,9 @@ public class MonitorTaskExecutingVo extends BasicVo {
         this.lat = task.getLat();
         this.feedback_lat = task.getFeedbackLat();
         this.feedback_lon = task.getFeedbackLon();
+        this.startTime = DateUtil.dateFormate(task.getStartTime(), "yyyy-MM-dd HH:mm:ss");
+        this.endTime = DateUtil.dateFormate(task.getEndTime(), "yyyy-MM-dd HH:mm:ss");
+        this.assignType = task.getAssignType();
     }
 
     public Double getLat() {
@@ -179,4 +189,60 @@ public class MonitorTaskExecutingVo extends BasicVo {
     public void setImg_url_list(List<String> img_url_list) {
         this.img_url_list = img_url_list;
     }
+    
+    public String getRegion() {
+		return region;
+	}
+
+	public void setRegion(String region) {
+		this.region = region;
+	}
+
+	public String getStreet() {
+		return street;
+	}
+
+	public void setStreet(String street) {
+		this.street = street;
+	}
+
+	public String getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(String startTime) {
+		this.startTime = startTime;
+	}
+
+	public String getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(String endTime) {
+		this.endTime = endTime;
+	}
+
+	public Integer getAssignType() {
+		return assignType;
+	}
+
+	public void setAssignType(Integer assignType) {
+		this.assignType = assignType;
+	}
+
+	public String getProvince() {
+		return province;
+	}
+
+	public void setProvince(String province) {
+		this.province = province;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
 }

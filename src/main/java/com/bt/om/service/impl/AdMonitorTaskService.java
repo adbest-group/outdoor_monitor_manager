@@ -1,46 +1,41 @@
 package com.bt.om.service.impl;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.bt.om.entity.*;
-import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
-import com.bt.om.entity.vo.AdMonitorTaskVo;
-import com.bt.om.enums.*;
-import com.bt.om.mapper.*;
-import com.bt.om.security.ShiroUtils;
-import com.bt.om.service.IAdMonitorTaskService;
-import com.bt.om.util.GeoUtil;
-import com.bt.om.util.StringUtil;
-import com.bt.om.vo.web.SearchDataVo;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.adtime.common.lang.CollectionUtil;
 import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.entity.AdMonitorReward;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
+import com.bt.om.entity.AdMonitorUserTask;
 import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.SysUser;
+import com.bt.om.entity.vo.AbandonTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.RewardType;
+import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
 import com.bt.om.mapper.AdJiucuoTaskMapper;
 import com.bt.om.mapper.AdMonitorRewardMapper;
 import com.bt.om.mapper.AdMonitorTaskFeedbackMapper;
 import com.bt.om.mapper.AdMonitorTaskMapper;
+import com.bt.om.mapper.AdMonitorUserTaskMapper;
 import com.bt.om.mapper.AdSeatInfoMapper;
+import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.vo.web.SearchDataVo;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Created by caiting on 2018/1/20.
@@ -58,7 +53,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     @Autowired
     private AdSeatInfoMapper adSeatInfoMapper;
     @Autowired
-    AdMonitorUserTaskMapper adMonitorUserTaskMapper;
+    private AdMonitorUserTaskMapper adMonitorUserTaskMapper;
 
     @Override
     public void getPageData(SearchDataVo vo) {
@@ -388,8 +383,43 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public void activateMonitorTask(Date nowDate) {
 		adMonitorTaskMapper.activateMonitorTask(nowDate);
 	}
 
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void recycleMonitorTask() {
+		Date now = new Date();
+		//[1] 查询ad_monitor_user_task待回收的任务id集合
+		List<Integer> monitorTaskIds = adMonitorUserTaskMapper.selectRecycleTaskIds(now);
+		//[2] 修改ad_monitor_user_task表中待回收的状态及回收时间
+		if(CollectionUtil.isNotEmpty(monitorTaskIds)) {
+			AdMonitorUserTask task = new AdMonitorUserTask();
+			task.setAbandonTime(now);
+			task.setUpdateTime(now);
+			task.setStatus(3);
+			adMonitorUserTaskMapper.recycleUserTask(task);
+			//[3] 修改ad_monitor_task表中回收的任务的状态为 1：待指派 或 8：可抢单
+			adMonitorTaskMapper.recycleTask(monitorTaskIds, 12);
+		}
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void forceAssignTask() {
+		adMonitorTaskMapper.forceAssignTask(12);
+	}
+
+	@Override
+	public AdMonitorTask selectByPrimaryKey(Integer id) {
+		return adMonitorTaskMapper.selectByPrimaryKey(id);
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void abandonUserTask(AbandonTaskVo vo) {
+		adMonitorUserTaskMapper.abandonUserTask(vo);
+	}
 }

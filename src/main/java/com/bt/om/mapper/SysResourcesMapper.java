@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
 import com.bt.om.entity.SysResources;
+import com.bt.om.entity.SysUser;
 
 public interface SysResourcesMapper {
 
@@ -40,4 +41,5 @@ public interface SysResourcesMapper {
    int deleteGroup(Integer id);
    List<SysResources> findGroupById(@Param("userId") Integer userId);
    SysResources getByUserId(@Param("userId") Integer userId);
+  
 }

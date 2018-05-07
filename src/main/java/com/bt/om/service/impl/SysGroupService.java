@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bt.om.entity.SysResources;
+import com.bt.om.entity.SysUser;
 import com.bt.om.mapper.SysResourcesMapper;
+import com.bt.om.mapper.SysUserMapper;
 import com.bt.om.service.ISysGroupService;
 import com.bt.om.vo.web.SearchDataVo;
 
@@ -17,6 +19,8 @@ import com.bt.om.vo.web.SearchDataVo;
 public class SysGroupService implements ISysGroupService{
 	@Autowired
 	private SysResourcesMapper sysResourcesMapper;
+	@Autowired
+	private SysUserMapper sysUserMapper;
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void insert(SysResources sysResources) {
@@ -67,5 +71,27 @@ public class SysGroupService implements ISysGroupService{
 	@Override
 	public SysResources getByUserId(Integer userId) {
 		return sysResourcesMapper.getByUserId(userId);
+	}
+
+	@Override
+	public List<SysUser> selectUserName(Integer groupId) {
+		return sysUserMapper.findUserName(groupId);
+	}
+
+	@Override
+	public List<SysUser> selectCustomerName(Integer groupId) {
+		return sysUserMapper.findCustomerName(groupId);
+	}
+
+	@Override
+	public List<SysUser> selectNoUserName(Integer groupId) {
+		// TODO Auto-generated method stub
+		return sysUserMapper.findNoUserName(groupId);
+	}
+
+	@Override
+	public List<SysUser> selectNoCustomerName(Integer groupId) {
+		// TODO Auto-generated method stub
+		return sysUserMapper.findNoCustomerName(groupId);
 	}
 }

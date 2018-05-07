@@ -22,7 +22,7 @@
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan">
                     <thead>
                     <tr>
-                        <th>序号</th>
+                        <th>序号</th>	
                         <th>用户名</th>
                         <th>真实名字</th>
                   		<th>电话号码</th>

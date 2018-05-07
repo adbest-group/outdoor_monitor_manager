@@ -13,6 +13,7 @@ public class SysUserVo extends SysUser {
     private String telephone;
     private String prefix;
     private SysUserDetail userinfo;
+    
 
     public String getPrefix() {
         return prefix;

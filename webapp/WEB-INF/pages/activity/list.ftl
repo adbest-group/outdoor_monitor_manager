@@ -66,8 +66,8 @@
                                 <#if activity.status gt 0 ><a href="/activity/edit?id=${activity.id}">详情</a></#if>
                                 <#if activity.status==1><a href="javascript:del('${activity.id}')">删除</a></#if>
                                 
-                                <a href="javascript:exportExcel('${activity.id}')">导出excel</a>
-                                <a href="javascript:exportPdf('${activity.id}')">导出pdf</a>
+                                <a id="exportExcel" href="javascript:exportExcel('${activity.id}')">导出excel</a>
+                                <a id="exportPdf" href="javascript:exportPdf('${activity.id}')">导出pdf</a>
                             </td>
                         </tr>
                         </#list>
@@ -312,7 +312,14 @@
                     });
                 } else {
                     layer.alert('导出成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
-		    		window.open(resultRet.result);
+		    		//window.open(resultRet.result);
+		    		var newA = document.createElement("a");
+			        newA.id = 'gg'
+			        newA.target = '_blank';
+			        newA.href = resultRet.result;
+			        document.body.appendChild(newA);
+			        newA.click();
+			        document.body.removeChild(newA);
                 }
             },
             error: function(e) {
@@ -342,7 +349,14 @@
                     });
                 } else {
                     layer.alert('导出成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
-		    		window.open(resultRet.result);
+		    		//window.open(resultRet.result);
+		    		var newA = document.createElement("a");
+			        newA.id = 'gg'
+			        newA.target = '_blank';
+			        newA.href = resultRet.result;
+			        document.body.appendChild(newA);
+			        newA.click();
+			        document.body.removeChild(newA);
                 }
             },
             error: function(e) {

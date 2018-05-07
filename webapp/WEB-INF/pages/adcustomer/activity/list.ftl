@@ -270,13 +270,20 @@
             success: function(datas) {
                 var resultRet = datas.ret;
                 if (resultRet.code == 101) {
-                    layer.confirm(resultRet.resultDes, {
+                    layer.confirm("导出失败", {
                         icon: 2,
                         btn: ['确定'] //按钮
                     });
                 } else {
                     layer.alert('导出成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
-		    		window.open(resultRet.result);
+                    //window.open(resultRet.result);
+		    		var newA = document.createElement("a");
+			        newA.id = 'gg'
+			        newA.target = '_blank';
+			        newA.href = resultRet.result;
+			        document.body.appendChild(newA);
+			        newA.click();
+			        document.body.removeChild(newA);
                 }
             },
             error: function(e) {
@@ -300,13 +307,20 @@
             success: function(datas) {
                 var resultRet = datas.ret;
                 if (resultRet.code == 101) {
-                    layer.confirm(resultRet.resultDes, {
+                    layer.confirm("导出失败", {
                         icon: 2,
                         btn: ['确定'] //按钮
                     });
                 } else {
                     layer.alert('导出成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
-		    		window.open(resultRet.result);
+		    		//window.open(resultRet.result);
+		    		var newA = document.createElement("a");
+			        newA.id = 'gg'
+			        newA.target = '_blank';
+			        newA.href = resultRet.result;
+			        document.body.appendChild(newA);
+			        newA.click();
+			        document.body.removeChild(newA);
                 }
             },
             error: function(e) {

@@ -611,4 +611,10 @@
 		where media_id = #{mediaId,jdbcType=INTEGER}
 	</select>
 	
+	<select id="getCountGroupByCity" resultType="com.bt.om.entity.vo.CountGroupByCityVo">
+		select count(1), city
+		from ad_seat_info
+		group by city
+	</select>
+	
 </mapper>

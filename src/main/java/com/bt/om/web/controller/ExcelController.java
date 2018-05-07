@@ -139,7 +139,8 @@ public class ExcelController extends BasicController {
 		//导出文件相关
 		AdActivity adActivity = adActivityService.getById(activityId);
 		AdCustomerType customerType = adCustomerTypeService.getById(adActivity.getCustomerTypeId()); //客户类型
- 		final String fileName = adActivity.getActivityName() + "-exportResult"+ ".pdf"; //导出文件名
+// 		final String fileName = adActivity.getActivityName() + "-广告位导出结果"+ ".pdf"; //导出文件名
+		final String fileName = System.currentTimeMillis() + "-exportResult"+ ".pdf"; //导出文件名
  		List<List<String>> listString = new ArrayList<>();
         Map<Integer, List<String>> map = new HashMap<>();
         Document document = new Document(PageSize.LEDGER);
@@ -281,7 +282,8 @@ public class ExcelController extends BasicController {
 		//导出文件相关
 		AdActivity adActivity = adActivityService.getById(activityId); //活动
 		AdCustomerType customerType = adCustomerTypeService.getById(adActivity.getCustomerTypeId()); //客户类型
- 		final String fileName = adActivity.getActivityName() + "-exportResult"+ ".xls"; //导出文件名
+// 		final String fileName = adActivity.getActivityName() + "-广告位导出结果"+ ".xls"; //导出文件名
+ 		final String fileName = System.currentTimeMillis() + "-exportResult"+ ".xls"; //导出文件名
         List<List<String>> listString = new ArrayList<>();
         
         try {

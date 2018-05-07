@@ -34,4 +34,6 @@ public interface IResourceService {
 	List<AdSeatType> getSeatTypeAll();
 
 	public List<AdCrowd> getAgePartListByAdSeatId(Integer seatId);
+
+	List<AdMedia> getAvailableAll();
 }

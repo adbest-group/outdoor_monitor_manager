@@ -285,13 +285,19 @@ public class ApiController extends BasicController {
         InputStream is = null;
         String seatCode = null;
         Integer adSeatId = null;
-
+        Double lon = null;
+        Double lat = null;
+        String title = null;
+        
         try {
             is = request.getInputStream();
             Gson gson = new Gson();
             JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
             seatCode = obj==null||obj.get("seatCode") == null ? null : obj.get("seatCode").getAsString();
             adSeatId = obj==null||obj.get("adSeatId") == null ? null : obj.get("adSeatId").getAsInt();
+            lon = obj==null||obj.get("lon") == null ? null : obj.get("lon").getAsDouble();
+            lat = obj==null||obj.get("lat") == null ? null : obj.get("lat").getAsDouble();
+            title = obj==null||obj.get("title") == null ? null : obj.get("title").getAsString();
         } catch (IOException e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
@@ -309,10 +315,10 @@ public class ApiController extends BasicController {
 
         try {
             List<AdActivityAdseatVo> list = null;
-            if(adSeatId!=null){
-                list = adActivityService.getActivitySeatBySeatId(adSeatId);
-            }else if(seatCode!=null) {
+            if(seatCode!=null){
                 list = adActivityService.getActivitySeatBySeatCode(seatCode);
+            }else if(lon!=null && lat!=null && title!=null) {
+                list = adActivityService.selectVoByLonLatTitle(lon, lat, title);
             }
             QRCodeInfoVo qr = new QRCodeInfoVo();
 //            qr.setAd_seat_id(Integer.valueOf(seatCode));

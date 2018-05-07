@@ -55,6 +55,8 @@ public interface AdMediaMapper {
     int updateByPrimaryKey(AdMedia record);
     
     List<AdMedia> getAll();
+    
+    List<AdMedia> getAvailableAll(); 
 
     AdMedia selectByUserId(@Param("id") Integer id);
 }

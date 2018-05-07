@@ -76,6 +76,11 @@ public class ResourceService implements IResourceService {
 	public List<AdMedia> getAll() {
 		return adMediaMapper.getAll();
 	}
+	
+	@Override
+	public List<AdMedia> getAvailableAll() {
+		return adMediaMapper.getAvailableAll();
+	}
 
 	@Override
 	public int deleteAdSeatById(Integer id) {

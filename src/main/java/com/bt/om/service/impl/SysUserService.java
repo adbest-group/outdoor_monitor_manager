@@ -124,4 +124,17 @@ public class SysUserService implements ISysUserService {
 		return sysUserMapper.findAllTask();
 	}
 
+	@Override
+	public int deleteUserById(Integer id) {
+		return sysUserMapper.deleteByPrimaryKey(id);
+	}
+
+	@Override
+	public int addUsers(SysUser record) {
+		// TODO Auto-generated method stub
+		return sysUserMapper.insertUsers(record);
+	}
+
+
+
 }

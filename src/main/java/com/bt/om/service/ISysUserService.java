@@ -3,6 +3,8 @@ package com.bt.om.service;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserDetail;
 import com.bt.om.entity.SysUserRole;
@@ -102,7 +104,9 @@ public interface ISysUserService {
     int createDepartmentLeader(SysUser record, SysUserDetail sysUserDetail, SysUserRole sysUserRole);
 	List<SysUser>findLeaderList();
 	int updatePasswordAndName(SysUser record);
+	int deleteUserById(Integer id);
 
 	int updateStatus(SysUser status);
 	List<SysUser>findAllTask();
+	int addUsers(SysUser record);
 }

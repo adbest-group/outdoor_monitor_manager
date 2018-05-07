@@ -163,6 +163,7 @@
         #{updateTime,jdbcType=TIMESTAMP},
       </if>
     </trim>
+    
   </insert>
   
   <update id="updateByPrimaryKeySelective" parameterType="com.bt.om.entity.SysUser">
@@ -376,6 +377,59 @@
   	<include refid="Base_Column_List" />
     from sys_user
   </select>
+  
+  	<select id="findUserName" resultMap="BaseResultMap">
+    select
+    	a.id id,
+    	a.realname realname
+    from sys_user a  
+    left join sys_user_res b on a.id = b.user_id
+    where a.usertype = 1
+    and a.status = 1
+    and b.type = 1
+    and b.res_id = #{groupId,jdbcType=INTEGER}
+  </select>
+   <select id="findNoUserName" resultMap="BaseResultMap">
+    select
+    	a.id id,
+    	a.realname realname
+    from sys_user a  
+    left join sys_user_res b on a.id = b.user_id
+    where a.usertype = 1
+    and a.status = 1
+    and b.res_id is null;
+  </select>
+  	<select id="findCustomerName" resultMap="BaseResultMap">
+    select
+   		 a.id id,
+    a.realname realname
+    from sys_user a  
+    left join sys_user_res b on a.id = b.user_id
+    where a.usertype = 2
+    and a.status = 1
+    and b.type = 1
+    and b.res_id = #{groupId,jdbcType=INTEGER}
+
+  </select>
+  	<select id="findNoCustomerName" resultMap="BaseResultMap">
+    select
+   		 a.id id,
+    a.realname realname
+    from sys_user a  
+    left join sys_user_res b on a.id = b.user_id
+    where a.usertype = 2
+    and a.status = 1
+    and b.res_id is null;
+ </select>
+ 
+   <insert id="insertUsers" parameterType="com.bt.om.entity.SysUser" useGeneratedKeys="true" keyProperty="id">
+    insert into sys_user (id, realname)
+    values             
+            <foreach collection="insertUsers" separator="," open="(" close=")" item="users">
+            (#{users.id},#{users.realname})
+            </foreach>
+    
+  </insert>
 </mapper>
 
  

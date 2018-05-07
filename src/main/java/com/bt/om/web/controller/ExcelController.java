@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -138,7 +139,7 @@ public class ExcelController extends BasicController {
 		//导出文件相关
 		AdActivity adActivity = adActivityService.getById(activityId);
 		AdCustomerType customerType = adCustomerTypeService.getById(adActivity.getCustomerTypeId()); //客户类型
- 		final String fileName = adActivity.getActivityName() + "-广告位导出结果"+ ".pdf"; //导出文件名
+ 		final String fileName = adActivity.getActivityName() + "-exportResult"+ ".pdf"; //导出文件名
  		List<List<String>> listString = new ArrayList<>();
         Map<Integer, List<String>> map = new HashMap<>();
         Document document = new Document(PageSize.LEDGER);
@@ -254,6 +255,7 @@ public class ExcelController extends BasicController {
 	 * @param response
 	 * @param activityId
 	 * @return
+	 * @throws UnsupportedEncodingException 
 	 */
 	@RequiresRoles(value = {"admin" , "customer"}, logical = Logical.OR)
     @RequestMapping(value = "/exportAdMediaInfo")
@@ -279,7 +281,7 @@ public class ExcelController extends BasicController {
 		//导出文件相关
 		AdActivity adActivity = adActivityService.getById(activityId); //活动
 		AdCustomerType customerType = adCustomerTypeService.getById(adActivity.getCustomerTypeId()); //客户类型
- 		final String fileName = adActivity.getActivityName() + "-广告位导出结果"+ ".xls"; //导出文件名
+ 		final String fileName = adActivity.getActivityName() + "-exportResult"+ ".xls"; //导出文件名
         List<List<String>> listString = new ArrayList<>();
         
         try {

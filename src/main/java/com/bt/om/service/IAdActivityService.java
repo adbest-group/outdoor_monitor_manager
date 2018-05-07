@@ -66,4 +66,6 @@ public interface IAdActivityService {
     public void selectReportPageData(SearchDataVo vo);
     
     public void updateStatusByEndTime(Date nowDate);
+
+	List<AdActivityAdseatVo> selectVoByLonLatTitle(Double lon, Double lat, String title);
 }

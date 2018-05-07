@@ -519,7 +519,7 @@
 
     //媒体广告位
     var checked_media = media_seats = [
-        <#list vm.getAllMedia() as media>
+        <#list vm.getAllAvailableMedia() as media>
             {
                 id:${media.id},
                 name:'${media.mediaName}'

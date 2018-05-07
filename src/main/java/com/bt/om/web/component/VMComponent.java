@@ -304,6 +304,13 @@ public class VMComponent {
     }
     
     /**
+     * 获取全部可用媒体
+     */
+    public List<AdMedia> getAllAvailableMedia() {
+        return resourceService.getAvailableAll();
+    }
+    
+    /**
      * 获取全部媒体大类
      */
     public List<AdMediaType> getAllParentMediaType() {

@@ -246,6 +246,11 @@ public class AdActivityService implements IAdActivityService {
     public List<AdActivityAdseatVo> getActivitySeatBySeatId(Integer id) {
         return adActivityAdseatMapper.selectVoBySeatId(id);
     }
+    
+    @Override
+    public List<AdActivityAdseatVo> selectVoByLonLatTitle(Double lon, Double lat, String title) {
+        return adActivityAdseatMapper.selectVoByLonLatTitle(lon, lat, title);
+    }
 
     @Override
     public List<AdActivityAdseatVo> getActivitySeatBySeatCode(String adSeatCode) {

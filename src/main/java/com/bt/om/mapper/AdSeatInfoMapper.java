@@ -2,6 +2,8 @@ package com.bt.om.mapper;
 
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.vo.AdSeatInfoVo;
+import com.bt.om.entity.vo.CountGroupByCityVo;
+
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
@@ -70,4 +72,6 @@ public interface AdSeatInfoMapper {
     
     List<AdSeatInfo> getAdSeatByPointAround(@Param("lon")Double lon,@Param("lat")Double lat,@Param("metre")Double metre,@Param("metreDegree")Double metreDegree);
     List<AdSeatInfo> getAdSeatByMediaId(@Param("mediaId")  Integer mediaId);
+    
+    List<CountGroupByCityVo> getCountGroupByCity();
 }

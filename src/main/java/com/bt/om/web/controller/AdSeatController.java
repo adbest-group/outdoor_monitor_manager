@@ -1,5 +1,6 @@
 package com.bt.om.web.controller;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ import com.bt.om.service.IAdSeatService;
 import com.bt.om.service.IResourceService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
+import com.bt.om.web.BasicController;
 import com.bt.om.web.util.SearchUtil;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
@@ -42,7 +44,7 @@ import com.google.gson.JsonObject;
 
 @Controller
 @RequestMapping(value = "/adseat")
-public class AdSeatController {
+public class AdSeatController extends BasicController {
     @Autowired
     private IResourceService resourceService;
 
@@ -327,5 +329,27 @@ public class AdSeatController {
 
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
+    }
+    
+    /**
+     * 查询热力图报表
+     */
+    @RequiresRoles("customer")
+    @RequestMapping(value = "/getCountGroupByCity")
+    @ResponseBody
+    public void getCountGroupByCity(Model model, HttpServletRequest request) {
+    	ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("查询成功");
+        model = new ExtendedModelMap();
+        
+        try {
+			
+		} catch (Exception e) {
+			logger.error(MessageFormat.format("批量导出失败", new Object[] {}));
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+        	result.setResultDes(e.getMessage());
+            e.printStackTrace();
+		}
     }
 }

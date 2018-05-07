@@ -14,6 +14,7 @@ import com.bt.om.entity.AdCrowd;
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.vo.AdSeatInfoVo;
+import com.bt.om.entity.vo.CountGroupByCityVo;
 import com.bt.om.mapper.AdCrowdMapper;
 import com.bt.om.mapper.AdMediaMapper;
 import com.bt.om.mapper.AdSeatInfoMapper;
@@ -129,6 +130,11 @@ public class AdSeatService implements IAdSeatService {
 	@Override
 	public List<AdSeatInfo> getAdSeatByMediaId(Integer mediaId) {
 		return adSeatInfoMapper.getAdSeatByMediaId(mediaId);
+	}
+
+	@Override
+	public List<CountGroupByCityVo> getCountGroupByCity() {
+		return adSeatInfoMapper.getCountGroupByCity();
 	}
 
 }

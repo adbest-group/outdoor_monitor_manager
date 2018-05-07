@@ -313,7 +313,6 @@
                 } else {
                     layer.alert('导出成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
 		    		window.open(resultRet.result);
-		    		window.location.reload();
                 }
             },
             error: function(e) {
@@ -344,7 +343,6 @@
                 } else {
                     layer.alert('导出成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
 		    		window.open(resultRet.result);
-		    		window.location.reload();
                 }
             },
             error: function(e) {

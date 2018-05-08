@@ -313,5 +313,34 @@ public class MonitorTaskController extends BasicController {
         }
         return PageConst.DETAILS_PAGE;
     }
+    /**
+     *所有任务页面
+     */
+    @RequiresRoles("superadmin")
+    @RequestMapping(value = "/allList")
+    public String gotoAllTaskPage(Model model, HttpServletRequest request,
+            @RequestParam(value = "activityId", required = false) Integer activityId,
+            @RequestParam(value = "activityAdseatId", required = false) Integer activityAdseatId,
+            @RequestParam(value = "taskType", required = false) Integer taskType,
+            @RequestParam(value = "monitorDate", required = false) Integer monitorDate,
+            @RequestParam(value = "monitorLastDays", required = false) Integer monitorLastDays,
+            @RequestParam(value = "userId", required = false) Integer userId,
+            @RequestParam(value = "status", required = false) Integer status,
+            @RequestParam(value = "problemStatus", required = false) Integer problemStatus,
+            @RequestParam(value = "assessorId", required = false) Integer assessorId,
+            @RequestParam(value = "assignorId", required = false) Integer assignorId
+           ) {
+        SearchDataVo vo = SearchUtil.getVo();
+        List<AdMonitorTask> selectAllTask = adMonitorTaskService.selectAllTask();
+        if (problemStatus != null) {
+            vo.putSearchParam("problemStatus", problemStatus.toString(), problemStatus);
+        }
+        	vo.setList(selectAllTask);
+        // vo.putSearchParam("hasUserId","1","1");
+        adMonitorTaskService.getPageData(vo);
 
+        SearchUtil.putToModel(model, vo);
+    	return PageConst.ALLTASK_LIST;
+        
+    }
 }

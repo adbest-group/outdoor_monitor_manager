@@ -51,6 +51,7 @@ public class PageConst {
 	public static final String UNASSIGN_TASK_LIST = "task/unassignList";
 	public static final String SELECT_USER_EXECUTE = "task/selectExeUser";
 	public static final String DETAILS_PAGE = "task/detailsPage";
+	public static final String ALLTASK_LIST = "task/allTaskList";
 
 	/*** 纠错管理 ***/
 	public static final String JIUCUO_LIST = "jiucuo/list";

@@ -109,4 +109,6 @@ public interface AdMonitorTaskMapper {
 	List<AdMonitorTaskMobileVo> getByCurCityPageData(Map<String, Object> searchMap, RowBounds rowBounds);
 
 	int grabTask(@Param("userId")Integer userId,@Param("id")Integer id,@Param("updateTime")Date update_time);
+	
+	List<AdMonitorTask> findAllTask();
 }

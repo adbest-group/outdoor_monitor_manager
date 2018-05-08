@@ -324,4 +324,11 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         return ret;
     }
 
+	@Override
+    @Transactional(rollbackFor = Exception.class)
+	public List<AdMonitorTask> selectAllTask() {
+		List<AdMonitorTask> taskList = adMonitorTaskMapper.findAllTask();		
+		return taskList;
+	}
+
 }

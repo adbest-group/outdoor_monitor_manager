@@ -66,4 +66,9 @@ public interface IAdMonitorTaskService {
 	public void getByCurCityPageData(SearchDataVo vo);
 
 	public boolean grabTask(Integer userId,Integer id);
+
+	/**
+	 * 查看所有任务
+	 **/
+	public List<AdMonitorTask>selectAllTask();
 }

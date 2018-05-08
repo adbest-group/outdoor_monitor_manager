@@ -669,4 +669,18 @@
         and user_id is null
         and update_time = #{updateTime,jdbcType=TIMESTAMP}
     </update>
+    <select id="findAllTask" resultMap="BaseResultMap">
+    	select 
+	    	a.id, a.activity_id, a.activity_adseat_id, a.task_type, a.monitor_date,a.monitor_last_days,a.user_id,
+	        a.status,a.problem_status,a.assessor_id,a.assignor_id
+	     
+        from ad_monitor_task a
+	        left join ad_activity b on a.activity_id = b.id
+	        left join ad_activity_adseat c on a.activity_adseat_id = c.id
+	        left join ad_seat_info d on c.ad_seat_id = d.id
+	        left join sys_user_execute e on a.user_id = e.id
+	        left join sys_user f on a.assessor_id=f.id
+	        left join sys_user g on a.assignor_id=g.id
+        
+    </select>
 </mapper>

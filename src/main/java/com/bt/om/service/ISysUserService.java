@@ -3,10 +3,9 @@ package com.bt.om.service;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.ibatis.annotations.Param;
-
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserDetail;
+import com.bt.om.entity.SysUserRes;
 import com.bt.om.entity.SysUserRole;
 import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -108,5 +107,6 @@ public interface ISysUserService {
 
 	int updateStatus(SysUser status);
 	List<SysUser>findAllTask();
-	int addUsers(SysUser record);
+
+	int insertUserRess(List<SysUserRes> sysUserRess, SysUserRes sysUserRes);
 }

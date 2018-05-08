@@ -12,10 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserDetail;
+import com.bt.om.entity.SysUserRes;
 import com.bt.om.entity.SysUserRole;
 import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.mapper.SysUserDetailMapper;
 import com.bt.om.mapper.SysUserMapper;
+import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.mapper.SysUserRoleMapper;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.vo.web.SearchDataVo;
@@ -32,6 +34,8 @@ public class SysUserService implements ISysUserService {
 	SysUserRoleMapper sysUserRoleMapper;
 	@Autowired
 	SysUserDetailMapper sysUserDetailMapper;
+	@Autowired
+	SysUserResMapper sysUserResMapper;
 	
 	@Override
 	public SysUserVo findUserinfoById(Integer id) {
@@ -130,11 +134,12 @@ public class SysUserService implements ISysUserService {
 	}
 
 	@Override
-	public int addUsers(SysUser record) {
-		// TODO Auto-generated method stub
-		return sysUserMapper.insertUsers(record);
+	@Transactional(rollbackFor = Exception.class)
+	public int insertUserRess(List<SysUserRes> sysUserRess, SysUserRes sysUserRes) {
+		//[1] 批量删除操作
+		sysUserResMapper.deleteByResIdAndType(sysUserRes);
+		//[2] 批量插入操作
+		return sysUserResMapper.insertUserRess(sysUserRess);
 	}
-
-
 
 }

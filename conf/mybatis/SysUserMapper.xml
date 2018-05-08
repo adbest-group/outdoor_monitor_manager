@@ -421,15 +421,6 @@
     and a.status = 1
     and b.res_id is null;
  </select>
- 
-   <insert id="insertUsers" parameterType="com.bt.om.entity.SysUser" useGeneratedKeys="true" keyProperty="id">
-    insert into sys_user (id, realname)
-    values             
-            <foreach collection="insertUsers" separator="," open="(" close=")" item="users">
-            (#{users.id},#{users.realname})
-            </foreach>
-    
-  </insert>
 </mapper>
 
  

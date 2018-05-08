@@ -1,5 +1,9 @@
 package com.bt.om.mapper;
 
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
 import com.bt.om.entity.SysUserRes;
 
 public interface SysUserResMapper {
@@ -50,4 +54,7 @@ public interface SysUserResMapper {
      * @mbg.generated Tue Apr 24 17:12:35 CST 2018
      */
     int updateByPrimaryKey(SysUserRes record);
+    
+    int insertUserRess(@Param("sysUserRess") List<SysUserRes> sysUserRess);
+    int deleteByResIdAndType(SysUserRes sysUserRes);
 }

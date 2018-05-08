@@ -1,5 +1,6 @@
 package com.bt.om.web.controller;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -14,10 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.adtime.common.lang.StringUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.SysResources;
 import com.bt.om.entity.SysUser;
+import com.bt.om.entity.SysUserRes;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.security.ShiroUtils;
@@ -177,7 +180,7 @@ public class SysGroupController extends BasicController{
     @RequiresRoles("departmentadmin")
     @RequestMapping(value = "/saveUser")
     @ResponseBody
-    public Model saveUsers(Model model, SysUser sysUser, SysResources sysResources,HttpServletRequest request,Integer id) {
+    public Model saveUsers(Model model, HttpServletRequest request, Integer groupId, String userIds) {
         ResultVo<String> result = new ResultVo<String>();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("保存成功");
@@ -185,13 +188,24 @@ public class SysGroupController extends BasicController{
         Date now = new Date();
         
         try {
-            if (sysUser.getId() != null) {
-            	sysUserService.deleteUserById(id);
+            if (StringUtil.isNotBlank(userIds)) {
+            	List<SysUserRes> sysUserRess = new ArrayList<>();
+            	String[] split = userIds.split(",");
+            	for (String userId : split) {
+            		SysUserRes res = new SysUserRes();
+            		res.setResId(groupId);
+            		res.setUserId(Integer.parseInt(userId));
+            		res.setType(1);
+            		res.setCreateTime(now);
+            		res.setUpdateTime(now);
+            		sysUserRess.add(res);
+        		}
             	
-            } else {
-            	sysResources.setType("1"); 
-            	sysUserService.addUsers(sysUser);
-            } 
+            	SysUserRes sysUserRes = new SysUserRes();
+            	sysUserRes.setResId(groupId);
+            	sysUserRes.setType(1);
+            	sysUserService.insertUserRess(sysUserRess, sysUserRes);
+            }
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");

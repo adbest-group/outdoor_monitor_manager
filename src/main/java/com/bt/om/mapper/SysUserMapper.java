@@ -84,8 +84,4 @@ public interface SysUserMapper {
 	List<SysUser> findCustomerName(Integer groupId);
 	List<SysUser> findNoUserName(Integer groupId);
 	List<SysUser> findNoCustomerName(Integer groupId);
-/*
-*	批量添加	
-*/
-	public int insertUsers(SysUser record);
 }

@@ -143,4 +143,25 @@
       update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  
+    <insert id="insertUserRess" parameterType="com.bt.om.entity.SysUserRes">
+    insert into sys_user_res (id, res_id, user_id, 
+      type, create_time, update_time
+    )
+    values
+    <foreach collection="sysUserRess" item="res" separator=",">  
+    (
+    	#{res.id,jdbcType=INTEGER}, #{res.resId,jdbcType=INTEGER}, #{res.userId,jdbcType=INTEGER}, 
+        #{res.type,jdbcType=INTEGER}, #{res.createTime,jdbcType=TIMESTAMP}, #{res.updateTime,jdbcType=TIMESTAMP}
+     )
+    </foreach>
+  </insert>
+  
+  <delete id="deleteByResIdAndType" parameterType="com.bt.om.entity.SysUserRes">
+  	delete from sys_user_res
+    where 
+    	res_id = #{resId,jdbcType=INTEGER}
+    	and type = #{type,jdbcType=INTEGER}
+  </delete>
+  
 </mapper>

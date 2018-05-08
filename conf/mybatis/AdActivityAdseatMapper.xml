@@ -417,4 +417,11 @@
 	WHERE a.activity_id = #{activityId,jdbcType=INTEGER}
   </select>
   
+  <select id="selectSeatIdByActivityId" resultType="java.lang.Integer">
+    select
+    	ad_seat_id
+    from ad_activity_adseat
+    where activity_id = #{activityId,jdbcType=INTEGER}
+  </select>
+  
 </mapper>

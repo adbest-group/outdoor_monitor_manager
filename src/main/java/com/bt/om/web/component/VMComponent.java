@@ -177,7 +177,7 @@ public class VMComponent {
     public List<AdActivity> getAllActivity() {
         return adActivityService.getAll();
     }
-
+    
     /**
      * 获取拥有的广告活动
      */

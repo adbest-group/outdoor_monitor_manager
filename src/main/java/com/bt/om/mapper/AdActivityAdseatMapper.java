@@ -71,4 +71,5 @@ public interface AdActivityAdseatMapper {
     List<AdActivityAdseatTaskVo> selectAdSeatTaskReport(@Param("activityId") Integer activityId);
     
     List<AdActivityAdseatVo> selectVoByLonLatTitle(@Param("lon") Double lon, @Param("lat") Double lat, @Param("title") String title);
+    List<Integer> selectSeatIdByActivityId(@Param("activityId") Integer activityId);
 }

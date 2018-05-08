@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.bt.om.util.GeoUtil;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,10 +14,13 @@ import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.vo.AdSeatInfoVo;
 import com.bt.om.entity.vo.CountGroupByCityVo;
+import com.bt.om.entity.vo.HeatMapVo;
+import com.bt.om.mapper.AdActivityAdseatMapper;
 import com.bt.om.mapper.AdCrowdMapper;
 import com.bt.om.mapper.AdMediaMapper;
 import com.bt.om.mapper.AdSeatInfoMapper;
 import com.bt.om.service.IAdSeatService;
+import com.bt.om.util.GeoUtil;
 import com.bt.om.vo.web.SearchDataVo;
 
 /**
@@ -32,6 +34,8 @@ public class AdSeatService implements IAdSeatService {
     private AdMediaMapper adMediaMapper;
     @Autowired
     private AdCrowdMapper adCrowdMapper;
+    @Autowired
+    private AdActivityAdseatMapper adActivityAdseatMapper;
 
     @Override
     public int getPageCount(SearchDataVo vo) {
@@ -133,8 +137,25 @@ public class AdSeatService implements IAdSeatService {
 	}
 
 	@Override
-	public List<CountGroupByCityVo> getCountGroupByCity() {
-		return adSeatInfoMapper.getCountGroupByCity();
+	public List<CountGroupByCityVo> getCountGroupByCity(HeatMapVo heatMapVo) {
+		//[1] 查询某活动的所有广告位id集合
+		if(heatMapVo.getActivityId() != null) {
+			List<Integer> seatIds = adActivityAdseatMapper.selectSeatIdByActivityId(heatMapVo.getActivityId());
+			heatMapVo.setInfoIds(seatIds);
+		}
+		//[2] 查询热力图报表
+		return adSeatInfoMapper.getCountGroupByCity(heatMapVo);
+	}
+	
+	@Override
+	public List<AdSeatInfo> getAllLonLat(HeatMapVo heatMapVo) {
+		//[1] 查询某活动的所有广告位id集合
+		if(heatMapVo.getActivityId() != null) {
+			List<Integer> seatIds = adActivityAdseatMapper.selectSeatIdByActivityId(heatMapVo.getActivityId());
+			heatMapVo.setInfoIds(seatIds);
+		}
+		//[2] 查询热力图报表
+		return adSeatInfoMapper.getAllLonLat(heatMapVo);
 	}
 
 }

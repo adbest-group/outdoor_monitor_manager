@@ -3,6 +3,7 @@ package com.bt.om.service;
 import com.bt.om.entity.AdCrowd;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.vo.CountGroupByCityVo;
+import com.bt.om.entity.vo.HeatMapVo;
 import com.bt.om.vo.web.SearchDataVo;
 
 import java.util.List;
@@ -30,5 +31,6 @@ public interface IAdSeatService {
 	public List<AdSeatInfo> getAdseatAround(Double lat,Double lon,Double metre);
 	public List<AdSeatInfo> getAdSeatByMediaId(Integer mediaId);
 	
-	public List<CountGroupByCityVo> getCountGroupByCity();
+	public List<CountGroupByCityVo> getCountGroupByCity(HeatMapVo heatMapVo);
+	List<AdSeatInfo> getAllLonLat(HeatMapVo heatMapVo);
 }

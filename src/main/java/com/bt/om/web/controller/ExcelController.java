@@ -188,15 +188,15 @@ public class ExcelController extends BasicController {
 				list.add(DateUtil.dateFormate(vo.getMonitorStart(), "yyyy-MM-dd")); //开始监测时间 8
 				list.add(DateUtil.dateFormate(vo.getMonitorEnd(), "yyyy-MM-dd")); //结束监测时间 9
 				String status = AdMediaInfoStatus.WATCHING.getText(); //当前状态 10
+				if(vo.getProblem_count() > 0) {
+					status = AdMediaInfoStatus.HAS_PROBLEM.getText();
+				}
 				if(vo.getMonitorStart().getTime() > now.getTime()) {
 					status = AdMediaInfoStatus.NOT_BEGIN.getText();
 				}
 				if(vo.getMonitorEnd().getTime() < now.getTime()) {
 					status = AdMediaInfoStatus.FINISHED.getText();
 	        	}
-				if(vo.getProblem_count() > 0) {
-					status = AdMediaInfoStatus.HAS_PROBLEM.getText();
-				}
 				list.add(status);
 				list.add(vo.getInfo_adSize()); //尺寸 11
 				list.add(vo.getInfo_adArea()); //面积 12
@@ -305,15 +305,15 @@ public class ExcelController extends BasicController {
 				list.add(DateUtil.dateFormate(vo.getMonitorStart(), "yyyy-MM-dd")); //开始监测时间
 				list.add(DateUtil.dateFormate(vo.getMonitorEnd(), "yyyy-MM-dd")); //结束监测时间
 				String status = AdMediaInfoStatus.WATCHING.getText(); //当前状态
+				if(vo.getProblem_count() > 0) {
+					status = AdMediaInfoStatus.HAS_PROBLEM.getText();
+				}
 				if(vo.getMonitorStart().getTime() > now.getTime()) {
 					status = AdMediaInfoStatus.NOT_BEGIN.getText();
 				}
 				if(vo.getMonitorEnd().getTime() < now.getTime()) {
 					status = AdMediaInfoStatus.FINISHED.getText();
 	        	}
-				if(vo.getProblem_count() > 0) {
-					status = AdMediaInfoStatus.HAS_PROBLEM.getText();
-				}
 				list.add(status); //当前状态
 				list.add(vo.getInfo_adSize()); //广告位尺寸
 				list.add(vo.getInfo_adArea()); //面积
@@ -698,9 +698,16 @@ public class ExcelController extends BasicController {
     						info.setLon(lon); //经度
     	                	info.setLat(lat); //纬度
     	                	
+    	                	//地图标准
     	                	if(hasProblem == false) {
     	                		if(lo.get(14) != null) {
-        	                		info.setMapStandard(MapStandardEnum.getId(String.valueOf(lo.get(14)).trim())); //地图标准
+    	                			if(String.valueOf(lo.get(14)).trim().contains("百度")) {
+    	                				info.setMapStandard(MapStandardEnum.getId("百度"));
+    	                			} else if(String.valueOf(lo.get(14)).trim().contains("高德")) {
+    	                				info.setMapStandard(MapStandardEnum.getId("高德"));
+    	                			} else if(String.valueOf(lo.get(14)).trim().contains("谷歌")) {
+    	                				info.setMapStandard(MapStandardEnum.getId("谷歌"));
+    	                			}
         	                	} else {
         	                		/*logger.error(MessageFormat.format("批量导入文件有经纬度没有地图标准, 导入失败", new Object[] {}));
         	                		throw new ExcelException("批量导入文件有经纬度没有地图标准, 导入失败");*/
@@ -867,33 +874,41 @@ public class ExcelController extends BasicController {
 		document.add(pt);
 		
 		String path = request.getSession().getServletContext().getRealPath("/");
-		Image image1 = Image.getInstance(path + feedback.getPicUrl1());
-		image1.setAlignment(Image.ALIGN_CENTER);
-//		image1.scalePercent(40);//依照比例缩放
-		image1.scaleAbsolute(360,262);//控制图片大小
-		image1.setAbsolutePosition(222,350);//控制图片位置
-		document.add(image1);
+		if(!StringUtils.isEmpty(feedback.getPicUrl1())) {
+			Image image1 = Image.getInstance(path + feedback.getPicUrl1());
+			image1.setAlignment(Image.ALIGN_CENTER);
+//			image1.scalePercent(40);//依照比例缩放
+			image1.scaleAbsolute(360,262);//控制图片大小
+			image1.setAbsolutePosition(222,350);//控制图片位置
+			document.add(image1);
+		}
 		
-		Image image2 = Image.getInstance(path + feedback.getPicUrl2());
-		image2.setAlignment(Image.ALIGN_CENTER);
-//		image2.scalePercent(40);//依照比例缩放
-		image2.scaleAbsolute(360,262);//控制图片大小
-		image2.setAbsolutePosition(642,350);//控制图片位置
-		document.add(image2);
+		if(!StringUtils.isEmpty(feedback.getPicUrl2())) {
+			Image image2 = Image.getInstance(path + feedback.getPicUrl2());
+			image2.setAlignment(Image.ALIGN_CENTER);
+//			image2.scalePercent(40);//依照比例缩放
+			image2.scaleAbsolute(360,262);//控制图片大小
+			image2.setAbsolutePosition(642,350);//控制图片位置
+			document.add(image2);
+		}
 		
-		Image image3 = Image.getInstance(path + feedback.getPicUrl3());
-		image3.setAlignment(Image.ALIGN_CENTER);
-//		image3.scalePercent(40);//依照比例缩放
-		image3.scaleAbsolute(360,262);//控制图片大小
-		image3.setAbsolutePosition(222,48);//控制图片位置
-		document.add(image3);
+		if(!StringUtils.isEmpty(feedback.getPicUrl3())) {
+			Image image3 = Image.getInstance(path + feedback.getPicUrl3());
+			image3.setAlignment(Image.ALIGN_CENTER);
+//			image3.scalePercent(40);//依照比例缩放
+			image3.scaleAbsolute(360,262);//控制图片大小
+			image3.setAbsolutePosition(222,48);//控制图片位置
+			document.add(image3);
+		}
 		
-		Image image4 = Image.getInstance(path + feedback.getPicUrl4());
-		image4.setAlignment(Image.ALIGN_CENTER);
-//		image4.scalePercent(40);//依照比例缩放
-		image4.scaleAbsolute(360,262);//控制图片大小
-		image4.setAbsolutePosition(642,48);//控制图片位置
-		document.add(image4);
+		if(!StringUtils.isEmpty(feedback.getPicUrl4())) {
+			Image image4 = Image.getInstance(path + feedback.getPicUrl4());
+			image4.setAlignment(Image.ALIGN_CENTER);
+//			image4.scalePercent(40);//依照比例缩放
+			image4.scaleAbsolute(360,262);//控制图片大小
+			image4.setAbsolutePosition(642,48);//控制图片位置
+			document.add(image4);
+		}
 	}
 	
 	/**

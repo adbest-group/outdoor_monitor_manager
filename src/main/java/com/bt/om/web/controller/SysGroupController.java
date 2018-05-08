@@ -205,6 +205,50 @@ public class SysGroupController extends BasicController{
             	sysUserRes.setResId(groupId);
             	sysUserRes.setType(1);
             	sysUserService.insertUserRess(sysUserRess, sysUserRes);
+            
+            }
+        } catch (Exception e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("保存失败！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+    }
+    /**
+     * 保存客户
+     **/
+    @RequiresRoles("departmentadmin")
+    @RequestMapping(value = "/saveCustomer")
+    @ResponseBody
+    public Model saveCustomers(Model model, HttpServletRequest request, Integer groupId, String userIds) {
+        ResultVo<String> result = new ResultVo<String>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("保存成功");
+        model = new ExtendedModelMap();
+        Date now = new Date();
+        
+        try {
+            if (StringUtil.isNotBlank(userIds)) {
+            	List<SysUserRes> sysUserRess = new ArrayList<>();
+            	String[] split = userIds.split(",");
+            	for (String userId : split) {
+            		SysUserRes res = new SysUserRes();
+            		res.setResId(groupId);
+            		res.setUserId(Integer.parseInt(userId));
+            		res.setType(2);
+            		res.setCreateTime(now);
+            		res.setUpdateTime(now);
+            		sysUserRess.add(res);
+        		}
+            	
+            	SysUserRes sysUserRes = new SysUserRes();
+            	sysUserRes.setResId(groupId);
+            	sysUserRes.setType(2);
+            	sysUserService.insertUserRess(sysUserRess, sysUserRes);
+            
             }
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());

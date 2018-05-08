@@ -86,7 +86,7 @@ $(function(){
 		        userIds.push($(n).val());
 		    });
             $.ajax({
-                url: "/sysResources/saveUser",
+                url: "/sysResources/saveCustomer",
                 type: "post",
                 data: {
                     "groupId": $("#groupId").val(),

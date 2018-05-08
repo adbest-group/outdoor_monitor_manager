@@ -402,12 +402,12 @@
   	<select id="findCustomerName" resultMap="BaseResultMap">
     select
    		 a.id id,
-    a.realname realname
+    	a.realname realname
     from sys_user a  
     left join sys_user_res b on a.id = b.user_id
     where a.usertype = 2
     and a.status = 1
-    and b.type = 1
+    and b.type = 2
     and b.res_id = #{groupId,jdbcType=INTEGER}
 
   </select>

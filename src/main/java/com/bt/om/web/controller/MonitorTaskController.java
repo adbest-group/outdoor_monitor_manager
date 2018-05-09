@@ -48,7 +48,7 @@ public class MonitorTaskController extends BasicController {
     /**
      * 监测管理，已分配任务
      **/
-    @RequiresRoles("admin")
+    @RequiresRoles("taskadmin")
     @RequestMapping(value = "/list")
     public String getTaskList(Model model, HttpServletRequest request,
                               @RequestParam(value = "activityId", required = false) Integer activityId,
@@ -109,7 +109,7 @@ public class MonitorTaskController extends BasicController {
     /**
      * 监测管理，未分配任务
      **/
-    @RequiresRoles("admin")
+    @RequiresRoles("taskadmin")
     @RequestMapping(value = "/unassign")
     public String getUnAssignList(Model model, HttpServletRequest request,
                                   @RequestParam(value = "activityId", required = false) Integer activityId,
@@ -153,7 +153,7 @@ public class MonitorTaskController extends BasicController {
     /**
      * 选择监测人员页面
      **/
-    @RequiresRoles(value = {"admin", "media"}, logical = Logical.OR)
+    @RequiresRoles(value = {"taskadmin", "media"}, logical = Logical.OR)
     @RequestMapping(value = "/selectUserExecute")
     public String toSelectUserExecute(Model model, HttpServletRequest request) {
 
@@ -167,7 +167,7 @@ public class MonitorTaskController extends BasicController {
     }
 
     // 分配任务
-    @RequiresRoles(value = {"admin", "media"}, logical = Logical.OR)
+    @RequiresRoles(value = {"taskadmin", "media"}, logical = Logical.OR)
     @RequestMapping(value = "/assign")
     @ResponseBody
     public Model assign(Model model, HttpServletRequest request,
@@ -193,7 +193,7 @@ public class MonitorTaskController extends BasicController {
     }
 
     // 审核纠错
-    @RequiresRoles("admin")
+    @RequiresRoles("taskadmin")
     @RequestMapping(value = "/verify")
     @ResponseBody
     public Model verify(Model model, HttpServletRequest request,
@@ -227,7 +227,7 @@ public class MonitorTaskController extends BasicController {
     }
 
     //关闭问题任务
-    @RequiresRoles("admin")
+    @RequiresRoles("taskadmin")
     @RequestMapping(value = "/close")
     @ResponseBody
     public Model close(Model model, HttpServletRequest request,
@@ -254,7 +254,7 @@ public class MonitorTaskController extends BasicController {
     }
 
     //创建子任务
-    @RequiresRoles("admin")
+    @RequiresRoles("taskadmin")
     @RequestMapping(value = "/createTask")
     @ResponseBody
     public Model newSub(Model model, HttpServletRequest request,
@@ -289,7 +289,7 @@ public class MonitorTaskController extends BasicController {
      * @param request
      * @return 详情页面
      */
-    @RequiresRoles(value = {"admin", "customer", "media"}, logical = Logical.OR)
+    @RequiresRoles(value = {"superadmin", "taskadmin", "customer", "media"}, logical = Logical.OR)
     @RequestMapping(value = "/details")
     public String gotoDetailsPage(@RequestParam("task_Id") String taskId, Model model, HttpServletRequest request) {
         AdMonitorTaskVo vo = adMonitorTaskService.getTaskDetails(taskId);
@@ -313,6 +313,7 @@ public class MonitorTaskController extends BasicController {
         }
         return PageConst.DETAILS_PAGE;
     }
+    
     /**
      *所有任务页面
      */
@@ -320,24 +321,30 @@ public class MonitorTaskController extends BasicController {
     @RequestMapping(value = "/allList")
     public String gotoAllTaskPage(Model model, HttpServletRequest request,
             @RequestParam(value = "activityId", required = false) Integer activityId,
-            @RequestParam(value = "activityAdseatId", required = false) Integer activityAdseatId,
             @RequestParam(value = "taskType", required = false) Integer taskType,
-            @RequestParam(value = "monitorDate", required = false) Integer monitorDate,
-            @RequestParam(value = "monitorLastDays", required = false) Integer monitorLastDays,
-            @RequestParam(value = "userId", required = false) Integer userId,
             @RequestParam(value = "status", required = false) Integer status,
-            @RequestParam(value = "problemStatus", required = false) Integer problemStatus,
-            @RequestParam(value = "assessorId", required = false) Integer assessorId,
-            @RequestParam(value = "assignorId", required = false) Integer assignorId
+            @RequestParam(value = "problemStatus", required = false) Integer problemStatus
+
            ) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
-        List<AdMonitorTask> selectAllTask = adMonitorTaskService.selectAllTask();
+
+     
         if (problemStatus != null) {
             vo.putSearchParam("problemStatus", problemStatus.toString(), problemStatus);
         }
-        	vo.setList(selectAllTask);
-        // vo.putSearchParam("hasUserId","1","1");
-        adMonitorTaskService.getPageData(vo);
+        if (activityId != null) {
+            vo.putSearchParam("activityId", activityId.toString(), activityId);
+        }
+        if (taskType != null) {
+            vo.putSearchParam("taskType", taskType.toString(), taskType);
+        }
+        if (status != null) {
+            vo.putSearchParam("status", status.toString(), status);
+        }
+
+      
+        adMonitorTaskService.getPageDataAllTask(vo);
 
         SearchUtil.putToModel(model, vo);
     	return PageConst.ALLTASK_LIST;

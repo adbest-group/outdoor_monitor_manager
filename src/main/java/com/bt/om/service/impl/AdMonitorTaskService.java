@@ -3,6 +3,7 @@ package com.bt.om.service.impl;
 import com.bt.om.entity.*;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.entity.vo.AllAdMonitorTaskVo;
 import com.bt.om.enums.*;
 import com.bt.om.mapper.*;
 import com.bt.om.service.IAdMonitorTaskService;
@@ -330,5 +331,17 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 		List<AdMonitorTask> taskList = adMonitorTaskMapper.findAllTask();		
 		return taskList;
 	}
+
+	@Override
+	public void getPageDataAllTask(SearchDataVo vo) {
+	     int count = adMonitorTaskMapper.getPageCountAllTask(vo.getSearchMap());
+	        vo.setCount(count);
+	        if (count > 0) {
+	            vo.setList(adMonitorTaskMapper.getPageDataAllTask(vo.getSearchMap(), new RowBounds(vo.getStart(), vo.getSize())));
+	        } else {
+	            vo.setList(new ArrayList<AllAdMonitorTaskVo>());
+	        }
+	    }
+	
 
 }

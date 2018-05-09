@@ -16,7 +16,6 @@ import java.util.List;
 public interface IAdMonitorTaskService {
 
 	public void getPageData(SearchDataVo vo);
-
 	/**
 	 * 只适用于首次分配，内部采用和抢任务一样的机制
 	 **/
@@ -71,4 +70,7 @@ public interface IAdMonitorTaskService {
 	 * 查看所有任务
 	 **/
 	public List<AdMonitorTask>selectAllTask();
+	public void getPageDataAllTask(SearchDataVo vo);
+	
+	
 }

@@ -10,8 +10,8 @@
         <div class="title clearfix" style="display:block;">
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <form id="form" method="get" action="/task/allList">
-                    <!--销售下拉框-->
-                   <div class="select-box select-box-140 un-inp-select ll">
+                    <!--下拉框-->
+                    <div class="select-box select-box-140 un-inp-select ll">
                         <select name="activityId" class="select" id="activityId">
                             <option value="">所有活动</option>
                         <@model.showAllActivityOps value="${bizObj.queryMap.activityId?if_exists}"/>
@@ -29,23 +29,23 @@
                         <@model.showMonitorTaskStatusOps value="${bizObj.queryMap.status?if_exists}" />
                         </select>
                     </div>
-                      <div class="select-box select-box-100 un-inp-select ll">
+                    <div class="select-box select-box-100 un-inp-select ll">
                         <select class="select" name="problemStatus">
                             <option value="">所有问题状态</option>
                         <@model.showProblemStatusList value="${bizObj.queryMap.problemStatus?if_exists}" />
                         </select>
                     </div>
-                    <div class="ll inputs-date">
-                  <#--  <input class="ui-date-button" type="button" value="昨天" alt="-1" name="">
+                   <#--   <div class="ll inputs-date">
+                  <input class="ui-date-button" type="button" value="昨天" alt="-1" name="">
                     <input class="ui-date-button" type="button" value="近7天" alt="-6" name="">
-                    <input class="ui-date-button on" type="button" value="近30天" alt="-29" name=""> -->
+                    <input class="ui-date-button on" type="button" value="近30天" alt="-29" name=""> 
                         <div class="date">
                             <input id="dts" class="Wdate" type="text" name="startDate"
                                    value="${bizObj.queryMap.startDate?if_exists}"> 
                             <input id="dt" class="Wdate" type="text" name="endDate"
                                    value="${bizObj.queryMap.endDate?if_exists}">
                         </div>
-                    </div>
+                    </div>-->
                     <button type="button" class="btn btn-red" style="margin-left:10px;" autocomplete="off"
                             id="searchBtn">查询
                     </button>
@@ -70,7 +70,6 @@
                         <th>问题状态</th>
                         <th>审核人员</th>
                         <th>指派人员</th>
-                   
                     </tr>
                     </thead>
                     <tbody>
@@ -78,21 +77,16 @@
                         <#list bizObj.list as task>
                         <tr>
                             <td width="30">${(bizObj.page.currentPage-1)*20+task_index+1}</td>
-                            <td>
-                                <div class="data-title w200" data-title="${task.activityName}"
-                                     data-id="${task.id}">${task.activityName?if_exists}</div>
-                            </td>
-                             <td>${task.adSeatName!""}</td>
+                            <td>${task.activityName!""}</td>
+                            <td>${task.seatInfoName!""}</td>
                             <td>${vm.getMonitorTaskTypeText(task.taskType)}</td>
-                            <td>${task.monitorDate?string('yyyy-MM-dd')}</td
-                            
-    						 <td>${task.monitorLastDays!""}</td>
-							<td></td>
-                            <td>${task.userId!""}</td>
+                            <td>${task.monitorDate?string('yyyy-MM-dd')}</td>
+    						<td>${task.monitorLastDays!""}</td>
+                            <td>${task.userRealName!""}</td>
                             <td>${vm.getMonitorTaskStatusText(task.status)}</td>
                             <td>${vm.getProblemStatusText(task.problemStatus!0)}</td>
-                            <td>${task.assessorId!""}</td>
-                			<td>${task.assignorId!""}</td>
+                            <td>${task.assessorName!""}</td>
+                			<td>${task.assignorName!""}</td>
                         </tr>
                         </#list>
                     <#else>

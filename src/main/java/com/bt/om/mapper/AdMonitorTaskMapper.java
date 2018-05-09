@@ -3,6 +3,8 @@ package com.bt.om.mapper;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.entity.vo.AllAdMonitorTaskVo;
+
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
@@ -111,4 +113,7 @@ public interface AdMonitorTaskMapper {
 	int grabTask(@Param("userId")Integer userId,@Param("id")Integer id,@Param("updateTime")Date update_time);
 	
 	List<AdMonitorTask> findAllTask();
+	int getPageCountAllTask(Map<String, Object> searchMap);
+
+    List<AllAdMonitorTaskVo> getPageDataAllTask(Map<String, Object> searchMap, RowBounds rowBounds);
 }

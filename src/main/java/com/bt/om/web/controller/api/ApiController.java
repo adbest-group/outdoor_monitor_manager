@@ -1818,7 +1818,7 @@ public class ApiController extends BasicController {
         return model;
     }
 
-    //短信验证码
+    //发送短信验证码, 需要先校验图片验证码
     @RequestMapping(value = "/getSMSCode")
     @ResponseBody
     public Model getSMSCode(Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -1828,21 +1828,58 @@ public class ApiController extends BasicController {
         model = new ExtendedModelMap();
 
         String mobile = null;
-
+        String vcode = null;
+        String picToken = null;
+        
         try {
             InputStream is = request.getInputStream();
             Gson gson = new Gson();
             JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
             mobile = obj.get("mobile") == null ? null : obj.get("mobile").getAsString();
+            vcode = obj.get("vcode") == null ? null : obj.get("vcode").getAsString();
+            picToken = obj.get("token") == null ? null : obj.get("token").getAsString();
+            if (picToken != null) {
+                useSession.set(Boolean.FALSE);
+                this.sessionByRedis.setToken(picToken);
+            } else {
+                useSession.set(Boolean.TRUE);
+            }
         } catch (IOException e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
+        
+        // 验证手机号
         if(mobile==null||!Pattern.matches(MOBILE_NUMBER_REGEX,mobile)){
             result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
-            result.setResultDes("参数有误！");
+            result.setResultDes("手机号码有误！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        
+        // 验证码必须验证
+        if (StringUtils.isEmpty(vcode)) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("请填写验证码！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        
+        String sessionCode = null;
+        HttpSession session = request.getSession();
+        if (useSession.get()) {
+            sessionCode = session.getAttribute(SessionKey.SESSION_CODE.toString()) == null ? ""
+                    : session.getAttribute(SessionKey.SESSION_CODE.toString()).toString();
+        } else {
+            sessionCode = sessionByRedis.getImageCode();
+        }
+
+        // 验证码有效验证
+        if (!vcode.equalsIgnoreCase(sessionCode)) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("验证码错误！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
@@ -1853,6 +1890,7 @@ public class ApiController extends BasicController {
         sessionByRedis.setImageCode(num);
 
         try {
+        	//发送短信
             sendSmsService.sendSms(mobile, SMS_CHECKCODE_CONTENT_TEMPLATE.replaceAll("\\{\\{code\\}\\}",num));
         }catch (Exception e){
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -2073,7 +2111,7 @@ public class ApiController extends BasicController {
         return model;
     }
 
-    //app端手机号验证码登录, 需要先校验图片验证码
+    //app端手机号验证码登录
     @RequestMapping(value = "/smsLogin", method = RequestMethod.POST)
     @ResponseBody
     public Model smsLogin(Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -2181,7 +2219,7 @@ public class ApiController extends BasicController {
         return model;
     }
 
-    //app端手机号验证码验证，修改密码, 需要先校验图片验证码
+    //app端手机号验证码验证，修改密码
     @RequestMapping(value = "/smsResetPassword", method = RequestMethod.POST)
     @ResponseBody
     public Model smsResetPassword(Model model, HttpServletRequest request, HttpServletResponse response) {

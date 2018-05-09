@@ -46,7 +46,7 @@ public class MediaController {
     /**
      * 媒体管理列表
      **/
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = "/list")
     public String getList(Model model, HttpServletRequest request,
                           @RequestParam(value = "name", required = false) String name) {
@@ -68,7 +68,7 @@ public class MediaController {
     /**
      * 媒体编辑
      **/
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = "/edit")
     public String toEdit(Model model, HttpServletRequest request,
                          @RequestParam(value = "id", required = false) Integer id) {
@@ -137,7 +137,7 @@ public class MediaController {
     /**
      * 保存媒体
      **/
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = {"/save"}, method = {RequestMethod.POST})
     @ResponseBody
     public Model save(Model model,
@@ -184,7 +184,7 @@ public class MediaController {
     }
 
 
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = {"/updateAccountStatus"}, method = {RequestMethod.POST})
     @ResponseBody
     public Model updateAccountStatus(Model model, @RequestParam(value = "id", required = true) Integer id,

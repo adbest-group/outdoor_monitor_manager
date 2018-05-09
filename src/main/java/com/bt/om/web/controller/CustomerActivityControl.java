@@ -103,7 +103,7 @@ public class CustomerActivityControl extends BasicController {
     }
 
 
-    @RequiresRoles(value = {"admin", "customer"}, logical = Logical.OR)
+    @RequiresRoles(value = {"superadmin", "customer"}, logical = Logical.OR)
     @RequestMapping(value = "/activity/adseat/edit")
     public String adSeatEdit(Model model, HttpServletRequest request) {
 
@@ -114,7 +114,7 @@ public class CustomerActivityControl extends BasicController {
     /**
      * 新增/编辑代理商
      */
-    @RequiresRoles(value = {"admin", "customer"}, logical = Logical.OR)
+    @RequiresRoles(value = {"superadmin", "customer"}, logical = Logical.OR)
     @ResponseBody
     @RequestMapping("/activity/save")
     public Model save(Model model, HttpServletRequest request, HttpServletResponse response,

@@ -181,7 +181,7 @@ public class ExcelController extends BasicController {
 	 * @param request
 	 * @param excelFile
 	 */
-	@RequiresRoles(value = {"admin" , "media"}, logical = Logical.OR)
+	@RequiresRoles(value = {"superadmin" , "media"}, logical = Logical.OR)
     @RequestMapping(value = "/insertBatch")
 	@ResponseBody
 	public Model insertBatchByExcel(Model model, HttpServletRequest request, HttpServletResponse response,

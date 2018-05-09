@@ -43,7 +43,7 @@ public class AppAccountController extends BasicController {
     /**
      * 媒体安装人员管理列表
      **/
-    @RequiresRoles("admin")
+    @RequiresRoles({"superadmin"})
     @RequestMapping(value = "/list")
     public String getWorkerList(Model model, HttpServletRequest request,
                                 @RequestParam(value = "name", required = false) String name) {
@@ -67,7 +67,7 @@ public class AppAccountController extends BasicController {
     /**
      * 媒体安装工人编辑
      **/
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = "/edit")
     public String toEditWorker(Model model, HttpServletRequest request,
                                @RequestParam(value = "id", required = false) Integer id) {
@@ -118,7 +118,7 @@ public class AppAccountController extends BasicController {
     /**
      * 保存工人
      **/
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = {"/save"}, method = {RequestMethod.POST})
     @ResponseBody
     public Model save(Model model,

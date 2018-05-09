@@ -49,7 +49,7 @@ public class JiucuoController extends BasicController {
     @Autowired
     IAdMonitorTaskService adMonitorTaskService;
 
-    @RequiresRoles("admin")
+    @RequiresRoles("jiucuoadmin")
     @RequestMapping(value = "/list")
     public String joucuoList(Model model, HttpServletRequest request,
                              @RequestParam(value = "id", required = false) Integer id,
@@ -92,7 +92,7 @@ public class JiucuoController extends BasicController {
         return PageConst.JIUCUO_LIST;
     }
 
-    @RequiresRoles(value = {"admin", "media", "customer"}, logical = Logical.OR)
+    @RequiresRoles(value = {"jiucuoadmin", "media", "customer"}, logical = Logical.OR)
     @RequestMapping(value = "/detail")
     public String showDetail(Model model, HttpServletRequest request,
                              @RequestParam(value = "id", required = false) Integer id) {
@@ -116,7 +116,7 @@ public class JiucuoController extends BasicController {
     }
 
     //审核纠错
-    @RequiresRoles("admin")
+    @RequiresRoles("jiucuoadmin")
     @RequestMapping(value = "/verify")
     @ResponseBody
     public Model confirm(Model model, HttpServletRequest request,
@@ -150,7 +150,7 @@ public class JiucuoController extends BasicController {
 
 
     //关闭纠错问题任务
-    @RequiresRoles("admin")
+    @RequiresRoles("jiucuoadmin")
     @RequestMapping(value = "/close")
     @ResponseBody
     public Model close(Model model, HttpServletRequest request,
@@ -177,7 +177,7 @@ public class JiucuoController extends BasicController {
     }
 
     //创建复查子任务
-    @RequiresRoles("admin")
+    @RequiresRoles("jiucuoadmin")
     @RequestMapping(value = "/createTask")
     @ResponseBody
     public Model newSub(Model model, HttpServletRequest request,

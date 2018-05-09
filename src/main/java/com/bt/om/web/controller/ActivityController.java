@@ -50,7 +50,7 @@ public class ActivityController extends BasicController {
     @Autowired
     private IAdActivityService adActivityService;
 
-    @RequiresRoles("admin")
+    @RequiresRoles("activityadmin")
     @RequestMapping(value = "/list")
     public String customerList(Model model, HttpServletRequest request,
                                @RequestParam(value = "activityId", required = false) Integer activityId,
@@ -87,7 +87,7 @@ public class ActivityController extends BasicController {
         return PageConst.ACTIVITY_LIST;
     }
 
-    @RequiresRoles("admin")
+    @RequiresRoles("activityadmin")
     //前往编辑活动
     @RequestMapping(value = "/edit")
     public String customerEdit(Model model, HttpServletRequest request,
@@ -103,7 +103,7 @@ public class ActivityController extends BasicController {
     }
 
     //确认活动
-    @RequiresRoles("admin")
+    @RequiresRoles("activityadmin")
     @RequestMapping(value = "/confirm")
     @ResponseBody
     public Model confirm(Model model, HttpServletRequest request,
@@ -127,7 +127,7 @@ public class ActivityController extends BasicController {
     }
 
     //删除活动
-    @RequiresRoles("admin")
+    @RequiresRoles("activityadmin")
     @RequestMapping(value = "/delete")
     @ResponseBody
     public Model delete(Model model, HttpServletRequest request,

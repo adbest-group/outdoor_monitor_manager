@@ -7,7 +7,7 @@
 <div class="main-container" style="height: auto;">
     <div class="main-box ott-market">
         <div class="title clearfix">
-            <button href="javascript:;" class="add-new-btn ll" id="add_media"><i></i> 新建安装工人</button>
+            <button href="javascript:;" class="add-new-btn ll" id="add_media"><i></i> 新建媒体人员</button>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <div class="inp">
                     <input type="text" value="${nameOrUsername?if_exists}" placeholder="姓名/手机号" id="nameOrUsername"

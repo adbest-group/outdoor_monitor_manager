@@ -21,10 +21,13 @@ import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.SysResources;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserRes;
+import com.bt.om.entity.vo.UserRoleVo;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.ISysGroupService;
+import com.bt.om.service.ISysResourcesService;
+import com.bt.om.service.ISysUserRoleService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -39,7 +42,10 @@ public class SysGroupController extends BasicController{
 	private ISysGroupService sysGroupService;
 	@Autowired
 	private ISysUserService sysUserService;
-	
+	@Autowired
+	private ISysUserRoleService sysUserRoleService;
+	@Autowired
+	private ISysResourcesService sysResourcesService;
 	/**
 	 * 部门管理员查询部门列表
 	 */
@@ -140,7 +146,8 @@ public class SysGroupController extends BasicController{
     @RequiresRoles("departmentadmin")
     @RequestMapping(value = "/resUser")
     public String gotoUserName(Model model, HttpServletRequest request,
-                         @RequestParam(value = "id", required = false) Integer groupId) {
+                         @RequestParam(value = "id", required = false) Integer groupId,
+    					 @RequestParam(value = "parentId", required = false) Integer parentId) {
         if (groupId != null) {
         	//[1] 获取与该组有关系的员工
             List<SysUser> sysUsers = sysGroupService.selectUserName(groupId);
@@ -151,6 +158,7 @@ public class SysGroupController extends BasicController{
             model.addAttribute("sysUserss", sysUserss);
             
             model.addAttribute("groupId", groupId);
+            model.addAttribute("parentId", parentId);
         }
         return PageConst.DEPARMENT_ADMIN_GROUP_USER;
     }
@@ -174,13 +182,14 @@ public class SysGroupController extends BasicController{
         }
         return PageConst.DEPARMENT_ADMIN_GROUP_CUSTOMER;
     }
+    
     /**
-     * 保存员工
+     * 保存员工, 将员工的角色改为部门相关的角色(admin -> jiucuoadmin, taskadmin, activityadmin)
      **/
     @RequiresRoles("departmentadmin")
     @RequestMapping(value = "/saveUser")
     @ResponseBody
-    public Model saveUsers(Model model, HttpServletRequest request, Integer groupId, String userIds) {
+    public Model saveUsers(Model model, HttpServletRequest request, Integer groupId, String userIds, Integer parentId) {
         ResultVo<String> result = new ResultVo<String>();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("保存成功");
@@ -191,10 +200,12 @@ public class SysGroupController extends BasicController{
             if (StringUtil.isNotBlank(userIds)) {
             	List<SysUserRes> sysUserRess = new ArrayList<>();
             	String[] split = userIds.split(",");
+            	List<Integer> splitUserIds = new ArrayList<>();
             	for (String userId : split) {
             		SysUserRes res = new SysUserRes();
             		res.setResId(groupId);
             		res.setUserId(Integer.parseInt(userId));
+            		splitUserIds.add(Integer.parseInt(userId));
             		res.setType(1);
             		res.setCreateTime(now);
             		res.setUpdateTime(now);
@@ -204,8 +215,29 @@ public class SysGroupController extends BasicController{
             	SysUserRes sysUserRes = new SysUserRes();
             	sysUserRes.setResId(groupId);
             	sysUserRes.setType(1);
+            	//[1] 插入sys_user_res表
             	sysUserService.insertUserRess(sysUserRess, sysUserRes);
-            
+            	//[2] 将员工的角色改为部门相关的角色
+            	SysResources department = sysResourcesService.getById(parentId);//部门
+            	Integer departmentType = department.getDepartmentType(); //部门类型
+            	
+            	Integer roleId = 100;
+            	if(departmentType == 1) {
+            		//活动审核部门
+            		roleId = 105;
+            	} else if(departmentType == 2) {
+            		//任务审核、指派部门
+            		roleId = 106;
+            	} else if(departmentType == 3) {
+            		//纠错审核部门
+            		roleId = 107;
+            	}
+            	
+            	UserRoleVo userRoleVo = new UserRoleVo();
+            	userRoleVo.setUpdateTime(now);
+            	userRoleVo.setRoleId(roleId);
+            	userRoleVo.setUserIds(splitUserIds);
+            	sysUserRoleService.updateUserRole(userRoleVo);
             }
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -217,6 +249,7 @@ public class SysGroupController extends BasicController{
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }
+    
     /**
      * 保存客户
      **/

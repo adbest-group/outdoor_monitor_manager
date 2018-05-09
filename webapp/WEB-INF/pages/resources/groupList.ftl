@@ -39,7 +39,7 @@
                             <td>${type.createTime?string('yyyy-MM-dd HH:mm')}</td>
                             <td>
                                 <a href="javascript:void(0);" onclick="edit('${type.id}');">编辑</a>
-                                <a href="javascript:void(0);" onclick="editUser('${type.id}');">员工</a>
+                                <a href="javascript:void(0);" onclick="editUser('${type.id}', '${type.parentid}');">员工</a>
                                 <a href="javascript:void(0);" onclick="editCustomer('${type.id}');">广告商</a>
                             </td>
                         </tr>
@@ -106,14 +106,14 @@
         });
     }
     
-    function editUser(id) {
+    function editUser(id, parentId) {
         layer.open({
             type: 2,
             title: '修改员工与组关系',
             shadeClose: true,
             shade: 0.8,
             area: ['600px', '480px'],
-            content: '/sysResources/resUser?id=' + id //iframe的url
+            content: '/sysResources/resUser?id=' + id + '&parentId=' + parentId //iframe的url
         });
     }
         function editCustomer(id) {

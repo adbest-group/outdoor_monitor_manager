@@ -11,6 +11,7 @@
 <div class="basic-info">
 	<div class="bd">
 		<input type="hidden" id="groupId" value="${groupId?if_exists}">
+		<input type="hidden" id="parentId" value="${parentId?if_exists}">
 		<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter">
 			<tbody>
 				<#if (sysUsers?exists && sysUsers?size>0)>					 
@@ -81,6 +82,7 @@ $(function(){
         errorFocus: false,
         onSuccess: function () {
             var groupId = $("#groupId").val();
+            var parentId = $("#parentId").val();
             var userIds = [];
 		    $("input[name='userIds']:checked").each(function (i, n) {
 		        userIds.push($(n).val());
@@ -90,6 +92,7 @@ $(function(){
                 type: "post",
                 data: {
                     "groupId": $("#groupId").val(),
+                    "parentId": $("#parentId").val(),
                     "userIds": userIds.join(",")
                 },
                 cache: false,

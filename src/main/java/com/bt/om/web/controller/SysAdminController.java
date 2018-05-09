@@ -117,7 +117,7 @@ public class SysAdminController {
             	SysUserRole sysUserRole = new SysUserRole();
             	sysUserRole.setPlatform(1);
             	sysUserRole.setUserId(sysUser.getId());
-            	sysUserRole.setRoleId(100); //100: admin的role
+            	sysUserRole.setRoleId(100); //100: admin的role, 刚创建的admin员工角色为admin
             	sysUserRole.setCreateTime(now);
             	sysUserRole.setUpdateTime(now);
             	sysUserService.createDepartmentLeader(sysUser, sysUserDetail, sysUserRole);

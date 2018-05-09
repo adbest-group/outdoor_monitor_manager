@@ -33,11 +33,11 @@
                                 style="margin-left: 10px;" autocomplete="off" id="clear">清除条件
                         </button>
                     </div>
+               		<!--
                     <div style="clear:both;padding-top:10px;">
                         <div id="demo3" class="citys" style="float: left; font-size: 12px">
                             <p>
-                                投放地区： <select style="height: 30px" id="province"
-                                              name="province">
+                                                        投放地区： <select style="height: 30px" id="province" name="province">
                                 <option value=""></option>
                             </select> <select style="height: 30px" id="city" name="city"></select>
                                 <select style="height: 30px" id="region" name="region"></select>
@@ -45,18 +45,14 @@
                             </p>
                         </div>
                     </div>
+                 	-->
                 </form>
             </div>
         </div>
 
         <div style="width:100%;height:100%;margin-top:10px; background:'#555'">
-            
-
             <div id="map" style="float:left;width:90%;height:700px;margin-top:10px;margin-left: 1%;-webkit-box-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;border:1px solid #aaa;">
-
             </div>
-
-
         </div>
     </div>
 </div>
@@ -138,12 +134,9 @@
             mapTypes:[
                 BMAP_NORMAL_MAP
             ]}));
-        map.setCurrentCity("杭州市");        //设置地图显示的城市 此项是必须设置的
+        map.setCurrentCity("杭州市");		 //设置地图显示的城市 此项是必须设置的
         map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
-
-		//添加广告位坐标点
-        map.addOverlay(new BMap.Marker(new BMap.Point(116.413624, 39.910837),{}));
-
+		
         var loadBarData = function () {
             $.ajax({
                 url: "/adseat/getAllLonLat",
@@ -161,7 +154,27 @@
                 success: function (datas) {
                     var resultRet = datas.ret;
                     if (resultRet.code == 100) {
-                    	
+                    	//先清空坐标点
+                    	map.clearOverlays();
+                    	//再设置坐标点
+                    	var groupByCity = resultRet.result;
+                    	groupByCity.forEach((i)=>{
+                    		if(i.lon != null && i.lat != null) {
+                    			var lon = i.lon;
+	                    		var lat = i.lat;
+	                    		var name = i.name;
+	                    		//添加广告位坐标点
+	                    		var point = new BMap.Point(lon, lat);
+	                    		var marker = new BMap.Marker(point, {});
+	                    		map.addOverlay(marker);
+	                    		//设置打开窗口的信息，其中point也可以写成marker.getPosition()
+	                    		var info = new BMap.InfoWindow("经度：" + lon + "，纬度："+ lat + "，名称：" + name);
+	                    		marker.addEventListener("click", function() {
+	                    			map.centerAndZoom(point, 15);  //修改设置新的中心点坐标和地图级别
+									map.openInfoWindow(info, this.getPosition());
+								});
+                    		}
+                    	})
                     }
                 },
                 error: function (e) {
@@ -172,7 +185,8 @@
                 }
             });
         }
-
+        //页面一打开即调用
+		$('#searchBtn').click();
     })
 </script>
 <@model.webend/>

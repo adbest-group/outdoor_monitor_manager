@@ -464,7 +464,7 @@
     left join ad_seat_info d on c.ad_seat_id = d.id
     left join ad_monitor_task_feedback e on e.monitor_task_id = a.id and e.`status` = 1
     left join ad_monitor_user_task f on f.monitor_task_id = a.id
-    where a.user_id = #{userId,jdbcType=INTEGER}
+    where a.user_id = #{userId,jdbcType=INTEGER} and f.status = 1
     order by a.update_time desc,a.id desc
   </select>
 

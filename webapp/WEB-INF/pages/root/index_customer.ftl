@@ -511,9 +511,10 @@
                     	data = [];
                     	var groupByCity = resultRet.result;
                     	groupByCity.forEach((i)=>{
-                    		let temp ={}
-                    		temp.name=i.cityName
-                    		temp.value=i.count
+                    		//循环放入数据
+                    		let temp = {}
+                    		temp.name = i.cityName
+                    		temp.value = i.count
                     		data.push(temp)
                     	})
                     	// 基于准备好的dom，初始化echarts实例
@@ -639,6 +640,7 @@
                 }
             });
         }
+        //页面一打开即调用
 		$('#searchBtn').click()
 		// 使用刚指定的配置项和数据显示图表
         myChart.setOption(option);

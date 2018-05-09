@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -38,6 +37,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.adtime.common.lang.StringUtil;
 import com.bt.om.cache.AdVersionCache;
 import com.bt.om.cache.CityCache;
 import com.bt.om.common.DateUtil;
@@ -469,7 +469,7 @@ public class ApiController extends BasicController {
         return model;
     }
 
-    //登录
+    //退出
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
     @ResponseBody
     public Model logOut(Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -509,7 +509,7 @@ public class ApiController extends BasicController {
         return model;
     }
 
-    //验证码
+    //获取图片验证码
     @RequestMapping(value = "/getCodeBase64")
     @ResponseBody
     public Model getCode(Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -2073,7 +2073,7 @@ public class ApiController extends BasicController {
         return model;
     }
 
-    //app端手机号验证码登录
+    //app端手机号验证码登录, 需要先校验图片验证码
     @RequestMapping(value = "/smsLogin", method = RequestMethod.POST)
     @ResponseBody
     public Model smsLogin(Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -2181,7 +2181,7 @@ public class ApiController extends BasicController {
         return model;
     }
 
-    //app端手机号验证码验证，修改密码
+    //app端手机号验证码验证，修改密码, 需要先校验图片验证码
     @RequestMapping(value = "/smsResetPassword", method = RequestMethod.POST)
     @ResponseBody
     public Model smsResetPassword(Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -2443,16 +2443,18 @@ public class ApiController extends BasicController {
         	Integer unstartNum = 0;
         	Integer watchingNum = 0;
         	Integer hasProblemNum = 0;
-        	List<AdActivityAdseatTaskVo> adseatTaskVos = adActivityService.selectAdSeatTaskReport(activity.getId());
-        	for (AdActivityAdseatTaskVo adseatTaskVo : adseatTaskVos) {
-        		if(adseatTaskVo.getMonitorStart().getTime() > now.getTime()) {
-        			unstartNum++;
-				}
-				if(adseatTaskVo.getProblem_count() > 0) {
-					hasProblemNum++;
-				}
+        	if(!StringUtil.equals(report.getStatus(), "已结束")) {
+        		List<AdActivityAdseatTaskVo> adseatTaskVos = adActivityService.selectAdSeatTaskReport(activity.getId());
+            	for (AdActivityAdseatTaskVo adseatTaskVo : adseatTaskVos) {
+            		if(adseatTaskVo.getMonitorStart().getTime() > now.getTime()) {
+            			unstartNum++;
+    				}
+    				if(adseatTaskVo.getProblem_count() > 0) {
+    					hasProblemNum++;
+    				}
+            	}
+            	watchingNum = adseatTaskVos.size() - unstartNum - hasProblemNum;
         	}
-        	watchingNum = adseatTaskVos.size() - unstartNum - hasProblemNum;
         	report.setUnstartNum(unstartNum);
         	report.setWatchingNum(watchingNum);
         	report.setHasProblemNum(hasProblemNum);

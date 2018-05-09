@@ -1851,14 +1851,6 @@ public class ApiController extends BasicController {
             return model;
         }
         
-        // 验证手机号
-        if(mobile==null||!Pattern.matches(MOBILE_NUMBER_REGEX,mobile)){
-            result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
-            result.setResultDes("手机号码有误！");
-            model.addAttribute(SysConst.RESULT_KEY, result);
-            return model;
-        }
-        
         // 验证码必须验证
         if (StringUtils.isEmpty(vcode)) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -1884,6 +1876,14 @@ public class ApiController extends BasicController {
             return model;
         }
 
+        // 验证手机号
+        if(mobile==null||!Pattern.matches(MOBILE_NUMBER_REGEX,mobile)){
+            result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
+            result.setResultDes("手机号码有误！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        
         //生成随机数验证码和token
         String num = getNumber(6);
         String token = sessionByRedis.initToken();

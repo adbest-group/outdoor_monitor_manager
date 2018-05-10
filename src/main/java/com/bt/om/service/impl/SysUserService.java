@@ -2,6 +2,7 @@ package com.bt.om.service.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -140,6 +141,21 @@ public class SysUserService implements ISysUserService {
 		sysUserResMapper.deleteByResIdAndType(sysUserRes);
 		//[2] 批量插入操作
 		return sysUserResMapper.insertUserRess(sysUserRess);
+	}
+
+	@Override
+	public List<Integer> getCustomerIdsByAdminId(Integer userId) {
+		//[1] 查询员工admin所属组id
+		Map<String, Object> searchMap = new HashMap<>();
+		searchMap.put("type", 1);
+		searchMap.put("userId", userId);
+		int groupId = sysUserResMapper.selectGroupIdByUserId(searchMap);
+		//[2] 查询组包含的广告商id集合
+		searchMap.clear();
+		searchMap.put("type", 2);
+		searchMap.put("resId", groupId);
+		List<Integer> customerIds = sysUserResMapper.selectCustomerIdsByResId(searchMap);
+		return customerIds;
 	}
 
 }

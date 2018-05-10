@@ -71,6 +71,8 @@ public interface IAdMonitorTaskService {
 	 **/
 	public List<AdMonitorTask>selectAllTask();
 	public void getPageDataAllTask(SearchDataVo vo);
-	
-	
+	/*
+	每次查看10条任务	
+	*/	
+	public void getPageAtimeTask(SearchDataVo vo);
 }

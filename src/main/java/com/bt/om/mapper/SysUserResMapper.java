@@ -1,6 +1,7 @@
 package com.bt.om.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 
@@ -54,7 +55,9 @@ public interface SysUserResMapper {
      * @mbg.generated Tue Apr 24 17:12:35 CST 2018
      */
     int updateByPrimaryKey(SysUserRes record);
-    
     int insertUserRess(@Param("sysUserRess") List<SysUserRes> sysUserRess);
     int deleteByResIdAndType(SysUserRes sysUserRes);
+    
+    int selectGroupIdByUserId(Map<String, Object> searchMap);
+    List<Integer> selectCustomerIdsByResId(Map<String, Object> searchMap);
 }

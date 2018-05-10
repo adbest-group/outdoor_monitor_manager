@@ -198,19 +198,29 @@ public class SysGroupController extends BasicController{
         
         try {
             if (StringUtil.isNotBlank(userIds)) {
+            	//获取与该组有关系的员工
+                List<SysUser> sysUsers = sysGroupService.selectUserName(groupId); //获取与该组有关系的员工
+                List<Integer> insideUserIds = new ArrayList<>(); //存所有与该组有关系的员工的id集合
+                for (SysUser sysUser : sysUsers) {
+                	insideUserIds.add(sysUser.getId());
+				}
+                
             	List<SysUserRes> sysUserRess = new ArrayList<>();
             	String[] split = userIds.split(",");
-            	List<Integer> splitUserIds = new ArrayList<>();
+            	List<Integer> splitUserIds = new ArrayList<>(); //仍然在这个组内的员工的id集合
             	for (String userId : split) {
+            		Integer intUserId = Integer.parseInt(userId);
             		SysUserRes res = new SysUserRes();
             		res.setResId(groupId);
-            		res.setUserId(Integer.parseInt(userId));
-            		splitUserIds.add(Integer.parseInt(userId));
+            		res.setUserId(intUserId);
+            		splitUserIds.add(intUserId);
             		res.setType(1);
             		res.setCreateTime(now);
             		res.setUpdateTime(now);
             		sysUserRess.add(res);
         		}
+            	
+            	insideUserIds.removeAll(splitUserIds); //留下将要被踢出组的员工的id集合
             	
             	SysUserRes sysUserRes = new SysUserRes();
             	sysUserRes.setResId(groupId);
@@ -233,11 +243,23 @@ public class SysGroupController extends BasicController{
             		roleId = 107;
             	}
             	
+            	//[3] 更新还在组内的员工角色信息
             	UserRoleVo userRoleVo = new UserRoleVo();
             	userRoleVo.setUpdateTime(now);
             	userRoleVo.setRoleId(roleId);
             	userRoleVo.setUserIds(splitUserIds);
-            	sysUserRoleService.updateUserRole(userRoleVo);
+            	if(splitUserIds.size() > 0) {
+            		sysUserRoleService.updateUserRole(userRoleVo);
+            	}
+            	
+            	//[4] 更新不在组内的员工角色信息
+            	userRoleVo.setRoleId(100); //100:admin
+            	userRoleVo.setUserIds(insideUserIds);
+            	if(insideUserIds.size() > 0) {
+            		sysUserRoleService.updateUserRole(userRoleVo);
+            	}
+            } else {
+            	//直接做删除, 并修改角色回admin：100
             }
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -281,7 +303,9 @@ public class SysGroupController extends BasicController{
             	sysUserRes.setResId(groupId);
             	sysUserRes.setType(2);
             	sysUserService.insertUserRess(sysUserRess, sysUserRes);
-            
+            } else {
+            	//直接删除
+            	
             }
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());

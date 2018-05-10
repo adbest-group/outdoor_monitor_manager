@@ -74,9 +74,21 @@ public class SysResourcesController extends BasicController {
         
         try {
             if (sysResources.getId() != null) {
-            	sysResources.setUpdateTime(now);
-            	sysResourcesService.modify(sysResources);
+            	//修改
+            	Integer userId = sysResources.getUserId(); //获取部门领导id
+            	//查询该领导是否已经有管理部门
+            	int count = sysResourcesService.selectCountByUserId(userId);
+            	if(count > 0) {
+            		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                    result.setResultDes("该部门领导已有部门！");
+                    model.addAttribute(SysConst.RESULT_KEY, result);
+                    return model;
+            	} else {
+            		sysResources.setUpdateTime(now);
+                	sysResourcesService.modify(sysResources);
+            	}
             } else {
+            	//插入
             	sysResources.setCreateTime(now);
             	sysResources.setUpdateTime(now);
             	sysResources.setType("1"); //设置类型为部门
@@ -106,6 +118,5 @@ public class SysResourcesController extends BasicController {
         }
         return PageConst.SUPER_ADMIN_DEPT_EDIT;
     }
-    
     
 }

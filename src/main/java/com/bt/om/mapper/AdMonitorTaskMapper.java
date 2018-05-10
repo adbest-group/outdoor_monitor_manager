@@ -116,4 +116,6 @@ public interface AdMonitorTaskMapper {
 	int getPageCountAllTask(Map<String, Object> searchMap);
 
     List<AllAdMonitorTaskVo> getPageDataAllTask(Map<String, Object> searchMap, RowBounds rowBounds);
+    
+    List<AllAdMonitorTaskVo> getAtimeTask(Map<String, Object> searchMap);
 }

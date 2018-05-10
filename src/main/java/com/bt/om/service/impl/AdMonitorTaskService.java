@@ -342,6 +342,12 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	            vo.setList(new ArrayList<AllAdMonitorTaskVo>());
 	        }
 	    }
+
+	@Override
+	public void getPageAtimeTask(SearchDataVo vo) {
+		List<AllAdMonitorTaskVo> taskTen=adMonitorTaskMapper.getAtimeTask(vo.getSearchMap());
+		
+	}
 	
 
 }

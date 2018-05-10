@@ -164,4 +164,28 @@
     	and type = #{type,jdbcType=INTEGER}
   </delete>
   
+  <select id="selectGroupIdByUserId" parameterType="map" resultType="java.lang.Integer">
+  	select res_id
+  	from sys_user_res
+  	where 1=1
+  	<if test="type != null" >
+      and type = #{type,jdbcType=INTEGER}
+    </if>
+    <if test="userId != null" >
+      and user_id = #{userId,jdbcType=INTEGER}
+    </if>
+  </select>
+  
+  <select id="selectCustomerIdsByResId" parameterType="map" resultType="java.lang.Integer">
+  	select user_id
+  	from sys_user_res
+  	where 1=1
+  	<if test="type != null" >
+      and type = #{type,jdbcType=INTEGER}
+    </if>
+    <if test="resId != null" >
+      and res_id = #{resId,jdbcType=INTEGER}
+    </if>
+  </select>
+  
 </mapper>

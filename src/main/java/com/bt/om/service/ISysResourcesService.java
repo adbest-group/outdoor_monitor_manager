@@ -22,4 +22,5 @@ public interface ISysResourcesService {
 
     public List<SysResources> selectByUserId(Integer userId);
 
+    public int selectCountByUserId(Integer userId);
 }

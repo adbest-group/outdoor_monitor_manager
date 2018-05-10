@@ -68,4 +68,9 @@ public class SysResourcesService implements ISysResourcesService {
 		sysResources.setUpdateTime(now);
 		sysResourcesMapper.updateByPrimaryKeySelective(sysResources);
 	}
+
+	@Override
+	public int selectCountByUserId(Integer userId) {
+		return sysResourcesMapper.selectCountByUserId(userId);
+	}
 }

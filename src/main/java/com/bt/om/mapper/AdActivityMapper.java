@@ -72,4 +72,9 @@ public interface AdActivityMapper {
     List<AdActivity> selectActivityReportByUserId(Map<String, Object> searchMap, RowBounds rowBounds);
     
     int selectActivityReportByUserIdCount(Map<String, Object> searchMap);
+    
+    List<AdActivity> selectAllByAssessorId(Map<String, Object> searchMap);
+    List<AdActivity> getAtimeActivity(Map<String, Object> searchMap);
+    
+    int updateAssessorId(Map<String, Object> searchMap);
 }

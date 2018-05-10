@@ -16,7 +16,7 @@
 				<tr>
 					<td class="a-title">用户名：</td>
 					<td>
-					    <input type="text" id="username" name="username" value="${(obj.username)?if_exists}" autocomplete="off" class="form-control" <#if (obj?exists&&obj.id?exists)>readonly="readonly"</#if>>
+					    <input type="text" id="username" name="username" value="${(obj.username)?if_exists}" autocomplete="off" class="form-control" >
 					    <br><span id="usernameTip"></span>&nbsp;
 					</td>
 				</tr>

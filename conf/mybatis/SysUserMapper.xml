@@ -351,6 +351,7 @@
     set 
     	a.password = #{password,jdbcType=VARCHAR},
     	a.realname = #{realname,jdbcType=VARCHAR},
+    	a.username = #{username,jdbcType=VARCHAR},
     	b.telephone = #{mobile,jdbcType=VARCHAR}
     where 
     b.user_id = a.id and
@@ -422,5 +423,3 @@
     and b.res_id is null;
  </select>
 </mapper>
-
- 

@@ -109,4 +109,6 @@ public interface ISysUserService {
 	List<SysUser>findAllTask();
 
 	int insertUserRess(List<SysUserRes> sysUserRess, SysUserRes sysUserRes);
+	
+	List<Integer> getCustomerIdsByAdminId(Integer userId);
 }

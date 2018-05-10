@@ -1,6 +1,7 @@
 package com.bt.om.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdActivityAdseat;
@@ -63,4 +64,7 @@ public interface IAdActivityService {
     public List<AdActivityAdseatTaskVo> selectAdSeatTaskReport(Integer activityId);
     
     public void selectReportPageData(SearchDataVo vo);
+    
+    public List<AdActivity> selectAllByAssessorId(Map<String, Object> searchMap);
+    public List<AdActivity> getAtimeActivity(Map<String, Object> searchMap);
 }

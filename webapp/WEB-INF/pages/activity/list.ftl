@@ -20,8 +20,10 @@
                     </div>
                     <div class="select-box select-box-100 un-inp-select ll">
                         <select class="select" name="status">
-                            <option value="">所有状态</option>
-                            <@model.showActivityStatusOps value="${bizObj.queryMap.status?if_exists}" />
+                        	<option value="1" <#if (status?exists&&status == '1')>selected</#if>>未确认</option>
+                        	<option value="2" <#if (status?exists&&status == '2')>selected</#if>>已确认</option>
+                        	<option value="3" <#if (status?exists&&status == '3')>selected</#if>>已结束</option>
+                            <#-- <@model.showActivityStatusOps value="${bizObj.queryMap.status?if_exists}" /> -->
                         </select>
                     </div>
                     <div class="ll inputs-date">
@@ -45,9 +47,10 @@
                     <thead>
                     <tr>
                         <th>序号</th>
-                        <th>活动名称</th>
+                        <th>活动名称</th>                       
                         <th>投放周期</th>
                         <th>活动状态</th>
+                         
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -61,6 +64,7 @@
                             </td>
                             <td>${activity.startTime?string('yyyy-MM-dd')} 至 ${activity.endTime?string('yyyy-MM-dd')}</td>
                             <td>${vm.getActivityStatusTextWithColor(activity.status)}</td>
+                     
                             <td>
                                 <#if activity.status==1><a href="javascript:queren('${activity.id}')">确认</a></#if>
                                 <#if activity.status gt 0 ><a href="/activity/edit?id=${activity.id}">详情</a></#if>

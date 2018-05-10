@@ -18,8 +18,10 @@
                     </div>
                     <div class="select-box select-box-100 un-inp-select ll">
                         <select class="select" name="status">
-                            <option value="">所有状态</option>
-                        <@model.showJiucuoTaskStatusOps value="${bizObj.queryMap.status?if_exists}"/>
+                        	<option value="1" <#if (status?exists&&status == '1')>selected</#if>>待审核</option>
+                        	<option value="2" <#if (status?exists&&status == '2')>selected</#if>>通过审核</option>
+                        	<option value="3" <#if (status?exists&&status == '3')>selected</#if>>审核未通过</option>
+                        	<#--  <@model.showJiucuoTaskStatusOps value="${bizObj.queryMap.status?if_exists}"/> -->
                         </select>
                     </div>
                     <div class="select-box select-box-100 un-inp-select ll">

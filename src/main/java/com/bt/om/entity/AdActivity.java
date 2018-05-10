@@ -75,7 +75,16 @@ public class AdActivity extends ID{
      *
      * @mbggenerated Thu Jan 18 14:25:00 CST 2018
      */
-    public Integer getId() {
+    private Integer assessorId;
+    public Integer getAssessorId() {
+		return assessorId;
+	}
+
+	public void setAssessorId(Integer assessorId) {
+		this.assessorId = assessorId;
+	}
+
+	public Integer getId() {
         return id;
     }
 

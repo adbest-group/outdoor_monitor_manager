@@ -258,5 +258,11 @@
     order by a.id desc
   </select>
 
+	<select id="selectCountByUserId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+		select count(1)
+		from sys_resources
+		where type = 1
+		and user_id = #{userId,jdbcType=INTEGER}
+	</select>
 
 </mapper>

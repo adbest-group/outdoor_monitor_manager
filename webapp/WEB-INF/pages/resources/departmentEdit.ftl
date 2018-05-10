@@ -62,10 +62,6 @@ $(function() {
 
 	var id = $("#id").val();
 
-	if(id != null && id != ""){
-		$("#departmentLeaderId").siblings().find(".searchable-select-dropdown").hide();
-	}
-
     // 新建账户处理
 	$.formValidator.initConfig({
 		validatorGroup:"2",

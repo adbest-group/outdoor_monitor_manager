@@ -22,6 +22,8 @@ public class AdJiucuoTaskVo extends AdJiucuoTask {
     private String problem;
     private String problemOther;
     private Date feedbackTime;
+    private Date startTime;
+    private Date endTime;
 
     public String getProblem() {
         return problem;
@@ -134,4 +136,20 @@ public class AdJiucuoTaskVo extends AdJiucuoTask {
     public void setRealname(String realname) {
         this.realname = realname;
     }
+
+	public Date getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+
+	public Date getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
 }

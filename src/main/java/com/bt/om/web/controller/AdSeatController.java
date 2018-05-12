@@ -75,7 +75,7 @@ public class AdSeatController extends BasicController {
     /**
      * 广告位列表展示
      */
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = "/list")
     public String resourceDetailPage(Model model, HttpServletRequest request,
                                      @RequestParam(value = "province", required = false) Long province,
@@ -209,7 +209,7 @@ public class AdSeatController extends BasicController {
 //		return PageConst.ADSEAT_EDIT;
 //	}
 
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = "/edit")
     public ModelAndView toEdit(Model model, HttpServletRequest request,
                                @RequestParam(value = "id", required = false) Integer id) {
@@ -243,7 +243,7 @@ public class AdSeatController extends BasicController {
     /**
      * 保存广告位
      **/
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = "/save")
     @ResponseBody
     public Model addInfo(Model model, AdSeatInfo adSeatInfo, HttpServletRequest request) {

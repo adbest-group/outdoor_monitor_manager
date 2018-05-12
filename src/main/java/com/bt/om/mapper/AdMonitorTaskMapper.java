@@ -1,5 +1,14 @@
 package com.bt.om.mapper;
 
+import com.bt.om.entity.AdMonitorTask;
+import com.bt.om.entity.vo.AdJiucuoTaskVo;
+import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
+import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.entity.vo.AllAdMonitorTaskVo;
+
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.RowBounds;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -111,10 +120,21 @@ public interface AdMonitorTaskMapper {
 
 	int grabTask(@Param("userId")Integer userId,@Param("id")Integer id,@Param("updateTime")Date update_time);
 	
+	List<AdMonitorTask> findAllTask();
+	int getPageCountAllTask(Map<String, Object> searchMap);
+
+  List<AllAdMonitorTaskVo> getPageDataAllTask(Map<String, Object> searchMap, RowBounds rowBounds);
+    
+  List<AdMonitorTaskVo> selectAllByAssessorId(Map<String, Object> searchMap);
+  List<AdMonitorTaskVo> getTenAdMonitorTaskVo(Map<String, Object> searchMap);
+  int updateAssessorId(Map<String, Object> searchMap);
+  int updateAssignorId(Map<String, Object> searchMap);
+
 	List<AdMonitorTask> selectLatestMonitorTaskIds(@Param("activityId")Integer activityId);
 	
 	int activateMonitorTask(Date nowDate);
 	
 	int recycleTask(@Param("monitorTaskIds") List<Integer> monitorTaskIds, @Param("duration") Integer duration);
 	int forceAssignTask(@Param("duration") Integer duration);
+
 }

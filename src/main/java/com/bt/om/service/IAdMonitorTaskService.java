@@ -2,6 +2,7 @@ package com.bt.om.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
@@ -17,7 +18,6 @@ public interface IAdMonitorTaskService {
 
 	public AdMonitorTask selectByPrimaryKey(Integer id);
 	public void getPageData(SearchDataVo vo);
-
 	/**
 	 * 只适用于首次分配，内部采用和抢任务一样的机制
 	 **/
@@ -67,6 +67,15 @@ public interface IAdMonitorTaskService {
 	public void getByCurCityPageData(SearchDataVo vo);
 
 	public boolean grabTask(Integer userId,Integer id);
+
+	/**
+	 * 查看所有任务
+	 **/
+	public List<AdMonitorTask>selectAllTask();
+	public void getPageDataAllTask(SearchDataVo vo);
+	List<AdMonitorTaskVo> selectAllByAssessorId(Map<String, Object> searchMap);
+	List<AdMonitorTaskVo> getTenAdMonitorTaskVo(Map<String, Object> searchMap);
+	List<AdMonitorTaskVo> getTenAdMonitorTaskAssignVo(Map<String, Object> searchMap);
 	
 	public List<AdMonitorTask> selectLatestMonitorTaskIds(Integer activityId);
 	public List<AdMonitorTaskFeedback> selectByActivity(List<Integer> monitorTaskIds);
@@ -75,4 +84,5 @@ public interface IAdMonitorTaskService {
 	public void recycleMonitorTask();
 	public void forceAssignTask();
 	public void abandonUserTask(AbandonTaskVo vo);
+
 }

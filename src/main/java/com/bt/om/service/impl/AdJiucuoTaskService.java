@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by caiting on 2018/1/21.
@@ -148,4 +149,30 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
     public List<AdMonitorTaskVo> getSubTask(Integer id) {
         return adMonitorTaskMapper.selectVoByParent(id,2);
     }
+
+	@Override
+	public List<AdJiucuoTaskVo> selectAllByAssessorId(Map<String, Object> searchMap) {
+		return adJiucuoTaskMapper.selectAllByAssessorId(searchMap);
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public List<AdJiucuoTaskVo> getTenAdMonitorTaskVo(Map<String, Object> searchMap) {
+		//[1] 查询 for update
+		Integer assessorId = (Integer) searchMap.get("assessorId");
+		List<AdJiucuoTaskVo> taskVos = adJiucuoTaskMapper.getTenAdJiucuoTaskVo(searchMap);
+		List<Integer> ids = new ArrayList<>();
+		for (AdJiucuoTaskVo adJiucuoTaskVo : taskVos) {
+			ids.add(adJiucuoTaskVo.getId());
+			adJiucuoTaskVo.setAssessorId(assessorId);
+		}
+		//[2] 更新 update
+		searchMap.clear();
+		searchMap.put("assessorId", assessorId);
+		searchMap.put("ids", ids);
+		if(ids.size() > 0) {
+			adJiucuoTaskMapper.updateAssessorId(searchMap);
+		}
+		return taskVos;
+	}
 }

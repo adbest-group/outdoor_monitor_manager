@@ -41,7 +41,7 @@ public class CustomerController {
     /**
      * 客户管理列表
      **/
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = "/list")
     public String getList(Model model, HttpServletRequest request,
                           @RequestParam(value = "name", required = false) String name) {
@@ -63,7 +63,7 @@ public class CustomerController {
     /**
      * 客户编辑
      **/
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = "/edit")
     public String toEdit(Model model, HttpServletRequest request,
                          @RequestParam(value = "id", required = false) Integer id) {
@@ -88,7 +88,7 @@ public class CustomerController {
 
         ResultVo<List<SysUser>> resultVo = new ResultVo<List<SysUser>>();
         try {
-            List<SysUser> userList = sysUserService.isExistsName(username);
+            List<SysUserVo> userList = sysUserService.isExistsName(username);
             if (userList != null && userList.size() > 0) {
                 resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
                 resultVo.setResultDes("已存在该登录账户，请修改");
@@ -106,7 +106,7 @@ public class CustomerController {
     /**
      * 保存客户
      **/
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = {"/save"}, method = {RequestMethod.POST})
     @ResponseBody
     public Model save(Model model,
@@ -152,7 +152,7 @@ public class CustomerController {
     /**
      * 修改客户账号状态
      **/
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = {"/updateAccountStatus"}, method = {RequestMethod.POST})
     @ResponseBody
     public Model updateAccountStatus(Model model, @RequestParam(value = "id", required = true) Integer id,

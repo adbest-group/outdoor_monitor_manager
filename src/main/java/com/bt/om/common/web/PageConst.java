@@ -51,6 +51,7 @@ public class PageConst {
 	public static final String UNASSIGN_TASK_LIST = "task/unassignList";
 	public static final String SELECT_USER_EXECUTE = "task/selectExeUser";
 	public static final String DETAILS_PAGE = "task/detailsPage";
+	public static final String ALLTASK_LIST = "task/allTaskList";
 
 	/*** 纠错管理 ***/
 	public static final String JIUCUO_LIST = "jiucuo/list";
@@ -75,8 +76,34 @@ public class PageConst {
 	/*** APP账号管理 ***/
 	public static final String APP_ACCOUNT_LIST = "appAccount/list";
 	public static final String APP_ACCOUNT_EDIT = "appAccount/edit";
-
+	
 	/*** 客户类型管理  ***/
 	public static final String CUSTOMER_TYPE_LIST = "adcustomer/type/list";
 	public static final String CUSTOMER_TYPE_EDIT = "adcustomer/type/edit";
+
+	/*** 超级管理员下的部门管理 ***/
+	public static final String SUPER_ADMIN_DEPT_LIST = "resources/departmentList";
+	public static final String SUPER_ADMIN_DEPT_EDIT = "resources/departmentEdit";
+
+	/*** 超级管理员下的领导管理 ***/
+	public static final String SUPER_ADMIN_LEAD_LIST = "sysUser/leaderList";
+	public static final String SUPER_ADMIN_LEAD_EDIT = "sysUser/leaderEdit";
+
+	/*** 部门管理员下的小组管理 ***/
+	public static final String DEPARMENT_ADMIN_GROUP_LIST = "resources/groupList";
+	public static final String DEPARMENT_ADMIN_GROUP_EDIT = "resources/groupEdit";
+	
+	/*** 部门管理员下的员工管理 ***/
+	public static final String DEPARMENT_ADMIN_USER_LIST = "sysUser/list";
+	public static final String DEPARMENT_ADMIN_USER_EDIT = "sysUser/edit";
+	
+	/*** 部门管理员下的组与员工、客户管理 ***/
+	public static final String DEPARMENT_ADMIN_GROUP_USER = "resources/resUserList";
+	public static final String DEPARMENT_ADMIN_GROUP_CUSTOMER = "resources/resCustomerList";
+	
+	/*** 各部门领导查看自己部门的审核任务 ***/
+	public static final String RESOURCES_ACTIVITY = "resources/activity";
+	public static final String RESOURCES_TASK_LIST = "resources/taskList";
+	public static final String RESOURCES_TASK_UNASSIGN = "resources/taskUnassign";
+	public static final String RESOURCES_JIUCUO_LIST = "resources/jiucuoList";
 }

@@ -246,8 +246,8 @@ public class AdActivityService implements IAdActivityService {
     public List<AdActivityAdseatVo> getActivitySeatBySeatId(Integer id) {
         return adActivityAdseatMapper.selectVoBySeatId(id);
     }
-    
-    @Override
+	
+	@Override
     public List<AdActivityAdseatVo> selectVoByLonLatTitle(Double lon, Double lat, String title) {
         return adActivityAdseatMapper.selectVoByLonLatTitle(lon, lat, title);
     }
@@ -309,10 +309,36 @@ public class AdActivityService implements IAdActivityService {
 	public List<AdActivityAdseatTaskVo> selectAdSeatTaskReport(Integer activityId) {
 		return adActivityAdseatMapper.selectAdSeatTaskReport(activityId);
 	}
-
+	
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void updateStatusByEndTime(Date nowDate) {
 		adActivityMapper.updateStatusByEndTime(nowDate);
+	}
+
+	@Override
+	public List<AdActivity> selectAllByAssessorId(Map<String, Object> searchMap) {
+		return adActivityMapper.selectAllByAssessorId(searchMap);
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public List<AdActivity> getAtimeActivity(Map<String, Object> searchMap) {
+		//[1] 查询 for update
+		Integer assessorId = (Integer) searchMap.get("assessorId");
+		List<AdActivity> atimeActivity = adActivityMapper.getAtimeActivity(searchMap);
+		List<Integer> ids = new ArrayList<>();
+		for (AdActivity adActivity : atimeActivity) {
+			ids.add(adActivity.getId());
+			adActivity.setAssessorId(assessorId);
+		}
+		//[2] 更新 update
+		searchMap.clear();
+		searchMap.put("assessorId", assessorId);
+		searchMap.put("ids", ids);
+		if(ids.size() > 0) {
+			adActivityMapper.updateAssessorId(searchMap);
+		}
+		return atimeActivity;
 	}
 }

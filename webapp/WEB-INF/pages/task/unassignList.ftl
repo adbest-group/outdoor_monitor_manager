@@ -21,9 +21,8 @@
                     <!--任务状态下拉框-->
                     <div class="select-box select-box-140 un-inp-select ll">
                         <select name="status" class="select" id="status">
-                            <option value="">所有状态</option>
-                            <option value="8" <#if (bizObj.queryMap.status?exists&&bizObj.queryMap.status=="8")>selected</#if> >可抢单</option>
                             <option value="1" <#if (bizObj.queryMap.status?exists&&bizObj.queryMap.status=="1")>selected</#if> >待指派</option>
+                            <#-- <option value="8" <#if (bizObj.queryMap.status?exists&&bizObj.queryMap.status=="8")>selected</#if> >可抢单</option> -->
                         </select>
                     </div>
                     <div class="ll inputs-date">
@@ -207,8 +206,8 @@
             type: 2,
             title: '选择监测人员',
             shade: 0.8,
-            area: ['400px', '220px'],
-            content: '/task/selectUserExecute?mediaId='+mediaId //iframe的url
+            area: ['600px', '420px'],
+            content: '/task/selectUserExecute' //iframe的url
         });
     }
     //选择执行人后的回调

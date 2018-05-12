@@ -48,7 +48,7 @@ public class CustomerActivityControl extends BasicController {
     @Autowired
     private IAdJiucuoTaskService adJiucuoTaskService;
 
-    /**
+	/**
      * 查询活动列表
      */
     @RequiresRoles("customer")
@@ -91,7 +91,7 @@ public class CustomerActivityControl extends BasicController {
         return PageConst.CUSTOMER_ACTIVITY_LIST;
     }
 
-    /**
+	/**
      * 编辑活动页面跳转
      */
     @RequiresRoles("customer")
@@ -107,19 +107,19 @@ public class CustomerActivityControl extends BasicController {
         return PageConst.CUSTOMER_ACTIVITY_EDIT;
     }
 
-    /**
+	/**
      * 编辑活动广告位页面跳转
      */
-    @RequiresRoles(value = {"admin", "customer"}, logical = Logical.OR)
+    @RequiresRoles(value = {"superadmin", "customer"}, logical = Logical.OR)
     @RequestMapping(value = "/activity/adseat/edit")
     public String adSeatEdit(Model model, HttpServletRequest request) {
         return PageConst.CUSTOMER_ACTIVITY_ADSEAT_EDIT;
     }
 
     /**
-     * 新增/编辑 活动
+     * 新增/编辑活动
      */
-    @RequiresRoles(value = {"admin", "customer"}, logical = Logical.OR)
+    @RequiresRoles(value = {"superadmin", "customer"}, logical = Logical.OR)
     @ResponseBody
     @RequestMapping("/activity/save")
     public Model save(Model model, HttpServletRequest request, HttpServletResponse response,
@@ -143,7 +143,7 @@ public class CustomerActivityControl extends BasicController {
 
         AdActivityVo adActivityVo = new AdActivityVo();
         adActivityVo.setActivityName(activityName);
-        adActivityVo.setCustomerTypeId(customerTypeId); //客户类型
+		adActivityVo.setCustomerTypeId(customerTypeId); //客户类型
         try {
             adActivityVo.setStartTime(sdf.parse(startDate));
         } catch (ParseException e) {

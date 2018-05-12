@@ -34,6 +34,7 @@ import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdCustomerTypeService;
 import com.bt.om.service.IAdMediaTypeService;
 import com.bt.om.service.IResourceService;
+import com.bt.om.service.ISysUserService;
 import com.bt.om.util.CityUtil;
 import com.bt.om.util.ConfigUtil;
 import com.bt.om.util.StringUtil;
@@ -49,7 +50,10 @@ import com.google.common.collect.Lists;
 public class VMComponent {
 
     protected final Logger logger = LoggerFactory.getLogger(VMComponent.class);
-
+    
+    @Autowired
+    ISysUserService sysUserService;
+    
     @Autowired
     IAdActivityService adActivityService;
 
@@ -64,8 +68,8 @@ public class VMComponent {
     
     @Autowired
     IAdMediaTypeService adMediaTypeService;
-    
-    @Autowired
+	
+	@Autowired
     IAdCustomerTypeService adCustomerTypeService;
 
     public String getCityName(Long code) {
@@ -177,7 +181,7 @@ public class VMComponent {
     public List<AdActivity> getAllActivity() {
         return adActivityService.getAll();
     }
-    
+
     /**
      * 获取拥有的广告活动
      */
@@ -297,13 +301,21 @@ public class VMComponent {
     }
 
     /**
+     * 根据用户类型查询该类型下的所有账号
+     * 用户类型  1：运营平台账户 2：客户账户 3：媒体账户 4：超级管理员 5：部门领导
+     */
+    public List<SysUserVo> getAllDepartmentLeader() {
+    	return sysUserService.getAllByUserType(5);
+    }
+    
+    /**
      * 获取媒体
      */
     public List<AdMedia> getAllMedia() {
         return resourceService.getAll();
     }
-    
-    /**
+	
+	/**
      * 获取全部可用媒体
      */
     public List<AdMedia> getAllAvailableMedia() {
@@ -323,14 +335,14 @@ public class VMComponent {
     public List<AdMediaType> getAllParentMediaTypeAvailable() {
     	return adMediaTypeService.getParentMediaAvailable(1);
     }
-    
-    /**
+	
+	/**
      * 获取全部客户类型
      */
     public List<AdCustomerType> getAllCustomerType() {
     	return adCustomerTypeService.getAll();
     }
-
+    
     /***************************** 下面是工具类 ****************************************/
     private HashMap<String, String> getParams(String qs) {
         HashMap<String, String> params = new HashMap<String, String>();
@@ -442,5 +454,4 @@ public class VMComponent {
     //
     // return areaList;
     // }
-
 }

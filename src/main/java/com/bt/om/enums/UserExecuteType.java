@@ -5,7 +5,7 @@ package com.bt.om.enums;
  */
 public enum UserExecuteType {
     MONITOR(1,"监测人员"),
-    CUSTOMER(2,"客户"),
+    CUSTOMER(2,"客户人员"),
     MEDIA_WORKER(3,"媒体人员"),
     Social(4,"社会人员");
 

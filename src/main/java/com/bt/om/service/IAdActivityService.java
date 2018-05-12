@@ -2,6 +2,7 @@ package com.bt.om.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdActivityAdseat;
@@ -65,7 +66,10 @@ public interface IAdActivityService {
     
     public void selectReportPageData(SearchDataVo vo);
     
-    public void updateStatusByEndTime(Date nowDate);
+    public List<AdActivity> selectAllByAssessorId(Map<String, Object> searchMap);
+    public List<AdActivity> getAtimeActivity(Map<String, Object> searchMap);
+	
+	public void updateStatusByEndTime(Date nowDate);
 
 	List<AdActivityAdseatVo> selectVoByLonLatTitle(Double lon, Double lat, String title);
 }

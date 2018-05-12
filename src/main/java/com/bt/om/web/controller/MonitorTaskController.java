@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.adtime.common.lang.StringUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
+import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
@@ -34,6 +35,7 @@ import com.bt.om.enums.TaskProblemStatus;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdJiucuoTaskService;
 import com.bt.om.service.IAdMonitorTaskService;
+import com.bt.om.service.IMediaService;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.vo.web.ResultVo;
@@ -56,7 +58,9 @@ public class MonitorTaskController extends BasicController {
     IAdJiucuoTaskService adJiucuoTaskService;
     @Autowired
     private ISysUserService sysUserService;
-    
+    @Autowired
+    IMediaService mediaService;
+  
     /**
      * 监测管理，已分配任务
      **/
@@ -329,10 +333,18 @@ public class MonitorTaskController extends BasicController {
      **/
     @RequiresRoles(value = {"taskadmin", "media"}, logical = Logical.OR)
     @RequestMapping(value = "/selectUserExecute")
-    public String toSelectUserExecute(Model model, HttpServletRequest request) {
+    public String toSelectUserExecute(Model model, HttpServletRequest request,
+                                      @RequestParam(value = "mediaId", required = false) Integer mediaId) {
 
         Map condition = Maps.newHashMap();
-        condition.put("usertype", 3); //3: 媒体监测人员
+
+        //指派人员改成指派给媒体人员
+//        condition.put("usertype", 3); //3: 媒体监测人员
+
+        if(mediaId!=null){
+            AdMedia media = mediaService.getById(mediaId);
+            condition.put("operateId", media.getUserId());
+        }
 
         List<SysUserExecute> ues = sysUserExecuteService.getByConditionMap(condition);
         model.addAttribute("userList", ues);

@@ -1,5 +1,6 @@
 package com.bt.om.web.controller;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.bt.om.cache.CityCache;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdCrowd;
@@ -24,6 +26,8 @@ import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.AdSeatType;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AdSeatInfoVo;
+import com.bt.om.entity.vo.CountGroupByCityVo;
+import com.bt.om.entity.vo.HeatMapVo;
 import com.bt.om.entity.vo.ResourceVo;
 import com.bt.om.enums.AgePart;
 import com.bt.om.enums.ResultCode;
@@ -33,6 +37,7 @@ import com.bt.om.service.IAdSeatService;
 import com.bt.om.service.IResourceService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
+import com.bt.om.web.BasicController;
 import com.bt.om.web.util.SearchUtil;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
@@ -42,7 +47,10 @@ import com.google.gson.JsonObject;
 
 @Controller
 @RequestMapping(value = "/adseat")
-public class AdSeatController {
+public class AdSeatController extends BasicController {
+	@Autowired
+	private CityCache cityCache;
+	
     @Autowired
     private IResourceService resourceService;
 
@@ -325,6 +333,75 @@ public class AdSeatController {
         adSeatService.getPageData(vo);
         result.setResult(vo.getList());
 
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+    }
+    
+    /**
+     * 查询热力图报表
+     */
+    @RequiresRoles("customer")
+    @RequestMapping(value = "/getCountGroupByCity")
+    @ResponseBody
+    public Model getCountGroupByCity(Model model, HttpServletRequest request, Integer activityId, Integer mediaId, Long province, Long city, Long region) {
+    	ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("查询成功");
+        model = new ExtendedModelMap();
+        
+        try {
+        	HeatMapVo heatMapVo = new HeatMapVo();
+        	heatMapVo.setActivityId(activityId);
+        	heatMapVo.setCity(city);
+        	heatMapVo.setMediaId(mediaId);
+        	heatMapVo.setProvince(province);
+        	heatMapVo.setRegion(region);
+        	List<CountGroupByCityVo> groupByCity = adSeatService.getCountGroupByCity(heatMapVo);
+        	for (CountGroupByCityVo countGroupByCityVo : groupByCity) {
+        		countGroupByCityVo.setCityName(cityCache.getCityName(countGroupByCityVo.getCity()));
+			}
+        	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+            result.setResult(groupByCity);
+		} catch (Exception e) {
+			logger.error(MessageFormat.format("查询热力图报表失败", new Object[] {}));
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+        	result.setResultDes("查询热力图报表失败");
+            e.printStackTrace();
+		}
+        
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+    }
+    
+    /**
+     * 查询百度地图报表
+     */
+    @RequiresRoles("customer")
+    @RequestMapping(value = "/getAllLonLat")
+    @ResponseBody
+    public Model getAllLonLat(Model model, HttpServletRequest request, Integer activityId, Integer mediaId, Long province, Long city, Long region) {
+    	ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("查询成功");
+        model = new ExtendedModelMap();
+        
+        try {
+        	HeatMapVo heatMapVo = new HeatMapVo();
+        	heatMapVo.setActivityId(activityId);
+        	heatMapVo.setCity(city);
+        	heatMapVo.setMediaId(mediaId);
+        	heatMapVo.setProvince(province);
+        	heatMapVo.setRegion(region);
+        	List<AdSeatInfo> adSeatInfos = adSeatService.getAllLonLat(heatMapVo);
+        	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+            result.setResult(adSeatInfos);
+		} catch (Exception e) {
+			logger.error(MessageFormat.format("查询百度地图报表失败", new Object[] {}));
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+        	result.setResultDes("查询百度地图报表失败");
+            e.printStackTrace();
+		}
+        
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }

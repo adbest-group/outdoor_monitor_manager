@@ -28,12 +28,22 @@
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>广告活动名称：</td>
                             <td>
-                                <input type="text" id="activityName" ${editMode?string("","disabled")} name="activityName" value="" autocomplete="off"
-                                       class="form-control">
+                                <input type="text" id="activityName" ${editMode?string("","disabled")} name="activityName" value="" autocomplete="off" class="form-control">
                                 <span id="activityNameTip"></span>
                                 <input type="button" id="btnDemo" class="btn btn-green" value="演示专用"/>
                             </td>
                         </tr>
+
+						<tr>
+							<td class="a-title"><font class="s-red">*</font>客户类型：</td>
+							<td>
+                                <select name="customerTypeId" ${editMode?string("","disabled")} class="searchable-select-holder" id="customerTypeId">
+		                            <option value="">请选择</option>
+		                            <@model.showAllCustomerTypeOps value="<#if (activity?exists&&activity.customerTypeId?exists)>activity.customerTypeId</#if>"/>
+		                        </select>
+                                <span id="customerTypeIdTip"></span>
+                            </td>
+		                </tr>
 
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>投放时间：</td>
@@ -182,6 +192,7 @@
     var activity = {
         "id":${activity.id},
         "activityName": '${activity.activityName}',
+        "customerTypeId": '${activity.customerTypeId}',
         "dts": "${activity.startTime?string('yyyy-MM-dd')}",
         "dt": "${activity.endTime?string('yyyy-MM-dd')}"
     }
@@ -388,6 +399,7 @@
                 var city = $("#city").val();
                 var region = $("#region").val();
                 var street = $("#street").val();
+                var customerTypeId = $("#customerTypeId").val();
                 var media = [];
                 $("input[name='media']:checked").each(function (i, n) {
                     media.push($(n).val());
@@ -413,6 +425,7 @@
                         "city": city,
                         "region": region,
                         "street": street,
+                        "customerTypeId": customerTypeId,
                         "media": media.join(","),
 //                        "dels" : dels.join(","),
                         "activeSeat": JSON.stringify(activity_seats)
@@ -488,11 +501,25 @@
             min: 1,
             onError: "请选择投放媒体"
         });
+        
+        // 客户类型校验
+        $("#customerTypeId").formValidator({
+            validatorGroup:"2",
+            onShow:"",
+            onFocus:"请选择客户类型",
+            onCorrect:""
+        }).regexValidator({
+            regExp:"^\\S+$",
+            onError:"客户类型不能为空，请选择"
+        }).inputValidator({
+            min: 1,
+            onError:"客户类型不能为空，请选择"
+        });
     });
 
     //媒体广告位
     var checked_media = media_seats = [
-        <#list vm.getAllMedia() as media>
+        <#list vm.getAllAvailableMedia() as media>
             {
                 id:${media.id},
                 name:'${media.mediaName}'

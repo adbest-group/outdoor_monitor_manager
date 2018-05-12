@@ -16,6 +16,7 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 	private Long city;// 市
 	private Long region;// 区
 	private Long street;// 街道
+	private Integer mediaId;//媒体id
 	private String mediaName;// 媒体名
 	private String adSeatName;//
 	private String realname;
@@ -37,6 +38,14 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 	private Double lat;
 	private Double feedbackLon;
 	private Double feedbackLat;
+
+	public Integer getMediaId() {
+		return mediaId;
+	}
+
+	public void setMediaId(Integer mediaId) {
+		this.mediaId = mediaId;
+	}
 
 	public Double getLon() {
 		return lon;

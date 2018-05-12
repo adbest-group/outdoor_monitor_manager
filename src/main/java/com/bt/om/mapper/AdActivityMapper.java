@@ -1,5 +1,6 @@
 package com.bt.om.mapper;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -77,4 +78,6 @@ public interface AdActivityMapper {
     List<AdActivity> getAtimeActivity(Map<String, Object> searchMap);
     
     int updateAssessorId(Map<String, Object> searchMap);
+	
+	  int updateStatusByEndTime(Date nowDate);
 }

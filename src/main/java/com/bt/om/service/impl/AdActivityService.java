@@ -246,6 +246,11 @@ public class AdActivityService implements IAdActivityService {
     public List<AdActivityAdseatVo> getActivitySeatBySeatId(Integer id) {
         return adActivityAdseatMapper.selectVoBySeatId(id);
     }
+	
+	@Override
+    public List<AdActivityAdseatVo> selectVoByLonLatTitle(Double lon, Double lat, String title) {
+        return adActivityAdseatMapper.selectVoByLonLatTitle(lon, lat, title);
+    }
 
     @Override
     public List<AdActivityAdseatVo> getActivitySeatBySeatCode(String adSeatCode) {
@@ -303,6 +308,12 @@ public class AdActivityService implements IAdActivityService {
 	@Override
 	public List<AdActivityAdseatTaskVo> selectAdSeatTaskReport(Integer activityId) {
 		return adActivityAdseatMapper.selectAdSeatTaskReport(activityId);
+	}
+	
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void updateStatusByEndTime(Date nowDate) {
+		adActivityMapper.updateStatusByEndTime(nowDate);
 	}
 
 	@Override

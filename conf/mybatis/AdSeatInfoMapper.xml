@@ -611,4 +611,55 @@
 		where media_id = #{mediaId,jdbcType=INTEGER}
 	</select>
 	
+	<select id="getCountGroupByCity" resultType="com.bt.om.entity.vo.CountGroupByCityVo" parameterType="com.bt.om.entity.vo.HeatMapVo">
+		select 
+			count(1) count, city
+		from ad_seat_info
+		where 1=1
+	    <if test="mediaId != null" >
+	      and media_id = #{mediaId,jdbcType=INTEGER}
+	    </if>
+	    <if test="province != null" >
+	      and province = #{province,jdbcType=BIGINT}
+	    </if>
+	    <if test="city != null" >
+	      and city = #{city,jdbcType=BIGINT}
+	    </if>
+	    <if test="region != null" >
+	      and region = #{region,jdbcType=BIGINT}
+	    </if>
+		<if test="infoIds != null">
+	    	and id in
+		    <foreach collection="infoIds" item="id" index="index" open="(" close=")" separator=",">
+		    	#{id}
+		    </foreach>
+	    </if>
+		group by city
+	</select>
+	
+	<select id="getAllLonLat" parameterType="com.bt.om.entity.vo.HeatMapVo" resultMap="BaseResultMap">
+		select
+			lon, lat, name
+		from ad_seat_info
+		where 1=1
+	    <if test="mediaId != null" >
+	      and media_id = #{mediaId,jdbcType=INTEGER}
+	    </if>
+	    <if test="province != null" >
+	      and province = #{province,jdbcType=BIGINT}
+	    </if>
+	    <if test="city != null" >
+	      and city = #{city,jdbcType=BIGINT}
+	    </if>
+	    <if test="region != null" >
+	      and region = #{region,jdbcType=BIGINT}
+	    </if>
+		<if test="infoIds != null">
+	    	and id in
+		    <foreach collection="infoIds" item="id" index="index" open="(" close=")" separator=",">
+		    	#{id}
+		    </foreach>
+	    </if>
+	</select>
+	
 </mapper>

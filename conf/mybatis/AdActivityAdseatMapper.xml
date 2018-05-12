@@ -337,6 +337,22 @@
     and a.ad_seat_id = #{seatId,jdbcType=INTEGER}
     order by id
   </select>
+  
+  <select id="selectVoByLonLatTitle" resultMap="ExtResultMap">
+    select
+    a.id, a.activity_id, a.media_id, a.ad_seat_id, a.brand, a.monitor_start, a.monitor_end, a.monitor_count,
+    a.up_monitor_last_days,a.down_monitor_last_days,a.duration_monitor_last_days,
+    a.up_monitor, a.down_monitor, a.duration_monitor, a.sample_pic_url, a.task_create, a.create_time,
+    a.update_time,b.media_name,c.name as ad_seat_name,c.lon,c.lat,d.activity_name
+    from ad_activity_adseat a,ad_media b,ad_seat_info c,ad_activity d
+    where a.media_id = b.id and a.ad_seat_id = c.id and a.activity_id = d.id
+    and a.monitor_start &lt;= now()
+    and a.monitor_end >= date_add(NOW(),INTERVAL -1 DAY)
+    and c.lon = #{lon,jdbcType=INTEGER}
+    and c.lat = #{lat,jdbcType=INTEGER}
+    and c.name = #{title,jdbcType=INTEGER}
+    order by id
+  </select>
 
   <select id="selectVoBySeatCode" resultMap="ExtResultMap">
     select
@@ -362,6 +378,7 @@
   
   <select id="selectAdActivityAdseatTask" resultType="com.bt.om.entity.vo.AdActivityAdseatTaskVo" parameterType="java.lang.Integer">
 	SELECT
+		a.id id,
 		a.monitor_start monitorStart,
 		a.monitor_end monitorEnd,
 	  	(SELECT COUNT(1) from ad_monitor_task b WHERE b.activity_id = #{activityId,jdbcType=INTEGER} AND b.activity_adseat_id = a.id AND b.status = 4 AND b.problem_status = 3) problem_count,
@@ -382,9 +399,11 @@
 		c.media_type_parent_id info_mediaTypeParentId,
 		c.media_type_id info_mediaTypeId,
 		c.unique_key info_uniqueKey,
-		c.memo info_memo
+		c.memo info_memo,
+		d.media_name mediaName
 	from ad_activity_adseat a
 	LEFT JOIN ad_seat_info c ON a.ad_seat_id = c.id
+	LEFT JOIN ad_media d ON a.media_id = d.id
 	WHERE a.activity_id = #{activityId,jdbcType=INTEGER}
   </select>
   
@@ -396,6 +415,13 @@
 	  	AND b.activity_adseat_id = a.id AND b.status = 4 AND b.problem_status = 3) problem_count
 	from ad_activity_adseat a
 	WHERE a.activity_id = #{activityId,jdbcType=INTEGER}
+  </select>
+  
+  <select id="selectSeatIdByActivityId" resultType="java.lang.Integer">
+    select
+    	ad_seat_id
+    from ad_activity_adseat
+    where activity_id = #{activityId,jdbcType=INTEGER}
   </select>
   
 </mapper>

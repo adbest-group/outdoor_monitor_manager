@@ -199,30 +199,27 @@
                enableUpdateByExample="false">
         </table> -->
         
-        <!-- <table schema="outdoor-monitor" tableName="ad_sms"
+        <!-- 
+        <table schema="outdoor-monitor" tableName="ad_sms"
                domainObjectName="AdSms" enableCountByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false"
                enableUpdateByExample="false">
-        </table> -->
-        
-        <!-- <table schema="outdoor-monitor" tableName="sys_resources"
-               domainObjectName="SysResources" enableCountByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false"
-               enableUpdateByExample="false">
-        </table> -->
-    <!--     
-        <table schema="outdoor-monitor" tableName="sys_user_res"
-               domainObjectName="SysUserRes" enableCountByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false"
-               enableUpdateByExample="false">
         </table>
+         -->
         
-        
+        <!-- 
         <table schema="outdoor-monitor" tableName="ad_media_type"
                domainObjectName="AdMediaType" enableCountByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false"
                enableUpdateByExample="false">
         </table>
- -->
+         -->
+        
+        <table schema="outdoor-monitor" tableName="ad_customer_type"
+               domainObjectName="AdCustomerType" enableCountByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false"
+               enableUpdateByExample="false">
+        </table>
+
     </context>
 </generatorConfiguration>

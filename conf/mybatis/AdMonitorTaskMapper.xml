@@ -7,8 +7,7 @@
             10:48:02 CST 2018. -->
         <id column="id" property="id" jdbcType="INTEGER"/>
         <result column="activity_id" property="activityId" jdbcType="INTEGER"/>
-        <result column="activity_adseat_id" property="activityAdseatId"
-                jdbcType="INTEGER"/>
+        <result column="activity_adseat_id" property="activityAdseatId" jdbcType="INTEGER"/>
         <result column="task_type" property="taskType" jdbcType="INTEGER"/>
         <result column="monitor_date" property="monitorDate" jdbcType="TIMESTAMP"/>
         <result column="monitor_last_days" property="monitorLastDays" jdbcType="INTEGER"/>
@@ -282,6 +281,7 @@
         <result column="city" jdbcType="BIGINT" property="city"/>
         <result column="region" jdbcType="BIGINT" property="region"/>
         <result column="street" jdbcType="BIGINT" property="street"/>
+        <result column="media_id" jdbcType="INTEGER" property="mediaId"/>
         <result column="media_name" jdbcType="VARCHAR" property="mediaName"/>
         <result column="ad_seat_name" jdbcType="VARCHAR" property="adSeatName"/>
         <result column="realname" jdbcType="VARCHAR" property="realname"/>
@@ -327,6 +327,13 @@
         <result column="feedback_lat" jdbcType="DOUBLE" property="feedbackLat"/>
         <result column="feedback_lon" jdbcType="DOUBLE" property="feedbackLon"/>
         <result column="distance" jdbcType="DOUBLE" property="distance"/>
+        <result column="province" jdbcType="BIGINT" property="province"/>
+        <result column="city" jdbcType="BIGINT" property="city"/>
+        <result column="region" jdbcType="BIGINT" property="region"/>
+        <result column="street" jdbcType="BIGINT" property="street"/>
+        <result column="start_time" jdbcType="TIMESTAMP" property="startTime"/>
+        <result column="end_time" jdbcType="TIMESTAMP" property="endTime"/>
+        <result column="assign_type" jdbcType="INTEGER" property="assignType"/>
     </resultMap>
 
     <insert id="insertList" parameterType="java.util.List">
@@ -415,8 +422,8 @@
 
     <select id="getPageData" parameterType="map" resultMap="ExtResultMap">
         select a.id, a.activity_id, a.activity_adseat_id, a.task_type, a.monitor_date,a.monitor_last_days,a.user_id,
-        a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time,a.assessor_id,a.assignor_id,
-        b.activity_name,c.sample_pic_url,b.start_time,b.end_time,d.province,d.city,d.region,d.street,e.media_name,d.`name`
+        a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time, a.assessor_id,a.assignor_id,
+        b.activity_name,c.sample_pic_url,b.start_time,b.end_time,d.province,d.city,d.region,d.street,c.media_id,e.media_name,d.`name`
         as ad_seat_name,
         f.realname
         from ad_monitor_task a
@@ -481,15 +488,22 @@
     </select>
 
     <select id="selectByUserId" resultMap="MobileResultMap">
-    select a.id, a.activity_id, a.activity_adseat_id, a.task_type, a.monitor_date,a.monitor_last_days,a.user_id, a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time,git config --global user.email
-    b.activity_name,c.sample_pic_url,c.monitor_start,c.monitor_end,c.ad_seat_id,d.`name` as ad_seat_name,d.location as ad_seat_location,d.ad_code as ad_seat_code,d.lon,d.lat,e.reason,e.pic_url1,e.pic_url2,e.pic_url3,e.pic_url4,e.create_time as feedback_time,
-    e.problem,e.problem_other,e.lon as feedback_lon,e.lat as feedback_lat
+    select 
+    	a.id, a.activity_id, a.activity_adseat_id, a.task_type, a.monitor_date,a.monitor_last_days,a.user_id, a.status,a.problem_status,a.sub_created,
+    	a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time,
+    	b.activity_name,
+    	c.sample_pic_url,c.monitor_start,c.monitor_end,c.ad_seat_id,
+    	d.`name` as ad_seat_name, d.location as ad_seat_location, d.ad_code as ad_seat_code, d.lon, d.lat, d.region, d.street, d.province, d.city,
+    	e.reason,e.pic_url1,e.pic_url2,e.pic_url3,e.pic_url4,e.create_time as feedback_time,
+    	e.problem,e.problem_other,e.lon as feedback_lon,e.lat as feedback_lat,
+    	f.start_time, f.end_time, f.assign_type
     from ad_monitor_task a
     left join ad_activity b on a.activity_id = b.id
     left join ad_activity_adseat c on a.activity_adseat_id = c.id
     left join ad_seat_info d on c.ad_seat_id = d.id
     left join ad_monitor_task_feedback e on e.monitor_task_id = a.id and e.`status` = 1
-    where a.user_id = #{userId,jdbcType=INTEGER}
+    left join ad_monitor_user_task f on f.monitor_task_id = a.id
+    where a.user_id = #{userId,jdbcType=INTEGER} and f.status = 1
     order by a.update_time desc,a.id desc
   </select>
 
@@ -608,10 +622,14 @@
     <select id="getByPointAroundPageData"  resultMap="MobileResultMap">
         select
         t.*,
-        st_distance(point(lon,lat),point(#{lon,jdbcType=DOUBLE},#{lat,jdbcType=DOUBLE}))*111195 as distance
+        if(ISNULL(lon + lat), 9999999999, st_distance (point(lon, lat), point(#{lon,jdbcType=DOUBLE},#{lat,jdbcType=DOUBLE})) * 111195) AS distance
         from (
-        select a.id, a.activity_id, a.activity_adseat_id, a.task_type,a.monitor_date,a.monitor_last_days, a.user_id, a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time,a.assessor_id,a.assignor_id,
-        b.activity_name,c.sample_pic_url,c.monitor_start,c.monitor_end,c.ad_seat_id,d.`name` as ad_seat_name,d.location as ad_seat_location,d.ad_code as ad_seat_code,d.lon,d.lat
+        select 
+        	a.id, a.activity_id, a.activity_adseat_id, a.task_type,a.monitor_date,a.monitor_last_days, 
+        	a.user_id, a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time, a.assessor_id,a.assignor_id,
+        	b.activity_name,
+        	c.sample_pic_url,c.monitor_start,c.monitor_end,c.ad_seat_id,
+        	d.`name` as ad_seat_name,d.location as ad_seat_location,d.ad_code as ad_seat_code, d.lon, d.lat, d.region, d.street, d.province, d.city
         from ad_monitor_task a
         left join ad_activity b on a.activity_id = b.id
         left join ad_activity_adseat c on a.activity_adseat_id = c.id
@@ -632,7 +650,6 @@
         left join ad_activity b on a.activity_id = b.id
         left join ad_activity_adseat c on a.activity_adseat_id = c.id
         left join ad_seat_info d on c.ad_seat_id = d.id
-
         where a.status = 8
         <if test="province!=null">
             and d.province = #{province,jdbcType=BIGINT}
@@ -640,17 +657,20 @@
         <if test="city!=null">
             and d.city = #{city,jdbcType=BIGINT}
         </if>
-
     </select>
 
-    <select id="getByCurCityPageData"  resultMap="MobileResultMap">
+    <select id="getByCurCityPageData" resultMap="MobileResultMap">
         select t.*
         <if test="lon!=null and lat!=null">
-          ,st_distance(point(lon,lat),point(#{lon,jdbcType=DOUBLE},#{lat,jdbcType=DOUBLE}))*111195 as distance
+          ,if(ISNULL(lon + lat), 9999999999, st_distance (point(lon, lat), point(#{lon,jdbcType=DOUBLE},#{lat,jdbcType=DOUBLE})) * 111195) AS distance
         </if>
         from (
-        select a.id, a.activity_id, a.activity_adseat_id, a.task_type,a.monitor_date,a.monitor_last_days, a.user_id, a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time,a.assessor_id,a.assignor_id,
-        b.activity_name,c.sample_pic_url,c.monitor_start,c.monitor_end,c.ad_seat_id,d.`name` as ad_seat_name,d.location as ad_seat_location,d.ad_code as ad_seat_code,d.lon,d.lat
+        select 
+        	a.id, a.activity_id, a.activity_adseat_id, a.task_type,a.monitor_date,a.monitor_last_days, 
+        	a.user_id, a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time, a.assessor_id,a.assignor_id,
+       		b.activity_name,
+       		c.sample_pic_url,c.monitor_start,c.monitor_end,c.ad_seat_id,
+       		d.`name` as ad_seat_name,d.location as ad_seat_location,d.ad_code as ad_seat_code, d.lon, d.lat, d.region, d.street, d.province, d.city
         from ad_monitor_task a
         left join ad_activity b on a.activity_id = b.id
         left join ad_activity_adseat c on a.activity_adseat_id = c.id
@@ -883,5 +903,59 @@
 	        <foreach collection="ids" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
 	    </if>
     </update>
+  
+    <select id="selectLatestMonitorTaskIds" resultType="com.bt.om.entity.AdMonitorTask" parameterType="int">
+    	select a.id id, a.activity_adseat_id activityAdseatId
+		from (
+			select id, activity_id, activity_adseat_id, monitor_date
+			from ad_monitor_task
+			where activity_id = #{activityId,jdbcType=INTEGER}
+			order by monitor_date desc
+		) as a 
+		group by a.activity_adseat_id;
+    </select>
     
+    <update id="activateMonitorTask" parameterType="java.util.Date">
+    	update ad_monitor_task
+	    set status = 
+	    case when monitor_last_days = 1 then 1
+	    else 8
+	    end
+	    where status = 7 and 
+	    monitor_date &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+    </update>
+    
+    <!-- 
+    	任务回收：
+    	monitor_date + monitor_last_days - 2天 + 12小时 < now 
+    	可推出 monitor_date < now - monitor_last_days + 2天 - 12小时 时改为1：可指派，否则为8：可抢单
+    -->
+    <update id="recycleTask">
+    	update ad_monitor_task
+    	set
+	    	user_id = null,
+	    	update_time = CURRENT_TIMESTAMP,
+	    	status = 
+	    	case when monitor_date &lt;= date_add(date_add(now(),interval (2 - monitor_last_days) day),interval -#{duration,jdbcType=INTEGER} hour) then 1
+	    	else 8
+	    	end
+    	where id in 
+    	<foreach collection="monitorTaskIds" separator="," open="(" close=")" item="s">#{s,jdbcType=INTEGER}
+        </foreach>
+        and status in (2, 6)
+    </update>
+    
+    <!-- 
+    	没人抢单的任务改为强制指派
+    	monitor_date + monitor_last_days - 2天 + 12小时 < now 
+    	可推出 monitor_date < now - monitor_last_days + 2天 - 12小时 时改为1：可指派，否则为8：可抢单
+    -->
+    <update id="forceAssignTask">
+    	update ad_monitor_task
+    	set
+	    	update_time = CURRENT_TIMESTAMP,
+	    	status = 1
+    	where status = 8
+    	and monitor_date &lt;= date_add(date_add(now(),interval (2 - monitor_last_days) day),interval -#{duration,jdbcType=INTEGER} hour)
+    </update>
 </mapper>

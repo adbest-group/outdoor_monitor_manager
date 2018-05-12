@@ -1,10 +1,12 @@
 package com.bt.om.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
+import com.bt.om.entity.vo.AbandonTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -14,6 +16,7 @@ import com.bt.om.vo.web.SearchDataVo;
  */
 public interface IAdMonitorTaskService {
 
+	public AdMonitorTask selectByPrimaryKey(Integer id);
 	public void getPageData(SearchDataVo vo);
 	/**
 	 * 只适用于首次分配，内部采用和抢任务一样的机制
@@ -74,4 +77,12 @@ public interface IAdMonitorTaskService {
 	List<AdMonitorTaskVo> getTenAdMonitorTaskVo(Map<String, Object> searchMap);
 	List<AdMonitorTaskVo> getTenAdMonitorTaskAssignVo(Map<String, Object> searchMap);
 	
+	public List<AdMonitorTask> selectLatestMonitorTaskIds(Integer activityId);
+	public List<AdMonitorTaskFeedback> selectByActivity(List<Integer> monitorTaskIds);
+	
+	public void activateMonitorTask(Date nowDate);
+	public void recycleMonitorTask();
+	public void forceAssignTask();
+	public void abandonUserTask(AbandonTaskVo vo);
+
 }

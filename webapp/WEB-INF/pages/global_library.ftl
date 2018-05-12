@@ -316,6 +316,16 @@
 	</#if>
 </#macro>
 
+<#-- 所有可用的媒体下拉选项  -->
+<#macro showAllAvailableMediaOps value="-1">
+	<#local list = vm.getAllAvailableMedia() />
+	<#if (list?exists && list?size > 0)>
+		<#list list as media>
+			<@showOption value="${media.id?if_exists}" title="${media.mediaName?if_exists}" select="${value?if_exists}" />
+		</#list>
+	</#if>
+</#macro>
+
 <#-- 所有广告位类型下拉选项  -->
 <#macro showAllAdSeatTypeOps value="-1">
 	<#local list = vm.getAllAdSeatTypes() />
@@ -346,12 +356,22 @@
 	</#if>
 </#macro>
 
-<#-- 所有可用媒体大类下拉选项  -->
+<#-- 所有部门领导账号下拉选项  -->
 <#macro showAllDepartmentLeaderOps value="-1">
 	<#local list = vm.getAllDepartmentLeader() />
 	<#if (list?exists && list?size > 0)>
 		<#list list as type>
 			<@showOption value="${type.id?if_exists}" title="${type.realname?if_exists}" select="${value?if_exists}" />
+		</#list>
+	</#if>
+</#macro>
+
+<#-- 所有客户类型下拉选项  -->
+<#macro showAllCustomerTypeOps value="-1">
+	<#local list = vm.getAllCustomerType() />
+	<#if (list?exists && list?size > 0)>
+		<#list list as type>
+			<@showOption value="${type.id?if_exists}" title="${type.name?if_exists}" select="${value?if_exists}" />
 		</#list>
 	</#if>
 </#macro>

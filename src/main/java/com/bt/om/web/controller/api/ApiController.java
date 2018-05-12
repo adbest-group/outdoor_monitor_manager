@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.adtime.common.lang.StringUtil;
 import com.bt.om.cache.AdVersionCache;
 import com.bt.om.cache.CityCache;
 import com.bt.om.common.DateUtil;
@@ -46,11 +47,13 @@ import com.bt.om.entity.AdActivityAdseat;
 import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.entity.AdJiucuoTaskFeedback;
 import com.bt.om.entity.AdMonitorReward;
+import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.AdVersion;
 import com.bt.om.entity.City;
 import com.bt.om.entity.SysUserExecute;
+import com.bt.om.entity.vo.AbandonTaskVo;
 import com.bt.om.entity.vo.ActivityMobileReportVo;
 import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
 import com.bt.om.entity.vo.AdActivityAdseatVo;
@@ -210,7 +213,6 @@ public class ApiController extends BasicController {
 //        return model;
 //    }
 
-
     //解析上传的二维码照片
     @RequestMapping(value = "/qrcodeanalysis")
     @ResponseBody
@@ -270,7 +272,6 @@ public class ApiController extends BasicController {
         return model;
     }
 
-
     //获取给定的广告位编号对应的广告位id和相关有效的广告活动
     @RequestMapping(value = "/seatActivities")
     @ResponseBody
@@ -284,13 +285,19 @@ public class ApiController extends BasicController {
         InputStream is = null;
         String seatCode = null;
         Integer adSeatId = null;
-
+        Double lon = null;
+        Double lat = null;
+        String title = null;
+        
         try {
             is = request.getInputStream();
             Gson gson = new Gson();
             JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
             seatCode = obj==null||obj.get("seatCode") == null ? null : obj.get("seatCode").getAsString();
             adSeatId = obj==null||obj.get("adSeatId") == null ? null : obj.get("adSeatId").getAsInt();
+            lon = obj==null||obj.get("lon") == null ? null : obj.get("lon").getAsDouble();
+            lat = obj==null||obj.get("lat") == null ? null : obj.get("lat").getAsDouble();
+            title = obj==null||obj.get("title") == null ? null : obj.get("title").getAsString();
         } catch (IOException e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
@@ -308,10 +315,10 @@ public class ApiController extends BasicController {
 
         try {
             List<AdActivityAdseatVo> list = null;
-            if(adSeatId!=null){
-                list = adActivityService.getActivitySeatBySeatId(adSeatId);
-            }else if(seatCode!=null) {
+            if(seatCode!=null){
                 list = adActivityService.getActivitySeatBySeatCode(seatCode);
+            }else if(lon!=null && lat!=null && title!=null) {
+                list = adActivityService.selectVoByLonLatTitle(lon, lat, title);
             }
             QRCodeInfoVo qr = new QRCodeInfoVo();
 //            qr.setAd_seat_id(Integer.valueOf(seatCode));
@@ -462,7 +469,7 @@ public class ApiController extends BasicController {
         return model;
     }
 
-    //登录
+    //退出
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
     @ResponseBody
     public Model logOut(Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -502,7 +509,7 @@ public class ApiController extends BasicController {
         return model;
     }
 
-    //验证码
+    //获取图片验证码
     @RequestMapping(value = "/getCodeBase64")
     @ResponseBody
     public Model getCode(Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -605,22 +612,39 @@ public class ApiController extends BasicController {
         }
 
         SysUserExecute user = getLoginUser(request, token);
-        //任务列表
+        //任务列表(已修改：添加了province, city, region, street, startTime, endTime, assignType)
         if (type == 1) {
             List<AdMonitorTaskMobileVo> tasks = adMonitorTaskService.getByUserIdForMobile(user.getId());
             MonitorTaskListResultVo resultVo = new MonitorTaskListResultVo();
             for (AdMonitorTaskMobileVo task : tasks) {
                 if (task.getStatus() == MonitorTaskStatus.TO_CARRY_OUT.getId()) {
                     MonitorTaskWaitToExecutedVo vo = new MonitorTaskWaitToExecutedVo(task);
+                    vo.setProvince(cityCache.getCityName(task.getProvince()));
+                    vo.setCity(cityCache.getCityName(task.getCity()));
+                    vo.setRegion(cityCache.getCityName(task.getRegion()));
+                    vo.setStreet(cityCache.getCityName(task.getStreet()));
                     resultVo.getWait_to_executed().add(vo);
                 } else if (task.getStatus() == MonitorTaskStatus.UNVERIFY.getId()) {
                     MonitorTaskExecutingVo vo = new MonitorTaskExecutingVo(task);
+                    vo.setProvince(cityCache.getCityName(task.getProvince()));
+                    vo.setCity(cityCache.getCityName(task.getCity()));
+                    vo.setRegion(cityCache.getCityName(task.getRegion()));
+                    vo.setStreet(cityCache.getCityName(task.getStreet()));
                     resultVo.getExecuting().add(vo);
                 } else if (task.getStatus() == MonitorTaskStatus.VERIFIED.getId() || task.getStatus() == MonitorTaskStatus.VERIFY_FAILURE.getId()) {
                     MonitorTaskCheckedVo vo = new MonitorTaskCheckedVo(task);
+                    vo.setProvince(cityCache.getCityName(task.getProvince()));
+                    vo.setCity(cityCache.getCityName(task.getCity()));
+                    vo.setRegion(cityCache.getCityName(task.getRegion()));
+                    vo.setStreet(cityCache.getCityName(task.getStreet()));
                     resultVo.getChecked().add(vo);
                 } else if (task.getStatus() == MonitorTaskStatus.UN_FINISHED.getId()) {
-                    resultVo.getUn_finished().add(new MonitorTaskUnFinishedVo(task));
+                	MonitorTaskUnFinishedVo vo = new MonitorTaskUnFinishedVo(task);
+                	vo.setProvince(cityCache.getCityName(task.getProvince()));
+                    vo.setCity(cityCache.getCityName(task.getCity()));
+                	vo.setRegion(cityCache.getCityName(task.getRegion()));
+                    vo.setStreet(cityCache.getCityName(task.getStreet()));
+                    resultVo.getUn_finished().add(vo);
                 }
             }
             result.setResult(resultVo);
@@ -644,7 +668,6 @@ public class ApiController extends BasicController {
         response.setHeader("Access-Control-Allow-Credentials", "true");
         return model;
     }
-
 
     //提交监测任务反馈
 //    @RequestMapping(value="/tasksubmit")
@@ -1663,8 +1686,17 @@ public class ApiController extends BasicController {
         adMonitorTaskService.getByPointAroundPageData(vo);
         List<MonitorTaskArroundVo> list = Lists.newArrayList();
 
-        for(Object task:vo.getList()){
-            list.add(new MonitorTaskArroundVo((AdMonitorTaskMobileVo) task));
+        for(Object obj : vo.getList()){
+        	AdMonitorTaskMobileVo task = (AdMonitorTaskMobileVo) obj;
+        	MonitorTaskArroundVo arroundVo = new MonitorTaskArroundVo(task);
+        	arroundVo.setProvince(cityCache.getCityName(task.getProvince()));
+        	arroundVo.setCity(cityCache.getCityName(task.getCity()));
+        	arroundVo.setRegion(cityCache.getCityName(task.getRegion()));
+        	arroundVo.setStreet(cityCache.getCityName(task.getStreet()));
+        	arroundVo.setStartTime(DateUtil.dateFormate(task.getMonitorDate(), "yyyy-MM-dd"));
+        	Long timestamp = task.getMonitorDate().getTime() + (task.getMonitorLastDays() - 1)*24*60*60*1000;
+        	arroundVo.setEndTime(DateUtil.dateFormate(new Date(timestamp), "yyyy-MM-dd"));
+        	list.add(arroundVo);
         }
 
         result.setResult(list);
@@ -1765,8 +1797,17 @@ public class ApiController extends BasicController {
         adMonitorTaskService.getByCurCityPageData(vo);
         List<MonitorTaskArroundVo> list = Lists.newArrayList();
 
-        for(Object task:vo.getList()){
-            list.add(new MonitorTaskArroundVo((AdMonitorTaskMobileVo) task));
+        for(Object obj : vo.getList()){
+        	AdMonitorTaskMobileVo task = (AdMonitorTaskMobileVo) obj;
+        	MonitorTaskArroundVo arroundVo = new MonitorTaskArroundVo(task);
+        	arroundVo.setProvince(cityCache.getCityName(task.getProvince()));
+        	arroundVo.setCity(cityCache.getCityName(task.getCity()));
+        	arroundVo.setRegion(cityCache.getCityName(task.getRegion()));
+        	arroundVo.setStreet(cityCache.getCityName(task.getStreet()));
+        	arroundVo.setStartTime(DateUtil.dateFormate(task.getMonitorDate(), "yyyy-MM-dd"));
+        	Long timestamp = task.getMonitorDate().getTime() + (task.getMonitorLastDays() - 1)*24*60*60*1000;
+        	arroundVo.setEndTime(DateUtil.dateFormate(new Date(timestamp), "yyyy-MM-dd"));
+        	list.add(arroundVo);
         }
 
         result.setResult(list);
@@ -1777,7 +1818,7 @@ public class ApiController extends BasicController {
         return model;
     }
 
-    //短信验证码
+    //发送短信验证码, 需要先校验图片验证码
     @RequestMapping(value = "/getSMSCode")
     @ResponseBody
     public Model getSMSCode(Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -1787,31 +1828,69 @@ public class ApiController extends BasicController {
         model = new ExtendedModelMap();
 
         String mobile = null;
-
+        String vcode = null;
+        String picToken = null;
+        
         try {
             InputStream is = request.getInputStream();
             Gson gson = new Gson();
             JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
             mobile = obj.get("mobile") == null ? null : obj.get("mobile").getAsString();
+            vcode = obj.get("vcode") == null ? null : obj.get("vcode").getAsString();
+            picToken = obj.get("token") == null ? null : obj.get("token").getAsString();
+            if (picToken != null) {
+                useSession.set(Boolean.FALSE);
+                this.sessionByRedis.setToken(picToken);
+            } else {
+                useSession.set(Boolean.TRUE);
+            }
         } catch (IOException e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
-        if(mobile==null||!Pattern.matches(MOBILE_NUMBER_REGEX,mobile)){
-            result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
-            result.setResultDes("参数有误！");
+        
+        // 验证码必须验证
+        if (StringUtils.isEmpty(vcode)) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("请填写验证码！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        
+        String sessionCode = null;
+        HttpSession session = request.getSession();
+        if (useSession.get()) {
+            sessionCode = session.getAttribute(SessionKey.SESSION_CODE.toString()) == null ? ""
+                    : session.getAttribute(SessionKey.SESSION_CODE.toString()).toString();
+        } else {
+            sessionCode = sessionByRedis.getImageCode();
+        }
+
+        // 验证码有效验证
+        if (!vcode.equalsIgnoreCase(sessionCode)) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("验证码错误！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
 
+        // 验证手机号
+        if(mobile==null||!Pattern.matches(MOBILE_NUMBER_REGEX,mobile)){
+            result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
+            result.setResultDes("手机号码有误！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        
         //生成随机数验证码和token
         String num = getNumber(6);
         String token = sessionByRedis.initToken();
         sessionByRedis.setImageCode(num);
 
         try {
+        	//发送短信
             sendSmsService.sendSms(mobile, SMS_CHECKCODE_CONTENT_TEMPLATE.replaceAll("\\{\\{code\\}\\}",num));
         }catch (Exception e){
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -2397,21 +2476,23 @@ public class ApiController extends BasicController {
         	} else if(activity.getStatus() == 2) {
         		report.setStatus("已确认");
         	} else {
-        		report.setStatus("已完成");
+        		report.setStatus("已结束");
         	}
         	Integer unstartNum = 0;
         	Integer watchingNum = 0;
         	Integer hasProblemNum = 0;
-        	List<AdActivityAdseatTaskVo> adseatTaskVos = adActivityService.selectAdSeatTaskReport(activity.getId());
-        	for (AdActivityAdseatTaskVo adseatTaskVo : adseatTaskVos) {
-        		if(adseatTaskVo.getMonitorStart().getTime() > now.getTime()) {
-        			unstartNum++;
-				}
-				if(adseatTaskVo.getProblem_count() > 0) {
-					hasProblemNum++;
-				}
+        	if(!StringUtil.equals(report.getStatus(), "已结束")) {
+        		List<AdActivityAdseatTaskVo> adseatTaskVos = adActivityService.selectAdSeatTaskReport(activity.getId());
+            	for (AdActivityAdseatTaskVo adseatTaskVo : adseatTaskVos) {
+            		if(adseatTaskVo.getMonitorStart().getTime() > now.getTime()) {
+            			unstartNum++;
+    				}
+    				if(adseatTaskVo.getProblem_count() > 0) {
+    					hasProblemNum++;
+    				}
+            	}
+            	watchingNum = adseatTaskVos.size() - unstartNum - hasProblemNum;
         	}
-        	watchingNum = adseatTaskVos.size() - unstartNum - hasProblemNum;
         	report.setUnstartNum(unstartNum);
         	report.setWatchingNum(watchingNum);
         	report.setHasProblemNum(hasProblemNum);
@@ -2421,6 +2502,138 @@ public class ApiController extends BasicController {
         
         result.setResult(reports);
 
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+
+    //个人中心信息获取
+    @RequestMapping(value = "/getAppUserInfo")
+    @ResponseBody
+    public Model getAppUserInfo(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("调用成功");
+        model = new ExtendedModelMap();
+        
+        String token = null;
+
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            if (token != null) {
+                useSession.set(Boolean.FALSE);
+                this.sessionByRedis.setToken(token);
+            } else {
+                useSession.set(Boolean.TRUE);
+            }
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        //验证登录
+        if (useSession.get()) {
+            if (!checkLogin(model, result, request)) {
+                return model;
+            }
+        } else {
+            if (!checkLogin(model, result, token)) {
+                return model;
+            }
+        }
+
+        SysUserExecute user = getLoginUser(request, token);
+        user = sysUserExecuteService.getById(user.getId());
+        result.setResult(user);
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+    
+    //社会人员抢单放弃任务
+    @RequestMapping(value = "/abandonMonitorTask")
+    @ResponseBody
+    public Model abandonMonitorTask(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("调用成功");
+        model = new ExtendedModelMap();
+        
+        String token = null;
+        Integer monitorTaskId = null;
+        Date now = new Date();
+
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            monitorTaskId = obj.get("monitorTaskId") == null ? null : obj.get("monitorTaskId").getAsInt();
+            if (token != null) {
+                useSession.set(Boolean.FALSE);
+                this.sessionByRedis.setToken(token);
+            } else {
+                useSession.set(Boolean.TRUE);
+            }
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        //验证登录
+        if (useSession.get()) {
+            if (!checkLogin(model, result, request)) {
+                return model;
+            }
+        } else {
+            if (!checkLogin(model, result, token)) {
+                return model;
+            }
+        }
+        
+        if(monitorTaskId == null){
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("参数有误！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        
+        //[1] 获取该条任务信息
+        AdMonitorTask adMonitorTask = adMonitorTaskService.selectByPrimaryKey(monitorTaskId);
+        if(adMonitorTask.getStatus() == 2 || adMonitorTask.getStatus() == 6) {
+        	//[2] 判断24+12小时的逻辑, 将状态改成 1：待指派 或 8：可抢单
+            /**
+             * monitor_date + monitor_last_days - 2天 + 12小时 < now
+             * 可推出当 monitor_date < now - monitor_last_days + 2天 - 12小时 时改为1：可指派，否则为8：可抢单
+             */
+            AbandonTaskVo vo = new AbandonTaskVo();
+            vo.setId(monitorTaskId);
+            vo.setAbandonTime(now);
+            vo.setUpdateTime(now);
+            vo.setUserTaskStatus(2); //1.正常 2.主动放弃 3.超时回收
+            
+            Date monitorDate = adMonitorTask.getMonitorDate();
+            Integer monitorLastDays = adMonitorTask.getMonitorLastDays();
+            if(monitorDate.getTime() <= now.getTime() - monitorLastDays*24*60*60*1000 + 2*24*60*60*1000 - 12*60*60*1000) {
+            	vo.setTaskStatus(1); //1：可指派
+            } else {
+            	vo.setTaskStatus(8); //8：可抢单
+            }
+            
+            //[3] 联表更新
+            adMonitorTaskService.abandonUserTask(vo);
+        }
+        
         model.addAttribute(SysConst.RESULT_KEY, result);
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");

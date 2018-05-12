@@ -58,8 +58,6 @@ public interface SysUserMapper {
      */
     int updatPrimaryKey(SysUser record);
 
-
-
     SysUserVo findUserinfoById(@Param("id") Integer id);
 
     SysUserVo findByUsername(@Param("username") String username);
@@ -83,5 +81,7 @@ public interface SysUserMapper {
 	List<SysUser> findUserName(Integer groupId);
 	List<SysUser> findCustomerName(Integer groupId);
 	List<SysUser> findNoUserName(Integer groupId);
-	List<SysUser> findNoCustomerName(Integer groupId);
+	List<SysUser> findNoCustomerName(Map<String, Object> searchMap);
+	List<SysUser> getIdNameByUserType(Integer usertype);
+	 
 }

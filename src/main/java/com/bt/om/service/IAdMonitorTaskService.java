@@ -1,14 +1,13 @@
 package com.bt.om.service;
 
+import java.util.List;
+import java.util.Map;
+
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
-import com.bt.om.entity.vo.AdActivityVo;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
-import java.util.List;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.vo.web.SearchDataVo;
-
-import java.util.List;
 
 /**
  * Created by caiting on 2018/1/20.
@@ -71,8 +70,8 @@ public interface IAdMonitorTaskService {
 	 **/
 	public List<AdMonitorTask>selectAllTask();
 	public void getPageDataAllTask(SearchDataVo vo);
-	/*
-	每次查看10条任务	
-	*/	
-	public void getPageAtimeTask(SearchDataVo vo);
+	List<AdMonitorTaskVo> selectAllByAssessorId(Map<String, Object> searchMap);
+	List<AdMonitorTaskVo> getTenAdMonitorTaskVo(Map<String, Object> searchMap);
+	List<AdMonitorTaskVo> getTenAdMonitorTaskAssignVo(Map<String, Object> searchMap);
+	
 }

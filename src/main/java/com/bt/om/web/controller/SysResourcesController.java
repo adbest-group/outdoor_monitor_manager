@@ -75,15 +75,23 @@ public class SysResourcesController extends BasicController {
         try {
             if (sysResources.getId() != null) {
             	//修改
-            	Integer userId = sysResources.getUserId(); //获取部门领导id
-            	//查询该领导是否已经有管理部门
-            	int count = sysResourcesService.selectCountByUserId(userId);
-            	if(count > 0) {
-            		result.setCode(ResultCode.RESULT_FAILURE.getCode());
-                    result.setResultDes("该部门领导已有部门！");
-                    model.addAttribute(SysConst.RESULT_KEY, result);
-                    return model;
+            	SysResources department = sysResourcesService.getById(sysResources.getId()); //数据库里当前部门的信息
+            	Integer userId = sysResources.getUserId(); //获取页面选择的部门领导id
+            	if(department.getUserId() != userId) {
+            		//查询该领导是否已经有管理部门
+                	int count = sysResourcesService.selectCountByUserId(userId);
+                	if(count > 0) {
+                		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                        result.setResultDes("该部门领导已有部门！");
+                        model.addAttribute(SysConst.RESULT_KEY, result);
+                        return model;
+                	} else {
+                		sysResources.setUserId(userId);
+                		sysResources.setUpdateTime(now);
+                    	sysResourcesService.modify(sysResources);
+                	}
             	} else {
+            		sysResources.setUserId(department.getUserId());
             		sysResources.setUpdateTime(now);
                 	sysResourcesService.modify(sysResources);
             	}

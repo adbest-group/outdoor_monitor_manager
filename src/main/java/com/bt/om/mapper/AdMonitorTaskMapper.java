@@ -1,6 +1,7 @@
 package com.bt.om.mapper;
 
 import com.bt.om.entity.AdMonitorTask;
+import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.entity.vo.AllAdMonitorTaskVo;
@@ -117,5 +118,8 @@ public interface AdMonitorTaskMapper {
 
     List<AllAdMonitorTaskVo> getPageDataAllTask(Map<String, Object> searchMap, RowBounds rowBounds);
     
-    List<AllAdMonitorTaskVo> getAtimeTask(Map<String, Object> searchMap);
+    List<AdMonitorTaskVo> selectAllByAssessorId(Map<String, Object> searchMap);
+    List<AdMonitorTaskVo> getTenAdMonitorTaskVo(Map<String, Object> searchMap);
+    int updateAssessorId(Map<String, Object> searchMap);
+    int updateAssignorId(Map<String, Object> searchMap);
 }

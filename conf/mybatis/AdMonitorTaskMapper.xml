@@ -405,6 +405,12 @@
         <if test="endDate != null">
             and b.end_time &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
         </if>
+        <if test="assessorId != null" >
+	      	and a.assessor_id = #{assessorId,jdbcType=INTEGER}
+	    </if>
+	    <if test="assignorId != null" >
+	      	and a.assignor_id = #{assignorId,jdbcType=INTEGER}
+	    </if>
     </select>
 
     <select id="getPageData" parameterType="map" resultMap="ExtResultMap">
@@ -465,6 +471,12 @@
         <if test="endDate != null">
             and b.end_time &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
         </if>
+        <if test="assessorId != null" >
+	      	and a.assessor_id = #{assessorId,jdbcType=INTEGER}
+	    </if>
+	    <if test="assignorId != null" >
+	      	and a.assignor_id = #{assignorId,jdbcType=INTEGER}
+	    </if>
         order by a.update_time desc,a.id desc
     </select>
 
@@ -670,7 +682,6 @@
         and user_id is null
         and update_time = #{updateTime,jdbcType=TIMESTAMP}
     </update>
-    
 
     <select id="getPageDataAllTask" parameterType="map" resultType="com.bt.om.entity.vo.AllAdMonitorTaskVo">
         select
@@ -742,9 +753,135 @@
             and a.monitor_date >= DATE_FORMAT(#{monitorDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
         </if>
     </select>
-    <!--  每次任务显示10条未确认-->
-     <!--   <select id="getAtimeTask" parameterType="map" resultType="com.bt.om.entity.vo.AllAdMonitorTaskVo">
-       		select * from ad_monitor_task limit 1, 10 for update where status = 3,parent_id is null
-			
-       </select> -->
+	
+	<!-- 获取当前登录员工admin获取自己曾经捞取过的监测任务  -->    
+    <select id="selectAllByAssessorId" parameterType="map" resultMap="ExtResultMap">
+        select 
+        	a.id, a.activity_id, a.activity_adseat_id, a.task_type, a.monitor_date,a.monitor_last_days,a.user_id,
+	        a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time,a.assessor_id,a.assignor_id,
+	        b.activity_name,
+	        c.sample_pic_url,
+	        b.start_time,b.end_time,
+	        d.province,d.city,d.region,d.street,
+	        e.media_name,d.`name` as ad_seat_name,
+	        f.realname
+        from 
+        	ad_monitor_task a
+	        left join ad_activity b on a.activity_id = b.id
+	        left join ad_activity_adseat c on a.activity_adseat_id = c.id
+	        left join ad_seat_info d on c.ad_seat_id = d.id
+	        left join ad_media e on c.media_id = e.id
+	        left join sys_user_execute f on a.user_id = f.id
+        where 1=1
+        <if test="activityId != null">
+            and a.activity_id = #{activityId,jdbcType=INTEGER}
+        </if>
+        <if test="status != null">
+            and a.status = #{status,jdbcType=INTEGER}
+        </if>
+        <if test="statuses != null">
+            and a.status in
+            <foreach collection="statuses" separator="," open="(" close=")" item="s">#{s,jdbcType=INTEGER}
+            </foreach>
+        </if>
+        <if test="problemStatus != null">
+            and a.problem_status = #{problemStatus,jdbcType=INTEGER}
+        </if>
+        <if test="problemStatuses != null">
+            and a.problem_status in
+            <foreach collection="problemStatuses" separator="," open="(" close=")" item="ps">#{ps,jdbcType=INTEGER}
+            </foreach>
+        </if>
+        <if test="taskType != null">
+            and a.task_type = #{taskType,jdbcType=INTEGER}
+        </if>
+        <if test="mediaUserId != null">
+            and e.user_id = #{mediaUserId,jdbcType=INTEGER} and a.parent_id is null
+        </if>
+        <if test="taskTypes != null">
+            and a.task_type in
+            <foreach collection="taskTypes" separator="," open="(" close=")" item="task">#{task,jdbcType=INTEGER}
+            </foreach>
+        </if>
+        <if test="parentId != null">
+            and a.parent_id = #{parentId,jdbcType=INTEGER}
+        </if>
+        <if test="parentType != null">
+            and a.parent_type = #{parentType,jdbcType=INTEGER}
+        </if>
+        <if test="idpid != null">
+            and (a.id = #{idpid,jdbcType=INTEGER} or a.parent_id = #{idpid,jdbcType=INTEGER} and a.parent_type=1)
+        </if>
+        <if test="startDate != null">
+            and b.start_time >= DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+        </if>
+        <if test="endDate != null">
+            and b.end_time &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+        </if>
+        <if test="assessorId != null" >
+	      	and a.assessor_id = #{assessorId,jdbcType=INTEGER}
+	    </if>
+	    <if test="assignorId != null" >
+	      	and a.assignor_id = #{assignorId,jdbcType=INTEGER}
+	    </if>
+        order by a.update_time desc,a.id desc
+    </select>
+    
+    <!-- 获取当前登录员工admin获取自己曾经捞取过的监测任务  -->    
+    <select id="getTenAdMonitorTaskVo" parameterType="map" resultMap="ExtResultMap">
+        select 
+        	a.id, a.activity_id, a.activity_adseat_id, a.task_type, a.monitor_date,a.monitor_last_days,a.user_id,
+	        a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time,a.assessor_id,a.assignor_id,
+	        b.activity_name,
+	        c.sample_pic_url,
+	        b.start_time,b.end_time,
+	        d.province,d.city,d.region,d.street,
+	        e.media_name,d.`name` as ad_seat_name,
+	        f.realname
+        from 
+        	ad_monitor_task a
+	        left join ad_activity b on a.activity_id = b.id
+	        left join ad_activity_adseat c on a.activity_adseat_id = c.id
+	        left join ad_seat_info d on c.ad_seat_id = d.id
+	        left join ad_media e on c.media_id = e.id
+	        left join sys_user_execute f on a.user_id = f.id
+        where 1=1
+        <if test="status != null" >
+	      and a.status = #{status,jdbcType=INTEGER}
+	    </if>
+	    <if test="assessorId != null" >
+	      and a.assessor_id is null
+	    </if>
+      	<if test="assignorId != null" >
+	      and a.assignor_id is null
+	    </if>
+	    <if test="customerIds != null">
+	      and b.user_id in
+	        <foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+	    </if>
+	    order by a.id limit 0,10 for update;
+    </select>
+    
+    <update id="updateAssessorId" parameterType="map">
+	  	update ad_monitor_task
+	    set
+	      assessor_id = #{assessorId,jdbcType=INTEGER}
+	    where 1=1
+	    <if test="ids != null">
+	      and id in
+	        <foreach collection="ids" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+	    </if>
+    </update>
+    
+    <update id="updateAssignorId" parameterType="map">
+	  	update ad_monitor_task
+	    set
+	      assignor_id = #{assignorId,jdbcType=INTEGER}
+	    where 1=1
+	    <if test="ids != null">
+	      and id in
+	        <foreach collection="ids" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+	    </if>
+    </update>
+    
 </mapper>

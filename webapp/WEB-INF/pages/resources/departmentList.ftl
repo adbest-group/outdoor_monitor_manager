@@ -1,13 +1,13 @@
-<#assign webTitle="资源管理" in model>
+<#assign webTitle="部门管理" in model>
 <#assign webHead in model>
 </#assign>
 <@model.webhead />
 <!-- 头部 -->
-<@model.webMenu current="资源管理" child="departmentList" />
+<@model.webMenu current="部门管理" child="部门管理" />
 <div class="main-container" style="height: auto;">
     <div class="main-box ott-market">
         <div class="title clearfix">
-            <a href="javascript:;" class="add-new-btn ll" id="add_department"><i></i> 新建部门</a>
+        	<#-- <a href="javascript:;" class="add-new-btn ll" id="add_department"><i></i> 新建部门</a> -->
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <div class="inp">
                     <input type="text" placeholder="请输入部门名称" value="${searchName?if_exists}" id="searchName" name="searchName">

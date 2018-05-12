@@ -1,16 +1,16 @@
-<#assign webTitle="监测管理" in model>
+<#assign webTitle="任务管理" in model>
 <#assign webHead in model>
 </#assign>
 <@model.webhead />
 <!-- 头部 -->
-<@model.webMenu current="监测管理" child="监测管理" />
+<@model.webMenu current="任务管理" child="任务管理" />
 
 <!-- 特色内容 -->
 <div class="main-container" style="height: auto;">
     <div class="main-box">
         <div class="title clearfix" style="display:block;">
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
-                <form id="form" method="get" action="/task/list">
+                <form id="form" method="get" action="/sysResources/taskList">
                     <!--销售下拉框-->
                     <div class="select-box select-box-140 un-inp-select ll">
                         <select name="activityId" class="select" id="activityId">
@@ -20,7 +20,7 @@
                     </div>
                     <div class="select-box select-box-100 un-inp-select ll">
                         <select class="select" name="taskType">
-                            <option value="">任务类型</option>
+                            <option value="">所有任务类型</option>
                             <#-- 
                             <option value="1">上刊监测</option>
                             <option value="2">投放期间监测</option>
@@ -31,15 +31,8 @@
                     </div>
                     <div class="select-box select-box-100 un-inp-select ll">
                         <select class="select" name="status">
-                        	<option value="3" <#if (status?exists&&status == '3')>selected</#if>>待审核</option>
-                        	<option value="4" <#if (status?exists&&status == '4')>selected</#if>>审核通过</option>
-                        	<option value="5" <#if (status?exists&&status == '5')>selected</#if>>审核未通过</option>
-                        	<#-- <option value="7" <#if (status?exists&&status == '7')>selected</#if>>待激活</option> -->
-                        	<option value="8" <#if (status?exists&&status == '8')>selected</#if>>可抢单</option>
-                        	<option value="1" <#if (status?exists&&status == '1')>selected</#if>>待指派</option>
-                        	<option value="2" <#if (status?exists&&status == '2')>selected</#if>>待执行</option>
-                        	<option value="6" <#if (status?exists&&status == '6')>selected</#if>>未完成</option>
-                        	<#-- <@model.showMonitorTaskStatusOps value="${bizObj.queryMap.status?if_exists}"/> -->
+                        	<option value="">所有任务状态</option>
+                        	<@model.showMonitorTaskStatusOps value="${bizObj.queryMap.status?if_exists}"/>
                         </select>
                     </div>
                     <div class="select-box select-box-100 un-inp-select ll">
@@ -107,18 +100,6 @@
                             <td>
                             <#--<#if task.status==1><a href="javascript:assign('${task.id}')">指派</a></#if>-->
                             <#--<#if task.status==2><a href="javascript:assign('${task.id}')">重新指派</a></#if>-->
-                                <#if (task.status==4&&task.problemStatus?exists&&task.problemStatus==4&&(!task.subCreated?exists||task.subCreated==2))>
-                                    <a href="javascript:createTask('${task.id}');">创建复查</a></#if>
-                                <#if (task.parentId?exists&&task.parentType=1)>
-                                    <a href="/task/list?pid=${task.parentId}&ptype=1">复查配对</a></#if>
-                                <#if (task.parentId?exists&&task.parentType=2)>
-                                    <a href="/jiucuo/list?id=${task.parentId}">查看纠错</a></#if>
-                                <#if (task.status==4&&task.problemStatus?exists&&task.problemStatus==4&&task.subCreated?exists&&task.subCreated==1)>
-                                    <a href="/task/list?pid=${task.id}&ptype=1">复查配对</a></#if>
-                                <#if (task.status==4 && task.problemStatus?exists&&task.problemStatus==4)><a
-                                        href="javascript:close('${task.id}')">关闭</a></#if>
-                                <#if task.status==3><a href="javascript:pass('${task.id}')">通过</a></#if>
-                                <#if task.status==3><a href="javascript:reject('${task.id}')">拒绝</a></#if>
                                 <a href="/task/details?task_Id=${task.id}">详情</a>
                             <#--<#if task.status==1><a href="javascript:del('${task.id}')">删除</a></#if>-->
                             </td>

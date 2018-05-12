@@ -8,6 +8,7 @@ import com.bt.om.entity.SysUserDetail;
 import com.bt.om.entity.SysUserRes;
 import com.bt.om.entity.SysUserRole;
 import com.bt.om.entity.vo.SysUserVo;
+import com.bt.om.entity.vo.UserRoleVo;
 import com.bt.om.vo.web.SearchDataVo;
 
 /**
@@ -108,7 +109,17 @@ public interface ISysUserService {
 	int updateStatus(SysUser status);
 	List<SysUser>findAllTask();
 
-	int insertUserRess(List<SysUserRes> sysUserRess, SysUserRes sysUserRes);
+	int updateUserRess(List<SysUserRes> sysUserRess, SysUserRes sysUserRes, UserRoleVo userRoleVo, UserRoleVo userRoleVo2);
 	
 	List<Integer> getCustomerIdsByAdminId(Integer userId);
+
+	int deleteUserRess(SysUserRes sysUserRes, UserRoleVo userRoleVo);
+
+	int insertUserRess(List<SysUserRes> sysUserRess, SysUserRes sysUserRes);
+
+	int deleteCustomerRess(SysUserRes sysUserRes);
+
+	List<SysUser> getIdNameByUserType(Integer userType);
+
+	List<Integer> selectUserIdsByResIds(Map<String, Object> searchMap);
 }

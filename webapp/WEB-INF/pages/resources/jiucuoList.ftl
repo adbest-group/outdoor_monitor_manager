@@ -1,17 +1,15 @@
-<#assign webTitle="监测管理" in model>
-<#assign webHead in model>
-</#assign>
+<#assign webTitle="纠错管理" in model> <#assign webHead in model> </#assign>
 <@model.webhead />
 <!-- 头部 -->
-<@model.webMenu current="监测管理" child="监测管理" />
+<@model.webMenu current="纠错管理" child="纠错管理" />
 
 <!-- 特色内容 -->
 <div class="main-container" style="height: auto;">
     <div class="main-box">
-        <div class="title clearfix" style="display:block;">
+        <div class="title clearfix">
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
-                <form id="form" method="get" action="/task/list">
-                    <!--销售下拉框-->
+                <form id="form" method="get" action="/sysResources/jiucuoList">
+                    <!--活动下拉框-->
                     <div class="select-box select-box-140 un-inp-select ll">
                         <select name="activityId" class="select" id="activityId">
                             <option value="">所有活动</option>
@@ -19,33 +17,15 @@
                         </select>
                     </div>
                     <div class="select-box select-box-100 un-inp-select ll">
-                        <select class="select" name="taskType">
-                            <option value="">任务类型</option>
-                            <#-- 
-                            <option value="1">上刊监测</option>
-                            <option value="2">投放期间监测</option>
-                            <option value="3">下刊监测</option>
-                             -->
-                        	<@model.showMonitorTaskTypeOps value="${bizObj.queryMap.taskType?if_exists}" />
-                        </select>
-                    </div>
-                    <div class="select-box select-box-100 un-inp-select ll">
                         <select class="select" name="status">
-                        	<option value="3" <#if (status?exists&&status == '3')>selected</#if>>待审核</option>
-                        	<option value="4" <#if (status?exists&&status == '4')>selected</#if>>审核通过</option>
-                        	<option value="5" <#if (status?exists&&status == '5')>selected</#if>>审核未通过</option>
-                        	<#-- <option value="7" <#if (status?exists&&status == '7')>selected</#if>>待激活</option> -->
-                        	<option value="8" <#if (status?exists&&status == '8')>selected</#if>>可抢单</option>
-                        	<option value="1" <#if (status?exists&&status == '1')>selected</#if>>待指派</option>
-                        	<option value="2" <#if (status?exists&&status == '2')>selected</#if>>待执行</option>
-                        	<option value="6" <#if (status?exists&&status == '6')>selected</#if>>未完成</option>
-                        	<#-- <@model.showMonitorTaskStatusOps value="${bizObj.queryMap.status?if_exists}"/> -->
+                        	<option value="">所有状态</option>
+                        	<@model.showJiucuoTaskStatusOps value="${bizObj.queryMap.status?if_exists}" />
                         </select>
                     </div>
                     <div class="select-box select-box-100 un-inp-select ll">
                         <select class="select" name="problemStatus">
                             <option value="">所有问题状态</option>
-                        <@model.showProblemStatusList value="${bizObj.queryMap.problemStatus?if_exists}" />
+                        <@model.showMediaProblemStatusList value="${bizObj.queryMap.problemStatus?if_exists}"/>
                         </select>
                     </div>
                     <div class="ll inputs-date">
@@ -59,9 +39,7 @@
                                    value="${bizObj.queryMap.endDate?if_exists}">
                         </div>
                     </div>
-                    <button type="button" class="btn btn-red" style="margin-left:10px;" autocomplete="off"
-                            id="searchBtn">查询
-                    </button>
+                    <button type="button" class="btn btn-red" style="margin-left:10px;" id="searchBtn">查询</button>
                 </form>
             </div>
         </div>
@@ -72,15 +50,13 @@
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan">
                     <thead>
                     <tr>
-                        <th width="30">序号</th>
+                        <th>序号</th>
                         <th>活动名称</th>
-                        <th>上刊示例</th>
-                        <th>投放周期</th>
+                        <th>纠错照片</th>
+                        <th>提交时间</th>
                         <th>地区</th>
                         <th>媒体</th>
                         <th>广告位</th>
-                        <th>执行人员</th>
-                        <th>监测时间点</th>
                         <th>状态</th>
                         <th>问题状态</th>
                         <th>操作</th>
@@ -89,38 +65,21 @@
                     <tbody>
                     <#if (bizObj.list?exists && bizObj.list?size>0) >
                         <#list bizObj.list as task>
-                        <tr>
+                        <tr id="task_${task.id}">
                             <td width="30">${(bizObj.page.currentPage-1)*20+task_index+1}</td>
                             <td>
                                 <div class="data-title w200" data-title="${task.activityName}"
                                      data-id="${task.id}">${task.activityName?if_exists}</div>
                             </td>
-                            <td><img width="50" src="${task.samplePicUrl}"/></td>
-                            <td>${task.startTime?string('yyyy-MM-dd')}<br/>${task.endTime?string('yyyy-MM-dd')}</td>
+                            <td><img width="50" src="${task.picUrl1}"/></td>
+                            <td>${task.submitTime?string('yyyy-MM-dd HH:mm:ss')}</td>
                             <td>${vm.getCityNameFull(task.street!task.region,"-")!""}</td>
                             <td>${task.mediaName}</td>
                             <td>${task.adSeatName!""}</td>
-                            <td>${task.realname!""}</td>
-                            <td>${vm.getMonitorTaskTypeText(task.taskType)}</td>
-                            <td>${vm.getMonitorTaskStatusText(task.status)}</td>
+                            <td>${vm.getJiucuoTaskStatusText(task.status)}</td>
                             <td>${vm.getProblemStatusText(task.problemStatus!0)}</td>
                             <td>
-                            <#--<#if task.status==1><a href="javascript:assign('${task.id}')">指派</a></#if>-->
-                            <#--<#if task.status==2><a href="javascript:assign('${task.id}')">重新指派</a></#if>-->
-                                <#if (task.status==4&&task.problemStatus?exists&&task.problemStatus==4&&(!task.subCreated?exists||task.subCreated==2))>
-                                    <a href="javascript:createTask('${task.id}');">创建复查</a></#if>
-                                <#if (task.parentId?exists&&task.parentType=1)>
-                                    <a href="/task/list?pid=${task.parentId}&ptype=1">复查配对</a></#if>
-                                <#if (task.parentId?exists&&task.parentType=2)>
-                                    <a href="/jiucuo/list?id=${task.parentId}">查看纠错</a></#if>
-                                <#if (task.status==4&&task.problemStatus?exists&&task.problemStatus==4&&task.subCreated?exists&&task.subCreated==1)>
-                                    <a href="/task/list?pid=${task.id}&ptype=1">复查配对</a></#if>
-                                <#if (task.status==4 && task.problemStatus?exists&&task.problemStatus==4)><a
-                                        href="javascript:close('${task.id}')">关闭</a></#if>
-                                <#if task.status==3><a href="javascript:pass('${task.id}')">通过</a></#if>
-                                <#if task.status==3><a href="javascript:reject('${task.id}')">拒绝</a></#if>
-                                <a href="/task/details?task_Id=${task.id}">详情</a>
-                            <#--<#if task.status==1><a href="javascript:del('${task.id}')">删除</a></#if>-->
+                                <a href="/jiucuo/detail?id=${task.id}">详情</a>
                             </td>
                         </tr>
                         </#list>
@@ -140,14 +99,21 @@
 </div>
 </div>
 </div>
-<script type="text/javascript" src="${model.static_domain}/js/jquery-2.1.4.min.js"></script>
+<script type="text/javascript"
+	src="${model.static_domain}/js/jquery-2.1.4.min.js"></script>
 <!-- 下拉 -->
-<link href="${model.static_domain}/js/select/jquery.searchableSelect.css" rel="stylesheet">
-<script src="${model.static_domain}/js/select/jquery.searchableSelect.js"></script>
+<link
+	href="${model.static_domain}/js/select/jquery.searchableSelect.css"
+	rel="stylesheet">
+<script
+	src="${model.static_domain}/js/select/jquery.searchableSelect.js"></script>
 <!-- 时期 -->
-<link href="${model.static_domain}/js/date/daterangepicker.css" rel="stylesheet">
-<script type="text/javascript" src="${model.static_domain}/js/date/moment.min.js"></script>
-<script type="text/javascript" src="${model.static_domain}/js/date/jquery.daterangepicker.js"></script>
+<link href="${model.static_domain}/js/date/daterangepicker.css"
+	rel="stylesheet">
+<script type="text/javascript"
+	src="${model.static_domain}/js/date/moment.min.js"></script>
+<script type="text/javascript"
+	src="${model.static_domain}/js/date/jquery.daterangepicker.js"></script>
 <script type="text/javascript" src="${model.static_domain}/js/date.js"></script>
 
 <script type="text/javascript">
@@ -175,7 +141,7 @@
             return newDate + " 至 " + today.Format("yyyy-MM-dd");
         return newDate + " 至 " + newDate;
     }
-    var assign_ids;
+
     $(function () {
         $('.select').searchableSelect();
 
@@ -212,71 +178,13 @@
         $("#form").submit();
     });
 
-    //指派
-    assign = function (id) {
-        assign_ids = id;
-        openSelect();
-    }
-
-    //打开选择执行者
-    openSelect = function () {
-        layer.open({
-            type: 2,
-            title: '选择监测人员',
-            shade: 0.8,
-            area: ['400px', '220px'],
-            content: '/task/selectUserExecute' //iframe的url
-        });
-    }
-    //选择执行人后的回调
-    selectUserExecuteHandle = function (userId) {
-        layer.closeAll();
-        if (!userId) {
-            layer.alert("并没有指定执行人员");
-            return;
-        }
-
-        $.ajax({
-            url: "/task/assign",
-            type: "post",
-            data: {
-                "ids": assign_ids,
-                "userId": userId
-            },
-            cache: false,
-            dataType: "json",
-            success: function (datas) {
-                var resultRet = datas.ret;
-                if (resultRet.code == 101) {
-                    layer.confirm(resultRet.resultDes, {
-                        icon: 2,
-                        btn: ['确定'] //按钮
-                    });
-                } else {
-                    layer.confirm("指派成功", {
-                        icon: 1,
-                        btn: ['确定'] //按钮
-                    }, function () {
-                        window.location.reload();
-                    });
-                }
-            },
-            error: function (e) {
-                layer.confirm("服务忙，请稍后再试", {
-                    icon: 5,
-                    btn: ['确定'] //按钮
-                });
-            }
-        });
-    }
-
     //审核通过
     pass = function (id) {
         layer.confirm("确认审核通过？", {
             icon: 3,
             btn: ['确定', '取消'] //按钮
         }, function () {
-            verify(id, 4);
+            verify(id, 2);
         });
     }
 
@@ -293,16 +201,15 @@
                     return;
                 }
                 layer.close(index);
-                verify(id, 5, val);
+                verify(id, 3, val);
             });
-
         });
     }
 
     //发起审核请求
     verify = function (id, status, reason) {
         $.ajax({
-            url: "/task/verify",
+            url: "/jiucuo/verify",
             type: "post",
             data: {
                 "id": id,
@@ -343,7 +250,7 @@
             btn: ['确定', '取消'] //按钮
         }, function () {
             $.ajax({
-                url: "/task/close",
+                url: "/jiucuo/close",
                 type: "post",
                 data: {
                     "id": id
@@ -376,16 +283,16 @@
         });
     }
 
-    //创建子任务
+    //创建监测任务
     createTask = function (id) {
-//                layer.alert("暂未开放！谢谢！");
-//                return;
+//        layer.alert("暂未开放！谢谢！");
+//        return;
         layer.confirm("确认创建监测任务？", {
             icon: 3,
             btn: ['确定', '取消'] //按钮
         }, function () {
             $.ajax({
-                url: "/task/createTask",
+                url: "/jiucuo/createTask",
                 type: "post",
                 data: {
                     "id": id
@@ -418,6 +325,17 @@
         });
     }
 
+    showTask = function(id){
+        layer.open({
+            type: 1,
+            title: false,
+            closeBtn: 1,
+            shadeClose: true,
+            skin: 'data-report',
+            area:['50%','50%'],
+            content: ''
+        });
+    }
 </script>
 <!-- 特色内容 -->
 

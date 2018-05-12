@@ -265,4 +265,11 @@
 		and user_id = #{userId,jdbcType=INTEGER}
 	</select>
 
+	<select id="selectGroupIdsByDepartmentId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+		select id
+		from sys_resources
+		where type = 2
+		and parentId = #{parentId,jdbcType=INTEGER}
+	</select>
+
 </mapper>

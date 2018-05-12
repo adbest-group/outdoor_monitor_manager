@@ -156,6 +156,8 @@
     });
     $("#clear").click(function () {
         $("#demo3 select").val("");
+        $("#selectMediaId").val("");
+        $('#insertBatchId').attr("disabled","disabled");
     });
 
     /*获取城市  */

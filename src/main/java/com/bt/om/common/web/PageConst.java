@@ -92,7 +92,14 @@ public class PageConst {
 	/*** 部门管理员下的员工管理 ***/
 	public static final String DEPARMENT_ADMIN_USER_LIST = "sysUser/list";
 	public static final String DEPARMENT_ADMIN_USER_EDIT = "sysUser/edit";
+	
 	/*** 部门管理员下的组与员工、客户管理 ***/
 	public static final String DEPARMENT_ADMIN_GROUP_USER = "resources/resUserList";
 	public static final String DEPARMENT_ADMIN_GROUP_CUSTOMER = "resources/resCustomerList";
+	
+	/*** 各部门领导查看自己部门的审核任务 ***/
+	public static final String RESOURCES_ACTIVITY = "resources/activity";
+	public static final String RESOURCES_TASK_LIST = "resources/taskList";
+	public static final String RESOURCES_TASK_UNASSIGN = "resources/taskUnassign";
+	public static final String RESOURCES_JIUCUO_LIST = "resources/jiucuoList";
 }

@@ -1,6 +1,7 @@
 package com.bt.om.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.bt.om.entity.SysResources;
 import com.bt.om.entity.SysUser;
@@ -14,7 +15,6 @@ public interface ISysGroupService {
 	
     public void modify(SysResources sysResources);
 
-    public List<SysResources> selectById(Integer id);
     public SysResources getById(Integer id);
 	void delete(Integer id);
 	public void getPageData(SearchDataVo vo);
@@ -22,5 +22,6 @@ public interface ISysGroupService {
 	public List<SysUser> selectUserName(Integer groupId);
 	public List<SysUser> selectCustomerName(Integer groupId);
 	public List<SysUser> selectNoUserName(Integer groupId);
-	public List<SysUser> selectNoCustomerName(Integer groupId);
+	public List<SysUser> selectNoCustomerName(Map<String, Object> searchMap);
+	public List<Integer> selectGroupIdsByDepartmentId(Integer parentId);
 }

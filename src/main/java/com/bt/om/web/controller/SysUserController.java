@@ -50,9 +50,11 @@ public class SysUserController extends BasicController{
         	name = "%" + name + "%";
             vo.putSearchParam("name", name, name);
         }
+        
         Integer usertype = 5;
         vo.putSearchParam("usertype", usertype.toString(), usertype);
         sysUserService.getPageData(vo);
+        
         SearchUtil.putToModel(model, vo);
         return PageConst.SUPER_ADMIN_LEAD_LIST;
     }

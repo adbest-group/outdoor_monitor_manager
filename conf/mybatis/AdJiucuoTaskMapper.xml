@@ -425,7 +425,7 @@
     order by a.id desc
   </select>
   
-  <select id="getTenAdJiucuoTaskVo" parameterType="map" resultMap="BaseResultMap">
+  <select id="getTenAdJiucuoTaskVo" parameterType="map" resultMap="ExtResultMap">
   	select 
   		a.id, a.activity_id, a.ad_seat_id, a.submit_time, a.user_id,
         a.status,a.reason,a.problem_status,a.sub_created,a.verify_time,a.create_time, a.update_time,

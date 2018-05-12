@@ -73,4 +73,9 @@ public class SysResourcesService implements ISysResourcesService {
 	public int selectCountByUserId(Integer userId) {
 		return sysResourcesMapper.selectCountByUserId(userId);
 	}
+	
+	@Override
+	public SysResources getByUserId(Integer userId) {
+		return sysResourcesMapper.getByUserId(userId);
+	}
 }

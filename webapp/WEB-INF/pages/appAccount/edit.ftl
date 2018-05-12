@@ -35,7 +35,10 @@
 					<td>
                         <div class="select-box select-box-100 un-inp-select ll">
                             <select class="select" name="usertype" id="usertype">
-							<@model.showUserExecuteTypeList value="${(obj.usertype)?if_exists}" />
+                            	<#-- <@model.showUserExecuteTypeList value="${(obj.usertype)?if_exists}" /> -->
+                            	<option value="2" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==2)>selected</#if> >客户人员</option>
+                            	<option value="3" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==3)>selected</#if> >媒体人员</option>
+                            	<option value="4" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==4)>selected</#if> >社会人员</option>
                             </select>
                         </div>
 						<br/>

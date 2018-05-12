@@ -50,7 +50,6 @@ import com.bt.om.web.util.SearchUtil;
 @Controller
 @RequestMapping(value = "/jiucuo")
 public class JiucuoController extends BasicController {
-
     @Autowired
     private IAdJiucuoTaskService adJiucuoTaskService;
     @Autowired
@@ -164,8 +163,9 @@ public class JiucuoController extends BasicController {
             			iterator.remove();
             		}
             	}
-//            	vo.setCount(taskVos.size());
-//            	vo.setSize(taskVos.size());
+            	vo.setCount(taskVos.size());
+            	vo.setSize(20);
+            	vo.setStart(0);
             	vo.setList(taskVos);
             } else {
             	//条数等于0, 新查询10条或者小于10条没人认领的待审核的纠错任务(需要匹配 员工 - 组 - 广告商 之间的关系)
@@ -176,9 +176,10 @@ public class JiucuoController extends BasicController {
             		searchMap.put("customerIds", customerIds);
             		searchMap.put("assessorId", userObj.getId());
             		List<AdJiucuoTaskVo> adJiucuoTaskVos = adJiucuoTaskService.getTenAdMonitorTaskVo(searchMap);
-//            		vo.setCount(adJiucuoTaskVos.size());
+                	vo.setCount(adJiucuoTaskVos.size());
+                	vo.setSize(20);
+                	vo.setStart(0);
                 	vo.setList(adJiucuoTaskVos);
-//                	vo.setSize(adJiucuoTaskVos.size());
             	}
             }
         }
@@ -188,7 +189,7 @@ public class JiucuoController extends BasicController {
         return PageConst.JIUCUO_LIST;
     }
 
-    @RequiresRoles(value = {"jiucuoadmin", "media", "customer"}, logical = Logical.OR)
+    @RequiresRoles(value = {"jiucuoadmin", "media", "customer", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/detail")
     public String showDetail(Model model, HttpServletRequest request,
                              @RequestParam(value = "id", required = false) Integer id) {

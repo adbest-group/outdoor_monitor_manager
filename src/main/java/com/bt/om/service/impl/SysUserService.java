@@ -16,6 +16,7 @@ import com.bt.om.entity.SysUserDetail;
 import com.bt.om.entity.SysUserRes;
 import com.bt.om.entity.SysUserRole;
 import com.bt.om.entity.vo.SysUserVo;
+import com.bt.om.entity.vo.UserRoleVo;
 import com.bt.om.mapper.SysUserDetailMapper;
 import com.bt.om.mapper.SysUserMapper;
 import com.bt.om.mapper.SysUserResMapper;
@@ -94,6 +95,11 @@ public class SysUserService implements ISysUserService {
 	public List<SysUserVo> getAllByUserType(Integer userType) {
 		return sysUserMapper.getAllByUserType(userType);
 	}
+	
+	@Override
+	public List<SysUser> getIdNameByUserType(Integer userType) {
+		return sysUserMapper.getIdNameByUserType(userType);
+	}
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
@@ -133,7 +139,44 @@ public class SysUserService implements ISysUserService {
 	public int deleteUserById(Integer id) {
 		return sysUserMapper.deleteByPrimaryKey(id);
 	}
-
+	
+	/**
+	 * 直接删除员工-组之间的关系
+	 */
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public int deleteUserRess(SysUserRes sysUserRes, UserRoleVo userRoleVo) {
+		//[1] 更新不在组内的员工角色信息
+		if(userRoleVo.getUserIds().size() > 0) {
+			sysUserRoleMapper.updateUserRole(userRoleVo);
+    	}
+		//[2] 批量删除操作
+		return sysUserResMapper.deleteByResIdAndType(sysUserRes);
+	}
+	
+	/**
+	 * 更改员工-组之间的关系
+	 */
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public int updateUserRess(List<SysUserRes> sysUserRess, SysUserRes sysUserRes, UserRoleVo userRoleVo, UserRoleVo userRoleVo2) {
+		//[1] 更新还在组内的员工角色信息
+		if(userRoleVo.getUserIds().size() > 0) {
+    		sysUserRoleMapper.updateUserRole(userRoleVo);
+    	}
+		//[2] 更新不在组内的员工角色信息
+		if(userRoleVo2.getUserIds().size() > 0) {
+			sysUserRoleMapper.updateUserRole(userRoleVo2);
+    	}
+		//[3] 批量删除操作
+		sysUserResMapper.deleteByResIdAndType(sysUserRes);
+		//[4] 批量插入操作
+		return sysUserResMapper.insertUserRess(sysUserRess);
+	}
+	
+	/**
+	 * 更改广告商-组之间的关系
+	 */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public int insertUserRess(List<SysUserRes> sysUserRess, SysUserRes sysUserRes) {
@@ -141,6 +184,16 @@ public class SysUserService implements ISysUserService {
 		sysUserResMapper.deleteByResIdAndType(sysUserRes);
 		//[2] 批量插入操作
 		return sysUserResMapper.insertUserRess(sysUserRess);
+	}
+	
+	/**
+	 * 直接删除广告商-组之间的关系
+	 */
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public int deleteCustomerRess(SysUserRes sysUserRes) {
+		//[1] 批量删除操作
+		return sysUserResMapper.deleteByResIdAndType(sysUserRes);
 	}
 
 	@Override
@@ -156,6 +209,11 @@ public class SysUserService implements ISysUserService {
 		searchMap.put("resId", groupId);
 		List<Integer> customerIds = sysUserResMapper.selectCustomerIdsByResId(searchMap);
 		return customerIds;
+	}
+
+	@Override
+	public List<Integer> selectUserIdsByResIds(Map<String, Object> searchMap) {
+		return sysUserResMapper.selectUserIdsByResIds(searchMap);
 	}
 
 }

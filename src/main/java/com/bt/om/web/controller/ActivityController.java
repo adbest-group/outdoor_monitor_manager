@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -137,8 +138,9 @@ public class ActivityController extends BasicController {
             			iterator.remove();
             		}
             	}
-//            	vo.setCount(activities.size());
-//            	vo.setSize(activities.size());
+            	vo.setCount(activities.size());
+            	vo.setSize(20);
+            	vo.setStart(0);
             	vo.setList(activities);
             } else {
             	//条数等于0, 新查询1条或者0条没人认领的未确认活动(需要匹配 员工 - 组 - 广告商 之间的关系)
@@ -149,9 +151,10 @@ public class ActivityController extends BasicController {
             		searchMap.put("customerIds", customerIds);
             		searchMap.put("assessorId", userObj.getId());
             		List<AdActivity> atimeActivity = adActivityService.getAtimeActivity(searchMap);
-//            		vo.setCount(atimeActivity.size());
+            		vo.setCount(atimeActivity.size());
+                	vo.setSize(20);
+                	vo.setStart(0);
                 	vo.setList(atimeActivity);
-//                	vo.setSize(atimeActivity.size());
             	}
             }
         }
@@ -161,8 +164,7 @@ public class ActivityController extends BasicController {
         return PageConst.ACTIVITY_LIST;
     }
 
-    @RequiresRoles("activityadmin")
-    
+    @RequiresRoles(value = {"activityadmin", "depactivityadmin", "superadmin"}, logical = Logical.OR)
     //前往编辑活动
     @RequestMapping(value = "/edit")
     public String customerEdit(Model model, HttpServletRequest request,

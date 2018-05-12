@@ -2,6 +2,7 @@ package com.bt.om.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,14 +47,7 @@ public class SysGroupService implements ISysGroupService{
 	}
 
 	@Override
-	public List<SysResources> selectById(Integer id) {
-		// TODO Auto-generated method stub
-		return sysResourcesMapper.findGroupById(id);
-	}
-
-	@Override
 	public SysResources getById(Integer id) {
-		// TODO Auto-generated method stub
 		 return sysResourcesMapper.selectByPrimaryKey(id);
 	}
 
@@ -85,13 +79,16 @@ public class SysGroupService implements ISysGroupService{
 
 	@Override
 	public List<SysUser> selectNoUserName(Integer groupId) {
-		// TODO Auto-generated method stub
 		return sysUserMapper.findNoUserName(groupId);
 	}
 
 	@Override
-	public List<SysUser> selectNoCustomerName(Integer groupId) {
-		// TODO Auto-generated method stub
-		return sysUserMapper.findNoCustomerName(groupId);
+	public List<SysUser> selectNoCustomerName(Map<String, Object> searchMap) {
+		return sysUserMapper.findNoCustomerName(searchMap);
+	}
+
+	@Override
+	public List<Integer> selectGroupIdsByDepartmentId(Integer parentId) {
+		return sysResourcesMapper.selectGroupIdsByDepartmentId(parentId);
 	}
 }

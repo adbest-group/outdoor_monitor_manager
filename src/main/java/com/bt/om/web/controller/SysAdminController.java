@@ -1,10 +1,14 @@
 package com.bt.om.web.controller;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +22,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
+import com.bt.om.entity.SysResources;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserDetail;
 import com.bt.om.entity.SysUserRole;
 import com.bt.om.enums.ResultCode;
+import com.bt.om.enums.SessionKey;
+import com.bt.om.security.ShiroUtils;
+import com.bt.om.service.ISysGroupService;
+import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -33,15 +42,23 @@ public class SysAdminController {
 
 	@Autowired
 	private ISysUserService sysUserService;
+	@Autowired
+	private ISysGroupService sysGroupService;
+	@Autowired
+	private ISysResourcesService sysResourcesService;
 	
 	/**
 	 * 查询admin账号列表
 	 */
-	@RequiresRoles("departmentadmin")
+	@RequiresRoles(value = {"departmentadmin", "depactivityadmin", "deptaskadmin", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/list")
     public String departmentLeaderList(Model model, HttpServletRequest request,
                                @RequestParam(value = "name", required = false) String name) {
         SearchDataVo vo = SearchUtil.getVo();
+        
+        //获取登录用户信息
+        SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        
         //查询admin名称
         if (name != null) {
         	name = "%" + name + "%";
@@ -49,10 +66,25 @@ public class SysAdminController {
         }
         Integer usertype = 1;
         vo.putSearchParam("usertype", usertype.toString(), usertype);
+        
+        if(user.getUsertype() == 4) {
+        	//超级管理员登录, 不做任何限制
+        } else if(user.getUsertype() == 5) {
+        	//部门领导登录, 只能查本部门下的所有员工信息
+        	SysResources department = sysResourcesService.getByUserId(user.getId()); //通过部门领导账号的id查询出他管理的部门信息
+        	List<Integer> groupIds = sysGroupService.selectGroupIdsByDepartmentId(department.getId()); //通过部门id查询出下面所有的组的id
+        	Map<String, Object> searchMap = new HashMap<>();
+        	searchMap.put("type", 1);
+        	searchMap.put("resIds", groupIds);
+        	List<Integer> userIds = sysUserService.selectUserIdsByResIds(searchMap);
+        	vo.putSearchParam("ids", "ids", userIds);
+        }
+        
         sysUserService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
         return PageConst.DEPARMENT_ADMIN_USER_LIST;
     }
+	
 	/**
      * 新增admin页面跳转
      */
@@ -64,7 +96,7 @@ public class SysAdminController {
 	/**
      * 编辑admin账号 页面跳转
      **/
-    @RequiresRoles("departmentadmin")
+    @RequiresRoles(value = {"departmentadmin", "depactivityadmin", "deptaskadmin", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/adminEdit")
     public String gotoEditPage(Model model, HttpServletRequest request,
                          @RequestParam(value = "id", required = false) Integer id) {
@@ -75,10 +107,11 @@ public class SysAdminController {
         }
         return PageConst.DEPARMENT_ADMIN_USER_EDIT;
     }
+    
     /**
      * 保存admin账号
      **/
-    @RequiresRoles("departmentadmin")
+    @RequiresRoles(value = {"departmentadmin", "depactivityadmin", "deptaskadmin", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = {"/adminSave"}, method = {RequestMethod.POST})
     @ResponseBody
     public Model addInfo(Model model, SysUser sysUser, String oldPassword, HttpServletRequest request) {
@@ -132,10 +165,11 @@ public class SysAdminController {
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }
+    
     /**
      * 修改admin账号状态： 可用, 不可用
      **/
-    @RequiresRoles("departmentadmin")
+    @RequiresRoles(value = {"departmentadmin", "depactivityadmin", "deptaskadmin", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/adminStatus")
     @ResponseBody
     public Model updateStatus(Model model, Integer id, SysUser status) {

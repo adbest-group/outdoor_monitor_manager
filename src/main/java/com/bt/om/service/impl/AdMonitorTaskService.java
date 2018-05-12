@@ -1,23 +1,35 @@
 package com.bt.om.service.impl;
 
-import com.bt.om.entity.*;
-import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
-import com.bt.om.entity.vo.AdMonitorTaskVo;
-import com.bt.om.entity.vo.AllAdMonitorTaskVo;
-import com.bt.om.enums.*;
-import com.bt.om.mapper.*;
-import com.bt.om.service.IAdMonitorTaskService;
-import com.bt.om.util.GeoUtil;
-import com.bt.om.util.StringUtil;
-import com.bt.om.vo.web.SearchDataVo;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import com.bt.om.entity.AdJiucuoTask;
+import com.bt.om.entity.AdMonitorReward;
+import com.bt.om.entity.AdMonitorTask;
+import com.bt.om.entity.AdMonitorTaskFeedback;
+import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
+import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.entity.vo.AllAdMonitorTaskVo;
+import com.bt.om.enums.MonitorTaskStatus;
+import com.bt.om.enums.MonitorTaskType;
+import com.bt.om.enums.RewardTaskType;
+import com.bt.om.enums.RewardType;
+import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.mapper.AdJiucuoTaskMapper;
+import com.bt.om.mapper.AdMonitorRewardMapper;
+import com.bt.om.mapper.AdMonitorTaskFeedbackMapper;
+import com.bt.om.mapper.AdMonitorTaskMapper;
+import com.bt.om.mapper.AdSeatInfoMapper;
+import com.bt.om.service.IAdMonitorTaskService;
+import com.bt.om.vo.web.SearchDataVo;
 
 /**
  * Created by caiting on 2018/1/20.
@@ -334,20 +346,60 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 
 	@Override
 	public void getPageDataAllTask(SearchDataVo vo) {
-	     int count = adMonitorTaskMapper.getPageCountAllTask(vo.getSearchMap());
-	        vo.setCount(count);
-	        if (count > 0) {
-	            vo.setList(adMonitorTaskMapper.getPageDataAllTask(vo.getSearchMap(), new RowBounds(vo.getStart(), vo.getSize())));
-	        } else {
-	            vo.setList(new ArrayList<AllAdMonitorTaskVo>());
-	        }
-	    }
+		int count = adMonitorTaskMapper.getPageCountAllTask(vo.getSearchMap());
+        vo.setCount(count);
+        if (count > 0) {
+            vo.setList(adMonitorTaskMapper.getPageDataAllTask(vo.getSearchMap(), new RowBounds(vo.getStart(), vo.getSize())));
+        } else {
+            vo.setList(new ArrayList<AllAdMonitorTaskVo>());
+        }
+    }
 
 	@Override
-	public void getPageAtimeTask(SearchDataVo vo) {
-		List<AllAdMonitorTaskVo> taskTen=adMonitorTaskMapper.getAtimeTask(vo.getSearchMap());
-		
+	public List<AdMonitorTaskVo> selectAllByAssessorId(Map<String, Object> searchMap) {
+		return adMonitorTaskMapper.selectAllByAssessorId(searchMap);
 	}
 	
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public List<AdMonitorTaskVo> getTenAdMonitorTaskVo(Map<String, Object> searchMap) {
+		//[1] 查询 for update
+		Integer assessorId = (Integer) searchMap.get("assessorId");
+		List<AdMonitorTaskVo> taskVos = adMonitorTaskMapper.getTenAdMonitorTaskVo(searchMap);
+		List<Integer> ids = new ArrayList<>();
+		for (AdMonitorTaskVo adMonitorTaskVo : taskVos) {
+			ids.add(adMonitorTaskVo.getId());
+			adMonitorTaskVo.setAssessorId(assessorId);
+		}
+		//[2] 更新 update
+		searchMap.clear();
+		searchMap.put("assessorId", assessorId);
+		searchMap.put("ids", ids);
+		if(ids.size() > 0) {
+			adMonitorTaskMapper.updateAssessorId(searchMap);
+		}
+		return taskVos;
+	}
+	
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public List<AdMonitorTaskVo> getTenAdMonitorTaskAssignVo(Map<String, Object> searchMap) {
+		//[1] 查询 for update
+		Integer assignorId = (Integer) searchMap.get("assignorId");
+		List<AdMonitorTaskVo> taskVos = adMonitorTaskMapper.getTenAdMonitorTaskVo(searchMap);
+		List<Integer> ids = new ArrayList<>();
+		for (AdMonitorTaskVo adMonitorTaskVo : taskVos) {
+			ids.add(adMonitorTaskVo.getId());
+			adMonitorTaskVo.setAssignorId(assignorId);
+		}
+		//[2] 更新 update
+		searchMap.clear();
+		searchMap.put("assignorId", assignorId);
+		searchMap.put("ids", ids);
+		if(ids.size() > 0) {
+			adMonitorTaskMapper.updateAssignorId(searchMap);
+		}
+		return taskVos;
+	}
 
 }

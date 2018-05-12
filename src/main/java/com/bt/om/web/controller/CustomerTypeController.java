@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -36,7 +37,7 @@ public class CustomerTypeController {
 	/**
      * 客户类型展示
      */
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = "/list")
     public String resourceDetailPage(Model model, HttpServletRequest request,
                                      @RequestParam(value = "name", required = false) String name) {
@@ -65,7 +66,7 @@ public class CustomerTypeController {
     /**
      * 编辑客户类型 页面跳转
      **/
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = "/edit")
     public String gotoEditPage(Model model, HttpServletRequest request,
                          @RequestParam(value = "id", required = false) Integer id) {
@@ -80,7 +81,7 @@ public class CustomerTypeController {
     /**
      * 保存广告位
      **/
-    @RequiresRoles("admin")
+    @RequiresRoles(value = {"admin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/save")
     @ResponseBody
     public Model addInfo(Model model, AdCustomerType customerType, HttpServletRequest request) {

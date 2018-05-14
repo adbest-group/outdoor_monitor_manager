@@ -474,7 +474,7 @@
             onError:"活动名称不能为空，请输入"
         }).inputValidator({
             min: 1,
-            max: 30,
+            max: 60,
             onError: "请输入活动名称，30字以内"
         });
 

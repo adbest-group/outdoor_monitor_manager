@@ -97,6 +97,24 @@
                         </tr>
                         
                         <tr>
+                            <td class="a-title"><font class="s-red">*</font>媒体大类：</td>
+                            <td><input type="text" disabled style="width: 130px;" id="location" name="location"
+                                       value="<#if (adSeatInfo?exists)>${adSeatInfo.parentName!""}</#if>"
+                                       autocomplete="off" class="form-control">
+                                <span id="locationTip"></span>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="a-title"><font class="s-red">*</font>媒体小类：</td>
+                            <td><input type="text" disabled style="width: 130px;" id="location" name="location"
+                                       value="<#if (adSeatInfo?exists)>${adSeatInfo.secondName!""}</#if>"
+                                       autocomplete="off" class="form-control">
+                                <span id="locationTip"></span>
+                            </td>
+                        </tr>
+                        
+                        <tr>
 							<td class="a-title"><font class="s-red">*</font>唯一标识：</td>
 							<td><input type="text" style="width: 130px;" id="uniqueKey" name="uniqueKey" value="<#if (adSeatInfo?exists)>${adSeatInfo.uniqueKey!""}</#if>"
 								autocomplete="off" class="form-control">
@@ -185,6 +203,15 @@
 							<td><input type="text" style="width: 130px;" id="memo" name="memo" value="<#if (adSeatInfo?exists)>${adSeatInfo.memo!""}</#if>"
 								autocomplete="off" class="form-control">
                                 <span id="memoTip"></span>
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="a-title"><font class="s-red">*</font>二维码：</td>
+							<td>
+								<#if (adSeatInfo?exists && adSeatInfo.adCodeUrl?exists)>
+									<img src="<#if (adSeatInfo?exists)>${adSeatInfo.adCodeUrl!""}</#if>" height="200" width="200" />
+								</#if>
 							</td>
 						</tr>
                         

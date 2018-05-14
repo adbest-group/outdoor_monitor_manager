@@ -509,7 +509,7 @@
 
     <select id="getTaskDetails" resultMap="ExtResultMap">
 		select
-		task.id,task.parent_id,task.parent_type,task.task_type,task.monitor_date,task.monitor_last_days,
+			task.id,task.parent_id,task.parent_type,task.task_type,task.monitor_date,task.monitor_last_days,
 			activity.`activity_name`,
 			activity.`start_time`, 
 			activity.`end_time`, 

@@ -239,8 +239,6 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
 
-
-
   <resultMap id="ExtResultMap" extends="BaseResultMap" type="com.bt.om.entity.vo.SysUserVo">
     <result column="telephone" jdbcType="INTEGER" property="telephone" />
     <collection property="menuList" column="username" javaType="list" select="com.bt.om.mapper.SysMenuMapper.findMenuListByUsername"></collection>

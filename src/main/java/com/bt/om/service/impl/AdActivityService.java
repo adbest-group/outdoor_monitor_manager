@@ -147,7 +147,6 @@ public class AdActivityService implements IAdActivityService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void confirm(Integer id) {
-
         List<AdActivityAdseatVo> seats = adActivityAdseatMapper.selectByActivityId(id);
         List<AdMonitorTask> tasks = new ArrayList<>();
         for (AdActivityAdseatVo seat : seats) {

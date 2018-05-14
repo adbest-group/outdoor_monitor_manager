@@ -2455,14 +2455,18 @@ public class ApiController extends BasicController {
             }
         }
 
-        SysUserExecute user = getLoginUser(request, token);
-        Integer operateId = user.getOperateId(); //ad_activity的user_id
+        SysUserExecute user = getLoginUser(request, token); //APP登录的广告商
+        SysUserVo sysUserVo = sysUserService.findByUsername(user.getUsername()); //通过APP和后台用户同一个用户名的关系去查后台customer用户的信息
+//        Integer operateId = user.getOperateId(); //ad_activity的user_id
         SearchDataVo vo = new SearchDataVo(null, null, (page-1)*pageSize, pageSize);
-        vo.putSearchParam("userId", null, operateId);
+        vo.putSearchParam("userId", null, sysUserVo.getId());
         
         //分页查询广告商的活动信息
         List<CustomerActivityReport> reports = new ArrayList<>();
         adActivityService.selectReportPageData(vo);
+        //设置总页数
+        int totalCount = (int) ((vo.getCount() + pageSize - 1) / pageSize);
+        
         for(Object obj : vo.getList()){
         	AdActivity activity = (AdActivity) obj;
         	CustomerActivityReport report = new CustomerActivityReport();
@@ -2502,6 +2506,7 @@ public class ApiController extends BasicController {
         
         result.setResult(reports);
 
+        model.addAttribute("totalCount", totalCount);
         model.addAttribute(SysConst.RESULT_KEY, result);
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");

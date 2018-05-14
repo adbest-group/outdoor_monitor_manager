@@ -395,6 +395,20 @@
                 var activityName = $("#activityName").val(); //活动名
                 var startDate = $("#dts").val(); //投放开始时间
                 var endDate = $("#dt").val(); //投放结束时间
+                
+                var startTime = new Date(startDate);
+                var time1 = startTime.getTime();
+                var endTime = new Date(endDate);
+                var time2 = endTime.getTime();
+                
+                if((time2 - time1) < 2*24*60*60*1000) {
+                	layer.confirm("投放时间间隔至少3天", {
+                        icon: 2,
+                        btn: ['确定'] //按钮
+                    });
+                	return ;
+                }
+                
                 var province = $("#province").val();//省
                 var city = $("#city").val();
                 var region = $("#region").val();

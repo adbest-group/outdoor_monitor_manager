@@ -33,7 +33,7 @@
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>广告位名称：</td>
                             <td>
-                                <input type="text" disabled value="<#if (adSeatInfo?exists)>${adSeatInfo.name!""}</#if>"
+                                <input type="text" <#-- disabled --> value="<#if (adSeatInfo?exists)>${adSeatInfo.name!""}</#if>"
                                        style="width: 130px;" id="name" name="name" autocomplete="off"
                                        class="form-control">
                                 <span id="nameTip"></span>
@@ -50,7 +50,7 @@
 
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>广告位置：</td>
-                            <td><input type="text" disabled style="width: 130px;" id="location" name="location"
+                            <td><input type="text" <#-- disabled --> style="width: 130px;" id="location" name="location"
                                        value="<#if (adSeatInfo?exists)>${adSeatInfo.location!""}</#if>"
                                        autocomplete="off" class="form-control">
                                 <span id="locationTip"></span>
@@ -107,11 +107,11 @@
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>广告位尺寸：</td>
                             <td>
-                                <input type="text" disabled style="width: 60px;"
+                                <input type="text" <#-- disabled --> style="width: 60px;"
                                        value="<#if (adSeatInfo?exists)>${adSeatInfo.width!""}</#if>" id="width"
                                        name="width" autocomplete="off" class="form-control">
                                 *
-                                <input type="text" disabled style="width: 60px;"
+                                <input type="text" <#-- disabled --> style="width: 60px;"
                                        value="<#if (adSeatInfo?exists)>${adSeatInfo.height!""}</#if>" id="height"
                                        name="height" autocomplete="off" class="form-control">
 
@@ -132,7 +132,7 @@
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>广告位经度：</td>
                             <td>
-                                <input type="text" disabled style="width: 130px;" id="lon"
+                                <input type="text" <#-- disabled --> style="width: 130px;" id="lon"
                                        value="<#if (adSeatInfo?exists)>${adSeatInfo.lon!""}</#if>" name="lon"
                                        autocomplete="off" class="form-control">
 
@@ -142,7 +142,7 @@
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>广告位纬度：</td>
                             <td>
-                                <input type="text" disabled style="width: 130px;" id="lat"
+                                <input type="text" <#-- disabled --> style="width: 130px;" id="lat"
                                        value="<#if (adSeatInfo?exists)>${adSeatInfo.lat!""}</#if>" name="lat"
                                        autocomplete="off" class="form-control">
 

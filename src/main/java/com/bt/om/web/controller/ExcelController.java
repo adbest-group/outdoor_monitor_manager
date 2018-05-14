@@ -209,7 +209,11 @@ public class ExcelController extends BasicController {
 				list.add(mediaTypeMap.get(vo.getInfo_mediaTypeParentId())); //媒体大类 19
 				list.add(mediaTypeMap.get(vo.getInfo_mediaTypeId())); //媒体小类 20
 				list.add(vo.getMediaName()); //媒体名称21
-				list.add(customerType.getName()); //客户类型22
+				if(customerType != null) {
+					list.add(customerType.getName()); //客户类型22
+				} else {
+					list.add(null); //客户类型22
+				}
 				
 				map.put(vo.getId(), list); //ad_activity_adseat的id
 				listString.add(list);
@@ -229,13 +233,15 @@ public class ExcelController extends BasicController {
             	activityAdseatIds.add(task.getActivityAdseatId()); //ad_activity_adseat的id
 			}
             //查询上述监测任务有效的一条反馈
-            List<AdMonitorTaskFeedback> taskFeedbacks = adMonitorTaskService.selectByActivity(ids);
-            for (AdMonitorTaskFeedback feedback : taskFeedbacks) {
-            	//生成广告位图片信息页, 没个广告位一页
-    			document.newPage();
-    			List<String> list = map.get(activityAdseatIds.get(ids.indexOf(feedback.getMonitorTaskId())));
-    			createPage(document, list, feedback, request);
-			}
+            if(ids.size() > 0) {
+            	List<AdMonitorTaskFeedback> taskFeedbacks = adMonitorTaskService.selectByActivity(ids);
+                for (AdMonitorTaskFeedback feedback : taskFeedbacks) {
+                	//生成广告位图片信息页, 每个广告位一页
+        			document.newPage();
+        			List<String> list = map.get(activityAdseatIds.get(ids.indexOf(feedback.getMonitorTaskId())));
+        			createPage(document, list, feedback, request);
+    			}
+            }
 		} catch (Exception e) {
 			logger.error(MessageFormat.format("批量导出pdf失败", new Object[] {}));
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());

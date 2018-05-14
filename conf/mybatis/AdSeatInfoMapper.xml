@@ -18,6 +18,7 @@
 		<result column="media_type_id" property="mediaTypeId" jdbcType="INTEGER" />
 		<result column="unique_key" property="uniqueKey" jdbcType="VARCHAR" />
 		<result column="ad_code" property="adCode" jdbcType="VARCHAR" />
+		<result column="ad_code_url" property="adCodeUrl" jdbcType="VARCHAR" />
 		<result column="location" property="location" jdbcType="VARCHAR" />
 		<result column="ad_size" property="adSize" jdbcType="VARCHAR" />
 		<result column="ad_area" property="adArea" jdbcType="VARCHAR" />
@@ -40,7 +41,7 @@
 			13:48:16 CST 2018. -->
 		id, name, province, city, region, street, media_id, ad_seat_type, ad_seat_type_text,
 		media_type_parent_id, media_type_id, unique_key,
-		ad_code, location,
+		ad_code, ad_code_url, location,
 		ad_size, ad_area, pv, private_car_pv, bus_pv, lon, lat, map_standard,
 		contact_name, contact_cell,
 		create_time, update_time, memo
@@ -73,7 +74,7 @@
 		city, region, street,
 		media_id, ad_seat_type, ad_seat_type_text,
 		media_type_parent_id, media_type_id, unique_key,
-		ad_code,
+		ad_code, ad_code_url,
 		location, ad_size, ad_area, pv,
 		private_car_pv,
 		bus_pv, lon,
@@ -87,7 +88,7 @@
 		#{region,jdbcType=BIGINT}, #{street,jdbcType=BIGINT},
 		#{mediaId,jdbcType=INTEGER}, #{adSeatType,jdbcType=INTEGER}, #{adSeatTypeText,jdbcType=VARCHAR},
 		#{mediaTypeParentId,jdbcType=INTEGER}, #{mediaTypeId,jdbcType=INTEGER}, #{uniqueKey,jdbcType=VARCHAR},
-		#{adCode,jdbcType=VARCHAR},
+		#{adCode,jdbcType=VARCHAR},#{adCodeUrl,jdbcType=VARCHAR},
 		#{location,jdbcType=VARCHAR},
 		#{adSize,jdbcType=VARCHAR}, #{adArea,jdbcType=VARCHAR}, #{pv,jdbcType=INTEGER},
 		#{privateCarPv,jdbcType=INTEGER}, #{busPv,jdbcType=INTEGER},
@@ -142,6 +143,9 @@
 			</if>
 			<if test="adCode != null">
 				ad_code,
+			</if>
+			<if test="adCodeUrl != null">
+				ad_code_url,
 			</if>
 			<if test="location != null">
 				location,
@@ -225,6 +229,9 @@
 			</if>
 			<if test="adCode != null">
 				#{adCode,jdbcType=VARCHAR},
+			</if>
+			<if test="adCodeUrl != null">
+				#{adCodeUrl,jdbcType=VARCHAR},
 			</if>
 			<if test="location != null">
 				#{location,jdbcType=VARCHAR},
@@ -313,6 +320,9 @@
 			<if test="adCode != null">
 				ad_code = #{adCode,jdbcType=VARCHAR},
 			</if>
+			<if test="adCodeUrl != null">
+				ad_code_url = #{adCodeUrl,jdbcType=VARCHAR},
+			</if>
 			<if test="location != null">
 				location = #{location,jdbcType=VARCHAR},
 			</if>
@@ -374,6 +384,7 @@
 		ad_seat_type =
 		#{adSeatType,jdbcType=INTEGER},
 		ad_code = #{adCode,jdbcType=VARCHAR},
+		ad_code_url = #{adCodeUrl,jdbcType=VARCHAR},
 		location = #{location,jdbcType=VARCHAR},
 		ad_size =
 		#{adSize,jdbcType=VARCHAR},
@@ -441,7 +452,7 @@
 		select
 			a.id, a.name, a.province, a.city, a.region, a.street, a.media_id, a.ad_seat_type, a.ad_seat_type_text,
 			a.media_type_parent_id, a.media_type_id, a.unique_key,
-			a.ad_code, a.location,
+			a.ad_code, a.ad_code_url, a.location,
 			a.ad_size, a.ad_area, a.pv, a.private_car_pv, a.bus_pv, a.lon, a.lat, a.map_standard,
 			a.contact_name, a.contact_cell,
 			a.create_time, a.update_time, a.memo,
@@ -495,11 +506,11 @@
 			a.media_type_id,
 			a.unique_key,
 			a.ad_code,
+			a.ad_code_url,
 			a.location,
 			a.ad_size,
 			a.ad_area,
 			a.pv,
-			c.name as typename,
 			a.private_car_pv,
 			a.bus_pv,
 			a.lon,
@@ -509,18 +520,20 @@
 			a.contact_cell,
 			a.memo,
 			b.id as mediaid,
-			c.id as typeid
+			c.name as parentName,
+			d.name as secondName
 		from
 			ad_seat_info as a
 			left join ad_media as b on a.media_id=b.id
-			left join ad_seat_type as c on a.ad_seat_type=c.id
+			left join ad_media_type c on a.media_type_parent_id=c.id
+			left join ad_media_type d on a.media_type_id=d.id
 		where a.id=#{id,jdbcType=INTEGER}
 	</select>
 
 	<select id="getAdSeatInfoByStreetAndMediaUserId" resultMap="BaseResultMap">
 		select a.id, a.name, a.province, a.city, a.region, a.street, a.media_id, a.ad_seat_type, a.ad_seat_type_text,
 		a.media_type_parent_id, a.media_type_id, a.unique_key,
-		a.ad_code, a.location,
+		a.ad_code, a.ad_code_url, a.location,
 		a.ad_size, a.ad_area, a.pv, a.private_car_pv, a.bus_pv, a.lon, a.lat,
 		a.map_standard, a.contact_name, a.contact_cell,
 		a.create_time, a.update_time, a.memo
@@ -534,7 +547,7 @@
 	<select id="getAdSeatInfoByAdActivitySeatId" resultMap="BaseResultMap">
 		select a.id, a.name, a.province, a.city, a.region, a.street, a.media_id, a.ad_seat_type, a.ad_seat_type_text,
 		a.media_type_parent_id, a.media_type_id, a.unique_key,
-		a.ad_code, a.location,
+		a.ad_code, a.ad_code_url, a.location,
 		a.ad_size, a.ad_area, a.pv, a.private_car_pv, a.bus_pv, a.lon, a.lat,
 		a.map_standard, a.contact_name, a.contact_cell,
 		a.create_time, a.update_time, a.memo
@@ -554,7 +567,7 @@
 		city, region, street,
 		media_id, ad_seat_type, ad_seat_type_text, 
 		media_type_parent_id, media_type_id, unique_key,
-		ad_code,
+		ad_code, ad_code_url,
 		location, ad_size, ad_area, pv,
 		private_car_pv,
 		bus_pv, lon,
@@ -574,6 +587,7 @@
 			#{info.mediaTypeId,jdbcType=INTEGER},
 			#{info.uniqueKey,jdbcType=VARCHAR},
 			#{info.adCode,jdbcType=VARCHAR},
+			#{info.adCodeUrl,jdbcType=VARCHAR},
 			#{info.location,jdbcType=VARCHAR},
 			#{info.adSize,jdbcType=VARCHAR}, #{info.adArea,jdbcType=VARCHAR}, #{info.pv,jdbcType=INTEGER},
 			#{info.privateCarPv,jdbcType=INTEGER}, #{info.busPv,jdbcType=INTEGER},

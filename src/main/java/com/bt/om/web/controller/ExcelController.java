@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,6 +45,7 @@ import com.bt.om.entity.City;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
 import com.bt.om.entity.vo.AdMediaTypeVo;
+import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.AdMediaInfoStatus;
 import com.bt.om.enums.ExcelImportFailEnum;
 import com.bt.om.enums.MapStandardEnum;
@@ -60,6 +62,7 @@ import com.bt.om.service.IAdSeatService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.util.ExcelTool;
 import com.bt.om.util.ImportExcelUtil;
+import com.bt.om.util.QRcodeUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.web.BasicController;
 import com.google.common.collect.HashBasedTable;
@@ -381,13 +384,16 @@ public class ExcelController extends BasicController {
     	SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
     	user = sysUserService.findUserinfoById(user.getId());
     	AdMedia media = new AdMedia();
+    	SysUserVo mediaUser = new SysUserVo();
 		Integer usertype = user.getUsertype();
-		if(usertype == 1) {
+		if(usertype == 4 || usertype == 5 || usertype == 1) {
 			//后台管理人员帮助媒体导入
 			media = adMediaMapper.selectByPrimaryKey(mediaId);
+			mediaUser = sysUserService.findUserinfoById(media.getUserId());
 		} else if (usertype == 3) {
 			//媒体人员自行导入
 			media = adMediaMapper.selectByUserId(user.getId());
+			mediaUser = sysUserService.findUserinfoById(media.getUserId());
 		}
 		
 		//获取需要插入广告位信息的媒体已经存在的广告位信息
@@ -763,6 +769,13 @@ public class ExcelController extends BasicController {
                 	if(!StringUtils.equals(String.valueOf(lo.get(18)), importFail)) {
                 		//导入成功
                 		lo.set(18, importSucc);
+                		//生成广告位对应的二维码
+                		String adCodeInfo = mediaUser.getPrefix() + UUID.randomUUID(); //二维码存的值（媒体前缀比如media3- 加上UUID随机数）
+                		String path = request.getSession().getServletContext().getRealPath("/");
+                		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"qrcode"+File.separatorChar+adCodeInfo + ".jpg";
+                		QRcodeUtil.encode(adCodeInfo, path);
+                		info.setAdCode(adCodeInfo);
+                		info.setAdCodeUrl("/static/qrcode/" + adCodeInfo + ".jpg");
                 		insertAdSeatInfos.add(info);
                 	}
                 } else {

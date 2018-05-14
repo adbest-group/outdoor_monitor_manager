@@ -613,6 +613,7 @@ public class AdSeatInfo {
     private Integer mediaTypeId;
     private String uniqueKey;
     private String memo;
+    private String adCodeUrl;
     
     public Integer getMapStandard() {
 		return mapStandard;
@@ -700,6 +701,14 @@ public class AdSeatInfo {
 
 	public void setMemo(String memo) {
 		this.memo = memo;
+	}
+	
+	public String getAdCodeUrl() {
+		return adCodeUrl;
+	}
+	
+	public void setAdCodeUrl(String adCodeUrl) {
+		this.adCodeUrl = adCodeUrl;
 	}
     
 }

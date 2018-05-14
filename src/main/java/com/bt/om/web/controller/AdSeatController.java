@@ -100,7 +100,6 @@ public class AdSeatController extends BasicController {
             vo.putSearchParam("mediaId", mediaId.toString(), mediaId);
         }
 
-
         adSeatService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
 
@@ -216,7 +215,8 @@ public class AdSeatController extends BasicController {
 
         ModelAndView mv = new ModelAndView(PageConst.ADSEAT_EDIT);
         if (id != null) {
-            AdSeatInfo adSeatInfo = adSeatService.getById(id);
+//            AdSeatInfo adSeatInfo = adSeatService.getById(id);
+        	AdSeatInfoVo adSeatInfoVo = resourceService.getAdSeatInfoById(id + "");
             List<AdCrowd> crowds = adSeatService.getCrowdsBySeatId(id);
             Table<Integer, Integer, String> crowdTable = HashBasedTable.create();
             if (crowds != null && crowds.size() > 0) {
@@ -232,7 +232,7 @@ public class AdSeatController extends BasicController {
             mv.addObject("crowdTable", new Gson().fromJson(crowdTable.toString(), JsonObject.class));
 //			request.setAttribute("crowdTable",crowdTable);
 
-            mv.getModel().put("adSeatInfo", adSeatInfo);
+            mv.getModel().put("adSeatInfo", adSeatInfoVo);
         }
 
         mv.getModel().put("agePartValues", AgePart.values());

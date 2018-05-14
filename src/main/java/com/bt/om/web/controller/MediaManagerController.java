@@ -73,18 +73,22 @@ public class MediaManagerController {
     @RequestMapping(value = "/task/list")
     public String getTaskList(Model model, HttpServletRequest request,
                               @RequestParam(value = "activityId", required = false) Integer activityId,
-//                              @RequestParam(value = "status", required = false) Integer status,
+                              @RequestParam(value = "status", required = false) Integer status,
                               @RequestParam(value = "startDate", required = false) String startDate,
                               @RequestParam(value = "endDate", required = false) String endDate) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
-
+        
+        if (status != null) {
+            vo.putSearchParam("status", status.toString(), status);
+        }
+        
         if (activityId != null) {
             vo.putSearchParam("activityId", activityId.toString(), activityId);
         }
 
         //只显示待指派的
-        vo.putSearchParam("status", null, MonitorTaskStatus.UNASSIGN.getId());
+       // vo.putSearchParam("status", null, MonitorTaskStatus.UNASSIGN.getId());
         //只显示上刊和下刊任务
 //        vo.putSearchParam("taskTypes", null, new Integer[]{MonitorTaskType.SET_UP_MONITOR.getId()});
         //只显示本媒体广告位的任务

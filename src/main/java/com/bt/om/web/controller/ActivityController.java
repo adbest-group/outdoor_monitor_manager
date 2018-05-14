@@ -87,6 +87,7 @@ public class ActivityController extends BasicController {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
         SearchDataVo vo = SearchUtil.getVo();
+        
         //获取登录的审核员工activityadmin
         SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         

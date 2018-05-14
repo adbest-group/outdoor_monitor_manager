@@ -41,29 +41,6 @@ import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
 import com.bt.om.web.util.SearchUtil;
 
-import org.apache.shiro.authz.annotation.Logical;
-import org.apache.shiro.authz.annotation.RequiresRoles;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ExtendedModelMap;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Random;
-
 /**
  * Created by caiting on 2018/1/20.
  */
@@ -188,8 +165,8 @@ public class ActivityController extends BasicController {
         return PageConst.ACTIVITY_LIST;
     }
 
-    @RequiresRoles(value = {"activityadmin", "depactivityadmin", "superadmin"}, logical = Logical.OR)
     //前往编辑活动
+    @RequiresRoles(value = {"activityadmin", "depactivityadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/edit")
     public String customerEdit(Model model, HttpServletRequest request,
                                @RequestParam(value = "id", required = false) Integer id) {
@@ -221,8 +198,7 @@ public class ActivityController extends BasicController {
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
-
-
+        
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }

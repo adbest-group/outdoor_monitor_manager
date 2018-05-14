@@ -2,6 +2,7 @@ package com.bt.om.web.controller;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.adtime.common.lang.StringUtil;
+import com.bt.om.common.DateUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdMedia;
@@ -339,7 +341,7 @@ public class MonitorTaskController extends BasicController {
         Map condition = Maps.newHashMap();
 
         //指派人员改成指派给媒体人员
-//        condition.put("usertype", 3); //3: 媒体监测人员
+        condition.put("usertype", 3); //3: 媒体监测人员
 
         if(mediaId!=null){
             AdMedia media = mediaService.getById(mediaId);
@@ -491,6 +493,11 @@ public class MonitorTaskController extends BasicController {
                 model.addAttribute("pjTask", adJiucuoTaskService.getVoById(vo.getParentId()));
             }
         }
+        
+        //重新设置监测时间段
+        vo.setMonitorsStart(vo.getMonitorDate());
+        long timestamp = vo.getMonitorDate().getTime() + (24*60*60*1000)* (vo.getMonitorLastDays() - 1);
+        vo.setMonitorsEnd(new Date(timestamp));
 
         if (vo != null && list != null) {
             model.addAttribute("vo", vo);

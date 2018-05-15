@@ -107,6 +107,14 @@ public class AdSeatService implements IAdSeatService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void modifyInfo(AdSeatInfo adSeatInfo) {
+        Date now = new Date();
+        adSeatInfo.setUpdateTime(now);
+        adSeatInfoMapper.updateByPrimaryKeySelective(adSeatInfo);
+    }
+    
+    @Override
     public void delete(Integer id) {
         adSeatInfoMapper.deleteByPrimaryKey(id);
     }

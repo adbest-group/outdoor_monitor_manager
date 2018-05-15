@@ -182,6 +182,15 @@ img.demo {
 							</tr>
 							
 							<tr>
+								<td class="a-title"><font class="s-red">*</font>二维码：</td>
+								<td>
+									<#if (adSeatInfo?exists && adSeatInfo.adCodeUrl?exists)>
+										<img src="<#if (adSeatInfo?exists)>${adSeatInfo.adCodeUrl!""}</#if>" height="200" width="200" />
+									</#if>
+								</td>
+							</tr>
+							
+							<tr>
 								<td></td>
 
 								<td rowspan="6" colspan="6">

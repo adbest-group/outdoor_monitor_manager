@@ -33,4 +33,5 @@ public interface IAdSeatService {
 	
 	public List<CountGroupByCityVo> getCountGroupByCity(HeatMapVo heatMapVo);
 	List<AdSeatInfo> getAllLonLat(HeatMapVo heatMapVo);
+	void modifyInfo(AdSeatInfo adSeatInfo);
 }

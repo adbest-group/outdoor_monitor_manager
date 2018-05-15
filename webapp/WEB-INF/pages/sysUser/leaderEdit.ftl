@@ -152,18 +152,35 @@ $(function() {
 		onShow:"　",
 		onFocus:"请输入用户名",
 		onCorrect:"　"
-	<#-- }).regexValidator({
-		regExp:"^\\S+$",
+	}).inputValidator({
+        min:1,
+		max:100,
 		onError:"用户名不能为空，请输入"
-	}); -->
-	  }).inputValidator({
-		        min:1,
-        		max:100,
-        		onError:"登录账户为邮箱格式，请重新输入"
-		    }).regexValidator({
-        		regExp:"^(\\w-*\\.*)+@(\\w-?)+(\\.\\w{2,})$",
-        		onError:"登录账户为邮箱格式，请重新输入"
-        });
+	}).regexValidator({
+		regExp:"^(\\w-*\\.*)+@(\\w-?)+(\\.\\w{2,})$",
+		onError:"登录用户名为邮箱格式，请重新输入"
+    }).ajaxValidator({
+		type: "post",
+        dataType: "json",
+        async: true,
+        url: "/customer/isExistsAccountName",
+        buttons: $("#button"),
+        success: function(result) {
+            if (result.ret.code == 100) {
+                return true;
+            }
+            return false;
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+     		layer.confirm("服务忙，请稍后再试", {
+				icon: 5,
+				btn: ['确定'] //按钮
+			});
+        },
+        onError: "已存在该登录用户名，请修改",
+        onWait: "正在对登录账户进行校验，请稍候..."
+    });
+    
 	// 真实名字
 	$("#realname").formValidator({
 		validatorGroup:"2",

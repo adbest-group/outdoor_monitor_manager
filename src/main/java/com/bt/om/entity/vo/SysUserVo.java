@@ -13,7 +13,7 @@ public class SysUserVo extends SysUser {
     private String telephone;
     private String prefix;
     private SysUserDetail userinfo;
-    
+    private String isOwn;
 
     public String getPrefix() {
         return prefix;
@@ -46,4 +46,12 @@ public class SysUserVo extends SysUser {
     public void setMenuList(List<SysMenuVo> menuList) {
         this.menuList = menuList;
     }
+    
+    public String getIsOwn() {
+		return isOwn;
+	}
+    
+    public void setIsOwn(String isOwn) {
+		this.isOwn = isOwn;
+	}
 }

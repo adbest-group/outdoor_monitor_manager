@@ -1,5 +1,6 @@
 package com.bt.om.web.controller;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +27,7 @@ import com.bt.om.entity.SysResources;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserDetail;
 import com.bt.om.entity.SysUserRole;
+import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.security.ShiroUtils;
@@ -56,6 +58,7 @@ public class SysAdminController {
                                @RequestParam(value = "name", required = false) String name) {
         SearchDataVo vo = SearchUtil.getVo();
         boolean flag = true;
+        List<Integer> userIds = new ArrayList<>();
         
         //获取登录用户信息
         SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
@@ -71,21 +74,31 @@ public class SysAdminController {
         if(user.getUsertype() == 4) {
         	//超级管理员登录, 不做任何限制
         } else if(user.getUsertype() == 5) {
-        	//部门领导登录, 只能查本部门下的所有员工信息
+        	//部门领导登录, 只能修改本部门下的所有员工信息
         	SysResources department = sysResourcesService.getByUserId(user.getId()); //通过部门领导账号的id查询出他管理的部门信息
         	List<Integer> groupIds = sysGroupService.selectGroupIdsByDepartmentId(department.getId()); //通过部门id查询出下面所有的组的id
         	Map<String, Object> searchMap = new HashMap<>();
         	searchMap.put("type", 1);
         	searchMap.put("resIds", groupIds);
-        	List<Integer> userIds = sysUserService.selectUserIdsByResIds(searchMap);
+        	userIds = sysUserService.selectUserIdsByResIds(searchMap); //管理的所有员工id集合
         	if(userIds.size() == 0) {
         		flag = false;
         	}
-        	vo.putSearchParam("ids", "ids", userIds);
+//        	vo.putSearchParam("ids", "ids", userIds);
         }
         
         if(flag == true) {
         	sysUserService.getPageData(vo);
+        	List<?> list = vo.getList(); //查询所有员工
+        	for (Object object : list) {
+				SysUserVo sysUserVo = (SysUserVo) object;
+				for (Integer userId : userIds) {
+					if(userId == sysUserVo.getId()) {
+						sysUserVo.setIsOwn("1"); //是自己管理的员工id
+						break;
+					}
+				}
+			}
         } else {
         	vo.setCount(0);
         	vo.setSize(20);
@@ -143,6 +156,14 @@ public class SysAdminController {
             	}
             	sysUserService.updatePasswordAndName(sysUser);
             } else {
+            	//获取登录用户信息
+                SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+                if(user.getUsertype() == 5) {
+                	//部门领导添加
+                	SysResources department = sysResourcesService.getByUserId(user.getId()); //通过部门领导账号的id查询出他管理的部门信息
+                	
+                }
+                
             	//[1] 插入sys_user
             	sysUser.setCreateTime(now);
             	sysUser.setUpdateTime(now);
@@ -161,6 +182,7 @@ public class SysAdminController {
             	sysUserRole.setPlatform(1);
             	sysUserRole.setUserId(sysUser.getId());
             	sysUserRole.setRoleId(100); //100: admin的role, 刚创建的admin员工角色为admin
+            	
             	sysUserRole.setCreateTime(now);
             	sysUserRole.setUpdateTime(now);
             	sysUserService.createDepartmentLeader(sysUser, sysUserDetail, sysUserRole);

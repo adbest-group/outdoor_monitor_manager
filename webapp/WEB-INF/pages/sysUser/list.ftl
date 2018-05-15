@@ -48,13 +48,15 @@
                          	
                             <td>${type.createTime?string('yyyy-MM-dd HH:mm:ss')}</td>
                             <td>
-                                <a href="javascript:void(0);" onclick="edit('${type.id}');">编辑</a>
-                                
-                                <#if type.status?exists && type.status == 1>
-                                	<a href="javascript:void(0);" onclick="updateStatus('${type.id}', 2);">不可用</a>
-                                </#if>
-                                <#if type.status?exists && type.status == 2>
-                            		<a href="javascript:void(0);" onclick="updateStatus('${type.id}', 1);">可用</a>
+                            	<#if type.isOwn?exists && type.isOwn == "1">
+                                	<a href="javascript:void(0);" onclick="edit('${type.id}');">编辑</a>
+                                	
+                                	<#if type.status?exists && type.status == 1>
+	                                	<a href="javascript:void(0);" onclick="updateStatus('${type.id}', 2);">不可用</a>
+	                                </#if>
+	                                <#if type.status?exists && type.status == 2>
+	                            		<a href="javascript:void(0);" onclick="updateStatus('${type.id}', 1);">可用</a>
+	                                </#if>
                                 </#if>
                             </td>
                         </tr>

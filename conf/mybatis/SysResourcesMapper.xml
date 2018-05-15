@@ -272,4 +272,30 @@
 		and parentId = #{parentId,jdbcType=INTEGER}
 	</select>
 
+	<update id="updateByPrimaryKeyUserIdNull" parameterType="com.bt.om.entity.SysResources">
+    update sys_resources
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="parentid != null">
+        parentId = #{parentid,jdbcType=INTEGER},
+      </if>
+      <if test="type != null">
+        type = #{type,jdbcType=VARCHAR},
+      </if>
+        user_id = #{userId,jdbcType=INTEGER},
+      <if test="departmentType != null">
+        department_type = #{departmentType,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
 </mapper>

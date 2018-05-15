@@ -126,6 +126,7 @@ $(function() {
 		onError:"部门名称不能为空，请输入"
 	});
 	
+	/**
 	// 部门领导check
     $("#departmentLeaderId").formValidator({
 		validatorGroup:"2",
@@ -139,6 +140,7 @@ $(function() {
 		regExp:"^\\S+$",
 		onError:"请选择部门领导"
 	});
+	**/
 });
             
 </script>

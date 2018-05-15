@@ -25,4 +25,6 @@ public interface ISysResourcesService {
     public int selectCountByUserId(Integer userId);
 
 	SysResources getByUserId(Integer userId);
+
+	void updateByPrimaryKeyUserIdNull(SysResources sysResources);
 }

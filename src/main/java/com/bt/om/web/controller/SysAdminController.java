@@ -57,7 +57,6 @@ public class SysAdminController {
     public String departmentLeaderList(Model model, HttpServletRequest request,
                                @RequestParam(value = "name", required = false) String name) {
         SearchDataVo vo = SearchUtil.getVo();
-        boolean flag = true;
         List<Integer> userIds = new ArrayList<>();
         
         //获取登录用户信息
@@ -81,29 +80,20 @@ public class SysAdminController {
         	searchMap.put("type", 1);
         	searchMap.put("resIds", groupIds);
         	userIds = sysUserService.selectUserIdsByResIds(searchMap); //管理的所有员工id集合
-        	if(userIds.size() == 0) {
-        		flag = false;
-        	}
 //        	vo.putSearchParam("ids", "ids", userIds);
         }
         
-        if(flag == true) {
-        	sysUserService.getPageData(vo);
-        	List<?> list = vo.getList(); //查询所有员工
-        	for (Object object : list) {
-				SysUserVo sysUserVo = (SysUserVo) object;
-				for (Integer userId : userIds) {
-					if(userId == sysUserVo.getId()) {
-						sysUserVo.setIsOwn("1"); //是自己管理的员工id
-						break;
-					}
+    	sysUserService.getPageData(vo);
+    	List<?> list = vo.getList(); //查询所有员工
+    	for (Object object : list) {
+			SysUserVo sysUserVo = (SysUserVo) object;
+			for (Integer userId : userIds) {
+				if(userId == sysUserVo.getId()) {
+					sysUserVo.setIsOwn("1"); //是自己管理的员工id
+					break;
 				}
 			}
-        } else {
-        	vo.setCount(0);
-        	vo.setSize(20);
-        	vo.setStart(0);
-        }
+		}
         SearchUtil.putToModel(model, vo);
         return PageConst.DEPARMENT_ADMIN_USER_LIST;
     }

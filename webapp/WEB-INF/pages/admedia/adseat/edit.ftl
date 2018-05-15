@@ -98,7 +98,7 @@ img.demo {
 							</tr>
 							
 							<tr>
-								<td class="a-title"><font class="s-red">*</font>唯一标识：</td>
+								<td class="a-title">唯一标识：</td>
 								<td><input type="text" style="width: 130px;" id="uniqueKey" name="uniqueKey" value="<#if (adSeatInfo?exists)>${adSeatInfo.uniqueKey!""}</#if>"
 									autocomplete="off" class="form-control">
                                     <span id="uniqueKeyTip"></span>
@@ -106,7 +106,7 @@ img.demo {
 							</tr>
 							
 							<tr>
-								<td class="a-title"><font class="s-red">*</font>广告位尺寸：</td>
+								<td class="a-title">广告位尺寸：</td>
 								<td>
 									<input type="text" style="width: 60px;" value="<#if (adSeatInfo?exists)>${adSeatInfo.width!""}</#if>" id="width" name="width" autocomplete="off" class="form-control">
 									*
@@ -118,7 +118,7 @@ img.demo {
 							</tr>
 							
 							<tr>
-								<td class="a-title"><font class="s-red">*</font>广告位面积：</td>
+								<td class="a-title">广告位面积：</td>
 								<td><input type="text" style="width: 130px;" id="adArea" name="adArea" value="<#if (adSeatInfo?exists)>${adSeatInfo.adArea!""}</#if>"
 									autocomplete="off" class="form-control">
                                     <span id="adAreaTip"></span>
@@ -127,7 +127,7 @@ img.demo {
 							
 							<#setting number_format="#0.######" />
 							<tr>
-								<td class="a-title"><font class="s-red">*</font>广告位经度：</td>
+								<td class="a-title">广告位经度：</td>
 								<td>
 									<input type="text" style="width: 130px;" id="lon" value="<#if (adSeatInfo?exists)>${adSeatInfo.lon!""}</#if>" name="lon" autocomplete="off" class="form-control">
 
@@ -135,7 +135,7 @@ img.demo {
 								</td>
 							</tr>
 							<tr>
-								<td class="a-title"><font class="s-red">*</font>广告位纬度：</td>
+								<td class="a-title">广告位纬度：</td>
 								<td>
 									<input type="text" style="width: 130px;" id="lat" <#if (adSeatInfo?exists)>value="${adSeatInfo.lat!""}"</#if> name="lat" autocomplete="off" class="form-control">
 
@@ -144,7 +144,7 @@ img.demo {
 							</tr>
 							
 							<tr>
-								<td class="a-title"><font class="s-red">*</font>地图标准：</td>
+								<td class="a-title">地图标准：</td>
 								<td>
 									<select style="width: 156px;" name="mapStandard" id="mapStandard" class="form-control">
 										<option value="">请选择地图标准</option>
@@ -158,7 +158,7 @@ img.demo {
 							</tr>
 							
 							<tr>
-								<td class="a-title"><font class="s-red">*</font>联系人姓名：</td>
+								<td class="a-title">联系人姓名：</td>
 								<td><input type="text" style="width: 130px;" id="contactName" name="contactName" value="<#if (adSeatInfo?exists)>${adSeatInfo.contactName!""}</#if>"
 									autocomplete="off" class="form-control">
                                     <span id="contactNameTip"></span>
@@ -166,7 +166,7 @@ img.demo {
 							</tr>
 							
 							<tr>
-								<td class="a-title"><font class="s-red">*</font>联系人电话：</td>
+								<td class="a-title">联系人电话：</td>
 								<td><input type="text" style="width: 130px;" id="contactCell" name="contactCell" value="<#if (adSeatInfo?exists)>${adSeatInfo.contactCell!""}</#if>"
 									autocomplete="off" class="form-control">
                                     <span id="contactCellTip"></span>
@@ -174,7 +174,7 @@ img.demo {
 							</tr>
 							
 							<tr>
-								<td class="a-title"><font class="s-red">*</font>备注：</td>
+								<td class="a-title">备注：</td>
 								<td><input type="text" style="width: 130px;" id="memo" name="memo" value="<#if (adSeatInfo?exists)>${adSeatInfo.memo!""}</#if>"
 									autocomplete="off" class="form-control">
                                     <span id="memoTip"></span>

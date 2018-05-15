@@ -55,6 +55,7 @@ public class SysAdminController {
     public String departmentLeaderList(Model model, HttpServletRequest request,
                                @RequestParam(value = "name", required = false) String name) {
         SearchDataVo vo = SearchUtil.getVo();
+        boolean flag = true;
         
         //获取登录用户信息
         SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
@@ -77,10 +78,19 @@ public class SysAdminController {
         	searchMap.put("type", 1);
         	searchMap.put("resIds", groupIds);
         	List<Integer> userIds = sysUserService.selectUserIdsByResIds(searchMap);
+        	if(userIds.size() == 0) {
+        		flag = false;
+        	}
         	vo.putSearchParam("ids", "ids", userIds);
         }
         
-        sysUserService.getPageData(vo);
+        if(flag == true) {
+        	sysUserService.getPageData(vo);
+        } else {
+        	vo.setCount(0);
+        	vo.setSize(20);
+        	vo.setStart(0);
+        }
         SearchUtil.putToModel(model, vo);
         return PageConst.DEPARMENT_ADMIN_USER_LIST;
     }

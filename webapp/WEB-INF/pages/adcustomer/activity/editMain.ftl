@@ -636,7 +636,7 @@
         mod_activity_seat = activity_seats[i];
         layer.open({
             type: 2,
-            title: '新修改告位监测',
+            title: '详细信息',
             shade: 0.8,
             area: ['820px', '600px'],
             content: '/customer/activity/adseat/edit' //iframe的url

@@ -62,7 +62,7 @@
                 </tr>
 
                 <tr>
-                    <td class="a-title"><font class="s-red">*</font>监测时间：</td>
+                    <td class="a-title"><font class="s-red">*</font>监测类型：</td>
                     <td>
                         <label>
                             <input type="checkbox" checked id="upMonitor" name="monitor_time" value="0"  > 上刊

@@ -22,7 +22,7 @@
                     <div class="select-box select-box-140 un-inp-select ll">
                         <select name="status" class="select" id="status">
                             <option value="1" <#if (bizObj.queryMap.status?exists&&bizObj.queryMap.status=="1")>selected</#if> >待指派</option>
-                            <#-- <option value="8" <#if (bizObj.queryMap.status?exists&&bizObj.queryMap.status=="8")>selected</#if> >可抢单</option> -->
+                            <option value="8" <#if (bizObj.queryMap.status?exists&&bizObj.queryMap.status=="8")>selected</#if> >可抢单</option> 
                         </select>
                     </div>
                     <div class="ll inputs-date">

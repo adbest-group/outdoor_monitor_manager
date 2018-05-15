@@ -177,7 +177,7 @@ public class AppAccountController extends BasicController {
     }
 
 
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = {"/updateAccountStatus"}, method = {RequestMethod.POST})
     @ResponseBody
     public Model updateAccountStatus(Model model, @RequestParam(value = "id", required = true) Integer id,

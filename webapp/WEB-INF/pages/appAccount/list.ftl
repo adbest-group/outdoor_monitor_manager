@@ -152,13 +152,13 @@
     }
 
     function doUpdate(id, status) {
-        var toStatus = "";
-        if (status == "2") {
-            toStatus = "1";
-        } else {
-            toStatus = "2";
-        }
-
+    	var toStatus;
+    	if(status == 1){
+    		toStatus = 2;
+    	} else {
+    		toStatus = 1;
+    	}
+    
         $.ajax({
             url: "/appAccount/updateAccountStatus",
             type: "post",
@@ -177,7 +177,7 @@
                     });
                 } else {
                     var msg = "";
-                    if (status == "2") {
+                    if (toStatus == "1") {
                         msg = "启用成功";
                     } else {
                         msg = "停用成功";

@@ -146,14 +146,6 @@ public class SysAdminController {
             	}
             	sysUserService.updatePasswordAndName(sysUser);
             } else {
-            	//获取登录用户信息
-                SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-                if(user.getUsertype() == 5) {
-                	//部门领导添加
-                	SysResources department = sysResourcesService.getByUserId(user.getId()); //通过部门领导账号的id查询出他管理的部门信息
-                	
-                }
-                
             	//[1] 插入sys_user
             	sysUser.setCreateTime(now);
             	sysUser.setUpdateTime(now);

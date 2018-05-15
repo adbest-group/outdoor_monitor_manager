@@ -155,6 +155,18 @@ public class SysUserService implements ISysUserService {
 	}
 	
 	/**
+	 * 更改某组后台用户的角色role
+	 */
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public int updateListUserRes(UserRoleVo userRoleVo) {
+		if(userRoleVo.getUserIds().size() > 0) {
+			return sysUserRoleMapper.updateUserRole(userRoleVo);
+    	}
+		return 0;
+	}
+	
+	/**
 	 * 更改员工-组之间的关系
 	 */
 	@Override

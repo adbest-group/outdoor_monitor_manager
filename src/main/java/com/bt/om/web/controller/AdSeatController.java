@@ -256,7 +256,8 @@ public class AdSeatController extends BasicController {
         }
 
         try {
-            List<AdCrowd> crowds = Lists.newArrayList();
+        	/**
+        	 * List<AdCrowd> crowds = Lists.newArrayList();
             for (AgePart agePart : AgePart.values()) {
                 String preMale = "crowd_1_" + agePart.getId();
                 String preFemale = "crowd_2_" + agePart.getId();
@@ -281,8 +282,10 @@ public class AdSeatController extends BasicController {
                 crowds.add(male);
                 crowds.add(female);
             }
+        	 */
             if (adSeatInfo.getId() != null) {
-                adSeatService.modify(adSeatInfo, crowds);
+                //adSeatService.modify(adSeatInfo, crowds);
+            	adSeatService.modifyInfo(adSeatInfo);
             } else {
                 SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
                 adSeatService.save(adSeatInfo, user.getId());

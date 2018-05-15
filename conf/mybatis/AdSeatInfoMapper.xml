@@ -494,6 +494,7 @@
 	
 	<select id="getAdSeatInfoById" parameterType="Integer" resultMap="ExtResultMap">
 		select
+			a.id,
 			a.name,
 			a.province,
 			a.city,

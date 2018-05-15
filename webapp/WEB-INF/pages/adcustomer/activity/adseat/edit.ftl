@@ -26,7 +26,7 @@
                             <select name="media" class="select" id="media">
                             </select>
                         </div>
-                        <input type="button" id="btnDemo" class="btn btn-green" value="演示专用" style="display: none;"/>
+                        <#-- <input type="button" id="btnDemo" class="btn btn-green" value="演示专用" style="display: none;"/> -->
                     </td>
                 </tr>
 

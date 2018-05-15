@@ -215,6 +215,7 @@
 							</td>
 						</tr>
                         
+                        <#-- 
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>日均PV：</td>
                             <td>
@@ -278,6 +279,7 @@
                             </td>
                         </tr>
                         </#list>
+						-->
 
                         <tr>
                             <td></td>
@@ -383,12 +385,14 @@
             submitOnce: false,
             errorFocus: false,
             onSuccess: function () {
+                /**
                 if(rangeTotal()<1000){
                     layer.alert("人群比例总和不足100%", {
                         icon: 2
                     });
                     return;
                 }
+                **/
                 $.ajax({
                     url: '/adseat/save',
                     type: 'POST',
@@ -539,6 +543,8 @@
             max: 90,
             onError: "纬度支持 -90 ~ 90"
         });*/
+        
+/**
         //广告位日均pv
         $("#pv").formValidator({
             validatorGroup: "2",
@@ -572,7 +578,10 @@
             dataType: "string",
             onError: "公交车日均PV支持1-999999"
         });
+**/        
+ 
     });
+
 
     //	$('#submit').click(function() {
     //		$.ajax({

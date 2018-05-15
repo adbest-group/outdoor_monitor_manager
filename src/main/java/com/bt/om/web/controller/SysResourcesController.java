@@ -77,23 +77,29 @@ public class SysResourcesController extends BasicController {
             	//修改
             	SysResources department = sysResourcesService.getById(sysResources.getId()); //数据库里当前部门的信息
             	Integer userId = sysResources.getUserId(); //获取页面选择的部门领导id
-            	if(department.getUserId() != userId) {
-            		//查询该领导是否已经有管理部门
-                	int count = sysResourcesService.selectCountByUserId(userId);
-                	if(count > 0) {
-                		result.setCode(ResultCode.RESULT_FAILURE.getCode());
-                        result.setResultDes("该部门领导已有部门！");
-                        model.addAttribute(SysConst.RESULT_KEY, result);
-                        return model;
+            	if(userId != null) {
+            		if(department.getUserId() != userId) {
+                		//查询该领导是否已经有管理部门
+                    	int count = sysResourcesService.selectCountByUserId(userId);
+                    	if(count > 0) {
+                    		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                            result.setResultDes("该部门领导已有部门！");
+                            model.addAttribute(SysConst.RESULT_KEY, result);
+                            return model;
+                    	} else {
+                    		sysResources.setUserId(userId);
+                    		sysResources.setUpdateTime(now);
+                        	sysResourcesService.modify(sysResources);
+                    	}
                 	} else {
-                		sysResources.setUserId(userId);
+                		sysResources.setUserId(department.getUserId());
                 		sysResources.setUpdateTime(now);
                     	sysResourcesService.modify(sysResources);
                 	}
             	} else {
-            		sysResources.setUserId(department.getUserId());
+            		sysResources.setUserId(null);
             		sysResources.setUpdateTime(now);
-                	sysResourcesService.modify(sysResources);
+                	sysResourcesService.updateByPrimaryKeyUserIdNull(sysResources);
             	}
             } else {
             	//插入

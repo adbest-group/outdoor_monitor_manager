@@ -464,7 +464,7 @@
                 onCorrect: ""
             }).inputValidator({
                 min: 1,
-                max: 30,
+                max: 60,
                 onError: "请输入品牌，30字以内"
             });
 

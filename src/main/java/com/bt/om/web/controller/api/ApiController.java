@@ -2703,7 +2703,7 @@ public class ApiController extends BasicController {
     }
 
     public static void main(String[] args) {
-        System.out.println(new Md5Hash("123456", "departmentadmin@adbest.com").toString());
+        System.out.println(new Md5Hash("admin123", "baitaiadmin").toString());
 //        System.out.println("【浙江百泰】您的验证码为${code}".replaceAll("\\$\\{code\\}","122321"));
     }
 }

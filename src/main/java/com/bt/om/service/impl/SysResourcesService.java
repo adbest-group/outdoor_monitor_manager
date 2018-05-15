@@ -58,15 +58,25 @@ public class SysResourcesService implements ISysResourcesService {
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public void save(SysResources sysResources) {
 		sysResourcesMapper.insert(sysResources);
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public void modify(SysResources sysResources) {
 		Date now = new Date();
 		sysResources.setUpdateTime(now);
 		sysResourcesMapper.updateByPrimaryKeySelective(sysResources);
+	}
+	
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void updateByPrimaryKeyUserIdNull(SysResources sysResources) {
+		Date now = new Date();
+		sysResources.setUpdateTime(now);
+		sysResourcesMapper.updateByPrimaryKeyUserIdNull(sysResources);
 	}
 
 	@Override

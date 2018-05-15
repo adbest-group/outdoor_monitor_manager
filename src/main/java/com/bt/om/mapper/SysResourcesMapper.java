@@ -19,6 +19,8 @@ public interface SysResourcesMapper {
 	SysResources selectByPrimaryKey(Integer id);
 
 	int updateByPrimaryKeySelective(SysResources record);
+	
+	int updateByPrimaryKeyUserIdNull(SysResources record);
 
 	int updateByPrimaryKey(SysResources record);
 

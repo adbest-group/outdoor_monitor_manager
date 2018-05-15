@@ -124,7 +124,7 @@
                 <tr>
                     <td class="a-title">&nbsp;</td>
                     <td>
-                        <img src="" id="img-demo-img" width="280" alt="请上传图片"/>
+                    	<img src="" id="img-demo-img" width="280" alt="请上传图片"/>
                     </td>
                 </tr>
 

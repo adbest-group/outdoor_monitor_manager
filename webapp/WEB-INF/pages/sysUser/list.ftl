@@ -7,10 +7,10 @@
 <div class="main-container" style="height: auto;">
     <div class="main-box ott-market">
         <div class="title clearfix">
-            <a href="javascript:;" class="add-new-btn ll" id="add_user"><i></i> 新建管理员账号</a>
+            <a href="javascript:;" class="add-new-btn ll" id="add_user"><i></i> 新建员工账号</a>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <div class="inp">
-                    <input type="text" placeholder="请输入管理员名称" value="${searchName?if_exists}" id="searchName" name="searchName">
+                    <input type="text" placeholder="请输入员工名称" value="${searchName?if_exists}" id="searchName" name="searchName">
                 </div>
                 <button type="button" class="btn btn-red" autocomplete="off" id="searchBtn">查询</button>
             </div>

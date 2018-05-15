@@ -30,7 +30,7 @@
                             <td>
                                 <input type="text" id="activityName" ${editMode?string("","disabled")} name="activityName" value="" autocomplete="off" class="form-control">
                                 <span id="activityNameTip"></span>
-                                <input type="button" id="btnDemo" class="btn btn-green" value="演示专用"/>
+                                <#-- <input type="button" id="btnDemo" class="btn btn-green" value="演示专用"/> -->
                             </td>
                         </tr>
 

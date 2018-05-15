@@ -152,10 +152,18 @@ $(function() {
 		onShow:"　",
 		onFocus:"请输入用户名",
 		onCorrect:"　"
-	}).regexValidator({
+	<#-- }).regexValidator({
 		regExp:"^\\S+$",
 		onError:"用户名不能为空，请输入"
-	});
+	}); -->
+	  }).inputValidator({
+		        min:1,
+        		max:100,
+        		onError:"登录账户为邮箱格式，请重新输入"
+		    }).regexValidator({
+        		regExp:"^(\\w-*\\.*)+@(\\w-?)+(\\.\\w{2,})$",
+        		onError:"登录账户为邮箱格式，请重新输入"
+        });
 	// 真实名字
 	$("#realname").formValidator({
 		validatorGroup:"2",

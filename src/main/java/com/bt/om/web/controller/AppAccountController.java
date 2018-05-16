@@ -1,20 +1,9 @@
 package com.bt.om.web.controller;
 
-import com.bt.om.common.SysConst;
-import com.bt.om.common.web.PageConst;
-import com.bt.om.entity.AdMedia;
-import com.bt.om.entity.SysUser;
-import com.bt.om.entity.SysUserExecute;
-import com.bt.om.enums.ResultCode;
-import com.bt.om.enums.SessionKey;
-import com.bt.om.enums.UserExecuteType;
-import com.bt.om.security.ShiroUtils;
-import com.bt.om.service.IMediaService;
-import com.bt.om.service.ISysUserExecuteService;
-import com.bt.om.vo.web.ResultVo;
-import com.bt.om.vo.web.SearchDataVo;
-import com.bt.om.web.BasicController;
-import com.bt.om.web.util.SearchUtil;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.crypto.hash.Md5Hash;
@@ -26,8 +15,22 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
+import com.bt.om.common.SysConst;
+import com.bt.om.common.web.PageConst;
+import com.bt.om.entity.AdMedia;
+import com.bt.om.entity.SysUser;
+import com.bt.om.entity.SysUserExecute;
+import com.bt.om.entity.vo.SysUserExecuteVo;
+import com.bt.om.enums.ResultCode;
+import com.bt.om.enums.SessionKey;
+import com.bt.om.enums.UserExecuteType;
+import com.bt.om.security.ShiroUtils;
+import com.bt.om.service.IMediaService;
+import com.bt.om.service.ISysUserExecuteService;
+import com.bt.om.vo.web.ResultVo;
+import com.bt.om.vo.web.SearchDataVo;
+import com.bt.om.web.BasicController;
+import com.bt.om.web.util.SearchUtil;
 
 /**
  * Created by caiting on 2018/4/10.
@@ -56,7 +59,7 @@ public class AppAccountController extends BasicController {
         if (StringUtils.isNotBlank(name)) {
             vo.putSearchParam("nameOrUsername", name, "%" + name + "%");
         }
-
+        
         sysUserExecuteService.getPageData(vo);
 
         SearchUtil.putToModel(model, vo);
@@ -71,9 +74,8 @@ public class AppAccountController extends BasicController {
     @RequestMapping(value = "/edit")
     public String toEditWorker(Model model, HttpServletRequest request,
                                @RequestParam(value = "id", required = false) Integer id) {
-
         if (id != null) {
-            SysUserExecute user = sysUserExecuteService.getById(id);
+        	SysUserExecuteVo user = sysUserExecuteService.selectByIdAndMedia(id);
             if (user != null) {
                 model.addAttribute("obj", user);
                 //如果是媒体安装人员，传所属媒体id
@@ -149,21 +151,21 @@ public class AppAccountController extends BasicController {
                 }
                 sysUserExecuteService.add(user);
             } else {//修改
-                SysUserExecute user = new SysUserExecute();
-                user.setId(id);
-                user.setUsername(username);
+                SysUserExecute user = sysUserExecuteService.getById(id);
+//                user.setId(id);
+//                user.setUsername(username);
                 if (!"******".equals(password)) {
                     user.setPassword(new Md5Hash(password, username).toString());
                 }
                 user.setRealname(name);
                 user.setMobile(username);
                 user.setUsertype(usertype);
-                if(usertype==3){
-                    AdMedia media = mediaService.getById(mediaId);
-                    user.setOperateId(media.getUserId());
-                }else if(usertype!=4){
-                    user.setOperateId(loginuser.getId());
-                }
+//                if(usertype==3){
+//                    AdMedia media = mediaService.getById(mediaId);
+//                    user.setOperateId(media.getUserId());
+//                }else if(usertype!=4){
+//                    user.setOperateId(loginuser.getId());
+//                }
                 sysUserExecuteService.modify(user);
             }
         } catch (Exception ex) {

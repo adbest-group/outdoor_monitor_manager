@@ -115,7 +115,7 @@ public class MediaController {
 
         ResultVo<List<SysUser>> resultVo = new ResultVo<List<SysUser>>();
         try {
-            boolean isExists = sysUserService.isExistsPrefix(prefix,id);
+            boolean isExists = sysUserService.isExistsPrefix(prefix, id);
             if (isExists) {
                 resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
                 resultVo.setResultDes("已存在该前缀，请修改");

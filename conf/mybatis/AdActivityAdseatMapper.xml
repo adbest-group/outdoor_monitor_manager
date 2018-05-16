@@ -359,6 +359,7 @@
 	    and c.name = #{title,jdbcType=INTEGER}
 	    and e.ad_seat_id = c.id
 		and e.activity_id != d.id
+		and e.status != 1
     order by id
   </select>
 
@@ -382,6 +383,7 @@
 	    and c.ad_code = #{adSeatCode,jdbcType=INTEGER}
 	    and e.ad_seat_id = c.id
 		and e.activity_id != d.id
+		and e.status != 1
     order by id
   </select>
 

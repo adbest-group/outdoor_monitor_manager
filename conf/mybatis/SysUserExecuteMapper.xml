@@ -328,6 +328,22 @@
     </if>
   </select>
 
+  <resultMap id="ExtResultMap" extends="BaseResultMap" type="com.bt.om.entity.vo.SysUserExecuteVo">
+        <result column="media_name" jdbcType="VARCHAR" property="mediaName"/>
+  </resultMap>
+
+  <select id="selectByIdAndMedia" parameterType="java.lang.Integer" resultMap="ExtResultMap">
+    select
+	    a.id, a.username, a.password, a.realname, a.mobile, a.company, a.head_img_url, a.usertype, a.operate_id, a.status,
+	    a.province, a.city, a.region, a.street, a.remark, a.login_ip, a.login_time, a.default_page, a.create_time, a.update_time,
+    	b.media_name
+    from sys_user_execute a
+    left join sys_user c on a.operate_id = c.id
+    left join ad_media b on b.user_id = c.id
+    where 1=1
+    and a.id = #{id,jdbcType=INTEGER}
+  </select>
+
   <select id="getPageCount" parameterType="map" resultType="int">
     select
     count(1)
@@ -349,26 +365,30 @@
     </if>
   </select>
 
-  <select id="getPageData" parameterType="map" resultMap="BaseResultMap">
+  <select id="getPageData" parameterType="map" resultMap="ExtResultMap">
     select
-    <include refid="Base_Column_List" />
-    from sys_user_execute
+	    a.id, a.username, a.password, a.realname, a.mobile, a.company, a.head_img_url, a.usertype, a.operate_id, a.status,
+	    a.province, a.city, a.region, a.street, a.remark, a.login_ip, a.login_time, a.default_page, a.create_time, a.update_time,
+    	b.media_name
+    from sys_user_execute a
+    left join sys_user c on a.operate_id = c.id
+    left join ad_media b on b.user_id = c.id
     where 1=1
     <if test="operateId != null" >
-      and operate_id = #{operateId,jdbcType=INTEGER}
+      and a.operate_id = #{operateId,jdbcType=INTEGER}
     </if>
     <if test="usertype != null" >
-      and usertype = #{usertype,jdbcType=INTEGER}
+      and a.usertype = #{usertype,jdbcType=INTEGER}
     </if>
     <if test="usertypes != null">
-      and usertype in
+      and a.usertype in
       <foreach collection="usertypes" separator="," open="(" close=")" item="usertype">#{usertype,jdbcType=INTEGER}
       </foreach>
     </if>
     <if test="nameOrUsername != null" >
-      and (username like #{nameOrUsername,jdbcType=VARCHAR} or realname like #{nameOrUsername,jdbcType=VARCHAR})
+      and (a.username like #{nameOrUsername,jdbcType=VARCHAR} or a.realname like #{nameOrUsername,jdbcType=VARCHAR})
     </if>
-    order by id desc
+    order by a.id desc
   </select>
 
   <select id="isExistsName" parameterType="map" resultMap="BaseResultMap">

@@ -124,4 +124,6 @@ public interface ISysUserService {
 	List<Integer> selectUserIdsByResIds(Map<String, Object> searchMap);
 
 	int updateListUserRes(UserRoleVo userRoleVo);
+
+	SysUserDetail getUserDetail(Integer userId);
 }

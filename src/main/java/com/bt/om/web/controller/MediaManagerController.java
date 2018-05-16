@@ -1,9 +1,11 @@
 package com.bt.om.web.controller;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -25,25 +27,30 @@ import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdActivityAdseat;
 import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.entity.AdJiucuoTaskFeedback;
+import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.MonitorTaskStatus;
-import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.mapper.AdMediaMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
 import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.service.IAdSeatService;
+import com.bt.om.service.IResourceService;
 import com.bt.om.service.ISysUserExecuteService;
+import com.bt.om.service.ISysUserService;
+import com.bt.om.util.QRcodeUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.util.SearchUtil;
@@ -65,6 +72,12 @@ public class MediaManagerController {
     IAdActivityService adActivityService;
     @Autowired
     IAdSeatService adSeatService;
+    @Autowired
+    private IResourceService resourceService;
+    @Autowired
+	private ISysUserService sysUserService;
+	@Autowired
+	private AdMediaMapper adMediaMapper;
 
     /**
      * 媒体端任务管理，主要分配任务
@@ -370,9 +383,29 @@ public class MediaManagerController {
 
         try {
             if (adSeatInfo.getId() != null) {
+            	//修改
                 adSeatService.modify(adSeatInfo);
             } else {
+            	//添加
                 SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+                //生成二维码
+                AdMedia media = new AdMedia();
+            	SysUserVo mediaUser = new SysUserVo();
+        		Integer usertype = user.getUsertype();
+        		if (usertype == 3) {
+        			//媒体人员自行添加
+        			media = adMediaMapper.selectByUserId(user.getId());
+        			mediaUser = sysUserService.findUserinfoById(media.getUserId());
+        		}
+        		
+        		//生成广告位对应的二维码
+        		String adCodeInfo = mediaUser.getPrefix() + UUID.randomUUID(); //二维码存的值（媒体前缀比如media3- 加上UUID随机数）
+        		String path = request.getSession().getServletContext().getRealPath("/");
+        		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"qrcode"+File.separatorChar+adCodeInfo + ".jpg";
+        		QRcodeUtil.encode(adCodeInfo, path);
+        		adSeatInfo.setAdCode(adCodeInfo);
+        		adSeatInfo.setAdCodeUrl("/static/qrcode/" + adCodeInfo + ".jpg");
+        		
                 adSeatService.save(adSeatInfo, user.getId());
             }
         } catch (Exception e) {
@@ -437,19 +470,25 @@ public class MediaManagerController {
     @ResponseBody
     public Model delete(Model model, HttpServletRequest request,
                         @RequestParam(value = "id", required = false) Integer id) {
-        ResultVo<String> result = new ResultVo<String>();
+    	ResultVo<String> result = new ResultVo<String>();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
-        result.setResultDes("删除成功");
+        result.setResultDes("保存成功");
         model = new ExtendedModelMap();
-
+        
         try {
-            adSeatService.delete(id);
+            int count = resourceService.deleteAdSeatById(id);
+            if(count == 0) {
+            	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("该广告位已经参与活动，不能删除！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+            }
         } catch (Exception e) {
-            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("删除失败！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
-
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }

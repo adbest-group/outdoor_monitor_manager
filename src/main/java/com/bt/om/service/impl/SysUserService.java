@@ -85,6 +85,11 @@ public class SysUserService implements ISysUserService {
 		List<SysUserDetail> details = sysUserDetailMapper.isExistsPrefix(prefix,id);
 		return details!=null&&details.size()>0;
 	}
+	
+	@Override
+	public SysUserDetail getUserDetail(Integer userId) {
+		return sysUserDetailMapper.selectByUserId(userId);
+	}
 
 	@Override
 	public void addUser(SysUser sysUser) {

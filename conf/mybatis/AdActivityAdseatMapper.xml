@@ -443,4 +443,10 @@
     where activity_id = #{activityId,jdbcType=INTEGER}
   </select>
   
+  <select id="selectCountByAdSeatId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+  	select count(1)
+  	from ad_activity_adseat
+  	where ad_seat_id = #{adSeatId,jdbcType=INTEGER}
+  </select>
+  
 </mapper>

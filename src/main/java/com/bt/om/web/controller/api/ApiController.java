@@ -272,7 +272,7 @@ public class ApiController extends BasicController {
         return model;
     }
 
-    //获取给定的广告位编号对应的广告位id和相关有效的广告活动
+    //获取给定的广告位编号对应的广告位id和相关有效的广告活动（扫二维码获取对应广告位的接口）
     @RequestMapping(value = "/seatActivities")
     @ResponseBody
     public Model getSeatActivity(Model model, HttpServletRequest request) {

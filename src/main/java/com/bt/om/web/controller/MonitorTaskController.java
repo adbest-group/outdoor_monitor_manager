@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.adtime.common.lang.StringUtil;
-import com.bt.om.common.DateUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdMedia;
@@ -237,7 +236,7 @@ public class MonitorTaskController extends BasicController {
         if (status == null) {
 //            vo.putSearchParam("statuses", null,
 //                    new Integer[]{MonitorTaskStatus.UNASSIGN.getId(), MonitorTaskStatus.CAN_GRAB.getId()});
-        	status = 1;
+        	status = 1; //如果不传查询参数, 默认是1：待指派
         } else {
             vo.putSearchParam("status", String.valueOf(status), String.valueOf(status));
         }
@@ -260,11 +259,11 @@ public class MonitorTaskController extends BasicController {
             }
         }
         
-        //只能查询自己参与的任务指派
-        if(userObj != null) {
-        	Integer assignorId = userObj.getId();
-        	vo.putSearchParam("assignorId", assignorId.toString(), assignorId);
-        }
+//        //只能查询自己参与的任务指派
+//        if(userObj != null) {
+//        	Integer assignorId = userObj.getId();
+//        	vo.putSearchParam("assignorId", assignorId.toString(), assignorId);
+//        }
         
         if(status != 1) {
         	//查询非待审核的监测指派
@@ -273,7 +272,7 @@ public class MonitorTaskController extends BasicController {
         	//查询待审核的监测指派
         	//[1] 先查询审核id的所有待审核的监测任务
         	Map<String, Object> searchMap = new HashMap<>();
-        	searchMap.put("status", 1); //1: 待指派
+        	searchMap.put("status", status); //1: 待指派
             searchMap.put("assignorId", userObj.getId()); //指派员id
             List<AdMonitorTaskVo> taskVos = adMonitorTaskService.selectAllByAssessorId(searchMap);
             if(taskVos != null && taskVos.size() > 0) {

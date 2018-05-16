@@ -466,4 +466,17 @@
         <foreach collection="ids" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
     </if>
   </update>
+  
+  <!-- 查询某个广告位某个活动某个状态的纠错任务数量 -->
+  <select id="selectCountByActivityAndSeat" parameterType="map">
+	select 
+		count(1)
+	from 
+		ad_jiucuo_task 
+	where 1=1
+		and activity_id = #{activityId,jdbcType=INTEGER}
+		and ad_seat_id = #{adSeatId,jdbcType=INTEGER}
+		and status = #{status,jdbcType=INTEGER}
+  </select>
+  
 </mapper>

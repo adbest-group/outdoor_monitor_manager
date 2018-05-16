@@ -1010,18 +1010,18 @@ public class ApiController extends BasicController {
                 return model;
             }
             
-            //查询是否有人正在做这个广告位这个活动的纠错任务(即待审核的纠错任务)
-            Map<String, Object> searchMap = new HashMap<>();
-            searchMap.put("activityId", seat.getActivityId()); //活动id
-            searchMap.put("adSeatId", seat.getAdSeatId()); //广告位id
-            searchMap.put("status", 1); //纠错任务待审核
-            int count = adJiucuoTaskService.selectCountByActivityAndSeat(searchMap);
-            if(count > 0) {
-            	result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
-                result.setResultDes("已有人正在执行该纠错任务！");
-                model.addAttribute(SysConst.RESULT_KEY, result);
-                return model;
-            }
+//            //查询是否有人正在做这个广告位这个活动的纠错任务(即待审核的纠错任务)
+//            Map<String, Object> searchMap = new HashMap<>();
+//            searchMap.put("activityId", seat.getActivityId()); //活动id
+//            searchMap.put("adSeatId", seat.getAdSeatId()); //广告位id
+//            searchMap.put("status", 1); //纠错任务待审核
+//            int count = adJiucuoTaskService.selectCountByActivityAndSeat(searchMap);
+//            if(count > 0) {
+//            	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+//                result.setResultDes("已有人正在执行该纠错任务！");
+//                model.addAttribute(SysConst.RESULT_KEY, result);
+//                return model;
+//            }
             
             InputStream is1 = null;
             String filename1 = null;

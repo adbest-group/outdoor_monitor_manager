@@ -468,7 +468,7 @@
   </update>
   
   <!-- 查询某个广告位某个活动某个状态的纠错任务数量 -->
-  <select id="selectCountByActivityAndSeat" parameterType="map">
+  <select id="selectCountByActivityAndSeat" parameterType="map" resultType="java.lang.Integer">
 	select 
 		count(1)
 	from 

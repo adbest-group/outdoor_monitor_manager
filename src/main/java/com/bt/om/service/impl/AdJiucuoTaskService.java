@@ -175,4 +175,9 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
 		}
 		return taskVos;
 	}
+	
+	@Override
+	public int selectCountByActivityAndSeat(Map<String, Object> searchMap) {
+		return adJiucuoTaskMapper.selectCountByActivityAndSeat(searchMap);
+	}
 }

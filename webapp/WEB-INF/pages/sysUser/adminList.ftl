@@ -1,13 +1,12 @@
-<#assign webTitle="组与员工管理" in model>
+<#assign webTitle="账户管理" in model>
 <#assign webHead in model>
 </#assign>
 <@model.webhead />
 
 <!-- 头部 -->
 
-<@model.webMenu current="组与员工管理" child="admin账号管理"/>
+<@model.webMenu current="账户管理" child="admin账号管理"/>
 
-<#-- <@model.webMenu current="员工管理" child="admin账号管理"/> -->
 
 <div class="main-container" style="height: auto;">
     <div class="main-box ott-market">
@@ -30,6 +29,8 @@
                         <th>序号</th>
                         <th>用户名</th>
                         <th>真实名字</th>
+                        <th>小组名称</th>
+                        <th>所属部门名称</th>
                   		<th>电话号码</th>
                   		<th>状态</th>
                   		
@@ -45,6 +46,8 @@
                             <td width="30">${(bizObj.page.currentPage-1)*20+type_index+1}</td>
                             <td>${type.username?if_exists}</td>
                             <td>${type.realname?if_exists}</td>
+                            <td>${type.groupName?if_exists}</td>
+                            <td>${type.departmentName?if_exists}</td>
                             <td>${type.telephone?if_exists}</td>
                             <td>
                             	<#if type.status?exists && type.status == 1>可用</#if>
@@ -53,15 +56,13 @@
                          	
                             <td>${type.createTime?string('yyyy-MM-dd HH:mm:ss')}</td>
                             <td>
-                            	<#if type.isOwn?exists && type.isOwn == "1">
-                                	<a href="javascript:void(0);" onclick="edit('${type.id}');">编辑</a>
-                                	
-                                	<#if type.status?exists && type.status == 1>
-	                                	<a href="javascript:void(0);" onclick="updateStatus('${type.id}', 2);">不可用</a>
-	                                </#if>
-	                                <#if type.status?exists && type.status == 2>
-	                            		<a href="javascript:void(0);" onclick="updateStatus('${type.id}', 1);">可用</a>
-	                                </#if>
+                            	<a href="javascript:void(0);" onclick="edit('${type.id}');">编辑</a>
+                            	
+                            	<#if type.status?exists && type.status == 1>
+                                	<a href="javascript:void(0);" onclick="updateStatus('${type.id}', 2);">不可用</a>
+                                </#if>
+                                <#if type.status?exists && type.status == 2>
+                            		<a href="javascript:void(0);" onclick="updateStatus('${type.id}', 1);">可用</a>
                                 </#if>
                             </td>
                         </tr>
@@ -95,13 +96,19 @@
     $("#searchBtn").on("click", function () {
         var strParam = "";
         var name = $("#searchName").val();
+        var groupName = $("#searchName").val();
+        var departmentName = $("#searchName").val();
+        var parentid = $("#parentid").val();
         
         if (name != null && $.trim(name).length) {
             strParam = strParam + "?name=" + name;
         }
+    
 
         window.location.href = "/sysUser/list" + strParam;
     });
+    
+    
 
     $("#add_user").on("click", function () {
         //iframe层

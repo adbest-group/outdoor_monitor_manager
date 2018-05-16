@@ -16,7 +16,7 @@
 				<tr>
 					<td class="a-title">用户名：</td>
 					<td>
-					    <input type="text" id="username" name="username" value="${(obj.username)?if_exists}" autocomplete="off" class="form-control" >
+					    <input type="text" disabled id="username" name="username" value="${(obj.username)?if_exists}" autocomplete="off" class="form-control" >
 					    <br><span id="usernameTip"></span>&nbsp;
 					</td>
 				</tr>
@@ -27,13 +27,15 @@
 					    <br><span id="realnameTip"></span>&nbsp;
 					</td>
 				</tr>
-				<tr>
+					<tr>
 					<td class="a-title">密码：</td>
 					<td>
 					    <input type="text" id="password" name="password" value="<#if (obj?exists&&obj.id?exists)>********</#if>" autocomplete="off" class="form-control">
 					    <br><span id="passwordTip"></span>&nbsp;
 					</td>
 				</tr>
+			
+			
 				<tr>
 					<td class="a-title">手机号：</td>
 					<td>
@@ -159,7 +161,7 @@ $(function() {
 	}).regexValidator({
 		regExp:"^(\\w-*\\.*)+@(\\w-?)+(\\.\\w{2,})$",
 		onError:"登录用户名为邮箱格式，请重新输入"
-    }).ajaxValidator({
+    });/**.ajaxValidator({
 		type: "post",
         dataType: "json",
         async: true,
@@ -179,7 +181,7 @@ $(function() {
         },
         onError: "已存在该登录用户名，请修改",
         onWait: "正在对登录账户进行校验，请稍候..."
-    });
+    }); **/
     
 	// 真实名字
 	$("#realname").formValidator({

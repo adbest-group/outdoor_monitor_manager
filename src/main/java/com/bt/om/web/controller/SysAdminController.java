@@ -33,6 +33,7 @@ import com.bt.om.enums.SessionKey;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.ISysGroupService;
 import com.bt.om.service.ISysResourcesService;
+import com.bt.om.service.ISysUserRoleService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -48,6 +49,8 @@ public class SysAdminController {
 	private ISysGroupService sysGroupService;
 	@Autowired
 	private ISysResourcesService sysResourcesService;
+	@Autowired
+	private ISysUserRoleService sysUserRoleService;
 	
 	/**
 	 * 查询admin账号列表
@@ -58,6 +61,7 @@ public class SysAdminController {
                                @RequestParam(value = "name", required = false) String name) {
         SearchDataVo vo = SearchUtil.getVo();
         List<Integer> userIds = new ArrayList<>();
+
         
         //获取登录用户信息
         SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
@@ -76,6 +80,7 @@ public class SysAdminController {
         	//部门领导登录, 只能修改本部门下的所有员工信息
         	SysResources department = sysResourcesService.getByUserId(user.getId()); //通过部门领导账号的id查询出他管理的部门信息
         	List<Integer> groupIds = sysGroupService.selectGroupIdsByDepartmentId(department.getId()); //通过部门id查询出下面所有的组的id
+      
         	Map<String, Object> searchMap = new HashMap<>();
         	searchMap.put("type", 1);
         	searchMap.put("resIds", groupIds);
@@ -84,20 +89,39 @@ public class SysAdminController {
         }
         
     	sysUserService.getPageData(vo);
-    	List<?> list = vo.getList(); //查询所有员工
+    	List<?> list = vo.getList(); //查询到的所有员工
     	for (Object object : list) {
 			SysUserVo sysUserVo = (SysUserVo) object;
-			for (Integer userId : userIds) {
-				if(userId == sysUserVo.getId()) {
-					sysUserVo.setIsOwn("1"); //是自己管理的员工id
-					break;
+			if(user.getUsertype() == 5) {
+				//[1] 设置是否是部门领导的专属员工
+				for (Integer userId : userIds) {
+					if(userId == sysUserVo.getId()) {
+						sysUserVo.setIsOwn("1"); //是自己管理的员工id
+						break;
+					}
 				}
+			} else if(user.getUsertype() == 4) {
+				//[2] 超级管理员查询每个员工的组名称和部门名称
+				Map<String, Object> searchMap = new HashMap<>();
+				searchMap.put("type", 1);
+				searchMap.put("userId", sysUserVo.getId());
+				Integer groupId = sysUserRoleService.selectGroupIdByUserId(searchMap);
+				SysResources group = sysGroupService.getById(groupId);
+				SysResources department = sysResourcesService.getById(group.getParentid());//通过组的parentid查部门
+				
+				sysUserVo.setGroupName(group.getName());
+				sysUserVo.setDepartmentName(department.getName());
 			}
 		}
+    
         SearchUtil.putToModel(model, vo);
-        return PageConst.DEPARMENT_ADMIN_USER_LIST;
+        if(user.getUsertype() == 4) {
+        	return PageConst.SUPERADMIN_ADMIN_USER_LIST;
+        } else {
+        	return PageConst.DEPARMENT_ADMIN_USER_LIST;
+        }
     }
-	
+
 	/**
      * 新增admin页面跳转
      */
@@ -207,4 +231,5 @@ public class SysAdminController {
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }
+
 }

@@ -312,7 +312,7 @@ img.demo {
             onCorrect: ""
         }).inputValidator({
             min:1,
-            max:30,
+            max:60,
             onError:"请输入广告位名称，30字以内"
         });
 		//广告位编号
@@ -323,7 +323,7 @@ img.demo {
 //            onCorrect: ""
 //        }).inputValidator({
 //            min:1,
-//            max:30,
+//            max:60,
 //            onError:"请输入广告位名称，30字符以内"
 //        }).ajaxValidator({
 //            type: "post",

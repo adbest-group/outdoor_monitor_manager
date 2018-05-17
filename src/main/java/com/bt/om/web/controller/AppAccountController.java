@@ -52,7 +52,7 @@ public class AppAccountController extends BasicController {
                                 @RequestParam(value = "name", required = false) String name) {
         SearchDataVo vo = SearchUtil.getVo();
 
-        vo.putSearchParam("usertypes", null, new Integer[]{UserExecuteType.MONITOR.getId(),UserExecuteType.MEDIA_WORKER.getId(),UserExecuteType.Social.getId()});
+        vo.putSearchParam("usertypes", null, new Integer[]{UserExecuteType.CUSTOMER.getId(), UserExecuteType.MONITOR.getId(),UserExecuteType.MEDIA_WORKER.getId(),UserExecuteType.Social.getId()});
         SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
 //        vo.putSearchParam("operateId",null,user.getId());
         // 名称或登录账号

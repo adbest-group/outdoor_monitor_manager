@@ -76,6 +76,7 @@
                         <th>监测时间点</th>
                         <th>状态</th>
                         <th>问题状态</th>
+                        <th>审核人</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -97,6 +98,7 @@
                             <td>${vm.getMonitorTaskTypeText(task.taskType)}</td>
                             <td>${vm.getMonitorTaskStatusText(task.status)}</td>
                             <td>${vm.getProblemStatusText(task.problemStatus!0)}</td>
+                            <td>${task.assessorName!""}</td>
                             <td>
                             <#--<#if task.status==1><a href="javascript:assign('${task.id}')">指派</a></#if>-->
                             <#--<#if task.status==2><a href="javascript:assign('${task.id}')">重新指派</a></#if>-->

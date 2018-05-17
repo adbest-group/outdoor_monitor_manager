@@ -47,6 +47,7 @@
                         <th>活动名称</th>                       
                         <th>投放周期</th>
                         <th>活动状态</th>
+                        <th>审核人</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -60,6 +61,7 @@
                             </td>
                             <td>${activity.startTime?string('yyyy-MM-dd')} 至 ${activity.endTime?string('yyyy-MM-dd')}</td>
                             <td>${vm.getActivityStatusTextWithColor(activity.status)}</td>
+                            <td>${activity.realName?if_exists}</td>
                             <td>
                                 <#if activity.status gt 0 ><a href="/activity/edit?id=${activity.id}">详情</a></#if>
                             </td>

@@ -38,6 +38,8 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 	private Double lat;
 	private Double feedbackLon;
 	private Double feedbackLat;
+	private String assessorName;
+	private String assignorName;
 
 	public Integer getMediaId() {
 		return mediaId;
@@ -298,4 +300,19 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 		this.reason = reason;
 	}
 
+	public String getAssessorName() {
+		return assessorName;
+	}
+
+	public void setAssessorName(String assessorName) {
+		this.assessorName = assessorName;
+	}
+
+	public String getAssignorName() {
+		return assignorName;
+	}
+
+	public void setAssignorName(String assignorName) {
+		this.assignorName = assignorName;
+	}
 }

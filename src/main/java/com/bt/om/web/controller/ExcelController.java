@@ -541,18 +541,23 @@ public class ExcelController extends BasicController {
                     		/*if(!cityName.endsWith("市")) {
                     			cityName = cityName + "市";
                     		}*/
-                    		List<City> cities = cityCache.getCity(provinceId);
-                    		Map<String, Long> cityMap = citiesToMap(cities);
-                    		Set<String> cityNames = cityMap.keySet();
-                    		for (String name : cityNames) {
-								if(name.contains(cityName)) {
-									cityName = name;
-									break;
-								}
-							}
-                    		cityId = cityMap.get(cityName);
-                    		info.setCity(cityId);
-                    		buffer.append(cityName);
+                    		if(zhiXiaShiFlag == true) {
+                    			info.setCity(info.getProvince());
+                    			cityId = provinceId;
+                    		} else {
+                    			List<City> cities = cityCache.getCity(provinceId);
+                        		Map<String, Long> cityMap = citiesToMap(cities);
+                        		Set<String> cityNames = cityMap.keySet();
+                        		for (String name : cityNames) {
+    								if(name.contains(cityName)) {
+    									cityName = name;
+    									break;
+    								}
+    							}
+                        		cityId = cityMap.get(cityName);
+                        		info.setCity(cityId);
+                        		buffer.append(cityName);
+                    		}
     					}
                 	}
                 	
@@ -569,18 +574,33 @@ public class ExcelController extends BasicController {
                     		/*if(!regionName.endsWith("区")) {
                     			regionName = regionName + "区";
                     		}*/
-                    		List<City> cities = cityCache.getRegion(cityId);
-                    		Map<String, Long> regionMap = citiesToMap(cities);
-                    		Set<String> regionNames = regionMap.keySet();
-                    		for (String name : regionNames) {
-								if(name.contains(regionName)) {
-									regionName = name;
-									break;
-								}
-							}
-                    		regionId = regionMap.get(regionName);
-                    		info.setRegion(regionId);
-                    		buffer.append(regionName);
+                    		if(zhiXiaShiFlag == true) {
+                    			List<City> cities = cityCache.getRegionByProvince(provinceId);
+                        		Map<String, Long> regionMap = citiesToMap(cities);
+                        		Set<String> regionNames = regionMap.keySet();
+                        		for (String name : regionNames) {
+    								if(name.contains(regionName)) {
+    									regionName = name;
+    									break;
+    								}
+    							}
+                        		regionId = regionMap.get(regionName);
+                        		info.setRegion(regionId);
+                        		buffer.append(regionName);
+                    		} else {
+                    			List<City> cities = cityCache.getRegion(cityId);
+                        		Map<String, Long> regionMap = citiesToMap(cities);
+                        		Set<String> regionNames = regionMap.keySet();
+                        		for (String name : regionNames) {
+    								if(name.contains(regionName)) {
+    									regionName = name;
+    									break;
+    								}
+    							}
+                        		regionId = regionMap.get(regionName);
+                        		info.setRegion(regionId);
+                        		buffer.append(regionName);
+                    		}
     					}
                 	}
                 	
@@ -597,7 +617,7 @@ public class ExcelController extends BasicController {
                     		/*if(!streetName.endsWith("街道")) {
                     			streetName = streetName + "街道";
                     		}*/
-                    		List<City> cities = cityCache.getStreet(regionId);
+                			List<City> cities = cityCache.getStreet(regionId);
                     		Map<String, Long> streetMap = citiesToMap(cities);
                     		Set<String> streetNames = streetMap.keySet();
                     		for (String name : streetNames) {

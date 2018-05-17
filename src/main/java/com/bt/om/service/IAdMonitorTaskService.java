@@ -9,6 +9,7 @@ import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.vo.AbandonTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.entity.vo.PictureVo;
 import com.bt.om.vo.web.SearchDataVo;
 
 /**
@@ -84,5 +85,6 @@ public interface IAdMonitorTaskService {
 	public void recycleMonitorTask();
 	public void forceAssignTask();
 	public void abandonUserTask(AbandonTaskVo vo);
+	List<PictureVo> selectFeedBackByActivityIdAndSeatId(Map<String, Object> searchMap);
 
 }

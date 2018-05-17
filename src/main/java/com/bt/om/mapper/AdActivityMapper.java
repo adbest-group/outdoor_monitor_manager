@@ -10,6 +10,7 @@ import org.apache.ibatis.session.RowBounds;
 import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.vo.ActivityMobileReportVo;
 import com.bt.om.entity.vo.AdActivityVo;
+import com.bt.om.entity.vo.AdActivityVo2;
 
 public interface AdActivityMapper {
     /**
@@ -62,7 +63,7 @@ public interface AdActivityMapper {
 
     int getPageCount(Map<String, Object> searchMap);
 
-    List<AdActivityVo> getPageData(Map<String, Object> searchMap, RowBounds rowBounds);
+    List<AdActivityVo2> getPageData(Map<String, Object> searchMap, RowBounds rowBounds);
 
     AdActivityVo selectVoByPrimaryKey(Integer id);
 

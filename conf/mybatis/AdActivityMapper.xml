@@ -197,6 +197,10 @@
     <collection property="activitySeats" column="id" select="com.bt.om.mapper.AdActivityAdseatMapper.selectByActivityId"></collection>
     <collection property="activityMedias" column="id" select="com.bt.om.mapper.AdActivityMediaMapper.selectByActivityId"></collection>
   </resultMap>
+  
+  <resultMap id="ExtResultMap2" extends="BaseResultMap" type="com.bt.om.entity.vo.AdActivityVo2">
+    <result column="realname" jdbcType="VARCHAR" property="realName" />
+  </resultMap>
 
   <select id="getPageCount" parameterType="map" resultType="int">
     select
@@ -224,32 +228,34 @@
     </if>
   </select>
 
-  <select id="getPageData" parameterType="map" resultMap="BaseResultMap">
+  <select id="getPageData" parameterType="map" resultMap="ExtResultMap2">
     select
-    id, activity_name, start_time, end_time, status, user_id, create_time, update_time,assessor_id
+    	a.id, a.activity_name, a.start_time, a.end_time, a.status, a.user_id, a.create_time, a.update_time, a.assessor_id,
+    	b.realname
     from
-    ad_activity
+    	ad_activity a 
+    	left join sys_user b on a.assessor_id = b.id
     where 1=1
     <if test="userId != null" >
-      and user_id = #{userId,jdbcType=INTEGER}
+      and a.user_id = #{userId,jdbcType=INTEGER}
     </if>
     <if test="activityId != null" >
-      and id = #{activityId,jdbcType=INTEGER}
+      and a.id = #{activityId,jdbcType=INTEGER}
     </if>
     <if test="status != null" >
-      and status = #{status,jdbcType=INTEGER}
+      and a.status = #{status,jdbcType=INTEGER}
     </if>
     <if test="startDate != null" >
-      and start_time >= DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+      and a.start_time >= DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
     </if>
     <if test="endDate != null" >
-      and end_time &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+      and a.end_time &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
     </if>
     <if test="assessorId != null" >
-      and assessor_id = #{assessorId,jdbcType=INTEGER}
+      and a.assessor_id = #{assessorId,jdbcType=INTEGER}
     </if>
     
-    order by id desc
+    order by a.id desc
   </select>
 
   <select id="selectVoByPrimaryKey" resultMap="ExtResultMap" parameterType="java.lang.Integer" >

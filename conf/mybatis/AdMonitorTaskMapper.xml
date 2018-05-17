@@ -302,6 +302,8 @@
         <result column="lon" jdbcType="DOUBLE" property="lon"/>
         <result column="feedback_lat" jdbcType="DOUBLE" property="feedbackLat"/>
         <result column="feedback_lon" jdbcType="DOUBLE" property="feedbackLon"/>
+        <result column="assessorName" jdbcType="VARCHAR" property="assessorName"/>
+        <result column="assignorName" jdbcType="VARCHAR" property="assignorName"/>
     </resultMap>
 
     <resultMap id="MobileResultMap" extends="BaseResultMap" type="com.bt.om.entity.vo.AdMonitorTaskMobileVo">
@@ -421,17 +423,22 @@
     </select>
 
     <select id="getPageData" parameterType="map" resultMap="ExtResultMap">
-        select a.id, a.activity_id, a.activity_adseat_id, a.task_type, a.monitor_date,a.monitor_last_days,a.user_id,
-        a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time, a.assessor_id,a.assignor_id,
-        b.activity_name,c.sample_pic_url,b.start_time,b.end_time,d.province,d.city,d.region,d.street,c.media_id,e.media_name,d.`name`
-        as ad_seat_name,
-        f.realname
+        select 
+        	a.id, a.activity_id, a.activity_adseat_id, a.task_type, a.monitor_date,a.monitor_last_days,a.user_id,
+        	a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time, a.assessor_id,a.assignor_id,
+        	b.activity_name,c.sample_pic_url,b.start_time,b.end_time,d.province,d.city,d.region,d.street,c.media_id,e.media_name,d.`name`
+        	as ad_seat_name,
+        	f.realname,
+        	g.realname as assessorName,
+        	h.realname as assignorName
         from ad_monitor_task a
-        left join ad_activity b on a.activity_id = b.id
-        left join ad_activity_adseat c on a.activity_adseat_id = c.id
-        left join ad_seat_info d on c.ad_seat_id = d.id
-        left join ad_media e on c.media_id = e.id
-        left join sys_user_execute f on a.user_id = f.id
+	        left join ad_activity b on a.activity_id = b.id
+	        left join ad_activity_adseat c on a.activity_adseat_id = c.id
+	        left join ad_seat_info d on c.ad_seat_id = d.id
+	        left join ad_media e on c.media_id = e.id
+	        left join sys_user_execute f on a.user_id = f.id
+	        left join sys_user g on a.assessor_id = g.id
+	        left join sys_user h on a.assignor_id = h.id
         where 1=1
         <if test="activityId != null">
             and a.activity_id = #{activityId,jdbcType=INTEGER}

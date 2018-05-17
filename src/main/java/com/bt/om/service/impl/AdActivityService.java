@@ -25,6 +25,7 @@ import com.bt.om.entity.vo.ActivityMobileReportVo;
 import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
 import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdActivityVo;
+import com.bt.om.entity.vo.AdActivityVo2;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.enums.ActivityStatus;
 import com.bt.om.enums.MonitorTaskStatus;
@@ -134,9 +135,8 @@ public class AdActivityService implements IAdActivityService {
         if (count > 0) {
             vo.setList(adActivityMapper.getPageData(vo.getSearchMap(), new RowBounds(vo.getStart(), vo.getSize())));
         } else {
-            vo.setList(new ArrayList<AdActivityVo>());
+            vo.setList(new ArrayList<AdActivityVo2>());
         }
-
     }
 
     @Override

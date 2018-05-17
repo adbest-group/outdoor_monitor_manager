@@ -54,6 +54,7 @@
 					<td class="a-title">用户类型：</td>
 					<td>
 					<#if (obj?exists&&obj.id?exists)>
+					   <#if (obj.usertype?exists&&obj.usertype==2)>客户人员</#if>
 					   <#if (obj.usertype?exists&&obj.usertype==3)>媒体人员</#if>
 					   <#if (obj.usertype?exists&&obj.usertype==4)>社会人员</#if>
 					   <input type="hidden" id="usertype" name="usertype" value="${(obj.usertype)?if_exists}"/>
@@ -210,7 +211,9 @@ $(function() {
 		        submitAfterAjaxPrompt: '有数据正在异步验证，请稍等...'
 		    });
 		    
-			if(id != null && id != ""){
+		    var userType = $("#usertype").val();
+		    
+			if(id != null && id != "" <#if (obj?exists&&obj.usertype?exists)> && userType != 2 </#if>){
 				// 登录账户check
 			    $("#username").formValidator({
 					validatorGroup:"2",
@@ -247,6 +250,8 @@ $(function() {
 			        onError: "已存在该登录账户，请修改",
 			        onWait: "正在对登录账户进行校验，请稍候..."
 			    }).defaultPassed(); **/
+			} else if(id != null && id != "" <#if (obj?exists&&obj.usertype?exists)> && userType == 2 </#if>) {
+				
 			} else {
 				// 登录账户check
 			    $("#username").formValidator({

@@ -96,6 +96,7 @@ public class PageConst {
 	/*** 部门管理员下的员工管理 ***/
 	public static final String DEPARMENT_ADMIN_USER_LIST = "sysUser/list";
 	public static final String DEPARMENT_ADMIN_USER_EDIT = "sysUser/edit";
+	public static final String SUPERADMIN_ADMIN_USER_LIST = "sysUser/adminList";
 	
 	/*** 部门管理员下的组与员工、客户管理 ***/
 	public static final String DEPARMENT_ADMIN_GROUP_USER = "resources/resUserList";

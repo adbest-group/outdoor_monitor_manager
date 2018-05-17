@@ -258,6 +258,8 @@ public class SysGroupController extends BasicController{
             		//活动审核部门
             		roleId = 105;
             	} else if(departmentType == 2) {
+            		
+            		
             		//任务审核、指派部门
             		roleId = 106;
             	} else if(departmentType == 3) {

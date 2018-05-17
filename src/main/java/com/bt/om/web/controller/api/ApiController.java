@@ -2775,9 +2775,21 @@ public class ApiController extends BasicController {
 						downPics.add(pictureVo);
 					}
 				}
-				report.setUpPics(upPics);
-				report.setDurationPics(durationPics);
-				report.setDownPics(downPics);
+				if(upPics.size() > 0) {
+					report.setUpPics(upPics);
+				} else {
+					report.setUpPics(null);
+				}
+				if(durationPics.size() > 0) {
+					report.setUpPics(durationPics);
+				} else {
+					report.setUpPics(null);
+				}
+				if(downPics.size() > 0) {
+					report.setUpPics(downPics);
+				} else {
+					report.setUpPics(null);
+				}
 				
 				if(StringUtil.equals(report.getCurrentStatus(), "监测中")) {
 					monitorReport.add(report);

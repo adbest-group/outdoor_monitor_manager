@@ -13,13 +13,13 @@
 			<tbody>
 			     <input type="hidden" name="id" id="id" value="${(obj.id)?if_exists}"/>
 				<tr>
-					<td class="a-title" style="padding:20px 10px;">登录账户：</td>
-					<td style="padding:20px 10px;">
+					<td class="a-title">登录账户：</td>
+					<td>
 					<#--<#if (obj.id)?exists>-->
 					   <#--${(obj.username)?if_exists}-->
 					    <#--<input type="hidden"  id="username" name="username" value="${(obj.username)?if_exists}"/>-->
 					<#--<#else>-->
-					    <input type="text"  id="username" name="username" value="${(obj.username)?if_exists}" autocomplete="off" class="form-control"> <br><span id="usernameTip"></span>
+					    <input type="text" <#if (obj.id)?exists>readonly</#if> id="username" name="username" value="${(obj.username)?if_exists}" autocomplete="off" class="form-control"> <br><span id="usernameTip"></span>
 					<#--</#if>-->
                     </td>
 				</tr>
@@ -30,10 +30,35 @@
 						  <input type="password" name="password" value="">
 						</div><input type="password" id="password" name="password" value="<#if (obj.id)?exists>******</#if>" autocomplete="off" class="form-control"> <br><span id="passwordTip"></span></td>
 				</tr>
+				
+				<#-- <@model.showUserExecuteTypeList value="${(obj.usertype)?if_exists}" /> -->
+            	<#-- <option value="2" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==2)>selected</#if> >客户人员</option> -->
+            	<#-- 
 				<tr>
 					<td class="a-title">用户类型：</td>
 					<td>
                         <div class="select-box select-box-100 un-inp-select ll">
+                            <select class="select" name="usertype" id="usertype">
+                            	<option value="3" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==3)>selected</#if> >媒体人员</option>
+                            	<option value="4" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==4)>selected</#if> >社会人员</option>
+                            </select>
+                        </div>
+						<br/>
+						<span id="usertypeTip">&nbsp;</span>
+					</td>
+				</tr>
+				 -->
+				 
+				 
+				<tr style="margin-bottom:20px">
+					<td class="a-title">用户类型：</td>
+					<td>
+					<#if (obj?exists&&obj.id?exists)>
+					   <#if (obj.usertype?exists&&obj.usertype==3)>媒体人员</#if>
+					   <#if (obj.usertype?exists&&obj.usertype==4)>社会人员</#if>
+					   <input type="hidden" id="usertype" name="usertype" value="${(obj.usertype)?if_exists}"/>
+					<#else>
+					   <div class="select-box select-box-100 un-inp-select ll">
                             <select class="select" name="usertype" id="usertype">
                             	<#-- <@model.showUserExecuteTypeList value="${(obj.usertype)?if_exists}" /> -->
                             	<#-- <option value="2" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==2)>selected</#if> >客户人员</option> -->
@@ -42,24 +67,40 @@
                             </select>
                         </div>
 						<br/>
-						<br/>
 						<span id="usertypeTip">&nbsp;</span>
 					</td>
+					</#if>
 				</tr>
-				<tr id="mediaTr" style="<#if (obj?exists&&obj.usertype?exists&&obj.usertype==3)>display:auto;<#else>display:none;</#if>">
+				
+				
+				<tr id="mediaTr" style="<#if (obj?exists)>
+											<#if (obj?exists&&obj.usertype?exists&&obj.usertype==3)>
+												display:auto;
+											<#else>
+												display:none;
+											</#if>
+										<#else>
+											display:auto;
+										</#if>">
+										
 					<td class="a-title">所属媒体：</td>
 					<td>
-                        <div class="select-box select-box-100 un-inp-select ll">
-                            <select class="select" name="mediaId" id="mediaId">
-							<@model.showAllMediaOps value="${mediaId?if_exists}" />
-                            </select>
-                        </div>
-						<br/>
-						<br/>
-						<span id="mediaIdTip">&nbsp;</span>
+						<#if (obj?exists&&obj.id?exists)>
+							<#if (obj?exists&&obj.mediaName?exists)>${(obj.mediaName)?if_exists}</#if>
+							<input type="hidden" id="mediaId" name="mediaId" value="${(obj.mediaId)?if_exists}"/>
+						<#else>
+							<div class="select-box select-box-100 un-inp-select ll">
+	                            <select class="select" name="mediaId" id="mediaId">
+								<@model.showAllMediaOps value="${mediaId?if_exists}" />
+	                            </select>
+	                        </div>
+							<br/>
+							<span id="mediaIdTip">&nbsp;</span>
+						</#if>
 					</td>
 				</tr>
-                 <tr>
+				
+                <tr>
                      <td class="a-title">姓名：</td>
                      <td><input type="text" id="name" name="name" value="${(obj.realname)?if_exists}" autocomplete="off" class="form-control"> <br><span id="nameTip"></span></td>
                  </tr>
@@ -94,7 +135,7 @@
 $(function() {
     $('.select').searchableSelect();
 
-	$("#mediaTr").show();
+	//$("#mediaTr").show();
 
     $("#usertype").siblings().find(".searchable-select-item").click(function(){
         if($("#usertype").val()==3){
@@ -102,9 +143,8 @@ $(function() {
 		}else{
             $("#mediaTr").hide();
 		}
-
     });
-
+    
     var id = $("#id").val();
     // 新建账户处理
 			$.formValidator.initConfig({
@@ -170,44 +210,81 @@ $(function() {
 		        submitAfterAjaxPrompt: '有数据正在异步验证，请稍等...'
 		    });
 		    
-
-		    // 登录账户check
-		    $("#username").formValidator({
-				validatorGroup:"2",
-		        onShow: "　",
-		        onFocus: "请输入登录账户，使用手机号",
-		        onCorrect: "　"
-				<#--<#if (obj?exists&&obj.username?exists)>,defaultValue:"${obj.username}"</#if>-->
-		    }).inputValidator({
-		        min:1,
-        		max:11,
-        		onError:"登录账户为手机号码，请重新输入"
-		    }).regexValidator({
-        		regExp:"^1([358][0-9]|4[579]|66|7[0135678]|9[89])[0-9]{8}$",
-        		onError:"登录账户为手机号码，请重新输入"
-        	}).ajaxValidator({
-        		type: "post",
-		        dataType: "json",
-		        async: false,
-				data:{id:$("#id").val()},
-		        url: "/appAccount/isExistsAccountName",
-		        buttons: $("#button"),
-		        success: function(result) {
-		            if (result.ret.code == 100) {
-		                return true;
-		            }
-		            return false;
-		        },
-		        error: function(jqXHR, textStatus, errorThrown) {
-             		layer.confirm("服务忙，请稍后再试", {
-						icon: 5,
-						btn: ['确定'] //按钮
-					});
-		        },
-		        onError: "已存在该登录账户，请修改",
-		        onWait: "正在对登录账户进行校验，请稍候..."
-		    }).defaultPassed();
-
+			if(id != null && id != ""){
+				// 登录账户check
+			    $("#username").formValidator({
+					validatorGroup:"2",
+			        onShow: "　",
+			        onFocus: "请输入登录账户，使用手机号",
+			        onCorrect: "　"
+					<#--<#if (obj?exists&&obj.username?exists)>,defaultValue:"${obj.username}"</#if>-->
+			    }).inputValidator({
+			        min:1,
+	        		max:11,
+	        		onError:"登录账户为手机号码，请重新输入"
+			    }).regexValidator({
+	        		regExp:"^1([358][0-9]|4[579]|66|7[0135678]|9[89])[0-9]{8}$",
+	        		onError:"登录账户为手机号码，请重新输入"
+	        	}); /**.ajaxValidator({
+	        		type: "post",
+			        dataType: "json",
+			        async: false,
+					data:{id:$("#id").val()},
+			        url: "/appAccount/isExistsAccountName",
+			        buttons: $("#button"),
+			        success: function(result) {
+			            if (result.ret.code == 100) {
+			                return true;
+			            }
+			            return false;
+			        },
+			        error: function(jqXHR, textStatus, errorThrown) {
+	             		layer.confirm("服务忙，请稍后再试", {
+							icon: 5,
+							btn: ['确定'] //按钮
+						});
+			        },
+			        onError: "已存在该登录账户，请修改",
+			        onWait: "正在对登录账户进行校验，请稍候..."
+			    }).defaultPassed(); **/
+			} else {
+				// 登录账户check
+			    $("#username").formValidator({
+					validatorGroup:"2",
+			        onShow: "　",
+			        onFocus: "请输入登录账户，使用手机号",
+			        onCorrect: "　"
+					<#--<#if (obj?exists&&obj.username?exists)>,defaultValue:"${obj.username}"</#if>-->
+			    }).inputValidator({
+			        min:1,
+	        		max:11,
+	        		onError:"登录账户为手机号码，请重新输入"
+			    }).regexValidator({
+	        		regExp:"^1([358][0-9]|4[579]|66|7[0135678]|9[89])[0-9]{8}$",
+	        		onError:"登录账户为手机号码，请重新输入"
+	        	}).ajaxValidator({
+	        		type: "post",
+			        dataType: "json",
+			        async: false,
+					data:{id:$("#id").val()},
+			        url: "/appAccount/isExistsAccountName",
+			        buttons: $("#button"),
+			        success: function(result) {
+			            if (result.ret.code == 100) {
+			                return true;
+			            }
+			            return false;
+			        },
+			        error: function(jqXHR, textStatus, errorThrown) {
+	             		layer.confirm("服务忙，请稍后再试", {
+							icon: 5,
+							btn: ['确定'] //按钮
+						});
+			        },
+			        onError: "已存在该登录账户，请修改",
+			        onWait: "正在对登录账户进行校验，请稍候..."
+			    }).defaultPassed();
+			}
 		    
 		    // 密码check
 	    	$("#password").formValidator({

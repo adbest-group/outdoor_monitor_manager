@@ -69,4 +69,5 @@ public interface AdJiucuoTaskMapper {
     List<AdJiucuoTaskVo> selectAllByAssessorId(Map<String, Object> searchMap);
     List<AdJiucuoTaskVo> getTenAdJiucuoTaskVo(Map<String, Object> searchMap);
     int updateAssessorId(Map<String, Object> searchMap);
+    int selectCountByActivityAndSeat(Map<String, Object> searchMap);
 }

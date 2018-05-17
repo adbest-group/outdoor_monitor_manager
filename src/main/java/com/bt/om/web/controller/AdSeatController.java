@@ -40,7 +40,6 @@ import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
 import com.bt.om.web.util.SearchUtil;
 import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -166,24 +165,36 @@ public class AdSeatController extends BasicController {
     }
 
     /**
-     * 广告位删除
+     * 广告位删除, 只能删除没有活动的广告位
      *
      * @param request
      * @param id
      * @return 提示信息
      */
-    @RequestMapping(value = "/verify")
+    @RequestMapping(value = "/delete")
     @ResponseBody
-    public Map<String, Object> deleteAdSeat(HttpServletRequest request,
-                                            @RequestParam(value = "id", required = false) Integer id) {
-        Map<String, Object> modelMap = new HashMap<String, Object>();
+    public Model deleteAdSeat(Model model, HttpServletRequest request, @RequestParam(value = "id", required = false) Integer id) {
+        ResultVo<String> result = new ResultVo<String>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("保存成功");
+        model = new ExtendedModelMap();
+        
         try {
-            resourceService.deleteAdSeatById(id);
-            modelMap.put("success", true);
+            int count = resourceService.deleteAdSeatById(id);
+            if(count == 0) {
+            	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("该广告位已经参与活动，不能删除！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+            }
         } catch (Exception e) {
-            modelMap.put("success", false);
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("删除失败！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
         }
-        return modelMap;
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
     }
 
 //	@RequiresRoles("admin")

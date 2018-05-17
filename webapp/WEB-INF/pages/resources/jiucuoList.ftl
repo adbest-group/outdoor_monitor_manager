@@ -59,6 +59,7 @@
                         <th>广告位</th>
                         <th>状态</th>
                         <th>问题状态</th>
+                        <th>审核人</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -78,6 +79,7 @@
                             <td>${task.adSeatName!""}</td>
                             <td>${vm.getJiucuoTaskStatusText(task.status)}</td>
                             <td>${vm.getProblemStatusText(task.problemStatus!0)}</td>
+                            <td>${task.assessorName!""}</td>
                             <td>
                                 <a href="/jiucuo/detail?id=${task.id}">详情</a>
                             </td>

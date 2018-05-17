@@ -240,6 +240,7 @@
         <result column="feedback_time" jdbcType="VARCHAR" property="feedbackTime"/>
         <result column="start_time" jdbcType="VARCHAR" property="startTime"/>
         <result column="end_time" jdbcType="VARCHAR" property="endTime"/>
+        <result column="assessorName" jdbcType="VARCHAR" property="assessorName"/>
     </resultMap>
 
     <resultMap id="MobileResultMap" extends="BaseResultMap" type="com.bt.om.entity.vo.AdJiucuoTaskMobileVo">
@@ -298,16 +299,19 @@
     </select>
 
     <select id="getPageData" parameterType="map" resultMap="ExtResultMap">
-        select a.id, a.activity_id, a.ad_seat_id, a.submit_time, a.user_id,
-        a.status,a.reason,a.problem_status,a.sub_created,a.verify_time,a.create_time, a.update_time,
-        b.pic_url1,c.activity_name, c.start_time, c.end_time,e.province,e.city,e.region,e.street,d.id as activity_adseat_id,d.media_id,a.assessor_id,
-        f.media_name,e.`name` as ad_seat_name
+        select 
+	        a.id, a.activity_id, a.ad_seat_id, a.submit_time, a.user_id,
+	        a.status,a.reason,a.problem_status,a.sub_created,a.verify_time,a.create_time, a.update_time,
+	        b.pic_url1,c.activity_name, c.start_time, c.end_time,e.province,e.city,e.region,e.street,d.id as activity_adseat_id,d.media_id,a.assessor_id,
+	        f.media_name,e.`name` as ad_seat_name,
+	        g.realname as assessorName
         from ad_jiucuo_task a
-        left join ad_jiucuo_task_feedback b on a.id = b.jiucuo_task_id
-        left join ad_activity c on a.activity_id = c.id
-        left join ad_activity_adseat d on a.activity_id = d.activity_id and a.ad_seat_id = d.ad_seat_id
-        left join ad_seat_info e on d.ad_seat_id = e.id
-        left join ad_media f on d.media_id = f.id
+	        left join ad_jiucuo_task_feedback b on a.id = b.jiucuo_task_id
+	        left join ad_activity c on a.activity_id = c.id
+	        left join ad_activity_adseat d on a.activity_id = d.activity_id and a.ad_seat_id = d.ad_seat_id
+	        left join ad_seat_info e on d.ad_seat_id = e.id
+	        left join ad_media f on d.media_id = f.id
+	        left join sys_user g on a.assessor_id = g.id
         where 1=1
         <if test="activityId != null">
             and a.activity_id = #{activityId,jdbcType=INTEGER}

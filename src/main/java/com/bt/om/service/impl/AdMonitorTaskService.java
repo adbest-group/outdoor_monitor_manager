@@ -1,10 +1,10 @@
 package com.bt.om.service.impl;
 
-import java.util.Map;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,18 +16,18 @@ import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.entity.AdMonitorReward;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
-import com.bt.om.entity.vo.AllAdMonitorTaskVo;
 import com.bt.om.entity.AdMonitorUserTask;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AbandonTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.entity.vo.AllAdMonitorTaskVo;
+import com.bt.om.entity.vo.PictureVo;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.RewardType;
-
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
 import com.bt.om.mapper.AdJiucuoTaskMapper;
@@ -489,5 +489,10 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	@Transactional(rollbackFor = Exception.class)
 	public void abandonUserTask(AbandonTaskVo vo) {
 		adMonitorUserTaskMapper.abandonUserTask(vo);
+	}
+	
+	@Override
+	public List<PictureVo> selectFeedBackByActivityIdAndSeatId(Map<String, Object> searchMap) {
+		return adMonitorTaskMapper.selectFeedBackByActivityIdAndSeatId(searchMap);
 	}
 }

@@ -287,6 +287,7 @@ public class AdActivityService implements IAdActivityService {
 	public List<AdActivityAdseatTaskVo> selectAdActivityAdseatTask(Integer activityId) {
 		return adActivityAdseatMapper.selectAdActivityAdseatTask(activityId);
 	}
+	
 //    public static void main(String[] args) {
 //        System.out.println(LocalDate.now());
 //        System.out.println(YearMonth.from(LocalDate.now()));

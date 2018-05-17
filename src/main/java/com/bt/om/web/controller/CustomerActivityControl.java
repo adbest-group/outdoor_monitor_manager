@@ -175,9 +175,18 @@ public class CustomerActivityControl extends BasicController {
         List<JsonObject> areas = GsonUtil.getObjectList(area, JsonObject.class);
         if (areas.size() > 0) {
             for (JsonObject obj : areas) {
+            	boolean zhixiashiFlag = false;
+            	if(obj.get("city") == null || StringUtils.equals(String.valueOf(obj.get("city")), "null")) {
+            		//直辖市"市为空"
+            		zhixiashiFlag = true;
+            	}
                 AdActivityArea aa = new AdActivityArea();
                 aa.setProvince(obj.get("province").getAsLong());
-                aa.setCity(obj.get("city").getAsLong());
+                if(zhixiashiFlag == true) {
+                	aa.setCity(obj.get("province").getAsLong());
+                } else {
+                	aa.setCity(obj.get("city").getAsLong());
+                }
                 aa.setRegion(obj.get("region").getAsLong());
                 aa.setStreet(obj.get("street").getAsLong());
                 aa.setCreateTime(now);

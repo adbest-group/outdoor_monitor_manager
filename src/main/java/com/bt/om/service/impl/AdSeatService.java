@@ -148,28 +148,42 @@ public class AdSeatService implements IAdSeatService {
 
 	@Override
 	public List<CountGroupByCityVo> getCountGroupByCity(HeatMapVo heatMapVo, Integer userId) {
+		Map<String, Object> searchMap = new HashMap<>();
+		searchMap.put("userId", userId);
+		List<Integer> seatIds = new ArrayList<>();
+		
 		//[1] 查询某活动的所有广告位id集合
 		if(heatMapVo.getActivityId() != null) {
-			Map<String, Object> searchMap = new HashMap<>();
 			searchMap.put("activityId", heatMapVo.getActivityId());
-			searchMap.put("userId", userId);
-			List<Integer> seatIds = adActivityAdseatMapper.selectSeatIdByActivityId(searchMap);
-			heatMapVo.setInfoIds(seatIds);
 		}
+		seatIds = adActivityAdseatMapper.selectSeatIdByActivityId(searchMap);
+		if(seatIds.size() > 0) {
+			heatMapVo.setInfoIds(seatIds);
+		} else {
+			heatMapVo.setInfoIds(null);
+		}
+		
 		//[2] 查询热力图报表
 		return adSeatInfoMapper.getCountGroupByCity(heatMapVo);
 	}
 	
 	@Override
 	public List<AdSeatInfo> getAllLonLat(HeatMapVo heatMapVo, Integer userId) {
+		Map<String, Object> searchMap = new HashMap<>();
+		searchMap.put("userId", userId);
+		List<Integer> seatIds = new ArrayList<>();
+		
 		//[1] 查询某活动的所有广告位id集合
 		if(heatMapVo.getActivityId() != null) {
-			Map<String, Object> searchMap = new HashMap<>();
 			searchMap.put("activityId", heatMapVo.getActivityId());
-			searchMap.put("userId", userId);
-			List<Integer> seatIds = adActivityAdseatMapper.selectSeatIdByActivityId(searchMap);
-			heatMapVo.setInfoIds(seatIds);
 		}
+		seatIds = adActivityAdseatMapper.selectSeatIdByActivityId(searchMap);
+		if(seatIds.size() > 0) {
+			heatMapVo.setInfoIds(seatIds);
+		} else {
+			heatMapVo.setInfoIds(null);
+		}
+		
 		//[2] 查询热力图报表
 		return adSeatInfoMapper.getAllLonLat(heatMapVo);
 	}

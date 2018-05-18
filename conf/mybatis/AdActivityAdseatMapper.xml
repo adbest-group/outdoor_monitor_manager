@@ -442,8 +442,12 @@
     from ad_activity_adseat a
     left join ad_activity b on a.activity_id = b.id
     where 1=1
-    	and a.activity_id = #{activityId,jdbcType=INTEGER}
-    	and b.user_id = #{userId,jdbcType=INTEGER}
+    	<if test="activityId != null" >
+	      and a.activity_id = #{activityId,jdbcType=INTEGER}
+	    </if>
+	    <if test="userId != null" >
+	      and b.user_id = #{userId,jdbcType=INTEGER}
+	    </if>
   </select>
   
   <select id="selectCountByAdSeatId" parameterType="java.lang.Integer" resultType="java.lang.Integer">

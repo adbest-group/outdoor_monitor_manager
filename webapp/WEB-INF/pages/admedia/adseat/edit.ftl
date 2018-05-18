@@ -146,7 +146,7 @@ img.demo {
 							<tr>
 								<td class="a-title">地图标准：</td>
 								<td>
-									<select style="width: 156px;" name="mapStandard" id="mapStandard" class="form-control">
+									<select style="width: 156px;" disabled name="mapStandard" id="mapStandard" class="form-control">
 										<option value="">请选择地图标准</option>
 				                        <option value="1" <#if (adSeatInfo?exists&&((adSeatInfo.mapStandard)!0) == 1)>selected</#if>>百度</option>
 				                        <option value="2" <#if (adSeatInfo?exists&&((adSeatInfo.mapStandard)!0) == 2)>selected</#if>>谷歌</option>
@@ -154,6 +154,26 @@ img.demo {
 				                    </select>
 									
                                     <span id="mapStandardTip"></span>
+								</td>
+							</tr>
+							
+							<tr>
+								<td class="a-title">是否允许同时有多个活动：</td>
+								<td>
+									<select style="width: 156px;" name="allowMulti" id="allowMulti" class="form-control">
+				                        <option value="0" <#if (adSeatInfo?exists&&((adSeatInfo.allowMulti)!0) == 0)>selected</#if>>否</option>
+				                        <option value="1" <#if (adSeatInfo?exists&&((adSeatInfo.allowMulti)!0) == 1)>selected</#if>>是</option>
+				                    </select>
+									
+	                                <span id="allowMultiTip"></span>
+								</td>
+							</tr>
+							
+							<tr>
+								<td class="a-title">允许的活动数量：</td>
+								<td><input type="text" style="width: 130px;" id="multiNum" name="multiNum" value="<#if (adSeatInfo?exists)>${adSeatInfo.multiNum!""} <#else>1</#if>"
+									autocomplete="off" class="form-control">
+	                                <span id="multiNumTip"></span>
 								</td>
 							</tr>
 							
@@ -304,6 +324,18 @@ img.demo {
         });
 
 		//表单验证
+		$("#multiNum").formValidator({
+            validatorGroup: "2",
+            onShow: "　",
+            onFocus: "请输入允许活动数量",
+            onCorrect: ""
+        }).inputValidator({
+            type: "number",
+            min: 1,
+            max: 30,
+            onError: "活动数量暂时支持 1 ~ 30"
+        });
+		
 		//广告位名称
         $("#name").formValidator({
             validatorGroup:"2",

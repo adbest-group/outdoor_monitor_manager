@@ -614,6 +614,8 @@ public class AdSeatInfo {
     private String uniqueKey;
     private String memo;
     private String adCodeUrl;
+    private Integer allowMulti;
+    private Integer multiNum;
     
     public Integer getMapStandard() {
 		return mapStandard;
@@ -709,6 +711,22 @@ public class AdSeatInfo {
 	
 	public void setAdCodeUrl(String adCodeUrl) {
 		this.adCodeUrl = adCodeUrl;
+	}
+
+	public Integer getAllowMulti() {
+		return allowMulti;
+	}
+
+	public void setAllowMulti(Integer allowMulti) {
+		this.allowMulti = allowMulti;
+	}
+
+	public Integer getMultiNum() {
+		return multiNum;
+	}
+
+	public void setMultiNum(Integer multiNum) {
+		this.multiNum = multiNum;
 	}
     
 }

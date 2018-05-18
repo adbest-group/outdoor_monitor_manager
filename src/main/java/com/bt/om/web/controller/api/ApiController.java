@@ -2763,16 +2763,19 @@ public class ApiController extends BasicController {
 				List<PictureVo> durationPics = new ArrayList<>(); //投放期间监测图片集合
 				List<PictureVo> downPics = new ArrayList<>(); //下刊监测图片集合
 				for (PictureVo pictureVo : pictureVos) {
-					pictureVo.setTime(DateUtil.dateFormate(pictureVo.getDate(), "yyyy-MM-dd HH:mm:ss"));
-					if(StringUtil.equals(pictureVo.getTaskType(), "1")) {
-						pictureVo.setTaskType("上刊监测");
-						upPics.add(pictureVo);
-					} else if(StringUtil.equals(pictureVo.getTaskType(), "2")) {
-						pictureVo.setTaskType("投放期间监测");
-						durationPics.add(pictureVo);
-					} else if(StringUtil.equals(pictureVo.getTaskType(), "3")) {
-						pictureVo.setTaskType("下刊监测");
-						downPics.add(pictureVo);
+					if(pictureVo.getDate() != null) {
+						//代表有人做过该任务
+						pictureVo.setTime(DateUtil.dateFormate(pictureVo.getDate(), "yyyy-MM-dd HH:mm:ss"));
+						if(StringUtil.equals(pictureVo.getTaskType(), "1")) {
+							pictureVo.setTaskType("上刊监测");
+							upPics.add(pictureVo);
+						} else if(StringUtil.equals(pictureVo.getTaskType(), "2")) {
+							pictureVo.setTaskType("投放期间监测");
+							durationPics.add(pictureVo);
+						} else if(StringUtil.equals(pictureVo.getTaskType(), "3")) {
+							pictureVo.setTaskType("下刊监测");
+							downPics.add(pictureVo);
+						}
 					}
 				}
 				if(upPics.size() > 0) {

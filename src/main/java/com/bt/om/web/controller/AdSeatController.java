@@ -49,10 +49,8 @@ import com.google.gson.JsonObject;
 public class AdSeatController extends BasicController {
 	@Autowired
 	private CityCache cityCache;
-	
     @Autowired
     private IResourceService resourceService;
-
     @Autowired
     private IAdSeatService adSeatService;
 
@@ -106,7 +104,7 @@ public class AdSeatController extends BasicController {
     }
 
     /**
-     * 新增广告位
+     * 新增广告位(暂时好像没用到)
      *
      * @param adSeatInfoVo 封装类
      * @param request
@@ -294,6 +292,12 @@ public class AdSeatController extends BasicController {
                 crowds.add(female);
             }
         	 */
+        	if(adSeatInfo.getMultiNum() == 0) {
+        		adSeatInfo.setMultiNum(1);
+        	}
+        	if(adSeatInfo.getAllowMulti() == 0) {
+        		adSeatInfo.setMultiNum(1); //0代表不允许同时有多个活动, 设置活动数量为1
+        	}
             if (adSeatInfo.getId() != null) {
                 //adSeatService.modify(adSeatInfo, crowds);
             	adSeatService.modifyInfo(adSeatInfo);
@@ -310,9 +314,12 @@ public class AdSeatController extends BasicController {
 
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
-
     }
 
+    /**
+     * 广告主创建活动时选择具体的广告位信息
+     * 注意：广告位信息有活动限制
+     */
     @RequestMapping(value = "/selectSeat")
     @ResponseBody
     public Model selectSeat(Model model, HttpServletRequest request,

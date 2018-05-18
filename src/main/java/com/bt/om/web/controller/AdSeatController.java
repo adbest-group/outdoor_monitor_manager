@@ -2,6 +2,7 @@ package com.bt.om.web.controller;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +26,7 @@ import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.AdSeatType;
 import com.bt.om.entity.SysUser;
+import com.bt.om.entity.vo.AdSeatCount;
 import com.bt.om.entity.vo.AdSeatInfoVo;
 import com.bt.om.entity.vo.CountGroupByCityVo;
 import com.bt.om.entity.vo.HeatMapVo;
@@ -33,6 +35,7 @@ import com.bt.om.enums.AgePart;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.security.ShiroUtils;
+import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdSeatService;
 import com.bt.om.service.IResourceService;
 import com.bt.om.vo.web.ResultVo;
@@ -53,6 +56,8 @@ public class AdSeatController extends BasicController {
     private IResourceService resourceService;
     @Autowired
     private IAdSeatService adSeatService;
+    @Autowired
+    private IAdActivityService adActivityService;
 
     /**
      * 新增广告位跳转
@@ -318,7 +323,7 @@ public class AdSeatController extends BasicController {
 
     /**
      * 广告主创建活动时选择具体的广告位信息
-     * 注意：广告位信息有活动限制
+     * 注意：广告位信息有活动数量限制
      */
     @RequestMapping(value = "/selectSeat")
     @ResponseBody
@@ -351,7 +356,34 @@ public class AdSeatController extends BasicController {
         }
         vo.setSize(Integer.MAX_VALUE);
 
+        //[1] 查询当前正在参与活动的广告位id及参与活动数量
+        List<AdSeatCount> adSeatCounts = adActivityService.selectActiveActivityCount();
+        
+        //[2] 查询请求参数对应的广告位信息
         adSeatService.getPageData(vo);
+        
+        //[3] 筛选去除
+        List<?> list = vo.getList();
+        Iterator<?> iterator = list.iterator();
+        while (iterator.hasNext()) {
+        	AdSeatInfoVo infoVo = (AdSeatInfoVo) iterator.next();
+        	for (AdSeatCount adSeatCount : adSeatCounts) {
+    			if(adSeatCount!= null && adSeatCount.getAdseatId() == infoVo.getId()) {
+    				//判断是否要移除
+    				if(infoVo.getAllowMulti() == 0 && adSeatCount.getCount() >= 1) {
+    					//否：不允许同时有多个活动; 当前广告位正在参与活动的数量 大于等于 1
+    					iterator.remove();
+        				break;
+    				}
+    				if(infoVo.getAllowMulti() == 1 && adSeatCount.getCount() >= infoVo.getMultiNum()) {
+    					//是: 允许同时有多个活动; 当前广告位正在参与活动的数量 大于等于 最大允许数量
+    					iterator.remove();
+        				break;
+    				}
+    			}
+    		}
+		}
+        
         result.setResult(vo.getList());
 
         model.addAttribute(SysConst.RESULT_KEY, result);
@@ -371,13 +403,15 @@ public class AdSeatController extends BasicController {
         model = new ExtendedModelMap();
         
         try {
+        	SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        	
         	HeatMapVo heatMapVo = new HeatMapVo();
         	heatMapVo.setActivityId(activityId);
         	heatMapVo.setCity(city);
         	heatMapVo.setMediaId(mediaId);
         	heatMapVo.setProvince(province);
         	heatMapVo.setRegion(region);
-        	List<CountGroupByCityVo> groupByCity = adSeatService.getCountGroupByCity(heatMapVo);
+        	List<CountGroupByCityVo> groupByCity = adSeatService.getCountGroupByCity(heatMapVo, user.getId());
         	for (CountGroupByCityVo countGroupByCityVo : groupByCity) {
         		countGroupByCityVo.setCityName(cityCache.getCityName(countGroupByCityVo.getCity()));
 			}
@@ -407,13 +441,15 @@ public class AdSeatController extends BasicController {
         model = new ExtendedModelMap();
         
         try {
+        	SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        	
         	HeatMapVo heatMapVo = new HeatMapVo();
         	heatMapVo.setActivityId(activityId);
         	heatMapVo.setCity(city);
         	heatMapVo.setMediaId(mediaId);
         	heatMapVo.setProvince(province);
         	heatMapVo.setRegion(region);
-        	List<AdSeatInfo> adSeatInfos = adSeatService.getAllLonLat(heatMapVo);
+        	List<AdSeatInfo> adSeatInfos = adSeatService.getAllLonLat(heatMapVo, user.getId());
         	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
             result.setResult(adSeatInfos);
 		} catch (Exception e) {

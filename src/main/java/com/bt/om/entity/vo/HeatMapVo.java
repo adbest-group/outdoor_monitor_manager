@@ -9,6 +9,7 @@ public class HeatMapVo {
 	private Long city;
 	private Long region;
 	private List<Integer> infoIds;
+	private Integer userId;
 	
 	public Integer getActivityId() {
 		return activityId;
@@ -45,5 +46,11 @@ public class HeatMapVo {
 	}
 	public void setInfoIds(List<Integer> infoIds) {
 		this.infoIds = infoIds;
+	}
+	public Integer getUserId() {
+		return userId;
+	}
+	public void setUserId(Integer userId) {
+		this.userId = userId;
 	}
 }

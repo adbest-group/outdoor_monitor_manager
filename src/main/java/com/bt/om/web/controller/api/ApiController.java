@@ -2784,14 +2784,14 @@ public class ApiController extends BasicController {
 					report.setUpPics(null);
 				}
 				if(durationPics.size() > 0) {
-					report.setUpPics(durationPics);
+					report.setDurationPics(durationPics);
 				} else {
-					report.setUpPics(null);
+					report.setDurationPics(null);
 				}
 				if(downPics.size() > 0) {
-					report.setUpPics(downPics);
+					report.setDownPics(downPics);
 				} else {
-					report.setUpPics(null);
+					report.setDownPics(null);
 				}
 				
 				if(StringUtil.equals(report.getCurrentStatus(), "监测中")) {

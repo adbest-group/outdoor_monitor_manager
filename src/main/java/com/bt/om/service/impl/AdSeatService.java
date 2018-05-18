@@ -2,7 +2,9 @@ package com.bt.om.service.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -145,10 +147,13 @@ public class AdSeatService implements IAdSeatService {
 	}
 
 	@Override
-	public List<CountGroupByCityVo> getCountGroupByCity(HeatMapVo heatMapVo) {
+	public List<CountGroupByCityVo> getCountGroupByCity(HeatMapVo heatMapVo, Integer userId) {
 		//[1] 查询某活动的所有广告位id集合
 		if(heatMapVo.getActivityId() != null) {
-			List<Integer> seatIds = adActivityAdseatMapper.selectSeatIdByActivityId(heatMapVo.getActivityId());
+			Map<String, Object> searchMap = new HashMap<>();
+			searchMap.put("activityId", heatMapVo.getActivityId());
+			searchMap.put("userId", userId);
+			List<Integer> seatIds = adActivityAdseatMapper.selectSeatIdByActivityId(searchMap);
 			heatMapVo.setInfoIds(seatIds);
 		}
 		//[2] 查询热力图报表
@@ -156,10 +161,13 @@ public class AdSeatService implements IAdSeatService {
 	}
 	
 	@Override
-	public List<AdSeatInfo> getAllLonLat(HeatMapVo heatMapVo) {
+	public List<AdSeatInfo> getAllLonLat(HeatMapVo heatMapVo, Integer userId) {
 		//[1] 查询某活动的所有广告位id集合
 		if(heatMapVo.getActivityId() != null) {
-			List<Integer> seatIds = adActivityAdseatMapper.selectSeatIdByActivityId(heatMapVo.getActivityId());
+			Map<String, Object> searchMap = new HashMap<>();
+			searchMap.put("activityId", heatMapVo.getActivityId());
+			searchMap.put("userId", userId);
+			List<Integer> seatIds = adActivityAdseatMapper.selectSeatIdByActivityId(searchMap);
 			heatMapVo.setInfoIds(seatIds);
 		}
 		//[2] 查询热力图报表

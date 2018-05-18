@@ -31,7 +31,7 @@ public interface IAdSeatService {
 	public List<AdSeatInfo> getAdseatAround(Double lat,Double lon,Double metre);
 	public List<AdSeatInfo> getAdSeatByMediaId(Integer mediaId);
 	
-	public List<CountGroupByCityVo> getCountGroupByCity(HeatMapVo heatMapVo);
-	List<AdSeatInfo> getAllLonLat(HeatMapVo heatMapVo);
 	void modifyInfo(AdSeatInfo adSeatInfo);
+	List<CountGroupByCityVo> getCountGroupByCity(HeatMapVo heatMapVo, Integer userId);
+	List<AdSeatInfo> getAllLonLat(HeatMapVo heatMapVo, Integer userId);
 }

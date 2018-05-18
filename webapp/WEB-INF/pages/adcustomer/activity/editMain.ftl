@@ -59,7 +59,7 @@
                         </tr>
 
                         <tr>
-                            <td class="a-title"><font class="s-red">*</font>投放地区：</td>
+                            <td class="a-title"><font class="s-red">*</font>投放地区(筛选广告位)：</td>
                             <td>
                             <#--<input type="text" style="width:100px;"  id="province" name="province" value="浙江省" autocomplete="off" class="form-control">-->
                             <#--<a class="addBtn" href="javascript:;" id="resource_sel">选择</a>-->

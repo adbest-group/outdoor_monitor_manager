@@ -436,17 +436,29 @@
 	WHERE a.activity_id = #{activityId,jdbcType=INTEGER}
   </select>
   
-  <select id="selectSeatIdByActivityId" resultType="java.lang.Integer">
+  <select id="selectSeatIdByActivityId" parameterType="map" resultType="java.lang.Integer">
     select
-    	ad_seat_id
-    from ad_activity_adseat
-    where activity_id = #{activityId,jdbcType=INTEGER}
+    	a.ad_seat_id
+    from ad_activity_adseat a
+    left join ad_activity b on a.activity_id = b.id
+    where 1=1
+    	and a.activity_id = #{activityId,jdbcType=INTEGER}
+    	and b.user_id = #{userId,jdbcType=INTEGER}
   </select>
   
   <select id="selectCountByAdSeatId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
   	select count(1)
   	from ad_activity_adseat
   	where ad_seat_id = #{adSeatId,jdbcType=INTEGER}
+  </select>
+  
+  <!-- 查询正在进行活动的广告位id及活动数量 -->
+  <select id="selectActiveActivityCount" resultType="com.bt.om.entity.vo.AdSeatCount">
+  	select 
+		count(1) count, e.ad_seat_id adseatId
+	from ad_activity_adseat e
+	where e.monitor_end >= now()
+	group by e.ad_seat_id
   </select>
   
 </mapper>

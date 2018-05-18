@@ -27,6 +27,7 @@ import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdActivityVo;
 import com.bt.om.entity.vo.AdActivityVo2;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.entity.vo.AdSeatCount;
 import com.bt.om.enums.ActivityStatus;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
@@ -340,5 +341,10 @@ public class AdActivityService implements IAdActivityService {
 			adActivityMapper.updateAssessorId(searchMap);
 		}
 		return atimeActivity;
+	}
+	
+	@Override
+	public List<AdSeatCount> selectActiveActivityCount() {
+		return adActivityAdseatMapper.selectActiveActivityCount();
 	}
 }

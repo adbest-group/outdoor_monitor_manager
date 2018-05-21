@@ -373,10 +373,15 @@ public class ApiController extends BasicController {
             
             QRCodeInfoVo qr = new QRCodeInfoVo();
 //            qr.setAd_seat_id(Integer.valueOf(seatCode));
-            if(list!=null) {
+            if(list != null && list.size() > 0) {
                 for (AdActivityAdseatVo vo : list) {
                     qr.getAd_activity_seats().add(new AdActivitySeatInfoInQRVO(vo));
                 }
+            } else {
+            	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("已有人正在执行该纠错任务！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
             }
             result.setResult(qr);
         } catch (Exception e) {

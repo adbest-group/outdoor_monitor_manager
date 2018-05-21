@@ -483,4 +483,34 @@
 		and status = #{status,jdbcType=INTEGER}
   </select>
   
+  <!-- 查询某个广告位上活动的待审核纠错任务信息, 通过二维码信息 -->
+  <select id="selectInfoByQrCode" parameterType="map" resultMap="BaseResultMap">
+	select 
+		a.id,
+		a.activity_id,
+		a.ad_seat_id
+	from 
+		ad_jiucuo_task a
+		left join ad_seat_info b on a.ad_seat_id = b.id
+	where 1=1
+		and a.status = #{status,jdbcType=INTEGER}
+		and b.ad_code = #{adSeatCode,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 查询某个广告位上活动的待审核纠错任务信息, 通过经纬度和广告位名称信息 -->
+  <select id="selectInfoByLonLatTitle" parameterType="map" resultMap="BaseResultMap">
+	select 
+		a.id,
+		a.activity_id,
+		a.ad_seat_id
+	from 
+		ad_jiucuo_task a
+		left join ad_seat_info b on a.ad_seat_id = b.id
+	where 1=1
+		and a.status = #{status,jdbcType=INTEGER}
+		and b.lon = #{lon,jdbcType=INTEGER}
+	    and b.lat = #{lat,jdbcType=INTEGER}
+	    and b.name = #{title,jdbcType=INTEGER}
+  </select>
+  
 </mapper>

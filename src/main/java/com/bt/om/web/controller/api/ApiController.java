@@ -330,6 +330,12 @@ public class ApiController extends BasicController {
             if(seatCode!=null){
             	//扫描二维码调取接口
                 list = adActivityService.getActivitySeatBySeatCode(seatCode);
+                if(list == null || list.size() == 0) {
+                	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                    result.setResultDes("没有查询到二维码信息！");
+                    model.addAttribute(SysConst.RESULT_KEY, result);
+                    return model;
+                }
                 
                 Map<String, Object> searchMap = new HashMap<>();
             	searchMap.put("status", 1); //待审核
@@ -350,6 +356,12 @@ public class ApiController extends BasicController {
             }else if(lon!=null && lat!=null && title!=null) {
             	//通过经纬度调取接口
                 list = adActivityService.selectVoByLonLatTitle(lon, lat, title);
+                if(list == null || list.size() == 0) {
+                	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                    result.setResultDes("没有查询到二维码信息！");
+                    model.addAttribute(SysConst.RESULT_KEY, result);
+                    return model;
+                }
                 
                 Map<String, Object> searchMap = new HashMap<>();
             	searchMap.put("status", 1); //待审核

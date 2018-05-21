@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -282,7 +283,7 @@ public class ApiController extends BasicController {
         return model;
     }
 
-    //获取给定的广告位编号对应的广告位id和相关有效的广告活动（扫二维码获取对应广告位的接口）
+    //获取给定的广告位编号对应的广告位id和相关有效的广告活动（仅【纠错任务】调用, 扫二维码获取对应广告位的接口）
     @RequestMapping(value = "/seatActivities")
     @ResponseBody
     public Model getSeatActivity(Model model, HttpServletRequest request) {
@@ -303,11 +304,11 @@ public class ApiController extends BasicController {
             is = request.getInputStream();
             Gson gson = new Gson();
             JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
-            seatCode = obj==null||obj.get("seatCode") == null ? null : obj.get("seatCode").getAsString();
+            seatCode = obj==null||obj.get("seatCode") == null ? null : obj.get("seatCode").getAsString(); //扫描二维码调取接口
             adSeatId = obj==null||obj.get("adSeatId") == null ? null : obj.get("adSeatId").getAsInt();
-            lon = obj==null||obj.get("lon") == null ? null : obj.get("lon").getAsDouble();
-            lat = obj==null||obj.get("lat") == null ? null : obj.get("lat").getAsDouble();
-            title = obj==null||obj.get("title") == null ? null : obj.get("title").getAsString();
+            lon = obj==null||obj.get("lon") == null ? null : obj.get("lon").getAsDouble(); //通过经纬度调取接口
+            lat = obj==null||obj.get("lat") == null ? null : obj.get("lat").getAsDouble(); //通过经纬度调取接口
+            title = obj==null||obj.get("title") == null ? null : obj.get("title").getAsString(); //通过经纬度调取接口
         } catch (IOException e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
@@ -324,12 +325,52 @@ public class ApiController extends BasicController {
         }
 
         try {
+        	List<AdJiucuoTask> jiucuoTasks = new ArrayList<>();
             List<AdActivityAdseatVo> list = null;
             if(seatCode!=null){
+            	//扫描二维码调取接口
                 list = adActivityService.getActivitySeatBySeatCode(seatCode);
+                
+                Map<String, Object> searchMap = new HashMap<>();
+            	searchMap.put("status", 1); //待审核
+            	searchMap.put("adSeatCode", seatCode); //二维码信息
+            	jiucuoTasks = adJiucuoTaskService.selectInfoByQrCode(searchMap);
+                
+            	//移除
+            	Iterator<AdActivityAdseatVo> iterator = list.iterator();
+            	while (iterator.hasNext()) {
+					AdActivityAdseatVo adActivityAdseatVo = (AdActivityAdseatVo) iterator.next();
+					for (AdJiucuoTask task : jiucuoTasks) {
+						if(task.getActivityId() == adActivityAdseatVo.getActivityId()) {
+							iterator.remove();
+							break;
+						}
+					}
+				}
             }else if(lon!=null && lat!=null && title!=null) {
+            	//通过经纬度调取接口
                 list = adActivityService.selectVoByLonLatTitle(lon, lat, title);
+                
+                Map<String, Object> searchMap = new HashMap<>();
+            	searchMap.put("status", 1); //待审核
+            	searchMap.put("lon", lon); //经度
+            	searchMap.put("lat", lat); //纬度
+            	searchMap.put("title", title); //广告位名称
+            	jiucuoTasks = adJiucuoTaskService.selectInfoByLonLatTitle(searchMap);
+            	
+            	//移除
+            	Iterator<AdActivityAdseatVo> iterator = list.iterator();
+            	while (iterator.hasNext()) {
+					AdActivityAdseatVo adActivityAdseatVo = (AdActivityAdseatVo) iterator.next();
+					for (AdJiucuoTask task : jiucuoTasks) {
+						if(task.getActivityId() == adActivityAdseatVo.getActivityId()) {
+							iterator.remove();
+							break;
+						}
+					}
+				}
             }
+            
             QRCodeInfoVo qr = new QRCodeInfoVo();
 //            qr.setAd_seat_id(Integer.valueOf(seatCode));
             if(list!=null) {
@@ -338,7 +379,6 @@ public class ApiController extends BasicController {
                 }
             }
             result.setResult(qr);
-
         } catch (Exception e) {
             e.printStackTrace();
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -1018,18 +1058,18 @@ public class ApiController extends BasicController {
                 return model;
             }
             
-//            //查询是否有人正在做这个广告位这个活动的纠错任务(即待审核的纠错任务)
-//            Map<String, Object> searchMap = new HashMap<>();
-//            searchMap.put("activityId", seat.getActivityId()); //活动id
-//            searchMap.put("adSeatId", seat.getAdSeatId()); //广告位id
-//            searchMap.put("status", 1); //纠错任务待审核
-//            int count = adJiucuoTaskService.selectCountByActivityAndSeat(searchMap);
-//            if(count > 0) {
-//            	result.setCode(ResultCode.RESULT_FAILURE.getCode());
-//                result.setResultDes("已有人正在执行该纠错任务！");
-//                model.addAttribute(SysConst.RESULT_KEY, result);
-//                return model;
-//            }
+            //查询是否有人正在做这个广告位这个活动的纠错任务(即待审核的纠错任务)
+            Map<String, Object> searchMap = new HashMap<>();
+            searchMap.put("activityId", seat.getActivityId()); //活动id
+            searchMap.put("adSeatId", seat.getAdSeatId()); //广告位id
+            searchMap.put("status", 1); //纠错任务待审核
+            int count = adJiucuoTaskService.selectCountByActivityAndSeat(searchMap);
+            if(count > 0) {
+            	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("已有人正在执行该纠错任务！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+            }
             
             InputStream is1 = null;
             String filename1 = null;

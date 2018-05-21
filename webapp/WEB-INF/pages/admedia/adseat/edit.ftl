@@ -53,23 +53,52 @@ img.demo {
 								</td>
 							</tr>
 							
-							<#--
+							<#if (adSeatInfo?exists&&adSeatInfo.id?exists)>
+							<tr>
+	                            <td class="a-title"><font class="s-red">*</font>媒体大类：</td>
+	                            <td><input type="text" disabled style="width: 130px;" id="location" name="location"
+	                                       value="<#if (adSeatInfo?exists)>${adSeatInfo.parentName!""}</#if>"
+	                                       autocomplete="off" class="form-control">
+	                                <span id="locationTip"></span>
+	                            </td>
+	                        </tr>
+	                        
+	                        <tr>
+	                            <td class="a-title"><font class="s-red">*</font>媒体小类：</td>
+	                            <td><input type="text" disabled style="width: 130px;" id="location" name="location"
+	                                       value="<#if (adSeatInfo?exists)>${adSeatInfo.secondName!""}</#if>"
+	                                       autocomplete="off" class="form-control">
+	                                <span id="locationTip"></span>
+	                            </td>
+	                        </tr>
+
+							<#else>
+
 							<tr>
 								<td class="a-title"><font class="s-red">*</font>媒体大类：</td>
-								<td><input type="text" style="width: 130px;" id="parentName" name="parentName" value="<#if (adSeatInfo?exists)>${adSeatInfo.parentName!""}</#if>"
-									autocomplete="off" class="form-control" readonly="readonly">
-                                    <span id="parentNameTip"></span>
+								<td>
+									<select style="width: 156px;" name="mediaTypeParentId" id="mediaTypeParentId" class="form-control" onchange="changeMediaTypeId();">
+										<option value="">请选择媒体大类</option>
+										<@model.showAllAdMediaTypeAvailableOps value="<#if (adSeatInfo?exists&&adSeatInfo.mediaTypeParentId?exists)>adSeatInfo.mediaTypeParentId</#if>"/>
+				                    </select>
+									
+                                    <span id="mediaTypeParentIdIdTip"></span>
 								</td>
 							</tr>
 							
 							<tr>
 								<td class="a-title"><font class="s-red">*</font>媒体小类：</td>
-								<td><input type="text" style="width: 130px;" id="secondName" name="secondName" value="<#if (adSeatInfo?exists)>${adSeatInfo.secondName!""}</#if>"
-									autocomplete="off" class="form-control" readonly="readonly">
-                                    <span id="secondNameTip"></span>
+								<td>
+									<select style="width: 156px;" name="mediaTypeId" id="mediaTypeId" class="form-control">
+										<option value="">请选择媒体小类</option>
+				                    </select>
+									
+                                    <span id="mediaTypeIdIdTip"></span>
 								</td>
 							</tr>
-							-->
+							
+	                        </#if>
+
 							<#--
 							<tr>
 								<td class="a-title"><font class="s-red">*</font>广告位类型：</td>
@@ -239,6 +268,35 @@ img.demo {
 
 <script type="text/javascript" src="/static/js/jquery.citys.js"></script>
 <script type="text/javascript">
+
+
+
+	function changeMediaTypeId() {
+		var mediaTypeParentId = $("#mediaTypeParentId").val();
+		$.ajax({
+			url : '/platmedia/adseat/searchMediaType',
+			type : 'POST',
+			data : {"parentId":mediaTypeParentId},
+			dataType : "json",
+			traditional : true,
+			success : function(data) {
+				var result = data.ret;
+				if (result.code == 100) {
+					var adMediaTypes = result.result;
+					var htmlOption;
+					for (var i=0; i < adMediaTypes.length;i++) { 
+						var type = adMediaTypes[i];
+						htmlOption = htmlOption + '<option value="' + type.id + '">' + type.name + '</option>';
+					}
+					
+					$("#mediaTypeId").html(htmlOption);
+				} else {
+					alert('修改失败!');
+				}
+			}
+		});
+	}
+
 	$.fn.serializeObject = function() {
 		var o = {};
 		var a = this.serializeArray();
@@ -302,8 +360,7 @@ img.demo {
             },
             submitAfterAjaxPrompt: '有数据正在异步验证，请稍等...'
         });
-
-		//表单验证
+		
 		//广告位名称
         $("#name").formValidator({
             validatorGroup:"2",
@@ -365,7 +422,7 @@ img.demo {
             onFocus: "请输入宽度(cm)",
             onCorrect: ""
         }).inputValidator({
-			type:"number",
+			type:"number", 
             min:1,
             max:10000,
             onError:"宽度支持1-10000(cm)"
@@ -413,7 +470,7 @@ img.demo {
                     return false;
                 return true;
             },
-            onError:"请输入经度"
+            onError:"请输入纬度"
         }).inputValidator({
             type:"number",
             min:-90,

@@ -448,11 +448,80 @@
   </select>
   
   <!-- 查询正在进行活动的广告位id及活动数量 -->
-  <select id="selectActiveActivityCount" resultType="com.bt.om.entity.vo.AdSeatCount">
+  <select id="selectActiveActivityCount" resultType="com.bt.om.entity.vo.AdSeatCount" parameterType="map">
   	select 
 		count(1) count, e.ad_seat_id adseatId
 	from ad_activity_adseat e
-	where e.monitor_end >= now()
+	where 1=1
+	<if test="startDate != null" >
+      and e.monitor_start >= DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+    </if>
+	<if test="endDate != null" >
+      and e.monitor_end &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+    </if>
+	group by e.ad_seat_id
+  </select>
+  
+  <!-- 查询正在进行活动的广告位id及活动数量 -->
+  <select id="selectActiveActivityCount1" resultType="com.bt.om.entity.vo.AdSeatCount" parameterType="map">
+  	select 
+		count(1) count, e.ad_seat_id adseatId
+	from ad_activity_adseat e
+	where 1=1
+	<if test="startDate != null" >
+      and e.monitor_start >= DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+    </if>
+	<if test="endDate != null" >
+      and e.monitor_end &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+    </if>
+    <if test="endDate != null" >
+      and e.monitor_end >= DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+    </if>
+	group by e.ad_seat_id
+  </select>
+  
+  <!-- 查询正在进行活动的广告位id及活动数量 -->
+  <select id="selectActiveActivityCount2" resultType="com.bt.om.entity.vo.AdSeatCount" parameterType="map">
+  	select 
+		count(1) count, e.ad_seat_id adseatId
+	from ad_activity_adseat e
+	where 1=1
+	<if test="startDate != null" >
+      and e.monitor_start >= DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+    </if>
+	<if test="endDate != null" >
+      and e.monitor_end &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+    </if>
+	group by e.ad_seat_id
+  </select>
+  
+  <!-- 查询正在进行活动的广告位id及活动数量 -->
+  <select id="selectActiveActivityCount3" resultType="com.bt.om.entity.vo.AdSeatCount" parameterType="map">
+  	select 
+		count(1) count, e.ad_seat_id adseatId
+	from ad_activity_adseat e
+	where 1=1
+	<if test="startDate != null" >
+      and e.monitor_start >= DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+    </if>
+	<if test="endDate != null" >
+      and e.monitor_end &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+    </if>
+	group by e.ad_seat_id
+  </select>
+  
+  <!-- 查询正在进行活动的广告位id及活动数量 -->
+  <select id="selectActiveActivityCount4" resultType="com.bt.om.entity.vo.AdSeatCount" parameterType="map">
+  	select 
+		count(1) count, e.ad_seat_id adseatId
+	from ad_activity_adseat e
+	where 1=1
+	<if test="startDate != null" >
+      and e.monitor_start >= DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+    </if>
+	<if test="endDate != null" >
+      and e.monitor_end &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+    </if>
 	group by e.ad_seat_id
   </select>
   

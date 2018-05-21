@@ -280,7 +280,9 @@
                         "province": $province.val(),
                         "city": $city.val(),
                         "region": $region.val(),
-                        "street": $street.val()
+                        "street": $street.val(),
+                        "startDate": $("#dts").val(), //监测开始时间
+                        "endDate": $("#dt").val() //监测结束时间
                     },
                     cache: false,
                     dataType: "json",

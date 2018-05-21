@@ -332,7 +332,9 @@ public class AdSeatController extends BasicController {
                                      @RequestParam(value = "city", required = false) Long city,
                                      @RequestParam(value = "region", required = false) Long region,
                                      @RequestParam(value = "street", required = false) Long street,
-                                     @RequestParam(value = "mediaId", required = false) Integer mediaId) {
+                                     @RequestParam(value = "mediaId", required = false) Integer mediaId,
+                                     @RequestParam(value = "startDate", required = false) Integer startDate,
+                                     @RequestParam(value = "endDate", required = false) Integer endDate) {
 
         ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
@@ -356,7 +358,7 @@ public class AdSeatController extends BasicController {
         }
         vo.setSize(Integer.MAX_VALUE);
 
-        //[1] 查询当前正在参与活动的广告位id及参与活动数量
+        //[1] 查询传递的时间段内正在参与活动的广告位id及参与活动数量
         List<AdSeatCount> adSeatCounts = adActivityService.selectActiveActivityCount();
         
         //[2] 查询请求参数对应的广告位信息

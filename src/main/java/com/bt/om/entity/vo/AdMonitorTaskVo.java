@@ -16,6 +16,7 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 	private Long city;// 市
 	private Long region;// 区
 	private Long street;// 街道
+	private Integer mediaId;//媒体id
 	private String mediaName;// 媒体名
 	private String adSeatName;//
 	private String realname;
@@ -33,6 +34,52 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 	private int feedbackStatus;
 	private Date feedbackCreateTime;
 	private String reason;
+	private Double lon;
+	private Double lat;
+	private Double feedbackLon;
+	private Double feedbackLat;
+	private String assessorName;
+	private String assignorName;
+
+	public Integer getMediaId() {
+		return mediaId;
+	}
+
+	public void setMediaId(Integer mediaId) {
+		this.mediaId = mediaId;
+	}
+
+	public Double getLon() {
+		return lon;
+	}
+
+	public void setLon(Double lon) {
+		this.lon = lon;
+	}
+
+	public Double getLat() {
+		return lat;
+	}
+
+	public void setLat(Double lat) {
+		this.lat = lat;
+	}
+
+	public Double getFeedbackLon() {
+		return feedbackLon;
+	}
+
+	public void setFeedbackLon(Double feedbackLon) {
+		this.feedbackLon = feedbackLon;
+	}
+
+	public Double getFeedbackLat() {
+		return feedbackLat;
+	}
+
+	public void setFeedbackLat(Double feedbackLat) {
+		this.feedbackLat = feedbackLat;
+	}
 
 	public int getDownMonitor() {
 		return downMonitor;
@@ -253,4 +300,19 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 		this.reason = reason;
 	}
 
+	public String getAssessorName() {
+		return assessorName;
+	}
+
+	public void setAssessorName(String assessorName) {
+		this.assessorName = assessorName;
+	}
+
+	public String getAssignorName() {
+		return assignorName;
+	}
+
+	public void setAssignorName(String assignorName) {
+		this.assignorName = assignorName;
+	}
 }

@@ -48,6 +48,9 @@ public class CustomerActivityControl extends BasicController {
     @Autowired
     private IAdJiucuoTaskService adJiucuoTaskService;
 
+	/**
+     * 查询活动列表
+     */
     @RequiresRoles("customer")
     @RequestMapping(value = "/activity/list")
     public String customerList(Model model, HttpServletRequest request,
@@ -88,7 +91,9 @@ public class CustomerActivityControl extends BasicController {
         return PageConst.CUSTOMER_ACTIVITY_LIST;
     }
 
-
+	/**
+     * 编辑活动页面跳转
+     */
     @RequiresRoles("customer")
     @RequestMapping(value = "/activity/edit")
     public String customerEdit(Model model, HttpServletRequest request,
@@ -102,19 +107,19 @@ public class CustomerActivityControl extends BasicController {
         return PageConst.CUSTOMER_ACTIVITY_EDIT;
     }
 
-
-    @RequiresRoles(value = {"admin", "customer"}, logical = Logical.OR)
+	/**
+     * 编辑活动广告位页面跳转
+     */
+    @RequiresRoles(value = {"superadmin", "customer"}, logical = Logical.OR)
     @RequestMapping(value = "/activity/adseat/edit")
     public String adSeatEdit(Model model, HttpServletRequest request) {
-
-
         return PageConst.CUSTOMER_ACTIVITY_ADSEAT_EDIT;
     }
 
     /**
-     * 新增/编辑代理商
+     * 新增/编辑活动
      */
-    @RequiresRoles(value = {"admin", "customer"}, logical = Logical.OR)
+    @RequiresRoles(value = {"superadmin", "customer"}, logical = Logical.OR)
     @ResponseBody
     @RequestMapping("/activity/save")
     public Model save(Model model, HttpServletRequest request, HttpServletResponse response,
@@ -125,7 +130,8 @@ public class CustomerActivityControl extends BasicController {
                       @RequestParam(value = "area", required = false) String area,
                       @RequestParam(value = "media", required = false) String media,
                       @RequestParam(value = "dels", required = false) String dels,
-                      @RequestParam(value = "activeSeat", required = false) String activeSeat) {
+                      @RequestParam(value = "activeSeat", required = false) String activeSeat,
+                      @RequestParam(value = "customerTypeId", required = false) Integer customerTypeId) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date now = new Date();
         ResultVo<String> result = new ResultVo<String>();
@@ -137,6 +143,7 @@ public class CustomerActivityControl extends BasicController {
 
         AdActivityVo adActivityVo = new AdActivityVo();
         adActivityVo.setActivityName(activityName);
+		adActivityVo.setCustomerTypeId(customerTypeId); //客户类型
         try {
             adActivityVo.setStartTime(sdf.parse(startDate));
         } catch (ParseException e) {
@@ -168,9 +175,18 @@ public class CustomerActivityControl extends BasicController {
         List<JsonObject> areas = GsonUtil.getObjectList(area, JsonObject.class);
         if (areas.size() > 0) {
             for (JsonObject obj : areas) {
+            	boolean zhixiashiFlag = false;
+            	if(obj.get("city") == null || StringUtils.equals(String.valueOf(obj.get("city")), "null")) {
+            		//直辖市"市为空"
+            		zhixiashiFlag = true;
+            	}
                 AdActivityArea aa = new AdActivityArea();
                 aa.setProvince(obj.get("province").getAsLong());
-                aa.setCity(obj.get("city").getAsLong());
+                if(zhixiashiFlag == true) {
+                	aa.setCity(obj.get("province").getAsLong());
+                } else {
+                	aa.setCity(obj.get("city").getAsLong());
+                }
                 aa.setRegion(obj.get("region").getAsLong());
                 aa.setStreet(obj.get("street").getAsLong());
                 aa.setCreateTime(now);
@@ -187,8 +203,17 @@ public class CustomerActivityControl extends BasicController {
                 as.setAdSeatId(obj.get("seatId").getAsInt());
                 as.setBrand(obj.get("brand").getAsString());
                 as.setUpMonitor(obj.get("upMonitor").getAsInt());
+                if(as.getUpMonitor()==1){
+                    as.setUpMonitorLastDays(obj.get("upMonitorLastDays").getAsInt());
+                }
                 as.setDurationMonitor(obj.get("durationMonitor").getAsInt());
+                if(as.getDurationMonitor()==1){
+                    as.setDurationMonitorLastDays(obj.get("durationMonitorLastDays").getAsInt());
+                }
                 as.setDownMonitor(obj.get("downMonitor").getAsInt());
+                if(as.getDownMonitor()==1){
+                    as.setDownMonitorLastDays(obj.get("downMonitorLastDays").getAsInt());
+                }
                 as.setMediaId(obj.get("mediaId").getAsInt());
                 as.setMonitorCount(obj.get("monitorCount").getAsInt());
                 try {

@@ -386,4 +386,23 @@ public class AdJiucuoTaskFeedback {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
+
+    private Double seatLon;
+    private Double seatLat;
+
+    public Double getSeatLon() {
+        return seatLon;
+    }
+
+    public void setSeatLon(Double seatLon) {
+        this.seatLon = seatLon;
+    }
+
+    public Double getSeatLat() {
+        return seatLat;
+    }
+
+    public void setSeatLat(Double seatLat) {
+        this.seatLat = seatLat;
+    }
 }

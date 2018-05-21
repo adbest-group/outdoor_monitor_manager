@@ -34,8 +34,8 @@
                             <p>提交人：${task.realname}</p>
                             <p>问题反馈：<span style="color:orangered;">${feedback.problem!""} ${feedback.problemOther!""}
                             </p>
-                            <p>执行状态：${vm.getJiucuoTaskStatusText(task.status)} <#if task.reason?exists>（${task.reason}
-                                ）</#if></p>
+                            <p>执行状态：${vm.getJiucuoTaskStatusText(task.status)} <#if task.reason?exists><span style="color:orangered;">（审核意见：${task.reason}
+                                ）</span></#if></p>
                             <p>提交照片：<img style="vertical-align: top" src="${feedback.picUrl1}" width="300"/></p>
                         <@shiro.hasRole name="admin">
                             <#if task.status ==1>

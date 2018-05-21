@@ -1,14 +1,14 @@
 package com.bt.om.service;
 
+import java.util.List;
+import java.util.Map;
+
 import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.entity.AdJiucuoTaskFeedback;
 import com.bt.om.entity.vo.AdJiucuoTaskMobileVo;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
-import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.vo.web.SearchDataVo;
-
-import java.util.List;
 
 /**
  * Created by caiting on 2018/1/21.
@@ -39,4 +39,10 @@ public interface IAdJiucuoTaskService {
      *  查询纠错子任务执行情况，用于详情
      **/
     public List<AdMonitorTaskVo> getSubTask(Integer id);
+    
+    public List<AdJiucuoTaskVo> selectAllByAssessorId(Map<String, Object> searchMap);
+    public List<AdJiucuoTaskVo> getTenAdMonitorTaskVo(Map<String, Object> searchMap);
+	int selectCountByActivityAndSeat(Map<String, Object> searchMap);
+	List<AdJiucuoTask> selectInfoByQrCode(Map<String, Object> searchMap);
+	List<AdJiucuoTask> selectInfoByLonLatTitle(Map<String, Object> searchMap);
 }

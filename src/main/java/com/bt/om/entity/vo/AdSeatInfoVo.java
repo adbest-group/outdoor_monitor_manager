@@ -12,6 +12,10 @@ public class AdSeatInfoVo extends AdSeatInfo {
 	private Integer mediaId;
 
 	private Integer typeId;
+	
+	private String parentName;
+	
+	private String secondName;
 
 	public Integer getMediaId() {
 		return mediaId;
@@ -51,5 +55,21 @@ public class AdSeatInfoVo extends AdSeatInfo {
 
 	public void setAgePart(Integer agePart) {
 		this.agePart = agePart;
+	}
+	
+	public String getParentName() {
+		return parentName;
+	}
+	
+	public void setParentName(String parentName) {
+		this.parentName = parentName;
+	}
+	
+	public String getSecondName() {
+		return secondName;
+	}
+	
+	public void setSecondName(String secondName) {
+		this.secondName = secondName;
 	}
 }

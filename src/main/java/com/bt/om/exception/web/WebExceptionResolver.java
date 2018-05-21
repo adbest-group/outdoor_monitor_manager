@@ -50,7 +50,7 @@ public class WebExceptionResolver extends SimpleMappingExceptionResolver {
 			ret.setResultDes(ex.getMessage());
 			mv.addObject(SysConst.RESULT_KEY, ret);
 			mv.setViewName(PageConst.NO_AUTHORITY);
-			if (RequestUtil.isAjax(request)) {
+			if (RequestUtil.isAjax(request)||request.getRequestURI().contains("/api")) {
 				try {
 					return handleAjax(mv.getModel(), request, response);
 				} catch (Exception e) {
@@ -65,7 +65,7 @@ public class WebExceptionResolver extends SimpleMappingExceptionResolver {
 			ret.setResultDes(ex.getMessage());
 			mv.addObject(SysConst.RESULT_KEY, ret);
 			mv.setViewName(PageConst.ERROR);
-			if (RequestUtil.isAjax(request)) {
+			if (RequestUtil.isAjax(request)||request.getRequestURI().contains("/api")) {
 				try {
 					return handleAjax(mv.getModel(), request, response);
 				} catch (Exception e) {

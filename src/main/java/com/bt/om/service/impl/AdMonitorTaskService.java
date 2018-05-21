@@ -1,21 +1,44 @@
 package com.bt.om.service.impl;
 
-import com.bt.om.entity.*;
-import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
-import com.bt.om.entity.vo.AdMonitorTaskVo;
-import com.bt.om.enums.*;
-import com.bt.om.mapper.*;
-import com.bt.om.service.IAdMonitorTaskService;
-import com.bt.om.util.StringUtil;
-import com.bt.om.vo.web.SearchDataVo;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import com.adtime.common.lang.CollectionUtil;
+import com.bt.om.entity.AdJiucuoTask;
+import com.bt.om.entity.AdMonitorReward;
+import com.bt.om.entity.AdMonitorTask;
+import com.bt.om.entity.AdMonitorTaskFeedback;
+import com.bt.om.entity.AdMonitorUserTask;
+import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.SysUser;
+import com.bt.om.entity.vo.AbandonTaskVo;
+import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
+import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.entity.vo.AllAdMonitorTaskVo;
+import com.bt.om.entity.vo.PictureVo;
+import com.bt.om.enums.MonitorTaskStatus;
+import com.bt.om.enums.MonitorTaskType;
+import com.bt.om.enums.RewardTaskType;
+import com.bt.om.enums.RewardType;
+import com.bt.om.enums.SessionKey;
+import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.mapper.AdJiucuoTaskMapper;
+import com.bt.om.mapper.AdMonitorRewardMapper;
+import com.bt.om.mapper.AdMonitorTaskFeedbackMapper;
+import com.bt.om.mapper.AdMonitorTaskMapper;
+import com.bt.om.mapper.AdMonitorUserTaskMapper;
+import com.bt.om.mapper.AdSeatInfoMapper;
+import com.bt.om.security.ShiroUtils;
+import com.bt.om.service.IAdMonitorTaskService;
+import com.bt.om.vo.web.SearchDataVo;
 
 /**
  * Created by caiting on 2018/1/20.
@@ -32,6 +55,8 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     private AdJiucuoTaskMapper jiucuoTaskMapper;
     @Autowired
     private AdSeatInfoMapper adSeatInfoMapper;
+    @Autowired
+    private AdMonitorUserTaskMapper adMonitorUserTaskMapper;
 
     @Override
     public void getPageData(SearchDataVo vo) {
@@ -47,13 +72,35 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void assign(String[] taskIds, Integer userId) {
+        Date now = new Date();
         for (String taskId : taskIds) {
-            AdMonitorTask task = new AdMonitorTask();
-            task.setId(Integer.valueOf(taskId));
-            task.setUserId(userId);
-            task.setStatus(MonitorTaskStatus.TO_CARRY_OUT.getId());
-            task.setUpdateTime(new Date());
-            adMonitorTaskMapper.updateByPrimaryKeySelective(task);
+            Integer id = Integer.valueOf(taskId);
+//            AdMonitorTask task = new AdMonitorTask();
+//            task.setId(Integer.valueOf(taskId));
+//            task.setUserId(userId);
+//            task.setStatus(MonitorTaskStatus.TO_CARRY_OUT.getId());
+//            task.setUpdateTime(new Date());
+//            adMonitorTaskMapper.updateByPrimaryKeySelective(task);
+            //先查询该任务
+            AdMonitorTask task = adMonitorTaskMapper.selectByPrimaryKey(id);
+            //任务未查到或任务执行人已指派，抢任务失败
+            if(task==null||task.getUserId()!=null){
+                continue;
+            }
+            int count = adMonitorTaskMapper.grabTask(userId,id,task.getUpdateTime());
+            SysUser loginUser = (SysUser)ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+            //添加用户和任务关联关系
+            AdMonitorUserTask userTask = new AdMonitorUserTask();
+            userTask.setUserId(userId);
+            userTask.setAssignUserId(loginUser.getId());
+            userTask.setMonitorTaskId(id);
+            userTask.setStartTime(now);
+            userTask.setEndTime(Date.from(task.getMonitorDate().toInstant().atZone(ZoneId.systemDefault()).plusDays(task.getMonitorLastDays()).minusSeconds(1).toInstant()));
+            userTask.setAssignType(1);
+            userTask.setStatus(1);
+            userTask.setCreateTime(now);
+            userTask.setUpdateTime(now);
+            adMonitorUserTaskMapper.insertSelective(userTask);
         }
     }
 
@@ -103,9 +150,30 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             }
         }
         //如果是上刊安装，激活其他任务
-        if(task.getTaskType().equals(MonitorTaskType.SET_UP_MONITOR.getId())){
-            adMonitorTaskMapper.activeTask(task.getActivityAdseatId());
+        //现在又没有上刊安装任务了
+//        if(task.getTaskType().equals(MonitorTaskType.SET_UP_MONITOR.getId())){
+//            adMonitorTaskMapper.activeTask(task.getActivityAdseatId());
+//        }
+        //如果是上刊安装任务，并且广告位上并未记录经纬度,就把安装人员完成任务时的经纬度记录给广告位
+        //现在又没有上刊安装任务了
+//        if(task.getTaskType().equals(MonitorTaskType.SET_UP_MONITOR.getId())){
+//            AdSeatInfo seatInfo = adSeatInfoMapper.getAdSeatInfoByAdActivitySeatId(task.getActivityAdseatId());
+//            if(seatInfo.getLon()==null||seatInfo.getLat()==null){
+//                seatInfo.setLon(feedback.getLon());
+//                seatInfo.setLat(feedback.getLat());
+//                adSeatInfoMapper.updateByPrimaryKeySelective(seatInfo);
+//            }
+//        }
+        //现在又没有上刊安装任务了
+        //审核通过时，如果广告位上并未记录经纬度,就把该任务完成时的经纬度记录给广告位
+        AdSeatInfo seatInfo = adSeatInfoMapper.getAdSeatInfoByAdActivitySeatId(task.getActivityAdseatId());
+        if(seatInfo.getLon()==null||seatInfo.getLat()==null){
+            seatInfo.setLon(feedback.getLon());
+            seatInfo.setLat(feedback.getLat());
+            adSeatInfoMapper.updateByPrimaryKeySelective(seatInfo);
         }
+
+        //奖励相关
         AdMonitorReward reward = new AdMonitorReward();
         reward.setMonitorTaskId(task.getId());
         reward.setType(RewardType.ADD.getId());
@@ -157,33 +225,41 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             feedback.setUpdateTime(now);
             feedback.setMonitorTaskId(taskId);
             adMonitorTaskFeedbackMapper.insertSelective(feedback);
-            if(task.getTaskType()==MonitorTaskType.SET_UP_MONITOR.getId()){
-                //上刊安装任务不提供未完成状态
+            //现在又没有上刊安装任务了
+//            if(task.getTaskType()==MonitorTaskType.SET_UP_MONITOR.getId()){
+//                //上刊安装任务不提供未完成状态
+//                task.setStatus(MonitorTaskStatus.UNVERIFY.getId());
+//            }else {
+//                //如果本次提交的照片不足，任务状态设置为"未完成"，否则进入待审核
+//                if (feedback.getPicUrl1() == null || feedback.getPicUrl2() == null || feedback.getPicUrl3() == null || feedback.getPicUrl4() == null) {
+//                    task.setStatus(MonitorTaskStatus.UN_FINISHED.getId());
+//                } else {
+//                    task.setStatus(MonitorTaskStatus.UNVERIFY.getId());
+//                }
+//            }
+            //如果本次提交的照片不足，任务状态设置为"未完成"，否则进入待审核
+            if (feedback.getPicUrl1() == null || feedback.getPicUrl2() == null || feedback.getPicUrl3() == null || feedback.getPicUrl4() == null) {
+                task.setStatus(MonitorTaskStatus.UN_FINISHED.getId());
+            } else {
                 task.setStatus(MonitorTaskStatus.UNVERIFY.getId());
-            }else {
-                //如果本次提交的照片不足，任务状态设置为"未完成"，否则进入待审核
-                if (feedback.getPicUrl1() == null || feedback.getPicUrl2() == null || feedback.getPicUrl3() == null || feedback.getPicUrl4() == null) {
-                    task.setStatus(MonitorTaskStatus.UN_FINISHED.getId());
-                } else {
-                    task.setStatus(MonitorTaskStatus.UNVERIFY.getId());
-                }
             }
             task.setUpdateTime(now);
             adMonitorTaskMapper.updateByPrimaryKeySelective(task);
 
             //上刊安装任务，判断是否二维码已绑定广告位
-            if (task.getTaskType()== MonitorTaskType.SET_UP_MONITOR.getId()) {
-                AdSeatInfo seatInfo = adSeatInfoMapper.getAdSeatInfoByAdActivitySeatId(task.getActivityAdseatId());
-                //如果广告位没绑定二维码，本次绑定激活
-                if(StringUtil.isEmpty(seatInfo.getAdCode())){
-                    if(StringUtil.isEmpty(adSeatCode)){
-                        throw new RuntimeException("广告位未激活，需提供广告位二维码");
-                    }
-                    seatInfo.setAdCode(adSeatCode);
-                    seatInfo.setUpdateTime(now);
-                    adSeatInfoMapper.updateByPrimaryKeySelective(seatInfo);
-                }
-            }
+            //现在又没有上刊安装任务了
+//            if (task.getTaskType()== MonitorTaskType.SET_UP_MONITOR.getId()) {
+//                AdSeatInfo seatInfo = adSeatInfoMapper.getAdSeatInfoByAdActivitySeatId(task.getActivityAdseatId());
+//                //如果广告位没绑定二维码，本次绑定激活
+//                if(StringUtil.isEmpty(seatInfo.getAdCode())){
+//                    if(StringUtil.isEmpty(adSeatCode)){
+//                        throw new RuntimeException("广告位未激活，需提供广告位二维码");
+//                    }
+//                    seatInfo.setAdCode(adSeatCode);
+//                    seatInfo.setUpdateTime(now);
+//                    adSeatInfoMapper.updateByPrimaryKeySelective(seatInfo);
+//                }
+//            }
 
         } else if (task.getStatus() == MonitorTaskStatus.UN_FINISHED.getId()) {
             //如果检测任务当前处于"未完成"
@@ -247,4 +323,176 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         return adMonitorTaskMapper.selectVoByPrimaryKey(id);
     }
 
+    @Override
+    public void getByPointAroundPageData(SearchDataVo vo) {
+        int count = adMonitorTaskMapper.getByPointAroundPageCount(vo.getSearchMap());
+        vo.setCount(count);
+        if (count > 0) {
+            vo.setList(adMonitorTaskMapper.getByPointAroundPageData(vo.getSearchMap(), new RowBounds(vo.getStart(), vo.getSize())));
+        } else {
+            vo.setList(new ArrayList<AdMonitorTaskVo>());
+        }
+    }
+
+    @Override
+    public void getByCurCityPageData(SearchDataVo vo) {
+        int count = adMonitorTaskMapper.getByCurCityPageCount(vo.getSearchMap());
+        vo.setCount(count);
+        if (count > 0) {
+            vo.setList(adMonitorTaskMapper.getByCurCityPageData(vo.getSearchMap(), new RowBounds(vo.getStart(), vo.getSize())));
+        } else {
+            vo.setList(new ArrayList<AdMonitorTaskVo>());
+        }
+    }
+
+    @Override
+    public boolean grabTask(Integer userId, Integer id) {
+        Date now = new Date();
+        boolean ret = false;
+        //先查询该任务
+        AdMonitorTask task = adMonitorTaskMapper.selectByPrimaryKey(id);
+        //任务未查到或任务执行人已指派，抢任务失败
+        if(task==null||task.getUserId()!=null&&task.getStatus()!=1){
+            return ret;
+        }
+        int count = adMonitorTaskMapper.grabTask(userId,id,task.getUpdateTime());
+        if(count>0){
+            //添加用户和任务关联关系
+            AdMonitorUserTask userTask = new AdMonitorUserTask();
+            userTask.setUserId(userId);
+            userTask.setMonitorTaskId(id);
+            userTask.setStartTime(now);
+            userTask.setEndTime(Date.from(now.toInstant().atZone(ZoneId.systemDefault()).plusHours(12).toInstant()));
+            userTask.setAssignType(2);
+            userTask.setStatus(1);
+            userTask.setCreateTime(now);
+            userTask.setUpdateTime(now);
+            adMonitorUserTaskMapper.insertSelective(userTask);
+            
+            ret = true;
+        }
+        
+        return ret;
+    }
+
+	@Override
+  @Transactional(rollbackFor = Exception.class)
+	public List<AdMonitorTask> selectAllTask() {
+		List<AdMonitorTask> taskList = adMonitorTaskMapper.findAllTask();		
+		return taskList;
+	}
+
+	@Override
+	public void getPageDataAllTask(SearchDataVo vo) {
+		int count = adMonitorTaskMapper.getPageCountAllTask(vo.getSearchMap());
+        vo.setCount(count);
+        if (count > 0) {
+            vo.setList(adMonitorTaskMapper.getPageDataAllTask(vo.getSearchMap(), new RowBounds(vo.getStart(), vo.getSize())));
+        } else {
+            vo.setList(new ArrayList<AllAdMonitorTaskVo>());
+        }
+    }
+
+	@Override
+	public List<AdMonitorTaskVo> selectAllByAssessorId(Map<String, Object> searchMap) {
+		return adMonitorTaskMapper.selectAllByAssessorId(searchMap);
+	}
+	
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public List<AdMonitorTaskVo> getTenAdMonitorTaskVo(Map<String, Object> searchMap) {
+		//[1] 查询 for update
+		Integer assessorId = (Integer) searchMap.get("assessorId");
+		List<AdMonitorTaskVo> taskVos = adMonitorTaskMapper.getTenAdMonitorTaskVo(searchMap);
+		List<Integer> ids = new ArrayList<>();
+		for (AdMonitorTaskVo adMonitorTaskVo : taskVos) {
+			ids.add(adMonitorTaskVo.getId());
+			adMonitorTaskVo.setAssessorId(assessorId);
+		}
+		//[2] 更新 update
+		searchMap.clear();
+		searchMap.put("assessorId", assessorId);
+		searchMap.put("ids", ids);
+		if(ids.size() > 0) {
+			adMonitorTaskMapper.updateAssessorId(searchMap);
+		}
+		return taskVos;
+	}
+	
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public List<AdMonitorTaskVo> getTenAdMonitorTaskAssignVo(Map<String, Object> searchMap) {
+		//[1] 查询 for update
+		Integer assignorId = (Integer) searchMap.get("assignorId");
+		List<AdMonitorTaskVo> taskVos = adMonitorTaskMapper.getTenAdMonitorTaskVo(searchMap);
+		List<Integer> ids = new ArrayList<>();
+		for (AdMonitorTaskVo adMonitorTaskVo : taskVos) {
+			ids.add(adMonitorTaskVo.getId());
+			adMonitorTaskVo.setAssignorId(assignorId);
+		}
+		//[2] 更新 update
+		searchMap.clear();
+		searchMap.put("assignorId", assignorId);
+		searchMap.put("ids", ids);
+		if(ids.size() > 0) {
+			adMonitorTaskMapper.updateAssignorId(searchMap);
+		}
+		return taskVos;
+	}
+
+  @Override
+	public List<AdMonitorTask> selectLatestMonitorTaskIds(Integer activityId) {
+		return adMonitorTaskMapper.selectLatestMonitorTaskIds(activityId);
+	}
+    
+	@Override
+	public List<AdMonitorTaskFeedback> selectByActivity(List<Integer> monitorTaskIds) {
+		return adMonitorTaskFeedbackMapper.selectByActivity(monitorTaskIds);
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void activateMonitorTask(Date nowDate) {
+		adMonitorTaskMapper.activateMonitorTask(nowDate);
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void recycleMonitorTask() {
+		Date now = new Date();
+		//[1] 查询ad_monitor_user_task待回收的任务id集合
+		List<Integer> monitorTaskIds = adMonitorUserTaskMapper.selectRecycleTaskIds(now);
+		//[2] 修改ad_monitor_user_task表中待回收的状态及回收时间
+		if(CollectionUtil.isNotEmpty(monitorTaskIds)) {
+			AdMonitorUserTask task = new AdMonitorUserTask();
+			task.setAbandonTime(now);
+			task.setUpdateTime(now);
+			task.setStatus(3);
+			adMonitorUserTaskMapper.recycleUserTask(task);
+			//[3] 修改ad_monitor_task表中回收的任务的状态为 1：待指派 或 8：可抢单
+			adMonitorTaskMapper.recycleTask(monitorTaskIds, 12);
+		}
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void forceAssignTask() {
+		adMonitorTaskMapper.forceAssignTask(12);
+	}
+
+	@Override
+	public AdMonitorTask selectByPrimaryKey(Integer id) {
+		return adMonitorTaskMapper.selectByPrimaryKey(id);
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void abandonUserTask(AbandonTaskVo vo) {
+		adMonitorUserTaskMapper.abandonUserTask(vo);
+	}
+	
+	@Override
+	public List<PictureVo> selectFeedBackByActivityIdAndSeatId(Map<String, Object> searchMap) {
+		return adMonitorTaskMapper.selectFeedBackByActivityIdAndSeatId(searchMap);
+	}
 }

@@ -48,7 +48,7 @@
 		</div>
 
 		<footer class="clearfix">
-			© 2018 浙江百泰信息技术有限公司 All Rights Reserved
+			<#-- © 2018 浙江百泰信息技术有限公司 All Rights Reserved -->
 		</footer>
 	</div>
 	<script type="text/javascript" src="${model.static_domain}/js/jquery-2.1.4.min.js"></script>

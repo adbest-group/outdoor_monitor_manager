@@ -1,10 +1,14 @@
 package com.bt.om.mapper;
 
-import com.bt.om.entity.AdActivityAdseat;
-import com.bt.om.entity.vo.AdActivityAdseatVo;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
+import com.bt.om.entity.AdActivityAdseat;
+import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
+import com.bt.om.entity.vo.AdActivityAdseatVo;
+import com.bt.om.entity.vo.AdSeatCount;
 
 public interface AdActivityAdseatMapper {
     /**
@@ -65,4 +69,12 @@ public interface AdActivityAdseatMapper {
     List<AdActivityAdseatVo> selectVoBySeatCode(@Param("adSeatCode") String adSeatCode);
 
     AdActivityAdseat selectByActivityAndSeatId(@Param("activityId") Integer activityId,@Param("seatId") Integer seatId);
+    
+    List<AdActivityAdseatTaskVo> selectAdActivityAdseatTask(@Param("activityId") Integer activityId);
+    List<AdActivityAdseatTaskVo> selectAdSeatTaskReport(@Param("activityId") Integer activityId);
+    
+    List<AdActivityAdseatVo> selectVoByLonLatTitle(@Param("lon") Double lon, @Param("lat") Double lat, @Param("title") String title);
+    List<Integer> selectSeatIdByActivityId(Map<String, Object> searchMap);
+    Integer selectCountByAdSeatId(@Param("adSeatId") Integer adSeatId);
+    List<AdSeatCount> selectActiveActivityCount();
 }

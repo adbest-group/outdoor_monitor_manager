@@ -55,4 +55,6 @@ public interface AdMonitorTaskFeedbackMapper {
     int updateByPrimaryKey(AdMonitorTaskFeedback record);
 
     List<AdMonitorTaskFeedback> selectByTaskId(@Param("taskId") Integer taskId,@Param("status") Integer status);
+    
+    List<AdMonitorTaskFeedback> selectByActivity(@Param("monitorTaskIds") List<Integer> monitorTaskIds);
 }

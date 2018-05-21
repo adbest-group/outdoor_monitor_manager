@@ -18,8 +18,10 @@
                     </div>
                     <div class="select-box select-box-100 un-inp-select ll">
                         <select class="select" name="status">
-                            <option value="">所有状态</option>
-                        <@model.showJiucuoTaskStatusOps value="${bizObj.queryMap.status?if_exists}"/>
+                        	<option value="1" <#if (status?exists&&status == '1')>selected</#if>>待审核</option>
+                        	<option value="2" <#if (status?exists&&status == '2')>selected</#if>>通过审核</option>
+                        	<option value="3" <#if (status?exists&&status == '3')>selected</#if>>审核未通过</option>
+                        	<#--  <@model.showJiucuoTaskStatusOps value="${bizObj.queryMap.status?if_exists}" /> -->
                         </select>
                     </div>
                     <div class="select-box select-box-100 un-inp-select ll">
@@ -75,15 +77,15 @@
                             <td>${task.submitTime?string('yyyy-MM-dd HH:mm:ss')}</td>
                             <td>${vm.getCityNameFull(task.street!task.region,"-")!""}</td>
                             <td>${task.mediaName}</td>
-                            <td>${task.adSeatName}</td>
+                            <td>${task.adSeatName!""}</td>
                             <td>${vm.getJiucuoTaskStatusText(task.status)}</td>
                             <td>${vm.getProblemStatusText(task.problemStatus!0)}</td>
                             <td>
                                 <#if task.status==1><a href="javascript:pass('${task.id}');">通过</a></#if>
                                 <#if task.status==1><a href="javascript:reject('${task.id}');">拒绝</a></#if>
-                                <#if (task.status==2&&task.problemStatus?exists&&task.problemStatus==4&&task.subCreated==2)>
+                                <#if (task.status==2&&task.problemStatus?exists&&task.problemStatus==4&&(!task.subCreated?exists||task.subCreated==2))>
                                     <a href="javascript:createTask('${task.id}');">创建监测</a></#if>
-                                <#if (task.status==2&&task.problemStatus?exists&&task.problemStatus==4&&task.subCreated==1)>
+                                <#if (task.status==2&&task.problemStatus?exists&&task.problemStatus==4&&task.subCreated?exists&&task.subCreated==1)>
                                     <a href="/task/list?pid=${task.id}&ptype=2">查看监测</a></#if>
                                 <#if (task.status==2&&task.problemStatus?exists&&task.problemStatus==4)><a
                                         href="javascript:close('${task.id}');">关闭</a></#if>

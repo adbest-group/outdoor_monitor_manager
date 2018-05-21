@@ -163,7 +163,9 @@
         #{updateTime,jdbcType=TIMESTAMP},
       </if>
     </trim>
+    
   </insert>
+  
   <update id="updateByPrimaryKeySelective" parameterType="com.bt.om.entity.SysUser">
     <!--
       WARNING - @mbggenerated
@@ -237,8 +239,6 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
 
-
-
   <resultMap id="ExtResultMap" extends="BaseResultMap" type="com.bt.om.entity.vo.SysUserVo">
     <result column="telephone" jdbcType="INTEGER" property="telephone" />
     <collection property="menuList" column="username" javaType="list" select="com.bt.om.mapper.SysMenuMapper.findMenuListByUsername"></collection>
@@ -251,7 +251,8 @@
 
   <select id="findUserinfoById" parameterType ="map" resultMap="ExtResultMap">
     select
-    tt1.id, tt1.username,tt1.realname, tt2.id as userinfo_id, tt2.telephone,tt2.prefix, tt1.status, tt3.role_name
+    tt1.id, tt1.username,tt1.realname, tt1.usertype, tt1.password,
+    tt2.id as userinfo_id, tt2.telephone,tt2.prefix, tt1.status, tt3.role_name
     from
     sys_user tt1,
     sys_user_detail tt2,
@@ -264,7 +265,8 @@
 
   <select id="findByUsername" parameterType ="map" resultMap="ExtResultMap">
     select
-    t1.id, t1.`username`, t1.`password`, t1.`status`,t2.id as userinf_id
+    t1.id, t1.`username`, t1.`password`, t1.`status`, t1.usertype,
+    t2.id as userinf_id
     from
     sys_user t1,sys_user_detail t2
     where
@@ -288,26 +290,39 @@
     <if test="usertype != null">
       and tt1.usertype = #{usertype,jdbcType=INTEGER}
     </if>
+    <if test="ids != null">
+         and tt1.id in
+        <foreach collection="ids" separator="," open="(" close=")" item="s">#{s,jdbcType=INTEGER}
+        </foreach>
+  	</if>
     and tt1.platform=1
   </select>
 
   <select id="getPageData" parameterType="map" resultMap="ListResultMap">
     select
-    tt1.id, tt1.username, tt2.id as userinfo_id, tt1.realname, tt2.telephone, tt1.status, tt3.role_name
+    	tt1.id, tt1.username, tt1.create_time, tt2.id as userinfo_id, tt1.realname, tt2.telephone, tt1.status, tt3.role_name
+    	
     from
-    sys_user tt1,
-    sys_user_detail tt2,
-    (select t1.user_id, group_concat(t2.role_name order by t2.role_name asc) role_name from sys_user_role t1, sys_role t2 where t1.role_id = t2.id and t1.platform = 1 and t2.platform = 1 group by t1.user_id) tt3
+	    sys_user tt1,
+	    sys_user_detail tt2,
+	    
+	    (select t1.user_id, group_concat(t2.role_name order by t2.role_name asc) role_name from sys_user_role t1, sys_role t2 
+	    where t1.role_id = t2.id and t1.platform = 1 and t2.platform = 1 group by t1.user_id) tt3
     where
-    tt1.id = tt3.user_id
-    and tt1.id = tt2.user_id
-    <if test="nameOrUsername != null">
-      and (tt1.username like #{nameOrUsername} or tt1.realname like #{nameOrUsername})
-    </if>
-    <if test="usertype != null">
-      and tt1.usertype = #{usertype,jdbcType=INTEGER}
-    </if>
-    and tt1.platform=1
+    	tt1.id = tt3.user_id
+    	and tt1.id = tt2.user_id
+	    <if test="nameOrUsername != null">
+	      and (tt1.username like #{nameOrUsername} or tt1.realname like #{nameOrUsername})
+	    </if>
+	    <if test="ids != null">
+	         and tt1.id in
+	        <foreach collection="ids" separator="," open="(" close=")" item="s">#{s,jdbcType=INTEGER}
+	        </foreach>
+   		</if>
+	    <if test="usertype != null">
+	      and tt1.usertype = #{usertype,jdbcType=INTEGER}
+	    </if>
+    	and tt1.platform = 1
     order by tt1.id desc
   </select>
 
@@ -319,4 +334,114 @@
     where
     username = #{username}
   </select>
+  
+  <select id="getAllByUserType" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+  	select
+  	<include refid="Base_Column_List" />
+    from sys_user
+    where usertype = #{usertype,jdbcType=INTEGER}
+  </select>
+  
+  <!-- 添加管理领导账号 -->
+   <insert id="createDepartmentLeader" parameterType="com.bt.om.entity.SysUser" useGeneratedKeys="true" keyProperty="id">
+    insert into sys_user (id, username, password, platform,
+      realname, mobile, usertype, 
+      status, remark, login_ip, 
+      login_time, default_page, create_time, 
+      update_time)
+    values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{platform,jdbcType=INTEGER},
+      #{realname,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR}, #{usertype,jdbcType=INTEGER}, 
+      #{status,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{loginIp,jdbcType=VARCHAR}, 
+      #{loginTime,jdbcType=TIMESTAMP}, #{defaultPage,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  
+  <!-- 更改管理领导账号密码，真实姓名 -->
+    <update id="updatePasswordAndName" parameterType="com.bt.om.entity.SysUser">
+    update sys_user a, sys_user_detail b
+    set 
+    	a.password = #{password,jdbcType=VARCHAR},
+    	a.realname = #{realname,jdbcType=VARCHAR},
+    	a.username = #{username,jdbcType=VARCHAR},
+    	b.telephone = #{mobile,jdbcType=VARCHAR}
+    where 
+    b.user_id = a.id and
+    a.id = #{id,jdbcType=INTEGER}
+  </update>
+  
+    <!-- 更改管理领导账号状态 -->
+    <update id="updateStatus" parameterType="com.bt.om.entity.SysUser">
+    update sys_user
+    set status = #{status,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <!-- 查询列表 -->
+    <select id="findLeaderList" resultMap="BaseResultMap">
+  	select
+  	<include refid="Base_Column_List" />
+    from sys_user
+  </select>
+  
+    <!-- 查询所有任务 -->
+    <select id="findAllTask" resultMap="BaseResultMap">
+  	select
+  	<include refid="Base_Column_List" />
+    from sys_user
+  </select>
+  
+  	<select id="findUserName" resultMap="BaseResultMap">
+    select
+    	a.id id,
+    	a.realname realname
+    from sys_user a  
+    left join sys_user_res b on a.id = b.user_id
+    where a.usertype = 1
+    and a.status = 1
+    and b.type = 1
+    and b.res_id = #{groupId,jdbcType=INTEGER}
+  </select>
+   <select id="findNoUserName" resultMap="BaseResultMap">
+    select
+    	a.id id,
+    	a.realname realname
+    from sys_user a  
+    left join sys_user_res b on a.id = b.user_id
+    where a.usertype = 1
+    and a.status = 1
+    and b.res_id is null;
+  </select>
+  	
+  <select id="findCustomerName" resultMap="BaseResultMap">
+    select
+   		a.id id,
+    	a.realname realname
+    from sys_user a  
+    left join sys_user_res b on a.id = b.user_id
+    where a.usertype = 2
+    and a.status = 1
+    and b.type = 2
+    and b.res_id = #{groupId,jdbcType=INTEGER}
+  </select>
+  
+  <select id="findNoCustomerName" resultMap="BaseResultMap" parameterType="map">
+    select
+   		a.id id,
+    	a.realname realname
+    from sys_user a
+    left join sys_user_res b on a.id = b.user_id
+    where a.usertype = 2
+    and a.status = 1
+    and b.res_id in
+    <foreach collection="groupIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+ </select>
+ 
+ <select id="getIdNameByUserType" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+  	select
+  		id, realname
+    from sys_user
+    where usertype = #{usertype,jdbcType=INTEGER}
+  </select>
+  
+  
 </mapper>

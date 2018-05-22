@@ -74,5 +74,5 @@ public interface IAdActivityService {
 
 	List<AdActivityAdseatVo> selectVoByLonLatTitle(Double lon, Double lat, String title);
 
-	List<AdSeatCount> selectActiveActivityCount();
+	List<AdSeatCount> selectActiveActivityCount(Map<String, Object> searchMap);
 }

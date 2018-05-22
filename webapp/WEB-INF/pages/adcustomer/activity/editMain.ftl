@@ -34,6 +34,7 @@
                             </td>
                         </tr>
 
+						<#-- 
 						<tr>
 							<td class="a-title"><font class="s-red">*</font>客户类型：</td>
 							<td>
@@ -44,6 +45,7 @@
                                 <span id="customerTypeIdTip"></span>
                             </td>
 		                </tr>
+		                 -->
 
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>投放时间：</td>
@@ -192,7 +194,7 @@
     var activity = {
         "id":${activity.id},
         "activityName": '${activity.activityName}',
-        "customerTypeId": '${activity.customerTypeId}',
+        <#-- "customerTypeId": '${activity.customerTypeId}', -->
         "dts": "${activity.startTime?string('yyyy-MM-dd')}",
         "dt": "${activity.endTime?string('yyyy-MM-dd')}"
     }
@@ -413,7 +415,7 @@
                 var city = $("#city").val();
                 var region = $("#region").val();
                 var street = $("#street").val();
-                var customerTypeId = $("#customerTypeId").val();
+                <#-- var customerTypeId = $("#customerTypeId").val(); -->
                 var media = [];
                 $("input[name='media']:checked").each(function (i, n) {
                     media.push($(n).val());
@@ -439,7 +441,7 @@
                         "city": city,
                         "region": region,
                         "street": street,
-                        "customerTypeId": customerTypeId,
+                        <#-- "customerTypeId": customerTypeId, -->
                         "media": media.join(","),
 //                        "dels" : dels.join(","),
                         "activeSeat": JSON.stringify(activity_seats)
@@ -516,6 +518,7 @@
             onError: "请选择投放媒体"
         });
         
+        <#-- 
         // 客户类型校验
         $("#customerTypeId").formValidator({
             validatorGroup:"2",
@@ -529,6 +532,7 @@
             min: 1,
             onError:"客户类型不能为空，请选择"
         });
+         -->
     });
 
     //媒体广告位

@@ -14,7 +14,7 @@
 			     <input type="hidden" name="id" id="id" value="${(obj.id)?if_exists}"/>
 				<tr>
 					<td class="a-title">登录账户：</td>
-					<td>
+					<td style="padding-bottom:20px;">
 					<#--<#if (obj.id)?exists>-->
 					   <#--${(obj.username)?if_exists}-->
 					    <#--<input type="hidden"  id="username" name="username" value="${(obj.username)?if_exists}"/>-->
@@ -52,7 +52,7 @@
 				 
 				<tr style="margin-bottom:20px">
 					<td class="a-title">用户类型：</td>
-					<td>
+					<td style="padding-bottom:20px;">
 					<#if (obj?exists&&obj.id?exists)>
 					   <#if (obj.usertype?exists&&obj.usertype==2)>客户人员</#if>
 					   <#if (obj.usertype?exists&&obj.usertype==3)>媒体人员</#if>
@@ -85,7 +85,7 @@
 										</#if>">
 										
 					<td class="a-title">所属媒体：</td>
-					<td>
+					<td style="padding-bottom:20px;">
 						<#if (obj?exists&&obj.id?exists)>
 							<#if (obj?exists&&obj.mediaName?exists)>${(obj.mediaName)?if_exists}</#if>
 							<input type="hidden" id="mediaId" name="mediaId" value="${(obj.mediaId)?if_exists}"/>

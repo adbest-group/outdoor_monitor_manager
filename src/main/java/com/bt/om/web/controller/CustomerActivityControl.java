@@ -130,8 +130,7 @@ public class CustomerActivityControl extends BasicController {
                       @RequestParam(value = "area", required = false) String area,
                       @RequestParam(value = "media", required = false) String media,
                       @RequestParam(value = "dels", required = false) String dels,
-                      @RequestParam(value = "activeSeat", required = false) String activeSeat,
-                      @RequestParam(value = "customerTypeId", required = false) Integer customerTypeId) {
+                      @RequestParam(value = "activeSeat", required = false) String activeSeat) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date now = new Date();
         ResultVo<String> result = new ResultVo<String>();
@@ -143,7 +142,7 @@ public class CustomerActivityControl extends BasicController {
 
         AdActivityVo adActivityVo = new AdActivityVo();
         adActivityVo.setActivityName(activityName);
-		adActivityVo.setCustomerTypeId(customerTypeId); //客户类型
+//		adActivityVo.setCustomerTypeId(customerTypeId); //客户类型
         try {
             adActivityVo.setStartTime(sdf.parse(startDate));
         } catch (ParseException e) {

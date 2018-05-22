@@ -415,7 +415,7 @@ img.demo {
             max:30,
             onError:"请输入广告位位置，30字以内"
         });
-        //广告位宽度
+      //广告位宽度
         $("#width").formValidator({
             validatorGroup:"2",
             onShow: "　",
@@ -427,19 +427,20 @@ img.demo {
             max:10000,
             onError:"宽度支持1-10000(cm)"
         });
-        //广告位宽度
+        //广告位高度
         $("#height").formValidator({
             validatorGroup:"2",
             onShow: "　",
             onFocus: "请输入高度(cm)",
             onCorrect: ""
-        }).inputValidator({
+       }).inputValidator({
             type:"number",
             min:1,
             max:10000,
             onError:"高度支持1-10000(cm)"
         });
-        //广告位经度
+        
+    	//广告位经度
         $("#lon").formValidator({
             validatorGroup:"2",
             onShow: "　",
@@ -447,7 +448,7 @@ img.demo {
             onCorrect: ""
         }).functionValidator({
 			fun:function(val){
-				if($.trim(val).length<1)
+				if($.trim(val).length<0)
 				    return false;
 				return true;
 			},
@@ -458,7 +459,8 @@ img.demo {
             max:180,
             onError:"经度支持 -180 ~ 180"
         });
-        //广告位纬度
+        
+    	//广告位纬度
         $("#lat").formValidator({
             validatorGroup:"2",
             onShow: "　",
@@ -466,7 +468,7 @@ img.demo {
             onCorrect: ""
         }).functionValidator({
             fun:function(val){
-                if($.trim(val).length<1)
+                if($.trim(val).length<0)
                     return false;
                 return true;
             },

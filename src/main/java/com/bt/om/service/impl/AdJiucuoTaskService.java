@@ -180,4 +180,14 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
 	public int selectCountByActivityAndSeat(Map<String, Object> searchMap) {
 		return adJiucuoTaskMapper.selectCountByActivityAndSeat(searchMap);
 	}
+	
+	@Override
+	public List<AdJiucuoTask> selectInfoByQrCode(Map<String, Object> searchMap) {
+		return adJiucuoTaskMapper.selectInfoByQrCode(searchMap);
+	}
+	
+	@Override
+	public List<AdJiucuoTask> selectInfoByLonLatTitle(Map<String, Object> searchMap) {
+		return adJiucuoTaskMapper.selectInfoByLonLatTitle(searchMap);
+	}
 }

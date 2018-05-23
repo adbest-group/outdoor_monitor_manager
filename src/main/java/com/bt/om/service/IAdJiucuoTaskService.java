@@ -43,4 +43,6 @@ public interface IAdJiucuoTaskService {
     public List<AdJiucuoTaskVo> selectAllByAssessorId(Map<String, Object> searchMap);
     public List<AdJiucuoTaskVo> getTenAdMonitorTaskVo(Map<String, Object> searchMap);
 	int selectCountByActivityAndSeat(Map<String, Object> searchMap);
+	List<AdJiucuoTask> selectInfoByQrCode(Map<String, Object> searchMap);
+	List<AdJiucuoTask> selectInfoByLonLatTitle(Map<String, Object> searchMap);
 }

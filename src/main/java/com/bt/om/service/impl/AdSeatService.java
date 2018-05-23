@@ -2,7 +2,9 @@ package com.bt.om.service.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -145,23 +147,45 @@ public class AdSeatService implements IAdSeatService {
 	}
 
 	@Override
-	public List<CountGroupByCityVo> getCountGroupByCity(HeatMapVo heatMapVo) {
+	public List<CountGroupByCityVo> getCountGroupByCity(HeatMapVo heatMapVo, Integer userId) {
+		Map<String, Object> searchMap = new HashMap<>();
+		searchMap.put("userId", userId);
+		List<Integer> seatIds = new ArrayList<>();
+		
 		//[1] 查询某活动的所有广告位id集合
 		if(heatMapVo.getActivityId() != null) {
-			List<Integer> seatIds = adActivityAdseatMapper.selectSeatIdByActivityId(heatMapVo.getActivityId());
-			heatMapVo.setInfoIds(seatIds);
+			searchMap.put("activityId", heatMapVo.getActivityId());
 		}
+		seatIds = adActivityAdseatMapper.selectSeatIdByActivityId(searchMap);
+		if(seatIds.size() > 0) {
+			heatMapVo.setInfoIds(seatIds);
+		} else {
+			heatMapVo.setInfoIds(null);
+			return new ArrayList<CountGroupByCityVo>();
+		}
+		
 		//[2] 查询热力图报表
 		return adSeatInfoMapper.getCountGroupByCity(heatMapVo);
 	}
 	
 	@Override
-	public List<AdSeatInfo> getAllLonLat(HeatMapVo heatMapVo) {
+	public List<AdSeatInfo> getAllLonLat(HeatMapVo heatMapVo, Integer userId) {
+		Map<String, Object> searchMap = new HashMap<>();
+		searchMap.put("userId", userId);
+		List<Integer> seatIds = new ArrayList<>();
+		
 		//[1] 查询某活动的所有广告位id集合
 		if(heatMapVo.getActivityId() != null) {
-			List<Integer> seatIds = adActivityAdseatMapper.selectSeatIdByActivityId(heatMapVo.getActivityId());
-			heatMapVo.setInfoIds(seatIds);
+			searchMap.put("activityId", heatMapVo.getActivityId());
 		}
+		seatIds = adActivityAdseatMapper.selectSeatIdByActivityId(searchMap);
+		if(seatIds.size() > 0) {
+			heatMapVo.setInfoIds(seatIds);
+		} else {
+			heatMapVo.setInfoIds(null);
+			return new ArrayList<AdSeatInfo>();
+		}
+		
 		//[2] 查询热力图报表
 		return adSeatInfoMapper.getAllLonLat(heatMapVo);
 	}

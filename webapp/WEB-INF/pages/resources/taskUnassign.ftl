@@ -68,13 +68,13 @@
                            <#--<td width="30"><input type="checkbox" name="ck-task" value="${task.id}"/></td>  --> 
                             <td width="30">${(bizObj.page.currentPage-1)*20+task_index+1}</td>
                             <td>
-                                <div class="data-title w200" data-title="${task.activityName}" data-id="${task.id}">${task.activityName?if_exists}</div>
+                                <div class="data-title w200" data-title="${task.activityName!""}" data-id="${task.id}">${task.activityName?if_exists}</div>
                             </td>
-                            <td><img width="50" src="${task.samplePicUrl}"/> </td>
+                            <td><img width="50" src="${task.samplePicUrl!""}"/> </td>
                             <td>${task.startTime?string('yyyy-MM-dd')}<br/>${task.endTime?string('yyyy-MM-dd')}</td>
                             <td>${vm.getCityNameFull(task.street!task.region,"-")!""}</td>
-                            <td>${task.mediaName}</td>
-                            <td>${task.adSeatName}</td>
+                            <td>${task.mediaName!""}</td>
+                            <td>${task.adSeatName!""}</td>
                             <#--<td>${task.userId!""}</td>-->
                             <td>${vm.getMonitorTaskTypeText(task.taskType)}</td>
                             <td>${vm.getMonitorTaskStatusText(task.status)}</td>

@@ -1,14 +1,5 @@
 package com.bt.om.mapper;
 
-import com.bt.om.entity.AdMonitorTask;
-import com.bt.om.entity.vo.AdJiucuoTaskVo;
-import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
-import com.bt.om.entity.vo.AdMonitorTaskVo;
-import com.bt.om.entity.vo.AllAdMonitorTaskVo;
-
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.RowBounds;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +10,8 @@ import org.apache.ibatis.session.RowBounds;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.entity.vo.AllAdMonitorTaskVo;
+import com.bt.om.entity.vo.PictureVo;
 
 public interface AdMonitorTaskMapper {
 	/**
@@ -136,5 +129,6 @@ public interface AdMonitorTaskMapper {
 	
 	int recycleTask(@Param("monitorTaskIds") List<Integer> monitorTaskIds, @Param("duration") Integer duration);
 	int forceAssignTask(@Param("duration") Integer duration);
-
+	
+	List<PictureVo> selectFeedBackByActivityIdAndSeatId(Map<String, Object> searchMap);
 }

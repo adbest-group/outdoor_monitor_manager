@@ -1,8 +1,8 @@
 package com.bt.om.entity.vo;
 
-import com.bt.om.entity.AdJiucuoTask;
-
 import java.util.Date;
+
+import com.bt.om.entity.AdJiucuoTask;
 
 /**
  * Created by caiting on 2018/1/21.
@@ -24,6 +24,7 @@ public class AdJiucuoTaskVo extends AdJiucuoTask {
     private Date feedbackTime;
     private Date startTime;
     private Date endTime;
+    private String assessorName;
 
     public String getProblem() {
         return problem;
@@ -151,5 +152,13 @@ public class AdJiucuoTaskVo extends AdJiucuoTask {
 
 	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
+	}
+	
+	public String getAssessorName() {
+		return assessorName;
+	}
+	
+	public void setAssessorName(String assessorName) {
+		this.assessorName = assessorName;
 	}
 }

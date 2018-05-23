@@ -21,7 +21,8 @@ public enum ExcelImportFailEnum {
 	SECOND_NULL(15, "媒体小类不能为空"),
 	SECOND_INVALID(16, "媒体小类无效"),
 	MEDIA_TYPE_INVALID(17, "媒体类型无效"),
-	UNIQUE_KEY_NULL(18, "该媒体类型唯一标识不能为空");
+	UNIQUE_KEY_NULL(18, "该媒体类型唯一标识不能为空"),
+	NUM_INVALID(19, "数字有误");
 
     private Integer id;
     private String text;

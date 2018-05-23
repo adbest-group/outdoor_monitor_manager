@@ -11,6 +11,7 @@ import com.bt.om.entity.vo.ActivityMobileReportVo;
 import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
 import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdActivityVo;
+import com.bt.om.entity.vo.AdSeatCount;
 import com.bt.om.vo.web.SearchDataVo;
 
 /**
@@ -72,4 +73,6 @@ public interface IAdActivityService {
 	public void updateStatusByEndTime(Date nowDate);
 
 	List<AdActivityAdseatVo> selectVoByLonLatTitle(Double lon, Double lat, String title);
+
+	List<AdSeatCount> selectActiveActivityCount(Map<String, Object> searchMap);
 }

@@ -716,6 +716,7 @@ public class MediaManagerController {
         model.addAttribute(SysConst.RESULT_KEY, result);
     }
   
+    /**
      * 通过媒体大类的id查询下属的所有媒体小类
      */
     @RequestMapping(value = {"/adseat/searchMediaType"}, method = {RequestMethod.POST})

@@ -76,10 +76,12 @@
                         <td>${adseat.adSize!""}</td>
                         <td>${adseat.parentName!""}</td>
                         <td>${adseat.secondName!""}</td>
+                        
                         <td style="width: 80px">
 						<#--<a href="#" style="margin-right: 5px">数据上传</a> -->
                             <a href="/adseat/edit?id=${adseat.id}" style="margin-right: 5px">编辑</a>
                             <a href="javascript:deleteSeat('${adseat.id}');" style="margin-right: 5px">删除</a>
+                            
                     </tr>
 					</#list> <#else>
                     <tr>

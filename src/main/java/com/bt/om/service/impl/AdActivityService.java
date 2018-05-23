@@ -344,7 +344,68 @@ public class AdActivityService implements IAdActivityService {
 	}
 	
 	@Override
-	public List<AdSeatCount> selectActiveActivityCount() {
-		return adActivityAdseatMapper.selectActiveActivityCount();
+	public List<AdSeatCount> selectActiveActivityCount(Map<String, Object> searchMap) {
+		List<AdSeatCount> adSeatCounts = new ArrayList<>();
+		List<AdSeatCount> adSeatCounts1 = adActivityAdseatMapper.selectActiveActivityCount1(searchMap);
+		List<AdSeatCount> adSeatCounts2 = adActivityAdseatMapper.selectActiveActivityCount2(searchMap);
+		List<AdSeatCount> adSeatCounts3 = adActivityAdseatMapper.selectActiveActivityCount3(searchMap);
+		List<AdSeatCount> adSeatCounts4 = adActivityAdseatMapper.selectActiveActivityCount4(searchMap);
+		for (AdSeatCount adSeatCount : adSeatCounts1) {
+			boolean isExist = false; //是否在返回结果中存在
+			for (AdSeatCount returnCount : adSeatCounts) { //遍历返回结果
+				if(returnCount.getAdseatId() == adSeatCount.getAdseatId()) {
+					returnCount.setCount(returnCount.getCount() + adSeatCount.getCount());
+					isExist = true;
+					break;
+				}
+			}
+			
+			if(isExist == false) {
+				adSeatCounts.add(adSeatCount);
+			}
+		}
+		for (AdSeatCount adSeatCount : adSeatCounts2) {
+			boolean isExist = false; //是否在返回结果中存在
+			for (AdSeatCount returnCount : adSeatCounts) { //遍历返回结果
+				if(returnCount.getAdseatId() == adSeatCount.getAdseatId()) {
+					returnCount.setCount(returnCount.getCount() + adSeatCount.getCount());
+					isExist = true;
+					break;
+				}
+			}
+			
+			if(isExist == false) {
+				adSeatCounts.add(adSeatCount);
+			}
+		}
+		for (AdSeatCount adSeatCount : adSeatCounts3) {
+			boolean isExist = false; //是否在返回结果中存在
+			for (AdSeatCount returnCount : adSeatCounts) { //遍历返回结果
+				if(returnCount.getAdseatId() == adSeatCount.getAdseatId()) {
+					returnCount.setCount(returnCount.getCount() + adSeatCount.getCount());
+					isExist = true;
+					break;
+				}
+			}
+			
+			if(isExist == false) {
+				adSeatCounts.add(adSeatCount);
+			}
+		}
+		for (AdSeatCount adSeatCount : adSeatCounts4) {
+			boolean isExist = false; //是否在返回结果中存在
+			for (AdSeatCount returnCount : adSeatCounts) { //遍历返回结果
+				if(returnCount.getAdseatId() == adSeatCount.getAdseatId()) {
+					returnCount.setCount(returnCount.getCount() + adSeatCount.getCount());
+					isExist = true;
+					break;
+				}
+			}
+			
+			if(isExist == false) {
+				adSeatCounts.add(adSeatCount);
+			}
+		}
+		return adSeatCounts;
 	}
 }

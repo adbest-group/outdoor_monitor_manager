@@ -161,6 +161,7 @@ public class AdSeatService implements IAdSeatService {
 			heatMapVo.setInfoIds(seatIds);
 		} else {
 			heatMapVo.setInfoIds(null);
+			return new ArrayList<CountGroupByCityVo>();
 		}
 		
 		//[2] 查询热力图报表
@@ -182,10 +183,17 @@ public class AdSeatService implements IAdSeatService {
 			heatMapVo.setInfoIds(seatIds);
 		} else {
 			heatMapVo.setInfoIds(null);
+			return new ArrayList<AdSeatInfo>();
 		}
 		
 		//[2] 查询热力图报表
 		return adSeatInfoMapper.getAllLonLat(heatMapVo);
+	}
+
+	@Override
+	public int updateFlag(Integer codeFlag,Integer id) {
+		// TODO Auto-generated method stub
+		return adSeatInfoMapper.updateFlag(codeFlag,id);
 	}
 
 }

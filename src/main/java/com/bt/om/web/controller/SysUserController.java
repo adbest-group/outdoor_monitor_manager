@@ -146,6 +146,7 @@ public class SysUserController extends BasicController{
     @RequestMapping(value = "/leaderStatus")
     @ResponseBody
     public Model updateStatus(Model model, Integer id, SysUser status) {
+    	
     	ResultVo<String> result = new ResultVo<String>();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("保存成功");

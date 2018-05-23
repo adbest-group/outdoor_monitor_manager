@@ -813,6 +813,7 @@ public class ExcelController extends BasicController {
                 	info.setMediaId(media.getId());
                 	info.setCreateTime(now);
                 	info.setUpdateTime(now);
+                	info.setCodeFlag(1);
                 	
                 	//检查是否重复
                 	if(hasProblem == false) {

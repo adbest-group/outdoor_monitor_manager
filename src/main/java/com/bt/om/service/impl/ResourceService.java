@@ -6,6 +6,7 @@ import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdSeatType;
 import com.bt.om.entity.vo.AdSeatInfoVo;
 import com.bt.om.entity.vo.ResourceVo;
+import com.bt.om.mapper.AdActivityAdseatMapper;
 import com.bt.om.mapper.AdCrowdMapper;
 import com.bt.om.mapper.AdMediaMapper;
 import com.bt.om.mapper.AdSeatInfoMapper;
@@ -25,6 +26,9 @@ import java.util.List;
 public class ResourceService implements IResourceService {
 	@Autowired
 	private AdSeatInfoMapper adSeatInfoMapper;
+	
+	@Autowired
+	private AdActivityAdseatMapper adActivityAdseatMapper;
 
 	@Autowired
 	private AdMediaMapper adMediaMapper;
@@ -76,10 +80,21 @@ public class ResourceService implements IResourceService {
 	public List<AdMedia> getAll() {
 		return adMediaMapper.getAll();
 	}
+	
+	@Override
+	public List<AdMedia> getAvailableAll() {
+		return adMediaMapper.getAvailableAll();
+	}
 
 	@Override
 	public int deleteAdSeatById(Integer id) {
-		return adSeatInfoMapper.deleteByPrimaryKey(id);
+		//只能删除没有参与活动的广告位
+		Integer countByAdSeatId = adActivityAdseatMapper.selectCountByAdSeatId(id);
+		if(countByAdSeatId == 0) {
+			return adSeatInfoMapper.deleteByPrimaryKey(id);
+		} else {
+			return 0;
+		}
 	}
 
 	@Override

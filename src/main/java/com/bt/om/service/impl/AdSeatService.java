@@ -2,7 +2,9 @@ package com.bt.om.service.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +15,14 @@ import com.bt.om.entity.AdCrowd;
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.vo.AdSeatInfoVo;
+import com.bt.om.entity.vo.CountGroupByCityVo;
+import com.bt.om.entity.vo.HeatMapVo;
+import com.bt.om.mapper.AdActivityAdseatMapper;
 import com.bt.om.mapper.AdCrowdMapper;
 import com.bt.om.mapper.AdMediaMapper;
 import com.bt.om.mapper.AdSeatInfoMapper;
 import com.bt.om.service.IAdSeatService;
+import com.bt.om.util.GeoUtil;
 import com.bt.om.vo.web.SearchDataVo;
 
 /**
@@ -30,6 +36,8 @@ public class AdSeatService implements IAdSeatService {
     private AdMediaMapper adMediaMapper;
     @Autowired
     private AdCrowdMapper adCrowdMapper;
+    @Autowired
+    private AdActivityAdseatMapper adActivityAdseatMapper;
 
     @Override
     public int getPageCount(SearchDataVo vo) {
@@ -101,6 +109,14 @@ public class AdSeatService implements IAdSeatService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void modifyInfo(AdSeatInfo adSeatInfo) {
+        Date now = new Date();
+        adSeatInfo.setUpdateTime(now);
+        adSeatInfoMapper.updateByPrimaryKeySelective(adSeatInfo);
+    }
+    
+    @Override
     public void delete(Integer id) {
         adSeatInfoMapper.deleteByPrimaryKey(id);
     }
@@ -112,21 +128,64 @@ public class AdSeatService implements IAdSeatService {
     
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int insertBatchByExcel(List<AdSeatInfo> adSeatInfos, Integer userId) {
-    	Date now = new Date();
+    public int insertBatchByExcel(List<AdSeatInfo> adSeatInfos) {
     	if(adSeatInfos != null && adSeatInfos.size() > 0) {
-    		AdMedia media = adMediaMapper.selectByUserId(userId);
-            if(media != null){
-                for (AdSeatInfo adSeatInfo : adSeatInfos) {
-                	adSeatInfo.setMediaId(media.getId());
-                	adSeatInfo.setCreateTime(now);
-                	adSeatInfo.setUpdateTime(now);
-    			}
-        		int count = adSeatInfoMapper.insertBatchByExcel(adSeatInfos);
-        		return count;
-            }
+    		int count = adSeatInfoMapper.insertBatchByExcel(adSeatInfos);
+    		return count;
     	}
     	return 0;
     }
+
+    @Override
+    public List<AdSeatInfo> getAdseatAround(Double lat, Double lon, Double metre) {
+        return adSeatInfoMapper.getAdSeatByPointAround(lon,lat,metre, GeoUtil.getDegreeFromDistance(metre));
+    }
+
+	@Override
+	public List<AdSeatInfo> getAdSeatByMediaId(Integer mediaId) {
+		return adSeatInfoMapper.getAdSeatByMediaId(mediaId);
+	}
+
+	@Override
+	public List<CountGroupByCityVo> getCountGroupByCity(HeatMapVo heatMapVo, Integer userId) {
+		Map<String, Object> searchMap = new HashMap<>();
+		searchMap.put("userId", userId);
+		List<Integer> seatIds = new ArrayList<>();
+		
+		//[1] 查询某活动的所有广告位id集合
+		if(heatMapVo.getActivityId() != null) {
+			searchMap.put("activityId", heatMapVo.getActivityId());
+		}
+		seatIds = adActivityAdseatMapper.selectSeatIdByActivityId(searchMap);
+		if(seatIds.size() > 0) {
+			heatMapVo.setInfoIds(seatIds);
+		} else {
+			heatMapVo.setInfoIds(null);
+		}
+		
+		//[2] 查询热力图报表
+		return adSeatInfoMapper.getCountGroupByCity(heatMapVo);
+	}
+	
+	@Override
+	public List<AdSeatInfo> getAllLonLat(HeatMapVo heatMapVo, Integer userId) {
+		Map<String, Object> searchMap = new HashMap<>();
+		searchMap.put("userId", userId);
+		List<Integer> seatIds = new ArrayList<>();
+		
+		//[1] 查询某活动的所有广告位id集合
+		if(heatMapVo.getActivityId() != null) {
+			searchMap.put("activityId", heatMapVo.getActivityId());
+		}
+		seatIds = adActivityAdseatMapper.selectSeatIdByActivityId(searchMap);
+		if(seatIds.size() > 0) {
+			heatMapVo.setInfoIds(seatIds);
+		} else {
+			heatMapVo.setInfoIds(null);
+		}
+		
+		//[2] 查询热力图报表
+		return adSeatInfoMapper.getAllLonLat(heatMapVo);
+	}
 
 }

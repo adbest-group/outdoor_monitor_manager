@@ -15,6 +15,8 @@
     <result column="pic_url4" property="picUrl4" jdbcType="VARCHAR" />
     <result column="problem" property="problem" jdbcType="VARCHAR" />
     <result column="problem_other" property="problemOther" jdbcType="VARCHAR" />
+    <result column="seat_lon" property="seatLon" jdbcType="DOUBLE" />
+    <result column="seat_lat" property="seatLat" jdbcType="DOUBLE" />
     <result column="lon" property="lon" jdbcType="DOUBLE" />
     <result column="lat" property="lat" jdbcType="DOUBLE" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
@@ -27,7 +29,7 @@
       This element was generated on Sun Jan 21 14:59:02 CST 2018.
     -->
     id, jiucuo_task_id, pic_url1, pic_url2, pic_url3, pic_url4, problem, problem_other, 
-    lon, lat, create_time, update_time
+    seat_lon,seat_lat,lon, lat, create_time, update_time
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     <!--
@@ -57,12 +59,12 @@
     -->
     insert into ad_jiucuo_task_feedback (id, jiucuo_task_id, pic_url1, 
       pic_url2, pic_url3, pic_url4, 
-      problem, problem_other, lon, 
+      problem, problem_other, seat_lon,seat_lat,lon,
       lat, create_time, update_time
       )
     values (#{id,jdbcType=INTEGER}, #{jiucuoTaskId,jdbcType=INTEGER}, #{picUrl1,jdbcType=VARCHAR}, 
       #{picUrl2,jdbcType=VARCHAR}, #{picUrl3,jdbcType=VARCHAR}, #{picUrl4,jdbcType=VARCHAR}, 
-      #{problem,jdbcType=VARCHAR}, #{problemOther,jdbcType=VARCHAR}, #{lon,jdbcType=DOUBLE}, 
+      #{problem,jdbcType=VARCHAR}, #{problemOther,jdbcType=VARCHAR}, #{seatLon,jdbcType=DOUBLE},#{seatLat,jdbcType=DOUBLE},#{lon,jdbcType=DOUBLE},
       #{lat,jdbcType=DOUBLE}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
       )
   </insert>
@@ -97,6 +99,12 @@
       </if>
       <if test="problemOther != null" >
         problem_other,
+      </if>
+      <if test="seatLon != null" >
+        seat_lon,
+      </if>
+      <if test="seatLat != null" >
+        seat_lat,
       </if>
       <if test="lon != null" >
         lon,
@@ -135,6 +143,12 @@
       </if>
       <if test="problemOther != null" >
         #{problemOther,jdbcType=VARCHAR},
+      </if>
+      <if test="seatLon != null" >
+        #{seatLon,jdbcType=DOUBLE},
+      </if>
+      <if test="seatLat != null" >
+        #{seatLat,jdbcType=DOUBLE},
       </if>
       <if test="lon != null" >
         #{lon,jdbcType=DOUBLE},
@@ -179,6 +193,12 @@
       <if test="problemOther != null" >
         problem_other = #{problemOther,jdbcType=VARCHAR},
       </if>
+      <if test="seatLon != null" >
+        seat_lon = #{seatLon,jdbcType=DOUBLE},
+      </if>
+      <if test="seatLat != null" >
+        seat_lat = #{seatLat,jdbcType=DOUBLE},
+      </if>
       <if test="lon != null" >
         lon = #{lon,jdbcType=DOUBLE},
       </if>
@@ -208,6 +228,8 @@
       pic_url4 = #{picUrl4,jdbcType=VARCHAR},
       problem = #{problem,jdbcType=VARCHAR},
       problem_other = #{problemOther,jdbcType=VARCHAR},
+      seat_lon = #{seatLon,jdbcType=DOUBLE},
+      seat_lat = #{seatLat,jdbcType=DOUBLE},
       lon = #{lon,jdbcType=DOUBLE},
       lat = #{lat,jdbcType=DOUBLE},
       create_time = #{createTime,jdbcType=TIMESTAMP},

@@ -75,7 +75,16 @@ public class AdJiucuoTask extends ID {
      *
      * @mbggenerated Sun Jan 21 14:46:36 CST 2018
      */
-    public Integer getId() {
+    private Integer assessorId;
+    public Integer getAssessorId() {
+		return assessorId;
+	}
+
+	public void setAssessorId(Integer assessorId) {
+		this.assessorId = assessorId;
+	}
+
+	public Integer getId() {
         return id;
     }
 

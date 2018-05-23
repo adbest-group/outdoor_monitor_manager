@@ -31,7 +31,7 @@
 						</div><input type="password" id="password" name="password" value="<#if (obj.id)?exists>******</#if>" autocomplete="off" class="form-control"> <br><span id="passwordTip"></span></td>
 				</tr>
 				<tr>
-					<td class="a-title">联 系 人：</td>
+					<td class="a-title">客户名称：</td>
 					<td><input type="text" id="name" name="name" value="${(obj.realname)?if_exists}" autocomplete="off" class="form-control"> <br><span id="nameTip"></span></td>
 				</tr>
 				<tr>
@@ -125,40 +125,40 @@ $(function() {
 		    });
 		    
 		    if(id == null || id.length==0){
-		    // 登录账户check
-		    $("#username").formValidator({
-				validatorGroup:"2",
-		        onShow: "　",
-		        onFocus: "请输入登录账户",
-		        onCorrect: "　"
-		    }).inputValidator({
-		        min:1,
-        		max:100,
-        		onError:"登录账户为邮箱格式，请重新输入"
-		    }).regexValidator({
-        		regExp:"^(\\w-*\\.*)+@(\\w-?)+(\\.\\w{2,})$",
-        		onError:"登录账户为邮箱格式，请重新输入"
-        	}).ajaxValidator({
-        		type: "post",
-		        dataType: "json",
-		        async: true,
-		        url: "/customer/isExistsAccountName",
-		        buttons: $("#button"),
-		        success: function(result) {
-		            if (result.ret.code == 100) {
-		                return true;
-		            }
-		            return false;
-		        },
-		        error: function(jqXHR, textStatus, errorThrown) {
-             		layer.confirm("服务忙，请稍后再试", {
-						icon: 5,
-						btn: ['确定'] //按钮
-					});
-		        },
-		        onError: "已存在该登录账户，请修改",
-		        onWait: "正在对登录账户进行校验，请稍候..."
-		    });
+			    // 登录账户check
+			    $("#username").formValidator({
+					validatorGroup:"2",
+			        onShow: "　",
+			        onFocus: "请输入登录账户",
+			        onCorrect: "　"
+			    }).inputValidator({
+			        min:1,
+	        		max:100,
+	        		onError:"登录账户为邮箱格式，请重新输入"
+			    }).regexValidator({
+	        		regExp:"^(\\w-*\\.*)+@(\\w-?)+(\\.\\w{2,})$",
+	        		onError:"登录账户为邮箱格式，请重新输入"
+	        	}).ajaxValidator({
+	        		type: "post",
+			        dataType: "json",
+			        async: true,
+			        url: "/customer/isExistsAccountName",
+			        buttons: $("#button"),
+			        success: function(result) {
+			            if (result.ret.code == 100) {
+			                return true;
+			            }
+			            return false;
+			        },
+			        error: function(jqXHR, textStatus, errorThrown) {
+	             		layer.confirm("服务忙，请稍后再试", {
+							icon: 5,
+							btn: ['确定'] //按钮
+						});
+			        },
+			        onError: "已存在该登录账户，请修改",
+			        onWait: "正在对登录账户进行校验，请稍候..."
+			    });
 		    }
 		    
 		    // 密码check
@@ -192,7 +192,7 @@ $(function() {
         		onFocus:"请输入手机或固定电话，如：0571-88888888",
         		onCorrect:"　"
         	}).regexValidator({
-        		regExp:["^(([0\\+]\\d{2,3}-)?(0\\d{2,3})-)?(\\d{7,8})(-(\\d{3,}))?$","^(13|15|18)[0-9]{9}$"],
+        		regExp:["^(([0\\+]\\d{2,3}-)?(0\\d{2,3})-)?(\\d{7,8})(-(\\d{3,}))?$","^(13|15|18|17|19)[0-9]{9}$"],
         		onError:"手机或电话格式不正确，请重新输入"
         	});
         	

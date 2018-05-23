@@ -28,12 +28,22 @@
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>广告活动名称：</td>
                             <td>
-                                <input type="text" id="activityName" ${editMode?string("","disabled")} name="activityName" value="" autocomplete="off"
-                                       class="form-control">
+                                <input type="text" id="activityName" ${editMode?string("","disabled")} name="activityName" value="" autocomplete="off" class="form-control">
                                 <span id="activityNameTip"></span>
-                                <input type="button" id="btnDemo" class="btn btn-green" value="演示专用"/>
+                                <#-- <input type="button" id="btnDemo" class="btn btn-green" value="演示专用"/> -->
                             </td>
                         </tr>
+
+						<tr>
+							<td class="a-title"><font class="s-red">*</font>客户类型：</td>
+							<td>
+                                <select name="customerTypeId" ${editMode?string("","disabled")} class="searchable-select-holder" id="customerTypeId">
+		                            <option value="">请选择</option>
+		                            <@model.showAllCustomerTypeOps value="<#if (activity?exists&&activity.customerTypeId?exists)>activity.customerTypeId</#if>"/>
+		                        </select>
+                                <span id="customerTypeIdTip"></span>
+                            </td>
+		                </tr>
 
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>投放时间：</td>
@@ -49,7 +59,7 @@
                         </tr>
 
                         <tr>
-                            <td class="a-title"><font class="s-red">*</font>投放地区：</td>
+                            <td class="a-title"><font class="s-red">*</font>投放地区(筛选广告位)：</td>
                             <td>
                             <#--<input type="text" style="width:100px;"  id="province" name="province" value="浙江省" autocomplete="off" class="form-control">-->
                             <#--<a class="addBtn" href="javascript:;" id="resource_sel">选择</a>-->
@@ -182,6 +192,7 @@
     var activity = {
         "id":${activity.id},
         "activityName": '${activity.activityName}',
+        "customerTypeId": '${activity.customerTypeId}',
         "dts": "${activity.startTime?string('yyyy-MM-dd')}",
         "dt": "${activity.endTime?string('yyyy-MM-dd')}"
     }
@@ -200,6 +211,9 @@
                     upMonitor: "${seat.upMonitor}",
                     downMonitor: "${seat.downMonitor}",
                     durationMonitor: "${seat.durationMonitor}",
+                    upMonitorLastDays: "${seat.upMonitorLastDays!"3"}",
+                    downMonitorLastDays: "${seat.downMonitorLastDays!"3"}",
+                    durationMonitorLastDays: "${seat.durationMonitorLastDays!"3"}",
                     monitorCount: "${seat.monitorCount}",
                     samplePicUrl: "${seat.samplePicUrl}"
                 }<#if seat_has_next>,</#if>
@@ -381,10 +395,25 @@
                 var activityName = $("#activityName").val(); //活动名
                 var startDate = $("#dts").val(); //投放开始时间
                 var endDate = $("#dt").val(); //投放结束时间
+                
+                var startTime = new Date(startDate);
+                var time1 = startTime.getTime();
+                var endTime = new Date(endDate);
+                var time2 = endTime.getTime();
+                
+                if((time2 - time1) < 2*24*60*60*1000) {
+                	layer.confirm("投放时间间隔至少3天", {
+                        icon: 2,
+                        btn: ['确定'] //按钮
+                    });
+                	return ;
+                }
+                
                 var province = $("#province").val();//省
                 var city = $("#city").val();
                 var region = $("#region").val();
                 var street = $("#street").val();
+                var customerTypeId = $("#customerTypeId").val();
                 var media = [];
                 $("input[name='media']:checked").each(function (i, n) {
                     media.push($(n).val());
@@ -410,6 +439,7 @@
                         "city": city,
                         "region": region,
                         "street": street,
+                        "customerTypeId": customerTypeId,
                         "media": media.join(","),
 //                        "dels" : dels.join(","),
                         "activeSeat": JSON.stringify(activity_seats)
@@ -458,7 +488,7 @@
             onError:"活动名称不能为空，请输入"
         }).inputValidator({
             min: 1,
-            max: 30,
+            max: 60,
             onError: "请输入活动名称，30字以内"
         });
 
@@ -485,11 +515,25 @@
             min: 1,
             onError: "请选择投放媒体"
         });
+        
+        // 客户类型校验
+        $("#customerTypeId").formValidator({
+            validatorGroup:"2",
+            onShow:"",
+            onFocus:"请选择客户类型",
+            onCorrect:""
+        }).regexValidator({
+            regExp:"^\\S+$",
+            onError:"客户类型不能为空，请选择"
+        }).inputValidator({
+            min: 1,
+            onError:"客户类型不能为空，请选择"
+        });
     });
 
     //媒体广告位
     var checked_media = media_seats = [
-        <#list vm.getAllMedia() as media>
+        <#list vm.getAllAvailableMedia() as media>
             {
                 id:${media.id},
                 name:'${media.mediaName}'
@@ -572,9 +616,9 @@
     renderASTable = function () {
         $("#as-container").html("");
         if (activity_seats.length > 0) {
-            var tab = $('<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead> <tr> <th>序号</th> <th>广告位</th> <th>媒体</th> <th>投放品牌</th> <th>监测时间段</th> <th>监测次数</th> <th>监测时间</th> <th>样例</th> <th>操作</th> </tr> </thead> <tbody></tbody></table>');
+            var tab = $('<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead> <tr> <th>序号</th> <th>广告位</th> <th>媒体</th> <th>投放品牌</th> <th>监测时间段</th> <th>监测时间</th> <th>样例</th> <th>操作</th> </tr> </thead> <tbody></tbody></table>');
             $.each(activity_seats, function (i, as) {
-                tab.find("tbody").append("<tr> <td width='30'>" + (i + 1) + "</td> <td>" + as.seatName + "</td> <td>" + as.mediaName + "</td> <td>" + as.brand + "</td> <td>" + as.startDate + "至" + as.endDate + "</td> <td>" + as.monitorCount + "</td> <td>" + (as.upMonitor == 1 ? "上刊" : "") + "&nbsp;" + (as.durationMonitor == 1 ? "投放期间" : "") + "&nbsp;" + (as.downMonitor == 1 ? "下刊" : "") + "&nbsp;" + "</td> <td><img src='" + as.samplePicUrl + "' class='demo'/></td> <td> <a href='javascript:modAS(" + i + ");'>详情</a> "+(editMode?"<a href='javascript:dealAS(" + i + ");'>删除</a>":"")+" </td> </tr>");
+                tab.find("tbody").append("<tr> <td width='30'>" + (i + 1) + "</td> <td>" + as.seatName + "</td> <td>" + as.mediaName + "</td> <td>" + as.brand + "</td> <td>" + as.startDate + "至" + as.endDate + "</td><td>" + (as.upMonitor == 1 ? "上刊" : "") + "&nbsp;" + (as.durationMonitor == 1 ? "投放期间" : "") + "&nbsp;" + (as.downMonitor == 1 ? "下刊" : "") + "&nbsp;" + "</td> <td><img src='" + as.samplePicUrl + "' class='demo'/></td> <td> <a href='javascript:modAS(" + i + ");'>详情</a> "+(editMode?"<a href='javascript:dealAS(" + i + ");'>删除</a>":"")+" </td> </tr>");
             });
             $("#as-container").append(tab);
         }
@@ -592,7 +636,7 @@
         mod_activity_seat = activity_seats[i];
         layer.open({
             type: 2,
-            title: '新修改告位监测',
+            title: '详细信息',
             shade: 0.8,
             area: ['820px', '600px'],
             content: '/customer/activity/adseat/edit' //iframe的url

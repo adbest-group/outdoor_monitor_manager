@@ -65,4 +65,12 @@ public interface AdJiucuoTaskMapper {
     AdJiucuoTaskVo selectVoByPrimaryKey(Integer id);
 
     List<AdJiucuoTaskMobileVo> selectByUserId(@Param("userId")Integer userId);
+
+    List<AdJiucuoTaskVo> selectAllByAssessorId(Map<String, Object> searchMap);
+    List<AdJiucuoTaskVo> getTenAdJiucuoTaskVo(Map<String, Object> searchMap);
+    int updateAssessorId(Map<String, Object> searchMap);
+    int selectCountByActivityAndSeat(Map<String, Object> searchMap);
+    
+    List<AdJiucuoTask> selectInfoByQrCode(Map<String, Object> searchMap);
+    List<AdJiucuoTask> selectInfoByLonLatTitle(Map<String, Object> searchMap);
 }

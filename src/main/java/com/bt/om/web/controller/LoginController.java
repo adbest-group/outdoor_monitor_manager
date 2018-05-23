@@ -20,6 +20,7 @@ import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.subject.Subject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,11 +28,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
-import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysMenu;
+import com.bt.om.entity.SysResources;
+import com.bt.om.entity.SysUser;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.log.SystemLogThread;
 import com.bt.om.security.ShiroUtils;
+import com.bt.om.service.ISysGroupService;
 import com.bt.om.util.RequestUtil;
 import com.bt.om.web.BasicController;
 
@@ -41,6 +44,9 @@ import com.bt.om.web.BasicController;
 @Controller
 public class LoginController extends BasicController {
 
+	@Autowired
+	private ISysGroupService sysGroupService;
+	
     /**
      * 跳转到登录页
      *
@@ -122,12 +128,25 @@ public class LoginController extends BasicController {
             SysUser findUser = getLoginUser();
 
             // 账户停用的时候
-            if (findUser.getStatus() != null && findUser.getStatus() == 2) {
+            if (findUser.getStatus() != null && findUser.getStatus() ==2) {
                 // 清除session中的用户信息
                 ShiroUtils.removeAttribute(SessionKey.SESSION_LOGIN_USER.toString());
                 model.addAttribute(SysConst.RESULT_KEY, "该账户已被停用，请联系管理员");
                 model.addAttribute("username", user.getUsername());
                 return PageConst.LOGIN_PAGE;
+            }
+            
+            //部门领导校验是否有管理部门
+            if(findUser.getUsertype() == 5) {
+            	//部门领导登录, 查询部门领导账号一对一管理的部门信息
+            	SysResources department = sysGroupService.getByUserId(findUser.getId());
+            	if(department == null) {
+            		// 清除session中的用户信息
+                    ShiroUtils.removeAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+                    model.addAttribute(SysConst.RESULT_KEY, "该账户没有管理的部门");
+                    model.addAttribute("username", user.getUsername());
+                    return PageConst.LOGIN_PAGE;
+            	}
             }
 
             // ========记录日志===========

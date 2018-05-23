@@ -14,17 +14,27 @@
 		<result column="media_id" property="mediaId" jdbcType="INTEGER" />
 		<result column="ad_seat_type" property="adSeatType" jdbcType="INTEGER" />
 		<result column="ad_seat_type_text" property="adSeatTypeText" jdbcType="VARCHAR" />
+		<result column="media_type_parent_id" property="mediaTypeParentId" jdbcType="INTEGER" />
+		<result column="media_type_id" property="mediaTypeId" jdbcType="INTEGER" />
+		<result column="unique_key" property="uniqueKey" jdbcType="VARCHAR" />
 		<result column="ad_code" property="adCode" jdbcType="VARCHAR" />
+		<result column="ad_code_url" property="adCodeUrl" jdbcType="VARCHAR" />
 		<result column="location" property="location" jdbcType="VARCHAR" />
 		<result column="ad_size" property="adSize" jdbcType="VARCHAR" />
+		<result column="ad_area" property="adArea" jdbcType="VARCHAR" />
 		<result column="pv" property="pv" jdbcType="INTEGER" />
-		<result column="private_car_pv" property="privateCarPv"
-			jdbcType="INTEGER" />
+		<result column="private_car_pv" property="privateCarPv" jdbcType="INTEGER" />
 		<result column="bus_pv" property="busPv" jdbcType="INTEGER" />
 		<result column="lon" property="lon" jdbcType="DOUBLE" />
 		<result column="lat" property="lat" jdbcType="DOUBLE" />
+		<result column="map_standard" property="mapStandard" jdbcType="INTEGER" />
+		<result column="contact_name" property="contactName" jdbcType="VARCHAR" />
+		<result column="contact_cell" property="contactCell" jdbcType="VARCHAR" />
 		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
 		<result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+		<result column="memo" property="memo" jdbcType="VARCHAR" />
+		<result column="allow_multi" property="allowMulti" jdbcType="INTEGER" />
+		<result column="multi_num" property="multiNum" jdbcType="INTEGER" />
 	</resultMap>
 
 	<sql id="Base_Column_List">
@@ -32,9 +42,11 @@
 			MyBatis Generator, do not modify. This element was generated on Thu Feb 01 
 			13:48:16 CST 2018. -->
 		id, name, province, city, region, street, media_id, ad_seat_type, ad_seat_type_text,
-		ad_code, location,
-		ad_size, pv, private_car_pv, bus_pv, lon, lat,
-		create_time, update_time
+		media_type_parent_id, media_type_id, unique_key,
+		ad_code, ad_code_url, location,
+		ad_size, ad_area, pv, private_car_pv, bus_pv, lon, lat, map_standard,
+		contact_name, contact_cell,
+		create_time, update_time, memo, allow_multi, multi_num
 	</sql>
 
 	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
@@ -62,25 +74,30 @@
 			13:48:16 CST 2018. -->
 		insert into ad_seat_info (id, name, province,
 		city, region, street,
-		media_id, ad_seat_type, ad_code,
-		location, ad_size, pv,
+		media_id, ad_seat_type, ad_seat_type_text,
+		media_type_parent_id, media_type_id, unique_key,
+		ad_code, ad_code_url,
+		location, ad_size, ad_area, pv,
 		private_car_pv,
 		bus_pv, lon,
-		lat, create_time, update_time
+		lat, map_standard, contact_name, contact_cell,
+		create_time, update_time, memo, allow_multi, multi_num
 		)
 		values
 		(#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
 		#{province,jdbcType=BIGINT},
 		#{city,jdbcType=BIGINT},
 		#{region,jdbcType=BIGINT}, #{street,jdbcType=BIGINT},
-		#{mediaId,jdbcType=INTEGER}, #{adSeatType,jdbcType=INTEGER},
-		#{adCode,jdbcType=VARCHAR},
+		#{mediaId,jdbcType=INTEGER}, #{adSeatType,jdbcType=INTEGER}, #{adSeatTypeText,jdbcType=VARCHAR},
+		#{mediaTypeParentId,jdbcType=INTEGER}, #{mediaTypeId,jdbcType=INTEGER}, #{uniqueKey,jdbcType=VARCHAR},
+		#{adCode,jdbcType=VARCHAR},#{adCodeUrl,jdbcType=VARCHAR},
 		#{location,jdbcType=VARCHAR},
-		#{adSize,jdbcType=VARCHAR}, #{pv,jdbcType=INTEGER},
+		#{adSize,jdbcType=VARCHAR}, #{adArea,jdbcType=VARCHAR}, #{pv,jdbcType=INTEGER},
 		#{privateCarPv,jdbcType=INTEGER}, #{busPv,jdbcType=INTEGER},
 		#{lon,jdbcType=DOUBLE},
 		#{lat,jdbcType=DOUBLE},
-		#{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+		#{mapStandard,jdbcType=INTEGER}, #{contactName,jdbcType=VARCHAR}, #{contactCell,jdbcType=VARCHAR},
+		#{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{memo,jdbcType=VARCHAR}, #{allowMulti,jdbcType=INTEGER}, #{multiNum,jdbcType=INTEGER}
 		)
 	</insert>
 
@@ -114,14 +131,32 @@
 			<if test="adSeatType != null">
 				ad_seat_type,
 			</if>
+			<if test="adSeatTypeText != null">
+				ad_seat_type_text,
+			</if>
+			<if test="mediaTypeParentId != null">
+				media_type_parent_id,
+			</if>
+			<if test="mediaTypeId != null">
+				media_type_id,
+			</if>
+			<if test="uniqueKey != null">
+				unique_key,
+			</if>
 			<if test="adCode != null">
 				ad_code,
+			</if>
+			<if test="adCodeUrl != null">
+				ad_code_url,
 			</if>
 			<if test="location != null">
 				location,
 			</if>
 			<if test="adSize != null">
 				ad_size,
+			</if>
+			<if test="adArea != null">
+				ad_area,
 			</if>
 			<if test="pv != null">
 				pv,
@@ -138,11 +173,29 @@
 			<if test="lat != null">
 				lat,
 			</if>
+			<if test="mapStandard != null">
+				map_standard,
+			</if>
+			<if test="contactName != null">
+				contact_name,
+			</if>
+			<if test="contactCell != null">
+				contact_cell,
+			</if>
 			<if test="createTime != null">
 				create_time,
 			</if>
 			<if test="updateTime != null">
 				update_time,
+			</if>
+			<if test="memo != null">
+				memo,
+			</if>
+			<if test="allowMulti != null">
+				allow_multi,
+			</if>
+			<if test="multiNum != null">
+				multi_num,
 			</if>
 		</trim>
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -170,14 +223,32 @@
 			<if test="adSeatType != null">
 				#{adSeatType,jdbcType=INTEGER},
 			</if>
+			<if test="adSeatTypeText != null">
+				#{adSeatTypeText,jdbcType=VARCHAR},
+			</if>
+			<if test="mediaTypeParentId != null">
+				#{mediaTypeParentId,jdbcType=INTEGER},
+			</if>
+			<if test="mediaTypeId != null">
+				#{mediaTypeId,jdbcType=INTEGER},
+			</if>
+			<if test="uniqueKey != null">
+				#{uniqueKey,jdbcType=VARCHAR},
+			</if>
 			<if test="adCode != null">
 				#{adCode,jdbcType=VARCHAR},
+			</if>
+			<if test="adCodeUrl != null">
+				#{adCodeUrl,jdbcType=VARCHAR},
 			</if>
 			<if test="location != null">
 				#{location,jdbcType=VARCHAR},
 			</if>
 			<if test="adSize != null">
 				#{adSize,jdbcType=VARCHAR},
+			</if>
+			<if test="adArea != null">
+				#{adArea,jdbcType=VARCHAR},
 			</if>
 			<if test="pv != null">
 				#{pv,jdbcType=INTEGER},
@@ -194,11 +265,29 @@
 			<if test="lat != null">
 				#{lat,jdbcType=DOUBLE},
 			</if>
+			<if test="mapStandard != null">
+				#{mapStandard,jdbcType=INTEGER},
+			</if>
+			<if test="contactName != null">
+				#{contactName,jdbcType=VARCHAR},
+			</if>
+			<if test="contactCell != null">
+				#{contactCell,jdbcType=VARCHAR},
+			</if>
 			<if test="createTime != null">
 				#{createTime,jdbcType=TIMESTAMP},
 			</if>
 			<if test="updateTime != null">
 				#{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="memo != null">
+				#{memo,jdbcType=TIMESTAMP},
+			</if>
+			<if test="allowMulti != null">
+				#{allowMulti,jdbcType=TIMESTAMP},
+			</if>
+			<if test="multiNum != null">
+				#{multiNum,jdbcType=TIMESTAMP},
 			</if>
 		</trim>
 	</insert>
@@ -230,14 +319,32 @@
 			<if test="adSeatType != null">
 				ad_seat_type = #{adSeatType,jdbcType=INTEGER},
 			</if>
+			<if test="adSeatTypeText != null">
+				ad_seat_type_text = #{adSeatTypeText,jdbcType=VARCHAR},
+			</if>
+			<if test="mediaTypeParentId != null">
+				media_type_parent_id = #{mediaTypeParentId,jdbcType=INTEGER},
+			</if>
+			<if test="mediaTypeId != null">
+				media_type_id = #{mediaTypeId,jdbcType=INTEGER},
+			</if>
+			<if test="uniqueKey != null">
+				unique_key = #{uniqueKey,jdbcType=VARCHAR},
+			</if>
 			<if test="adCode != null">
 				ad_code = #{adCode,jdbcType=VARCHAR},
+			</if>
+			<if test="adCodeUrl != null">
+				ad_code_url = #{adCodeUrl,jdbcType=VARCHAR},
 			</if>
 			<if test="location != null">
 				location = #{location,jdbcType=VARCHAR},
 			</if>
 			<if test="adSize != null">
 				ad_size = #{adSize,jdbcType=VARCHAR},
+			</if>
+			<if test="adArea != null">
+				ad_area = #{adArea,jdbcType=VARCHAR},
 			</if>
 			<if test="pv != null">
 				pv = #{pv,jdbcType=INTEGER},
@@ -254,15 +361,34 @@
 			<if test="lat != null">
 				lat = #{lat,jdbcType=DOUBLE},
 			</if>
+			<if test="mapStandard != null">
+				map_standard = #{mapStandard,jdbcType=INTEGER},
+			</if>
+			<if test="contactName != null">
+				contact_name = #{contactName,jdbcType=VARCHAR},
+			</if>
+			<if test="contactCell != null">
+				contact_cell = #{contactCell,jdbcType=VARCHAR},
+			</if>
 			<if test="createTime != null">
 				create_time = #{createTime,jdbcType=TIMESTAMP},
 			</if>
 			<if test="updateTime != null">
 				update_time = #{updateTime,jdbcType=TIMESTAMP},
 			</if>
+			<if test="memo != null">
+				memo = #{memo,jdbcType=VARCHAR},
+			</if>
+			<if test="allowMulti != null">
+				allow_multi = #{allowMulti,jdbcType=VARCHAR},
+			</if>
+			<if test="multiNum != null">
+				multi_num = #{multiNum,jdbcType=VARCHAR},
+			</if>
 		</set>
 		where id = #{id,jdbcType=INTEGER}
 	</update>
+	
 	<update id="updateByPrimaryKey" parameterType="com.bt.om.entity.AdSeatInfo">
 		<!-- WARNING - @mbggenerated This element is automatically generated by 
 			MyBatis Generator, do not modify. This element was generated on Thu Feb 01 
@@ -279,6 +405,7 @@
 		ad_seat_type =
 		#{adSeatType,jdbcType=INTEGER},
 		ad_code = #{adCode,jdbcType=VARCHAR},
+		ad_code_url = #{adCodeUrl,jdbcType=VARCHAR},
 		location = #{location,jdbcType=VARCHAR},
 		ad_size =
 		#{adSize,jdbcType=VARCHAR},
@@ -303,15 +430,17 @@
 		<result column="age_part" jdbcType="INTEGER" property="agePart"/>
 		<result column="mediaid" jdbcType="INTEGER" property="mediaId"/>
 		<result column="typeid" jdbcType="INTEGER" property="typeId"/>
+		<result column="parentName" jdbcType="VARCHAR" property="parentName"/>
+		<result column="secondName" jdbcType="VARCHAR" property="secondName"/>
 	</resultMap>
 
 	<select id="getPageCount" parameterType="map" resultType="int">
 		select
-		count(a.id)
+			count(a.id)
 		from ad_seat_info as a
 		left join ad_media as b on a.media_id=b.id
-		left join ad_seat_type as c on a.ad_seat_type=c.id
-		left join (select * FROM ad_crowd limit 1) d on d.ad_seat_id=a.id
+		left join ad_media_type c on a.media_type_parent_id=c.id
+		left join ad_media_type d on a.media_type_id=d.id
 		 where 1=1
 	    <if test="province != null" >
 	      and a.province = #{province,jdbcType=BIGINT}
@@ -343,16 +472,19 @@
 	<select id="getPageData" parameterType="map" resultMap="ExtResultMap">
 		select
 			a.id, a.name, a.province, a.city, a.region, a.street, a.media_id, a.ad_seat_type, a.ad_seat_type_text,
-			a.ad_code, a.location,
-			a.ad_size, a.pv, a.private_car_pv, a.bus_pv, a.lon, a.lat,
-			a.create_time, a.update_time,
+			a.media_type_parent_id, a.media_type_id, a.unique_key,
+			a.ad_code, a.ad_code_url, a.location,
+			a.ad_size, a.ad_area, a.pv, a.private_car_pv, a.bus_pv, a.lon, a.lat, a.map_standard,
+			a.contact_name, a.contact_cell,
+			a.create_time, a.update_time, a.memo, a.allow_multi, a.multi_num,
 			b.media_name,
-			c.name as typeName
+			c.name as parentName,
+			d.name as secondName
 		from
 			ad_seat_info as a
-			left join ad_media as b on a.media_id=b.id
-			left join ad_seat_type as c on a.ad_seat_type=c.id
-			left join (select * FROM ad_crowd limit 1) d on d.ad_seat_id=a.id
+		left join ad_media as b on a.media_id=b.id
+		left join ad_media_type c on a.media_type_parent_id=c.id
+		left join ad_media_type d on a.media_type_id=d.id
 		 where 1=1
 	    <if test="province != null" >
 	      and a.province = #{province,jdbcType=BIGINT}
@@ -383,35 +515,52 @@
 	
 	<select id="getAdSeatInfoById" parameterType="Integer" resultMap="ExtResultMap">
 		select
+			a.id,
 			a.name,
 			a.province,
 			a.city,
 			a.region,
 			a.street,
 			b.media_name,
+			a.ad_seat_type,
+			a.ad_seat_type_text,
+			a.media_type_parent_id,
+			a.media_type_id,
+			a.unique_key,
 			a.ad_code,
+			a.ad_code_url,
 			a.location,
 			a.ad_size,
+			a.ad_area,
 			a.pv,
-			c.name as typename,
 			a.private_car_pv,
 			a.bus_pv,
 			a.lon,
 			a.lat,
+			a.map_standard,
+			a.contact_name,
+			a.contact_cell,
+			a.memo,
+			a.allow_multi,
+			a.multi_num,
 			b.id as mediaid,
-			c.id as typeid
+			c.name as parentName,
+			d.name as secondName
 		from
 			ad_seat_info as a
 			left join ad_media as b on a.media_id=b.id
-			left join ad_seat_type as c on a.ad_seat_type=c.id
+			left join ad_media_type c on a.media_type_parent_id=c.id
+			left join ad_media_type d on a.media_type_id=d.id
 		where a.id=#{id,jdbcType=INTEGER}
 	</select>
 
 	<select id="getAdSeatInfoByStreetAndMediaUserId" resultMap="BaseResultMap">
-		select a.id, a.name, a.province, a.city, a.region, a.street, a.media_id, a.ad_seat_type,
-		a.ad_code, a.location,
-		a.ad_size, a.pv, a.private_car_pv, a.bus_pv, a.lon, a.lat,
-		a.create_time, a.update_time
+		select a.id, a.name, a.province, a.city, a.region, a.street, a.media_id, a.ad_seat_type, a.ad_seat_type_text,
+		a.media_type_parent_id, a.media_type_id, a.unique_key,
+		a.ad_code, a.ad_code_url, a.location,
+		a.ad_size, a.ad_area, a.pv, a.private_car_pv, a.bus_pv, a.lon, a.lat,
+		a.map_standard, a.contact_name, a.contact_cell,
+		a.create_time, a.update_time, a.memo, a.allow_multi, a.multi_num
 		from ad_seat_info a
 		left join ad_media b on a.media_id = b.id
 		where b.user_id = #{userId,jdbcType=INTEGER}
@@ -420,10 +569,12 @@
 	</select>
 
 	<select id="getAdSeatInfoByAdActivitySeatId" resultMap="BaseResultMap">
-		select a.id, a.name, a.province, a.city, a.region, a.street, a.media_id, a.ad_seat_type,
-		a.ad_code, a.location,
-		a.ad_size, a.pv, a.private_car_pv, a.bus_pv, a.lon, a.lat,
-		a.create_time, a.update_time
+		select a.id, a.name, a.province, a.city, a.region, a.street, a.media_id, a.ad_seat_type, a.ad_seat_type_text,
+		a.media_type_parent_id, a.media_type_id, a.unique_key,
+		a.ad_code, a.ad_code_url, a.location,
+		a.ad_size, a.ad_area, a.pv, a.private_car_pv, a.bus_pv, a.lon, a.lat,
+		a.map_standard, a.contact_name, a.contact_cell,
+		a.create_time, a.update_time, a.memo, a.allow_multi, a.multi_num
 		from ad_seat_info a
 		left join ad_activity_adseat b on a.id = b.ad_seat_id
 		where b.id = #{adActivitySeatId,jdbcType=INTEGER}
@@ -436,14 +587,18 @@
 	</select>
 	
 	<insert id="insertBatchByExcel" parameterType="com.bt.om.entity.AdSeatInfo">
-		insert into ad_seat_info (name, province,
-		city, region, street,
-		media_id, ad_seat_type, ad_seat_type_text, ad_code,
-		location, ad_size, pv,
-		private_car_pv,
-		bus_pv, lon,
-		lat, map_standard, 
-		create_time, update_time
+		insert into ad_seat_info (
+			name, province,
+			city, region, street,
+			media_id, ad_seat_type, ad_seat_type_text, 
+			media_type_parent_id, media_type_id, unique_key,
+			ad_code, ad_code_url,
+			location, ad_size, ad_area, pv,
+			private_car_pv,
+			bus_pv, lon,
+			lat, map_standard,
+			contact_name, contact_cell,
+			create_time, update_time, memo, allow_multi, multi_num
 		)
 		values
 		<foreach collection="adSeatInfos" item="info" separator=",">  
@@ -453,16 +608,98 @@
 			#{info.region,jdbcType=BIGINT}, #{info.street,jdbcType=BIGINT},
 			#{info.mediaId,jdbcType=INTEGER}, #{info.adSeatType,jdbcType=INTEGER},
 			#{info.adSeatTypeText,jdbcType=VARCHAR},
+			#{info.mediaTypeParentId,jdbcType=INTEGER},
+			#{info.mediaTypeId,jdbcType=INTEGER},
+			#{info.uniqueKey,jdbcType=VARCHAR},
 			#{info.adCode,jdbcType=VARCHAR},
+			#{info.adCodeUrl,jdbcType=VARCHAR},
 			#{info.location,jdbcType=VARCHAR},
-			#{info.adSize,jdbcType=VARCHAR}, #{info.pv,jdbcType=INTEGER},
+			#{info.adSize,jdbcType=VARCHAR}, #{info.adArea,jdbcType=VARCHAR}, #{info.pv,jdbcType=INTEGER},
 			#{info.privateCarPv,jdbcType=INTEGER}, #{info.busPv,jdbcType=INTEGER},
 			#{info.lon,jdbcType=DOUBLE},
 			#{info.lat,jdbcType=DOUBLE},
 			#{info.mapStandard,jdbcType=INTEGER},
-			#{info.createTime,jdbcType=TIMESTAMP}, #{info.updateTime,jdbcType=TIMESTAMP}
+			#{info.contactName,jdbcType=VARCHAR}, #{info.contactCell,jdbcType=VARCHAR},
+			#{info.createTime,jdbcType=TIMESTAMP}, #{info.updateTime,jdbcType=TIMESTAMP}, #{info.memo,jdbcType=VARCHAR},
+			#{info.allowMulti,jdbcType=INTEGER}, #{info.multiNum,jdbcType=INTEGER}
 			)
         </foreach>
 	</insert>
+
+	<select id="getAdSeatByPointAround"  resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />,
+		st_distance(point(lon,lat),point(#{lon,jdbcType=DOUBLE},#{lat,jdbcType=DOUBLE}))*111195 as distance
+		from (
+		select *
+		from ad_seat_info a
+		where exists (select 1 from ad_activity_adseat b where a.id = b.ad_seat_id and b.monitor_start &lt; now() and DATE_ADD(b.monitor_end,INTERVAL 1 day) > now())
+		and a.lon between (#{lon,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lon,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
+		and a.lat between (#{lat,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lat,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
+		) t
+		having distance &lt;= #{metre,jdbcType=DOUBLE}
+		order by distance
+	</select>
+	
+	<select id="getAdSeatByMediaId" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+		<!-- WARNING - @mbggenerated This element is automatically generated by 
+			MyBatis Generator, do not modify. This element was generated on Thu Feb 01 
+			13:48:16 CST 2018. -->
+		select
+		<include refid="Base_Column_List" />
+		from ad_seat_info
+		where media_id = #{mediaId,jdbcType=INTEGER}
+	</select>
+	
+	<select id="getCountGroupByCity" resultType="com.bt.om.entity.vo.CountGroupByCityVo" parameterType="com.bt.om.entity.vo.HeatMapVo">
+		select 
+			count(1) count, city
+		from ad_seat_info
+		where 1=1
+	    <if test="mediaId != null" >
+	      and media_id = #{mediaId,jdbcType=INTEGER}
+	    </if>
+	    <if test="province != null" >
+	      and province = #{province,jdbcType=BIGINT}
+	    </if>
+	    <if test="city != null" >
+	      and city = #{city,jdbcType=BIGINT}
+	    </if>
+	    <if test="region != null" >
+	      and region = #{region,jdbcType=BIGINT}
+	    </if>
+		<if test="infoIds != null">
+	    	and id in
+		    <foreach collection="infoIds" item="id" index="index" open="(" close=")" separator=",">
+		    	#{id}
+		    </foreach>
+	    </if>
+		group by city
+	</select>
+	
+	<select id="getAllLonLat" parameterType="com.bt.om.entity.vo.HeatMapVo" resultMap="BaseResultMap">
+		select
+			lon, lat, name
+		from ad_seat_info
+		where 1=1
+	    <if test="mediaId != null" >
+	      and media_id = #{mediaId,jdbcType=INTEGER}
+	    </if>
+	    <if test="province != null" >
+	      and province = #{province,jdbcType=BIGINT}
+	    </if>
+	    <if test="city != null" >
+	      and city = #{city,jdbcType=BIGINT}
+	    </if>
+	    <if test="region != null" >
+	      and region = #{region,jdbcType=BIGINT}
+	    </if>
+		<if test="infoIds != null">
+	    	and id in
+		    <foreach collection="infoIds" item="id" index="index" open="(" close=")" separator=",">
+		    	#{id}
+		    </foreach>
+	    </if>
+	</select>
 	
 </mapper>

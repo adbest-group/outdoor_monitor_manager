@@ -11,11 +11,18 @@
         <div class="title clearfix" style="display:block;">
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <form id="form" method="get" action="/task/unassign">
-                    <!--销售下拉框-->
+                    <!--活动下拉框-->
                     <div class="select-box select-box-140 un-inp-select ll">
                         <select name="activityId" class="select" id="activityId">
                             <option value="">所有活动</option>
                         <@model.showAllActivityOps value="${bizObj.queryMap.activityId?if_exists}"/>
+                        </select>
+                    </div>
+                    <!--任务状态下拉框-->
+                    <div class="select-box select-box-140 un-inp-select ll">
+                        <select name="status" class="select" id="status">
+                            <option value="1" <#if (bizObj.queryMap.status?exists&&bizObj.queryMap.status=="1")>selected</#if> >待指派</option>
+                            <option value="8" <#if (bizObj.queryMap.status?exists&&bizObj.queryMap.status=="8")>selected</#if> >可抢单</option> 
                         </select>
                     </div>
                     <div class="ll inputs-date">
@@ -28,7 +35,7 @@
                         </div>
                     </div>
                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="searchBtn">查询</button>
-                    <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">指派</button>
+                    <#--<button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">指派</button>-->
                 </form>
             </div>
         </div>
@@ -39,7 +46,7 @@
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan">
                     <thead>
                     <tr>
-                        <th width="30"><input type="checkbox" name="ck-task" value=""/></th>
+                        <#-- <th width="30"><input type="checkbox" name="ck-task" value=""/></th>  -->
                         <th width="30">序号</th>
                         <th>活动名称</th>
                         <th>上刊示例</th>
@@ -57,7 +64,7 @@
                     <#if (bizObj.list?exists && bizObj.list?size>0) >
                         <#list bizObj.list as task>
                         <tr>
-                            <td width="30"><input type="checkbox" name="ck-task" value="${task.id}"/></td>
+                        	<#-- <td width="30"><input type="checkbox" name="ck-task" value="${task.id}"/></td> -->
                             <td width="30">${(bizObj.page.currentPage-1)*20+task_index+1}</td>
                             <td>
                                 <div class="data-title w200" data-title="${task.activityName}" data-id="${task.id}">${task.activityName?if_exists}</div>
@@ -71,7 +78,7 @@
                             <td>${vm.getMonitorTaskTypeText(task.taskType)}</td>
                             <td>${vm.getMonitorTaskStatusText(task.status)}</td>
                             <td>
-                                <#if task.status==1><a href="javascript:assign('${task.id}')">指派</a></#if>
+                                <#if (task.status==1 || task.status==8)><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if>
                                 <a href="/task/details?task_Id=${task.id}">详情</a>
                             </td>
                         </tr>
@@ -188,19 +195,19 @@
     });
 
     //指派
-    assign = function (id) {
+    assign = function (id,mediaId) {
         assign_ids = id;
-        openSelect();
+        openSelect(mediaId);
     }
 
     //打开选择执行者
-    openSelect = function() {
+    openSelect = function(mediaId) {
         layer.open({
             type: 2,
             title: '选择监测人员',
             shade: 0.8,
-            area: ['400px', '220px'],
-            content: '/task/selectUserExecute' //iframe的url
+            area: ['600px', '420px'],
+            content: '/task/selectUserExecute?mediaId=' + mediaId //iframe的url
         });
     }
     //选择执行人后的回调

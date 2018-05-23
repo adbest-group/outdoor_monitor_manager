@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -14,13 +15,15 @@ import com.bt.om.entity.vo.AdSeatInfoVo;
 import com.bt.om.mapper.AdCrowdMapper;
 import com.bt.om.mapper.AdMediaMapper;
 import com.bt.om.mapper.AdSeatInfoMapper;
+import com.github.qcloudsms.SmsSingleSender;
+import com.github.qcloudsms.SmsSingleSenderResult;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:spring/applicationContext.xml")
 public class Test {
 	@Autowired
 	private AdCrowdMapper adCrowdMapper;
-
+	
 	@org.junit.Test
 	public void test() {
 		//Integer age[] = new Integer[] { 1, 2, 3, 4, 5, 6, 7 };

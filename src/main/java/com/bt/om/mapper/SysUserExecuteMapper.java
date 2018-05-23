@@ -1,9 +1,13 @@
 package com.bt.om.mapper;
 
-import com.bt.om.entity.SysUserExecute;
-
 import java.util.List;
 import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.RowBounds;
+
+import com.bt.om.entity.SysUserExecute;
+import com.bt.om.entity.vo.SysUserExecuteVo;
 
 public interface SysUserExecuteMapper {
     /**
@@ -56,4 +60,11 @@ public interface SysUserExecuteMapper {
 
     SysUserExecute selectByUsername(String username);
     List<SysUserExecute> selectByConditionMap(Map map);
+
+    int getPageCount(Map<String, Object> searchMap);
+
+    List<SysUserExecuteVo> getPageData(Map<String, Object> searchMap, RowBounds rowBounds);
+    List<SysUserExecute> isExistsName(@Param("username") String username,@Param("id") Integer id);
+    
+    SysUserExecuteVo selectByIdAndMedia(@Param("id") Integer id);
 }

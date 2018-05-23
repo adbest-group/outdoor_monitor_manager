@@ -1,20 +1,9 @@
 package com.bt.om.web.controller;
 
-import com.bt.om.common.SysConst;
-import com.bt.om.common.web.PageConst;
-import com.bt.om.entity.SysRole;
-import com.bt.om.entity.SysUser;
-import com.bt.om.entity.vo.SysUserVo;
-import com.bt.om.enums.MonitorTaskStatus;
-import com.bt.om.enums.MonitorTaskType;
-import com.bt.om.enums.ResultCode;
-import com.bt.om.enums.SessionKey;
-import com.bt.om.security.ShiroUtils;
-import com.bt.om.service.IMediaService;
-import com.bt.om.service.ISysUserService;
-import com.bt.om.vo.web.ResultVo;
-import com.bt.om.vo.web.SearchDataVo;
-import com.bt.om.web.util.SearchUtil;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.crypto.hash.Md5Hash;
@@ -26,10 +15,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpServletRequest;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.List;
+import com.bt.om.common.SysConst;
+import com.bt.om.common.web.PageConst;
+import com.bt.om.entity.SysRole;
+import com.bt.om.entity.SysUser;
+import com.bt.om.entity.vo.SysUserVo;
+import com.bt.om.enums.ResultCode;
+import com.bt.om.service.IMediaService;
+import com.bt.om.service.ISysUserService;
+import com.bt.om.vo.web.ResultVo;
+import com.bt.om.vo.web.SearchDataVo;
+import com.bt.om.web.util.SearchUtil;
 
 /**
  * Created by caiting on 2018/2/27.
@@ -46,7 +42,7 @@ public class MediaController {
     /**
      * 媒体管理列表
      **/
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = "/list")
     public String getList(Model model, HttpServletRequest request,
                           @RequestParam(value = "name", required = false) String name) {
@@ -68,7 +64,7 @@ public class MediaController {
     /**
      * 媒体编辑
      **/
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = "/edit")
     public String toEdit(Model model, HttpServletRequest request,
                          @RequestParam(value = "id", required = false) Integer id) {
@@ -93,7 +89,7 @@ public class MediaController {
 
         ResultVo<List<SysUser>> resultVo = new ResultVo<List<SysUser>>();
         try {
-            List<SysUser> userList = sysUserService.isExistsName(username);
+            List<SysUserVo> userList = sysUserService.isExistsName(username);
             if (userList != null && userList.size() > 0) {
                 resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
                 resultVo.setResultDes("已存在该登录账户，请修改");
@@ -119,7 +115,7 @@ public class MediaController {
 
         ResultVo<List<SysUser>> resultVo = new ResultVo<List<SysUser>>();
         try {
-            boolean isExists = sysUserService.isExistsPrefix(prefix,id);
+            boolean isExists = sysUserService.isExistsPrefix(prefix, id);
             if (isExists) {
                 resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
                 resultVo.setResultDes("已存在该前缀，请修改");
@@ -137,7 +133,7 @@ public class MediaController {
     /**
      * 保存媒体
      **/
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = {"/save"}, method = {RequestMethod.POST})
     @ResponseBody
     public Model save(Model model,
@@ -184,7 +180,7 @@ public class MediaController {
     }
 
 
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = {"/updateAccountStatus"}, method = {RequestMethod.POST})
     @ResponseBody
     public Model updateAccountStatus(Model model, @RequestParam(value = "id", required = true) Integer id,

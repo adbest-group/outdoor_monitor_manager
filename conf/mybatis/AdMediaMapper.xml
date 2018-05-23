@@ -135,6 +135,13 @@
   	select * from ad_media
   </select>
 
+  <select id="getAvailableAll" resultMap="BaseResultMap">
+  	select 
+  		a.* 
+  	from ad_media a left join sys_user b
+  	on a.user_id = b.id
+  	where b.status = 1
+  </select>
 
   <select id="selectByUserId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select

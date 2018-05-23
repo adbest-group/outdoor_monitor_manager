@@ -1,10 +1,10 @@
 package com.bt.om.vo.api;
 
-import com.bt.om.entity.vo.AdJiucuoTaskMobileVo;
-import com.fasterxml.jackson.databind.ser.Serializers;
-import com.google.common.collect.Lists;
-
 import java.util.List;
+
+import com.bt.om.common.DateUtil;
+import com.bt.om.entity.vo.AdJiucuoTaskMobileVo;
+import com.google.common.collect.Lists;
 
 /**
  * Created by caiting on 2018/1/25.
@@ -25,7 +25,7 @@ public class JiucuoTaskVo extends BasicVo{
         this.task_id = task.getId();
         this.ad_activity_name = task.getActivityName();
         this.ad_name = task.getAdSeatName();
-        this.monitor_time = sdf.format(task.getFeedbackTime());
+        this.monitor_time = DateUtil.dateFormate(task.getFeedbackTime(), "yyyy-MM-dd HH:mm:ss");
         this.ad_location = task.getAdSeatName();
         this.ad_status = task.getStatus();
         this.reason = task.getReason();

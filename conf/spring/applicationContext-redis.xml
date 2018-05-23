@@ -27,9 +27,51 @@ http://www.springframework.org/schema/context/spring-context-4.1.xsd">
         <property name="password" value="${redis.password}"></property>
         <property name="poolConfig" ref="jedisConfig"></property>
     </bean>
+    <!-- redis集群方式工厂 -->
+    <bean id="jedisClusterConnectionFactory"
+          class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+        <constructor-arg ref="redisClusterConfiguration" />
+        <constructor-arg ref="jedisConfig" />
+    </bean>
+
+    <bean id="redisClusterConfiguration"
+          class="org.springframework.data.redis.connection.RedisClusterConfiguration">
+        <property name="maxRedirects" value="3"></property>
+        <!-- 节点配置 -->
+        <property name="clusterNodes">
+            <set>
+                <bean class="org.springframework.data.redis.connection.RedisClusterNode">
+                    <constructor-arg name="host" value="192.168.70.40"></constructor-arg>
+                    <constructor-arg name="port" value="6387"></constructor-arg>
+                </bean>
+                <bean class="org.springframework.data.redis.connection.RedisClusterNode">
+                    <constructor-arg name="host" value="192.168.70.41"></constructor-arg>
+                    <constructor-arg name="port" value="6387"></constructor-arg>
+                </bean>
+                <bean class="org.springframework.data.redis.connection.RedisClusterNode">
+                    <constructor-arg name="host" value="192.168.70.42"></constructor-arg>
+                    <constructor-arg name="port" value="6387"></constructor-arg>
+                </bean>
+                <bean class="org.springframework.data.redis.connection.RedisClusterNode">
+                    <constructor-arg name="host" value="192.168.70.43"></constructor-arg>
+                    <constructor-arg name="port" value="6387"></constructor-arg>
+                </bean>
+                <bean class="org.springframework.data.redis.connection.RedisClusterNode">
+                    <constructor-arg name="host" value="192.168.70.44"></constructor-arg>
+                    <constructor-arg name="port" value="6387"></constructor-arg>
+                </bean>
+                <bean class="org.springframework.data.redis.connection.RedisClusterNode">
+                    <constructor-arg name="host" value="192.168.70.45"></constructor-arg>
+                    <constructor-arg name="port" value="6387"></constructor-arg>
+                </bean>
+            </set>
+        </property>
+    </bean>
+
     <!-- redis操作模板，这里采用尽量面向对象的模板 -->
     <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
         <property name="connectionFactory" ref="redisConnectionFactory"/>
+        <!--<property name="connectionFactory" ref="jedisClusterConnectionFactory"/> -->
         <!--     如果不配置Serializer，那么存储的时候只能使用String，如果用对象类型存储，那么会提示错误 can't cast to String！！！-->
         <property name="keySerializer">
             <bean class="org.springframework.data.redis.serializer.StringRedisSerializer"/>

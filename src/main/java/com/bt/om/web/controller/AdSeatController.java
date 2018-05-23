@@ -1,6 +1,8 @@
 package com.bt.om.web.controller;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.bt.om.cache.CityCache;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdCrowd;
@@ -23,31 +26,38 @@ import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.AdSeatType;
 import com.bt.om.entity.SysUser;
+import com.bt.om.entity.vo.AdSeatCount;
 import com.bt.om.entity.vo.AdSeatInfoVo;
+import com.bt.om.entity.vo.CountGroupByCityVo;
+import com.bt.om.entity.vo.HeatMapVo;
 import com.bt.om.entity.vo.ResourceVo;
 import com.bt.om.enums.AgePart;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.security.ShiroUtils;
+import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdSeatService;
 import com.bt.om.service.IResourceService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
+import com.bt.om.web.BasicController;
 import com.bt.om.web.util.SearchUtil;
 import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 @Controller
 @RequestMapping(value = "/adseat")
-public class AdSeatController {
+public class AdSeatController extends BasicController {
+	@Autowired
+	private CityCache cityCache;
     @Autowired
     private IResourceService resourceService;
-
     @Autowired
     private IAdSeatService adSeatService;
+    @Autowired
+    private IAdActivityService adActivityService;
 
     /**
      * 新增广告位跳转
@@ -67,7 +77,7 @@ public class AdSeatController {
     /**
      * 广告位列表展示
      */
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = "/list")
     public String resourceDetailPage(Model model, HttpServletRequest request,
                                      @RequestParam(value = "province", required = false) Long province,
@@ -92,7 +102,6 @@ public class AdSeatController {
             vo.putSearchParam("mediaId", mediaId.toString(), mediaId);
         }
 
-
         adSeatService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
 
@@ -100,7 +109,7 @@ public class AdSeatController {
     }
 
     /**
-     * 新增广告位
+     * 新增广告位(暂时好像没用到)
      *
      * @param adSeatInfoVo 封装类
      * @param request
@@ -159,24 +168,36 @@ public class AdSeatController {
     }
 
     /**
-     * 广告位删除
+     * 广告位删除, 只能删除没有活动的广告位
      *
      * @param request
      * @param id
      * @return 提示信息
      */
-    @RequestMapping(value = "/verify")
+    @RequestMapping(value = "/delete")
     @ResponseBody
-    public Map<String, Object> deleteAdSeat(HttpServletRequest request,
-                                            @RequestParam(value = "id", required = false) Integer id) {
-        Map<String, Object> modelMap = new HashMap<String, Object>();
+    public Model deleteAdSeat(Model model, HttpServletRequest request, @RequestParam(value = "id", required = false) Integer id) {
+        ResultVo<String> result = new ResultVo<String>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("保存成功");
+        model = new ExtendedModelMap();
+        
         try {
-            resourceService.deleteAdSeatById(id);
-            modelMap.put("success", true);
+            int count = resourceService.deleteAdSeatById(id);
+            if(count == 0) {
+            	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("该广告位已经参与活动，不能删除！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+            }
         } catch (Exception e) {
-            modelMap.put("success", false);
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("删除失败！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
         }
-        return modelMap;
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
     }
 
 //	@RequiresRoles("admin")
@@ -201,14 +222,15 @@ public class AdSeatController {
 //		return PageConst.ADSEAT_EDIT;
 //	}
 
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = "/edit")
     public ModelAndView toEdit(Model model, HttpServletRequest request,
                                @RequestParam(value = "id", required = false) Integer id) {
 
         ModelAndView mv = new ModelAndView(PageConst.ADSEAT_EDIT);
         if (id != null) {
-            AdSeatInfo adSeatInfo = adSeatService.getById(id);
+//            AdSeatInfo adSeatInfo = adSeatService.getById(id);
+        	AdSeatInfoVo adSeatInfoVo = resourceService.getAdSeatInfoById(id + "");
             List<AdCrowd> crowds = adSeatService.getCrowdsBySeatId(id);
             Table<Integer, Integer, String> crowdTable = HashBasedTable.create();
             if (crowds != null && crowds.size() > 0) {
@@ -224,7 +246,7 @@ public class AdSeatController {
             mv.addObject("crowdTable", new Gson().fromJson(crowdTable.toString(), JsonObject.class));
 //			request.setAttribute("crowdTable",crowdTable);
 
-            mv.getModel().put("adSeatInfo", adSeatInfo);
+            mv.getModel().put("adSeatInfo", adSeatInfoVo);
         }
 
         mv.getModel().put("agePartValues", AgePart.values());
@@ -235,7 +257,7 @@ public class AdSeatController {
     /**
      * 保存广告位
      **/
-    @RequiresRoles("admin")
+    @RequiresRoles("superadmin")
     @RequestMapping(value = "/save")
     @ResponseBody
     public Model addInfo(Model model, AdSeatInfo adSeatInfo, HttpServletRequest request) {
@@ -248,7 +270,8 @@ public class AdSeatController {
         }
 
         try {
-            List<AdCrowd> crowds = Lists.newArrayList();
+        	/**
+        	 * List<AdCrowd> crowds = Lists.newArrayList();
             for (AgePart agePart : AgePart.values()) {
                 String preMale = "crowd_1_" + agePart.getId();
                 String preFemale = "crowd_2_" + agePart.getId();
@@ -273,8 +296,16 @@ public class AdSeatController {
                 crowds.add(male);
                 crowds.add(female);
             }
+        	 */
+        	if(adSeatInfo.getMultiNum() == 0) {
+        		adSeatInfo.setMultiNum(1);
+        	}
+        	if(adSeatInfo.getAllowMulti() == 0) {
+        		adSeatInfo.setMultiNum(1); //0代表不允许同时有多个活动, 设置活动数量为1
+        	}
             if (adSeatInfo.getId() != null) {
-                adSeatService.modify(adSeatInfo, crowds);
+                //adSeatService.modify(adSeatInfo, crowds);
+            	adSeatService.modifyInfo(adSeatInfo);
             } else {
                 SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
                 adSeatService.save(adSeatInfo, user.getId());
@@ -288,9 +319,12 @@ public class AdSeatController {
 
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
-
     }
 
+    /**
+     * 广告主创建活动时选择具体的广告位信息
+     * 注意：广告位信息有活动数量限制
+     */
     @RequestMapping(value = "/selectSeat")
     @ResponseBody
     public Model selectSeat(Model model, HttpServletRequest request,
@@ -298,7 +332,9 @@ public class AdSeatController {
                                      @RequestParam(value = "city", required = false) Long city,
                                      @RequestParam(value = "region", required = false) Long region,
                                      @RequestParam(value = "street", required = false) Long street,
-                                     @RequestParam(value = "mediaId", required = false) Integer mediaId) {
+                                     @RequestParam(value = "mediaId", required = false) Integer mediaId,
+                                     @RequestParam(value = "startDate", required = false) Integer startDate,
+                                     @RequestParam(value = "endDate", required = false) Integer endDate) {
 
         ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
@@ -322,9 +358,109 @@ public class AdSeatController {
         }
         vo.setSize(Integer.MAX_VALUE);
 
+        //[1] 查询传递的时间段内正在参与活动的广告位id及参与活动数量
+        List<AdSeatCount> adSeatCounts = adActivityService.selectActiveActivityCount();
+        
+        //[2] 查询请求参数对应的广告位信息
         adSeatService.getPageData(vo);
+        
+        //[3] 筛选去除
+        List<?> list = vo.getList();
+        Iterator<?> iterator = list.iterator();
+        while (iterator.hasNext()) {
+        	AdSeatInfoVo infoVo = (AdSeatInfoVo) iterator.next();
+        	for (AdSeatCount adSeatCount : adSeatCounts) {
+    			if(adSeatCount!= null && adSeatCount.getAdseatId() == infoVo.getId()) {
+    				//判断是否要移除
+    				if(infoVo.getAllowMulti() == 0 && adSeatCount.getCount() >= 1) {
+    					//否：不允许同时有多个活动; 当前广告位正在参与活动的数量 大于等于 1
+    					iterator.remove();
+        				break;
+    				}
+    				if(infoVo.getAllowMulti() == 1 && adSeatCount.getCount() >= infoVo.getMultiNum()) {
+    					//是: 允许同时有多个活动; 当前广告位正在参与活动的数量 大于等于 最大允许数量
+    					iterator.remove();
+        				break;
+    				}
+    			}
+    		}
+		}
+        
         result.setResult(vo.getList());
 
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+    }
+    
+    /**
+     * 查询热力图报表
+     */
+    @RequiresRoles("customer")
+    @RequestMapping(value = "/getCountGroupByCity")
+    @ResponseBody
+    public Model getCountGroupByCity(Model model, HttpServletRequest request, Integer activityId, Integer mediaId, Long province, Long city, Long region) {
+    	ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("查询成功");
+        model = new ExtendedModelMap();
+        
+        try {
+        	SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        	
+        	HeatMapVo heatMapVo = new HeatMapVo();
+        	heatMapVo.setActivityId(activityId);
+        	heatMapVo.setCity(city);
+        	heatMapVo.setMediaId(mediaId);
+        	heatMapVo.setProvince(province);
+        	heatMapVo.setRegion(region);
+        	List<CountGroupByCityVo> groupByCity = adSeatService.getCountGroupByCity(heatMapVo, user.getId());
+        	for (CountGroupByCityVo countGroupByCityVo : groupByCity) {
+        		countGroupByCityVo.setCityName(cityCache.getCityName(countGroupByCityVo.getCity()));
+			}
+        	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+            result.setResult(groupByCity);
+		} catch (Exception e) {
+			logger.error(MessageFormat.format("查询热力图报表失败", new Object[] {}));
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+        	result.setResultDes("查询热力图报表失败");
+            e.printStackTrace();
+		}
+        
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+    }
+    
+    /**
+     * 查询百度地图报表
+     */
+    @RequiresRoles("customer")
+    @RequestMapping(value = "/getAllLonLat")
+    @ResponseBody
+    public Model getAllLonLat(Model model, HttpServletRequest request, Integer activityId, Integer mediaId, Long province, Long city, Long region) {
+    	ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("查询成功");
+        model = new ExtendedModelMap();
+        
+        try {
+        	SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        	
+        	HeatMapVo heatMapVo = new HeatMapVo();
+        	heatMapVo.setActivityId(activityId);
+        	heatMapVo.setCity(city);
+        	heatMapVo.setMediaId(mediaId);
+        	heatMapVo.setProvince(province);
+        	heatMapVo.setRegion(region);
+        	List<AdSeatInfo> adSeatInfos = adSeatService.getAllLonLat(heatMapVo, user.getId());
+        	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+            result.setResult(adSeatInfos);
+		} catch (Exception e) {
+			logger.error(MessageFormat.format("查询百度地图报表失败", new Object[] {}));
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+        	result.setResultDes("查询百度地图报表失败");
+            e.printStackTrace();
+		}
+        
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }

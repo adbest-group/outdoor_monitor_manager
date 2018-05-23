@@ -1,22 +1,27 @@
 package com.bt.om.service;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
-import com.bt.om.entity.vo.AdActivityVo;
+import com.bt.om.entity.vo.AbandonTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
-import java.util.List;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.entity.vo.PictureVo;
 import com.bt.om.vo.web.SearchDataVo;
-
-import java.util.List;
 
 /**
  * Created by caiting on 2018/1/20.
  */
 public interface IAdMonitorTaskService {
 
+	public AdMonitorTask selectByPrimaryKey(Integer id);
 	public void getPageData(SearchDataVo vo);
-
+	/**
+	 * 只适用于首次分配，内部采用和抢任务一样的机制
+	 **/
 	public void assign(String[] taskIds, Integer userId);
 
 	/**
@@ -58,4 +63,28 @@ public interface IAdMonitorTaskService {
 	 * 根据id获取任务详情（包含有效的监测提交）
 	 **/
 	public AdMonitorTaskVo getTaskVoById(Integer id);
+
+	public void getByPointAroundPageData(SearchDataVo vo);
+	public void getByCurCityPageData(SearchDataVo vo);
+
+	public boolean grabTask(Integer userId,Integer id);
+
+	/**
+	 * 查看所有任务
+	 **/
+	public List<AdMonitorTask>selectAllTask();
+	public void getPageDataAllTask(SearchDataVo vo);
+	List<AdMonitorTaskVo> selectAllByAssessorId(Map<String, Object> searchMap);
+	List<AdMonitorTaskVo> getTenAdMonitorTaskVo(Map<String, Object> searchMap);
+	List<AdMonitorTaskVo> getTenAdMonitorTaskAssignVo(Map<String, Object> searchMap);
+	
+	public List<AdMonitorTask> selectLatestMonitorTaskIds(Integer activityId);
+	public List<AdMonitorTaskFeedback> selectByActivity(List<Integer> monitorTaskIds);
+	
+	public void activateMonitorTask(Date nowDate);
+	public void recycleMonitorTask();
+	public void forceAssignTask();
+	public void abandonUserTask(AbandonTaskVo vo);
+	List<PictureVo> selectFeedBackByActivityIdAndSeatId(Map<String, Object> searchMap);
+
 }

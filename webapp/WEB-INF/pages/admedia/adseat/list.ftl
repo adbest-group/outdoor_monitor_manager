@@ -50,7 +50,8 @@
 							<#--<th>媒体广告位编号</th>-->
 							<th>广告位位置</th>
 							<th>广告位尺寸</th>
-							<th>广告位类型</th>
+							<th>媒体大类</th>
+							<th>媒体小类</th>
 							<th>操作</th>
 						</tr>
 					</thead>
@@ -64,7 +65,8 @@
 							<#--<td>${adseat.adCode!""}</td>-->
 							<td>${adseat.location!""}</td>
 							<td>${adseat.adSize!""}</td>
-							<td>${adseat.adSeatTypeText!""}</td>
+							<td>${adseat.parentName!""}</td>
+							<td>${adseat.secondName!""}</td>
 							<td style="width: 80px">
 								<#--<a href="#" style="margin-right: 5px">数据上传</a> -->
 								<a href="/platmedia/adseat/edit?id=${adseat.id}" style="margin-right: 5px">编辑</a>
@@ -201,7 +203,7 @@
 	$(function() {
 		$('.select').searchableSelect();
 	});
-	
+
 	//批量导入
 	layui.use('upload', function(){
 	  var upload = layui.upload;
@@ -209,6 +211,11 @@
 	  //执行实例
 	  var uploadInst = upload.render({
 	    elem: '#insertBatchId' //绑定元素
+	    ,data: {
+		  city: function() {
+		  	return $('#selectMedia').val()
+		  }
+		}
 	    ,accept: 'file' //指定只允许上次文件
 	    ,exts: 'xlsx|xls' //指定只允许上次xlsx和xls格式的excel文件
 	    ,field: 'excelFile' //设置字段名
@@ -216,13 +223,16 @@
 	    ,done: function(res){
 	    	if(res.ret.code == 100){
 	    		layer.alert('导入成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
+	    		window.open(res.ret.result);
 	    		window.location.reload();
 	    	} else if (res.ret.code == 101){
 	    		layer.alert(res.ret.resultDes, {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	} else if (res.ret.code == 105){
+	    		layer.alert('没有导入权限', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
 	    	}
 	    }
 	    ,error: function(res){
-	       console.log(res);
+	       layer.alert('导入失败', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
 	    }
 	  });
 	});

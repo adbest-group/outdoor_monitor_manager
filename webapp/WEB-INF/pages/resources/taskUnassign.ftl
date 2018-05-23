@@ -46,7 +46,7 @@
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan">
                     <thead>
                     <tr>
-                        <th width="30"><input type="checkbox" name="ck-task" value=""/></th>
+                      <#--<th width="30"><input type="checkbox" name="ck-task" value=""/></th> -->  
                         <th width="30">序号</th>
                         <th>活动名称</th>
                         <th>上刊示例</th>
@@ -65,7 +65,7 @@
                     <#if (bizObj.list?exists && bizObj.list?size>0) >
                         <#list bizObj.list as task>
                         <tr>
-                            <td width="30"><input type="checkbox" name="ck-task" value="${task.id}"/></td>
+                           <#--<td width="30"><input type="checkbox" name="ck-task" value="${task.id}"/></td>  --> 
                             <td width="30">${(bizObj.page.currentPage-1)*20+task_index+1}</td>
                             <td>
                                 <div class="data-title w200" data-title="${task.activityName!""}" data-id="${task.id}">${task.activityName?if_exists}</div>

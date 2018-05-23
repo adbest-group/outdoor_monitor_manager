@@ -97,4 +97,9 @@ public class AdMediaTypeService implements IAdMediaTypeService {
 	public List<AdMediaType> getAll() {
 		return adMediaTypeMapper.getAll();
 	}
+	
+	@Override
+	public List<AdMediaType> selectByParentId(Integer parentId) {
+		return adMediaTypeMapper.selectByParentId(parentId);
+	}
 }

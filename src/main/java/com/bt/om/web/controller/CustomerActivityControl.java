@@ -110,7 +110,7 @@ public class CustomerActivityControl extends BasicController {
 	/**
      * 编辑活动广告位页面跳转
      */
-    @RequiresRoles(value = {"superadmin", "customer"}, logical = Logical.OR)
+    @RequiresRoles(value = {"superadmin", "customer","depactivityadmin","activityadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/activity/adseat/edit")
     public String adSeatEdit(Model model, HttpServletRequest request) {
         return PageConst.CUSTOMER_ACTIVITY_ADSEAT_EDIT;

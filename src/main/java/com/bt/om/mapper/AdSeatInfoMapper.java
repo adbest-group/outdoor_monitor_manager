@@ -76,4 +76,6 @@ public interface AdSeatInfoMapper {
     
     List<CountGroupByCityVo> getCountGroupByCity(HeatMapVo heatMapVo);
     List<AdSeatInfo> getAllLonLat(HeatMapVo heatMapVo);
+
+	int updateFlag(@Param("codeFlag")Integer codeFlag,@Param("id") Integer id);
 }

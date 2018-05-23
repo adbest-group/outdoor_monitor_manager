@@ -188,4 +188,10 @@ public class AdSeatService implements IAdSeatService {
 		return adSeatInfoMapper.getAllLonLat(heatMapVo);
 	}
 
+	@Override
+	public int updateFlag(Integer codeFlag,Integer id) {
+		// TODO Auto-generated method stub
+		return adSeatInfoMapper.updateFlag(codeFlag,id);
+	}
+
 }

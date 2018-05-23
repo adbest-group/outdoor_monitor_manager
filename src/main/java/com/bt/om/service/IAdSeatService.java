@@ -2,6 +2,7 @@ package com.bt.om.service;
 
 import com.bt.om.entity.AdCrowd;
 import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.vo.AdSeatInfoVo;
 import com.bt.om.entity.vo.CountGroupByCityVo;
 import com.bt.om.entity.vo.HeatMapVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -34,4 +35,5 @@ public interface IAdSeatService {
 	void modifyInfo(AdSeatInfo adSeatInfo);
 	List<CountGroupByCityVo> getCountGroupByCity(HeatMapVo heatMapVo, Integer userId);
 	List<AdSeatInfo> getAllLonLat(HeatMapVo heatMapVo, Integer userId);
+	int updateFlag(Integer codeFlag,Integer id);
 }

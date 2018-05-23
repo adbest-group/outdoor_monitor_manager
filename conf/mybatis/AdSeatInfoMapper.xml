@@ -35,6 +35,7 @@
 		<result column="memo" property="memo" jdbcType="VARCHAR" />
 		<result column="allow_multi" property="allowMulti" jdbcType="INTEGER" />
 		<result column="multi_num" property="multiNum" jdbcType="INTEGER" />
+		<result column="ad_code_flag" jdbcType="INTEGER" property="codeFlag"/>
 	</resultMap>
 
 	<sql id="Base_Column_List">
@@ -46,7 +47,7 @@
 		ad_code, ad_code_url, location,
 		ad_size, ad_area, pv, private_car_pv, bus_pv, lon, lat, map_standard,
 		contact_name, contact_cell,
-		create_time, update_time, memo, allow_multi, multi_num
+		create_time, update_time, memo, allow_multi, multi_num,ad_code_flag
 	</sql>
 
 	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
@@ -81,7 +82,7 @@
 		private_car_pv,
 		bus_pv, lon,
 		lat, map_standard, contact_name, contact_cell,
-		create_time, update_time, memo, allow_multi, multi_num
+		create_time, update_time, memo, allow_multi, multi_num,ad_code_flag
 		)
 		values
 		(#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
@@ -97,7 +98,8 @@
 		#{lon,jdbcType=DOUBLE},
 		#{lat,jdbcType=DOUBLE},
 		#{mapStandard,jdbcType=INTEGER}, #{contactName,jdbcType=VARCHAR}, #{contactCell,jdbcType=VARCHAR},
-		#{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{memo,jdbcType=VARCHAR}, #{allowMulti,jdbcType=INTEGER}, #{multiNum,jdbcType=INTEGER}
+		#{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{memo,jdbcType=VARCHAR},
+		#{allowMulti,jdbcType=INTEGER}, #{multiNum,jdbcType=INTEGER},#{codeFlag,jdbcType=INTEGER}
 		)
 	</insert>
 
@@ -197,6 +199,9 @@
 			<if test="multiNum != null">
 				multi_num,
 			</if>
+			<if test="codeFlag != null">
+				ad_code_flag
+			</if>
 		</trim>
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="id != null">
@@ -288,6 +293,9 @@
 			</if>
 			<if test="multiNum != null">
 				#{multiNum,jdbcType=TIMESTAMP},
+			</if>
+			<if test="codeFlag != null">
+				#{codeFlag,jdbcType=INTEGER}
 			</if>
 		</trim>
 	</insert>
@@ -385,6 +393,9 @@
 			<if test="multiNum != null">
 				multi_num = #{multiNum,jdbcType=VARCHAR},
 			</if>
+			<if test="codeFlag != null">
+				ad_code_flag = #{codeFlag,jdbcType=INTEGER}
+			</if>
 		</set>
 		where id = #{id,jdbcType=INTEGER}
 	</update>
@@ -417,8 +428,10 @@
 		lat = #{lat,jdbcType=DOUBLE},
 		create_time
 		= #{createTime,jdbcType=TIMESTAMP},
-		update_time =
-		#{updateTime,jdbcType=TIMESTAMP}
+		update_time 
+		= #{updateTime,jdbcType=TIMESTAMP},
+		ad_code_flag
+		= #{codeFlag,jdbcType=INTEGER}
 		where id = #{id,jdbcType=INTEGER}
 	</update>
 	
@@ -432,6 +445,7 @@
 		<result column="typeid" jdbcType="INTEGER" property="typeId"/>
 		<result column="parentName" jdbcType="VARCHAR" property="parentName"/>
 		<result column="secondName" jdbcType="VARCHAR" property="secondName"/>
+		<result column="ad_code_flag" jdbcType="INTEGER" property="codeFlag"/>
 	</resultMap>
 
 	<select id="getPageCount" parameterType="map" resultType="int">
@@ -466,6 +480,9 @@
 		<if test="exceptId != null" >
 			and a.id &lt;> #{exceptId,jdbcType=INTEGER}
 		</if>
+		<if test="codeFlag != null" >
+			and a.ad_code_flag &lt;> #{codeFlag,jdbcType=INTEGER}
+		</if>
 		order by a.id asc
 	</select>
 
@@ -479,7 +496,8 @@
 			a.create_time, a.update_time, a.memo, a.allow_multi, a.multi_num,
 			b.media_name,
 			c.name as parentName,
-			d.name as secondName
+			d.name as secondName,
+			a.ad_code_flag
 		from
 			ad_seat_info as a
 		left join ad_media as b on a.media_id=b.id
@@ -545,7 +563,8 @@
 			a.multi_num,
 			b.id as mediaid,
 			c.name as parentName,
-			d.name as secondName
+			d.name as secondName,
+			a.ad_code_flag
 		from
 			ad_seat_info as a
 			left join ad_media as b on a.media_id=b.id
@@ -560,7 +579,7 @@
 		a.ad_code, a.ad_code_url, a.location,
 		a.ad_size, a.ad_area, a.pv, a.private_car_pv, a.bus_pv, a.lon, a.lat,
 		a.map_standard, a.contact_name, a.contact_cell,
-		a.create_time, a.update_time, a.memo, a.allow_multi, a.multi_num
+		a.create_time, a.update_time, a.memo, a.allow_multi, a.multi_num ,a.ad_code_flag
 		from ad_seat_info a
 		left join ad_media b on a.media_id = b.id
 		where b.user_id = #{userId,jdbcType=INTEGER}
@@ -574,7 +593,7 @@
 		a.ad_code, a.ad_code_url, a.location,
 		a.ad_size, a.ad_area, a.pv, a.private_car_pv, a.bus_pv, a.lon, a.lat,
 		a.map_standard, a.contact_name, a.contact_cell,
-		a.create_time, a.update_time, a.memo, a.allow_multi, a.multi_num
+		a.create_time, a.update_time, a.memo, a.allow_multi, a.multi_num ,a.ad_code_flag
 		from ad_seat_info a
 		left join ad_activity_adseat b on a.id = b.ad_seat_id
 		where b.id = #{adActivitySeatId,jdbcType=INTEGER}
@@ -598,7 +617,7 @@
 			bus_pv, lon,
 			lat, map_standard,
 			contact_name, contact_cell,
-			create_time, update_time, memo, allow_multi, multi_num
+			create_time, update_time, memo, allow_multi, multi_num, ad_code_flag
 		)
 		values
 		<foreach collection="adSeatInfos" item="info" separator=",">  
@@ -621,7 +640,7 @@
 			#{info.mapStandard,jdbcType=INTEGER},
 			#{info.contactName,jdbcType=VARCHAR}, #{info.contactCell,jdbcType=VARCHAR},
 			#{info.createTime,jdbcType=TIMESTAMP}, #{info.updateTime,jdbcType=TIMESTAMP}, #{info.memo,jdbcType=VARCHAR},
-			#{info.allowMulti,jdbcType=INTEGER}, #{info.multiNum,jdbcType=INTEGER}
+			#{info.allowMulti,jdbcType=INTEGER}, #{info.multiNum,jdbcType=INTEGER},#{info.codeFlag,jdbcType=INTEGER}
 			)
         </foreach>
 	</insert>
@@ -702,4 +721,9 @@
 	    </if>
 	</select>
 	
+	<update id="updateFlag" parameterType="com.bt.om.entity.AdSeatInfo">
+		update ad_seat_info 
+		set ad_code_flag = #{codeFlag,jdbcType=INTEGER}
+    	where id = #{id,jdbcType=INTEGER}
+	</update>
 </mapper>

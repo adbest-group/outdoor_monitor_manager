@@ -34,6 +34,7 @@ import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.entity.vo.AdSeatInfoVo;
 import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.MonitorTaskStatus;
@@ -224,6 +225,10 @@ public class MediaManagerController {
         return model;
     }
 
+    
+    
+    
+    
     @RequestMapping(value = "/jiucuo/list")
     @RequiresRoles("media")
     public String joucuoList(Model model, HttpServletRequest request,
@@ -411,6 +416,8 @@ public class MediaManagerController {
         		QRcodeUtil.encode(adCodeInfo, path);
         		adSeatInfo.setAdCode(adCodeInfo);
         		adSeatInfo.setAdCodeUrl("/static/qrcode/" + adCodeInfo + ".jpg");
+        		//默认贴上二维码
+        		adSeatInfo.setCodeFlag(1);
         		
                 adSeatService.save(adSeatInfo, user.getId());
             }
@@ -666,6 +673,34 @@ public class MediaManagerController {
         }
 
         model.addAttribute(SysConst.RESULT_KEY, resultVo);
+        return model;
+    }
+    
+    /**
+     * 修改二维码状态： 已贴, 未贴
+     **/
+    @RequiresRoles("media")
+    @RequestMapping(value = "/codeFlag")
+    @ResponseBody
+    public Model updateStatus(Model model, Integer id, AdSeatInfo codeFlag) {
+    	ResultVo<String> result = new ResultVo<String>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("保存成功");
+        model = new ExtendedModelMap();
+        System.out.println(codeFlag);
+        try {
+        	AdSeatInfoVo seatInfo = new AdSeatInfoVo();
+        	seatInfo.setId(id);
+        	seatInfo.setCodeFlag(1);
+        	adSeatService.updateFlag(codeFlag.getCodeFlag(),id);
+        } catch (Exception e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("保存失败！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }
 }

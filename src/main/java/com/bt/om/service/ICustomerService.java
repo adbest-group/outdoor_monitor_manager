@@ -1,5 +1,6 @@
 package com.bt.om.service;
 
+import com.bt.om.entity.AdCustomerType;
 import com.bt.om.entity.vo.SysUserVo;
 
 /**
@@ -8,4 +9,5 @@ import com.bt.om.entity.vo.SysUserVo;
 public interface ICustomerService {
     public void add(SysUserVo user);
     public void modify(SysUserVo user);
+	AdCustomerType selectById(Integer id);
 }

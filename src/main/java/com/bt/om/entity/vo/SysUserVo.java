@@ -14,6 +14,7 @@ public class SysUserVo extends SysUser {
     private String prefix;
     private SysUserDetail userinfo;
     private String isOwn;
+    private String customerTypeName;
 
     private String groupName;
     private String departmentName;
@@ -58,6 +59,14 @@ public class SysUserVo extends SysUser {
 		this.isOwn = isOwn;
 	}
     
+    public String getCustomerTypeName() {
+		return customerTypeName;
+	}
+    
+    public void setCustomerTypeName(String customerTypeName) {
+		this.customerTypeName = customerTypeName;
+  }
+  
     public String getGroupName() {
 		return groupName;
 	}

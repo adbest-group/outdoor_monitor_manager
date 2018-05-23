@@ -161,6 +161,7 @@ public class AdSeatService implements IAdSeatService {
 			heatMapVo.setInfoIds(seatIds);
 		} else {
 			heatMapVo.setInfoIds(null);
+			return new ArrayList<CountGroupByCityVo>();
 		}
 		
 		//[2] 查询热力图报表
@@ -182,6 +183,7 @@ public class AdSeatService implements IAdSeatService {
 			heatMapVo.setInfoIds(seatIds);
 		} else {
 			heatMapVo.setInfoIds(null);
+			return new ArrayList<AdSeatInfo>();
 		}
 		
 		//[2] 查询热力图报表

@@ -77,4 +77,8 @@ public interface AdActivityAdseatMapper {
     List<Integer> selectSeatIdByActivityId(Map<String, Object> searchMap);
     Integer selectCountByAdSeatId(@Param("adSeatId") Integer adSeatId);
     List<AdSeatCount> selectActiveActivityCount();
+    List<AdSeatCount> selectActiveActivityCount1(Map<String, Object> searchMap);
+    List<AdSeatCount> selectActiveActivityCount2(Map<String, Object> searchMap);
+    List<AdSeatCount> selectActiveActivityCount3(Map<String, Object> searchMap);
+    List<AdSeatCount> selectActiveActivityCount4(Map<String, Object> searchMap);
 }

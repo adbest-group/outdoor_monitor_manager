@@ -3,6 +3,7 @@ package com.bt.om.web.controller;
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -28,6 +29,7 @@ import com.bt.om.entity.AdActivityAdseat;
 import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.entity.AdJiucuoTaskFeedback;
 import com.bt.om.entity.AdMedia;
+import com.bt.om.entity.AdMediaType;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.SysUser;
@@ -46,6 +48,7 @@ import com.bt.om.mapper.AdMediaMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
+import com.bt.om.service.IAdMediaTypeService;
 import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.service.IAdSeatService;
 import com.bt.om.service.IResourceService;
@@ -79,6 +82,8 @@ public class MediaManagerController {
 	private ISysUserService sysUserService;
 	@Autowired
 	private AdMediaMapper adMediaMapper;
+	@Autowired
+	private IAdMediaTypeService adMediaTypeService;
 
     /**
      * 媒体端任务管理，主要分配任务
@@ -365,10 +370,10 @@ public class MediaManagerController {
     public String toEdit(Model model, HttpServletRequest request,
                          @RequestParam(value = "id", required = false) Integer id) {
         if (id != null) {
-            AdSeatInfo adSeatInfo = adSeatService.getById(id);
-            model.addAttribute("adSeatInfo", adSeatInfo);
+        	AdSeatInfoVo adSeatInfoVo = resourceService.getAdSeatInfoById(id + "");
+            model.addAttribute("adSeatInfo", adSeatInfoVo);
         }
-
+        
         return PageConst.MEDIA_ADSEAT_EDIT;
     }
 
@@ -385,6 +390,7 @@ public class MediaManagerController {
         model = new ExtendedModelMap();
 
         adSeatInfo.setAdSize(adSeatInfo.getWidth() + "*" + adSeatInfo.getHeight());
+		Map<String, Object> modelMap = new HashMap<String, Object>();
 
         try {
         	if(adSeatInfo.getMultiNum() == 0) {
@@ -397,6 +403,13 @@ public class MediaManagerController {
             	//修改
                 adSeatService.modify(adSeatInfo);
             } else {
+            	if(adSeatInfo.getMediaTypeParentId() == null || adSeatInfo.getMediaTypeId() == null) {
+            		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                    result.setResultDes("媒体类型不能为空！");
+                    model.addAttribute(SysConst.RESULT_KEY, result);
+                    return model;
+            	}
+            	
             	//添加
                 SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
                 //生成二维码
@@ -701,6 +714,24 @@ public class MediaManagerController {
         }
 
         model.addAttribute(SysConst.RESULT_KEY, result);
+    }
+  
+     * 通过媒体大类的id查询下属的所有媒体小类
+     */
+    @RequestMapping(value = {"/adseat/searchMediaType"}, method = {RequestMethod.POST})
+    @ResponseBody
+    public Model searchMediaType(Model model, @RequestParam(value = "parentId", required = true) Integer parentId) {
+    	ResultVo resultVo = new ResultVo();
+        try {
+        	List<AdMediaType> adMediaTypes = adMediaTypeService.selectByParentId(parentId);
+        	resultVo.setResult(adMediaTypes);
+        	resultVo.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
+            resultVo.setResultDes("服务忙，请稍后再试");
+        }
+        model.addAttribute(SysConst.RESULT_KEY, resultVo);
         return model;
     }
 }

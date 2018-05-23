@@ -36,7 +36,6 @@ import com.bt.om.cache.CityCache;
 import com.bt.om.common.DateUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.entity.AdActivity;
-import com.bt.om.entity.AdCustomerType;
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdMediaType;
 import com.bt.om.entity.AdMonitorTask;
@@ -142,7 +141,7 @@ public class ExcelController extends BasicController {
 		
 		//导出文件相关
 		AdActivity adActivity = adActivityService.getById(activityId);
-		AdCustomerType customerType = adCustomerTypeService.getById(adActivity.getCustomerTypeId()); //客户类型
+//		AdCustomerType customerType = adCustomerTypeService.getById(adActivity.getCustomerTypeId()); //客户类型
 // 		final String fileName = adActivity.getActivityName() + "-广告位导出结果"+ ".pdf"; //导出文件名
 		final String fileName = adActivity.getId() + "-" + System.currentTimeMillis() + ".pdf"; //导出文件名
  		List<List<String>> listString = new ArrayList<>();
@@ -213,11 +212,11 @@ public class ExcelController extends BasicController {
 				list.add(mediaTypeMap.get(vo.getInfo_mediaTypeParentId())); //媒体大类 19
 				list.add(mediaTypeMap.get(vo.getInfo_mediaTypeId())); //媒体小类 20
 				list.add(vo.getMediaName()); //媒体名称21
-				if(customerType != null) {
-					list.add(customerType.getName()); //客户类型22
-				} else {
-					list.add(null); //客户类型22
-				}
+//				if(customerType != null) {
+//					list.add(customerType.getName()); //客户类型22
+//				} else {
+//					list.add(null); //客户类型22
+//				}
 				
 				map.put(vo.getId(), list); //ad_activity_adseat的id
 				listString.add(list);
@@ -291,7 +290,7 @@ public class ExcelController extends BasicController {
 		
 		//导出文件相关
 		AdActivity adActivity = adActivityService.getById(activityId); //活动
-		AdCustomerType customerType = adCustomerTypeService.getById(adActivity.getCustomerTypeId()); //客户类型
+//		AdCustomerType customerType = adCustomerTypeService.getById(adActivity.getCustomerTypeId()); //客户类型
 // 		final String fileName = adActivity.getActivityName() + "-广告位导出结果"+ ".xls"; //导出文件名
  		final String fileName = adActivity.getId() + "-" + System.currentTimeMillis() + ".xls"; //导出文件名
         List<List<String>> listString = new ArrayList<>();
@@ -301,7 +300,7 @@ public class ExcelController extends BasicController {
         	for (AdActivityAdseatTaskVo vo : vos) {
 				List<String> list = new ArrayList<>();
 				list.add(adActivity.getActivityName()); //活动名称
-				list.add(customerType.getName()); //客户类型
+//				list.add(customerType.getName()); //客户类型
 				list.add(vo.getInfo_name()); //广告位名称
 				list.add(vo.getMediaName()); //媒体名称
 				list.add(mediaTypeMap.get(vo.getInfo_mediaTypeParentId())); //媒体大类
@@ -337,7 +336,7 @@ public class ExcelController extends BasicController {
 				listString.add(list);
 			}
         	
-            String[] titleArray = {"活动名称", "客户类型", "广告位名称", "供应商（媒体）", "媒体大类", "媒体小类", "省", "市", "区（县）", "街道（镇，乡）", "详细位置", "唯一标识", 
+            String[] titleArray = {"活动名称", "广告位名称", "供应商（媒体）", "媒体大类", "媒体小类", "省", "市", "区（县）", "街道（镇，乡）", "详细位置", "唯一标识", 
             		"开始监测时间", "结束监测时间", "当前状态",
             		"广告位尺寸", "面积", "经度", "纬度", "地图标准（如百度，谷歌，高德）", "联系人姓名", "联系人电话", "备注"};
             ExcelTool<List<String>> excelTool = new ExcelTool<List<String>>("importResult");
@@ -1011,7 +1010,7 @@ public class ExcelController extends BasicController {
 		table.setWidths(new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 });
 
         table.addCell(new Paragraph("广告位名称", fontChinese));
-        table.addCell(new Paragraph("客户类型", fontChinese));
+//        table.addCell(new Paragraph("客户类型", fontChinese));
         table.addCell(new Paragraph("供应商", fontChinese));
         table.addCell(new Paragraph("地理位置", fontChinese));
         table.addCell(new Paragraph("详细位置", fontChinese));
@@ -1024,7 +1023,7 @@ public class ExcelController extends BasicController {
         
         for (List<String> list : listString) {
         	table.addCell(new Paragraph(list.get(1), fontChinese));
-        	table.addCell(new Paragraph(list.get(22), fontChinese));
+//        	table.addCell(new Paragraph(list.get(22), fontChinese));
         	table.addCell(new Paragraph(list.get(21), fontChinese));
             table.addCell(new Paragraph(list.get(2) + list.get(3) + list.get(4) + list.get(5), fontChinese));
             table.addCell(new Paragraph(list.get(6), fontChinese));

@@ -3,6 +3,7 @@ package com.bt.om.mapper;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
 import com.bt.om.entity.AdMediaType;
@@ -63,4 +64,6 @@ public interface AdMediaTypeMapper {
     List<AdMediaTypeVo> selectParentAndSecond();
     
     List<AdMediaType> getAll();
+    
+    List<AdMediaType> selectByParentId(@Param("parentId") Integer parentId);
 }

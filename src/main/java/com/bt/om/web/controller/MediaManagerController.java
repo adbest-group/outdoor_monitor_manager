@@ -714,6 +714,7 @@ public class MediaManagerController {
         }
 
         model.addAttribute(SysConst.RESULT_KEY, result);
+	return model;
     }
   
     /**

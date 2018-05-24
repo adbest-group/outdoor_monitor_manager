@@ -282,5 +282,13 @@
   		<include refid="Base_Column_List" />
   		from ad_media_type
   	</select>
+  	
+  	<select id="selectByParentId" resultType="com.bt.om.entity.AdMediaType" parameterType="java.lang.Integer">
+  		select
+  		<include refid="Base_Column_List" />
+  		from ad_media_type
+  		where parent_id = #{parentId,jdbcType=INTEGER}
+  		and status = 1
+  	</select>
   
 </mapper>

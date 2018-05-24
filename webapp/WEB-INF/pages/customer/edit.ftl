@@ -39,6 +39,16 @@
 					<td><input type="text" id="telephone" name="telephone" value="${(obj.telephone)?if_exists}" autocomplete="off" class="form-control"> <br><span id="telephoneTip"></span></td>
 				</tr>
 				<tr>
+					<td style="padding-bottom:20px;" class="a-title">客户类型：</td>
+					<td style="padding-bottom:20px;">
+                        <select name="customerTypeId" class="searchable-select-holder" id="customerTypeId">
+                            <option value="">请选择</option>
+                            <@model.showAllCustomerTypeOps value="${(obj.customerTypeId)?if_exists}"/>
+                        </select>
+                        <span id="customerTypeIdTip"></span>
+                    </td>
+                </tr>
+				<tr>
 					<td class="a-title">&nbsp;</td>
 					<td>
 						<button type="button" class="btn btn-red" autocomplete="off" id="accountSubmit">提　交</button>
@@ -74,6 +84,7 @@ $(function() {
 	                var name = $("#name").val();
 	                var telephone = $("#telephone").val();
 	                var password = $("#password").val();
+	                var customerTypeId = $("#customerTypeId").val();
              
 //		             var selRoles = "";
 //				            $("input[name='role']:checked").each(function(i) {
@@ -91,7 +102,8 @@ $(function() {
 		                    "username": username,
 		                    "password": password,
 		                    "name": name,
-		                    "telephone": telephone
+		                    "telephone": telephone,
+		                    "customerTypeId": customerTypeId
 		                },
 		                cache: false,
 		                dataType: "json",
@@ -196,6 +208,20 @@ $(function() {
         		onError:"手机或电话格式不正确，请重新输入"
         	});
         	
+        	// 客户类型校验
+	        $("#customerTypeId").formValidator({
+	            validatorGroup:"2",
+	            onShow:"",
+	            onFocus:"请选择客户类型",
+	            onCorrect:""
+	        }).regexValidator({
+	            regExp:"^\\S+$",
+	            onError:"客户类型不能为空，请选择"
+	        }).inputValidator({
+	            min: 1,
+	            onError:"客户类型不能为空，请选择"
+	        });
+        	
 //        	// 权限配置
 //        	$("#checkBoxUl").formValidator({
 //        		validatorGroup:"2",
@@ -214,5 +240,3 @@ $(function() {
 });
             
 </script>
-
-

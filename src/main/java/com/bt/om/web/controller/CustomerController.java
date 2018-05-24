@@ -1,17 +1,9 @@
 package com.bt.om.web.controller;
 
-import com.bt.om.common.SysConst;
-import com.bt.om.common.web.PageConst;
-import com.bt.om.entity.SysRole;
-import com.bt.om.entity.SysUser;
-import com.bt.om.entity.vo.SysUserVo;
-import com.bt.om.enums.ResultCode;
-import com.bt.om.service.ICustomerService;
-import com.bt.om.service.IMediaService;
-import com.bt.om.service.ISysUserService;
-import com.bt.om.vo.web.ResultVo;
-import com.bt.om.vo.web.SearchDataVo;
-import com.bt.om.web.util.SearchUtil;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.crypto.hash.Md5Hash;
@@ -23,8 +15,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
+import com.bt.om.common.SysConst;
+import com.bt.om.common.web.PageConst;
+import com.bt.om.entity.AdCustomerType;
+import com.bt.om.entity.SysRole;
+import com.bt.om.entity.SysUser;
+import com.bt.om.entity.vo.SysUserVo;
+import com.bt.om.enums.ResultCode;
+import com.bt.om.service.ICustomerService;
+import com.bt.om.service.ISysUserService;
+import com.bt.om.vo.web.ResultVo;
+import com.bt.om.vo.web.SearchDataVo;
+import com.bt.om.web.util.SearchUtil;
 
 /**
  * Created by caiting on 2018/2/27.
@@ -55,6 +57,13 @@ public class CustomerController {
 
         sysUserService.getPageData(vo);
 
+        List<?> list = vo.getList();
+        for (Object object : list) {
+        	SysUserVo userVo = (SysUserVo) object;
+        	AdCustomerType adCustomerType = customerService.selectById(userVo.getCustomerTypeId());
+        	userVo.setCustomerTypeName(adCustomerType.getName());
+		}
+        
         SearchUtil.putToModel(model, vo);
 
         return PageConst.CUSTOMER_LIST;
@@ -114,7 +123,8 @@ public class CustomerController {
                       @RequestParam(value = "username", required = true) String username,
                       @RequestParam(value = "password", required = true) String password,
                       @RequestParam(value = "name", required = true) String name,
-                      @RequestParam(value = "telephone", required = true) String telephone) {
+                      @RequestParam(value = "telephone", required = true) String telephone,
+                      @RequestParam(value = "customerTypeId", required = true) Integer customerTypeId) {
 
         ResultVo<List<SysUser>> resultVo = new ResultVo<List<SysUser>>();
         try {
@@ -127,6 +137,7 @@ public class CustomerController {
                 user.setPlatform(1);
                 user.setUsertype(2);
                 user.setStatus(1);
+                user.setCustomerTypeId(customerTypeId);
                 customerService.add(user);
             } else {//修改
                 SysUserVo user = new SysUserVo();
@@ -137,6 +148,7 @@ public class CustomerController {
                 }
                 user.setRealname(name);
                 user.setTelephone(telephone);
+                user.setCustomerTypeId(customerTypeId);
                 customerService.modify(user);
             }
         } catch (Exception ex) {

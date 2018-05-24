@@ -326,7 +326,7 @@ public class MediaManagerController {
     /**
      * 广告位列表
      **/
-    @RequiresRoles(value= {"media","superadmin"})
+    @RequiresRoles(value= "media")
     @RequestMapping(value = "/adseat/list")
     public String adseatList(Model model, HttpServletRequest request,
                              @RequestParam(value = "province", required = false) Long province,

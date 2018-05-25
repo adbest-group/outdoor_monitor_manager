@@ -19,6 +19,7 @@ import com.bt.om.entity.AdActivityAdseat;
 import com.bt.om.entity.AdActivityArea;
 import com.bt.om.entity.AdActivityMedia;
 import com.bt.om.entity.AdMonitorTask;
+import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.ActivityMobileReportVo;
@@ -48,7 +49,6 @@ import com.google.common.collect.Maps;
  */
 @Service
 public class AdActivityService implements IAdActivityService {
-
     @Autowired
     AdActivityMapper adActivityMapper;
     @Autowired
@@ -284,9 +284,26 @@ public class AdActivityService implements IAdActivityService {
 		return adActivityMapper.selectByPrimaryKey(id);
 	}
 
+	/**
+	 * 后台excel导出和pdf导出查询活动的广告位信息
+	 */
 	@Override
-	public List<AdActivityAdseatTaskVo> selectAdActivityAdseatTask(Integer activityId) {
-		return adActivityAdseatMapper.selectAdActivityAdseatTask(activityId);
+	public List<AdActivityAdseatTaskVo> selectAdActivityAdseatTaskReport(Integer activityId){
+		return adActivityAdseatMapper.selectAdActivityAdseatTaskReport(activityId);
+	}
+	
+	/**
+	 * APP端广告主查询活动的广告位信息, 需分页
+	 */
+	@Override
+	public void selectAdActivityAdseatTask(SearchDataVo vo) {
+		int count = adActivityAdseatMapper.selectAdActivityAdseatTaskCount(vo.getSearchMap());
+        vo.setCount(count);
+        if (count > 0) {
+            vo.setList(adActivityAdseatMapper.selectAdActivityAdseatTask(vo.getSearchMap(), new RowBounds(vo.getStart(), vo.getSize())));
+        } else {
+            vo.setList(new ArrayList<AdActivityAdseatTaskVo>());
+        }
 	}
 	
 //    public static void main(String[] args) {
@@ -305,6 +322,17 @@ public class AdActivityService implements IAdActivityService {
             vo.setList(new ArrayList<AdMonitorTaskVo>());
         }
 	}
+	
+	/**
+	 * 查询时间段以外的活动信息
+	 */
+	@Override
+	public List<Integer> selectReportPageDataTime(Map<String, Object> searchMap) {
+		List<Integer> activityReportByTime1 = adActivityMapper.selectActivityReportByTime1(searchMap);
+		List<Integer> activityReportByTime2 = adActivityMapper.selectActivityReportByTime2(searchMap);
+		activityReportByTime1.addAll(activityReportByTime2);
+		return activityReportByTime1;
+	}
 
 	@Override
 	public List<AdActivityAdseatTaskVo> selectAdSeatTaskReport(Integer activityId) {
@@ -317,11 +345,17 @@ public class AdActivityService implements IAdActivityService {
 		adActivityMapper.updateStatusByEndTime(nowDate);
 	}
 
+	/**
+	 * 获取当前审核员待审核的活动列表
+	 */
 	@Override
 	public List<AdActivity> selectAllByAssessorId(Map<String, Object> searchMap) {
 		return adActivityMapper.selectAllByAssessorId(searchMap);
 	}
 
+	/**
+	 * 当前审核员已经全部审核完毕所有的活动, 获取新的一条待审核活动, 打上自己的id标签
+	 */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public List<AdActivity> getAtimeActivity(Map<String, Object> searchMap) {
@@ -343,6 +377,9 @@ public class AdActivityService implements IAdActivityService {
 		return atimeActivity;
 	}
 	
+	/**
+	 * 按照广告主在添加活动时选择的活动投放时间段  查询该时间段内各个广告位是否参与的活动以及参与的活动数量
+	 */
 	@Override
 	public List<AdSeatCount> selectActiveActivityCount(Map<String, Object> searchMap) {
 		List<AdSeatCount> adSeatCounts = new ArrayList<>();
@@ -407,5 +444,13 @@ public class AdActivityService implements IAdActivityService {
 			}
 		}
 		return adSeatCounts;
+	}
+	
+	/**
+	 * 根据活动查询下属广告位的信息
+	 */
+	@Override
+	public List<AdSeatInfo> selectSeatInfoByActivityId(Integer activityId) {
+		return adActivityAdseatMapper.selectSeatInfoByActivityId(activityId);
 	}
 }

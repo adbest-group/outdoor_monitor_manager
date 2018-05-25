@@ -202,4 +202,15 @@
     </if>
   </select>
   
+   <select id="findGroupIdByUserId" parameterType="map" resultType="java.lang.Integer">
+  	select res_id
+  	from sys_user_res
+  	where 1=1
+  	<if test="type != null" >
+      and type = #{type,jdbcType=INTEGER}
+    </if>
+    <if test="userId != null" >
+      and user_id = #{userId,jdbcType=INTEGER}
+    </if>
+  </select>
 </mapper>

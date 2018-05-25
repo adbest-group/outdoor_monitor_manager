@@ -20,11 +20,13 @@ public interface ISysResourcesService {
 
     public List<SysResources> getAll();
 
-    public List<SysResources> selectByUserId(Integer userId);
+   // public List<SysResources> selectByUserId(List<Integer> groupIds);
 
     public int selectCountByUserId(Integer userId);
 
 	SysResources getByUserId(Integer userId);
 
 	void updateByPrimaryKeyUserIdNull(SysResources sysResources);
+
+	List<SysResources> selectByUserId(Integer userId);
 }

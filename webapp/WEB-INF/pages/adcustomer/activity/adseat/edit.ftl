@@ -312,40 +312,39 @@
                 });
             }
 
-
             if(!!as){
                 $("#id").val(as.id);
-                        $("#media").val(as.mediaId); //媒体id
-                        //mediaName:$("#media").siblings().find(".searchable-select-holder").text(),
-                        $("#seat").val(as.seatId); //媒体id
-                        //seatName : $("#seat").siblings().find(".searchable-select-holder").text(),
-                        $("#dts").val(as.startDate); //监测开始时间
-                        $("#dt").val(as.endDate); //监测结束时间
-                        $("#brand").val(as.brand); //品牌
-                        //上刊监测
-                        if(as.upMonitor>1) {
-                            $("#upMonitor").removeAttr("checked");
-                        }else{
-                            $("#upMonitorLastDays").val(as.upMonitorLastDays);
-                            $("#upMonitorLastDaysTr").show();
-                        }
-                        //下刊监测
-                        if(as.downMonitor>1){
-                            $("#downMonitor").removeAttr("checked");
-                        }else{
-                            $("#downMonitorLastDays").val(as.downMonitorLastDays);
-                            $("#downMonitorLastDaysTr").show();
-                        }
-                        //投放期间监测
-                        if(as.durationMonitor>1){
-                            $("#durationMonitor").removeAttr("checked");
-                        }else{
-                            $("#durationMonitorLastDays").val(as.durationMonitorLastDays);
-                            $("#durationMonitorLastDaysTr").show();
-                        }
-                        $("#monitorCount").val(as.monitorCount);//监测次数
-                        $("#img-demo-bak").val(as.samplePicUrl);//样例图片地址
-                        $("#img-demo-img").attr("src",as.samplePicUrl);//样例图片地址
+                $("#media").val(as.mediaId); //媒体id
+                //mediaName:$("#media").siblings().find(".searchable-select-holder").text(),
+                $("#seat").val(as.seatId); //广告位id
+                //seatName : $("#seat").siblings().find(".searchable-select-holder").text(),
+                $("#dts").val(as.startDate); //监测开始时间
+                $("#dt").val(as.endDate); //监测结束时间
+                $("#brand").val(as.brand); //品牌
+                //上刊监测
+                if(as.upMonitor>1) {
+                    $("#upMonitor").removeAttr("checked");
+                }else{
+                    $("#upMonitorLastDays").val(as.upMonitorLastDays);
+                    $("#upMonitorLastDaysTr").show();
+                }
+                //下刊监测
+                if(as.downMonitor>1){
+                    $("#downMonitor").removeAttr("checked");
+                }else{
+                    $("#downMonitorLastDays").val(as.downMonitorLastDays);
+                    $("#downMonitorLastDaysTr").show();
+                }
+                //投放期间监测
+                if(as.durationMonitor>1){
+                    $("#durationMonitor").removeAttr("checked");
+                }else{
+                    $("#durationMonitorLastDays").val(as.durationMonitorLastDays);
+                    $("#durationMonitorLastDaysTr").show();
+                }
+                $("#monitorCount").val(as.monitorCount);//监测次数
+                $("#img-demo-bak").val(as.samplePicUrl);//样例图片地址
+                $("#img-demo-img").attr("src",as.samplePicUrl);//样例图片地址
             }else{
                 $("#btnDemo").click(function(){
                     var demo_data = {
@@ -366,9 +365,16 @@
                 $("#downMonitorLastDaysTr").show();
                 $("#durationMonitorLastDaysTr").show();
             }
-
-            selectSeatOps(as&&as.mediaId || media_seat[0].id);
-            $('#media.select').searchableSelect();
+            if(!!as) {
+            	$("#seat").append("<option value='" + as.seatId + "' selected disabled>" + as.seatName + "</option>");
+                $('#seat.select').searchableSelect();
+            	$('#media.select').searchableSelect();
+            	$(".select").siblings(".searchable-select").find(".searchable-select-dropdown").hide();
+            	$("#btnSave").hide();
+            } else {
+	            selectSeatOps(as&&as.mediaId || media_seat[0].id);
+	            $('#media.select').searchableSelect();
+            }
             $("#media").siblings().find(".searchable-select-item").click(function(){
                 selectSeatOps($("#media").val());
             });

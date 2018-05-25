@@ -59,7 +59,7 @@
                                 <span style="margin-left:10px;" id="dateTip"></span>
                             </td>
                         </tr>
-
+						<#if editMode>
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>投放地区(筛选广告位)：</td>
                             <td>
@@ -78,7 +78,7 @@
                                 <span style="margin-left:10px;" id="areaTip"></span>
                             </td>
                         </tr>
-
+						</#if>
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>媒体选择：</td>
                             <td id="mediaTd">
@@ -346,7 +346,7 @@
     $(function () {
         //加载所有媒体
         $.each(media_seats,function(i,n){
-            $("#mediaTd").append("<label><input type=\"checkbox\" "+(editMode?"":"disabled")+" id=\"media_"+n.id+"\" name=\"media\" value=\""+n.id+"\" checked> "+n.name+"</label>");
+            $("#mediaTd").append("<label><input type=\"checkbox\" "+(editMode?"":"disabled")+" id=\"media_"+n.id+"\" name=\"media\" value=\""+n.id+"\"> "+n.name+"</label>");
         });
         $("#mediaTd").append("<br/><span id=\"mediaTip\"></span>");
         $("input:checkbox").change(function () {
@@ -377,10 +377,13 @@
             })
             checked_media = [];
             $.each(media_seats, function (i, n) {
-                if (activity_meias.includes(n.id)) {
+                //if (activity_meias.includes(n.id)) {
+                if (activity_meias.toString().indexOf(n.id) > -1) {
                     checked_media.push(n);
+                    $("input:checkbox[name='media'][value='" + n.id + "']").prop("checked",true);
                 } else {
-                    $("input:checkbox[name='media'][value='" + n.id + "']").removeAttr("checked");
+                    //$("input:checkbox[name='media'][value='" + n.id + "']").removeAttr("checked");
+                    $("input:checkbox[name='media'][value='" + n.id + "']").prop("checked",false);
                 }
             });
             renderASTable();

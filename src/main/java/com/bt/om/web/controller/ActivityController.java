@@ -2,6 +2,7 @@ package com.bt.om.web.controller;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -25,6 +26,7 @@ import com.adtime.common.lang.StringUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdActivity;
+import com.bt.om.entity.OperateLog;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdActivityVo;
@@ -32,6 +34,7 @@ import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
+import com.bt.om.service.IOperateLogService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.util.GsonUtil;
 import com.bt.om.util.QRcodeUtil;
@@ -54,6 +57,10 @@ public class ActivityController extends BasicController {
     @Autowired
     private ISysUserService sysUserService;
     
+    @Autowired
+	private IOperateLogService operateLogService;
+    
+    //活动审核人员查看活动列表
     @RequiresRoles("activityadmin")
     @RequestMapping(value = "/list")
     public String customerList(Model model, HttpServletRequest request,
@@ -190,8 +197,21 @@ public class ActivityController extends BasicController {
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("确认成功");
         model = new ExtendedModelMap();
+        Date now = new Date();
+        
         try {
+        	//确认活动
             adActivityService.confirm(id);
+            
+            //添加操作日志
+            AdActivity adActivity = adActivityService.getById(id);
+            SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+            OperateLog operateLog = new OperateLog();
+            operateLog.setContent("确认活动：" + adActivity.getActivityName());
+            operateLog.setCreateTime(now);
+            operateLog.setUpdateTime(now);
+            operateLog.setUserId(user.getId());
+            operateLogService.save(operateLog);
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("确认失败！");
@@ -213,8 +233,21 @@ public class ActivityController extends BasicController {
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("删除成功");
         model = new ExtendedModelMap();
+        Date now = new Date();
+        
         try {
+        	//删除活动
             adActivityService.delete(id);
+            
+            //添加操作日志
+            AdActivity adActivity = adActivityService.getById(id);
+            SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+            OperateLog operateLog = new OperateLog();
+            operateLog.setContent("删除活动：" + adActivity.getActivityName());
+            operateLog.setCreateTime(now);
+            operateLog.setUpdateTime(now);
+            operateLog.setUserId(user.getId());
+            operateLogService.save(operateLog);
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("删除失败！");

@@ -23,6 +23,7 @@ public class AppDetailReport {
 	private String contactName; //联系人姓名
 	private String contactCell; //联系人电话
 	private String memo; //备注
+	private String demoPic; //活动预览图
 	private List<PictureVo> upPics; //上刊监测图片集合
 	private List<PictureVo> durationPics; //投放期间监测图片集合
 	private List<PictureVo> downPics; //下刊监测图片集合
@@ -146,6 +147,12 @@ public class AppDetailReport {
 	}
 	public void setMemo(String memo) {
 		this.memo = memo;
+	}
+	public String getDemoPic() {
+		return demoPic;
+	}
+	public void setDemoPic(String demoPic) {
+		this.demoPic = demoPic;
 	}
 	public List<PictureVo> getUpPics() {
 		return upPics;

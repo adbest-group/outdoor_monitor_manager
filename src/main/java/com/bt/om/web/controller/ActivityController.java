@@ -176,7 +176,6 @@ public class ActivityController extends BasicController {
             model.addAttribute("activity", activity);
         }
 
-//        return PageConst.ACTIVITY_EDIT;
         return PageConst.ACTIVITY_EDIT;
     }
 
@@ -199,6 +198,27 @@ public class ActivityController extends BasicController {
             return model;
         }
         
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+    }
+    //撤销活动
+    @RequiresRoles("activityadmin")
+    @RequestMapping(value = "/cancel")
+    @ResponseBody
+    public Model cancel(Model model, HttpServletRequest request,
+                        @RequestParam(value = "id", required = false) Integer id) {
+        ResultVo<String> result = new ResultVo<String>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("撤销成功");
+        model = new ExtendedModelMap();
+        try {
+            adActivityService.offActivityByAssessorId(id);
+        } catch (Exception e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("撤销失败！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }

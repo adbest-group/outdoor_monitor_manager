@@ -72,4 +72,5 @@ public interface IAdActivityService {
 	public void updateStatusByEndTime(Date nowDate);
 
 	List<AdActivityAdseatVo> selectVoByLonLatTitle(Double lon, Double lat, String title);
+	public void offActivityByAssessorId(Integer id);
 }

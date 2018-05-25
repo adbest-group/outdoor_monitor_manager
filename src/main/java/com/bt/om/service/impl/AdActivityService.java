@@ -340,4 +340,10 @@ public class AdActivityService implements IAdActivityService {
 		}
 		return atimeActivity;
 	}
+
+	@Override
+	public void offActivityByAssessorId(Integer id) {
+		adActivityMapper.cancelActivityByAssessorId(id);
+		
+	}
 }

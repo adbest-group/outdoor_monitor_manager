@@ -170,6 +170,10 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
+  <update id="cancelActivityByAssessorId" parameterType="com.bt.om.entity.AdActivity">
+  		update ad_activity set assessor_id = null 
+  		where status = 1 		
+  </update>
   <update id="updateByPrimaryKey" parameterType="com.bt.om.entity.AdActivity" >
     <!--
       WARNING - @mbggenerated

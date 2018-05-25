@@ -236,7 +236,7 @@
                     downMonitorLastDays: "${seat.downMonitorLastDays!"3"}",
                     durationMonitorLastDays: "${seat.durationMonitorLastDays!"3"}",
                     monitorCount: "${seat.monitorCount}",
-                    samplePicUrl: "${seat.samplePicUrl}"
+                    samplePicUrl: "${seat.samplePicUrl!""}"
                 }<#if seat_has_next>,</#if>
             </#list>
         </#if>];

@@ -11,6 +11,7 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -330,7 +331,7 @@ public class MediaManagerController {
     /**
      * 广告位列表
      **/
-    @RequiresRoles("media")
+    @RequiresRoles(value= "media")
     @RequestMapping(value = "/adseat/list")
     public String adseatList(Model model, HttpServletRequest request,
                              @RequestParam(value = "province", required = false) Long province,
@@ -430,7 +431,7 @@ public class MediaManagerController {
         		adSeatInfo.setAdCode(adCodeInfo);
         		adSeatInfo.setAdCodeUrl("/static/qrcode/" + adCodeInfo + ".jpg");
         		//默认贴上二维码
-        		adSeatInfo.setCodeFlag(1);
+        		
         		
                 adSeatService.save(adSeatInfo, user.getId());
             }
@@ -692,15 +693,15 @@ public class MediaManagerController {
     /**
      * 修改二维码状态： 已贴, 未贴
      **/
-    @RequiresRoles("media")
+    @RequiresRoles(value= {"media","superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/codeFlag")
     @ResponseBody
     public Model updateStatus(Model model, Integer id, AdSeatInfo codeFlag) {
+   
     	ResultVo<String> result = new ResultVo<String>();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("保存成功");
         model = new ExtendedModelMap();
-        System.out.println(codeFlag);
         try {
         	AdSeatInfoVo seatInfo = new AdSeatInfoVo();
         	seatInfo.setId(id);

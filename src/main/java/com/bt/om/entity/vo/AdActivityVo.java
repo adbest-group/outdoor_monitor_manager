@@ -39,4 +39,6 @@ public class AdActivityVo extends AdActivity {
     public void setActivityMedias(List<AdActivityMedia> activityMedias) {
         this.activityMedias = activityMedias;
     }
+    
+    
 }

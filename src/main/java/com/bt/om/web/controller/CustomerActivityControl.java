@@ -1,22 +1,15 @@
 package com.bt.om.web.controller;
 
-import com.bt.om.common.SysConst;
-import com.bt.om.common.web.PageConst;
-import com.bt.om.entity.*;
-import com.bt.om.entity.vo.AdActivityVo;
-import com.bt.om.entity.vo.AdJiucuoTaskVo;
-import com.bt.om.entity.vo.AdMonitorTaskVo;
-import com.bt.om.enums.*;
-import com.bt.om.security.ShiroUtils;
-import com.bt.om.service.IAdActivityService;
-import com.bt.om.service.IAdJiucuoTaskService;
-import com.bt.om.util.GsonUtil;
-import com.bt.om.util.StringUtil;
-import com.bt.om.vo.web.ResultVo;
-import com.bt.om.vo.web.SearchDataVo;
-import com.bt.om.web.BasicController;
-import com.bt.om.web.util.SearchUtil;
-import com.google.gson.JsonObject;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -29,12 +22,31 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import com.bt.om.common.SysConst;
+import com.bt.om.common.web.PageConst;
+import com.bt.om.entity.AdActivity;
+import com.bt.om.entity.AdActivityAdseat;
+import com.bt.om.entity.AdActivityArea;
+import com.bt.om.entity.AdActivityMedia;
+import com.bt.om.entity.AdJiucuoTaskFeedback;
+import com.bt.om.entity.SysUser;
+import com.bt.om.entity.vo.AdActivityVo;
+import com.bt.om.entity.vo.AdJiucuoTaskVo;
+import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.enums.ActivityStatus;
+import com.bt.om.enums.JiucuoTaskStatus;
+import com.bt.om.enums.ResultCode;
+import com.bt.om.enums.SessionKey;
+import com.bt.om.security.ShiroUtils;
+import com.bt.om.service.IAdActivityService;
+import com.bt.om.service.IAdJiucuoTaskService;
+import com.bt.om.util.GsonUtil;
+import com.bt.om.util.StringUtil;
+import com.bt.om.vo.web.ResultVo;
+import com.bt.om.vo.web.SearchDataVo;
+import com.bt.om.web.BasicController;
+import com.bt.om.web.util.SearchUtil;
+import com.google.gson.JsonObject;
 
 /**
  * Created by caiting on 2018/1/17.
@@ -162,15 +174,7 @@ public class CustomerActivityControl extends BasicController {
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
-        //构造活动媒体
-        String[] mediaArr = media.split(",");
-        for (String mediaId : mediaArr) {
-            AdActivityMedia am = new AdActivityMedia();
-            am.setMediaId(new Integer(mediaId));
-            am.setCreateTime(now);
-            am.setUpdateTime(now);
-            adActivityVo.getActivityMedias().add(am);
-        }
+        
 
         //构造样例图
 //        AdActivityAdseat adActivityAdseat = new AdActivityAdseat();
@@ -200,7 +204,10 @@ public class CustomerActivityControl extends BasicController {
                 adActivityVo.getActivityAreas().add(aa);
             }
         }
-
+      
+        //选中的广告位所属媒体（不重复）集合
+        Set<Integer> mediaSet = new HashSet<>();
+      
         //构造活动广告位
         List<JsonObject> seats = GsonUtil.getObjectList(activeSeat, JsonObject.class);
         if (seats.size() > 0) {
@@ -222,6 +229,8 @@ public class CustomerActivityControl extends BasicController {
                     as.setDownMonitorLastDays(obj.get("downMonitorLastDays").getAsInt());
                 }
                 as.setMediaId(obj.get("mediaId").getAsInt());
+                mediaSet.add(obj.get("mediaId").getAsInt());
+                
                 as.setMonitorCount(obj.get("monitorCount").getAsInt());
                 try {
                     as.setMonitorStart(sdf.parse(obj.get("startDate").getAsString()));
@@ -242,7 +251,15 @@ public class CustomerActivityControl extends BasicController {
             }
         }
 
-        
+        //构造活动媒体
+        for (Integer mediaId : mediaSet) {
+            AdActivityMedia am = new AdActivityMedia();
+            am.setMediaId(mediaId);
+            am.setCreateTime(now);
+            am.setUpdateTime(now);
+            adActivityVo.getActivityMedias().add(am);
+        }
+
         //新增
         if (StringUtil.isEmpty(id)) {
             adActivityVo.setStatus(ActivityStatus.UNCONFIRM.getId());

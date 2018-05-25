@@ -78,7 +78,20 @@ public class AdActivity extends ID{
      * @mbggenerated Thu Jan 18 14:25:00 CST 2018
      */
     private Integer assessorId;
-    public Integer getAssessorId() {
+    
+    private String samplePicUrl;
+    
+    
+    
+    public String getSamplePicUrl() {
+		return samplePicUrl;
+	}
+
+	public void setSamplePicUrl(String samplePicUrl) {
+		this.samplePicUrl = samplePicUrl;
+	}
+
+	public Integer getAssessorId() {
 		return assessorId;
 	}
 

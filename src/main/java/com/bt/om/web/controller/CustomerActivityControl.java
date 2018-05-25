@@ -142,6 +142,7 @@ public class CustomerActivityControl extends BasicController {
                       @RequestParam(value = "area", required = false) String area,
                       @RequestParam(value = "media", required = false) String media,
                       @RequestParam(value = "dels", required = false) String dels,
+                      @RequestParam(value = "samplePicUrl", required = false) String samplePicUrl,
                       @RequestParam(value = "activeSeat", required = false) String activeSeat) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date now = new Date();
@@ -154,6 +155,7 @@ public class CustomerActivityControl extends BasicController {
 
         AdActivityVo adActivityVo = new AdActivityVo();
         adActivityVo.setActivityName(activityName);
+        adActivityVo.setSamplePicUrl(samplePicUrl);
 //		adActivityVo.setCustomerTypeId(customerTypeId); //客户类型
         try {
             adActivityVo.setStartTime(sdf.parse(startDate));
@@ -174,6 +176,11 @@ public class CustomerActivityControl extends BasicController {
         }
         
 
+        //构造样例图
+//        AdActivityAdseat adActivityAdseat = new AdActivityAdseat();
+//        adActivityAdseat.setSamplePicUrl(samplePicUrl);
+//        adActivityVo.getActivitySeats().add(adActivityAdseat);
+        
         //构造活动地区
         List<JsonObject> areas = GsonUtil.getObjectList(area, JsonObject.class);
         if (areas.size() > 0) {
@@ -209,6 +216,7 @@ public class CustomerActivityControl extends BasicController {
                 as.setAdSeatId(obj.get("seatId").getAsInt());
                 as.setBrand(obj.get("brand").getAsString());
                 as.setUpMonitor(obj.get("upMonitor").getAsInt());
+                as.setSamplePicUrl(samplePicUrl);
                 if(as.getUpMonitor()==1){
                     as.setUpMonitorLastDays(obj.get("upMonitorLastDays").getAsInt());
                 }
@@ -234,12 +242,15 @@ public class CustomerActivityControl extends BasicController {
                     return model;
                 }
                 as.setTaskCreate(1);
-                as.setSamplePicUrl(obj.get("samplePicUrl").getAsString());
+//                as.setSamplePicUrl(obj.get("samplePicUrl").getAsString());
                 as.setCreateTime(now);
                 as.setUpdateTime(now);
+                System.out.println("---as----"+as);
                 adActivityVo.getActivitySeats().add(as);
+      
             }
         }
+
         //构造活动媒体
         for (Integer mediaId : mediaSet) {
             AdActivityMedia am = new AdActivityMedia();
@@ -248,12 +259,14 @@ public class CustomerActivityControl extends BasicController {
             am.setUpdateTime(now);
             adActivityVo.getActivityMedias().add(am);
         }
+
         //新增
         if (StringUtil.isEmpty(id)) {
             adActivityVo.setStatus(ActivityStatus.UNCONFIRM.getId());
             adActivityVo.setUserId(user.getId());
             adActivityVo.setCreateTime(now);
             adActivityVo.setUpdateTime(now);
+            System.out.println(adActivityVo.getActivitySeats());
             adActivityService.add(adActivityVo);
         } else {//更新
             adActivityVo.setId(new Integer(id));

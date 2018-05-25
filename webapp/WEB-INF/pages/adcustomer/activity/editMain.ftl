@@ -1,4 +1,3 @@
-
 <!-- 特色内容 -->
 <style type="text/css">
     .basic-info .bd .a-title {
@@ -96,6 +95,25 @@
                                 <#--</label>-->
                             </td>
                         </tr>
+						
+						<tr>
+							<td class="a-title"><font class="s-red">*</font>样例：</td>
+							<td>
+								<#if (editMode && activity.status==1)!true>
+									<input type="hidden" id="img-demo-bak"/>
+                       					<div class="btn-file" style="width:74px;height:28px;top:0px;">
+										<a class="addBtn" href="javascript:;" id="resource_sel">上传</a>
+										<input type="file" id="img-demo" name="file" onchange="uploadPic('img-demo')">
+									</div> <span id="img-demoTip"></span>
+								</#if>
+                   			</td>
+						</tr>
+						<tr>
+                    		<td class="a-title">&nbsp;</td>
+                    		<td>
+                    			<img src="" id="img-demo-img" width="280" alt="请上传图片"/>
+                    		</td>
+                		</tr>
 
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>广告位监测：</td>
@@ -196,7 +214,8 @@
         "activityName": '${activity.activityName}',
         <#-- "customerTypeId": '${activity.customerTypeId}', -->
         "dts": "${activity.startTime?string('yyyy-MM-dd')}",
-        "dt": "${activity.endTime?string('yyyy-MM-dd')}"
+        "dt": "${activity.endTime?string('yyyy-MM-dd')}",
+        "samplePicUrl": '${activity.samplePicUrl!""}'
     }
     var activity_seats = [
         <#if (activity.activitySeats?exists && activity.activitySeats?size>0) >
@@ -400,6 +419,7 @@
                 var activityName = $("#activityName").val(); //活动名
                 var startDate = $("#dts").val(); //投放开始时间
                 var endDate = $("#dt").val(); //投放结束时间
+				samplePicUrl: $("#img-demo-bak").val()//样例图片地址
                 
                 var startTime = new Date(startDate);
                 var time1 = startTime.getTime();
@@ -418,6 +438,7 @@
                 var city = $("#city").val();
                 var region = $("#region").val();
                 var street = $("#street").val();
+				var samplePicUrl = $("#img-demo-bak").val();
                 <#-- var customerTypeId = $("#customerTypeId").val(); -->
                 var media = [];
                 $("input[name='media']:checked").each(function (i, n) {
@@ -447,6 +468,7 @@
                         <#-- "customerTypeId": customerTypeId, -->
                         "media": media.join(","),
 //                        "dels" : dels.join(","),
+						"samplePicUrl" : samplePicUrl,
                         "activeSeat": JSON.stringify(activity_seats)
                     },
                     cache: false,
@@ -623,10 +645,12 @@
     renderASTable = function () {
         $("#as-container").html("");
         if (activity_seats.length > 0) {
-            var tab = $('<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead> <tr> <th>序号</th> <th>广告位</th> <th>媒体</th> <th>投放品牌</th> <th>监测时间段</th> <th>监测时间</th> <th>样例</th> <th>操作</th> </tr> </thead> <tbody></tbody></table>');
+            var tab = $('<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead> <tr> <th>序号</th> <th>广告位</th> <th>媒体</th> <th>投放品牌</th> <th>监测时间段</th> <th>监测时间</th><#--  <th>样例</th>  --><th>操作</th> </tr> </thead> <tbody></tbody></table>');
             $.each(activity_seats, function (i, as) {
-                tab.find("tbody").append("<tr> <td width='30'>" + (i + 1) + "</td> <td>" + as.seatName + "</td> <td>" + as.mediaName + "</td> <td>" + as.brand + "</td> <td>" + as.startDate + "至" + as.endDate + "</td><td>" + (as.upMonitor == 1 ? "上刊" : "") + "&nbsp;" + (as.durationMonitor == 1 ? "投放期间" : "") + "&nbsp;" + (as.downMonitor == 1 ? "下刊" : "") + "&nbsp;" + "</td> <td><img src='" + as.samplePicUrl + "' class='demo'/></td> <td> <a href='javascript:modAS(" + i + ");'>详情</a> "+(editMode?"<a href='javascript:dealAS(" + i + ");'>删除</a>":"")+" </td> </tr>");
+                tab.find("tbody").append("<tr> <td width='30'>" + (i + 1) + "</td> <td>" + as.seatName + "</td> <td>" + as.mediaName + "</td> <td>" + as.brand + "</td> <td>" + as.startDate + "至" + as.endDate + "</td><td>" + (as.upMonitor == 1 ? "上刊" : "") + "&nbsp;" + (as.durationMonitor == 1 ? "投放期间" : "") + "&nbsp;" + (as.downMonitor == 1 ? "下刊" : "") + "&nbsp;" + "</td> <#-- <td><img src='" + as.samplePicUrl + "' class='demo'/></td> --> <td> <a href='javascript:modAS(" + i + ");'>详情</a> "+(editMode?"<a href='javascript:dealAS(" + i + ");'>删除</a>":"")+" </td> </tr>");
+                $("#img-demo-img").attr("src",as.samplePicUrl);//样例图片地址
             });
+            
             $("#as-container").append(tab);
         }
     }
@@ -662,6 +686,55 @@
             content: '<img src="/activity/getQrcode?id=' + id + '" style="display:block;width:100%;height:auto;"/>'
         });
     }
+	
+	function uploadPic(id){
+		var picName = $("#"+id).val();
+	
+		/*if(!/\.(jpg|JPG)$/.test(picName)) {
+			layer.confirm("图片类型必须是jpg格式", {
+				icon: 0,
+				btn: ['确定'] //按钮
+			});
+			return false;
+		}*/
+		$.ajaxFileUpload({
+			url:'/upload',
+			secureuri:false,
+			fileElementId:id,
+			dataType: 'json',
+			success: function (data, status) {
+				var ret = data.ret;
+				if (data == '"error"') {
+					layer.confirm("上传图片失败", {
+						icon: 2,
+						btn: ['确定'] //按钮
+					});
+					return;
+				} else if(data=='"overPic"') {
+					layer.confirm("上传图片太大！请小于1MB", {
+						icon: 0,
+						btn: ['确定'] //按钮
+					});
+				} else if (data == '"notPic"') {
+					layer.confirm("上传的不是图片", {
+						icon: 0,
+						btn: ['确定'] //按钮
+					});
+					return;
+				} else {
+					var arr=data.split('"');
+					var dataNew=arr[1];
+					$("#"+id+"-bak").val(dataNew);
+					$("#"+id+"-img").attr('src',dataNew);
+				}
+			},
+			error: function (data, status, e) {
+				layer.confirm("上传图片失败", {
+					icon: 5,
+					btn: ['确定'] //按钮
+				});
+			}
+		});
+	}
 
 </script>
-<!-- 特色内容 -->

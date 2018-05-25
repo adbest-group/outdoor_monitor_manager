@@ -109,8 +109,8 @@
                         <span id="monitorCountTip"></span>
                     </td>
                 </tr>
-
-                <tr>
+                
+                <#--  <tr>
                     <td class="a-title"><font class="s-red">*</font>样例：</td>
                     <td>
 						<input type="hidden" id="img-demo-bak"/>
@@ -127,7 +127,7 @@
                     	<img src="" id="img-demo-img" width="280" alt="请上传图片"/>
                     </td>
                 </tr>
-
+			 	-->
 					<tr>
 						<td class="a-title">&nbsp;</td>
 						<td>
@@ -420,8 +420,8 @@
                         downMonitorLastDays: $("#downMonitorLastDays").val(),
                         durationMonitor: $("#durationMonitor:checked").length > 0 ? 1 : 2,//投放期间监测
                         durationMonitorLastDays: $("#durationMonitorLastDays").val(),
-                        monitorCount: $("#monitorCount").val(),//监测次数
-                        samplePicUrl: $("#img-demo-bak").val()//样例图片地址
+                        monitorCount: $("#monitorCount").val()//监测次数
+                        <#-- samplePicUrl: $("#img-demo-bak").val()//样例图片地址  -->
                     }
                     //console.log(activity_seat)
                     if (!!as) {
@@ -528,7 +528,7 @@
             });
 
             //样例
-            $("#img-demo-bak").formValidator({
+            <#-- $("#img-demo-bak").formValidator({
                 validatorGroup: "2",
                 tipID:"img-demoTip",
                 onShow: "　",
@@ -536,6 +536,6 @@
             }).inputValidator({
                 min: 1,
                 onError: "请上传样例"
-            });
+            });  -->
         });
 	</script>

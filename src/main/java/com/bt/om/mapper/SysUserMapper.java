@@ -1,5 +1,6 @@
 package com.bt.om.mapper;
 
+import com.bt.om.entity.SysResources;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.SysUserVo;
 import org.apache.ibatis.annotations.Param;
@@ -57,8 +58,6 @@ public interface SysUserMapper {
      */
     int updatPrimaryKey(SysUser record);
 
-
-
     SysUserVo findUserinfoById(@Param("id") Integer id);
 
     SysUserVo findByUsername(@Param("username") String username);
@@ -67,5 +66,22 @@ public interface SysUserMapper {
 
     List<SysUserVo> getPageData(Map<String, Object> searchMap, RowBounds rowBounds);
 
-    List<SysUser> isExistsName(@Param("username") String username);
+    List<SysUserVo> isExistsName(@Param("username") String username);
+    
+    List<SysUserVo> getAllByUserType(@Param("usertype") Integer usertype);
+/*
+ * 部门领导
+*/   
+    int createDepartmentLeader(SysUser record);
+	List<SysUser>findLeaderList();
+	int updatePasswordAndName(SysUser record);
+	int updateStatus(SysUser status);
+	List<SysUser>findAllTask();
+	
+	List<SysUser> findUserName(Integer groupId);
+	List<SysUser> findCustomerName(Integer groupId);
+	List<SysUser> findNoUserName(Integer groupId);
+	List<SysUser> findNoCustomerName(Map<String, Object> searchMap);
+	List<SysUser> getIdNameByUserType(Integer usertype);
+	 
 }

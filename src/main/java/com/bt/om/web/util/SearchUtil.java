@@ -37,6 +37,7 @@ public class SearchUtil {
      * @param vo
      */
     public static void putToModel(Model model, SearchDataVo vo) {
+    	
         model.addAttribute("bizObj", vo);
         StringBuilder sb = new StringBuilder();
         sb.append(RequestUtil.getURI(ServletAttributes.getRequest()));

@@ -1,6 +1,7 @@
 package com.bt.om.mapper;
 
 import com.bt.om.entity.SysUserRole;
+import com.bt.om.entity.vo.UserRoleVo;
 
 public interface SysUserRoleMapper {
     /**
@@ -50,4 +51,6 @@ public interface SysUserRoleMapper {
      * @mbggenerated Thu Jan 18 14:25:00 CST 2018
      */
     int updateByPrimaryKey(SysUserRole record);
+    
+    int updateUserRole(UserRoleVo userRoleVo);
 }

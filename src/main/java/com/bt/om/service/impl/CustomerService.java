@@ -1,21 +1,23 @@
 package com.bt.om.service.impl;
 
-import com.bt.om.entity.AdMedia;
-import com.bt.om.entity.SysUserDetail;
-import com.bt.om.entity.SysUserRole;
-import com.bt.om.entity.vo.SysUserVo;
-import com.bt.om.mapper.AdMediaMapper;
-import com.bt.om.mapper.SysUserDetailMapper;
-import com.bt.om.mapper.SysUserMapper;
-import com.bt.om.mapper.SysUserRoleMapper;
-import com.bt.om.service.ICustomerService;
-import com.bt.om.service.IMediaService;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import com.bt.om.entity.AdCustomerType;
+import com.bt.om.entity.SysUserDetail;
+import com.bt.om.entity.SysUserExecute;
+import com.bt.om.entity.SysUserRole;
+import com.bt.om.entity.vo.SysUserVo;
+import com.bt.om.mapper.AdCustomerTypeMapper;
+import com.bt.om.mapper.SysUserDetailMapper;
+import com.bt.om.mapper.SysUserExecuteMapper;
+import com.bt.om.mapper.SysUserMapper;
+import com.bt.om.mapper.SysUserRoleMapper;
+import com.bt.om.service.ICustomerService;
 
 /**
  * Created by caiting on 2018/2/27.
@@ -29,6 +31,10 @@ public class CustomerService implements ICustomerService {
     private SysUserDetailMapper sysUserDetailMapper;
     @Autowired
     private SysUserRoleMapper sysUserRoleMapper;
+    @Autowired
+    private SysUserExecuteMapper sysUserExecuteMapper;
+    @Autowired
+    private AdCustomerTypeMapper adCustomerTypeMapper;
 
     private ThreadLocal<SimpleDateFormat> localFormat = new ThreadLocal<>();
 
@@ -57,10 +63,22 @@ public class CustomerService implements ICustomerService {
         SysUserRole userRole = new SysUserRole();
         userRole.setPlatform(1);
         userRole.setUserId(user.getId());
-        userRole.setRoleId(101);
+        userRole.setRoleId(101); //customer: 101
         userRole.setCreateTime(now);
         userRole.setUpdateTime(now);
         sysUserRoleMapper.insertSelective(userRole);
+        //创建app端账号
+        SysUserExecute userExe = new SysUserExecute();
+        userExe.setUsername(user.getUsername());
+        userExe.setPassword(user.getPassword());
+        userExe.setUsertype(2);
+        userExe.setOperateId(user.getId());
+        userExe.setStatus(1);
+        userExe.setRealname(user.getRealname());
+        userExe.setMobile(user.getTelephone());
+        userExe.setCreateTime(now);
+        userExe.setUpdateTime(now);
+        sysUserExecuteMapper.insertSelective(userExe);
     }
 
     @Override
@@ -75,5 +93,17 @@ public class CustomerService implements ICustomerService {
             detail.setUpdateTime(now);
             sysUserDetailMapper.updateByPrimaryKeySelective(detail);
         }
+        SysUserExecute userExe = sysUserExecuteMapper.selectByUsername(user.getUsername());
+        if(user.getPassword()!=null){
+            userExe.setPassword(user.getPassword());
+        }
+        userExe.setRealname(user.getRealname());
+        userExe.setMobile(user.getTelephone());
+        sysUserExecuteMapper.updateByPrimaryKeySelective(userExe);
+    }
+    
+    @Override
+    public AdCustomerType selectById(Integer id) {
+    	return adCustomerTypeMapper.selectByPrimaryKey(id);
     }
 }

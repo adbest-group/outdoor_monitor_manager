@@ -8,10 +8,12 @@ import java.util.Date;
  * Created by caiting on 2018/1/24.
  */
 public class AdMonitorTaskMobileVo extends AdMonitorTask {
-    private String activityName;
+	private static final long serialVersionUID = 21928227421439115L;
+	private String activityName;
     private Integer adSeatId;
     private String adSeatCode;
     private String adSeatName;
+    private String adSeatLocation;
     private String samplePicUrl;
     private String picUrl1;
     private String picUrl2;
@@ -23,6 +25,66 @@ public class AdMonitorTaskMobileVo extends AdMonitorTask {
     private Date feedbackTime;
     private String problem;
     private String problemOther;
+    private Double lon;
+    private Double lat;
+    private Double feedbackLon;
+    private Double feedbackLat;
+    private Double distance;
+    private Long region;
+    private Long street;
+    private Date startTime;
+    private Date endTime;
+    private Integer assignType;
+    private Long province;
+    private Long city;
+
+    public Double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Double distance) {
+        this.distance = distance;
+    }
+
+    public String getAdSeatLocation() {
+        return adSeatLocation;
+    }
+
+    public void setAdSeatLocation(String adSeatLocation) {
+        this.adSeatLocation = adSeatLocation;
+    }
+
+    public Double getLon() {
+        return lon;
+    }
+
+    public void setLon(Double lon) {
+        this.lon = lon;
+    }
+
+    public Double getLat() {
+        return lat;
+    }
+
+    public void setLat(Double lat) {
+        this.lat = lat;
+    }
+
+    public Double getFeedbackLon() {
+        return feedbackLon;
+    }
+
+    public void setFeedbackLon(Double feedbackLon) {
+        this.feedbackLon = feedbackLon;
+    }
+
+    public Double getFeedbackLat() {
+        return feedbackLat;
+    }
+
+    public void setFeedbackLat(Double feedbackLat) {
+        this.feedbackLat = feedbackLat;
+    }
 
     public String getAdSeatCode() {
         return adSeatCode;
@@ -143,4 +205,61 @@ public class AdMonitorTaskMobileVo extends AdMonitorTask {
     public void setFeedbackTime(Date feedbackTime) {
         this.feedbackTime = feedbackTime;
     }
+
+	public Long getRegion() {
+		return region;
+	}
+
+	public void setRegion(Long region) {
+		this.region = region;
+	}
+
+	public Long getStreet() {
+		return street;
+	}
+
+	public void setStreet(Long street) {
+		this.street = street;
+	}
+
+	public Date getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+
+	public Date getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
+
+	public Integer getAssignType() {
+		return assignType;
+	}
+
+	public void setAssignType(Integer assignType) {
+		this.assignType = assignType;
+	}
+
+	public Long getProvince() {
+		return province;
+	}
+
+	public void setProvince(Long province) {
+		this.province = province;
+	}
+
+	public Long getCity() {
+		return city;
+	}
+
+	public void setCity(Long city) {
+		this.city = city;
+	}
+	
 }

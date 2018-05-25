@@ -1,10 +1,16 @@
 package com.bt.om.mapper;
 
-import com.bt.om.entity.AdActivityAdseat;
-import com.bt.om.entity.vo.AdActivityAdseatVo;
-import org.apache.ibatis.annotations.Param;
-
 import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.RowBounds;
+
+import com.bt.om.entity.AdActivityAdseat;
+import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
+import com.bt.om.entity.vo.AdActivityAdseatVo;
+import com.bt.om.entity.vo.AdSeatCount;
 
 public interface AdActivityAdseatMapper {
     /**
@@ -65,4 +71,24 @@ public interface AdActivityAdseatMapper {
     List<AdActivityAdseatVo> selectVoBySeatCode(@Param("adSeatCode") String adSeatCode);
 
     AdActivityAdseat selectByActivityAndSeatId(@Param("activityId") Integer activityId,@Param("seatId") Integer seatId);
+    
+    List<AdActivityAdseatTaskVo> selectAdActivityAdseatTask(@Param("activityId") Integer activityId);
+    List<AdActivityAdseatTaskVo> selectAdSeatTaskReport(@Param("activityId") Integer activityId);
+    
+    List<AdActivityAdseatVo> selectVoByLonLatTitle(@Param("lon") Double lon, @Param("lat") Double lat, @Param("title") String title);
+    List<Integer> selectSeatIdByActivityId(Map<String, Object> searchMap);
+    Integer selectCountByAdSeatId(@Param("adSeatId") Integer adSeatId);
+    
+    List<AdSeatCount> selectActiveActivityCount();
+    List<AdSeatCount> selectActiveActivityCount1(Map<String, Object> searchMap);
+    List<AdSeatCount> selectActiveActivityCount2(Map<String, Object> searchMap);
+    List<AdSeatCount> selectActiveActivityCount3(Map<String, Object> searchMap);
+    List<AdSeatCount> selectActiveActivityCount4(Map<String, Object> searchMap);
+    
+    List<AdActivityAdseatTaskVo> selectAdActivityAdseatTaskReport(@Param("activityId") Integer activityId);
+    
+    int selectAdActivityAdseatTaskCount(Map<String, Object> searchMap);
+    List<AdActivityAdseatTaskVo> selectAdActivityAdseatTask(Map<String, Object> searchMap, RowBounds rowBounds);
+    
+    List<AdSeatInfo> selectSeatInfoByActivityId(@Param("activityId") Integer activityId);
 }

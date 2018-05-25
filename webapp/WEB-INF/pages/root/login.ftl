@@ -29,11 +29,11 @@
 							<div class="login-main">
 								<div class="inp">
 								   <div class="u-icon userbg "></div>
-									<input type="text" autocomplete="off" name="username" class="username" value="customer@adbest.com" placeholder="请输入用户名" value="${userName!}">
+									<input type="text" autocomplete="off" name="username" class="username" placeholder="请输入用户名" value="${userName!}">
 								</div>
 								<div class="inp">
 									<div class="u-icon passwordbg"></div>
-									<input type="password" autocomplete="off" name="password" class="password" value="123456" placeholder="请输入密码">
+									<input type="password" autocomplete="off" name="password" class="password" placeholder="请输入密码">
 								</div>
 								
 								<input type="text" class="captcha" name="code" maxlength="5" placeholder="请输入验证码">
@@ -48,7 +48,7 @@
 		</div>
 
 		<footer class="clearfix">
-			© 2018 浙江百泰信息技术有限公司 All Rights Reserved
+			<#-- © 2018 浙江百泰信息技术有限公司 All Rights Reserved -->
 		</footer>
 	</div>
 	<script type="text/javascript" src="${model.static_domain}/js/jquery-2.1.4.min.js"></script>

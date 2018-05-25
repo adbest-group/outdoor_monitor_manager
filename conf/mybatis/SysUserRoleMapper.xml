@@ -143,4 +143,13 @@
       update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  
+  <update id="updateUserRole" parameterType="com.bt.om.entity.vo.UserRoleVo">
+  	update sys_user_role
+  	set role_id = #{roleId,jdbcType=INTEGER},
+  	update_time = #{updateTime,jdbcType=TIMESTAMP}
+  	where user_id in 
+  	<foreach collection="userIds" separator="," open="(" close=")" item="userId">#{userId,jdbcType=INTEGER}</foreach>
+  </update>
+  
 </mapper>

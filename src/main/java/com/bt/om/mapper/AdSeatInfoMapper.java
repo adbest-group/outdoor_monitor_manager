@@ -1,12 +1,15 @@
 package com.bt.om.mapper;
 
-import com.bt.om.entity.AdSeatInfo;
-import com.bt.om.entity.vo.AdSeatInfoVo;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
-import java.util.List;
-import java.util.Map;
+import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.vo.AdSeatInfoVo;
+import com.bt.om.entity.vo.CountGroupByCityVo;
+import com.bt.om.entity.vo.HeatMapVo;
 
 public interface AdSeatInfoMapper {
     /**
@@ -67,4 +70,12 @@ public interface AdSeatInfoMapper {
     AdSeatInfo getAdSeatInfoByAdActivitySeatId(@Param("adActivitySeatId")  Integer adActivitySeatId);
     int getCountByAdCode(@Param("adSeatCode")String adSeatCode);
     int insertBatchByExcel(@Param("adSeatInfos")List<AdSeatInfo> adSeatInfos);
+    
+    List<AdSeatInfo> getAdSeatByPointAround(@Param("lon")Double lon,@Param("lat")Double lat,@Param("metre")Double metre,@Param("metreDegree")Double metreDegree);
+    List<AdSeatInfo> getAdSeatByMediaId(@Param("mediaId")  Integer mediaId);
+    
+    List<CountGroupByCityVo> getCountGroupByCity(HeatMapVo heatMapVo);
+    List<AdSeatInfo> getAllLonLat(HeatMapVo heatMapVo);
+
+	int updateFlag(@Param("codeFlag")Integer codeFlag,@Param("id") Integer id);
 }

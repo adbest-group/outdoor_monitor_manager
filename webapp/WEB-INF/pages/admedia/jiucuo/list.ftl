@@ -71,7 +71,7 @@
                             <td>${task.submitTime?string('yyyy-MM-dd HH:mm:ss')}</td>
                             <td>${vm.getCityNameFull(task.street!task.region,"-")!""}</td>
                             <td>${task.mediaName}</td>
-                            <td>${task.adSeatName}</td>
+                            <td>${task.adSeatName!""}</td>
                             <td>${vm.getJiucuoTaskStatusText(task.status)}</td>
                             <td>${vm.getProblemStatusText(task.problemStatus)}</td>
                             <td>

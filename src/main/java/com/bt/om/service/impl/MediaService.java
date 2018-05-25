@@ -1,5 +1,12 @@
 package com.bt.om.service.impl;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.SysUserDetail;
 import com.bt.om.entity.SysUserRole;
@@ -9,12 +16,6 @@ import com.bt.om.mapper.SysUserDetailMapper;
 import com.bt.om.mapper.SysUserMapper;
 import com.bt.om.mapper.SysUserRoleMapper;
 import com.bt.om.service.IMediaService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * Created by caiting on 2018/2/27.
@@ -59,7 +60,7 @@ public class MediaService implements IMediaService {
         SysUserRole userRole = new SysUserRole();
         userRole.setPlatform(1);
         userRole.setUserId(user.getId());
-        userRole.setRoleId(101);
+        userRole.setRoleId(102); //102: media
         userRole.setCreateTime(now);
         userRole.setUpdateTime(now);
         sysUserRoleMapper.insertSelective(userRole);
@@ -94,6 +95,11 @@ public class MediaService implements IMediaService {
 
     @Override
     public AdMedia getMediaByUserId(Integer id) {
-        return null;
+        return adMediaMapper.selectByUserId(id);
+    }
+
+    @Override
+    public AdMedia getById(Integer id) {
+        return adMediaMapper.selectByPrimaryKey(id);
     }
 }

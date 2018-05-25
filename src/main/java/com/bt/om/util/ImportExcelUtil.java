@@ -128,6 +128,10 @@ public class ImportExcelUtil {
 				value = df2.format(cell.getNumericCellValue());
 			}*/
 			value = cell.getNumericCellValue();
+			//区分科学计数法(手机号)
+			if(String.valueOf(value).contains("E")) {
+				value = df.format(cell.getNumericCellValue());
+			}
 			break;
 		case Cell.CELL_TYPE_BOOLEAN:
 			value = cell.getBooleanCellValue();

@@ -1,13 +1,16 @@
 package com.bt.om.mapper;
 
-import com.bt.om.entity.AdActivity;
-import com.bt.om.entity.vo.ActivityMobileReportVo;
-import com.bt.om.entity.vo.AdActivityVo;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
-import java.util.List;
-import java.util.Map;
+import com.bt.om.entity.AdActivity;
+import com.bt.om.entity.vo.ActivityMobileReportVo;
+import com.bt.om.entity.vo.AdActivityVo;
+import com.bt.om.entity.vo.AdActivityVo2;
 
 public interface AdActivityMapper {
     /**
@@ -60,11 +63,25 @@ public interface AdActivityMapper {
 
     int getPageCount(Map<String, Object> searchMap);
 
-    List<AdActivityVo> getPageData(Map<String, Object> searchMap, RowBounds rowBounds);
+    List<AdActivityVo2> getPageData(Map<String, Object> searchMap, RowBounds rowBounds);
 
     AdActivityVo selectVoByPrimaryKey(Integer id);
 
     List<AdActivity> selectByMap(Map map);
 
     List<ActivityMobileReportVo> selectActivityReportForMobile(@Param("userId")Integer UserId);
+    
+    List<AdActivity> selectActivityReportByUserId(Map<String, Object> searchMap, RowBounds rowBounds);
+    
+    int selectActivityReportByUserIdCount(Map<String, Object> searchMap);
+    
+    List<AdActivity> selectAllByAssessorId(Map<String, Object> searchMap);
+    List<AdActivity> getAtimeActivity(Map<String, Object> searchMap);
+    
+    int updateAssessorId(Map<String, Object> searchMap);
+	
+	int updateStatusByEndTime(Date nowDate);
+	
+	List<Integer> selectActivityReportByTime1(Map<String, Object> searchMap);
+	List<Integer> selectActivityReportByTime2(Map<String, Object> searchMap);
 }

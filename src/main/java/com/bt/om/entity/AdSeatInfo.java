@@ -155,6 +155,17 @@ public class AdSeatInfo {
      *
      * @mbggenerated Thu Feb 01 13:48:16 CST 2018
      */
+    
+    private Integer codeFlag;
+	
+	public Integer getCodeFlag() {
+		return codeFlag;
+	}
+
+	public void setCodeFlag(Integer codeFlag) {
+		this.codeFlag = codeFlag;
+	}
+    
     public Integer getId() {
         return id;
     }
@@ -604,6 +615,18 @@ public class AdSeatInfo {
     
     private Integer mapStandard;
     private String adSeatTypeText;
+    private String adArea;
+    private String contactName;
+    private String contactCell;
+    private String importResult;
+    private String importErrorMsg;
+    private Integer mediaTypeParentId;
+    private Integer mediaTypeId;
+    private String uniqueKey;
+    private String memo;
+    private String adCodeUrl;
+    private Integer allowMulti;
+    private Integer multiNum;
     
     public Integer getMapStandard() {
 		return mapStandard;
@@ -620,4 +643,101 @@ public class AdSeatInfo {
     public void setAdSeatTypeText(String adSeatTypeText) {
 		this.adSeatTypeText = adSeatTypeText;
 	}
+
+	public String getAdArea() {
+		return adArea;
+	}
+
+	public void setAdArea(String adArea) {
+		this.adArea = adArea;
+	}
+
+	public String getContactName() {
+		return contactName;
+	}
+
+	public void setContactName(String contactName) {
+		this.contactName = contactName;
+	}
+
+	public String getContactCell() {
+		return contactCell;
+	}
+
+	public void setContactCell(String contactCell) {
+		this.contactCell = contactCell;
+	}
+
+	public String getImportResult() {
+		return importResult;
+	}
+
+	public void setImportResult(String importResult) {
+		this.importResult = importResult;
+	}
+
+	public String getImportErrorMsg() {
+		return importErrorMsg;
+	}
+
+	public void setImportErrorMsg(String importErrorMsg) {
+		this.importErrorMsg = importErrorMsg;
+	}
+
+	public Integer getMediaTypeParentId() {
+		return mediaTypeParentId;
+	}
+
+	public void setMediaTypeParentId(Integer mediaTypeParentId) {
+		this.mediaTypeParentId = mediaTypeParentId;
+	}
+
+	public Integer getMediaTypeId() {
+		return mediaTypeId;
+	}
+
+	public void setMediaTypeId(Integer mediaTypeId) {
+		this.mediaTypeId = mediaTypeId;
+	}
+
+	public String getUniqueKey() {
+		return uniqueKey;
+	}
+
+	public void setUniqueKey(String uniqueKey) {
+		this.uniqueKey = uniqueKey;
+	}
+
+	public String getMemo() {
+		return memo;
+	}
+
+	public void setMemo(String memo) {
+		this.memo = memo;
+	}
+	
+	public String getAdCodeUrl() {
+		return adCodeUrl;
+	}
+	
+	public void setAdCodeUrl(String adCodeUrl) {
+		this.adCodeUrl = adCodeUrl;
+	}
+
+	public Integer getAllowMulti() {
+		return allowMulti;
+	}
+
+	public void setAllowMulti(Integer allowMulti) {
+		this.allowMulti = allowMulti;
+	}
+
+	public Integer getMultiNum() {
+		return multiNum;
+	}
+
+	public void setMultiNum(Integer multiNum) {
+		this.multiNum = multiNum;
+	}
+    
 }

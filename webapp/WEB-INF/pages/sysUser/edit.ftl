@@ -27,13 +27,15 @@
 					    <br><span id="realnameTip"></span>&nbsp;
 					</td>
 				</tr>
-				<tr>
+					<tr>
 					<td class="a-title">密码：</td>
 					<td>
 					    <input type="text" id="password" name="password" value="<#if (obj?exists&&obj.id?exists)>********</#if>" autocomplete="off" class="form-control">
 					    <br><span id="passwordTip"></span>&nbsp;
 					</td>
 				</tr>
+			
+			
 				<tr>
 					<td class="a-title">手机号：</td>
 					<td>

@@ -1,4 +1,3 @@
-
 <!-- 特色内容 -->
 <style type="text/css">
     .basic-info .bd .a-title {
@@ -15,7 +14,6 @@
         <#assign editMode=true />
     </#if>
 </@shiro.hasRole>
-
 
 <div class="main-container" style="height: auto;">
     <div class="clearfix">
@@ -60,7 +58,7 @@
                                 <span style="margin-left:10px;" id="dateTip"></span>
                             </td>
                         </tr>
-
+						<#if editMode>
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>投放地区(筛选广告位)：</td>
                             <td>
@@ -79,7 +77,7 @@
                                 <span style="margin-left:10px;" id="areaTip"></span>
                             </td>
                         </tr>
-
+						</#if>
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>媒体选择：</td>
                             <td id="mediaTd">
@@ -97,7 +95,7 @@
                                 <#--</label>-->
                             </td>
                         </tr>
-
+						
 						<tr>
 							<td class="a-title"><font class="s-red">*</font>样例：</td>
 							<td>
@@ -116,6 +114,7 @@
                     			<img src="" id="img-demo-img" width="280" alt="请上传图片"/>
                     		</td>
                 		</tr>
+
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>广告位监测：</td>
                             <td>
@@ -223,7 +222,7 @@
             <#list activity.activitySeats as seat>
                 {
                     id: ${seat.id},
-                    mediaId: "${seat.mediaId}",  
+                    mediaId: "${seat.mediaId}",
                     mediaName: "${seat.mediaName}",
                     seatId: "${seat.adSeatId}",
                     seatName: "${seat.adSeatName}",
@@ -237,7 +236,7 @@
                     downMonitorLastDays: "${seat.downMonitorLastDays!"3"}",
                     durationMonitorLastDays: "${seat.durationMonitorLastDays!"3"}",
                     monitorCount: "${seat.monitorCount}",
-                    samplePicUrl: '${seat.samplePicUrl}'
+                    samplePicUrl: "${seat.samplePicUrl!""}"
                 }<#if seat_has_next>,</#if>
             </#list>
         </#if>];
@@ -366,7 +365,7 @@
     $(function () {
         //加载所有媒体
         $.each(media_seats,function(i,n){
-            $("#mediaTd").append("<label><input type=\"checkbox\" "+(editMode?"":"disabled")+" id=\"media_"+n.id+"\" name=\"media\" value=\""+n.id+"\" checked> "+n.name+"</label>");
+            $("#mediaTd").append("<label><input type=\"checkbox\" "+(editMode?"":"disabled")+" id=\"media_"+n.id+"\" name=\"media\" value=\""+n.id+"\"> "+n.name+"</label>");
         });
         $("#mediaTd").append("<br/><span id=\"mediaTip\"></span>");
         $("input:checkbox").change(function () {
@@ -397,10 +396,13 @@
             })
             checked_media = [];
             $.each(media_seats, function (i, n) {
-                if (activity_meias.includes(n.id)) {
+                //if (activity_meias.includes(n.id)) {
+                if (activity_meias.toString().indexOf(n.id) > -1) {
                     checked_media.push(n);
+                    $("input:checkbox[name='media'][value='" + n.id + "']").prop("checked",true);
                 } else {
-                    $("input:checkbox[name='media'][value='" + n.id + "']").removeAttr("checked");
+                    //$("input:checkbox[name='media'][value='" + n.id + "']").removeAttr("checked");
+                    $("input:checkbox[name='media'][value='" + n.id + "']").prop("checked",false);
                 }
             });
             renderASTable();
@@ -417,7 +419,7 @@
                 var activityName = $("#activityName").val(); //活动名
                 var startDate = $("#dts").val(); //投放开始时间
                 var endDate = $("#dt").val(); //投放结束时间
-                samplePicUrl: $("#img-demo-bak").val()//样例图片地址
+				samplePicUrl: $("#img-demo-bak").val()//样例图片地址
                 
                 var startTime = new Date(startDate);
                 var time1 = startTime.getTime();
@@ -436,7 +438,7 @@
                 var city = $("#city").val();
                 var region = $("#region").val();
                 var street = $("#street").val();
-                var samplePicUrl = $("#img-demo-bak").val();
+				var samplePicUrl = $("#img-demo-bak").val();
                 <#-- var customerTypeId = $("#customerTypeId").val(); -->
                 var media = [];
                 $("input[name='media']:checked").each(function (i, n) {
@@ -465,7 +467,7 @@
                         "street": street,
                         <#-- "customerTypeId": customerTypeId, -->
                         "media": media.join(","),
-//                      "dels" : dels.join(","),
+//                        "dels" : dels.join(","),
 						"samplePicUrl" : samplePicUrl,
                         "activeSeat": JSON.stringify(activity_seats)
                     },
@@ -473,7 +475,6 @@
                     dataType: "json",
                     success: function (datas) {
                         var resultRet = datas.ret;
-                        console.log(resultRet);
                         if (resultRet.code == 101) {
                             layer.confirm(resultRet.resultDes, {
                                 icon: 2,
@@ -641,7 +642,6 @@
         }*/
     ];
 
-	<#-- $("#img-demo-img").attr("src",activity.samplePicUrl);//样例图片地址 -->
     renderASTable = function () {
         $("#as-container").html("");
         if (activity_seats.length > 0) {
@@ -686,56 +686,55 @@
             content: '<img src="/activity/getQrcode?id=' + id + '" style="display:block;width:100%;height:auto;"/>'
         });
     }
-
+	
 	function uploadPic(id){
-		    var picName = $("#"+id).val();
-		
-		    /*if(!/\.(jpg|JPG)$/.test(picName)) {
-		        layer.confirm("图片类型必须是jpg格式", {
-		            icon: 0,
-		            btn: ['确定'] //按钮
-		        });
-		        return false;
-		    }*/
-		    $.ajaxFileUpload({
-		        url:'/upload',
-		        secureuri:false,
-		        fileElementId:id,
-		        dataType: 'json',
-		        success: function (data, status) {
-		            var ret = data.ret;
-		            if (data == '"error"') {
-		                layer.confirm("上传图片失败", {
-		                    icon: 2,
-		                    btn: ['确定'] //按钮
-		                });
-		                return;
-		            } else if(data=='"overPic"') {
-		                layer.confirm("上传图片太大！请小于1MB", {
-		                    icon: 0,
-		                    btn: ['确定'] //按钮
-		                });
-		            } else if (data == '"notPic"') {
-		                layer.confirm("上传的不是图片", {
-		                    icon: 0,
-		                    btn: ['确定'] //按钮
-		                });
-		                return;
-		            } else {
-		                var arr=data.split('"');
-		                var dataNew=arr[1];
-		                $("#"+id+"-bak").val(dataNew);
-		                $("#"+id+"-img").attr('src',dataNew);
-		            }
-		        },
-		        error: function (data, status, e) {
-		            layer.confirm("上传图片失败", {
-		                icon: 5,
-		                btn: ['确定'] //按钮
-		            });
-		        }
-		    });
-		}
-		
+		var picName = $("#"+id).val();
+	
+		/*if(!/\.(jpg|JPG)$/.test(picName)) {
+			layer.confirm("图片类型必须是jpg格式", {
+				icon: 0,
+				btn: ['确定'] //按钮
+			});
+			return false;
+		}*/
+		$.ajaxFileUpload({
+			url:'/upload',
+			secureuri:false,
+			fileElementId:id,
+			dataType: 'json',
+			success: function (data, status) {
+				var ret = data.ret;
+				if (data == '"error"') {
+					layer.confirm("上传图片失败", {
+						icon: 2,
+						btn: ['确定'] //按钮
+					});
+					return;
+				} else if(data=='"overPic"') {
+					layer.confirm("上传图片太大！请小于1MB", {
+						icon: 0,
+						btn: ['确定'] //按钮
+					});
+				} else if (data == '"notPic"') {
+					layer.confirm("上传的不是图片", {
+						icon: 0,
+						btn: ['确定'] //按钮
+					});
+					return;
+				} else {
+					var arr=data.split('"');
+					var dataNew=arr[1];
+					$("#"+id+"-bak").val(dataNew);
+					$("#"+id+"-img").attr('src',dataNew);
+				}
+			},
+			error: function (data, status, e) {
+				layer.confirm("上传图片失败", {
+					icon: 5,
+					btn: ['确定'] //按钮
+				});
+			}
+		});
+	}
+
 </script>
-<!-- 特色内容 -->

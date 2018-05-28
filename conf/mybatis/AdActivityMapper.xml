@@ -303,6 +303,7 @@
     where user_id = #{userId,jdbcType=INTEGER}
   </select>
 
+  <!-- 广告商查询活动简单报表信息 -->
   <select id="selectActivityReportByUserId" parameterType="map" resultMap="BaseResultMap">
   	select
   	<include refid="Base_Column_List" />
@@ -311,10 +312,20 @@
   	<if test="userId != null" >
       and user_id = #{userId,jdbcType=INTEGER}
     </if>
-   
+   	<if test="activityName != null" >
+      and activity_name like #{activityName,jdbcType=VARCHAR}
+    </if>
+    <if test="status != null" >
+      and status = #{status,jdbcType=INTEGER}
+    </if>
+    <if test="activityIds != null">
+      and id not in
+        <foreach collection="activityIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+    </if>
   	order by create_time desc
   </select>
   
+  <!-- 广告商查询活动简单报表信息 -->
   <select id="selectActivityReportByUserIdCount" parameterType="map" resultType="int">
     select
     	count(id)
@@ -322,6 +333,44 @@
     where 1=1
     <if test="userId != null" >
       and user_id = #{userId,jdbcType=INTEGER}
+    </if>
+    <if test="activityName != null" >
+      and activity_name like #{activityName,jdbcType=VARCHAR}
+    </if>
+    <if test="status != null" >
+      and status = #{status,jdbcType=INTEGER}
+    </if>
+    <if test="activityIds != null">
+      and id not in
+        <foreach collection="activityIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+    </if>
+  </select>
+  
+  <select id="selectActivityReportByTime1" parameterType="map" resultType="java.lang.Integer">
+  	select
+  		id
+  	from ad_activity
+  	where 1=1
+  	<if test="userId != null" >
+      and user_id = #{userId,jdbcType=INTEGER}
+    </if>
+   	<if test="startDate != null" >
+      and start_time &lt; DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+      and end_time &lt; DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+    </if>
+  </select>
+  
+  <select id="selectActivityReportByTime2" parameterType="map" resultType="java.lang.Integer">
+  	select
+  		id
+  	from ad_activity
+  	where 1=1
+  	<if test="userId != null" >
+      and user_id = #{userId,jdbcType=INTEGER}
+    </if>
+	<if test="endDate != null" >
+	  and start_time > DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+      and end_time > DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
     </if>
   </select>
   

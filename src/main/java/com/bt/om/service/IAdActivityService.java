@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdActivityAdseat;
+import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.ActivityMobileReportVo;
 import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
@@ -61,8 +62,6 @@ public interface IAdActivityService {
      * */
     public List<ActivityMobileReportVo> getMobileReport(SysUserExecute user);
     
-    public List<AdActivityAdseatTaskVo> selectAdActivityAdseatTask(Integer activityId);
-    
     public List<AdActivityAdseatTaskVo> selectAdSeatTaskReport(Integer activityId);
     
     public void selectReportPageData(SearchDataVo vo);
@@ -72,7 +71,15 @@ public interface IAdActivityService {
 	
 	public void updateStatusByEndTime(Date nowDate);
 
-	List<AdActivityAdseatVo> selectVoByLonLatTitle(Double lon, Double lat, String title);
+	public List<AdActivityAdseatVo> selectVoByLonLatTitle(Double lon, Double lat, String title);
 
-	List<AdSeatCount> selectActiveActivityCount(Map<String, Object> searchMap);
+	public List<AdSeatCount> selectActiveActivityCount(Map<String, Object> searchMap);
+
+	public List<Integer> selectReportPageDataTime(Map<String, Object> searchMap);
+
+	public void selectAdActivityAdseatTask(SearchDataVo vo);
+
+	List<AdActivityAdseatTaskVo> selectAdActivityAdseatTaskReport(Integer activityId);
+
+	List<AdSeatInfo> selectSeatInfoByActivityId(Integer activityId);
 }

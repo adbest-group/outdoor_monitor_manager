@@ -31,6 +31,7 @@ public class AdActivityAdseatTaskVo extends AdActivityAdseat {
     private Integer info_mediaTypeId;
     private String info_uniqueKey;
     private String info_memo;
+    private String demoPic; //活动预览图
 	
     public String getMediaName() {
 		return mediaName;
@@ -207,5 +208,12 @@ public class AdActivityAdseatTaskVo extends AdActivityAdseat {
 	public void setInfo_memo(String info_memo) {
 		this.info_memo = info_memo;
 	}
+
+	public String getDemoPic() {
+		return demoPic;
+	}
 	
+	public void setDemoPic(String demoPic) {
+		this.demoPic = demoPic;
+	}
 }

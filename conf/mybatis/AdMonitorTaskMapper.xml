@@ -337,6 +337,7 @@
         <result column="start_time" jdbcType="TIMESTAMP" property="startTime"/>
         <result column="end_time" jdbcType="TIMESTAMP" property="endTime"/>
         <result column="assign_type" jdbcType="INTEGER" property="assignType"/>
+        <result column="ad_code_flag" jdbcType="INTEGER" property="adCodeFlag"/>
     </resultMap>
 
     <insert id="insertList" parameterType="java.util.List">
@@ -501,7 +502,7 @@
     	a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time,
     	b.activity_name,
     	c.sample_pic_url,c.monitor_start,c.monitor_end,c.ad_seat_id,
-    	d.`name` as ad_seat_name, d.location as ad_seat_location, d.ad_code as ad_seat_code, d.lon, d.lat, d.region, d.street, d.province, d.city,
+    	d.`name` as ad_seat_name, d.location as ad_seat_location, d.ad_code as ad_seat_code, d.lon, d.lat, d.region, d.street, d.province, d.city, d.ad_code_flag,
     	e.reason,e.pic_url1,e.pic_url2,e.pic_url3,e.pic_url4,e.create_time as feedback_time,
     	e.problem,e.problem_other,e.lon as feedback_lon,e.lat as feedback_lat,
     	f.start_time, f.end_time, f.assign_type

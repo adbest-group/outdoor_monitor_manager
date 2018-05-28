@@ -695,6 +695,10 @@ public class ApiController extends BasicController {
                     vo.setCity(cityCache.getCityName(task.getCity()));
                     vo.setRegion(cityCache.getCityName(task.getRegion()));
                     vo.setStreet(cityCache.getCityName(task.getStreet()));
+                    //若没有贴上二维码, 清空二维码信息
+                    if(vo.getAdCodeFlag() == 0) {
+                    	vo.setAd_seat_code(null);
+                    }
                     resultVo.getWait_to_executed().add(vo);
                 } else if (task.getStatus() == MonitorTaskStatus.UNVERIFY.getId()) {
                     MonitorTaskExecutingVo vo = new MonitorTaskExecutingVo(task);
@@ -709,6 +713,10 @@ public class ApiController extends BasicController {
                     vo.setCity(cityCache.getCityName(task.getCity()));
                     vo.setRegion(cityCache.getCityName(task.getRegion()));
                     vo.setStreet(cityCache.getCityName(task.getStreet()));
+                    //若没有贴上二维码, 清空二维码信息
+                    if(vo.getAdCodeFlag() == 0) {
+                    	vo.setAd_seat_code(null);
+                    }
                     resultVo.getChecked().add(vo);
                 } else if (task.getStatus() == MonitorTaskStatus.UN_FINISHED.getId()) {
                 	MonitorTaskUnFinishedVo vo = new MonitorTaskUnFinishedVo(task);
@@ -716,6 +724,10 @@ public class ApiController extends BasicController {
                     vo.setCity(cityCache.getCityName(task.getCity()));
                 	vo.setRegion(cityCache.getCityName(task.getRegion()));
                     vo.setStreet(cityCache.getCityName(task.getStreet()));
+                    //若没有贴上二维码, 清空二维码信息
+                    if(vo.getAdCodeFlag() == 0) {
+                    	vo.setAd_seat_code(null);
+                    }
                     resultVo.getUn_finished().add(vo);
                 }
             }
@@ -2819,7 +2831,7 @@ public class ApiController extends BasicController {
     		
     		//查询活动, 获取样例图
     		AdActivity adActivity = adActivityService.getById(activityId);
-    		model.addAttribute("demoPic", "/static/upload/demoPic.jpg"); //活动样例图
+    		model.addAttribute("demoPic", adActivity.getSamplePicUrl()); //活动样例图
     		
     		//分页查询活动的广告位信息, 添加筛选条件
             SearchDataVo searchDataVo = new SearchDataVo(null, null, (page-1)*pageSize, pageSize);

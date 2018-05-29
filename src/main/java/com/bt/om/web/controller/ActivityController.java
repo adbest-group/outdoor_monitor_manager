@@ -2,6 +2,7 @@ package com.bt.om.web.controller;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -42,6 +43,7 @@ import com.bt.om.vo.api.AdActivitySeatInfoInQRVO;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
+import com.bt.om.web.util.JPushUtils;
 import com.bt.om.web.util.SearchUtil;
 
 /**
@@ -212,6 +214,19 @@ public class ActivityController extends BasicController {
             operateLog.setUpdateTime(now);
             operateLog.setUserId(user.getId());
             operateLogService.save(operateLog);
+            
+            //==========web端活动审核成功之后根据活动创建者id进行app消息推送==============
+            Map<String, Object> param = new HashMap<>();
+            Map<String, String> extras = new HashMap<>();
+            List<String> alias = new ArrayList<>(); //别名用户List
+            alias.add(String.valueOf(adActivity.getUserId()));  //活动创建者
+            extras.put("type", "activity_confirm_push");
+            param.put("msg", "您创建的活动有一条新的通知！");
+            param.put("title", "玖凤平台");
+            param.put("alias", alias);  //根据别名选择推送用户（这里userId用作推送时的用户别名）
+            param.put("extras", extras);
+            String pushResult = JPushUtils.pushAllByAlias(param);
+            System.out.println("pushResult:: " + pushResult);
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("确认失败！");

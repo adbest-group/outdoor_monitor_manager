@@ -77,7 +77,7 @@ public class SysGroupController extends BasicController{
         String type = "2";
         vo.putSearchParam("type", type, type);
         
-        //获取当前登录的后台用户id
+        //获取当前登录的后台用户信息
         SysUser sysUser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         if(sysUser.getUsertype() == 5) {
         //部门领导登录, 查询部门领导账号一对一管理的部门信息

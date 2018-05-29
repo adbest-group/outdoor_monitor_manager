@@ -35,6 +35,9 @@ import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
+import com.bt.om.service.ISysGroupService;
+import com.bt.om.service.ISysResourcesService;
+import com.bt.om.service.ISysUserRoleService;
 import com.bt.om.service.IOperateLogService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.util.GsonUtil;
@@ -55,10 +58,15 @@ public class ActivityController extends BasicController {
 
     @Autowired
     private IAdActivityService adActivityService;
-
+    @Autowired
+	private ISysGroupService sysGroupService;
     @Autowired
     private ISysUserService sysUserService;
-    
+	@Autowired
+	private ISysResourcesService sysResourcesService;
+	@Autowired
+	private ISysUserRoleService sysUserRoleService;
+   
     @Autowired
 	private IOperateLogService operateLogService;
     
@@ -73,6 +81,7 @@ public class ActivityController extends BasicController {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
         SearchDataVo vo = SearchUtil.getVo();
+        Integer shenheCount = 0;
         
         //获取登录的审核员工activityadmin
         SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
@@ -106,6 +115,12 @@ public class ActivityController extends BasicController {
         	vo.putSearchParam("assessorId", assessorId.toString(), assessorId);
         }
         
+        //所有未确认的活动
+        Map<String, Object> searchMap1 = new HashMap<>();
+        List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId()); //根据员工id查询所属组对应的所有广告商id集合
+        searchMap1.put("customerIds", customerIds);
+    	List<AdActivity> allActivityUncertain = adActivityService.getAllByStatusUncertain(searchMap1);
+    	
         if(status == 2 || status == 3) {
         	//查询已确认 或 已结束 的活动
         	adActivityService.getPageData(vo);
@@ -118,7 +133,7 @@ public class ActivityController extends BasicController {
 //            searchMap.put("activityId", activityId);
 //            searchMap.put("startDate", startDate);
 //            searchMap.put("endDate", endDate);
-            List<AdActivity> activities = adActivityService.selectAllByAssessorId(searchMap);
+            List<AdActivity> activities = adActivityService.selectAllByAssessorId(searchMap);//通过所有审核员id获取的所有活动
             
             if(activities != null && activities.size() > 0) {
             	//条数大于0, 返回给页面
@@ -147,24 +162,33 @@ public class ActivityController extends BasicController {
             		if(remove == true) {
             			iterator.remove();
             		}
-            	}
+            	}      	
             	vo.setCount(activities.size());
             	vo.setSize(20);
             	vo.setStart(0);
             	vo.setList(activities);
+            	shenheCount = allActivityUncertain.size() - activities.size();
+            	if(shenheCount < 0) {
+            		shenheCount = 0;
+            	}
+            	model.addAttribute("shenheCount", shenheCount);
             } else {
             	//条数等于0, 新查询1条或者0条没人认领的未确认活动(需要匹配 员工 - 组 - 广告商 之间的关系)
-            	List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId());
             	if(customerIds != null && customerIds.size() > 0) {
             		searchMap.clear();
             		searchMap.put("status", 1);
             		searchMap.put("customerIds", customerIds);
             		searchMap.put("assessorId", userObj.getId());
-            		List<AdActivity> atimeActivity = adActivityService.getAtimeActivity(searchMap);
+            		List<AdActivity> atimeActivity = adActivityService.getAtimeActivity(searchMap);//获取一次未确认活动
             		vo.setCount(atimeActivity.size());
                 	vo.setSize(20);
                 	vo.setStart(0);
                 	vo.setList(atimeActivity);
+                	shenheCount = allActivityUncertain.size() - atimeActivity.size();
+                	if(shenheCount < 0) {
+                		shenheCount = 0;
+                	}
+                	model.addAttribute("shenheCount", shenheCount);
             	}
             }
         }
@@ -185,7 +209,6 @@ public class ActivityController extends BasicController {
             model.addAttribute("activity", activity);
         }
 
-//        return PageConst.ACTIVITY_EDIT;
         return PageConst.ACTIVITY_EDIT;
     }
 
@@ -234,6 +257,47 @@ public class ActivityController extends BasicController {
             return model;
         }
         
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+    }
+    
+    //撤销活动
+    @RequiresRoles("activityadmin")
+    @RequestMapping(value = "/cancel")
+    @ResponseBody
+    public Model cancel(Model model, HttpServletRequest request,
+                        @RequestParam(value = "id", required = false) Integer id, 
+    					@RequestParam(value = "userId", required = false) Integer userId){
+        ResultVo<String> result = new ResultVo<String>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("撤销成功");
+        model = new ExtendedModelMap();
+        
+        try {
+        	//获取当前登录的后台用户信息
+        	SysUser sysUser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        	Map<String, Object> searchMap = new HashMap<>();
+			searchMap.put("userId", sysUser.getId());
+			Integer groupId = sysUserRoleService.selectGroupIdByUserId(searchMap);
+        	/*//获取当前登录的后台用户的所属组信息
+			SysResources group = sysGroupService.getById(groupId);*/
+        	//获取该组所有员工
+        	List<SysUser> sysUsers = sysGroupService.selectUserName(groupId);
+        	
+        	if(sysUsers.size() > 1) { 
+        		adActivityService.offActivityByAssessorId(id);
+        	} else if(sysUsers.size() <= 1){
+          		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("只剩一人不能撤销！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+           	}
+        }catch (Exception e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("撤销失败！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }

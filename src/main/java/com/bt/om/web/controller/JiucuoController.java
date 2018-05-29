@@ -31,6 +31,7 @@ import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.enums.JiucuoTaskStatus;
+import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
@@ -38,6 +39,10 @@ import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
 import com.bt.om.service.IAdMonitorTaskService;
+import com.bt.om.service.IMediaService;
+import com.bt.om.service.ISysGroupService;
+import com.bt.om.service.ISysResourcesService;
+import com.bt.om.service.ISysUserRoleService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -58,6 +63,14 @@ public class JiucuoController extends BasicController {
     IAdMonitorTaskService adMonitorTaskService;
     @Autowired
     private ISysUserService sysUserService;
+    @Autowired
+    IMediaService mediaService;
+    @Autowired
+	private ISysGroupService sysGroupService;
+	@Autowired
+	private ISysResourcesService sysResourcesService;
+	@Autowired
+	private ISysUserRoleService sysUserRoleService;
 
     @RequiresRoles("jiucuoadmin")
     @RequestMapping(value = "/list")
@@ -72,7 +85,13 @@ public class JiucuoController extends BasicController {
         SearchDataVo vo = SearchUtil.getVo();
         //获取登录的审核员工jiucuoadmin
         SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-        
+        //所有未审核的任务
+        Map<String, Object> searchMap1 = new HashMap<>();
+        List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId()); //根据员工id查询所属组对应的所有广告商id集合
+        searchMap1.put("customerIds", customerIds);
+    	List<AdJiucuoTaskVo> allJiucuoTaskUncertain = adJiucuoTaskService.getAllByStatusUnCheck(searchMap1);
+        Integer shenheCount = 0;
+
         if (id != null) {
             vo.putSearchParam("id", id.toString(), id);
         }
@@ -167,9 +186,14 @@ public class JiucuoController extends BasicController {
             	vo.setSize(20);
             	vo.setStart(0);
             	vo.setList(taskVos);
+            	shenheCount = allJiucuoTaskUncertain.size() - taskVos.size();
+            	if(shenheCount < 0) {
+            		shenheCount = 0;
+            	}
+            	model.addAttribute("shenheCount", shenheCount);
             } else {
             	//条数等于0, 新查询10条或者小于10条没人认领的待审核的纠错任务(需要匹配 员工 - 组 - 广告商 之间的关系)
-            	List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId());
+            	//List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId());
             	if(customerIds != null && customerIds.size() > 0) {
             		searchMap.clear();
             		searchMap.put("status", 1);
@@ -180,6 +204,11 @@ public class JiucuoController extends BasicController {
                 	vo.setSize(20);
                 	vo.setStart(0);
                 	vo.setList(adJiucuoTaskVos);
+                	shenheCount = allJiucuoTaskUncertain.size() - adJiucuoTaskVos.size();
+                	if(shenheCount < 0) {
+                		shenheCount = 0;
+                	}
+                	model.addAttribute("shenheCount", shenheCount);
             	}
             }
         }
@@ -244,7 +273,46 @@ public class JiucuoController extends BasicController {
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }
-
+    // 撤消纠错
+    @RequiresRoles("jiucuoadmin")
+    @RequestMapping(value = "/cancel")
+    @ResponseBody
+    public Model cancel(Model model, HttpServletRequest request,
+                        @RequestParam(value = "id", required = false) Integer id,
+                        @RequestParam(value = "userId", required = false) Integer userId,
+                        @RequestParam(value = "mediaId", required = false) Integer mediaId,
+                        @RequestParam(value = "reason", required = false) String reason) {
+        ResultVo<String> result = new ResultVo<String>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("撤消成功");
+        model = new ExtendedModelMap();
+        AdJiucuoTask jiucuoTask = new AdJiucuoTask();
+        try {
+        	//获取当前登录的后台用户信息
+        	SysUser sysUser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        	Map<String, Object> searchMap = new HashMap<>();
+			searchMap.put("userId", sysUser.getId());
+			Integer groupId = sysUserRoleService.selectGroupIdByUserId(searchMap);
+        	//获取该组所有员工
+        	List<SysUser> sysUsers = sysGroupService.selectUserName(groupId);
+        	
+        	if(sysUsers.size() > 1) {//待审核
+        		adJiucuoTaskService.offJiucuoTaskByAssessorId(id); 
+        	}else if((sysUsers.size() <= 1)){
+        		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("只剩一人不能撤销！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+           	}
+        } catch (Exception e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("撤消失败！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        } 
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+    }
     //关闭纠错问题任务
     @RequiresRoles("jiucuoadmin")
     @RequestMapping(value = "/close")

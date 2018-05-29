@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.vo.AbandonTaskVo;
@@ -85,6 +86,10 @@ public interface IAdMonitorTaskService {
 	public void recycleMonitorTask();
 	public void forceAssignTask();
 	public void abandonUserTask(AbandonTaskVo vo);
+	public void offAdMonitorTaskByAssessorId(Integer id);
+	public void offAdMonitorTaskByAssignorId(Integer id);
+	 public List<AdMonitorTask> getAllByStatusUnCheck(Map<String, Object> searchMap);
+	 public List<AdMonitorTask> getAllByStatusUnZhipai(Map<String, Object> searchMap);
 	List<PictureVo> selectFeedBackByActivityIdAndSeatId(Map<String, Object> searchMap);
 
 }

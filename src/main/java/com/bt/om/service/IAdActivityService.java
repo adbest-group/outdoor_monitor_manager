@@ -68,8 +68,14 @@ public interface IAdActivityService {
     
     public List<AdActivity> selectAllByAssessorId(Map<String, Object> searchMap);
     public List<AdActivity> getAtimeActivity(Map<String, Object> searchMap);
-	
 	public void updateStatusByEndTime(Date nowDate);
+
+	List<AdActivityAdseatVo> selectVoByLonLatTitle(Double lon, Double lat, String title);
+	public void offActivityByAssessorId(Integer id);
+
+	List<AdActivity> getAllByStatusUncertain(Map<String, Object> searchMap);
+
+	List<AdSeatCount> selectActiveActivityCount(Map<String, Object> searchMap);
 
 	public List<AdActivityAdseatVo> selectVoByLonLatTitle(Double lon, Double lat, String title);
 

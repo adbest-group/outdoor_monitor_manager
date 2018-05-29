@@ -482,6 +482,20 @@
 		and ad_seat_id = #{adSeatId,jdbcType=INTEGER}
 		and status = #{status,jdbcType=INTEGER}
   </select>
+    <update id="canceljiucuoTaskByAssessorId" parameterType="java.lang.Integer">
+  		update ad_jiucuo_task set assessor_id = null 
+  		where status = 1 and id = #{id,jdbcType=INTEGER}
+  </update>
+   <select id="getAllByStatusUnCheck" parameterType="map" resultMap="BaseResultMap">
+  		select
+    	<include refid="Base_Column_List" />
+    	from ad_jiucuo_task
+    	where  status = 1
+    	<if test="customerIds != null">
+     		 and user_id in
+        	<foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+    	</if> 
+  </select>
   
   <!-- 查询某个广告位上活动的待审核纠错任务信息, 通过二维码信息 -->
   <select id="selectInfoByQrCode" parameterType="map" resultMap="BaseResultMap">
@@ -513,4 +527,5 @@
 	    and b.name = #{title,jdbcType=INTEGER}
   </select>
   
+>>>>>>> branch 'wangzz_dev' of https://github.com/adbest-group/outdoor_monitor_manager.git
 </mapper>

@@ -490,6 +490,28 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	public void abandonUserTask(AbandonTaskVo vo) {
 		adMonitorUserTaskMapper.abandonUserTask(vo);
 	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void offAdMonitorTaskByAssessorId(Integer id) {
+		adMonitorTaskMapper.cancelAdMonitorTaskByAssessorId(id);	
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void offAdMonitorTaskByAssignorId(Integer id) {
+		adMonitorTaskMapper.cancelAdMonitorTaskByAssignorId(id);	
+	}
+
+	@Override
+	public List<AdMonitorTask> getAllByStatusUnCheck(Map<String, Object> searchMap) {
+		return adMonitorTaskMapper.getAllByStatusUnCheck(searchMap);
+	}
+
+	@Override
+	public List<AdMonitorTask> getAllByStatusUnZhipai(Map<String, Object> searchMap) {
+		return adMonitorTaskMapper.getAllByStatusUnZhipai(searchMap);
+	}
 	
 	@Override
 	public List<PictureVo> selectFeedBackByActivityIdAndSeatId(Map<String, Object> searchMap) {

@@ -203,7 +203,6 @@ public class MediaManagerController {
         return PageConst.SELECT_USER_EXECUTE;
     }
 
-
     //处理问题，只是标示该任务的问题已被处理
     @RequiresRoles("media")
     @RequestMapping(value = "/task/fix")
@@ -230,10 +229,6 @@ public class MediaManagerController {
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }
-
-    
-    
-    
     
     @RequestMapping(value = "/jiucuo/list")
     @RequiresRoles("media")
@@ -372,6 +367,10 @@ public class MediaManagerController {
                          @RequestParam(value = "id", required = false) Integer id) {
         if (id != null) {
         	AdSeatInfoVo adSeatInfoVo = resourceService.getAdSeatInfoById(id + "");
+        	String adSize = adSeatInfoVo.getAdSize();
+        	String[] strings = adSize.split("\\*");
+        	adSeatInfoVo.setWidth(strings[0]);
+        	adSeatInfoVo.setHeight(strings[1]);
             model.addAttribute("adSeatInfo", adSeatInfoVo);
         }
         
@@ -431,7 +430,7 @@ public class MediaManagerController {
         		adSeatInfo.setAdCode(adCodeInfo);
         		adSeatInfo.setAdCodeUrl("/static/qrcode/" + adCodeInfo + ".jpg");
         		//默认贴上二维码
-        		
+        		adSeatInfo.setCodeFlag(1);
         		
                 adSeatService.save(adSeatInfo, user.getId());
             }

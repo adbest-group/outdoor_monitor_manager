@@ -283,9 +283,9 @@
                 } else {
                     var msg = "";
                     if (codeFlag == "1") {
-                        msg = "启用成功";
+                        msg = "操作成功";
                     } else {
-                        msg = "停用成功";
+                        msg = "操作成功";
                     }
                     layer.confirm(msg, {
                         icon: 1,

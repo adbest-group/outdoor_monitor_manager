@@ -11,6 +11,7 @@ import com.bt.om.entity.vo.ActivityMobileReportVo;
 import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
 import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdActivityVo;
+import com.bt.om.entity.vo.AdSeatCount;
 import com.bt.om.vo.web.SearchDataVo;
 
 /**
@@ -74,4 +75,6 @@ public interface IAdActivityService {
 	public void offActivityByAssessorId(Integer id);
 
 	List<AdActivity> getAllByStatusUncertain(Map<String, Object> searchMap);
+
+	List<AdSeatCount> selectActiveActivityCount(Map<String, Object> searchMap);
 }

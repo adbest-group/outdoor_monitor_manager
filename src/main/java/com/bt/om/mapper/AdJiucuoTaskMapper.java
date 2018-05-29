@@ -72,5 +72,8 @@ public interface AdJiucuoTaskMapper {
     int updateAssessorId(Map<String, Object> searchMap);
     int selectCountByActivityAndSeat(Map<String, Object> searchMap);
 	int cancelJiucuoTaskByAssessorId(Integer id);
-	 List<AdJiucuoTaskVo> getAllByStatusUnCheck(Map<String, Object> searchMap);
+	List<AdJiucuoTaskVo> getAllByStatusUnCheck(Map<String, Object> searchMap);
+    
+    List<AdJiucuoTask> selectInfoByQrCode(Map<String, Object> searchMap);
+    List<AdJiucuoTask> selectInfoByLonLatTitle(Map<String, Object> searchMap);
 }

@@ -389,7 +389,13 @@ public class MediaManagerController {
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 
         try {
-        	if (adSeatInfo.getId() != null) {
+        	if(adSeatInfo.getMultiNum() == 0) {
+        		adSeatInfo.setMultiNum(1);
+        	}
+        	if(adSeatInfo.getAllowMulti() == 0) {
+        		adSeatInfo.setMultiNum(1); //0代表不允许同时有多个活动, 设置活动数量为1
+        	}
+            if (adSeatInfo.getId() != null) {
             	//修改
                 adSeatService.modify(adSeatInfo);
             } else {

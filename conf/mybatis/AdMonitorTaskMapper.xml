@@ -994,4 +994,27 @@
         	<foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
     	</if> 
   </select>
+    
+    <!-- 查询每条监测任务中最新的一条反馈信息 -->
+    <select id="selectFeedBackByActivityIdAndSeatId" parameterType="map" resultType="com.bt.om.entity.vo.PictureVo">
+    	select
+			* 
+		from (
+			select 
+				b.monitor_task_id, 
+				b.pic_url1 pic1,
+				b.pic_url2 pic2,
+				b.pic_url3 pic3,
+				b.pic_url4 pic4,
+				b.create_time date,
+				a.task_type taskType
+			from ad_monitor_task a
+			left join ad_monitor_task_feedback b on b.monitor_task_id = a.id
+			where 
+				a.activity_id = #{activityId,jdbcType=INTEGER} and a.activity_adseat_id = #{activityAdseatId,jdbcType=INTEGER}
+			order by b.create_time desc
+		) as t
+		group by monitor_task_id
+    </select>
+    
 </mapper>

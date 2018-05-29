@@ -10,6 +10,7 @@ import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.vo.AbandonTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.entity.vo.PictureVo;
 import com.bt.om.vo.web.SearchDataVo;
 
 /**
@@ -89,4 +90,6 @@ public interface IAdMonitorTaskService {
 	public void offAdMonitorTaskByAssignorId(Integer id);
 	 public List<AdMonitorTask> getAllByStatusUnCheck(Map<String, Object> searchMap);
 	 public List<AdMonitorTask> getAllByStatusUnZhipai(Map<String, Object> searchMap);
+	List<PictureVo> selectFeedBackByActivityIdAndSeatId(Map<String, Object> searchMap);
+
 }

@@ -191,4 +191,14 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
 	public List<AdJiucuoTaskVo> getAllByStatusUnCheck(Map<String, Object> searchMap) {
 		return adJiucuoTaskMapper.getAllByStatusUnCheck(searchMap);
 	}
+	
+	@Override
+	public List<AdJiucuoTask> selectInfoByQrCode(Map<String, Object> searchMap) {
+		return adJiucuoTaskMapper.selectInfoByQrCode(searchMap);
+	}
+	
+	@Override
+	public List<AdJiucuoTask> selectInfoByLonLatTitle(Map<String, Object> searchMap) {
+		return adJiucuoTaskMapper.selectInfoByLonLatTitle(searchMap);
+	}
 }

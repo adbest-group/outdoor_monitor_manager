@@ -27,6 +27,7 @@ import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdActivityVo;
 import com.bt.om.entity.vo.AdActivityVo2;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.entity.vo.AdSeatCount;
 import com.bt.om.enums.ActivityStatus;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
@@ -287,6 +288,7 @@ public class AdActivityService implements IAdActivityService {
 	public List<AdActivityAdseatTaskVo> selectAdActivityAdseatTask(Integer activityId) {
 		return adActivityAdseatMapper.selectAdActivityAdseatTask(activityId);
 	}
+	
 //    public static void main(String[] args) {
 //        System.out.println(LocalDate.now());
 //        System.out.println(YearMonth.from(LocalDate.now()));
@@ -351,5 +353,71 @@ public class AdActivityService implements IAdActivityService {
 	@Override
 	public List<AdActivity> getAllByStatusUncertain(Map<String, Object> searchMap) {
 		return adActivityMapper.getAllByStatusUncertain(searchMap);
+	}
+		
+	@Override
+	public List<AdSeatCount> selectActiveActivityCount(Map<String, Object> searchMap) {
+		List<AdSeatCount> adSeatCounts = new ArrayList<>();
+		List<AdSeatCount> adSeatCounts1 = adActivityAdseatMapper.selectActiveActivityCount1(searchMap);
+		List<AdSeatCount> adSeatCounts2 = adActivityAdseatMapper.selectActiveActivityCount2(searchMap);
+		List<AdSeatCount> adSeatCounts3 = adActivityAdseatMapper.selectActiveActivityCount3(searchMap);
+		List<AdSeatCount> adSeatCounts4 = adActivityAdseatMapper.selectActiveActivityCount4(searchMap);
+		for (AdSeatCount adSeatCount : adSeatCounts1) {
+			boolean isExist = false; //是否在返回结果中存在
+			for (AdSeatCount returnCount : adSeatCounts) { //遍历返回结果
+				if(returnCount.getAdseatId() == adSeatCount.getAdseatId()) {
+					returnCount.setCount(returnCount.getCount() + adSeatCount.getCount());
+					isExist = true;
+					break;
+				}
+			}
+			
+			if(isExist == false) {
+				adSeatCounts.add(adSeatCount);
+			}
+		}
+		for (AdSeatCount adSeatCount : adSeatCounts2) {
+			boolean isExist = false; //是否在返回结果中存在
+			for (AdSeatCount returnCount : adSeatCounts) { //遍历返回结果
+				if(returnCount.getAdseatId() == adSeatCount.getAdseatId()) {
+					returnCount.setCount(returnCount.getCount() + adSeatCount.getCount());
+					isExist = true;
+					break;
+				}
+			}
+			
+			if(isExist == false) {
+				adSeatCounts.add(adSeatCount);
+			}
+		}
+		for (AdSeatCount adSeatCount : adSeatCounts3) {
+			boolean isExist = false; //是否在返回结果中存在
+			for (AdSeatCount returnCount : adSeatCounts) { //遍历返回结果
+				if(returnCount.getAdseatId() == adSeatCount.getAdseatId()) {
+					returnCount.setCount(returnCount.getCount() + adSeatCount.getCount());
+					isExist = true;
+					break;
+				}
+			}
+			
+			if(isExist == false) {
+				adSeatCounts.add(adSeatCount);
+			}
+		}
+		for (AdSeatCount adSeatCount : adSeatCounts4) {
+			boolean isExist = false; //是否在返回结果中存在
+			for (AdSeatCount returnCount : adSeatCounts) { //遍历返回结果
+				if(returnCount.getAdseatId() == adSeatCount.getAdseatId()) {
+					returnCount.setCount(returnCount.getCount() + adSeatCount.getCount());
+					isExist = true;
+					break;
+				}
+			}
+			
+			if(isExist == false) {
+				adSeatCounts.add(adSeatCount);
+			}
+		}
+		return adSeatCounts;
 	}
 }

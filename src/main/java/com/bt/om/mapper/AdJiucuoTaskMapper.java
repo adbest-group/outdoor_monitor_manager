@@ -1,6 +1,7 @@
 package com.bt.om.mapper;
 
 import com.bt.om.entity.AdJiucuoTask;
+import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.vo.AdJiucuoTaskMobileVo;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import org.apache.ibatis.annotations.Param;
@@ -70,4 +71,6 @@ public interface AdJiucuoTaskMapper {
     List<AdJiucuoTaskVo> getTenAdJiucuoTaskVo(Map<String, Object> searchMap);
     int updateAssessorId(Map<String, Object> searchMap);
     int selectCountByActivityAndSeat(Map<String, Object> searchMap);
+	int cancelJiucuoTaskByAssessorId(Integer id);
+	 List<AdJiucuoTaskVo> getAllByStatusUnCheck(Map<String, Object> searchMap);
 }

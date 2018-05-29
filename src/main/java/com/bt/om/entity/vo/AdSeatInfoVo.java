@@ -12,7 +12,7 @@ public class AdSeatInfoVo extends AdSeatInfo {
 	private Integer mediaId;
 
 	private Integer typeId;
-	
+
 	private String parentName;
 	
 	private String secondName;

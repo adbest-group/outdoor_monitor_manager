@@ -29,7 +29,7 @@ public class Pagination extends ID {
 	private long real_end_row;
 
 	private long end_row;
-
+	
 	private int start_page;
 
 	private int end_page;
@@ -58,7 +58,7 @@ public class Pagination extends ID {
 	 * @param show_num
 	 *            Description of the Parameter
 	 */
-	public Pagination(long newTotalCount, int newStartRow, int newShowNum) {
+	public Pagination(long newTotalCount,int newStartRow, int newShowNum) {
 
 		showNum = newShowNum;
 		total_page = (int) (Math.floor((newTotalCount - 1) / newShowNum) + 1);
@@ -66,7 +66,6 @@ public class Pagination extends ID {
 		current_page = (newStartRow / newShowNum) + 1;
 		current_page = (current_page <= 0) ? 1 : current_page;
 		current_page = (current_page > total_page) ? total_page : current_page;
-
         total_row = newTotalCount;
         real_start_row = newStartRow + 1;
         start_row = (current_page - 1) * newShowNum + 1;

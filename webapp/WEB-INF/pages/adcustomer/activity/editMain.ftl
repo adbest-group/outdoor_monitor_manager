@@ -314,15 +314,15 @@
             "province": '330000',
             "city": '330100',
             "region": '330108',
-            "required":false,
+            "required":true,
             onChange: function (info) {
                 townFormat(info);
             }
         }, function (api) {
-            var info = api.getInfo();
-            townFormat(info);
+        var info = api.getInfo();
+	  		 townFormat(info);
         });
-        $("#btnBack").click(function(){history.back();});
+       $("#btnBack").click(function(){history.back();});
 
     });
 

@@ -180,4 +180,15 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
 	public int selectCountByActivityAndSeat(Map<String, Object> searchMap) {
 		return adJiucuoTaskMapper.selectCountByActivityAndSeat(searchMap);
 	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void offJiucuoTaskByAssessorId(Integer id) {
+		 adJiucuoTaskMapper.cancelJiucuoTaskByAssessorId(id);		
+	}
+
+	@Override
+	public List<AdJiucuoTaskVo> getAllByStatusUnCheck(Map<String, Object> searchMap) {
+		return adJiucuoTaskMapper.getAllByStatusUnCheck(searchMap);
+	}
 }

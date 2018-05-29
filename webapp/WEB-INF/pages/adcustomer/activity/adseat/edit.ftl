@@ -30,7 +30,8 @@
                     </td>
                 </tr>
 
-                <tr>
+				
+				<tr>
                     <td class="a-title"><font class="s-red">*</font>广告位：</td>
                     <td>
                         <div class="select-box select-box-140 un-inp-select">
@@ -39,6 +40,17 @@
                         </div> <span id="seatTip"></span>
                     </td>
                 </tr>
+                
+				
+				<#-- 
+                <tr>
+                    <td class="a-title"><font class="s-red">*</font>广告位：</td>
+                    <td>
+                        <input type="text" id="seat" name="seat" value="" autocomplete="off" class="form-control">
+                        <span id="seatTip"></span>
+                    </td>
+                </tr>
+                 -->
 
                 <tr>
                     <td class="a-title"><font class="s-red">*</font>品牌：</td>
@@ -384,7 +396,7 @@
             //判断是否可编辑
             if(!editMode){
                 $(".select").siblings(".searchable-select").find(".searchable-select-dropdown").hide();
-                $("#brand,#dts,#dt,input:checkbox[name='monitor_time'],#upMonitorLastDays,#durationMonitorLastDays,#downMonitorLastDays").attr("disabled",true);
+                $("#brand,#seat,#dts,#dt,input:checkbox[name='monitor_time'],#upMonitorLastDays,#durationMonitorLastDays,#downMonitorLastDays").attr("disabled",true);
                 $("#resource_sel").parent().hide();
                 $("#btnSave").hide();
             }
@@ -401,7 +413,7 @@
                         id: $("#id").val(),
                         mediaId: $("#media").val(), //媒体id
                         mediaName: $("#media").siblings().find(".searchable-select-holder").text(),
-                        seatId: $("#seat").val(), //媒体id
+                        seatId: $("#seat").val(), //广告位id
                         seatName: $("#seat").siblings().find(".searchable-select-holder").text(),
                         startDate: $("#dts").val(), //监测开始时间
                         endDate: $("#dt").val(), //监测结束时间

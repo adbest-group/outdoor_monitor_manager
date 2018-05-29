@@ -350,6 +350,7 @@
 
 <script type="text/javascript" src="/static/js/jquery.citys.js"></script>
 <script type="text/javascript">
+
     $.fn.serializeObject = function () {
         var o = {};
         var a = this.serializeArray();

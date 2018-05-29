@@ -376,6 +376,18 @@ public class AdActivityService implements IAdActivityService {
 		}
 		return atimeActivity;
 	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void offActivityByAssessorId(Integer id) {
+		adActivityMapper.cancelActivityByAssessorId(id);
+		
+	}
+
+	@Override
+	public List<AdActivity> getAllByStatusUncertain(Map<String, Object> searchMap) {
+		return adActivityMapper.getAllByStatusUncertain(searchMap);
+	}
 	
 	/**
 	 * 按照广告主在添加活动时选择的活动投放时间段  查询该时间段内各个广告位是否参与的活动以及参与的活动数量

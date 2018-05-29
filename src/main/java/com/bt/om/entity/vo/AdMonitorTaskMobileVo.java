@@ -37,6 +37,7 @@ public class AdMonitorTaskMobileVo extends AdMonitorTask {
     private Integer assignType;
     private Long province;
     private Long city;
+    private Integer adCodeFlag;
 
     public Double getDistance() {
         return distance;
@@ -262,4 +263,11 @@ public class AdMonitorTaskMobileVo extends AdMonitorTask {
 		this.city = city;
 	}
 	
+	public Integer getAdCodeFlag() {
+		return adCodeFlag;
+	}
+	
+	public void setAdCodeFlag(Integer adCodeFlag) {
+		this.adCodeFlag = adCodeFlag;
+	}
 }

@@ -11,7 +11,7 @@
         <div class="title clearfix" style="display:block;">
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <form id="form" method="get" action="/task/list">
-                    <!--销售下拉框-->
+                    <!--任务下拉框-->
                     <div class="select-box select-box-140 un-inp-select ll">
                         <select name="activityId" class="select" id="activityId">
                             <option value="">所有活动</option>
@@ -62,6 +62,23 @@
                     <button type="button" class="btn btn-red" style="margin-left:10px;" autocomplete="off"
                             id="searchBtn">查询
                     </button>
+                    <#if (status?exists&&status == '3')>
+                    <a disable="disable" style="display: inline;						
+						padding: 5px 7px;
+						margin: 0 2px;
+						color: #6b6b6b;
+						text-decoration: none;
+						background-color: #f9f9f9;
+						border: 1px solid #c2c2c2;
+					    border-top-color: rgb(194, 194, 194);
+					    border-right-color: rgb(194, 194, 194);
+					    border-bottom-color: rgb(194, 194, 194);
+					    border-left-color: rgb(194, 194, 194);
+						outline: none;
+						cursor: pointer;
+						border-radius: 3px;
+						overflow: hidden;"> 剩余待审核总数${shenheCount?if_exists}条</a>
+					</#if>
                 </form>
             </div>
         </div>
@@ -120,6 +137,7 @@
                                 <#if task.status==3><a href="javascript:pass('${task.id}')">通过</a></#if>
                                 <#if task.status==3><a href="javascript:reject('${task.id}')">拒绝</a></#if>
                                 <a href="/task/details?task_Id=${task.id}">详情</a>
+                                <#if task.status==3><a href="javascript:cancelSh('${task.id}')">撤消</a></#if>
                             <#--<#if task.status==1><a href="javascript:del('${task.id}')">删除</a></#if>-->
                             </td>
                         </tr>
@@ -298,7 +316,6 @@
 
         });
     }
-
     //发起审核请求
     verify = function (id, status, reason) {
         $.ajax({
@@ -335,7 +352,51 @@
             }
         });
     }
-
+     //撤消审核任务
+     cancelSh = function(id){
+        layer.confirm("确定撤销该活动？", {
+            icon: 3,
+            btn: ['确定', '取消'] //按钮
+        }, function(){
+         	cancel(id, 3);
+         	});
+      }
+    //发起撤消请求
+    cancel = function (id, status, reason) {
+        $.ajax({
+            url: "/task/cancel",
+            type: "post",
+            data: {
+                "id": id,
+                "status": status,
+                "reason": reason
+            },
+            cache: false,
+            dataType: "json",
+            success: function (datas) {
+                var resultRet = datas.ret;
+                if (resultRet.code == 101) {
+                    layer.confirm(resultRet.resultDes, {
+                        icon: 2,
+                        btn: ['确定'] //按钮
+                    });
+                } else {
+                    layer.confirm("撤消成功", {
+                        icon: 1,
+                        btn: ['确定'] //按钮
+                    }, function () {
+                        window.location.reload();
+                    });
+                }
+            },
+            error: function (e) {
+                layer.confirm("服务忙，请稍后再试", {
+                    icon: 5,
+                    btn: ['确定'] //按钮
+                });
+            }
+        });
+    }
     //处理问题
     close = function (id) {
         layer.confirm("确认关闭问题任务？", {

@@ -268,9 +268,18 @@
         #{assessorId,jdbcType=INTEGER},
         assignorid =
         #{assignorId,jdbcType=INTEGER}
-        where id = #{id,jdbcType=INTEGER}
+        where id = #{id,jdbcType=INTEGER}   
     </update>
-
+    <update id="cancelAdMonitorTaskByAssessorId"  parameterType="java.lang.Integer">
+        update ad_monitor_task
+        set assessor_id = null 
+  		where status = 3 and id = #{id,jdbcType=INTEGER}
+    </update>
+     <update id="cancelAdMonitorTaskByAssignorId"  parameterType="java.lang.Integer">
+        update ad_monitor_task
+        set assignor_id = null 
+  		where status = 1 and id = #{id,jdbcType=INTEGER}	
+    </update>
     <resultMap id="ExtResultMap" extends="BaseResultMap"
                type="com.bt.om.entity.vo.AdMonitorTaskVo">
         <result column="activity_name" jdbcType="VARCHAR" property="activityName"/>
@@ -337,6 +346,7 @@
         <result column="start_time" jdbcType="TIMESTAMP" property="startTime"/>
         <result column="end_time" jdbcType="TIMESTAMP" property="endTime"/>
         <result column="assign_type" jdbcType="INTEGER" property="assignType"/>
+        <result column="ad_code_flag" jdbcType="INTEGER" property="adCodeFlag"/>
     </resultMap>
 
     <insert id="insertList" parameterType="java.util.List">
@@ -501,7 +511,7 @@
     	a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time,
     	b.activity_name,
     	c.sample_pic_url,c.monitor_start,c.monitor_end,c.ad_seat_id,
-    	d.`name` as ad_seat_name, d.location as ad_seat_location, d.ad_code as ad_seat_code, d.lon, d.lat, d.region, d.street, d.province, d.city,
+    	d.`name` as ad_seat_name, d.location as ad_seat_location, d.ad_code as ad_seat_code, d.lon, d.lat, d.region, d.street, d.province, d.city, d.ad_code_flag,
     	e.reason,e.pic_url1,e.pic_url2,e.pic_url3,e.pic_url4,e.create_time as feedback_time,
     	e.problem,e.problem_other,e.lon as feedback_lon,e.lat as feedback_lat,
     	f.start_time, f.end_time, f.assign_type
@@ -967,6 +977,26 @@
     	where status = 8
     	and monitor_date &lt;= date_add(date_add(now(),interval (2 - monitor_last_days) day),interval -#{duration,jdbcType=INTEGER} hour)
     </update>
+    <select id="getAllByStatusUnCheck" parameterType="map" resultMap="BaseResultMap">
+  		select
+    	<include refid="Base_Column_List" />
+    	from ad_monitor_task
+    	where  1 = 1 and status = 3
+     	<if test="customerIds != null">
+     		 and user_id in
+        	<foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+    	</if> 
+  </select>
+    <select id="getAllByStatusUnZhipai" parameterType="map" resultMap="BaseResultMap">
+  		select
+    	<include refid="Base_Column_List" />
+    	from ad_monitor_task
+    	where  1 = 1 and status = 1
+   		<if test="customerIds != null">
+     		 and user_id in
+        	<foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+    	</if> 
+  </select>
     
     <!-- 查询每条监测任务中最新的一条反馈信息 -->
     <select id="selectFeedBackByActivityIdAndSeatId" parameterType="map" resultType="com.bt.om.entity.vo.PictureVo">

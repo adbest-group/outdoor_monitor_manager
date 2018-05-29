@@ -129,6 +129,10 @@ public interface AdMonitorTaskMapper {
 	
 	int recycleTask(@Param("monitorTaskIds") List<Integer> monitorTaskIds, @Param("duration") Integer duration);
 	int forceAssignTask(@Param("duration") Integer duration);
+	int cancelAdMonitorTaskByAssessorId(Integer id);
+	int cancelAdMonitorTaskByAssignorId(Integer id);
+    List<AdMonitorTask> getAllByStatusUnCheck(Map<String, Object> searchMap);
+    List<AdMonitorTask> getAllByStatusUnZhipai(Map<String, Object> searchMap);
 	
 	List<PictureVo> selectFeedBackByActivityIdAndSeatId(Map<String, Object> searchMap);
 }

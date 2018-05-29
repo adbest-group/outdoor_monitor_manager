@@ -249,25 +249,29 @@ public class AdSeatController extends BasicController {
         if (id != null) {
 //            AdSeatInfo adSeatInfo = adSeatService.getById(id);
         	AdSeatInfoVo adSeatInfoVo = resourceService.getAdSeatInfoById(id + "");
-            List<AdCrowd> crowds = adSeatService.getCrowdsBySeatId(id);
-            Table<Integer, Integer, String> crowdTable = HashBasedTable.create();
-            if (crowds != null && crowds.size() > 0) {
-                for (AdCrowd crowd : crowds) {
-                    crowdTable.put(crowd.getSex(), crowd.getAgePart(), "[" + crowd.getId() + "," + crowd.getNums() + "]");
-                }
-            } else {
-                for (AgePart agePart : AgePart.values()) {
-                    crowdTable.put(1, agePart.getId(), "[0,0]");
-                    crowdTable.put(2, agePart.getId(), "[0,0]");
-                }
-            }
-            mv.addObject("crowdTable", new Gson().fromJson(crowdTable.toString(), JsonObject.class));
+        	String adSize = adSeatInfoVo.getAdSize();
+        	String[] strings = adSize.split("\\*");
+        	adSeatInfoVo.setWidth(strings[0]);
+        	adSeatInfoVo.setHeight(strings[1]);
+//            List<AdCrowd> crowds = adSeatService.getCrowdsBySeatId(id);
+//            Table<Integer, Integer, String> crowdTable = HashBasedTable.create();
+//            if (crowds != null && crowds.size() > 0) {
+//                for (AdCrowd crowd : crowds) {
+//                    crowdTable.put(crowd.getSex(), crowd.getAgePart(), "[" + crowd.getId() + "," + crowd.getNums() + "]");
+//                }
+//            } else {
+//                for (AgePart agePart : AgePart.values()) {
+//                    crowdTable.put(1, agePart.getId(), "[0,0]");
+//                    crowdTable.put(2, agePart.getId(), "[0,0]");
+//                }
+//            }
+//            mv.addObject("crowdTable", new Gson().fromJson(crowdTable.toString(), JsonObject.class));
 //			request.setAttribute("crowdTable",crowdTable);
 
             mv.getModel().put("adSeatInfo", adSeatInfoVo);
         }
 
-        mv.getModel().put("agePartValues", AgePart.values());
+//        mv.getModel().put("agePartValues", AgePart.values());
 
         return mv;
     }

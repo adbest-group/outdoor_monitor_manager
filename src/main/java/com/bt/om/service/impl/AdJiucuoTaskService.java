@@ -140,6 +140,8 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
         sub.setSubCreated(2);
         sub.setCreateTime(now);
         sub.setUpdateTime(now);
+        sub.setMonitorDate(now);
+        sub.setMonitorLastDays(2); //暂定两天
         adMonitorTaskMapper.insertSelective(sub);
         task.setSubCreated(1);
         adJiucuoTaskMapper.updateByPrimaryKeySelective(task);
@@ -179,6 +181,17 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
 	@Override
 	public int selectCountByActivityAndSeat(Map<String, Object> searchMap) {
 		return adJiucuoTaskMapper.selectCountByActivityAndSeat(searchMap);
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void offJiucuoTaskByAssessorId(Integer id) {
+		 adJiucuoTaskMapper.cancelJiucuoTaskByAssessorId(id);		
+	}
+
+	@Override
+	public List<AdJiucuoTaskVo> getAllByStatusUnCheck(Map<String, Object> searchMap) {
+		return adJiucuoTaskMapper.getAllByStatusUnCheck(searchMap);
 	}
 	
 	@Override

@@ -140,6 +140,8 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
         sub.setSubCreated(2);
         sub.setCreateTime(now);
         sub.setUpdateTime(now);
+        sub.setMonitorDate(now);
+        sub.setMonitorLastDays(2); //暂定两天
         adMonitorTaskMapper.insertSelective(sub);
         task.setSubCreated(1);
         adJiucuoTaskMapper.updateByPrimaryKeySelective(task);

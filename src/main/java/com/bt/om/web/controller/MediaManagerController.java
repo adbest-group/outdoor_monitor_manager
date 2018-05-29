@@ -11,6 +11,7 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -230,6 +231,10 @@ public class MediaManagerController {
         return model;
     }
 
+    
+    
+    
+    
     @RequestMapping(value = "/jiucuo/list")
     @RequiresRoles("media")
     public String joucuoList(Model model, HttpServletRequest request,
@@ -326,7 +331,7 @@ public class MediaManagerController {
     /**
      * 广告位列表
      **/
-    @RequiresRoles("media")
+    @RequiresRoles(value= "media")
     @RequestMapping(value = "/adseat/list")
     public String adseatList(Model model, HttpServletRequest request,
                              @RequestParam(value = "province", required = false) Long province,
@@ -425,6 +430,8 @@ public class MediaManagerController {
         		QRcodeUtil.encode(adCodeInfo, path);
         		adSeatInfo.setAdCode(adCodeInfo);
         		adSeatInfo.setAdCodeUrl("/static/qrcode/" + adCodeInfo + ".jpg");
+        		//默认贴上二维码
+        		
         		
                 adSeatService.save(adSeatInfo, user.getId());
             }
@@ -683,6 +690,34 @@ public class MediaManagerController {
         return model;
     }
     
+    /**
+     * 修改二维码状态： 已贴, 未贴
+     **/
+    @RequiresRoles(value= {"media","superadmin"}, logical = Logical.OR)
+    @RequestMapping(value = "/codeFlag")
+    @ResponseBody
+    public Model updateStatus(Model model, Integer id, AdSeatInfo codeFlag) {
+   
+    	ResultVo<String> result = new ResultVo<String>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("保存成功");
+        model = new ExtendedModelMap();
+        try {
+        	AdSeatInfoVo seatInfo = new AdSeatInfoVo();
+        	seatInfo.setId(id);
+        	seatInfo.setCodeFlag(1);
+        	adSeatService.updateFlag(codeFlag.getCodeFlag(),id);
+        } catch (Exception e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("保存失败！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+	return model;
+    }
+  
     /**
      * 通过媒体大类的id查询下属的所有媒体小类
      */

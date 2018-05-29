@@ -107,4 +107,7 @@ public class PageConst {
 	public static final String RESOURCES_TASK_LIST = "resources/taskList";
 	public static final String RESOURCES_TASK_UNASSIGN = "resources/taskUnassign";
 	public static final String RESOURCES_JIUCUO_LIST = "resources/jiucuoList";
+	
+	/*** 后台人员操作日志管理  ***/
+	public static final String OPERATE_lOG_LIST = "resources/operateLog";
 }

@@ -177,7 +177,7 @@ public class ExcelController extends BasicController {
 			
 			//查询活动对应的 广告位信息+监测时间+是否有问题
 			document.newPage();
-        	List<AdActivityAdseatTaskVo> vos = adActivityService.selectAdActivityAdseatTask(activityId);
+        	List<AdActivityAdseatTaskVo> vos = adActivityService.selectAdActivityAdseatTaskReport(activityId);
         	for (AdActivityAdseatTaskVo vo : vos) {
 				List<String> list = new ArrayList<>();
 				list.add(adActivity.getActivityName()); //活动名称 0
@@ -296,7 +296,7 @@ public class ExcelController extends BasicController {
         List<List<String>> listString = new ArrayList<>();
         
         try {
-        	List<AdActivityAdseatTaskVo> vos = adActivityService.selectAdActivityAdseatTask(activityId);
+        	List<AdActivityAdseatTaskVo> vos = adActivityService.selectAdActivityAdseatTaskReport(activityId);
         	for (AdActivityAdseatTaskVo vo : vos) {
 				List<String> list = new ArrayList<>();
 				list.add(adActivity.getActivityName()); //活动名称
@@ -813,6 +813,7 @@ public class ExcelController extends BasicController {
                 	info.setMediaId(media.getId());
                 	info.setCreateTime(now);
                 	info.setUpdateTime(now);
+                	info.setCodeFlag(1);
                 	
                 	//检查是否重复
                 	if(hasProblem == false) {

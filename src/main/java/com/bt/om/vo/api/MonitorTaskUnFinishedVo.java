@@ -39,6 +39,7 @@ public class MonitorTaskUnFinishedVo extends BasicVo {
     private Integer assignType;
     private String province;
     private String city;
+    private Integer adCodeFlag;
 
     public MonitorTaskUnFinishedVo(AdMonitorTaskMobileVo task){
         this.task_id = task.getId();
@@ -68,6 +69,7 @@ public class MonitorTaskUnFinishedVo extends BasicVo {
         this.startTime = DateUtil.dateFormate(task.getStartTime(), "yyyy-MM-dd HH:mm:ss");
         this.endTime = DateUtil.dateFormate(task.getEndTime(), "yyyy-MM-dd HH:mm:ss");
         this.assignType = task.getAssignType();
+        this.adCodeFlag = task.getAdCodeFlag();
     }
 
     public Double getLat() {
@@ -284,5 +286,13 @@ public class MonitorTaskUnFinishedVo extends BasicVo {
 
 	public void setCity(String city) {
 		this.city = city;
+	}
+	
+	public Integer getAdCodeFlag() {
+		return adCodeFlag;
+	}
+	
+	public void setAdCodeFlag(Integer adCodeFlag) {
+		this.adCodeFlag = adCodeFlag;
 	}
 }

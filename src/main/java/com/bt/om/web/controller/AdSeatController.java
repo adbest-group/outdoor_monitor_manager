@@ -1,6 +1,7 @@
 package com.bt.om.web.controller;
 
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -26,6 +27,7 @@ import com.bt.om.entity.AdCrowd;
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.AdSeatType;
+import com.bt.om.entity.OperateLog;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AdSeatCount;
 import com.bt.om.entity.vo.AdSeatInfoVo;
@@ -38,6 +40,7 @@ import com.bt.om.enums.SessionKey;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdSeatService;
+import com.bt.om.service.IOperateLogService;
 import com.bt.om.service.IResourceService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -59,6 +62,8 @@ public class AdSeatController extends BasicController {
     private IAdSeatService adSeatService;
     @Autowired
     private IAdActivityService adActivityService;
+    @Autowired
+	private IOperateLogService operateLogService;
 
     /**
      * 新增广告位跳转
@@ -182,8 +187,10 @@ public class AdSeatController extends BasicController {
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("保存成功");
         model = new ExtendedModelMap();
+        Date now = new Date();
         
         try {
+        	AdSeatInfoVo adSeatInfoVo = resourceService.getAdSeatInfoById(id + "");
             int count = resourceService.deleteAdSeatById(id);
             if(count == 0) {
             	result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -191,6 +198,16 @@ public class AdSeatController extends BasicController {
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
             }
+            //添加操作日志
+            SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+            OperateLog operateLog = new OperateLog();
+        	operateLog.setContent("删除" + adSeatInfoVo.getMediaName() + "媒体下的广告位：" + cityCache.getCityName(adSeatInfoVo.getProvince())
+        			+ cityCache.getCityName(adSeatInfoVo.getCity()) + cityCache.getCityName(adSeatInfoVo.getRegion())
+        			+ cityCache.getCityName(adSeatInfoVo.getStreet()) + adSeatInfoVo.getLocation());
+            operateLog.setCreateTime(now);
+            operateLog.setUpdateTime(now);
+            operateLog.setUserId(user.getId());
+            operateLogService.save(operateLog);
         } catch (Exception e) {
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("删除失败！");

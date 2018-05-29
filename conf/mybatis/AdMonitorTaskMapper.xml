@@ -290,6 +290,7 @@
         <result column="city" jdbcType="BIGINT" property="city"/>
         <result column="region" jdbcType="BIGINT" property="region"/>
         <result column="street" jdbcType="BIGINT" property="street"/>
+        <result column="location" jdbcType="VARCHAR" property="location"/>
         <result column="media_id" jdbcType="INTEGER" property="mediaId"/>
         <result column="media_name" jdbcType="VARCHAR" property="mediaName"/>
         <result column="ad_seat_name" jdbcType="VARCHAR" property="adSeatName"/>
@@ -345,6 +346,7 @@
         <result column="start_time" jdbcType="TIMESTAMP" property="startTime"/>
         <result column="end_time" jdbcType="TIMESTAMP" property="endTime"/>
         <result column="assign_type" jdbcType="INTEGER" property="assignType"/>
+        <result column="ad_code_flag" jdbcType="INTEGER" property="adCodeFlag"/>
     </resultMap>
 
     <insert id="insertList" parameterType="java.util.List">
@@ -509,7 +511,7 @@
     	a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time,
     	b.activity_name,
     	c.sample_pic_url,c.monitor_start,c.monitor_end,c.ad_seat_id,
-    	d.`name` as ad_seat_name, d.location as ad_seat_location, d.ad_code as ad_seat_code, d.lon, d.lat, d.region, d.street, d.province, d.city,
+    	d.`name` as ad_seat_name, d.location as ad_seat_location, d.ad_code as ad_seat_code, d.lon, d.lat, d.region, d.street, d.province, d.city, d.ad_code_flag,
     	e.reason,e.pic_url1,e.pic_url2,e.pic_url3,e.pic_url4,e.create_time as feedback_time,
     	e.problem,e.problem_other,e.lon as feedback_lon,e.lat as feedback_lat,
     	f.start_time, f.end_time, f.assign_type
@@ -538,6 +540,7 @@
 			`seatinfo`.`city`,
 			`seatinfo`.`region`,
 			`seatinfo`.`street`,
+			`seatinfo`.`location`,
 			seatinfo.name,
 			`media`.`media_name`
 		from 
@@ -1001,15 +1004,19 @@
 			* 
 		from (
 			select 
+				a.task_type taskType,
 				b.monitor_task_id, 
 				b.pic_url1 pic1,
 				b.pic_url2 pic2,
 				b.pic_url3 pic3,
 				b.pic_url4 pic4,
 				b.create_time date,
-				a.task_type taskType
+				b.problem,
+				b.problem_other problemOther,
+				c.realname userName
 			from ad_monitor_task a
 			left join ad_monitor_task_feedback b on b.monitor_task_id = a.id
+			left join sys_user_execute c on c.id = a.user_id
 			where 
 				a.activity_id = #{activityId,jdbcType=INTEGER} and a.activity_adseat_id = #{activityAdseatId,jdbcType=INTEGER}
 			order by b.create_time desc

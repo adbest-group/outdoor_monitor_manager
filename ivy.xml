@@ -132,5 +132,10 @@
 
 		<!-- 腾讯云发送短信 -->
 		<dependency org="com.github.qcloudsms" name="sms" rev="0.9.2" conf="compile,test->default(*)"/>
+		<!-- JPush极光推送相关依赖-->
+		<dependency org="cn.jpush.api" name="jpush-client" rev="3.3.4" conf="compile,test->default(*)"/>
+		<dependency org="cn.jpush.api" name="jiguang-common" rev="1.1.1" conf="compile,test->default(*)"/>
+		<dependency org="io.netty" name="netty-all" rev="4.1.6.Final" conf="compile,test->default(*)"/>
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.7.7" conf="compile,test->default(*)"/>
 	</dependencies>	
 </ivy-module>

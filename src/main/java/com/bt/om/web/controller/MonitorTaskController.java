@@ -2,6 +2,7 @@ package com.bt.om.web.controller;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -46,6 +47,7 @@ import com.bt.om.service.ISysUserService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
+import com.bt.om.web.util.JPushUtils;
 import com.bt.om.web.util.SearchUtil;
 import com.google.common.collect.Maps;
 
@@ -74,7 +76,7 @@ public class MonitorTaskController extends BasicController {
     /**
      * 监测管理，已分配任务
      **/
-    @RequiresRoles("taskadmin")
+    @RequiresRoles(value = {"taskadmin", "deptaskadmin", "depjiucuoadmin", "jiucuoadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/list")
     public String getTaskList(Model model, HttpServletRequest request,
                               @RequestParam(value = "activityId", required = false) Integer activityId,
@@ -416,6 +418,18 @@ public class MonitorTaskController extends BasicController {
         String[] taskIds = ids.split(",");
         try {
             adMonitorTaskService.assign(taskIds, userId);
+            //==========web端指派成功之后根据userId进行app消息推送==============
+            Map<String, Object> param = new HashMap<>();
+            Map<String, String> extras = new HashMap<>();
+            List<String> alias = new ArrayList<>(); //别名用户List
+            alias.add(String.valueOf(userId));
+            extras.put("type", "new_assign_push");
+            param.put("msg", "您有一条新的任务！");
+            param.put("title", "玖凤平台");
+            param.put("alias", alias);  //根据别名选择推送用户（这里userId用作推送时的用户别名）
+            param.put("extras", extras);
+            String pushResult = JPushUtils.pushAllByAlias(param);
+            System.out.println("pushResult:: " + pushResult);
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("指派失败！");

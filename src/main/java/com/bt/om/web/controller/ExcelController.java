@@ -836,6 +836,8 @@ public class ExcelController extends BasicController {
                 		QRcodeUtil.encode(adCodeInfo, path);
                 		info.setAdCode(adCodeInfo);
                 		info.setAdCodeUrl("/static/qrcode/" + adCodeInfo + ".jpg");
+                		//默认贴上二维码
+                		info.setCodeFlag(1);
                 		insertAdSeatInfos.add(info);
                 	}
                 } else {
@@ -869,7 +871,7 @@ public class ExcelController extends BasicController {
         } catch (Exception e) {
         	logger.error(MessageFormat.format("批量导入文件有误, 导入失败", new Object[] {}));
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());
-        	result.setResultDes(e.getMessage());
+        	result.setResultDes("导入失败");
             e.printStackTrace();
         }
 		

@@ -1013,7 +1013,7 @@ public class ExcelController extends BasicController {
 //	    Font titleChinese = new Font(bfChinese, 20, Font.BOLD);  
 //	    Font BoldChinese = new Font(bfChinese, 20, Font.BOLD);  
 		
-		PdfPTable table = new PdfPTable(11);
+		PdfPTable table = new PdfPTable(10);
 		table.setWidthPercentage(100);
 		table.setWidths(new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1});
 

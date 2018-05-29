@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.adtime.common.lang.CollectionUtil;
+import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.entity.AdMonitorReward;
 import com.bt.om.entity.AdMonitorTask;
@@ -489,5 +490,27 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	@Transactional(rollbackFor = Exception.class)
 	public void abandonUserTask(AbandonTaskVo vo) {
 		adMonitorUserTaskMapper.abandonUserTask(vo);
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void offAdMonitorTaskByAssessorId(Integer id) {
+		adMonitorTaskMapper.cancelAdMonitorTaskByAssessorId(id);	
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void offAdMonitorTaskByAssignorId(Integer id) {
+		adMonitorTaskMapper.cancelAdMonitorTaskByAssignorId(id);	
+	}
+
+	@Override
+	public List<AdMonitorTask> getAllByStatusUnCheck(Map<String, Object> searchMap) {
+		return adMonitorTaskMapper.getAllByStatusUnCheck(searchMap);
+	}
+
+	@Override
+	public List<AdMonitorTask> getAllByStatusUnZhipai(Map<String, Object> searchMap) {
+		return adMonitorTaskMapper.getAllByStatusUnZhipai(searchMap);
 	}
 }

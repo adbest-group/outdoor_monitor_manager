@@ -268,9 +268,18 @@
         #{assessorId,jdbcType=INTEGER},
         assignorid =
         #{assignorId,jdbcType=INTEGER}
-        where id = #{id,jdbcType=INTEGER}
+        where id = #{id,jdbcType=INTEGER}   
     </update>
-
+    <update id="cancelAdMonitorTaskByAssessorId"  parameterType="java.lang.Integer">
+        update ad_monitor_task
+        set assessor_id = null 
+  		where status = 3 and id = #{id,jdbcType=INTEGER}
+    </update>
+     <update id="cancelAdMonitorTaskByAssignorId"  parameterType="java.lang.Integer">
+        update ad_monitor_task
+        set assignor_id = null 
+  		where status = 1 and id = #{id,jdbcType=INTEGER}	
+    </update>
     <resultMap id="ExtResultMap" extends="BaseResultMap"
                type="com.bt.om.entity.vo.AdMonitorTaskVo">
         <result column="activity_name" jdbcType="VARCHAR" property="activityName"/>
@@ -965,4 +974,24 @@
     	where status = 8
     	and monitor_date &lt;= date_add(date_add(now(),interval (2 - monitor_last_days) day),interval -#{duration,jdbcType=INTEGER} hour)
     </update>
+    <select id="getAllByStatusUnCheck" parameterType="map" resultMap="BaseResultMap">
+  		select
+    	<include refid="Base_Column_List" />
+    	from ad_monitor_task
+    	where  1 = 1 and status = 3
+     	<if test="customerIds != null">
+     		 and user_id in
+        	<foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+    	</if> 
+  </select>
+    <select id="getAllByStatusUnZhipai" parameterType="map" resultMap="BaseResultMap">
+  		select
+    	<include refid="Base_Column_List" />
+    	from ad_monitor_task
+    	where  1 = 1 and status = 1
+   		<if test="customerIds != null">
+     		 and user_id in
+        	<foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+    	</if> 
+  </select>
 </mapper>

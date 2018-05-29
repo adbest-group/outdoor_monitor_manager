@@ -1,5 +1,6 @@
 package com.bt.om.mapper;
 
+import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
@@ -136,5 +137,9 @@ public interface AdMonitorTaskMapper {
 	
 	int recycleTask(@Param("monitorTaskIds") List<Integer> monitorTaskIds, @Param("duration") Integer duration);
 	int forceAssignTask(@Param("duration") Integer duration);
+	int cancelAdMonitorTaskByAssessorId(Integer id);
+	int cancelAdMonitorTaskByAssignorId(Integer id);
+    List<AdMonitorTask> getAllByStatusUnCheck(Map<String, Object> searchMap);
+    List<AdMonitorTask> getAllByStatusUnZhipai(Map<String, Object> searchMap);
 
 }

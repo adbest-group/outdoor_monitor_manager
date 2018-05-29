@@ -855,7 +855,7 @@ public class ExcelController extends BasicController {
             
             //导出到excel, 返回导入广告位信息结果
             List<List<String>> listString = objToString(listob);
-            String[] titleArray = { "广告位名称", "媒体大类", "媒体大类", "是否允许多个活动", "允许活动数量", "省", "市", "区（县）", "街道（镇，乡）", "详细位置", 
+            String[] titleArray = { "广告位名称", "媒体大类", "媒体小类", "是否允许多个活动", "允许活动数量", "省", "市", "区（县）", "街道（镇，乡）", "详细位置", 
             		"唯一标识", "广告位长度", "广告位宽度", "面积", "经度", "纬度",
             		"地图标准（如百度，谷歌，高德）", "联系人姓名", "联系人电话", "备注", "导入结果", "导入错误信息"};
             ExcelTool<List<String>> excelTool = new ExcelTool<List<String>>("importResult");

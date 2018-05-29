@@ -62,11 +62,11 @@
                         <tr>
                             <td width="30">${(bizObj.page.currentPage-1)*20+task_index+1}</td>
                             <td>
-                                <div class="data-title w200" data-title="${task.activityName}" data-id="${task.id}">${task.activityName?if_exists}</div></td>
-                            <td><img width="50" src="${task.picUrl1}"/></td>
+                                <div class="data-title w200" data-title="${task.activityName!""}" data-id="${task.id}">${task.activityName?if_exists}</div></td>
+                            <td><img width="50" src="${task.picUrl1!""}"/></td>
                             <td>${task.submitTime?string('yyyy-MM-dd HH:mm:ss')}</td>
                             <td>${vm.getCityNameFull(task.street!task.region,"-")!""}</td>
-                            <td>${task.mediaName}</td>
+                            <td>${task.mediaName!""}</td>
                             <td>${task.adSeatName!""}</td>
                             <td>${vm.getJiucuoTaskStatusText(task.status)}</td>
                             <td>${vm.getProblemStatusText(task.problemStatus!0)}</td>

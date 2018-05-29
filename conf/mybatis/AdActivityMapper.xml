@@ -170,9 +170,9 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="cancelActivityByAssessorId" parameterType="com.bt.om.entity.AdActivity">
+  <update id="cancelActivityByAssessorId" parameterType="java.lang.Integer">
   		update ad_activity set assessor_id = null 
-  		where status = 1 		
+  		where status = 1 and id = #{id,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.bt.om.entity.AdActivity" >
     <!--
@@ -356,7 +356,19 @@
       and user_id in
         <foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
     </if>
-    order by id desc limit 0,1 for update;
+    order by id desc limit 0,2 for update;
+  </select>
+  
+  <!-- 获取所有未确定状态的活动 -->
+   <select id="getAllByStatusUncertain" parameterType="map" resultMap="BaseResultMap">
+  		select
+    	<include refid="Base_Column_List" />
+    	from ad_activity
+    	where  1 = 1 and status = 1
+    	<if test="customerIds != null">
+     		 and user_id in
+        	<foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+    	</if> 
   </select>
   
   <update id="updateAssessorId" parameterType="map">

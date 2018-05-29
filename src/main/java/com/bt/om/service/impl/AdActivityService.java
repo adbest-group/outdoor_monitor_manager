@@ -342,8 +342,14 @@ public class AdActivityService implements IAdActivityService {
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public void offActivityByAssessorId(Integer id) {
 		adActivityMapper.cancelActivityByAssessorId(id);
 		
+	}
+
+	@Override
+	public List<AdActivity> getAllByStatusUncertain(Map<String, Object> searchMap) {
+		return adActivityMapper.getAllByStatusUncertain(searchMap);
 	}
 }

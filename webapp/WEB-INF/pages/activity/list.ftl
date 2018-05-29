@@ -36,6 +36,24 @@
                         </div>
                     </div>
                     <button type="button" class="btn btn-red" style="margin-left:10px;" autocomplete="off" id="searchBtn">查询</button>
+                    
+                    <#if (status?exists&&status == '1')>
+                    <a disable="disable" style="display: inline;						
+						padding: 5px 7px;
+						margin: 0 2px;
+						color: #6b6b6b;
+						text-decoration: none;
+						background-color: #f9f9f9;
+						border: 1px solid #c2c2c2;
+					    border-top-color: rgb(194, 194, 194);
+					    border-right-color: rgb(194, 194, 194);
+					    border-bottom-color: rgb(194, 194, 194);
+					    border-left-color: rgb(194, 194, 194);
+						outline: none;
+						cursor: pointer;
+						border-radius: 3px;
+						overflow: hidden;"> 剩余待审核活动总数${shenheCount?if_exists}条</a>
+					</#if>
                 </form>
             </div>
         </div>
@@ -49,8 +67,7 @@
                         <th>序号</th>
                         <th>活动名称</th>                       
                         <th>投放周期</th>
-                        <th>活动状态</th>
-                         
+                        <th>活动状态</th>                         
                         <th>操作</th>
                     </tr>
                     </thead>

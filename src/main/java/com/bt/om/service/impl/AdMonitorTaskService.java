@@ -71,7 +71,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void assign(String[] taskIds, Integer userId) {
+    public void assign(String[] taskIds, Integer userId, Integer assignorId) {
         Date now = new Date();
         for (String taskId : taskIds) {
             Integer id = Integer.valueOf(taskId);
@@ -112,7 +112,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void pass(AdMonitorTask task) {
+    public void pass(AdMonitorTask task, Integer assessorId) {
         Date now = new Date();
         //如果监测反馈有问题，问题状态置为有问题，否则无问题
         AdMonitorTaskFeedback feedback = adMonitorTaskFeedbackMapper.selectByTaskId(task.getId(), 1).get(0);
@@ -188,7 +188,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void reject(AdMonitorTask task, String reason) {
+    public void reject(AdMonitorTask task, String reason, Integer assessorId) {
         Date now = new Date();
         task.setVerifyTime(now);
         task.setUpdateTime(now);

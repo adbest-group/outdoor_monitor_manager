@@ -289,6 +289,7 @@
     <if test="userId != null" >
       and user_id = #{userId,jdbcType=INTEGER}
     </if>
+    order by create_time desc
   </select>
 
   <resultMap id="MobileReportMap" extends="BaseResultMap" type="com.bt.om.entity.vo.ActivityMobileReportVo" >

@@ -37,6 +37,23 @@
                     </div>
                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="searchBtn">查询</button>
                     <#--<button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">指派</button>-->
+                    <#if (status?exists&&status == '1')>
+                    <a disable="disable" style="display: inline;						
+						padding: 5px 7px;
+						margin: 0 2px;
+						color: #6b6b6b;
+						text-decoration: none;
+						background-color: #f9f9f9;
+						border: 1px solid #c2c2c2;
+					    border-top-color: rgb(194, 194, 194);
+					    border-right-color: rgb(194, 194, 194);
+					    border-bottom-color: rgb(194, 194, 194);
+					    border-left-color: rgb(194, 194, 194);
+						outline: none;
+						cursor: pointer;
+						border-radius: 3px;
+						overflow: hidden;"> 剩余待指派总数${shenheCount?if_exists}条</a>
+					</#if>
                 </form>
             </div>
         </div>
@@ -81,6 +98,7 @@
                             <td>
                                 <#if (task.status==1 || task.status==8)><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if>
                                 <a href="/task/details?task_Id=${task.id}">详情</a>
+                           		 <#if task.status==1><a href="javascript:cancelZp('${task.mediaId}')">撤消</a></#if>
                             </td>
                         </tr>
                         </#list>
@@ -211,13 +229,60 @@
             content: '/task/selectUserExecute?mediaId=' + mediaId //iframe的url
         });
     }
+ //撤消指派任务
+     cancelZp = function(id){
+        layer.confirm("确定撤销该指派？", {
+            icon: 3,
+            btn: ['确定', '取消'] //按钮
+        }, function(){
+         	cancel(id,1);
+         	});
+      }
+    //发起撤消请求
+    cancel = function (id,status, reason) {
+        $.ajax({
+            url: "/task/cancel",
+            type: "post",
+            data: {
+                "id": id,
+                "status": status,
+                "reason": reason
+            },
+            cache: false,
+            dataType: "json",
+            success: function (datas) {
+                var resultRet = datas.ret;
+                if (resultRet.code == 101) {
+                    layer.confirm(resultRet.resultDes, {
+                        icon: 2,
+                        btn: ['确定'] //按钮
+                    });
+                } else {
+                    layer.confirm("撤消成功", {
+                        icon: 1,
+                        btn: ['确定'] //按钮
+                    }, function () {
+                        window.location.reload();
+                    });
+                }
+            },
+            error: function (e) {
+                layer.confirm("服务忙，请稍后再试", {
+                    icon: 5,
+                    btn: ['确定'] //按钮
+                });
+            }
+        });
+    }
     //选择执行人后的回调
-    selectUserExecuteHandle = function (userId) {
+    selectUserExecuteHandle = function (userId,id,status) {
         $.ajax({
             url: "/task/assign",
             type: "post",
             data: {
+            	"id": id,
                 "ids": assign_ids,
+                "status": status,
                 "userId":userId
             },
             cache: false,

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.entity.AdJiucuoTaskFeedback;
+import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.vo.AdJiucuoTaskMobileVo;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
@@ -43,6 +44,8 @@ public interface IAdJiucuoTaskService {
     public List<AdJiucuoTaskVo> selectAllByAssessorId(Map<String, Object> searchMap);
     public List<AdJiucuoTaskVo> getTenAdMonitorTaskVo(Map<String, Object> searchMap);
 	int selectCountByActivityAndSeat(Map<String, Object> searchMap);
+	public void offJiucuoTaskByAssessorId(Integer id);
+	 public List<AdJiucuoTaskVo> getAllByStatusUnCheck(Map<String, Object> searchMap);
 	List<AdJiucuoTask> selectInfoByQrCode(Map<String, Object> searchMap);
 	List<AdJiucuoTask> selectInfoByLonLatTitle(Map<String, Object> searchMap);
 	List<AdJiucuoTask> selectInfoByMemo(Map<String, Object> searchMap);

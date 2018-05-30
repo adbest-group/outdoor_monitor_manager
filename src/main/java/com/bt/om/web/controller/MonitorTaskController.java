@@ -2,6 +2,7 @@ package com.bt.om.web.controller;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.adtime.common.lang.StringUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
+import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.SysUser;
@@ -37,11 +39,15 @@ import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdJiucuoTaskService;
 import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.service.IMediaService;
+import com.bt.om.service.ISysGroupService;
+import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserExecuteService;
+import com.bt.om.service.ISysUserRoleService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
+import com.bt.om.web.util.JPushUtils;
 import com.bt.om.web.util.SearchUtil;
 import com.google.common.collect.Maps;
 
@@ -61,11 +67,16 @@ public class MonitorTaskController extends BasicController {
     private ISysUserService sysUserService;
     @Autowired
     IMediaService mediaService;
-  
+    @Autowired
+	private ISysGroupService sysGroupService;
+	@Autowired
+	private ISysResourcesService sysResourcesService;
+	@Autowired
+	private ISysUserRoleService sysUserRoleService;
     /**
      * 监测管理，已分配任务
      **/
-    @RequiresRoles("taskadmin")
+    @RequiresRoles(value = {"taskadmin", "deptaskadmin", "depjiucuoadmin", "jiucuoadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/list")
     public String getTaskList(Model model, HttpServletRequest request,
                               @RequestParam(value = "activityId", required = false) Integer activityId,
@@ -80,7 +91,12 @@ public class MonitorTaskController extends BasicController {
         SearchDataVo vo = SearchUtil.getVo();
         //获取登录的审核员工taskadmin
         SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-        
+        //所有未审核的任务
+        Map<String, Object> searchMap1 = new HashMap<>();
+        List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId()); //根据员工id查询所属组对应的所有广告商id集合
+        searchMap1.put("customerIds", customerIds);
+    	List<AdMonitorTask> allMonitorTaskUncertain = adMonitorTaskService.getAllByStatusUnCheck(searchMap1);
+        Integer shenheCount = 0;
         if (activityId != null) {
             vo.putSearchParam("activityId", activityId.toString(), activityId);
         }
@@ -195,9 +211,14 @@ public class MonitorTaskController extends BasicController {
             	vo.setSize(20);
             	vo.setStart(0);
             	vo.setList(taskVos);
+            	shenheCount = allMonitorTaskUncertain.size() - taskVos.size();
+            	if(shenheCount < 0) {
+            		shenheCount = 0;
+            	}
+            	model.addAttribute("shenheCount", shenheCount);
             } else {
             	//条数等于0, 新查询10条或者小于10条没人认领的待审核的监测任务(需要匹配 员工 - 组 - 广告商 之间的关系)
-            	List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId());
+            	//List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId());
             	if(customerIds != null && customerIds.size() > 0) {
             		searchMap.clear();
             		searchMap.put("status", 3);
@@ -208,6 +229,11 @@ public class MonitorTaskController extends BasicController {
                 	vo.setSize(20);
                 	vo.setStart(0);
                 	vo.setList(monitorTaskVos);
+                	shenheCount = allMonitorTaskUncertain.size() - monitorTaskVos.size();
+                	if(shenheCount < 0) {
+                		shenheCount = 0;
+                	}
+                	model.addAttribute("shenheCount", shenheCount);
             	}
             }
         }
@@ -224,19 +250,31 @@ public class MonitorTaskController extends BasicController {
     @RequiresRoles("taskadmin")
     @RequestMapping(value = "/unassign")
     public String getUnAssignList(Model model, HttpServletRequest request,
+    		                      @RequestParam(value = "id", required = false) Integer id,
                                   @RequestParam(value = "activityId", required = false) Integer activityId,
                                   @RequestParam(value = "startDate", required = false) String startDate,
+                                  @RequestParam(value = "mediaId", required = false) Integer mediaId,
                                   @RequestParam(value = "status", required = false) Integer status,
                                   @RequestParam(value = "endDate", required = false) String endDate) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
+        AdMonitorTask task = new AdMonitorTask();
+        task.setId(id);
+        task.setStatus(status);
+        Integer shenheCount = 0;
+             
         //获取登录的审核员工taskadmin
         SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-
+        //指派员登录显示属于自己组的所有未指派的任务
+        Map<String, Object> searchMap2 = new HashMap<>();
+        List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId()); //根据员工id查询所属组对应的所有广告商id集合
+        searchMap2.put("customerIds", customerIds);
+    	List<AdMonitorTask> allMonitorTaskUnZhipai= adMonitorTaskService.getAllByStatusUnZhipai(searchMap2);
         if (status == null) {
 //            vo.putSearchParam("statuses", null,
 //                    new Integer[]{MonitorTaskStatus.UNASSIGN.getId(), MonitorTaskStatus.CAN_GRAB.getId()});
         	status = 1; //如果不传查询参数, 默认是1：待指派
+        	
         } else {
             vo.putSearchParam("status", String.valueOf(status), String.valueOf(status));
         }
@@ -258,6 +296,7 @@ public class MonitorTaskController extends BasicController {
             } catch (ParseException e) {
             }
         }
+     
         
 //        //只能查询自己参与的任务指派
 //        if(userObj != null) {
@@ -275,6 +314,7 @@ public class MonitorTaskController extends BasicController {
         	searchMap.put("status", status); //1: 待指派
             searchMap.put("assignorId", userObj.getId()); //指派员id
             List<AdMonitorTaskVo> taskVos = adMonitorTaskService.selectAllByAssessorId(searchMap);
+            
             if(taskVos != null && taskVos.size() > 0) {
             	//条数大于0, 返回给页面
             	Iterator<AdMonitorTaskVo> iterator = taskVos.iterator();
@@ -307,9 +347,15 @@ public class MonitorTaskController extends BasicController {
             	vo.setSize(20);
             	vo.setStart(0);
             	vo.setList(taskVos);
-            } else{
+              
+            	shenheCount = allMonitorTaskUnZhipai.size() - taskVos.size();
+            	if(shenheCount < 0) {
+            		shenheCount = 0;
+            	}
+            	model.addAttribute("shenheCount", shenheCount);
+            } else {
             	//条数等于0, 新查询10条或者小于10条没人认领的待审核的监测指派任务(需要匹配 员工 - 组 - 广告商 之间的关系)
-            	List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId());
+            	//List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId());
             	if(customerIds != null && customerIds.size() > 0) {
             		searchMap.clear();
             		searchMap.put("status", 1);
@@ -320,6 +366,11 @@ public class MonitorTaskController extends BasicController {
                 	vo.setSize(20);
                 	vo.setStart(0);
                 	vo.setList(monitorTaskVos);
+                	shenheCount = allMonitorTaskUnZhipai.size() - monitorTaskVos.size();
+                	if(shenheCount < 0) {
+                		shenheCount = 0;
+                	}
+                	model.addAttribute("shenheCount", shenheCount);
             	}
             }
         }
@@ -368,6 +419,18 @@ public class MonitorTaskController extends BasicController {
         String[] taskIds = ids.split(",");
         try {
             adMonitorTaskService.assign(taskIds, userId);
+            //==========web端指派成功之后根据userId进行app消息推送==============
+            Map<String, Object> param = new HashMap<>();
+            Map<String, String> extras = new HashMap<>();
+            List<String> alias = new ArrayList<>(); //别名用户List
+            alias.add(String.valueOf(userId));
+            extras.put("type", "new_assign_push");
+            param.put("msg", "您有一条新的任务！");
+            param.put("title", "玖凤平台");
+            param.put("alias", alias);  //根据别名选择推送用户（这里userId用作推送时的用户别名）
+            param.put("extras", extras);
+            String pushResult = JPushUtils.pushAllByAlias(param);
+            System.out.println("pushResult:: " + pushResult);
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("指派失败！");
@@ -391,7 +454,6 @@ public class MonitorTaskController extends BasicController {
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("审核成功");
         model = new ExtendedModelMap();
-
         AdMonitorTask task = new AdMonitorTask();
         task.setId(id);
         task.setStatus(status);
@@ -401,14 +463,62 @@ public class MonitorTaskController extends BasicController {
                 adMonitorTaskService.pass(task);
             } else {
                 adMonitorTaskService.reject(task, reason);
-            }
+            } 
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("审核失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
-
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+    }
+   // 撤消审核和指派任务
+    @RequiresRoles("taskadmin")
+    @RequestMapping(value = "/cancel")
+    @ResponseBody
+    public Model cancel(Model model, HttpServletRequest request,
+                        @RequestParam(value = "id", required = false) Integer id,
+                        @RequestParam(value = "userId", required = false) Integer userId,
+                        @RequestParam(value = "reason", required = false) String reason) {
+        ResultVo<String> result = new ResultVo<String>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("撤消成功");
+        model = new ExtendedModelMap();
+        AdMonitorTask task = new AdMonitorTask();
+   
+        try {
+        	//获取当前登录的后台用户信息
+        	SysUser sysUser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        	Integer assessorOrAssignorId = sysUser.getId();
+        	Map<String, Object> searchMap = new HashMap<>();
+			searchMap.put("userId", assessorOrAssignorId);
+			Integer groupId = sysUserRoleService.selectGroupIdByUserId(searchMap);
+        	//获取该组所有员工
+        	List<SysUser> sysUsers = sysGroupService.selectUserName(groupId);
+        	
+        	if( sysUsers.size() > 1) {//待审核
+        		adMonitorTaskService.offAdMonitorTaskByAssessorId(id); 
+        	}else if((task.getStatus() == MonitorTaskStatus.UNVERIFY.getId() && sysUsers.size() <= 1)){
+        		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("只剩一人不能撤销！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+        	}
+        	if( sysUsers.size() > 1) {//待指派
+        		adMonitorTaskService.offAdMonitorTaskByAssignorId(id);        	
+        	}else if((task.getStatus() == MonitorTaskStatus.UNASSIGN.getId() && sysUsers.size() <= 1)){
+        		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("只剩一人不能撤销！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+        	}
+        } catch (Exception e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("撤消失败！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        } 
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }
@@ -476,7 +586,7 @@ public class MonitorTaskController extends BasicController {
      * @param request
      * @return 详情页面
      */
-    @RequiresRoles(value = {"superadmin", "taskadmin", "customer", "media", "deptaskadmin", "superadmin"}, logical = Logical.OR)
+    @RequiresRoles(value = {"superadmin", "taskadmin", "customer", "media", "deptaskadmin", "superadmin","activityadmin","depactivityadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/details")
     public String gotoDetailsPage(@RequestParam("task_Id") String taskId, Model model, HttpServletRequest request) {
         AdMonitorTaskVo vo = adMonitorTaskService.getTaskDetails(taskId);

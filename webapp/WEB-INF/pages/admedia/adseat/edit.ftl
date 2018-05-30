@@ -45,14 +45,6 @@ img.demo {
 								<#--</td>-->
 							<#--</tr>-->
 
-							<tr>
-								<td class="a-title"><font class="s-red">*</font>广告位置：</td>
-								<td><input type="text" style="width: 130px;" id="location" name="location" value="<#if (adSeatInfo?exists)>${adSeatInfo.location!""}</#if>"
-									autocomplete="off" class="form-control">
-                                    <span id="locationTip"></span>
-								</td>
-							</tr>
-							
 							<#if (adSeatInfo?exists&&adSeatInfo.id?exists)>
 							<tr>
 	                            <td class="a-title"><font class="s-red">*</font>媒体大类：</td>
@@ -127,6 +119,14 @@ img.demo {
 							</tr>
 							
 							<tr>
+								<td class="a-title"><font class="s-red">*</font>广告位置：</td>
+								<td><input type="text" style="width: 130px;" id="location" name="location" value="<#if (adSeatInfo?exists)>${adSeatInfo.location!""}</#if>"
+									autocomplete="off" class="form-control">
+                                    <span id="locationTip"></span>
+								</td>
+							</tr>
+							
+							<tr>
 								<td class="a-title">唯一标识：</td>
 								<td><input type="text" style="width: 130px;" id="uniqueKey" name="uniqueKey" value="<#if (adSeatInfo?exists)>${adSeatInfo.uniqueKey!""}</#if>"
 									autocomplete="off" class="form-control">
@@ -135,7 +135,7 @@ img.demo {
 							</tr>
 							
 							<tr>
-								<td class="a-title">广告位尺寸：</td>
+								<td class="a-title"><font class="s-red">*</font>广告位尺寸：</td>
 								<td>
 									<input type="text" style="width: 60px;" value="<#if (adSeatInfo?exists)>${adSeatInfo.width!""}</#if>" id="width" name="width" autocomplete="off" class="form-control">
 									*
@@ -175,7 +175,7 @@ img.demo {
 							<tr>
 								<td class="a-title">地图标准：</td>
 								<td>
-									<select style="width: 156px;" disabled name="mapStandard" id="mapStandard" class="form-control">
+									<select style="width: 156px;" <#if (adSeatInfo?exists&&adSeatInfo.id?exists)>disabled</#if> name="mapStandard" id="mapStandard" class="form-control">
 										<option value="">请选择地图标准</option>
 				                        <option value="1" <#if (adSeatInfo?exists&&((adSeatInfo.mapStandard)!0) == 1)>selected</#if>>百度</option>
 				                        <option value="2" <#if (adSeatInfo?exists&&((adSeatInfo.mapStandard)!0) == 2)>selected</#if>>谷歌</option>

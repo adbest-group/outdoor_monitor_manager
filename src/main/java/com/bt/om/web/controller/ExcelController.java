@@ -113,11 +113,6 @@ public class ExcelController extends BasicController {
 	
 	/**
 	 * 具体活动的pdf导出
-	 * @param model
-	 * @param request
-	 * @param response
-	 * @param activityId
-	 * @return
 	 */
 	@RequiresRoles(value = {"admin" , "customer"}, logical = Logical.OR)
     @RequestMapping(value = "/exportAdMediaPdf")
@@ -260,12 +255,6 @@ public class ExcelController extends BasicController {
 	
 	/**
 	 * 具体活动的广告位excel导出报表
-	 * @param model
-	 * @param request
-	 * @param response
-	 * @param activityId
-	 * @return
-	 * @throws UnsupportedEncodingException 
 	 */
 	@RequiresRoles(value = {"admin" , "customer"}, logical = Logical.OR)
     @RequestMapping(value = "/exportAdMediaInfo")
@@ -358,9 +347,6 @@ public class ExcelController extends BasicController {
 	
 	/**
 	 * 批量插入广告位
-	 * @param model
-	 * @param request
-	 * @param excelFile
 	 */
 	@RequiresRoles(value = {"superadmin" , "media"}, logical = Logical.OR)
     @RequestMapping(value = "/insertBatch")
@@ -802,7 +788,7 @@ public class ExcelController extends BasicController {
                     	}
                 	}
                 	
-                	//设置媒体方编号
+                	//设置媒体方编号信息
                 	if(hasProblem == false) {
                 		if(lo.get(19) != null) {
                 			info.setMemo(String.valueOf(lo.get(19)).trim());
@@ -836,6 +822,8 @@ public class ExcelController extends BasicController {
                 		QRcodeUtil.encode(adCodeInfo, path);
                 		info.setAdCode(adCodeInfo);
                 		info.setAdCodeUrl("/static/qrcode/" + adCodeInfo + ".jpg");
+                		//默认贴上二维码
+                		info.setCodeFlag(1);
                 		insertAdSeatInfos.add(info);
                 	}
                 } else {
@@ -853,7 +841,7 @@ public class ExcelController extends BasicController {
             
             //导出到excel, 返回导入广告位信息结果
             List<List<String>> listString = objToString(listob);
-            String[] titleArray = { "广告位名称", "媒体大类", "媒体大类", "是否允许多个活动", "允许活动数量", "省", "市", "区（县）", "街道（镇，乡）", "详细位置", 
+            String[] titleArray = { "广告位名称", "媒体大类", "媒体小类", "是否允许多个活动", "允许活动数量", "省", "市", "区（县）", "街道（镇，乡）", "详细位置", 
             		"唯一标识", "广告位长度", "广告位宽度", "面积", "经度", "纬度",
             		"地图标准（如百度，谷歌，高德）", "联系人姓名", "联系人电话", "媒体方编号", "导入结果", "导入错误信息"};
             ExcelTool<List<String>> excelTool = new ExcelTool<List<String>>("importResult");
@@ -869,10 +857,30 @@ public class ExcelController extends BasicController {
         } catch (Exception e) {
         	logger.error(MessageFormat.format("批量导入文件有误, 导入失败", new Object[] {}));
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());
-        	result.setResultDes(e.getMessage());
+        	result.setResultDes("导入失败");
             e.printStackTrace();
         }
 		
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+	}
+	
+	/**
+	 * 导入广告位模板下载
+	 */
+	@RequiresRoles(value = {"superadmin" , "media"}, logical = Logical.OR)
+    @RequestMapping(value = "/downloadBatch")
+	@ResponseBody
+	public Model downloadBatch(Model model, HttpServletRequest request, HttpServletResponse response) {
+		//相关返回结果
+		ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("查询成功");
+        model = new ExtendedModelMap();
+        
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResult("/static/excel/" + "批量导入广告位示例.xls");
+        
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
 	}
@@ -1005,9 +1013,9 @@ public class ExcelController extends BasicController {
 //	    Font titleChinese = new Font(bfChinese, 20, Font.BOLD);  
 //	    Font BoldChinese = new Font(bfChinese, 20, Font.BOLD);  
 		
-		PdfPTable table = new PdfPTable(11);
+		PdfPTable table = new PdfPTable(10);
 		table.setWidthPercentage(100);
-		table.setWidths(new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 });
+		table.setWidths(new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1});
 
         table.addCell(new Paragraph("广告位名称", fontChinese));
 //        table.addCell(new Paragraph("客户类型", fontChinese));

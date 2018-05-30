@@ -154,9 +154,9 @@
 			<if test="location != null">
 				location,
 			</if>
-			<if test="adSize != null">
+			 <if test="adSize != null">
 				ad_size,
-			</if>
+			</if>		
 			<if test="adArea != null">
 				ad_area,
 			</if>
@@ -174,7 +174,7 @@
 			</if>
 			<if test="lat != null">
 				lat,
-			</if>
+			</if> 	
 			<if test="mapStandard != null">
 				map_standard,
 			</if>

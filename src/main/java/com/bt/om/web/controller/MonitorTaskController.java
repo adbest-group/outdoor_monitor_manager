@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.adtime.common.lang.StringUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
-import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.SysUser;
@@ -73,7 +72,8 @@ public class MonitorTaskController extends BasicController {
 	private ISysResourcesService sysResourcesService;
 	@Autowired
 	private ISysUserRoleService sysUserRoleService;
-    /**
+    
+	/**
      * 监测管理，已分配任务
      **/
     @RequiresRoles(value = {"taskadmin", "deptaskadmin", "depjiucuoadmin", "jiucuoadmin"}, logical = Logical.OR)
@@ -247,7 +247,7 @@ public class MonitorTaskController extends BasicController {
     /**
      * 监测管理，未分配任务
      **/
-    @RequiresRoles("taskadmin")
+    @RequiresRoles(value = {"taskadmin", "deptaskadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/unassign")
     public String getUnAssignList(Model model, HttpServletRequest request,
     		                      @RequestParam(value = "id", required = false) Integer id,
@@ -383,7 +383,7 @@ public class MonitorTaskController extends BasicController {
     /**
      * 选择监测人员页面
      **/
-    @RequiresRoles(value = {"taskadmin", "media"}, logical = Logical.OR)
+    @RequiresRoles(value = {"taskadmin", "media", "deptaskadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/selectUserExecute")
     public String toSelectUserExecute(Model model, HttpServletRequest request,
                                       @RequestParam(value = "mediaId", required = false) Integer mediaId) {
@@ -404,8 +404,10 @@ public class MonitorTaskController extends BasicController {
         return PageConst.SELECT_USER_EXECUTE;
     }
 
-    // 分配任务
-    @RequiresRoles(value = {"taskadmin", "media"}, logical = Logical.OR)
+    /**
+     * 指派任务
+     **/
+    @RequiresRoles(value = {"taskadmin", "media", "deptaskadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/assign")
     @ResponseBody
     public Model assign(Model model, HttpServletRequest request,
@@ -418,7 +420,10 @@ public class MonitorTaskController extends BasicController {
 
         String[] taskIds = ids.split(",");
         try {
-            adMonitorTaskService.assign(taskIds, userId);
+        	//获取登录的审核人(员工/部门领导/超级管理员)
+            SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        	
+            adMonitorTaskService.assign(taskIds, userId, userObj.getId());
             //==========web端指派成功之后根据userId进行app消息推送==============
             Map<String, Object> param = new HashMap<>();
             Map<String, String> extras = new HashMap<>();
@@ -442,8 +447,10 @@ public class MonitorTaskController extends BasicController {
         return model;
     }
 
-    // 审核纠错
-    @RequiresRoles("taskadmin")
+    /**
+     * 审核任务
+     **/
+    @RequiresRoles(value = {"taskadmin", "deptaskadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/verify")
     @ResponseBody
     public Model verify(Model model, HttpServletRequest request,
@@ -458,11 +465,14 @@ public class MonitorTaskController extends BasicController {
         task.setId(id);
         task.setStatus(status);
         try {
+        	//获取登录的审核人(员工/部门领导/超级管理员)
+            SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        	
             if (task.getStatus() == MonitorTaskStatus.VERIFIED.getId()) {
                 // adMonitorTaskService.update(task);
-                adMonitorTaskService.pass(task);
+                adMonitorTaskService.pass(task, userObj.getId());
             } else {
-                adMonitorTaskService.reject(task, reason);
+                adMonitorTaskService.reject(task, reason, userObj.getId());
             } 
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -524,8 +534,10 @@ public class MonitorTaskController extends BasicController {
         return model;
     }
 
-    //关闭问题任务
-    @RequiresRoles("taskadmin")
+    /**
+     * 关闭问题任务
+     **/
+    @RequiresRoles(value = {"taskadmin", "deptaskadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/close")
     @ResponseBody
     public Model close(Model model, HttpServletRequest request,
@@ -551,8 +563,10 @@ public class MonitorTaskController extends BasicController {
         return model;
     }
 
-    //创建子任务
-    @RequiresRoles("taskadmin")
+    /**
+     * 创建子任务
+     **/
+    @RequiresRoles(value = {"taskadmin", "deptaskadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/createTask")
     @ResponseBody
     public Model newSub(Model model, HttpServletRequest request,
@@ -618,7 +632,7 @@ public class MonitorTaskController extends BasicController {
     }
     
     /**
-     *所有任务页面
+     * 所有任务页面
      */
     @RequiresRoles("superadmin")
     @RequestMapping(value = "/allList")

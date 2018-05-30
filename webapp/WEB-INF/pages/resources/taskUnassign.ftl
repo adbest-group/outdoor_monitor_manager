@@ -80,6 +80,7 @@
                             <td>${vm.getMonitorTaskStatusText(task.status)}</td>
                             <td>${task.assignorName!""}</td>
                             <td>
+                            	<#if (task.status==1 || task.status==8)><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if>
                                 <a href="/task/details?task_Id=${task.id}">详情</a>
                             </td>
                         </tr>

@@ -31,7 +31,6 @@ import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.enums.JiucuoTaskStatus;
-import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
@@ -218,6 +217,9 @@ public class JiucuoController extends BasicController {
         return PageConst.JIUCUO_LIST;
     }
 
+    /**
+     * 查看纠错详情
+     */
     @RequiresRoles(value = {"jiucuoadmin", "media", "customer", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/detail")
     public String showDetail(Model model, HttpServletRequest request,
@@ -241,8 +243,10 @@ public class JiucuoController extends BasicController {
         return PageConst.JIUCUO_DETAIL;
     }
 
-    //审核纠错
-    @RequiresRoles("jiucuoadmin")
+    /**
+     * 审核纠错
+     */
+    @RequiresRoles(value = {"jiucuoadmin", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/verify")
     @ResponseBody
     public Model confirm(Model model, HttpServletRequest request,
@@ -257,10 +261,13 @@ public class JiucuoController extends BasicController {
         AdJiucuoTask task = new AdJiucuoTask();
         task.setId(id);
         try {
+        	//获取登录的审核人(员工/部门领导/超级管理员)
+            SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+            
             if (status == JiucuoTaskStatus.VERIFIED.getId()) {//审核通过
-                adJiucuoTaskService.pass(task);
+                adJiucuoTaskService.pass(task, userObj.getId());
             } else if (status == JiucuoTaskStatus.VERIFY_FAILURE.getId()) {//审核不通过
-                adJiucuoTaskService.reject(task, reason);
+                adJiucuoTaskService.reject(task, reason, userObj.getId());
             }
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -269,10 +276,10 @@ public class JiucuoController extends BasicController {
             return model;
         }
 
-
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }
+    
     // 撤消纠错
     @RequiresRoles("jiucuoadmin")
     @RequestMapping(value = "/cancel")
@@ -313,8 +320,11 @@ public class JiucuoController extends BasicController {
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }
-    //关闭纠错问题任务
-    @RequiresRoles("jiucuoadmin")
+    
+    /**
+     * 关闭纠错问题任务
+     */
+    @RequiresRoles(value = {"jiucuoadmin", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/close")
     @ResponseBody
     public Model close(Model model, HttpServletRequest request,
@@ -340,8 +350,10 @@ public class JiucuoController extends BasicController {
         return model;
     }
 
-    //创建复查子任务
-    @RequiresRoles("jiucuoadmin")
+    /**
+     * 创建复查子任务
+     */
+    @RequiresRoles(value = {"jiucuoadmin", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/createTask")
     @ResponseBody
     public Model newSub(Model model, HttpServletRequest request,

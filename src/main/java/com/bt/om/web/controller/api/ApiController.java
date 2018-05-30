@@ -330,12 +330,12 @@ public class ApiController extends BasicController {
                 }
             }
         }
-
+        
         try {
         	List<AdJiucuoTask> jiucuoTasks = new ArrayList<>();
             List<AdActivityAdseatVo> list = null;
-            if(seatCode!=null){
-            	//扫描二维码调取接口
+            if(StringUtil.isNotEmpty(seatCode)){
+            	//[1] 扫描二维码调取接口
                 list = adActivityService.getActivitySeatBySeatCode(seatCode);
                 if(list == null || list.size() == 0) {
                 	result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -360,8 +360,8 @@ public class ApiController extends BasicController {
 						}
 					}
 				}
-            }else if(lon!=null && lat!=null && title!=null) {
-            	//通过经纬度调取接口
+            } else if(lon != null && lat != null && StringUtil.isNotEmpty(title)) {
+            	//[2] 通过经纬度调取接口
                 list = adActivityService.selectVoByLonLatTitle(lon, lat, title);
                 if(list == null || list.size() == 0) {
                 	result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -388,8 +388,8 @@ public class ApiController extends BasicController {
 						}
 					}
 				}
-            }else if(memo!=null) {
-            	//memo调取接口
+            } else if(StringUtil.isNotEmpty(memo)) {
+            	//[3] 媒体方编号memo调取接口
                 list = adActivityService.getActivitySeatByMemo(memo);
                 if(list == null || list.size() == 0) {
                 	result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -414,6 +414,12 @@ public class ApiController extends BasicController {
 						}
 					}
 				}
+            } else {
+            	//参数有误
+            	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("系统繁忙，请稍后再试！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
             }
             
             QRCodeInfoVo qr = new QRCodeInfoVo();

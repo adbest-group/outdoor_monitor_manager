@@ -33,7 +33,7 @@ public interface IAdActivityService {
     
     public AdActivity getById(Integer id);
 
-    public void confirm(Integer id);
+    public void confirm(Integer id, Integer assessorId);
 
     public void delete(Integer id);
 

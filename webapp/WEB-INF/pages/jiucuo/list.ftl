@@ -273,21 +273,20 @@
     }
   //撤消纠错任务
      cancelJc = function(id){
-        layer.confirm("确定撤销该任务？", {
+        layer.confirm("确定撤销该纠错？", {
             icon: 3,
             btn: ['确定', '取消'] //按钮
         }, function(){
-         	cancel(id, 1);
+         	cancel(id);
          	});
       }
     //发起撤消请求
-    cancel = function (id, status, reason) {
+    cancel = function (id, reason) {
         $.ajax({
             url: "/jiucuo/cancel",
             type: "post",
             data: {
                 "id": id,
-                "status": status,
                 "reason": reason
             },
             cache: false,

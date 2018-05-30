@@ -112,7 +112,7 @@ public class ExcelController extends BasicController {
 	/**
 	 * 具体活动的pdf导出
 	 */
-	@RequiresRoles(value = {"superadmin", "activityadmin", "admin" , "customer"}, logical = Logical.OR)
+	@RequiresRoles(value = {"superadmin", "activityadmin", "depactivityadmin", "admin" , "customer"}, logical = Logical.OR)
     @RequestMapping(value = "/exportAdMediaPdf")
 	@ResponseBody
 	public Model exportPdf(Model model, HttpServletRequest request, HttpServletResponse response,
@@ -258,7 +258,7 @@ public class ExcelController extends BasicController {
 	/**
 	 * 具体活动的广告位excel导出报表
 	 */
-	@RequiresRoles(value = {"superadmin", "activityadmin", "admin" , "customer"}, logical = Logical.OR)
+	@RequiresRoles(value = {"superadmin", "activityadmin", "depactivityadmin", "admin" , "customer"}, logical = Logical.OR)
     @RequestMapping(value = "/exportAdMediaInfo")
 	@ResponseBody
 	public Model exportAdMediaInfo(Model model, HttpServletRequest request, HttpServletResponse response,

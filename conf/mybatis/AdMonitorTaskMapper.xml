@@ -907,7 +907,6 @@
 	    </if>
 	    order by a.id limit 0,10 for update;
     </select>
-    
     <update id="updateAssessorId" parameterType="map">
 	  	update ad_monitor_task
 	    set
@@ -917,8 +916,7 @@
 	      and id in
 	        <foreach collection="ids" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
 	    </if>
-    </update>
-    
+    </update>  
     <update id="updateAssignorId" parameterType="map">
 	  	update ad_monitor_task
 	    set

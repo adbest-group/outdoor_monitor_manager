@@ -4,6 +4,8 @@
         <#--<div class="crumb-nav">-->
         <#--<a href="/jiucuo/list">纠错管理</a>　>　纠错详情-->
         <#--</div>-->
+        	<button class="btn btn-primary ml-20" id="back">返回</button>
+        
             <div class="bd new-active">
                 <div class="hd mt-10"><h3>广告位相关信息</h3></div>
                 <div class="bd">
@@ -101,6 +103,7 @@
             </div>
         </div>
     </div>
+    
 </div>
 </div>
 </div>
@@ -118,6 +121,10 @@
 
     $(function () {
         $(window).resize();
+
+		$("#back").click(function () {
+            history.back();
+        });
 
         $("#btnPass").click(function () {
             pass(${task.id});

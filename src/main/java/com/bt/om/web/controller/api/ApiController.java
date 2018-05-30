@@ -556,6 +556,15 @@ public class ApiController extends BasicController {
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
+        if(userExecute.getUsertype() == 2) {
+        	//客户登录APP, 校验appSid
+        	if(!StringUtil.equals(userExecute.getAppSid(), appSid)) {
+        		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("用户名或密码有误！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+        	}
+        }
 
         if (useSession.get()) {
             session.setAttribute(SessionKey.SESSION_LOGIN_USER.toString(), userExecute);

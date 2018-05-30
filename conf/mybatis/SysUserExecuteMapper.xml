@@ -25,6 +25,7 @@
     <result column="remark" jdbcType="VARCHAR" property="remark" />
     <result column="login_ip" jdbcType="VARCHAR" property="loginIp" />
     <result column="login_time" jdbcType="TIMESTAMP" property="loginTime" />
+    <result column="app_sid" jdbcType="VARCHAR" property="appSid" />
     <result column="default_page" jdbcType="VARCHAR" property="defaultPage" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
@@ -36,7 +37,7 @@
       This element was generated on Tue Jan 23 17:12:28 CST 2018.
     -->
     id, username, password, realname, mobile,mac, company, head_img_url, usertype, operate_id,status,
-    province, city, region, street, remark, login_ip, login_time, default_page, create_time, 
+    province, city, region, street, remark, login_ip, login_time, default_page,app_sid, create_time, 
     update_time
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">

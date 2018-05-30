@@ -18,11 +18,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
+import com.bt.om.entity.AdApp;
 import com.bt.om.entity.AdCustomerType;
 import com.bt.om.entity.SysRole;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.ResultCode;
+import com.bt.om.service.IAppService;
 import com.bt.om.service.ICustomerService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.vo.web.ResultVo;
@@ -40,7 +42,9 @@ public class CustomerController {
     private ISysUserService sysUserService;
     @Autowired
     private ICustomerService customerService;
-
+    @Autowired
+    private IAppService appService;
+    
     /**
      * 客户管理列表
      **/
@@ -84,7 +88,6 @@ public class CustomerController {
                 model.addAttribute("obj", user);
             }
         }
-
         return PageConst.CUSTOMER_EDIT;
     }
 
@@ -125,7 +128,8 @@ public class CustomerController {
                       @RequestParam(value = "password", required = true) String password,
                       @RequestParam(value = "name", required = true) String name,
                       @RequestParam(value = "telephone", required = true) String telephone,
-                      @RequestParam(value = "customerTypeId", required = true) Integer customerTypeId) {
+                      @RequestParam(value = "customerTypeId", required = true) Integer customerTypeId,
+                      @RequestParam(value = "appTypeId", required = true) Integer appTypeId) {
 
         ResultVo<List<SysUser>> resultVo = new ResultVo<List<SysUser>>();
         String appSid = UUID.randomUUID().toString();
@@ -141,7 +145,7 @@ public class CustomerController {
                 user.setUsertype(2);
                 user.setStatus(1);
                 user.setCustomerTypeId(customerTypeId);
-                user.setAppSid(appSid);
+                user.setAppTypeId(appTypeId);
                 customerService.add(user);
             } else {//修改
                 SysUserVo user = new SysUserVo();
@@ -153,6 +157,7 @@ public class CustomerController {
                 user.setRealname(name);
                 user.setTelephone(telephone);
                 user.setCustomerTypeId(customerTypeId);
+                user.setAppTypeId(appTypeId);
                 customerService.modify(user);
             }
         } catch (Exception ex) {

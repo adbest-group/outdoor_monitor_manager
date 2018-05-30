@@ -27,4 +27,6 @@ public interface ISysUserExecuteService {
     public void add(SysUserExecute userExecute);
     public void modify(SysUserExecute userExecute);
 	SysUserExecuteVo selectByIdAndMedia(Integer id);
+	public void addMacAddress(String mac);
+
 }

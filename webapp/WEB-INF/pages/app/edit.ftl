@@ -39,15 +39,15 @@
                                 <span id="nameTip"></span>
                             </td>
                         </tr>
-                        <tr>
+                        <#-- <tr>
                             <td class="a-title"><font class="s-red">*</font>App序列号：</td>
-                            <td><input type="text" <#-- disabled --> style="width: 130px;" id="appSid" name="appSid"
+                            <td><input type="text"  style="width: 130px;" id="appSid" name="appSid"
                                        value="<#if (adapp?exists)>${adapp.appSid!""}</#if>"
                                        autocomplete="off" class="form-control">
                                 <span id="locationTip"></span>
                             </td>
                         </tr>
-                        
+                         -->
                         <tr>
                             <td></td>
 

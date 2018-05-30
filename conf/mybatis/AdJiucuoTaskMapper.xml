@@ -527,5 +527,4 @@
 	    and b.name = #{title,jdbcType=INTEGER}
   </select>
   
->>>>>>> branch 'wangzz_dev' of https://github.com/adbest-group/outdoor_monitor_manager.git
 </mapper>

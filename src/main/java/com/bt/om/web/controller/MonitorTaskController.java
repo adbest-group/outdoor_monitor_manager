@@ -101,12 +101,12 @@ public class MonitorTaskController extends BasicController {
         if (taskType != null) {
             vo.putSearchParam("taskType", taskType.toString(), taskType);
         }
-        if (status != null) {
-            vo.putSearchParam("status", status.toString(), status);
-            model.addAttribute("status", status);
-        } else {
+        if (status == null) {
         	status = 3; //如果没有传参status, 默认取3：待审核
         }
+            vo.putSearchParam("status", status.toString(), status);
+            model.addAttribute("status", status);
+        
         if (problemStatus != null) {
             vo.putSearchParam("problemStatus", problemStatus.toString(), problemStatus);
         }
@@ -273,9 +273,10 @@ public class MonitorTaskController extends BasicController {
 //                    new Integer[]{MonitorTaskStatus.UNASSIGN.getId(), MonitorTaskStatus.CAN_GRAB.getId()});
         	status = 1; //如果不传查询参数, 默认是1：待指派
         	
-        } else {
-            vo.putSearchParam("status", String.valueOf(status), String.valueOf(status));
         }
+        	vo.putSearchParam("status", String.valueOf(status), String.valueOf(status));
+            model.addAttribute("status", status);
+       
         //运营平台指派任务只指派监测期间的任务
 //        vo.putSearchParam("taskTypes", null, new Integer[]{MonitorTaskType.UP_MONITOR.getId(),MonitorTaskType.DURATION_MONITOR.getId(),MonitorTaskType.DOWNMONITOR.getId(), MonitorTaskType.FIX_CONFIRM.getId()});
 
@@ -427,7 +428,7 @@ public class MonitorTaskController extends BasicController {
         return model;
     }
 
-    // 审核纠错
+    // 审核任务
     @RequiresRoles("taskadmin")
     @RequestMapping(value = "/verify")
     @ResponseBody
@@ -458,7 +459,7 @@ public class MonitorTaskController extends BasicController {
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }
-   // 撤消审核和指派任务
+   // 撤消审核任务
     @RequiresRoles("taskadmin")
     @RequestMapping(value = "/cancel")
     @ResponseBody
@@ -475,24 +476,55 @@ public class MonitorTaskController extends BasicController {
         try {
         	//获取当前登录的后台用户信息
         	SysUser sysUser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-        	Integer assessorOrAssignorId = sysUser.getId();
         	Map<String, Object> searchMap = new HashMap<>();
-			searchMap.put("userId", assessorOrAssignorId);
+			searchMap.put("userId", sysUser.getId());
 			Integer groupId = sysUserRoleService.selectGroupIdByUserId(searchMap);
         	//获取该组所有员工
         	List<SysUser> sysUsers = sysGroupService.selectUserName(groupId);
         	
-        	if( sysUsers.size() > 1) {//待审核
+        	if(sysUsers.size() > 1) {//待审核
         		adMonitorTaskService.offAdMonitorTaskByAssessorId(id); 
-        	}else if((task.getStatus() == MonitorTaskStatus.UNVERIFY.getId() && sysUsers.size() <= 1)){
+        	}else if(sysUsers.size() <= 1){
         		result.setCode(ResultCode.RESULT_FAILURE.getCode());
                 result.setResultDes("只剩一人不能撤销！");
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
         	}
-        	if( sysUsers.size() > 1) {//待指派
+        } catch (Exception e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("撤消失败！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        } 
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+    }
+    // 撤消指派任务
+    @RequiresRoles("taskadmin")
+    @RequestMapping(value = "/cancelZhipai")
+    @ResponseBody
+    public Model cancelZhipai(Model model, HttpServletRequest request,
+                        @RequestParam(value = "id", required = false) Integer id,
+                        @RequestParam(value = "userId", required = false) Integer userId,
+                        @RequestParam(value = "reason", required = false) String reason) {
+        ResultVo<String> result = new ResultVo<String>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("撤消成功");
+        model = new ExtendedModelMap();
+        AdMonitorTask task = new AdMonitorTask();
+   
+        try {
+        	//获取当前登录的后台用户信息
+        	SysUser sysUser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        	Map<String, Object> searchMap = new HashMap<>();
+			searchMap.put("userId", sysUser.getId());
+			Integer groupId = sysUserRoleService.selectGroupIdByUserId(searchMap);
+        	//获取该组所有员工
+        	List<SysUser> sysUsers = sysGroupService.selectUserName(groupId);
+
+        	if(sysUsers.size() > 1) {//待指派
         		adMonitorTaskService.offAdMonitorTaskByAssignorId(id);        	
-        	}else if((task.getStatus() == MonitorTaskStatus.UNASSIGN.getId() && sysUsers.size() <= 1)){
+        	}else if( sysUsers.size() <= 1){
         		result.setCode(ResultCode.RESULT_FAILURE.getCode());
                 result.setResultDes("只剩一人不能撤销！");
                 model.addAttribute(SysConst.RESULT_KEY, result);

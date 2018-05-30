@@ -97,7 +97,7 @@
                             <td>
                                 <#if (task.status==1 || task.status==8)><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if>
                                 <a href="/task/details?task_Id=${task.id}">详情</a>
-                           		 <#if task.status==1><a href="javascript:cancelZp('${task.mediaId}')">撤消</a></#if>
+                           		 <#if task.status==1><a href="javascript:cancelZp('${task.id}')">撤消</a></#if>
                             </td>
                         </tr>
                         </#list>
@@ -234,17 +234,16 @@
             icon: 3,
             btn: ['确定', '取消'] //按钮
         }, function(){
-         	cancel(id,1);
+         	cancel(id);
          	});
       }
     //发起撤消请求
-    cancel = function (id,status, reason) {
+    cancel = function (id, reason) {
         $.ajax({
-            url: "/task/cancel",
+            url: "/task/cancelZhipai",
             type: "post",
             data: {
                 "id": id,
-                "status": status,
                 "reason": reason
             },
             cache: false,

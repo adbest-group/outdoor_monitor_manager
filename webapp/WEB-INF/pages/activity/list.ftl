@@ -220,7 +220,7 @@
         });
     }
     //活动撤销
-    cancel = function(activityId){
+    cancel = function(id){
         layer.confirm("确定撤销该活动？", {
             icon: 3,
             btn: ['确定', '取消'] //按钮
@@ -229,7 +229,7 @@
                 url: "/activity/cancel",
                 type: "post",
                 data: {
-                    "id": activityId
+                    "id": id
                 },
                 cache: false,
                 dataType: "json",

@@ -212,7 +212,7 @@ public class ActivityController extends BasicController {
     }
 
     //确认活动
-    @RequiresRoles("activityadmin")
+    @RequiresRoles(value = {"activityadmin", "depactivityadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/confirm")
     @ResponseBody
     public Model confirm(Model model, HttpServletRequest request,
@@ -224,11 +224,13 @@ public class ActivityController extends BasicController {
         Date now = new Date();
         
         try {
+        	//获取登录的审核人(员工/部门领导/超级管理员)
+            SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        	
         	//确认活动
-            adActivityService.confirm(id);
+            adActivityService.confirm(id, userObj.getId());
             
             AdActivity adActivity = adActivityService.getById(id);
-            
             //==========web端活动审核成功之后根据活动创建者id进行app消息推送==============
             Map<String, Object> param = new HashMap<>();
             Map<String, String> extras = new HashMap<>();
@@ -294,7 +296,7 @@ public class ActivityController extends BasicController {
     }
 
     //删除活动
-    @RequiresRoles(value= {"admin", "customer", "activityadmin"}, logical = Logical.OR)
+    @RequiresRoles(value = {"admin", "customer", "activityadmin", "depactivityadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/delete")
     @ResponseBody
     public Model delete(Model model, HttpServletRequest request,

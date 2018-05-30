@@ -69,7 +69,7 @@
                         <tr id="task_${task.id}">
                             <td width="30">${(bizObj.page.currentPage-1)*20+task_index+1}</td>
                             <td>
-                                <div class="data-title w200" data-title="${task.activityName}"
+                                <div class="data-title w200" data-title="${task.activityName!""}"
                                      data-id="${task.id}">${task.activityName?if_exists}</div>
                             </td>
                             <td><img width="50" src="${task.picUrl1!""}"/></td>
@@ -81,6 +81,14 @@
                             <td>${vm.getProblemStatusText(task.problemStatus!0)}</td>
                             <td>${task.assessorName!""}</td>
                             <td>
+                            	<#if task.status==1><a href="javascript:pass('${task.id}');">通过</a></#if>
+                                <#if task.status==1><a href="javascript:reject('${task.id}');">拒绝</a></#if>
+                                <#if (task.status==2&&task.problemStatus?exists&&task.problemStatus==4&&(!task.subCreated?exists||task.subCreated==2))>
+                                    <a href="javascript:createTask('${task.id}');">创建监测</a></#if>
+                                <#if (task.status==2&&task.problemStatus?exists&&task.problemStatus==4&&task.subCreated?exists&&task.subCreated==1)>
+                                    <a href="/task/list?pid=${task.id}&ptype=2">查看监测</a></#if>
+                                <#if (task.status==2&&task.problemStatus?exists&&task.problemStatus==4)><a
+                                        href="javascript:close('${task.id}');">关闭</a></#if>
                                 <a href="/jiucuo/detail?id=${task.id}">详情</a>
                             </td>
                         </tr>

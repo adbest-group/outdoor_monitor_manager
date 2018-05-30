@@ -22,7 +22,7 @@ public interface IAdMonitorTaskService {
 	/**
 	 * 只适用于首次分配，内部采用和抢任务一样的机制
 	 **/
-	public void assign(String[] taskIds, Integer userId);
+	public void assign(String[] taskIds, Integer userId, Integer assignorId);
 
 	/**
 	 * 获取监测任务详情信息
@@ -37,11 +37,11 @@ public interface IAdMonitorTaskService {
     /**
      * 审核通过
      **/
-    public void pass(AdMonitorTask task);
+    public void pass(AdMonitorTask task, Integer assessorId);
     /**
      * 审核不通过
      **/
-    public void reject(AdMonitorTask task,String reason);
+    public void reject(AdMonitorTask task,String reason, Integer assessorId);
 
     public List<AdMonitorTaskMobileVo> getByUserIdForMobile(Integer userId);
 
@@ -90,5 +90,4 @@ public interface IAdMonitorTaskService {
 	 public List<AdMonitorTask> getAllByStatusUnCheck(Map<String, Object> searchMap);
 	 public List<AdMonitorTask> getAllByStatusUnZhipai(Map<String, Object> searchMap);
 	List<PictureVo> selectFeedBackByActivityIdAndSeatId(Map<String, Object> searchMap);
-
 }

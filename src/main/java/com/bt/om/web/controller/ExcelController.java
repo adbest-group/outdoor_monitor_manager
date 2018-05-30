@@ -114,7 +114,7 @@ public class ExcelController extends BasicController {
 	/**
 	 * 具体活动的pdf导出
 	 */
-	@RequiresRoles(value = {"admin" , "customer"}, logical = Logical.OR)
+	@RequiresRoles(value = {"superadmin", "activityadmin", "admin" , "customer"}, logical = Logical.OR)
     @RequestMapping(value = "/exportAdMediaPdf")
 	@ResponseBody
 	public Model exportPdf(Model model, HttpServletRequest request, HttpServletResponse response,
@@ -200,7 +200,11 @@ public class ExcelController extends BasicController {
 				list.add(vo.getInfo_adArea()); //面积 12
 				list.add(vo.getInfo_lon() + ""); //经度 13
 				list.add(vo.getInfo_lat() + ""); //纬度 14
-				list.add(MapStandardEnum.getText(vo.getInfo_mapStandard())); //地图标准 15
+				if(vo.getInfo_mapStandard() != null) {
+					list.add(MapStandardEnum.getText(vo.getInfo_mapStandard())); //地图标准 15
+				} else {
+					list.add(null);
+				}
 				list.add(vo.getInfo_contactName()); //联系人姓名 16
 				list.add(vo.getInfo_contactCell()); //联系人电话 17
 				list.add(vo.getInfo_memo()); //媒体方编号 18
@@ -256,7 +260,7 @@ public class ExcelController extends BasicController {
 	/**
 	 * 具体活动的广告位excel导出报表
 	 */
-	@RequiresRoles(value = {"admin" , "customer"}, logical = Logical.OR)
+	@RequiresRoles(value = {"superadmin", "activityadmin", "admin" , "customer"}, logical = Logical.OR)
     @RequestMapping(value = "/exportAdMediaInfo")
 	@ResponseBody
 	public Model exportAdMediaInfo(Model model, HttpServletRequest request, HttpServletResponse response,
@@ -689,9 +693,9 @@ public class ExcelController extends BasicController {
                 	//设置广告位尺寸
                 	if(hasProblem == false) {
                 		if(lo.get(11) != null && lo.get(12) != null) {
-                    		DecimalFormat df = new DecimalFormat("0"); // 格式化number String字符
-                    		String length = df.format(lo.get(11)).trim();
-                    		String width = df.format(lo.get(12)).trim();
+//                    		DecimalFormat df = new DecimalFormat("0"); // 格式化number String字符
+                    		String length = String.valueOf(lo.get(11)).trim();
+                    		String width = String.valueOf(lo.get(12)).trim();
                     		info.setAdSize(length + "*" + width); //广告位长度*广告位宽度
                     		lo.set(11, length);
                     		lo.set(12, width);

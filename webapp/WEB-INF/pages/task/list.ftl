@@ -354,21 +354,20 @@
     }
      //撤消审核任务
      cancelSh = function(id){
-        layer.confirm("确定撤销该活动？", {
+        layer.confirm("确定撤销该审核？", {
             icon: 3,
             btn: ['确定', '取消'] //按钮
         }, function(){
-         	cancel(id, 3);
+         	cancel(id);
          	});
       }
     //发起撤消请求
-    cancel = function (id, status, reason) {
+    cancel = function (id,reason) {
         $.ajax({
             url: "/task/cancel",
             type: "post",
             data: {
                 "id": id,
-                "status": status,
                 "reason": reason
             },
             cache: false,

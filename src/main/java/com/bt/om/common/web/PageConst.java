@@ -110,4 +110,8 @@ public class PageConst {
 	
 	/*** 后台人员操作日志管理  ***/
 	public static final String OPERATE_lOG_LIST = "resources/operateLog";
+	
+	/*** 系统管理下的系统消息推送管理  ***/
+	public static final String SYSTRM_PUSH_LIST = "system/push/list";
+	public static final String SYSTRM_PUSH_EDIT = "system/push/edit";
 }

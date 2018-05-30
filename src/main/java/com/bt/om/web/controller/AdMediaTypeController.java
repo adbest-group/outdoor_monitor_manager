@@ -19,8 +19,13 @@ import com.alibaba.druid.util.StringUtils;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdMediaType;
+import com.bt.om.entity.OperateLog;
+import com.bt.om.entity.SysUser;
 import com.bt.om.enums.ResultCode;
+import com.bt.om.enums.SessionKey;
+import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdMediaTypeService;
+import com.bt.om.service.IOperateLogService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.util.SearchUtil;
@@ -34,6 +39,9 @@ public class AdMediaTypeController {
 
 	@Autowired
 	private IAdMediaTypeService adMediaTypeService;
+	
+	@Autowired
+	private IOperateLogService operateLogService;
 	
 	/**
      * 媒体大类, 媒体小类展示
@@ -103,6 +111,15 @@ public class AdMediaTypeController {
             	
             	adMediaTypeService.save(adMediaType);
                 modelMap.put("success", true);
+                
+                //添加操作日志
+                SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+                OperateLog operateLog = new OperateLog();
+                operateLog.setContent("新增媒体类型：" + name);
+                operateLog.setCreateTime(now);
+                operateLog.setUpdateTime(now);
+                operateLog.setUserId(user.getId());
+                operateLogService.save(operateLog);
         	}
         } catch (Exception e) {
         	modelMap.put("success", false);
@@ -148,10 +165,28 @@ public class AdMediaTypeController {
             if (adMediaType.getId() != null) {
             	adMediaType.setUpdateTime(now);
             	adMediaTypeService.modify(adMediaType);
+            	
+            	//添加操作日志
+                SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+                OperateLog operateLog = new OperateLog();
+                operateLog.setContent("修改媒体类型：" + adMediaType.getName());
+                operateLog.setCreateTime(now);
+                operateLog.setUpdateTime(now);
+                operateLog.setUserId(user.getId());
+                operateLogService.save(operateLog);
             } else {
             	adMediaType.setCreateTime(now);
             	adMediaType.setUpdateTime(now);
             	adMediaTypeService.save(adMediaType);
+            	
+            	//添加操作日志
+                SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+                OperateLog operateLog = new OperateLog();
+                operateLog.setContent("新增媒体类型：" + adMediaType.getName());
+                operateLog.setCreateTime(now);
+                operateLog.setUpdateTime(now);
+                operateLog.setUserId(user.getId());
+                operateLogService.save(operateLog);
             }
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -175,6 +210,7 @@ public class AdMediaTypeController {
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("保存成功");
         model = new ExtendedModelMap();
+        Date now = new Date();
         
         try {
         	AdMediaType adMediaType = new AdMediaType();
@@ -182,6 +218,20 @@ public class AdMediaTypeController {
         	adMediaType.setStatus(status);
         	adMediaType.setMediaType(mediaType);
         	adMediaTypeService.updateStatusById(adMediaType);
+        	
+        	//添加操作日志
+        	AdMediaType type = adMediaTypeService.getById(id);
+            SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+            OperateLog operateLog = new OperateLog();
+            if(type.getStatus() == 1) {
+            	operateLog.setContent("启用媒体类型：" + type.getName());
+            } else {
+            	operateLog.setContent("停用媒体类型：" + type.getName());
+            }
+            operateLog.setCreateTime(now);
+            operateLog.setUpdateTime(now);
+            operateLog.setUserId(user.getId());
+            operateLogService.save(operateLog);
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
@@ -204,12 +254,27 @@ public class AdMediaTypeController {
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("保存成功");
         model = new ExtendedModelMap();
+        Date now = new Date();
         
         try {
         	AdMediaType adMediaType = new AdMediaType();
         	adMediaType.setId(id);
         	adMediaType.setUniqueKeyNeed(uniqueKeyNeed);
         	adMediaTypeService.updateNeedById(adMediaType);
+        	
+        	//添加操作日志
+        	AdMediaType type = adMediaTypeService.getById(id);
+            SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+            OperateLog operateLog = new OperateLog();
+            if(type.getUniqueKeyNeed() == 1) {
+            	operateLog.setContent("媒体类型：" + type.getName() + "需要唯一标识");
+            } else {
+            	operateLog.setContent("媒体类型：" + type.getName() + "不需要唯一标识");
+            }
+            operateLog.setCreateTime(now);
+            operateLog.setUpdateTime(now);
+            operateLog.setUserId(user.getId());
+            operateLogService.save(operateLog);
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");

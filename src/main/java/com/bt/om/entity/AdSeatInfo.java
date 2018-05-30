@@ -155,6 +155,17 @@ public class AdSeatInfo {
      *
      * @mbggenerated Thu Feb 01 13:48:16 CST 2018
      */
+    
+    private Integer codeFlag;
+	
+	public Integer getCodeFlag() {
+		return codeFlag;
+	}
+
+	public void setCodeFlag(Integer codeFlag) {
+		this.codeFlag = codeFlag;
+	}
+    
     public Integer getId() {
         return id;
     }

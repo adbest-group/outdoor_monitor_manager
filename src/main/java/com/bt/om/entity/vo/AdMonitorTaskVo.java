@@ -16,6 +16,7 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 	private Long city;// 市
 	private Long region;// 区
 	private Long street;// 街道
+	private String location; //详细地址
 	private Integer mediaId;//媒体id
 	private String mediaName;// 媒体名
 	private String adSeatName;//
@@ -202,6 +203,14 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 
 	public void setStreet(Long street) {
 		this.street = street;
+	}
+	
+	public String getLocation() {
+		return location;
+	}
+	
+	public void setLocation(String location) {
+		this.location = location;
 	}
 
 	public String getMediaName() {

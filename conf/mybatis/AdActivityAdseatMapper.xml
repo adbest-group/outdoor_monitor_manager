@@ -386,7 +386,67 @@
     and ad_seat_id = #{seatId,jdbcType=INTEGER}
   </select>
   
-  <select id="selectAdActivityAdseatTask" resultType="com.bt.om.entity.vo.AdActivityAdseatTaskVo" parameterType="java.lang.Integer">
+  <!-- APP端广告主查询活动的广告位信息, 需分页 -->
+  <select id="selectAdActivityAdseatTaskCount" parameterType="map" resultType="int">
+    select
+    	count(1)
+    from ad_activity_adseat a
+    LEFT JOIN ad_seat_info c ON a.ad_seat_id = c.id
+    where 1=1
+    <if test="activityId != null" >
+      and a.activity_id = #{activityId,jdbcType=INTEGER}
+    </if>
+    <if test="cityId != null" >
+      and c.city = #{cityId,jdbcType=INTEGER}
+    </if>
+    <if test="mediaTypeParentId != null" >
+      and c.media_type_parent_id = #{mediaTypeParentId,jdbcType=INTEGER}
+    </if>
+  </select>
+  
+  <!-- APP端广告主查询活动的广告位信息, 需分页 -->
+  <select id="selectAdActivityAdseatTask" parameterType="map" resultType="com.bt.om.entity.vo.AdActivityAdseatTaskVo">
+	SELECT
+		a.id id,
+		a.monitor_start monitorStart,
+		a.monitor_end monitorEnd,
+	  	(SELECT COUNT(1) from ad_monitor_task b WHERE b.activity_id = #{activityId,jdbcType=INTEGER} AND b.activity_adseat_id = a.id AND b.status = 4 AND b.problem_status = 3) problem_count,
+		c.id info_seat_id,
+		c.name info_name,
+		c.province info_province,
+		c.city info_city,
+		c.region info_region,
+		c.street info_street,
+		c.location info_location,
+		c.ad_size info_adSize,
+		c.lon info_lon,
+		c.lat info_lat,
+		c.map_standard info_mapStandard,
+		c.ad_area info_adArea,
+		c.contact_name info_contactName,
+		c.contact_cell info_contactCell,
+		c.media_type_parent_id info_mediaTypeParentId,
+		c.media_type_id info_mediaTypeId,
+		c.unique_key info_uniqueKey,
+		c.memo info_memo,
+		d.media_name mediaName
+	from ad_activity_adseat a
+	LEFT JOIN ad_seat_info c ON a.ad_seat_id = c.id
+	LEFT JOIN ad_media d ON a.media_id = d.id
+	WHERE 1=1
+	<if test="activityId != null" >
+      and a.activity_id = #{activityId,jdbcType=INTEGER}
+    </if>
+    <if test="cityId != null" >
+      and c.city = #{cityId,jdbcType=INTEGER}
+    </if>
+    <if test="mediaTypeParentId != null" >
+      and c.media_type_parent_id = #{mediaTypeParentId,jdbcType=INTEGER}
+    </if>
+  </select>
+  
+  <!-- 后台excel导出和pdf导出查询活动的广告位信息 -->
+  <select id="selectAdActivityAdseatTaskReport" parameterType="java.lang.Integer" resultType="com.bt.om.entity.vo.AdActivityAdseatTaskVo">
 	SELECT
 		a.id id,
 		a.monitor_start monitorStart,
@@ -526,9 +586,24 @@
       and e.monitor_end >= DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
     </if>
 	<if test="endDate != null" >
-      and e.monitor_end &lt; DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+      and e.monitor_end &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
     </if>
 	group by e.ad_seat_id
+  </select>
+  
+  <!-- 查询某个活动的所有广告位信息 -->
+  <select id="selectSeatInfoByActivityId" parameterType="java.lang.Integer" resultType="com.bt.om.entity.AdSeatInfo">
+  	select 
+  		b.province province,
+  		b.city city,
+  		b.region region,
+  		b.street street,
+  		b.media_type_parent_id mediaTypeParentId,
+  		b.media_type_id mediaTypeId
+  	from ad_activity_adseat a
+  	left join ad_seat_info b on a.ad_seat_id = b.id
+  	where 1=1
+  	and a.activity_id = #{activityId,jdbcType=INTEGER}
   </select>
   
 </mapper>

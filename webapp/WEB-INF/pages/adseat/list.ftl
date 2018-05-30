@@ -61,6 +61,7 @@
                         <th>广告位尺寸</th>
                         <th>媒体大类</th>
 						<th>媒体小类</th>
+						<th>是否已贴上二维码</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -76,10 +77,21 @@
                         <td>${adseat.adSize!""}</td>
                         <td>${adseat.parentName!""}</td>
                         <td>${adseat.secondName!""}</td>
+                        <td>
+                            	<#if adseat.codeFlag?exists && adseat.codeFlag == 1>已贴</#if>
+                            	<#if adseat.codeFlag?exists && adseat.codeFlag == 0>未贴</#if>
+                        </td>
+                        
                         <td style="width: 80px">
 						<#--<a href="#" style="margin-right: 5px">数据上传</a> -->
                             <a href="/adseat/edit?id=${adseat.id}" style="margin-right: 5px">编辑</a>
                             <a href="javascript:deleteSeat('${adseat.id}');" style="margin-right: 5px">删除</a>
+                            <#if adseat.codeFlag?exists && adseat.codeFlag == 1>
+	                             <a href="javascript:void(0);" onclick="updateStatus('${adseat.id}', 0);">未贴</a>
+	                        </#if>
+	                        <#if adseat.codeFlag?exists && adseat.codeFlag == 0>
+	                            <a href="javascript:void(0);" onclick="updateStatus('${adseat.id}', 1);">已贴</a>
+	                        </#if>
                     </tr>
 					</#list> <#else>
                     <tr>
@@ -256,7 +268,61 @@
 	    }
 	  });
 	});
-	
+	// 更新二维码状态
+    function updateStatus(id, codeFlag) {
+        if (codeFlag == 0) {
+            layer.confirm("确定要更换二维码状态", {
+                icon: 3,
+                btn: ['确定', '取消'] //按钮
+            }, function () {
+                doUpdate(id, codeFlag);
+            });
+        } else {
+            doUpdate(id, codeFlag);
+        }
+    }
+
+	function doUpdate(id, codeFlag) {
+        $.ajax({
+            url: "/platmedia/codeFlag",
+            type: "post",
+            data: {
+                "id": id,
+                "codeFlag": codeFlag
+            },
+            cache: false,
+            dataType: "json",
+            success: function (result) {
+                var resultRet = result.ret;
+                if (resultRet.code == 101) {
+                    layer.confirm(resultRet.resultDes, {
+                        icon: 2,
+                        btn: ['确定'] //按钮
+                    });
+                } else {
+                    var msg = "";
+                    if (codeFlag == "0") {
+                        msg = "启用成功";
+                    } else {
+                        msg = "停用成功";
+                    }
+                    layer.confirm(msg, {
+                        icon: 1,
+                        btn: ['确定'] //按钮
+                    }, function () {
+                        window.location.reload();
+                    });
+                }
+            },
+            error: function (e) {
+                layer.confirm("服务忙，请稍后再试", {
+                    icon: 5,
+                    btn: ['确定'] //按钮
+                });
+            }
+        });   
+
+    }
 </script>
 <!-- 特色内容 -->
 <@model.webend />

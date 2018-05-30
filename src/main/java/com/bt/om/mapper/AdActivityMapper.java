@@ -82,4 +82,7 @@ public interface AdActivityMapper {
 	
 	int updateStatusByEndTime(Date nowDate);
 	int cancelActivityByAssessorId(Integer id);
+	
+	List<Integer> selectActivityReportByTime1(Map<String, Object> searchMap);
+	List<Integer> selectActivityReportByTime2(Map<String, Object> searchMap);
 }

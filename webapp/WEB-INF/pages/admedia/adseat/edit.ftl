@@ -223,7 +223,7 @@ img.demo {
 							</tr>
 							
 							<tr>
-								<td class="a-title">备注：</td>
+								<td class="a-title">媒体方编号：</td>
 								<td><input type="text" style="width: 130px;" id="memo" name="memo" value="<#if (adSeatInfo?exists)>${adSeatInfo.memo!""}</#if>"
 									autocomplete="off" class="form-control">
                                     <span id="memoTip"></span>

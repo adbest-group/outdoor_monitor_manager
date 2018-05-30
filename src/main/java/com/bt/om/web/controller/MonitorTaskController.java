@@ -347,6 +347,7 @@ public class MonitorTaskController extends BasicController {
             	vo.setSize(20);
             	vo.setStart(0);
             	vo.setList(taskVos);
+              
             	shenheCount = allMonitorTaskUnZhipai.size() - taskVos.size();
             	if(shenheCount < 0) {
             		shenheCount = 0;

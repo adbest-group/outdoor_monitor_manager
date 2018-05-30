@@ -527,4 +527,18 @@
 	    and b.name = #{title,jdbcType=INTEGER}
   </select>
   
+  <!-- 查询某个广告位上活动的待审核纠错任务信息, 通过媒体方编号信息 -->
+  <select id="selectInfoByMemo" parameterType="map" resultMap="BaseResultMap">
+	select 
+		a.id,
+		a.activity_id,
+		a.ad_seat_id
+	from 
+		ad_jiucuo_task a
+		left join ad_seat_info b on a.ad_seat_id = b.id
+	where 1=1
+		and a.status = #{status,jdbcType=INTEGER}
+		and b.memo = #{memo,jdbcType=VARCHAR}
+  </select>
+  
 </mapper>

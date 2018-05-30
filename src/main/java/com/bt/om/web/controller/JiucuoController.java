@@ -2,6 +2,7 @@ package com.bt.om.web.controller;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -31,6 +32,7 @@ import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.enums.JiucuoTaskStatus;
+import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
@@ -46,6 +48,7 @@ import com.bt.om.service.ISysUserService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
+import com.bt.om.web.util.JPushUtils;
 import com.bt.om.web.util.SearchUtil;
 
 /**
@@ -217,7 +220,7 @@ public class JiucuoController extends BasicController {
         return PageConst.JIUCUO_LIST;
     }
 
-    /**
+	/**
      * 查看纠错详情
      */
     @RequiresRoles(value = {"jiucuoadmin", "media", "customer", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)
@@ -261,7 +264,7 @@ public class JiucuoController extends BasicController {
         AdJiucuoTask task = new AdJiucuoTask();
         task.setId(id);
         try {
-        	//获取登录的审核人(员工/部门领导/超级管理员)
+            //获取登录的审核人(员工/部门领导/超级管理员)
             SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
             
             if (status == JiucuoTaskStatus.VERIFIED.getId()) {//审核通过
@@ -269,6 +272,20 @@ public class JiucuoController extends BasicController {
             } else if (status == JiucuoTaskStatus.VERIFY_FAILURE.getId()) {//审核不通过
                 adJiucuoTaskService.reject(task, reason, userObj.getId());
             }
+			
+            task = adJiucuoTaskService.getById(id);
+            //==========web端任务纠错之后根据userId进行app消息推送==============
+            Map<String, Object> param = new HashMap<>();
+            Map<String, String> extras = new HashMap<>();
+            List<String> alias = new ArrayList<>(); //别名用户List
+            alias.add(String.valueOf(task.getUserId()));  //纠错任务提交者
+            extras.put("type", "task_jiucuo_push");
+            param.put("msg", "您的任务一条新的纠错审核通知！");
+            param.put("title", "玖凤平台");
+            param.put("alias", alias);  //根据别名选择推送用户（这里userId用作推送时的用户别名）
+            param.put("extras", extras);
+            String pushResult = JPushUtils.pushAllByAlias(param);
+            System.out.println("pushResult:: " + pushResult);
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("审核失败！");
@@ -276,10 +293,11 @@ public class JiucuoController extends BasicController {
             return model;
         }
 
+
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }
-    
+	
     // 撤消纠错
     @RequiresRoles("jiucuoadmin")
     @RequestMapping(value = "/cancel")
@@ -320,7 +338,7 @@ public class JiucuoController extends BasicController {
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }
-    
+	
     /**
      * 关闭纠错问题任务
      */

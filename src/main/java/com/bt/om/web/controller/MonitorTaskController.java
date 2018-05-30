@@ -431,7 +431,7 @@ public class MonitorTaskController extends BasicController {
             List<String> alias = new ArrayList<>(); //别名用户List
             alias.add(String.valueOf(userId));
             extras.put("type", "new_assign_push");
-            param.put("msg", "您有一条新的任务！");
+            param.put("msg", "您被指派一条新的任务！");
             param.put("title", "玖凤平台");
             param.put("alias", alias);  //根据别名选择推送用户（这里userId用作推送时的用户别名）
             param.put("extras", extras);
@@ -475,6 +475,19 @@ public class MonitorTaskController extends BasicController {
             } else {
                 adMonitorTaskService.reject(task, reason, userObj.getId());
             } 
+            task = adMonitorTaskService.selectByPrimaryKey(id);
+            //==========web端任务审核之后根据userId进行app消息推送==============
+            Map<String, Object> param = new HashMap<>();
+            Map<String, String> extras = new HashMap<>();
+            List<String> alias = new ArrayList<>(); //别名用户List
+            alias.add(String.valueOf(task.getUserId()));  //任务执行者
+            extras.put("type", "task_audit_push");
+            param.put("msg", "您的任务有一条新的后台审核通知！");
+            param.put("title", "玖凤平台");
+            param.put("alias", alias);  //根据别名选择推送用户（这里userId用作推送时的用户别名）
+            param.put("extras", extras);
+            String pushResult = JPushUtils.pushAllByAlias(param);
+            System.out.println("pushResult:: " + pushResult);
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("审核失败！");

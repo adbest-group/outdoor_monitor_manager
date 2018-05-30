@@ -42,6 +42,8 @@
                             style="margin-left: 10px;" autocomplete="off" id="clear">清除条件</button>
                     <button style="margin-left: 10px" type="button" class="btn" id="insertBatchId"
 							autocomplete="off" disabled="disabled">批量导入</button>
+					<button style="margin-left: 10px" type="button" class="btn" id="downloadBatch"
+							autocomplete="off" onclick="">模板下载</button>
                 </form>
             </div>
         </div>
@@ -54,6 +56,7 @@
                     <thead>
                     <tr>
                         <th width="30">序号</th>
+                        <th>广告位名称</th>
                         <th>区域</th>
                         <th>所属媒体</th>
 					<#--<th>媒体广告位编号</th>-->
@@ -70,6 +73,7 @@
 					bizObj.list as adseat>
                     <tr>
                         <td>${(bizObj.page.currentPage-1)*20+adseat_index+1}</td>
+                        <td>${adseat.name!""}</td>
                         <td>${vm.getCityNameFull(adseat.street!adseat.region,"-")!""}</td>
                         <td>${adseat.mediaName!""}</td>
 					<#--<td>${adseat.adCode!""}</td>-->
@@ -171,6 +175,20 @@
         $("#selectMediaId").val("");
         $('#insertBatchId').attr("disabled","disabled");
     });
+
+	// 下载模板
+    $('#downloadBatch').click(function(){
+    	$.get('/excel/downloadBatch', function(data){
+    		if(data.ret.code === 100) {
+    			window.open(data.ret.result)
+    		}else{
+    			layer.confirm("下载失败", {
+                    icon: 5,
+                    btn: ['确定'] //按钮
+                });
+    		}
+    	})
+    })
 
     /*获取城市  */
     var $town = $('#demo3 select[name="street"]');

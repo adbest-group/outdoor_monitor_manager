@@ -3,7 +3,7 @@
 </#assign>
 <@model.webhead />
 <!-- 头部 -->
-<@model.webMenu current="监测管理" child="监测管理" />
+<@model.webMenu current="监测管理" child="任务审核" />
 
 <!-- 特色内容 -->
 <div class="main-container" style="height: auto;">
@@ -35,8 +35,8 @@
                         	<option value="4" <#if (status?exists&&status == '4')>selected</#if>>审核通过</option>
                         	<option value="5" <#if (status?exists&&status == '5')>selected</#if>>审核未通过</option>
                         	<#-- <option value="7" <#if (status?exists&&status == '7')>selected</#if>>待激活</option> -->
-                        	<option value="8" <#if (status?exists&&status == '8')>selected</#if>>可抢单</option>
-                        	<option value="1" <#if (status?exists&&status == '1')>selected</#if>>待指派</option>
+                        	<#-- <option value="8" <#if (status?exists&&status == '8')>selected</#if>>可抢单</option> -->
+                        	<#-- <option value="1" <#if (status?exists&&status == '1')>selected</#if>>待指派</option> -->
                         	<option value="2" <#if (status?exists&&status == '2')>selected</#if>>待执行</option>
                         	<option value="6" <#if (status?exists&&status == '6')>selected</#if>>未完成</option>
                         	<#-- <@model.showMonitorTaskStatusOps value="${bizObj.queryMap.status?if_exists}"/> -->
@@ -354,21 +354,20 @@
     }
      //撤消审核任务
      cancelSh = function(id){
-        layer.confirm("确定撤销该活动？", {
+        layer.confirm("确定撤销该审核？", {
             icon: 3,
             btn: ['确定', '取消'] //按钮
         }, function(){
-         	cancel(id, 3);
+         	cancel(id);
          	});
       }
     //发起撤消请求
-    cancel = function (id, status, reason) {
+    cancel = function (id,reason) {
         $.ajax({
             url: "/task/cancel",
             type: "post",
             data: {
                 "id": id,
-                "status": status,
                 "reason": reason
             },
             cache: false,

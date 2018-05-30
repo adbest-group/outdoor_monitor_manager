@@ -102,6 +102,10 @@ public class PageConst {
 	public static final String DEPARMENT_ADMIN_GROUP_USER = "resources/resUserList";
 	public static final String DEPARMENT_ADMIN_GROUP_CUSTOMER = "resources/resCustomerList";
 	
+	/*** 超级管理员下的APP管理 ***/
+	public static final String SUPER_ADMIN_APP_LIST = "app/list";
+	public static final String SUPER_ADMIN_APP_EDIT = "app/edit";
+	
 	/*** 各部门领导查看自己部门的审核任务 ***/
 	public static final String RESOURCES_ACTIVITY = "resources/activity";
 	public static final String RESOURCES_TASK_LIST = "resources/taskList";

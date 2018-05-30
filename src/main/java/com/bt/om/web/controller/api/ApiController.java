@@ -304,16 +304,18 @@ public class ApiController extends BasicController {
         Double lon = null;
         Double lat = null;
         String title = null;
+        String memo = null;
         
         try {
             is = request.getInputStream();
             Gson gson = new Gson();
             JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
-            seatCode = obj==null||obj.get("seatCode") == null ? null : obj.get("seatCode").getAsString(); //扫描二维码调取接口
+            seatCode = obj==null||obj.get("seatCode") == null ? null : obj.get("seatCode").getAsString(); //[1] 扫描二维码调取接口
             adSeatId = obj==null||obj.get("adSeatId") == null ? null : obj.get("adSeatId").getAsInt();
-            lon = obj==null||obj.get("lon") == null ? null : obj.get("lon").getAsDouble(); //通过经纬度调取接口
-            lat = obj==null||obj.get("lat") == null ? null : obj.get("lat").getAsDouble(); //通过经纬度调取接口
-            title = obj==null||obj.get("title") == null ? null : obj.get("title").getAsString(); //通过经纬度调取接口
+            lon = obj==null||obj.get("lon") == null ? null : obj.get("lon").getAsDouble(); //[2] 通过经纬度调取接口
+            lat = obj==null||obj.get("lat") == null ? null : obj.get("lat").getAsDouble(); //[2] 通过经纬度调取接口
+            title = obj==null||obj.get("title") == null ? null : obj.get("title").getAsString(); //[2] 通过经纬度调取接口
+            memo = obj==null||obj.get("memo") == null ? null : obj.get("memo").getAsString();//[3] 通过memo调取接口
         } catch (IOException e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
@@ -328,12 +330,12 @@ public class ApiController extends BasicController {
                 }
             }
         }
-
+        
         try {
         	List<AdJiucuoTask> jiucuoTasks = new ArrayList<>();
             List<AdActivityAdseatVo> list = null;
-            if(seatCode!=null){
-            	//扫描二维码调取接口
+            if(StringUtil.isNotEmpty(seatCode)){
+            	//[1] 扫描二维码调取接口
                 list = adActivityService.getActivitySeatBySeatCode(seatCode);
                 if(list == null || list.size() == 0) {
                 	result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -358,12 +360,12 @@ public class ApiController extends BasicController {
 						}
 					}
 				}
-            }else if(lon!=null && lat!=null && title!=null) {
-            	//通过经纬度调取接口
+            } else if(lon != null && lat != null && StringUtil.isNotEmpty(title)) {
+            	//[2] 通过经纬度调取接口
                 list = adActivityService.selectVoByLonLatTitle(lon, lat, title);
                 if(list == null || list.size() == 0) {
                 	result.setCode(ResultCode.RESULT_FAILURE.getCode());
-                    result.setResultDes("没有查询到二维码信息！");
+                    result.setResultDes("没有查询到经纬度信息！");
                     model.addAttribute(SysConst.RESULT_KEY, result);
                     return model;
                 }
@@ -386,6 +388,38 @@ public class ApiController extends BasicController {
 						}
 					}
 				}
+            } else if(StringUtil.isNotEmpty(memo)) {
+            	//[3] 媒体方编号memo调取接口
+                list = adActivityService.getActivitySeatByMemo(memo);
+                if(list == null || list.size() == 0) {
+                	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                    result.setResultDes("没有查询到媒体方编号信息！");
+                    model.addAttribute(SysConst.RESULT_KEY, result);
+                    return model;
+                }
+                
+                Map<String, Object> searchMap = new HashMap<>();
+            	searchMap.put("status", 1); //待审核
+            	searchMap.put("memo", memo); //媒体方编号
+            	jiucuoTasks = adJiucuoTaskService.selectInfoByMemo(searchMap);
+                
+            	//移除
+            	Iterator<AdActivityAdseatVo> iterator = list.iterator();
+            	while (iterator.hasNext()) {
+					AdActivityAdseatVo adActivityAdseatVo = (AdActivityAdseatVo) iterator.next();
+					for (AdJiucuoTask task : jiucuoTasks) {
+						if(task.getActivityId() == adActivityAdseatVo.getActivityId()) {
+							iterator.remove();
+							break;
+						}
+					}
+				}
+            } else {
+            	//参数有误
+            	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("系统繁忙，请稍后再试！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
             }
             
             QRCodeInfoVo qr = new QRCodeInfoVo();
@@ -425,7 +459,8 @@ public class ApiController extends BasicController {
         String password = null;
         String vcode = null;
         String token = null;
-
+        String appSid = null;
+        
         try {
             InputStream is = request.getInputStream();
             Gson gson = new Gson();
@@ -434,6 +469,8 @@ public class ApiController extends BasicController {
             password = obj.get("password") == null ? null : obj.get("password").getAsString();
             vcode = obj.get("vcode") == null ? null : obj.get("vcode").getAsString();
             token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            appSid = obj.get("appSid") == null ? null : obj.get("appSid").getAsString();
+            
             if (token != null) {
                 useSession.set(Boolean.FALSE);
                 this.sessionByRedis.setToken(token);
@@ -652,13 +689,15 @@ public class ApiController extends BasicController {
 
         Integer type = null;
         String token = null;
-
+        String memo = null;
+        
         try {
             InputStream is = request.getInputStream();
             Gson gson = new Gson();
             JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
             type = obj.get("type").getAsInt();
             token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            memo = obj.get("memo") == null ? null : obj.get("memo").getAsString();
             if (token != null) {
                 useSession.set(Boolean.FALSE);
                 this.sessionByRedis.setToken(token);
@@ -698,6 +737,7 @@ public class ApiController extends BasicController {
                     //若没有贴上二维码, 清空二维码信息
                     if(vo.getAdCodeFlag() == 0) {
                     	vo.setAd_seat_code(null);
+                    	vo.setAdCode(null);
                     }
                     resultVo.getWait_to_executed().add(vo);
                 } else if (task.getStatus() == MonitorTaskStatus.UNVERIFY.getId()) {
@@ -706,6 +746,11 @@ public class ApiController extends BasicController {
                     vo.setCity(cityCache.getCityName(task.getCity()));
                     vo.setRegion(cityCache.getCityName(task.getRegion()));
                     vo.setStreet(cityCache.getCityName(task.getStreet()));
+                    
+                    //若没有贴上二维码, 清空二维码信息
+                    if(vo.getAdCodeFlag() == 0) {
+                    	vo.setAdCode(null);
+                    }
                     resultVo.getExecuting().add(vo);
                 } else if (task.getStatus() == MonitorTaskStatus.VERIFIED.getId() || task.getStatus() == MonitorTaskStatus.VERIFY_FAILURE.getId()) {
                     MonitorTaskCheckedVo vo = new MonitorTaskCheckedVo(task);
@@ -716,6 +761,7 @@ public class ApiController extends BasicController {
                     //若没有贴上二维码, 清空二维码信息
                     if(vo.getAdCodeFlag() == 0) {
                     	vo.setAd_seat_code(null);
+                    	vo.setAdCode(null);
                     }
                     resultVo.getChecked().add(vo);
                 } else if (task.getStatus() == MonitorTaskStatus.UN_FINISHED.getId()) {
@@ -727,6 +773,7 @@ public class ApiController extends BasicController {
                     //若没有贴上二维码, 清空二维码信息
                     if(vo.getAdCodeFlag() == 0) {
                     	vo.setAd_seat_code(null);
+                    	vo.setAdCode(null);
                     }
                     resultVo.getUn_finished().add(vo);
                 }

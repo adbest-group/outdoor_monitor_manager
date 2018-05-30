@@ -147,7 +147,7 @@ public class AdActivityService implements IAdActivityService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void confirm(Integer id) {
+    public void confirm(Integer id, Integer assessorId) {
         List<AdActivityAdseatVo> seats = adActivityAdseatMapper.selectByActivityId(id);
         List<AdMonitorTask> tasks = new ArrayList<>();
         for (AdActivityAdseatVo seat : seats) {
@@ -212,6 +212,7 @@ public class AdActivityService implements IAdActivityService {
         AdActivity activity = new AdActivity();
         activity.setId(id);
         activity.setStatus(ActivityStatus.CONFIRMED.getId());
+        activity.setAssessorId(assessorId); //设置审核人
         adActivityMapper.updateByPrimaryKeySelective(activity);
     }
 
@@ -464,5 +465,13 @@ public class AdActivityService implements IAdActivityService {
 	@Override
 	public List<AdSeatInfo> selectSeatInfoByActivityId(Integer activityId) {
 		return adActivityAdseatMapper.selectSeatInfoByActivityId(activityId);
+	}
+
+	/**
+	 * 根据memo确定广告位信息
+	 * */
+	@Override
+	public List<AdActivityAdseatVo> getActivitySeatByMemo(String memo) {
+		return adActivityAdseatMapper.selectVoByMemo(memo);
 	}
 }

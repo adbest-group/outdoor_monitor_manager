@@ -223,7 +223,7 @@ img.demo {
 							</tr>
 							
 							<tr>
-								<td class="a-title">备注：</td>
+								<td class="a-title">媒体方编号：</td>
 								<td><input type="text" style="width: 130px;" id="memo" name="memo" value="<#if (adSeatInfo?exists)>${adSeatInfo.memo!""}</#if>"
 									autocomplete="off" class="form-control">
                                     <span id="memoTip"></span>
@@ -472,6 +472,18 @@ img.demo {
             max:10000,
             onError:"高度支持1-10000(cm)"
         });
+        
+        //联系人电话
+	    $("#contactCell").formValidator({
+	    	empty:true,
+			validatorGroup:"2",
+	        onShow: "　",
+	        onFocus: "请输入联系人电话",
+	        onCorrect: ""
+	    }).regexValidator({
+    		regExp:"^1([358][0-9]|4[579]|66|7[0135678]|9[89])[0-9]{8}$",
+    		onError:"联系人电话为手机号码格式不正确"
+    	});
         
     	//广告位经度
         $("#lon").formValidator({

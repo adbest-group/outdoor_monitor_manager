@@ -48,4 +48,5 @@ public interface IAdJiucuoTaskService {
 	 public List<AdJiucuoTaskVo> getAllByStatusUnCheck(Map<String, Object> searchMap);
 	List<AdJiucuoTask> selectInfoByQrCode(Map<String, Object> searchMap);
 	List<AdJiucuoTask> selectInfoByLonLatTitle(Map<String, Object> searchMap);
+	List<AdJiucuoTask> selectInfoByMemo(Map<String, Object> searchMap);
 }

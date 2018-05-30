@@ -36,7 +36,8 @@ public class MonitorTaskExecutingVo extends BasicVo {
     private String province;
     private String city;
     private Integer adCodeFlag;
-
+    private String adCode;
+    
     public MonitorTaskExecutingVo(AdMonitorTaskMobileVo task){
         this.task_id = task.getId();
         this.task_type = task.getTaskType();
@@ -62,9 +63,20 @@ public class MonitorTaskExecutingVo extends BasicVo {
         this.endTime = DateUtil.dateFormate(task.getEndTime(), "yyyy-MM-dd HH:mm:ss");
         this.assignType = task.getAssignType();
         this.adCodeFlag = task.getAdCodeFlag();
+        this.adCode = task.getAdCode();
     }
+    
+    public String getAdCode() {
+		return adCode;
+	}
 
-    public Double getLat() {
+
+	public void setAdCode(String adCode) {
+		this.adCode = adCode;
+	}
+
+
+	public Double getLat() {
         return lat;
     }
 

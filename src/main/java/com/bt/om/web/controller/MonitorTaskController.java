@@ -347,6 +347,7 @@ public class MonitorTaskController extends BasicController {
             	vo.setSize(20);
             	vo.setStart(0);
             	vo.setList(taskVos);
+              
             	shenheCount = allMonitorTaskUnZhipai.size() - taskVos.size();
             	if(shenheCount < 0) {
             		shenheCount = 0;
@@ -472,7 +473,8 @@ public class MonitorTaskController extends BasicController {
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }
-   // 撤消审核和指派任务
+    
+    // 撤消审核和指派任务
     @RequiresRoles("taskadmin")
     @RequestMapping(value = "/cancel")
     @ResponseBody

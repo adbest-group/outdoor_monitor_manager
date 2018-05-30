@@ -12,6 +12,6 @@ public class OMManagerBooter {
 
     public static void main(String[] args) {
         EmbbedJetty.main(args);
-        ///
+        //
     }
 }

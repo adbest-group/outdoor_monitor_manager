@@ -431,8 +431,8 @@ public class MediaManagerController {
         		adSeatInfo.setAdCodeUrl("/static/qrcode/" + adCodeInfo + ".jpg");
         		//默认贴上二维码
         		adSeatInfo.setCodeFlag(1);
-        		
-                adSeatService.save(adSeatInfo, user.getId());
+
+            adSeatService.save(adSeatInfo, user.getId());
             }
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());

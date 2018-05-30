@@ -38,8 +38,26 @@ public class AdMonitorTaskMobileVo extends AdMonitorTask {
     private Long province;
     private Long city;
     private Integer adCodeFlag;
+    private String adCode;
+    private String memo;
+    
+    public String getMemo() {
+		return memo;
+	}
 
-    public Double getDistance() {
+	public void setMemo(String memo) {
+		this.memo = memo;
+	}
+
+	public String getAdCode() {
+		return adCode;
+	}
+
+	public void setAdCode(String adCode) {
+		this.adCode = adCode;
+	}
+
+	public Double getDistance() {
         return distance;
     }
 

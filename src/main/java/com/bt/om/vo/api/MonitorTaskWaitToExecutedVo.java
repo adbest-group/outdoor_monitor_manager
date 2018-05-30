@@ -31,7 +31,9 @@ public class MonitorTaskWaitToExecutedVo extends BasicVo{
     private String endTime;
     private Integer assignType;
     private Integer adCodeFlag;
-
+    private String adCode;
+    private String memo;
+    
     public MonitorTaskWaitToExecutedVo(AdMonitorTaskMobileVo task) {
         this.task_id = task.getId();
         this.task_type = task.getTaskType();
@@ -51,8 +53,26 @@ public class MonitorTaskWaitToExecutedVo extends BasicVo{
         this.endTime = DateUtil.dateFormate(task.getEndTime(), "yyyy-MM-dd HH:mm:ss");
         this.assignType = task.getAssignType();
         this.adCodeFlag = task.getAdCodeFlag();
+        this.adCode = task.getAdCode();
+        this.memo = task.getMemo();
     }
 
+    public String getMemo() {
+		return memo;
+	}
+
+	public void setMemo(String memo) {
+		this.memo = memo;
+	}
+
+	public String getAdCode() {
+		return adCode;
+	}
+
+	public void setAdCode(String adCode) {
+		this.adCode = adCode;
+	}
+	
     public Double getLat() {
         return lat;
     }

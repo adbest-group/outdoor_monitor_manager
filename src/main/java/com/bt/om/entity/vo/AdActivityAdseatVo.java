@@ -11,8 +11,17 @@ public class AdActivityAdseatVo extends AdActivityAdseat {
     private String activityName;
     private Double lon;
     private Double lat;
+    private String memo;
+    
+    public String getMemo() {
+		return memo;
+	}
 
-    public String getAdSeatName() {
+	public void setMemo(String memo) {
+		this.memo = memo;
+	}
+
+	public String getAdSeatName() {
         return adSeatName;
     }
 

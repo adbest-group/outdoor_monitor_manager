@@ -85,4 +85,6 @@ public interface IAdActivityService {
 	List<AdActivityAdseatTaskVo> selectAdActivityAdseatTaskReport(Integer activityId);
 
 	List<AdSeatInfo> selectSeatInfoByActivityId(Integer activityId);
+
+	public List<AdActivityAdseatVo> getActivitySeatByMemo(String memo);
 }

@@ -86,6 +86,7 @@ public class JPushUtils {
 			return result;
 		} catch (Exception e) {
 			logger.error("app消息推送出现异常: " + e.getMessage());
+			e.printStackTrace();
 		}
 		return result;
 	}

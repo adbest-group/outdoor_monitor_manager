@@ -590,26 +590,26 @@ public class AdSeatInfo {
         this.updateTime = updateTime;
     }
 
-    private Integer width;
-    private Integer height;
+    private String width;
+    private String height;
 
-    public Integer getWidth() {
-        if(width==null&&this.adSize!=null)
-            return Integer.valueOf(this.adSize.split("\\*")[0]);
+    public String getWidth() {
+//        if(width==null&&this.adSize!=null)
+//            return Integer.valueOf(this.adSize.split("\\*")[0]);
         return width;
     }
 
-    public void setWidth(Integer width) {
+    public void setWidth(String width) {
         this.width = width;
     }
 
-    public Integer getHeight() {
-        if(height==null&&this.adSize!=null)
-            return Integer.valueOf(this.adSize.split("\\*")[1]);
+    public String getHeight() {
+//        if(height==null&&this.adSize!=null)
+//            return Integer.valueOf(this.adSize.split("\\*")[1]);
         return height;
     }
 
-    public void setHeight(Integer height) {
+    public void setHeight(String height) {
         this.height = height;
     }
     

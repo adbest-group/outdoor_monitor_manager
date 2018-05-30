@@ -271,7 +271,7 @@ public class JiucuoController extends BasicController {
             List<String> alias = new ArrayList<>(); //别名用户List
             alias.add(String.valueOf(task.getUserId()));  //纠错任务提交者
             extras.put("type", "task_jiucuo_push");
-            param.put("msg", "您有任务一条新的通知！");
+            param.put("msg", "您的任务一条新的纠错审核通知！");
             param.put("title", "玖凤平台");
             param.put("alias", alias);  //根据别名选择推送用户（这里userId用作推送时的用户别名）
             param.put("extras", extras);

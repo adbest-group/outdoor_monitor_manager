@@ -1,0 +1,113 @@
+package com.bt.om.web.controller;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ExtendedModelMap;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.bt.om.common.SysConst;
+import com.bt.om.common.web.PageConst;
+import com.bt.om.entity.AdApp;
+import com.bt.om.enums.ResultCode;
+import com.bt.om.service.IAppService;
+import com.bt.om.vo.web.ResultVo;
+import com.bt.om.vo.web.SearchDataVo;
+import com.bt.om.web.util.SearchUtil;
+
+@Controller
+@RequestMapping(value = "/app")
+public class AppController {
+
+	@Autowired
+	private IAppService appService;
+	
+	@RequiresRoles("superadmin")
+	@RequestMapping(value = "/list")
+	public String getList(Model model, HttpServletRequest request,
+			@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "appName", required = false) String appName,
+            @RequestParam(value = "appSid", required = false) String appSid,
+            @RequestParam(value = "createDate", required = false) String createDate,
+            @RequestParam(value = "updateDate", required = false) String updateDate) {
+		
+		SearchDataVo vo = SearchUtil.getVo();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		
+		if (id != null) {
+            vo.putSearchParam("id", id.toString(), id);
+		}
+		if (appName != null) {
+	        vo.putSearchParam("appName", appName.toString(), appName);
+	    }
+	    if (appSid != null) {
+	        vo.putSearchParam("appSid", appSid.toString(), appSid);
+	    }
+	    if (createDate != null) {
+	        try {
+	            vo.putSearchParam("createDate", createDate, sdf.parse(createDate));
+	        } catch (ParseException e) {
+	        }
+	    }
+	    if (updateDate != null) {
+	        try {
+	           vo.putSearchParam("updateDate", updateDate, sdf.parse(updateDate));
+	        } catch (ParseException e) {
+	        }
+	    }
+
+	    appService.getPageData(vo);
+	    SearchUtil.putToModel(model, vo);
+	    return PageConst.SUPER_ADMIN_APP_LIST;
+	}
+	
+	@RequiresRoles("superadmin")
+	@RequestMapping(value = "/edit")
+	public String appEdit(Model model, HttpServletRequest request,
+            @RequestParam(value = "id", required = false) Integer id) {
+		AdApp adapp = appService.getVoById(id);
+		if (adapp != null) {
+            model.addAttribute("adapp", adapp);
+        }
+	
+        return PageConst.SUPER_ADMIN_APP_EDIT;
+	}
+	
+	@RequiresRoles("superadmin")
+	@RequestMapping(value = "/save")
+	public Model appSave(Model model, AdApp adapp, HttpServletRequest request) {
+		ResultVo<String> result = new ResultVo<String>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("保存成功");
+        model = new ExtendedModelMap();
+        Date now = new Date();
+     
+        try {
+            if (adapp.getId() != null) {
+            	adapp.setUpdateTime(now);
+            	appService.modify(adapp);
+            } else {
+            	adapp.setCreateTime(now);
+            	adapp.setUpdateTime(now);
+            	appService.save(adapp);
+            }
+        } catch (Exception e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("保存失败！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+    }
+    
+	
+}

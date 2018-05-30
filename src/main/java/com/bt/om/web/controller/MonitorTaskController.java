@@ -307,7 +307,7 @@ public class MonitorTaskController extends BasicController {
             	vo.setSize(20);
             	vo.setStart(0);
             	vo.setList(taskVos);
-            } else {
+            } else{
             	//条数等于0, 新查询10条或者小于10条没人认领的待审核的监测指派任务(需要匹配 员工 - 组 - 广告商 之间的关系)
             	List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId());
             	if(customerIds != null && customerIds.size() > 0) {

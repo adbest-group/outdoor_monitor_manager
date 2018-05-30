@@ -453,4 +453,12 @@ public class AdActivityService implements IAdActivityService {
 	public List<AdSeatInfo> selectSeatInfoByActivityId(Integer activityId) {
 		return adActivityAdseatMapper.selectSeatInfoByActivityId(activityId);
 	}
+
+	/**
+	 * 根据memo确定广告位信息
+	 * */
+	@Override
+	public List<AdActivityAdseatVo> getActivitySeatByMemo(String memo) {
+		return adActivityAdseatMapper.selectVoByMemo(memo);
+	}
 }

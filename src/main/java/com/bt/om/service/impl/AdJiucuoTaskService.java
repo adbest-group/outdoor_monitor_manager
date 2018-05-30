@@ -190,4 +190,9 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
 	public List<AdJiucuoTask> selectInfoByLonLatTitle(Map<String, Object> searchMap) {
 		return adJiucuoTaskMapper.selectInfoByLonLatTitle(searchMap);
 	}
+	
+	@Override
+	public List<AdJiucuoTask> selectInfoByMemo(Map<String, Object> searchMap) {
+		return adJiucuoTaskMapper.selectInfoByMemo(searchMap);
+	}
 }

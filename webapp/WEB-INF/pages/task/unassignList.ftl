@@ -23,6 +23,7 @@
                         <select name="status" class="select" id="status">
                             <option value="1" <#if (bizObj.queryMap.status?exists&&bizObj.queryMap.status=="1")>selected</#if> >待指派</option>
                             <option value="8" <#if (bizObj.queryMap.status?exists&&bizObj.queryMap.status=="8")>selected</#if> >可抢单</option> 
+                            <option value="0" <#if (bizObj.queryMap.status?exists&&bizObj.queryMap.status=="0")>selected</#if> >已指派</option> 
                         </select>
                     </div>
                     <div class="ll inputs-date">
@@ -67,10 +68,10 @@
                         	<#-- <td width="30"><input type="checkbox" name="ck-task" value="${task.id}"/></td> -->
                             <td width="30">${(bizObj.page.currentPage-1)*20+task_index+1}</td>
                             <td>
-                                <div class="data-title w200" data-title="${task.activityName}" data-id="${task.id}">${task.activityName?if_exists}</div>
+                                <div class="data-title w200" data-title="${task.activityName!""}" data-id="${task.id}">${task.activityName?if_exists}</div>
                             </td>
                             <td><img width="50" src="${task.samplePicUrl}"/> </td>
-                            <td>${task.startTime?string('yyyy-MM-dd')}<br/>${task.endTime?string('yyyy-MM-dd')}</td>
+                            <td><#if (task.startTime?exists)>${task.startTime?string('yyyy-MM-dd')} </#if><br/><#if (task.endTime?exists)>${task.endTime?string('yyyy-MM-dd')}</#if></td>
                             <td>${vm.getCityNameFull(task.street!task.region,"-")!""}</td>
                             <td>${task.mediaName}</td>
                             <td>${task.adSeatName}</td>

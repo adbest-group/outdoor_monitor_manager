@@ -45,4 +45,5 @@ public interface IAdJiucuoTaskService {
 	int selectCountByActivityAndSeat(Map<String, Object> searchMap);
 	List<AdJiucuoTask> selectInfoByQrCode(Map<String, Object> searchMap);
 	List<AdJiucuoTask> selectInfoByLonLatTitle(Map<String, Object> searchMap);
+	List<AdJiucuoTask> selectInfoByMemo(Map<String, Object> searchMap);
 }

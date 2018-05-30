@@ -141,6 +141,9 @@
       <if test="defaultPage != null">
         default_page,
       </if>
+      <if test="appSid != null">
+        app_sid,
+      </if>
       <if test="createTime != null">
         create_time,
       </if>
@@ -202,6 +205,9 @@
       </if>
       <if test="defaultPage != null">
         #{defaultPage,jdbcType=VARCHAR},
+      </if>
+      <if test="appSid != null">
+        #{appSid,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=TIMESTAMP},

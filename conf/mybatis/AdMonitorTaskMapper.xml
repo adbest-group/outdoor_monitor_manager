@@ -326,7 +326,6 @@
         <result column="reason" jdbcType="VARCHAR" property="reason"/>
         <result column="problem" jdbcType="VARCHAR" property="problem"/>
         <result column="problem_other" jdbcType="VARCHAR" property="problemOther"/>
-        <result column="problem_other" jdbcType="VARCHAR" property="problemOther"/>
         <result column="feedback_lat" jdbcType="DOUBLE" property="feedbackLat"/>
         <result column="feedback_lon" jdbcType="DOUBLE" property="feedbackLon"/>
         <result column="distance" jdbcType="DOUBLE" property="distance"/>
@@ -338,6 +337,7 @@
         <result column="end_time" jdbcType="TIMESTAMP" property="endTime"/>
         <result column="assign_type" jdbcType="INTEGER" property="assignType"/>
         <result column="ad_code_flag" jdbcType="INTEGER" property="adCodeFlag"/>
+        <result column="memo" jdbcType="VARCHAR" property="memo"/>
     </resultMap>
 
     <insert id="insertList" parameterType="java.util.List">
@@ -374,8 +374,11 @@
         <if test="activityId != null">
             and a.activity_id = #{activityId,jdbcType=INTEGER}
         </if>
-        <if test="status != null">
+        <if test="status != null and status==8">
             and a.status = #{status,jdbcType=INTEGER}
+        </if>
+        <if test="status != null and status==0">
+            and a.status != 1
         </if>
         <if test="statuses != null">
             and a.status in
@@ -445,8 +448,11 @@
         <if test="activityId != null">
             and a.activity_id = #{activityId,jdbcType=INTEGER}
         </if>
-        <if test="status != null">
+        <if test="status != null and status==8">
             and a.status = #{status,jdbcType=INTEGER}
+        </if>
+        <if test="status != null and status==0">
+            and a.status != 1
         </if>
         <if test="statuses != null">
             and a.status in
@@ -502,7 +508,8 @@
     	a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time,
     	b.activity_name,
     	c.sample_pic_url,c.monitor_start,c.monitor_end,c.ad_seat_id,
-    	d.`name` as ad_seat_name, d.location as ad_seat_location, d.ad_code as ad_seat_code, d.lon, d.lat, d.region, d.street, d.province, d.city, d.ad_code_flag,
+    	d.`name` as ad_seat_name, d.location as ad_seat_location, d.ad_code as ad_seat_code, d.lon, d.lat, d.region, d.street, d.province, d.city, 
+    	d.ad_code_flag, d.memo,
     	e.reason,e.pic_url1,e.pic_url2,e.pic_url3,e.pic_url4,e.create_time as feedback_time,
     	e.problem,e.problem_other,e.lon as feedback_lon,e.lat as feedback_lat,
     	f.start_time, f.end_time, f.assign_type

@@ -40,6 +40,7 @@ public class MonitorTaskUnFinishedVo extends BasicVo {
     private String province;
     private String city;
     private Integer adCodeFlag;
+    private String adCode;
 
     public MonitorTaskUnFinishedVo(AdMonitorTaskMobileVo task){
         this.task_id = task.getId();
@@ -70,9 +71,18 @@ public class MonitorTaskUnFinishedVo extends BasicVo {
         this.endTime = DateUtil.dateFormate(task.getEndTime(), "yyyy-MM-dd HH:mm:ss");
         this.assignType = task.getAssignType();
         this.adCodeFlag = task.getAdCodeFlag();
+        this.adCode = task.getAdCode();
     }
 
-    public Double getLat() {
+    public String getAdCode() {
+		return adCode;
+	}
+
+	public void setAdCode(String adCode) {
+		this.adCode = adCode;
+	}
+
+	public Double getLat() {
         return lat;
     }
 

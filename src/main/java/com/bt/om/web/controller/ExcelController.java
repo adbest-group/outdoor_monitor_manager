@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -883,7 +881,7 @@ public class ExcelController extends BasicController {
         model = new ExtendedModelMap();
         
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
-        result.setResult("/static/excel/" + "批量导入广告位示例.xls");
+        result.setResult("/static/excel/" + "template.zip");
         
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;

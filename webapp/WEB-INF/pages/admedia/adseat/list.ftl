@@ -13,8 +13,13 @@
 			<div class="search-box search-ll" style="margin: 0 0 0 20px">
 				<button type="button" class="btn btn-red" autocomplete="off"
 					onclick="window.location.href='/platmedia/adseat/edit'">新增广告位</button>
+					
 				<button style="margin-left: 10px" type="button" class="btn" id="insertBatchId"
 					autocomplete="off" onclick="">批量导入</button>
+					
+				<button style="margin-left: 10px" type="button" class="btn" id="downloadBatch"
+					autocomplete="off" onclick="">模板下载</button>
+					
 				<div style="border-bottom: 1px solid black; margin:10px auto"></div>
 				<form id="form" method="get" action="/platmedia/adseat/list">
 					<!--销售下拉框-->
@@ -45,6 +50,7 @@
 					<thead>
 						<tr>
 							<th width="30">序号</th>
+							<th>广告位名称</th>
 							<th>区域</th>
 							<th>所属媒体</th>
 							<#--<th>媒体广告位编号</th>-->
@@ -61,6 +67,7 @@
 						bizObj.list as adseat>
 						<tr>
 							<td>${(bizObj.page.currentPage-1)*20+adseat_index+1}</td>
+							<td>${adseat.name!""}</td>
 							<td>${vm.getCityNameFull(adseat.street!adseat.region,"-")!""}</td>
 							<td>${adseat.mediaName!""}</td>
 							<#--<td>${adseat.adCode!""}</td>-->
@@ -160,6 +167,20 @@
 	$("#clear").click(function () {
         $("#demo3 select").val("");
     });
+    
+    // 下载模板
+    $('#downloadBatch').click(function(){
+    	$.get('/excel/downloadBatch', function(data){
+    		if(data.ret.code === 100) {
+    			window.open(data.ret.result)
+    		}else{
+    			layer.confirm("下载失败", {
+                    icon: 5,
+                    btn: ['确定'] //按钮
+                });
+    		}
+    	})
+    })
 
 	/*获取城市  */
 	var $town = $('#demo3 select[name="street"]');
@@ -283,9 +304,9 @@
                 } else {
                     var msg = "";
                     if (codeFlag == "1") {
-                        msg = "启用成功";
+                        msg = "操作成功";
                     } else {
-                        msg = "停用成功";
+                        msg = "操作成功";
                     }
                     layer.confirm(msg, {
                         icon: 1,

@@ -1,6 +1,7 @@
 package com.bt.om.web.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -127,6 +128,8 @@ public class CustomerController {
                       @RequestParam(value = "customerTypeId", required = true) Integer customerTypeId) {
 
         ResultVo<List<SysUser>> resultVo = new ResultVo<List<SysUser>>();
+        String appSid = UUID.randomUUID().toString();
+        
         try {
             if (id == null) {//新增
                 SysUserVo user = new SysUserVo();
@@ -138,6 +141,7 @@ public class CustomerController {
                 user.setUsertype(2);
                 user.setStatus(1);
                 user.setCustomerTypeId(customerTypeId);
+                user.setAppSid(appSid);
                 customerService.add(user);
             } else {//修改
                 SysUserVo user = new SysUserVo();

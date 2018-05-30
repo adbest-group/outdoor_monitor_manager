@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -113,13 +111,8 @@ public class ExcelController extends BasicController {
 	
 	/**
 	 * 具体活动的pdf导出
-	 * @param model
-	 * @param request
-	 * @param response
-	 * @param activityId
-	 * @return
 	 */
-	@RequiresRoles(value = {"admin" , "customer"}, logical = Logical.OR)
+	@RequiresRoles(value = {"superadmin", "activityadmin", "admin" , "customer"}, logical = Logical.OR)
     @RequestMapping(value = "/exportAdMediaPdf")
 	@ResponseBody
 	public Model exportPdf(Model model, HttpServletRequest request, HttpServletResponse response,
@@ -205,10 +198,14 @@ public class ExcelController extends BasicController {
 				list.add(vo.getInfo_adArea()); //面积 12
 				list.add(vo.getInfo_lon() + ""); //经度 13
 				list.add(vo.getInfo_lat() + ""); //纬度 14
-				list.add(MapStandardEnum.getText(vo.getInfo_mapStandard())); //地图标准 15
+				if(vo.getInfo_mapStandard() != null) {
+					list.add(MapStandardEnum.getText(vo.getInfo_mapStandard())); //地图标准 15
+				} else {
+					list.add(null);
+				}
 				list.add(vo.getInfo_contactName()); //联系人姓名 16
 				list.add(vo.getInfo_contactCell()); //联系人电话 17
-				list.add(vo.getInfo_memo()); //备注 18
+				list.add(vo.getInfo_memo()); //媒体方编号 18
 				list.add(mediaTypeMap.get(vo.getInfo_mediaTypeParentId())); //媒体大类 19
 				list.add(mediaTypeMap.get(vo.getInfo_mediaTypeId())); //媒体小类 20
 				list.add(vo.getMediaName()); //媒体名称21
@@ -260,14 +257,8 @@ public class ExcelController extends BasicController {
 	
 	/**
 	 * 具体活动的广告位excel导出报表
-	 * @param model
-	 * @param request
-	 * @param response
-	 * @param activityId
-	 * @return
-	 * @throws UnsupportedEncodingException 
 	 */
-	@RequiresRoles(value = {"admin" , "customer"}, logical = Logical.OR)
+	@RequiresRoles(value = {"superadmin", "activityadmin", "admin" , "customer"}, logical = Logical.OR)
     @RequestMapping(value = "/exportAdMediaInfo")
 	@ResponseBody
 	public Model exportAdMediaInfo(Model model, HttpServletRequest request, HttpServletResponse response,
@@ -331,14 +322,14 @@ public class ExcelController extends BasicController {
 				list.add(MapStandardEnum.getText(vo.getInfo_mapStandard())); //地图标准（如百度，谷歌，高德）
 				list.add(vo.getInfo_contactName()); //联系人姓名
 				list.add(vo.getInfo_contactCell()); //联系人电话
-				list.add(vo.getInfo_memo()); //备注
+				list.add(vo.getInfo_memo()); //媒体方编号
 				
 				listString.add(list);
 			}
         	
             String[] titleArray = {"活动名称", "广告位名称", "供应商（媒体）", "媒体大类", "媒体小类", "省", "市", "区（县）", "街道（镇，乡）", "详细位置", "唯一标识", 
             		"开始监测时间", "结束监测时间", "当前状态",
-            		"广告位尺寸", "面积", "经度", "纬度", "地图标准（如百度，谷歌，高德）", "联系人姓名", "联系人电话", "备注"};
+            		"广告位尺寸", "面积", "经度", "纬度", "地图标准（如百度，谷歌，高德）", "联系人姓名", "联系人电话", "媒体方编号"};
             ExcelTool<List<String>> excelTool = new ExcelTool<List<String>>("importResult");
             String path = request.getSession().getServletContext().getRealPath("/");
     		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"excel"+File.separatorChar+fileName;
@@ -358,9 +349,6 @@ public class ExcelController extends BasicController {
 	
 	/**
 	 * 批量插入广告位
-	 * @param model
-	 * @param request
-	 * @param excelFile
 	 */
 	@RequiresRoles(value = {"superadmin" , "media"}, logical = Logical.OR)
     @RequestMapping(value = "/insertBatch")
@@ -431,7 +419,7 @@ public class ExcelController extends BasicController {
             for (int i = 1; i < listob.size(); i++) {
                 List<Object> lo = listob.get(i);
                 //广告位名称, 媒体大类, 媒体小类, 是否允许多个活动（是或否）, 允许活动数量, 省（直辖市）, 市, 区（县）, 街道（镇，乡）, 
-                //详细位置, 唯一标识, 广告位长度, 广告位宽度, 面积, 经度, 纬度, 地图标准（如百度，谷歌，高德）, 联系人姓名, 联系人电话, 备注, 导入结果, 导入错误信息
+                //详细位置, 唯一标识, 广告位长度, 广告位宽度, 面积, 经度, 纬度, 地图标准（如百度，谷歌，高德）, 联系人姓名, 联系人电话, 媒体方编号, 导入结果, 导入错误信息
                 if(lo.size() <= 22){
                 	AdSeatInfo info = new AdSeatInfo();
                 	Long provinceId = 0L;
@@ -703,9 +691,9 @@ public class ExcelController extends BasicController {
                 	//设置广告位尺寸
                 	if(hasProblem == false) {
                 		if(lo.get(11) != null && lo.get(12) != null) {
-                    		DecimalFormat df = new DecimalFormat("0"); // 格式化number String字符
-                    		String length = df.format(lo.get(11)).trim();
-                    		String width = df.format(lo.get(12)).trim();
+//                    		DecimalFormat df = new DecimalFormat("0"); // 格式化number String字符
+                    		String length = String.valueOf(lo.get(11)).trim();
+                    		String width = String.valueOf(lo.get(12)).trim();
                     		info.setAdSize(length + "*" + width); //广告位长度*广告位宽度
                     		lo.set(11, length);
                     		lo.set(12, width);
@@ -802,7 +790,7 @@ public class ExcelController extends BasicController {
                     	}
                 	}
                 	
-                	//设置备注信息
+                	//设置媒体方编号信息
                 	if(hasProblem == false) {
                 		if(lo.get(19) != null) {
                 			info.setMemo(String.valueOf(lo.get(19)).trim());
@@ -836,6 +824,8 @@ public class ExcelController extends BasicController {
                 		QRcodeUtil.encode(adCodeInfo, path);
                 		info.setAdCode(adCodeInfo);
                 		info.setAdCodeUrl("/static/qrcode/" + adCodeInfo + ".jpg");
+                		//默认贴上二维码
+                		info.setCodeFlag(1);
                 		insertAdSeatInfos.add(info);
                 	}
                 } else {
@@ -853,9 +843,9 @@ public class ExcelController extends BasicController {
             
             //导出到excel, 返回导入广告位信息结果
             List<List<String>> listString = objToString(listob);
-            String[] titleArray = { "广告位名称", "媒体大类", "媒体大类", "是否允许多个活动", "允许活动数量", "省", "市", "区（县）", "街道（镇，乡）", "详细位置", 
+            String[] titleArray = { "广告位名称", "媒体大类", "媒体小类", "是否允许多个活动", "允许活动数量", "省", "市", "区（县）", "街道（镇，乡）", "详细位置", 
             		"唯一标识", "广告位长度", "广告位宽度", "面积", "经度", "纬度",
-            		"地图标准（如百度，谷歌，高德）", "联系人姓名", "联系人电话", "备注", "导入结果", "导入错误信息"};
+            		"地图标准（如百度，谷歌，高德）", "联系人姓名", "联系人电话", "媒体方编号", "导入结果", "导入错误信息"};
             ExcelTool<List<String>> excelTool = new ExcelTool<List<String>>("importResult");
 //          excelTool.exportExcel(listString, titleArray, response);
             String path = request.getSession().getServletContext().getRealPath("/");
@@ -869,10 +859,30 @@ public class ExcelController extends BasicController {
         } catch (Exception e) {
         	logger.error(MessageFormat.format("批量导入文件有误, 导入失败", new Object[] {}));
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());
-        	result.setResultDes(e.getMessage());
+        	result.setResultDes("导入失败");
             e.printStackTrace();
         }
 		
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+	}
+	
+	/**
+	 * 导入广告位模板下载
+	 */
+	@RequiresRoles(value = {"superadmin" , "media"}, logical = Logical.OR)
+    @RequestMapping(value = "/downloadBatch")
+	@ResponseBody
+	public Model downloadBatch(Model model, HttpServletRequest request, HttpServletResponse response) {
+		//相关返回结果
+		ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("查询成功");
+        model = new ExtendedModelMap();
+        
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResult("/static/excel/" + "template.zip");
+        
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
 	}
@@ -1005,9 +1015,9 @@ public class ExcelController extends BasicController {
 //	    Font titleChinese = new Font(bfChinese, 20, Font.BOLD);  
 //	    Font BoldChinese = new Font(bfChinese, 20, Font.BOLD);  
 		
-		PdfPTable table = new PdfPTable(11);
+		PdfPTable table = new PdfPTable(10);
 		table.setWidthPercentage(100);
-		table.setWidths(new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 });
+		table.setWidths(new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1});
 
         table.addCell(new Paragraph("广告位名称", fontChinese));
 //        table.addCell(new Paragraph("客户类型", fontChinese));
@@ -1019,7 +1029,7 @@ public class ExcelController extends BasicController {
         table.addCell(new Paragraph("开始监测时间", fontChinese));
         table.addCell(new Paragraph("结束监测时间", fontChinese));
         table.addCell(new Paragraph("当前状态", subBoldFontChinese));
-        table.addCell(new Paragraph("备注", fontChinese));
+        table.addCell(new Paragraph("媒体方编号", fontChinese));
         
         for (List<String> list : listString) {
         	table.addCell(new Paragraph(list.get(1), fontChinese));

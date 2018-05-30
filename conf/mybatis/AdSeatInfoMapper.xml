@@ -286,7 +286,7 @@
 				#{updateTime,jdbcType=TIMESTAMP},
 			</if>
 			<if test="memo != null">
-				#{memo,jdbcType=TIMESTAMP},
+				#{memo,jdbcType=VARCHAR},
 			</if>
 			<if test="allowMulti != null">
 				#{allowMulti,jdbcType=TIMESTAMP},

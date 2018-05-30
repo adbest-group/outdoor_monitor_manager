@@ -76,6 +76,7 @@ public class CustomerService implements ICustomerService {
         userExe.setStatus(1);
         userExe.setRealname(user.getRealname());
         userExe.setMobile(user.getTelephone());
+        userExe.setAppSid(user.getAppSid());
         userExe.setCreateTime(now);
         userExe.setUpdateTime(now);
         sysUserExecuteMapper.insertSelective(userExe);

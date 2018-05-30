@@ -1,22 +1,34 @@
 package com.bt.om.service.impl;
 
-import com.bt.om.entity.*;
-import com.bt.om.entity.vo.AdJiucuoTaskMobileVo;
-import com.bt.om.entity.vo.AdJiucuoTaskVo;
-import com.bt.om.entity.vo.AdMonitorTaskVo;
-import com.bt.om.enums.*;
-import com.bt.om.mapper.*;
-import com.bt.om.service.IAdJiucuoTaskService;
-import com.bt.om.vo.web.SearchDataVo;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import com.bt.om.entity.AdJiucuoTask;
+import com.bt.om.entity.AdJiucuoTaskFeedback;
+import com.bt.om.entity.AdMonitorTask;
+import com.bt.om.entity.vo.AdJiucuoTaskMobileVo;
+import com.bt.om.entity.vo.AdJiucuoTaskVo;
+import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.enums.JiucuoTaskStatus;
+import com.bt.om.enums.MonitorTaskStatus;
+import com.bt.om.enums.MonitorTaskType;
+import com.bt.om.enums.RewardTaskType;
+import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.mapper.AdActivityAdseatMapper;
+import com.bt.om.mapper.AdJiucuoTaskFeedbackMapper;
+import com.bt.om.mapper.AdJiucuoTaskMapper;
+import com.bt.om.mapper.AdMonitorRewardMapper;
+import com.bt.om.mapper.AdMonitorTaskMapper;
+import com.bt.om.mapper.SysUserExecuteMapper;
+import com.bt.om.service.IAdJiucuoTaskService;
+import com.bt.om.vo.web.SearchDataVo;
 
 /**
  * Created by caiting on 2018/1/21.
@@ -74,33 +86,35 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void pass(AdJiucuoTask task) {
+    public void pass(AdJiucuoTask task, Integer assessorId) {
         Date now = new Date();
         task.setStatus(JiucuoTaskStatus.VERIFIED.getId());
         task.setVerifyTime(now);
+        task.setAssessorId(assessorId); //审核人id
         adJiucuoTaskMapper.updateByPrimaryKeySelective(task);
-        task = adJiucuoTaskMapper.selectByPrimaryKey(task.getId());
-        SysUserExecute user = sysUserExecuteMapper.selectByPrimaryKey(task.getUserId());
-        if(user.getId() == SysUserExecuteType.WORKER.getId()) {
-            AdMonitorReward reward = new AdMonitorReward();
-            reward.setMonitorTaskId(task.getId());
-            reward.setType(RewardType.ADD.getId());
-            reward.setTaskType(RewardTaskType.JIUCUO.getId());
-            reward.setUserId(task.getUserId());
-            //? 奖励点数设计，这里随便写死15点
-            reward.setRewardPoints(15);
-            reward.setCreateTime(now);
-            reward.setUpdateTime(now);
-            adMonitorRewardMapper.insert(reward);
-        }
-
+        
+//        task = adJiucuoTaskMapper.selectByPrimaryKey(task.getId());
+//        SysUserExecute user = sysUserExecuteMapper.selectByPrimaryKey(task.getUserId());
+//        if(user.getId() == SysUserExecuteType.WORKER.getId()) {
+//            AdMonitorReward reward = new AdMonitorReward();
+//            reward.setMonitorTaskId(task.getId());
+//            reward.setType(RewardType.ADD.getId());
+//            reward.setTaskType(RewardTaskType.JIUCUO.getId());
+//            reward.setUserId(task.getUserId());
+//            //? 奖励点数设计，这里随便写死15点
+//            reward.setRewardPoints(15);
+//            reward.setCreateTime(now);
+//            reward.setUpdateTime(now);
+//            adMonitorRewardMapper.insert(reward);
+//        }
     }
 
     @Override
-    public void reject(AdJiucuoTask task, String reason) {
+    public void reject(AdJiucuoTask task, String reason, Integer assessorId) {
         task.setReason(reason);
         task.setStatus(JiucuoTaskStatus.VERIFY_FAILURE.getId());
         task.setVerifyTime(new Date());
+        task.setAssessorId(assessorId); //审核人id
         adJiucuoTaskMapper.updateByPrimaryKeySelective(task);
     }
 
@@ -202,5 +216,10 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
 	@Override
 	public List<AdJiucuoTask> selectInfoByLonLatTitle(Map<String, Object> searchMap) {
 		return adJiucuoTaskMapper.selectInfoByLonLatTitle(searchMap);
+	}
+	
+	@Override
+	public List<AdJiucuoTask> selectInfoByMemo(Map<String, Object> searchMap) {
+		return adJiucuoTaskMapper.selectInfoByMemo(searchMap);
 	}
 }

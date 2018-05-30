@@ -63,7 +63,11 @@
                             <td>${vm.getActivityStatusTextWithColor(activity.status)}</td>
                             <td>${activity.realName?if_exists}</td>
                             <td>
+                            	<#if activity.status==1><a href="javascript:queren('${activity.id}')">确认</a></#if>
                                 <#if activity.status gt 0 ><a href="/activity/edit?id=${activity.id}">详情</a></#if>
+                                <#if activity.status==1><a href="javascript:del('${activity.id}')">删除</a></#if>
+                                <#if activity.status gt 1><a id="exportExcel" href="javascript:exportExcel('${activity.id}')">导出excel</a></#if>
+                                <#if activity.status gt 1><a id="exportPdf" href="javascript:exportPdf('${activity.id}')">导出pdf</a></#if>
                             </td>
                         </tr>
                         </#list>
@@ -289,6 +293,80 @@
             doUpdate(id, status);
         }
     }
+    
+    function exportPdf(activityId) {
+    	$.ajax({
+            url: "/excel/exportAdMediaPdf",
+            type: "post",
+            data: {
+                "activityId": activityId
+            },
+            cache: false,
+            dataType: "json",
+            success: function(datas) {
+                var resultRet = datas.ret;
+                if (resultRet.code == 101) {
+                    layer.confirm(resultRet.resultDes, {
+                        icon: 2,
+                        btn: ['确定'] //按钮
+                    });
+                } else {
+                    layer.alert('导出成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
+		    		//window.open(resultRet.result);
+		    		var newA = document.createElement("a");
+			        newA.id = 'gg'
+			        newA.target = '_blank';
+			        newA.href = resultRet.result;
+			        document.body.appendChild(newA);
+			        newA.click();
+			        document.body.removeChild(newA);
+                }
+            },
+            error: function(e) {
+                layer.confirm("服务忙，请稍后再试", {
+                    icon: 5,
+                    btn: ['确定'] //按钮
+                });
+            }
+        });
+    }
+    
+    function exportExcel(activityId) {
+		$.ajax({
+            url: "/excel/exportAdMediaInfo",
+            type: "post",
+            data: {
+                "activityId": activityId
+            },
+            cache: false,
+            dataType: "json",
+            success: function(datas) {
+                var resultRet = datas.ret;
+                if (resultRet.code == 101) {
+                    layer.confirm(resultRet.resultDes, {
+                        icon: 2,
+                        btn: ['确定'] //按钮
+                    });
+                } else {
+                    layer.alert('导出成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
+		    		//window.open(resultRet.result);
+		    		var newA = document.createElement("a");
+			        newA.id = 'gg'
+			        newA.target = '_blank';
+			        newA.href = resultRet.result;
+			        document.body.appendChild(newA);
+			        newA.click();
+			        document.body.removeChild(newA);
+                }
+            },
+            error: function(e) {
+                layer.confirm("服务忙，请稍后再试", {
+                    icon: 5,
+                    btn: ['确定'] //按钮
+                });
+            }
+        });
+	}
 
 </script>
 <!-- 特色内容 -->

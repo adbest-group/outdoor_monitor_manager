@@ -27,7 +27,6 @@ import com.adtime.common.lang.StringUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdActivity;
-import com.bt.om.entity.OperateLog;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdActivityVo;
@@ -35,10 +34,10 @@ import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
+import com.bt.om.service.IOperateLogService;
 import com.bt.om.service.ISysGroupService;
 import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserRoleService;
-import com.bt.om.service.IOperateLogService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.util.GsonUtil;
 import com.bt.om.util.QRcodeUtil;
@@ -211,7 +210,7 @@ public class ActivityController extends BasicController {
     }
 
     //确认活动
-    @RequiresRoles("activityadmin")
+    @RequiresRoles(value = {"activityadmin", "depactivityadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/confirm")
     @ResponseBody
     public Model confirm(Model model, HttpServletRequest request,
@@ -223,19 +222,13 @@ public class ActivityController extends BasicController {
         Date now = new Date();
         
         try {
+        	//获取登录的审核人(员工/部门领导/超级管理员)
+            SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        	
         	//确认活动
-            adActivityService.confirm(id);
+            adActivityService.confirm(id, userObj.getId());
             
-            //添加操作日志
             AdActivity adActivity = adActivityService.getById(id);
-            SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-            OperateLog operateLog = new OperateLog();
-            operateLog.setContent("确认活动：" + adActivity.getActivityName());
-            operateLog.setCreateTime(now);
-            operateLog.setUpdateTime(now);
-            operateLog.setUserId(user.getId());
-            operateLogService.save(operateLog);
-            
             //==========web端活动审核成功之后根据活动创建者id进行app消息推送==============
             Map<String, Object> param = new HashMap<>();
             Map<String, String> extras = new HashMap<>();
@@ -301,7 +294,7 @@ public class ActivityController extends BasicController {
     }
 
     //删除活动
-    @RequiresRoles(value= {"admin", "customer", "activityadmin"}, logical = Logical.OR)
+    @RequiresRoles(value = {"admin", "customer", "activityadmin", "depactivityadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/delete")
     @ResponseBody
     public Model delete(Model model, HttpServletRequest request,
@@ -315,16 +308,6 @@ public class ActivityController extends BasicController {
         try {
         	//删除活动
             adActivityService.delete(id);
-            
-            //添加操作日志
-            AdActivity adActivity = adActivityService.getById(id);
-            SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-            OperateLog operateLog = new OperateLog();
-            operateLog.setContent("删除活动：" + adActivity.getActivityName());
-            operateLog.setCreateTime(now);
-            operateLog.setUpdateTime(now);
-            operateLog.setUserId(user.getId());
-            operateLogService.save(operateLog);
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("删除失败！");

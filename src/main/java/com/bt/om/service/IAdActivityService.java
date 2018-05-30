@@ -33,7 +33,7 @@ public interface IAdActivityService {
     
     public AdActivity getById(Integer id);
 
-    public void confirm(Integer id);
+    public void confirm(Integer id, Integer assessorId);
 
     public void delete(Integer id);
 
@@ -85,4 +85,6 @@ public interface IAdActivityService {
 	List<AdActivityAdseatTaskVo> selectAdActivityAdseatTaskReport(Integer activityId);
 
 	List<AdSeatInfo> selectSeatInfoByActivityId(Integer activityId);
+
+	public List<AdActivityAdseatVo> getActivitySeatByMemo(String memo);
 }

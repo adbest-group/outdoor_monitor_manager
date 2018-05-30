@@ -91,4 +91,6 @@ public interface AdActivityAdseatMapper {
     List<AdActivityAdseatTaskVo> selectAdActivityAdseatTask(Map<String, Object> searchMap, RowBounds rowBounds);
     
     List<AdSeatInfo> selectSeatInfoByActivityId(@Param("activityId") Integer activityId);
+
+	List<AdActivityAdseatVo> selectVoByMemo(@Param("memo")String memo);
 }

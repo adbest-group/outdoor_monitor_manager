@@ -116,6 +116,9 @@
       <if test="defaultPage != null">
         default_page,
       </if>
+      <if test="appTypeId != null" >
+        app_type_id,
+      </if>
       <if test="createTime != null">
         create_time,
       </if>
@@ -162,6 +165,9 @@
       </if>
       <if test="defaultPage != null">
         #{defaultPage,jdbcType=VARCHAR},
+      </if>
+      <if test="appTypeId != null" >
+        #{appTypeId,jdbcType=INTEGER},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=TIMESTAMP},
@@ -217,6 +223,9 @@
       <if test="defaultPage != null">
         default_page = #{defaultPage,jdbcType=VARCHAR},
       </if>
+      <if test="appTypeId != null" >
+        appTypeId = #{appTypeId,jdbcType=INTEGER},
+      </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=TIMESTAMP},
       </if>
@@ -263,7 +272,7 @@
 
   <select id="findUserinfoById" parameterType ="map" resultMap="ExtResultMap">
     select
-    tt1.id, tt1.username,tt1.realname, tt1.usertype, tt1.password, tt1.customer_type_id,
+    tt1.id, tt1.username,tt1.realname, tt1.usertype, tt1.password, tt1.customer_type_id,tt1.app_type_id,
     tt2.id as userinfo_id, tt2.telephone,tt2.prefix, tt1.status, tt3.role_name
     from
     sys_user tt1,

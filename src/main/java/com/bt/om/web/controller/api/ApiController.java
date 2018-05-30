@@ -460,7 +460,6 @@ public class ApiController extends BasicController {
         String vcode = null;
         String token = null;
         String appSid = null;
-        
         try {
             InputStream is = request.getInputStream();
             Gson gson = new Gson();
@@ -562,6 +561,15 @@ public class ApiController extends BasicController {
             result.setResultDes("账号已被停用！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
+        }
+        if(userExecute.getUsertype() == 2) {
+        	//客户登录APP, 校验appSid
+        	if(!StringUtil.equals(userExecute.getAppSid(), appSid)) {
+        		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("用户名或密码有误！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+        	}
         }
 
         if (useSession.get()) {
@@ -2144,7 +2152,7 @@ public class ApiController extends BasicController {
         String password = null;
         String vcode = null;
         String token = null;
-
+        String mac = null;
         try {
             InputStream is = request.getInputStream();
             Gson gson = new Gson();
@@ -2153,6 +2161,7 @@ public class ApiController extends BasicController {
             password = obj.get("password") == null ? null : obj.get("password").getAsString();
             vcode = obj.get("vcode") == null ? null : obj.get("vcode").getAsString();
             token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            mac = obj.get("mac") == null ? null : obj.get("mac").getAsString();
             if (token != null) {
                 useSession.set(Boolean.FALSE);
                 this.sessionByRedis.setToken(token);
@@ -2224,7 +2233,7 @@ public class ApiController extends BasicController {
         userExecute.setUsertype(UserExecuteType.Social.getId());
         userExecute.setStatus(1);
         userExecute.setMobile(username);
-
+        userExecute.setMac(mac);
         try{
             sysUserExecuteService.add(userExecute);
         }catch (Exception e){
@@ -2267,7 +2276,7 @@ public class ApiController extends BasicController {
         String username = null;
         String vcode = null;
         String token = null;
-
+        
         try {
             InputStream is = request.getInputStream();
             Gson gson = new Gson();
@@ -3179,4 +3188,6 @@ public class ApiController extends BasicController {
         System.out.println(new Md5Hash("admin123", "superadmin").toString());
 //        System.out.println("【浙江百泰】您的验证码为${code}".replaceAll("\\$\\{code\\}","122321"));
     }
+    
+   
 }

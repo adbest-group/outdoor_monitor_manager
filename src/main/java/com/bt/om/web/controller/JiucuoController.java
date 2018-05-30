@@ -279,7 +279,7 @@ public class JiucuoController extends BasicController {
         return model;
     }
     
-    // 撤消纠错
+    // 撤消纠错 
     @RequiresRoles("jiucuoadmin")
     @RequestMapping(value = "/cancel")
     @ResponseBody

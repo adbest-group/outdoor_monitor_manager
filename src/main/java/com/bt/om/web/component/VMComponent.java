@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import com.bt.om.cache.AdSeatTypeCache;
 import com.bt.om.cache.CityCache;
 import com.bt.om.entity.AdActivity;
+import com.bt.om.entity.AdApp;
 import com.bt.om.entity.AdCustomerType;
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdMediaType;
@@ -33,6 +34,7 @@ import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdCustomerTypeService;
 import com.bt.om.service.IAdMediaTypeService;
+import com.bt.om.service.IAppService;
 import com.bt.om.service.IResourceService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.util.CityUtil;
@@ -72,6 +74,8 @@ public class VMComponent {
 	@Autowired
     IAdCustomerTypeService adCustomerTypeService;
 
+	@Autowired
+	IAppService adAppService;
     public String getCityName(Long code) {
         return code == null ? "" : cityCache.getCityName(code);
     }
@@ -343,6 +347,13 @@ public class VMComponent {
     	return adCustomerTypeService.getAll();
     }
     
+    /**
+     * 获取全部App类型
+     * */
+    public List<AdApp> getAllAppType() {
+    	System.out.println(adAppService.getAllAppType());
+    	return adAppService.getAllAppType();
+    }
     /***************************** 下面是工具类 ****************************************/
     private HashMap<String, String> getParams(String qs) {
         HashMap<String, String> params = new HashMap<String, String>();

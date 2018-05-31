@@ -2,6 +2,7 @@ package com.bt.om.service.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,17 @@ public class AdAppService implements IAppService {
 
 	@Override
 	public void save(AdApp adapp) {
-		adAppMapper.insertSelective(adapp);
+		adAppMapper.insert(adapp);
+	}
+
+	@Override
+	public List<AdApp> getAllAppType() {
+		return adAppMapper.getAllAppType();
+	}
+
+	@Override
+	public int deleteAppById(Integer id) {
+		return adAppMapper.deleteByPrimaryKey(id);
 	}
 
 }

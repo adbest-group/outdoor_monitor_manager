@@ -292,7 +292,7 @@
                 setValue: function (s, s1, s2) {
                     $('#dts').val(s1);
                     $('#dt').val(s2);
-
+					$('.Wdate').blur()
                 }
             });
         }
@@ -524,11 +524,22 @@
             validatorGroup:"2",
             tipID:"dateTip",
             onShow:"",
-            onFocus:"",
+            onFocus:"请选择投放时间",
             onCorrect:""
-        }).inputValidator({
-            min: 1,
-            onError: "请输入投放时间"
+        }).regexValidator({
+            regExp:"^\\S+$",
+            onError:"请输入投放时间"
+        }).functionValidator({
+        	fun: function(val, ele){
+        		let now = new Date()
+        		let date = now.getFullYear()+ '-' + (now.getMonth() + 1).toString().padStart(2, 0) + '-' + now.getDate()
+        		if($('#dts').val() < date) {
+        			return false
+        		}else {
+        			return true
+        		}
+        	},
+        	onError: '不能选择过去的时间'
         })
 
         //投放媒体

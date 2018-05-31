@@ -375,3 +375,13 @@
 		</#list>
 	</#if>
 </#macro>
+
+<#-- 所有App所属下拉选项 -->
+<#macro showAllAppTypeOps value="-1">
+	<#local list = vm.getAllAppType() />
+	<#if (list?exists && list?size > 0)>
+		<#list list as type>
+			<@showOption value="${type.id?if_exists}" title="${type.appName?if_exists}" select="${value?if_exists}" />
+		</#list>
+	</#if>
+</#macro>

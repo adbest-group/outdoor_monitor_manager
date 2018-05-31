@@ -241,4 +241,23 @@
 		and b.status in (2, 6)
 		and b.id = #{id,jdbcType=INTEGER}
   </update>
+  <!--获取即将结束的任务(2小时之前)  -->
+  <select id="getTaskWillEnd" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+  select a.id,a.monitor_task_id,a.user_id
+	  from ad_monitor_user_task a 
+ 		left join ad_monitor_task b on a.monitor_task_id = b.id
+	 where a.status = 1 
+	   and a.end_time &lt;= DATE_ADD(now(),INTERVAL -#{duration,jdbcType=INTEGER} hour)
+  	   and b.status in (2, 6)
+	   and a.is_push != '1'
+  </select>
+  <!--更新推送状态  -->
+  <update id="updateIsPush">
+  	update ad_monitor_user_task
+	   set
+	   		is_push = '1'
+	 where id in
+	 <foreach collection="ids" separator="," open="(" close=")" item="s">#{s,jdbcType=INTEGER}
+     </foreach> 
+  </update>
 </mapper>

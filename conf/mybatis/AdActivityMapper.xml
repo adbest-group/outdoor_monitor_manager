@@ -449,4 +449,12 @@
      set status = 3
      where end_time &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
   </update>
+  
+  <!-- 获取所有当前日期已经结束状态的活动创建者列表 -->
+  <select id="getEndActivityList" parameterType="java.util.Date" resultType="java.lang.Integer">
+  	select user_id
+  	  from ad_activity
+  	 where status = 3
+  	   and end_time = DATE_FORMAT(#{nowDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+  </select>
 </mapper>

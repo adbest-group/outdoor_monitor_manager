@@ -87,4 +87,5 @@ public interface IAdActivityService {
 	List<AdSeatInfo> selectSeatInfoByActivityId(Integer activityId);
 
 	public List<AdActivityAdseatVo> getActivitySeatByMemo(String memo);
+	List<Integer> getEndActivityList(Date nowDate);
 }

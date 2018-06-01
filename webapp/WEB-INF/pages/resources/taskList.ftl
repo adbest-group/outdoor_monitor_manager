@@ -89,14 +89,14 @@
                                 <div class="data-title w200" data-title="${task.activityName}"
                                      data-id="${task.id}">${task.activityName?if_exists}</div>
                             </td>
-                            <td><img width="50" src="${task.samplePicUrl}"/></td>
+                            <td><img width="50" src="${task.samplePicUrl!""}"/></td>
                             <td>${task.startTime?string('yyyy-MM-dd')}<br/>${task.endTime?string('yyyy-MM-dd')}</td>
                             <td>${vm.getCityNameFull(task.street!task.region,"-")!""}</td>
-                            <td>${task.mediaName}</td>
+                            <td>${task.mediaName!""}</td>
                             <td>${task.adSeatName!""}</td>
                             <td>${task.realname!""}</td>
-                            <td>${vm.getMonitorTaskTypeText(task.taskType)}</td>
-                            <td>${vm.getMonitorTaskStatusText(task.status)}</td>
+                            <td>${vm.getMonitorTaskTypeText(task.taskType)!""}</td>
+                            <td>${vm.getMonitorTaskStatusText(task.status)!""}</td>
                             <td>${vm.getProblemStatusText(task.problemStatus!0)}</td>
                             <td>${task.assessorName!""}</td>
                             <td>
@@ -312,6 +312,8 @@
                     layer.confirm(resultRet.resultDes, {
                         icon: 2,
                         btn: ['确定'] //按钮
+                    }, function(){
+                        window.location.reload();
                     });
                 } else {
                     layer.confirm("审核成功", {

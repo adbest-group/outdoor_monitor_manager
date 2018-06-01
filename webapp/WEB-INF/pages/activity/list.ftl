@@ -37,6 +37,7 @@
                     </div>
                     <button type="button" class="btn btn-red" style="margin-left:10px;" autocomplete="off" id="searchBtn">查询</button>
                     
+                    <#-- 
                     <#if (status?exists&&status == '1')>
                     <a disable="disable" style="display: inline;						
 						padding: 5px 7px;
@@ -54,6 +55,7 @@
 						border-radius: 3px;
 						overflow: hidden;"> 剩余待审核活动总数${shenheCount?if_exists}条</a>
 					</#if>
+					 -->
                 </form>
             </div>
         </div>
@@ -66,6 +68,7 @@
                     <tr>
                         <th>序号</th>
                         <th>活动名称</th>                       
+                        <th>广告商</th> 
                         <th>投放周期</th>
                         <th>活动状态</th>                         
                         <th>操作</th>
@@ -77,8 +80,9 @@
                         <tr>
                             <td width="30">${(bizObj.page.currentPage-1)*20+activity_index+1}</td>
                             <td>
-                                <div class="data-title w200" data-title="${activity.activityName}" data-id="${activity.id}">${activity.activityName?if_exists}</div>
+                                <div class="data-title w200" data-title="${activity.activityName!""}" data-id="${activity.id!""}">${activity.activityName?if_exists}</div>
                             </td>
+                            <td>${activity.customerName?if_exists}</td>
                             <td>${activity.startTime?string('yyyy-MM-dd')} 至 ${activity.endTime?string('yyyy-MM-dd')}</td>
                             <td>${vm.getActivityStatusTextWithColor(activity.status)}</td>
                      
@@ -200,6 +204,8 @@
                         layer.confirm(resultRet.resultDes, {
                             icon: 2,
                             btn: ['确定'] //按钮
+                        }, function(){
+                            window.location.reload();
                         });
                     } else {
                         layer.confirm("确认成功", {

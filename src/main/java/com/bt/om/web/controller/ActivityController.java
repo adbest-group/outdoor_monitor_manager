@@ -5,7 +5,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
@@ -65,9 +65,10 @@ public class ActivityController extends BasicController {
 	private ISysResourcesService sysResourcesService;
 	@Autowired
 	private ISysUserRoleService sysUserRoleService;
-   
     @Autowired
 	private IOperateLogService operateLogService;
+    @Autowired
+    protected RedisTemplate redisTemplate;
     
     //活动审核人员查看活动列表
     @RequiresRoles("activityadmin")
@@ -80,7 +81,7 @@ public class ActivityController extends BasicController {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
         SearchDataVo vo = SearchUtil.getVo();
-        Integer shenheCount = 0;
+//        Integer shenheCount = 0;
         
         //获取登录的审核员工activityadmin
         SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
@@ -93,7 +94,6 @@ public class ActivityController extends BasicController {
         vo.putSearchParam("status", status.toString(), status);
         model.addAttribute("status", status);
        
-        
         if (startDate != null) {
             try {
                 vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
@@ -106,89 +106,105 @@ public class ActivityController extends BasicController {
             } catch (ParseException e) {
             }
         }
-        //只能查询自己参与的活动审核
-        if(userObj != null) {
-        	Integer assessorId = userObj.getId();
-        	vo.putSearchParam("assessorId", assessorId.toString(), assessorId);
+//        //只能查询自己参与的活动审核
+//        if(userObj != null) {
+//        	Integer assessorId = userObj.getId();
+//        	vo.putSearchParam("assessorId", assessorId.toString(), assessorId);
+//        }
+        List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId()); //根据员工id查询所属组对应的所有广告商id集合
+        if(customerIds != null && customerIds.size() == 0) {
+        	//员工对应的广告商id集合为空, 不需要再去查询活动列表
+        	vo.setCount(0);
+        	vo.setSize(20);
+        	vo.setStart(0);
+        	vo.setList(null);
+        } else {
+        	vo.putSearchParam("customerIds", null, customerIds);
+            adActivityService.getPageData(vo);
         }
         
-        //所有未确认的活动
-        Map<String, Object> searchMap1 = new HashMap<>();
-        List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId()); //根据员工id查询所属组对应的所有广告商id集合
-        searchMap1.put("customerIds", customerIds);
-    	List<AdActivity> allActivityUncertain = adActivityService.getAllByStatusUncertain(searchMap1);
+//      //所有未确认的活动
+//      Map<String, Object> searchMap1 = new HashMap<>();
+//      searchMap1.put("customerIds", customerIds);
+//  	List<AdActivity> allActivityUncertain = adActivityService.getAllByStatusUncertain(searchMap1);
+//  	
+//  	shenheCount = allActivityUncertain.size() - vo.getList().size();
+//  	if(shenheCount < 0) {
+//  		shenheCount = 0;
+//  	}
+//  	model.addAttribute("shenheCount", shenheCount);
     	
-        if(status == 2 || status == 3) {
-        	//查询已确认 或 已结束 的活动
-        	adActivityService.getPageData(vo);
-        } else {
-        	//查询未确认的活动
-        	//[1] 先查询审核id的所有未确认活动
-            Map<String, Object> searchMap = new HashMap<>();
-            searchMap.put("status", 1);
-            searchMap.put("assessorId", userObj.getId());
-//            searchMap.put("activityId", activityId);
-//            searchMap.put("startDate", startDate);
-//            searchMap.put("endDate", endDate);
-            List<AdActivity> activities = adActivityService.selectAllByAssessorId(searchMap);//通过所有审核员id获取的所有活动
-            
-            if(activities != null && activities.size() > 0) {
-            	//条数大于0, 返回给页面
-            	Iterator<AdActivity> iterator = activities.iterator();
-            	while(iterator.hasNext()) {
-            		boolean remove = false; //不用抹去
-            		AdActivity adActivity = iterator.next();
-            		//通过页面上的activityId做筛选
-            		if(activityId != null) {
-            			if(adActivity.getId() != activityId) {
-            				remove = true;
-            			}
-            		}
-            		//通过页面上的startDate做筛选
-            		if(StringUtil.isNotBlank(startDate)) {
-            			if(adActivity.getStartTime().getTime() < sdf.parse(startDate).getTime()) {
-            				remove = true;
-            			}
-            		}
-            		//通过页面上的endDate做筛选
-            		if(StringUtil.isNotBlank(endDate)) {
-            			if(adActivity.getEndTime().getTime() > sdf.parse(endDate).getTime()) {
-            				remove = true;
-            			}
-            		}
-            		if(remove == true) {
-            			iterator.remove();
-            		}
-            	}      	
-            	vo.setCount(activities.size());
-            	vo.setSize(20);
-            	vo.setStart(0);
-            	vo.setList(activities);
-            	shenheCount = allActivityUncertain.size() - activities.size();
-            	if(shenheCount < 0) {
-            		shenheCount = 0;
-            	}
-            	model.addAttribute("shenheCount", shenheCount);
-            } else {
-            	//条数等于0, 新查询1条或者0条没人认领的未确认活动(需要匹配 员工 - 组 - 广告商 之间的关系)
-            	if(customerIds != null && customerIds.size() > 0) {
-            		searchMap.clear();
-            		searchMap.put("status", 1);
-            		searchMap.put("customerIds", customerIds);
-            		searchMap.put("assessorId", userObj.getId());
-            		List<AdActivity> atimeActivity = adActivityService.getAtimeActivity(searchMap);//获取一次未确认活动
-            		vo.setCount(atimeActivity.size());
-                	vo.setSize(20);
-                	vo.setStart(0);
-                	vo.setList(atimeActivity);
-                	shenheCount = allActivityUncertain.size() - atimeActivity.size();
-                	if(shenheCount < 0) {
-                		shenheCount = 0;
-                	}
-                	model.addAttribute("shenheCount", shenheCount);
-            	}
-            }
-        }
+//        if(status == 2 || status == 3) {
+//        	//查询已确认 或 已结束 的活动
+//        	adActivityService.getPageData(vo);
+//        } else {
+//        	//查询未确认的活动
+//        	//[1] 先查询审核id的所有未确认活动
+//            Map<String, Object> searchMap = new HashMap<>();
+//            searchMap.put("status", 1);
+//            searchMap.put("assessorId", userObj.getId());
+////            searchMap.put("activityId", activityId);
+////            searchMap.put("startDate", startDate);
+////            searchMap.put("endDate", endDate);
+//            List<AdActivity> activities = adActivityService.selectAllByAssessorId(searchMap);//通过所有审核员id获取的所有活动
+//            
+//            if(activities != null && activities.size() > 0) {
+//            	//条数大于0, 返回给页面
+//            	Iterator<AdActivity> iterator = activities.iterator();
+//            	while(iterator.hasNext()) {
+//            		boolean remove = false; //不用抹去
+//            		AdActivity adActivity = iterator.next();
+//            		//通过页面上的activityId做筛选
+//            		if(activityId != null) {
+//            			if(adActivity.getId() != activityId) {
+//            				remove = true;
+//            			}
+//            		}
+//            		//通过页面上的startDate做筛选
+//            		if(StringUtil.isNotBlank(startDate)) {
+//            			if(adActivity.getStartTime().getTime() < sdf.parse(startDate).getTime()) {
+//            				remove = true;
+//            			}
+//            		}
+//            		//通过页面上的endDate做筛选
+//            		if(StringUtil.isNotBlank(endDate)) {
+//            			if(adActivity.getEndTime().getTime() > sdf.parse(endDate).getTime()) {
+//            				remove = true;
+//            			}
+//            		}
+//            		if(remove == true) {
+//            			iterator.remove();
+//            		}
+//            	}      	
+//            	vo.setCount(activities.size());
+//            	vo.setSize(20);
+//            	vo.setStart(0);
+//            	vo.setList(activities);
+//            	shenheCount = allActivityUncertain.size() - activities.size();
+//            	if(shenheCount < 0) {
+//            		shenheCount = 0;
+//            	}
+//            	model.addAttribute("shenheCount", shenheCount);
+//            } else {
+//            	//条数等于0, 新查询1条或者0条没人认领的未确认活动(需要匹配 员工 - 组 - 广告商 之间的关系)
+//            	if(customerIds != null && customerIds.size() > 0) {
+//            		searchMap.clear();
+//            		searchMap.put("status", 1);
+//            		searchMap.put("customerIds", customerIds);
+//            		searchMap.put("assessorId", userObj.getId());
+//            		List<AdActivity> atimeActivity = adActivityService.getAtimeActivity(searchMap);//获取一次未确认活动
+//            		vo.setCount(atimeActivity.size());
+//                	vo.setSize(20);
+//                	vo.setStart(0);
+//                	vo.setList(atimeActivity);
+//                	shenheCount = allActivityUncertain.size() - atimeActivity.size();
+//                	if(shenheCount < 0) {
+//                		shenheCount = 0;
+//                	}
+//                	model.addAttribute("shenheCount", shenheCount);
+//            	}
+//            }
+//        }
         
         SearchUtil.putToModel(model, vo);
 
@@ -215,7 +231,25 @@ public class ActivityController extends BasicController {
     @ResponseBody
     public Model confirm(Model model, HttpServletRequest request,
                          @RequestParam(value = "id", required = false) Integer id) {
-        ResultVo<String> result = new ResultVo<String>();
+    	ResultVo<String> result = new ResultVo<String>();
+    	String beginRedisStr = "activity_" + id + "_begin";
+    	String finishRedisStr = "activity_" + id + "_finish";
+    	if (redisTemplate.opsForValue().get(finishRedisStr) != null && StringUtil.equals(redisTemplate.opsForValue().get(finishRedisStr) + "", "true")) {
+    		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("活动已被确认，请刷新再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+    	}
+    	if (redisTemplate.opsForValue().get(beginRedisStr) != null && StringUtil.equals(redisTemplate.opsForValue().get(beginRedisStr) + "", "true")) {
+    		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+    		 result.setResultDes("活动正被确认中，请刷新再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+    	}
+    	
+    	//放入Redis缓存处理并发
+    	redisTemplate.opsForValue().set(beginRedisStr, "true");
+    	
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("确认成功");
         model = new ExtendedModelMap();
@@ -242,12 +276,18 @@ public class ActivityController extends BasicController {
             String pushResult = JPushUtils.pushAllByAlias(param);
             System.out.println("pushResult:: " + pushResult);
         } catch (Exception e) {
+        	//异常情况, 移除Redis缓存处理并发
+        	redisTemplate.delete(beginRedisStr);
+        	
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("确认失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
         
+        //放入Redis缓存处理并发
+    	redisTemplate.opsForValue().set(finishRedisStr, "true");
+    	
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }

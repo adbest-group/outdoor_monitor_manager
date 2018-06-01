@@ -383,6 +383,10 @@
         <if test="activityId != null">
             and a.activity_id = #{activityId,jdbcType=INTEGER}
         </if>
+        <if test="customerIds != null">
+	      	and b.user_id in
+	        <foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+	    </if>
         <if test="status != null and status==8">
             and a.status = #{status,jdbcType=INTEGER}
         </if>
@@ -457,6 +461,10 @@
         <if test="activityId != null">
             and a.activity_id = #{activityId,jdbcType=INTEGER}
         </if>
+        <if test="customerIds != null">
+	      	and b.user_id in
+	        <foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+	    </if>
         <if test="status != null and status==8">
             and a.status = #{status,jdbcType=INTEGER}
         </if>

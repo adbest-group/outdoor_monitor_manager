@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
@@ -2155,7 +2156,7 @@ public class ApiController extends BasicController {
         String vcode = null;
         String token = null;
         String mac = null;
-        String mobile = null;
+        String inviteAcc = null;
         try {
             InputStream is = request.getInputStream();
             Gson gson = new Gson();
@@ -2165,7 +2166,7 @@ public class ApiController extends BasicController {
             vcode = obj.get("vcode") == null ? null : obj.get("vcode").getAsString();
             token = obj.get("token") == null ? null : obj.get("token").getAsString();
             mac = obj.get("mac") == null ? null : obj.get("mac").getAsString();
-            mobile = obj.get("mobile") == null ? null : obj.get("mobile").getAsString();
+            inviteAcc = obj.get("inviteAcc") == null ? null : obj.get("inviteAcc").getAsString();
             if (token != null) {
                 useSession.set(Boolean.FALSE);
                 this.sessionByRedis.setToken(token);
@@ -2228,15 +2229,15 @@ public class ApiController extends BasicController {
         }
         
         //邀请码验证
-        if(!StringUtils.isEmpty(mobile)) {
+        if(!StringUtils.isEmpty(inviteAcc)) {
         	//有邀请码的情况
-        	SysUserExecute sysUserExecute = sysUserExecuteService.getMobile(mobile);
+        	SysUserExecute sysUserExecute = sysUserExecuteService.getMobile(inviteAcc);
         	if(sysUserExecute!=null) {
         		//邀请码输入正确   ,获得注册默认积分
         		AdPoint adpoint = pointService.findPointValue(1);
         		
         		//正常注册
-        		String md5Pwd = new Md5Hash(password, username).toString();
+            	String md5Pwd = new Md5Hash(password, username).toString();
 
                 userExecute = new SysUserExecute();
                 userExecute.setUsername(username);
@@ -2246,9 +2247,8 @@ public class ApiController extends BasicController {
                 userExecute.setStatus(1);
                 userExecute.setMobile(username);
                 userExecute.setMac(mac);
-                
                 try{
-                    sysUserExecuteService.add(userExecute);
+                	sysUserExecuteService.add(userExecute);
                     Date now = new Date();
             		AdUserPoint adUserPoint = new AdUserPoint();
             		SysUserExecute sysUser = sysUserExecuteService.getByUsername(username);
@@ -2272,11 +2272,34 @@ public class ApiController extends BasicController {
                     model.addAttribute(SysConst.RESULT_KEY, result);
                     return model;
                 }
+        	}else {
+        		//邀请码输入错误
+        		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("注册失败！,邀请人不存在，请重新输入！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
         	}
+        }else {
+	        //正常注册
+	    	String md5Pwd = new Md5Hash(password, username).toString();
+	
+	        userExecute = new SysUserExecute();
+	        userExecute.setUsername(username);
+	        userExecute.setRealname(username);
+	        userExecute.setPassword(md5Pwd);
+	        userExecute.setUsertype(UserExecuteType.Social.getId());
+	        userExecute.setStatus(1);
+	        userExecute.setMobile(username);
+	        userExecute.setMac(mac);
+	        try{
+	            sysUserExecuteService.add(userExecute);
+	        }catch (Exception e){
+	            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+	            result.setResultDes("注册失败！");
+	            model.addAttribute(SysConst.RESULT_KEY, result);
+	            return model;
+	        }
         }
-
-        
-
 //        SysUserExecute userExecute = sysUserExecuteService.getByUsername(username);
 //        if (userExecute == null || !md5Pwd.equals(userExecute.getPassword())) {
 //            result.setCode(ResultCode.RESULT_FAILURE.getCode());

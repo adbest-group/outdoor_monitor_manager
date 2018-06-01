@@ -91,4 +91,9 @@ public class SysGroupService implements ISysGroupService{
 	public List<Integer> selectGroupIdsByDepartmentId(Integer parentId) {
 		return sysResourcesMapper.selectGroupIdsByDepartmentId(parentId);
 	}
+
+	@Override
+	public int deleteGroupById(Integer id) {
+		return sysResourcesMapper.deleteByPrimaryKey(id);
+	}
 }

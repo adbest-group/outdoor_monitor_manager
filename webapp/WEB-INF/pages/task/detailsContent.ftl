@@ -29,6 +29,7 @@
                 <#else>
                     <div>没有相应结果。</div>
                 </#if>
+                <input type="button" id="btnBack" class="btn btn-primary" value="　返 回　"/>
                 </div>
             </div>
         </div>
@@ -304,5 +305,6 @@
             map.addOverlay(feedbackMarker);
             map.addOverlay(seatMarker);
         });
+        $("#btnBack").click(function(){history.back();});
     });
 </script>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bt.om.mapper.AdSystemPushMapper">
+  <resultMap id="BaseResultMap" type="com.bt.om.entity.AdSystemPush">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="create_time" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, type, content, create_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from ad_system_push
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <insert id="insert" parameterType="com.bt.om.entity.AdSystemPush">
+    insert into ad_system_push (
+    <include refid="Base_Column_List"></include>
+    )
+    values (#{id,jdbcType=INTEGER}, #{type,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, 
+      #{create_time,jdbcType=TIMESTAMP})
+  </insert>
+  
+  <select id="getPageCount" parameterType="map" resultType="int">
+		select
+		count(1)
+		from ad_system_push
+		where 1=1
+	    <if test="type != null">
+        	and type = #{type,jdbcType=VARCHAR} 
+      	</if>
+      	<if test="content != null"> 
+        	and content like #{content,jdbcType=VARCHAR} 
+      	</if>
+      	<if test="createTime != null">
+       		and create_time = #{createTime,jdbcType=TIMESTAMP} 
+     	 </if>
+		order by create_time desc
+	</select>
+
+	<select id="getPageData" parameterType="map" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from ad_system_push
+		where 1=1
+	    <if test="type != null">
+        	and type = #{type,jdbcType=VARCHAR} 
+      	</if>
+      	<if test="content != null"> 
+        	and content like #{content,jdbcType=VARCHAR} 
+      	</if>
+      	<if test="createTime != null">
+       		and create_time = #{createTime,jdbcType=TIMESTAMP} 
+     	 </if>
+		order by create_time desc
+	</select>
+	
+</mapper>

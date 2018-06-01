@@ -67,4 +67,8 @@ public interface SysUserExecuteMapper {
     List<SysUserExecute> isExistsName(@Param("username") String username,@Param("id") Integer id);
     
     SysUserExecuteVo selectByIdAndMedia(@Param("id") Integer id);
+
+	void insertMacAddress(@Param("mac")String mac);
+
+	SysUserExecute getMobile(@Param("mobile")String mobile);
 }

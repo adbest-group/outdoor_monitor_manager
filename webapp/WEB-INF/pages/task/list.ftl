@@ -31,14 +31,14 @@
                     </div>
                     <div class="select-box select-box-100 un-inp-select ll">
                         <select class="select" name="status">
-                        	<option value="3" <#if (status?exists&&status == '3')>selected</#if>>待审核</option>
-                        	<option value="4" <#if (status?exists&&status == '4')>selected</#if>>审核通过</option>
-                        	<option value="5" <#if (status?exists&&status == '5')>selected</#if>>审核未通过</option>
-                        	<#-- <option value="7" <#if (status?exists&&status == '7')>selected</#if>>待激活</option> -->
-                        	<#-- <option value="8" <#if (status?exists&&status == '8')>selected</#if>>可抢单</option> -->
-                        	<#-- <option value="1" <#if (status?exists&&status == '1')>selected</#if>>待指派</option> -->
-                        	<option value="2" <#if (status?exists&&status == '2')>selected</#if>>待执行</option>
-                        	<option value="6" <#if (status?exists&&status == '6')>selected</#if>>未完成</option>
+                        	<option value="3" <#if (status?exists&&status == 3)>selected</#if>>待审核</option>
+                        	<option value="4" <#if (status?exists&&status == 4)>selected</#if>>审核通过</option>
+                        	<option value="5" <#if (status?exists&&status == 5)>selected</#if>>审核未通过</option>
+                        	<#-- <option value="7" <#if (status?exists&&status == 7)>selected</#if>>待激活</option> -->
+                        	<#-- <option value="8" <#if (status?exists&&status == 8)>selected</#if>>可抢单</option> -->
+                        	<#-- <option value="1" <#if (status?exists&&status == 1)>selected</#if>>待指派</option> -->
+                        	<option value="2" <#if (status?exists&&status == 2)>selected</#if>>待执行</option>
+                        	<option value="6" <#if (status?exists&&status == 6)>selected</#if>>未完成</option>
                         	<#-- <@model.showMonitorTaskStatusOps value="${bizObj.queryMap.status?if_exists}"/> -->
                         </select>
                     </div>
@@ -62,6 +62,8 @@
                     <button type="button" class="btn btn-red" style="margin-left:10px;" autocomplete="off"
                             id="searchBtn">查询
                     </button>
+                    
+                    <#-- 
                     <#if (status?exists&&status == '3')>
                     <a disable="disable" style="display: inline;						
 						padding: 5px 7px;
@@ -79,6 +81,7 @@
 						border-radius: 3px;
 						overflow: hidden;"> 剩余待审核总数${shenheCount?if_exists}条</a>
 					</#if>
+					 -->
                 </form>
             </div>
         </div>
@@ -100,6 +103,7 @@
                         <th>监测时间点</th>
                         <th>状态</th>
                         <th>问题状态</th>
+                        <th>审核人</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -112,15 +116,16 @@
                                 <div class="data-title w200" data-title="${task.activityName}"
                                      data-id="${task.id}">${task.activityName?if_exists}</div>
                             </td>
-                            <td><img width="50" src="${task.samplePicUrl}"/></td>
+                            <td><img width="50" src="${task.samplePicUrl!""}"/></td>
                             <td>${task.startTime?string('yyyy-MM-dd')}<br/>${task.endTime?string('yyyy-MM-dd')}</td>
                             <td>${vm.getCityNameFull(task.street!task.region,"-")!""}</td>
-                            <td>${task.mediaName}</td>
+                            <td>${task.mediaName!""}</td>
                             <td>${task.adSeatName!""}</td>
                             <td>${task.realname!""}</td>
-                            <td>${vm.getMonitorTaskTypeText(task.taskType)}</td>
-                            <td>${vm.getMonitorTaskStatusText(task.status)}</td>
+                            <td>${vm.getMonitorTaskTypeText(task.taskType)!""}</td>
+                            <td>${vm.getMonitorTaskStatusText(task.status)!""}</td>
                             <td>${vm.getProblemStatusText(task.problemStatus!0)}</td>
+                            <td>${task.assessorName!""}</td>
                             <td>
                             <#--<#if task.status==1><a href="javascript:assign('${task.id}')">指派</a></#if>-->
                             <#--<#if task.status==2><a href="javascript:assign('${task.id}')">重新指派</a></#if>-->
@@ -334,6 +339,8 @@
                     layer.confirm(resultRet.resultDes, {
                         icon: 2,
                         btn: ['确定'] //按钮
+                    }, function(){
+                        window.location.reload();
                     });
                 } else {
                     layer.confirm("审核成功", {

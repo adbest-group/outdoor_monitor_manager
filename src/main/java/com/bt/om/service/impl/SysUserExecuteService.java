@@ -73,4 +73,15 @@ public class SysUserExecuteService implements ISysUserExecuteService {
     public void modify(SysUserExecute userExecute) {
         sysUserExecuteMapper.updateByPrimaryKeySelective(userExecute);
     }
+
+	@Override
+	public void addMacAddress(String mac) {
+		sysUserExecuteMapper.insertMacAddress(mac);
+	}
+
+	@Override
+	public SysUserExecute getMobile(String mobile) {
+		return sysUserExecuteMapper.getMobile(mobile);
+	}
+
 }

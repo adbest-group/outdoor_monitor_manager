@@ -110,9 +110,19 @@ public class SysUser extends ID {
 
     private Integer customerTypeId;
     
+    private Integer appTypeId;
+    
     private String appSid;
     
-    public String getAppSid() {
+    public Integer getAppTypeId() {
+		return appTypeId;
+	}
+
+	public void setAppTypeId(Integer appTypeId) {
+		this.appTypeId = appTypeId;
+	}
+
+	public String getAppSid() {
 		return appSid;
 	}
 

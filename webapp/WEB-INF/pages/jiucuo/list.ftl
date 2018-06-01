@@ -42,7 +42,9 @@
                         </div>
                     </div>
                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="searchBtn">查询</button>
-                     <#if (status?exists&&status == '1')>
+                    
+                    <#-- 
+                    <#if (status?exists&&status == '1')>
                     <a disable="disable" style="display: inline;						
 						padding: 5px 7px;
 						margin: 0 2px;
@@ -59,6 +61,7 @@
 						border-radius: 3px;
 						overflow: hidden;"> 剩余待审核总数${shenheCount?if_exists}条</a>
 					</#if>
+					 -->					
                 </form>
             </div>
         </div>
@@ -253,6 +256,8 @@
                     layer.confirm(resultRet.resultDes, {
                         icon: 2,
                         btn: ['确定'] //按钮
+                    }, function(){
+                        window.location.reload();
                     });
                 } else {
                     layer.confirm("审核成功", {

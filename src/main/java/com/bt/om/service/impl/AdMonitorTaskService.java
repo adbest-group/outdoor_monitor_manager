@@ -3,8 +3,11 @@ package com.bt.om.service.impl;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +42,7 @@ import com.bt.om.mapper.AdSeatInfoMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.vo.web.SearchDataVo;
+import com.bt.om.web.util.JPushUtils;
 
 /**
  * Created by caiting on 2018/1/20.
@@ -472,6 +476,34 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 			//[3] 修改ad_monitor_task表中回收的任务的状态为 1：待指派 或 8：可抢单
 			adMonitorTaskMapper.recycleTask(monitorTaskIds, 12);
 		}
+	}
+	
+	/**
+	 * 获取即将结束的任务(2小时之前)
+	 */
+	@Override
+	public String getTaskWillEnd(Integer duration) {
+		List<AdMonitorUserTask> adMonitorUserTasks = adMonitorUserTaskMapper.getTaskWillEnd(duration);
+		List<Integer> ids = new ArrayList<>();
+		//==========任务即将结束之后根据接取任务的用户id进行app消息推送==============
+		//用set存储避免一个用户创建多个活动，进行多次推送 
+        Set<String> aliases = new HashSet<String>();
+        for(AdMonitorUserTask adMonitorUserTask : adMonitorUserTasks) {
+        	aliases.add(String.valueOf(adMonitorUserTask.getUserId())); //把userId列表转成String类型，极光推送api需要
+        	ids.add(adMonitorUserTask.getId());
+        }
+        Map<String, Object> param = new HashMap<>();
+        Map<String, String> extras = new HashMap<>();
+        extras.put("type", "task_will_end_push");
+        param.put("msg", "您的任务有的即将结束，请尽快办理！");
+        param.put("title", "玖凤平台");
+        param.put("alias", aliases);  //根据别名选择推送用户（这里userId用作推送时的用户别名）
+        param.put("extras", extras);
+        String pushResult = JPushUtils.pushAllByAlias(param);
+        System.out.println("pushResult:: " + pushResult);
+        //消息推送之后将任务is_push状态更新为1（已推送）
+        adMonitorUserTaskMapper.updateIsPush(ids);
+		return pushResult;
 	}
 
 	@Override

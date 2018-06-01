@@ -76,8 +76,8 @@
                             <td>${task.mediaName!""}</td>
                             <td>${task.adSeatName!""}</td>
                             <#--<td>${task.userId!""}</td>-->
-                            <td>${vm.getMonitorTaskTypeText(task.taskType)}</td>
-                            <td>${vm.getMonitorTaskStatusText(task.status)}</td>
+                            <td>${vm.getMonitorTaskTypeText(task.taskType)!""}</td>
+                            <td>${vm.getMonitorTaskStatusText(task.status)!""}</td>
                             <td>${task.assignorName!""}</td>
                             <td>
                             	<#if (task.status==1 || task.status==8)><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if>
@@ -229,6 +229,8 @@
                     layer.confirm(resultRet.resultDes, {
                         icon: 2,
                         btn: ['确定'] //按钮
+                    }, function(){
+                        window.location.reload();
                     });
                 } else {
                     layer.confirm("指派成功", {

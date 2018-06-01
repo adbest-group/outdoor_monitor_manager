@@ -156,6 +156,37 @@ public class SysGroupController extends BasicController{
     }
     
     /**
+     * 删除组
+     * */
+    @RequiresRoles(value = {"departmentadmin", "depactivityadmin", "deptaskadmin", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)
+	@RequestMapping(value = "/delete")
+    @ResponseBody
+	public Model appDelete(Model model, HttpServletRequest request, @RequestParam(value = "id", required = false) Integer id) {
+		ResultVo<String> result = new ResultVo<String>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("保存成功");
+        model = new ExtendedModelMap();
+        Date now = new Date();
+        
+        try {
+            int count = sysGroupService.deleteGroupById(id);
+            if(count == 0) {
+            	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("该小组不能删除！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+            }
+        } catch (Exception e) {
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("删除失败！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+	}
+    
+    /**
      * 编辑组-员工页面跳转
      **/
     @RequiresRoles(value = {"departmentadmin", "depactivityadmin", "deptaskadmin", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)

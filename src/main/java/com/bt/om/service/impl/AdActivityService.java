@@ -345,6 +345,14 @@ public class AdActivityService implements IAdActivityService {
 	public void updateStatusByEndTime(Date nowDate) {
 		adActivityMapper.updateStatusByEndTime(nowDate);
 	}
+	
+	/**
+	 * 获取所有当前日期已经结束状态的活动创建者列表
+	 */
+	@Override
+	public List<Integer> getEndActivityList(Date nowDate) {
+		return adActivityMapper.getEndActivityList(nowDate);
+	}
 
 	/**
 	 * 获取当前审核员待审核的活动列表

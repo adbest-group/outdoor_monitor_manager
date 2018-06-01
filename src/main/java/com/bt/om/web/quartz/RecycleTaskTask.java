@@ -25,5 +25,7 @@ public class RecycleTaskTask extends AbstractTask {
 		 * 判断任务结束时间, 由2：待执行 → 8：可抢单或1：待指派（12小时+24小时的限制条件）
 		 */
 		adMonitorTaskService.recycleMonitorTask();
+		
+		adMonitorTaskService.getTaskWillEnd(2);
 	}
 }

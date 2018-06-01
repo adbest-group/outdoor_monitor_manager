@@ -234,6 +234,8 @@
                     layer.confirm(resultRet.resultDes, {
                         icon: 2,
                         btn: ['确定'] //按钮
+                    }, function(){
+                        window.location.reload();
                     });
                 } else {
                     layer.confirm("审核成功", {

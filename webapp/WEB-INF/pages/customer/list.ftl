@@ -28,6 +28,7 @@
                         <th>登录账户</th>
                         <th>联系电话</th>
                         <th>客户类型</th>
+                        <th>app类型</th>
                         <th>状态</th>
                         <th>操作</th>
                     </tr>
@@ -41,6 +42,7 @@
                             <td>${partnerUser.username?if_exists}</td>
                             <td>${partnerUser.telephone?if_exists}</td>
                             <td>${partnerUser.customerTypeName?if_exists}</td>
+                            <td>${partnerUser.appTypeName?if_exists}</td>
                             <td><span onclick="updStatus('${partnerUser.id}', '${partnerUser.status}');"
                                       class="switch<#if partnerUser.status?exists && partnerUser.status == 1> current</#if>"><s></s><b></b></span>
                             </td>

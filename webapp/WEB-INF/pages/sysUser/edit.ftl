@@ -146,6 +146,9 @@ $(function() {
 		max:16,
 		empty:{leftEmpty:false,rightEmpty:false,emptyError:"密码两边不能有空符号"},
 		onError:"密码输入不正确，请重新输入"
+	}).regexValidator({
+			regExp:"^[^\u4e00-\u9fa5]+$",
+			onError:"密码不能是中文，请重新输入"
 	});
 	
 	if(id != null && id != ""){
@@ -227,8 +230,8 @@ $(function() {
 		onFocus:"请输入真实姓名",
 		onCorrect:"　"
 	}).regexValidator({
-		regExp:"^\\S+$",
-		onError:"真实姓名不能为空，请输入"
+		regExp:"^[\u4E00-\u9FA5]{2,6}$",
+		onError:"真实姓名格式有误，请重新输入"
 	});
 	
 	// 联系电话

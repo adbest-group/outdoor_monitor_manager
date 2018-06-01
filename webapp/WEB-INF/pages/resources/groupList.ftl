@@ -38,7 +38,8 @@
                             <td>${type.departmentName?if_exists}</td>
                             <td>${type.createTime?string('yyyy-MM-dd HH:mm')}</td>
                             <td>
-                                <a href="javascript:void(0);" onclick="edit('${type.id}');">编辑</a>
+                            	<a href="javascript:void(0);" onclick="edit('${type.id}');">编辑</a>
+                                <a href="javascript:void(0);" onclick="deleteGroup('${type.id}');">删除</a>
                                 <a href="javascript:void(0);" onclick="editUser('${type.id}', '${type.parentid}');">员工</a>
                                 <a href="javascript:void(0);" onclick="editCustomer('${type.id}');">广告商</a>
                             </td>
@@ -116,7 +117,7 @@
             content: '/sysResources/resUser?id=' + id + '&parentId=' + parentId //iframe的url
         });
     }
-        function editCustomer(id) {
+    function editCustomer(id) {
         layer.open({
             type: 2,
             title: '修改员工与组关系',
@@ -126,5 +127,43 @@
             content: '/sysResources/resCustomer?id=' + id //iframe的url
         });
     }
+	function deleteGroup(id){
+        layer.confirm("确认删除？", {
+            icon: 3,
+            btn: ['确定', '取消'] //按钮
+        }, function(){
+            $.ajax({
+                url: "/sysResources/delete",
+                type: "post",
+                data: {
+                    "id": id,
+                },
+                cache: false,
+                dataType: "json",
+                success: function(datas) {
+                    var resultRet = datas.ret;
+                    if (resultRet.code == 101) {
+                        layer.confirm(resultRet.resultDes, {
+                            icon: 2,
+                            btn: ['确定'] //按钮
+                        });
+                    } else {
+                        layer.confirm("删除成功", {
+                            icon: 1,
+                            btn: ['确定'] //按钮
+                        }, function () {
+                            window.location.reload();
+                        });
+                    }
+                },
+                error: function(e) {
+                    layer.confirm("服务忙，请稍后再试", {
+                        icon: 5,
+                        btn: ['确定'] //按钮
+                    });
+                }
+            });
+        });
+    };
 </script>
 <@model.webend />

@@ -61,4 +61,6 @@ public interface SysUserResMapper {
     int selectGroupIdByUserId(Map<String, Object> searchMap);
     List<Integer> selectCustomerIdsByResId(Map<String, Object> searchMap);
     List<Integer> selectUserIdsByResIds(Map<String, Object> searchMap);
+    int deleteByResId(Integer id);
+   // SysUserRes selectTypeByResId(Integer id);
 }

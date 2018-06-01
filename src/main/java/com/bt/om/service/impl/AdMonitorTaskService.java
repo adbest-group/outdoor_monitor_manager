@@ -483,7 +483,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	 */
 	@Override
 	public String getTaskWillEnd(Integer duration) {
-		List<AdMonitorUserTask> adMonitorUserTasks = adMonitorUserTaskMapper.getTaskWillEnd(2);
+		List<AdMonitorUserTask> adMonitorUserTasks = adMonitorUserTaskMapper.getTaskWillEnd(duration);
 		List<Integer> ids = new ArrayList<>();
 		//==========任务即将结束之后根据接取任务的用户id进行app消息推送==============
 		//用set存储避免一个用户创建多个活动，进行多次推送 

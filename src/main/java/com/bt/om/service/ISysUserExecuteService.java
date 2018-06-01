@@ -28,5 +28,6 @@ public interface ISysUserExecuteService {
     public void modify(SysUserExecute userExecute);
 	SysUserExecuteVo selectByIdAndMedia(Integer id);
 	public void addMacAddress(String mac);
+	public SysUserExecute getMobile(String vcode);
 
 }

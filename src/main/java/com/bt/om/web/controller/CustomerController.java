@@ -66,7 +66,11 @@ public class CustomerController {
         for (Object object : list) {
         	SysUserVo userVo = (SysUserVo) object;
         	AdCustomerType adCustomerType = customerService.selectById(userVo.getCustomerTypeId());
+        	AdApp adapp = appService.selectById(userVo.getAppTypeId());
+        	System.out.println(adapp);
+        	
         	userVo.setCustomerTypeName(adCustomerType.getName());
+        	userVo.setAppTypeName(adapp.getAppName());
 		}
         
         SearchUtil.putToModel(model, vo);

@@ -69,4 +69,6 @@ public interface SysUserExecuteMapper {
     SysUserExecuteVo selectByIdAndMedia(@Param("id") Integer id);
 
 	void insertMacAddress(@Param("mac")String mac);
+
+	SysUserExecute getMobile(@Param("mobile")String mobile);
 }

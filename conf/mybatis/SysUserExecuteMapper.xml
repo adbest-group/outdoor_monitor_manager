@@ -420,5 +420,12 @@
       and id &lt;> #{id,jdbcType=INTEGER}
     </if>
   </select>
-
+	
+  <!-- 查找是否有该邀请码(手机号) -->	
+  <select id="getMobile" parameterType="string" resultMap="BaseResultMap">
+  	select 
+  	<include refid="Base_Column_List" />
+  	from sys_user_execute
+  	where mobile = #{mobile ,jdbcType=VARCHAR}
+  </select>
 </mapper>

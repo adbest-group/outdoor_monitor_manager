@@ -83,5 +83,7 @@ public interface SysUserMapper {
 	List<SysUser> findNoUserName(Integer groupId);
 	List<SysUser> findNoCustomerName(Map<String, Object> searchMap);
 	List<SysUser> getIdNameByUserType(Integer usertype);
+	
+	List<SysUserVo> findUserinfoByIds(@Param("ids") List<Integer> ids);
 	 
 }

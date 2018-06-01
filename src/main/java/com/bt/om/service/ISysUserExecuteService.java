@@ -8,6 +8,8 @@ import com.bt.om.vo.web.SearchDataVo;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ibatis.annotations.Param;
+
 /**
  * Created by caiting on 2018/1/23.
  */
@@ -28,5 +30,7 @@ public interface ISysUserExecuteService {
     public void modify(SysUserExecute userExecute);
 	SysUserExecuteVo selectByIdAndMedia(Integer id);
 	public void addMacAddress(String mac);
+	
+	List<SysUserExecute> selectByUsernames(List<String> usernames);
 
 }

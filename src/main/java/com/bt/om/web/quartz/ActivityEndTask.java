@@ -1,6 +1,7 @@
 package com.bt.om.web.quartz;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -14,7 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import cn.jpush.api.push.model.Platform;
 import cn.jpush.api.push.model.audience.Audience;
 
+import com.bt.om.entity.SysUserExecute;
+import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.service.IAdActivityService;
+import com.bt.om.service.ISysUserExecuteService;
+import com.bt.om.service.ISysUserService;
 import com.bt.om.web.util.JPushUtils;
 
 /**
@@ -24,6 +29,10 @@ import com.bt.om.web.util.JPushUtils;
 public class ActivityEndTask extends AbstractTask {
 	@Autowired
 	private IAdActivityService adActivityService;
+	@Autowired
+	private ISysUserExecuteService iSysUserExecuteService;
+	@Autowired
+	private ISysUserService iSysUserService;
 	
 	@Override
 	protected boolean canProcess() {
@@ -40,13 +49,23 @@ public class ActivityEndTask extends AbstractTask {
         
         //==========活动结束之后根据活动创建者id进行app消息推送==============
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-        String single_schedule_time = formatter.format(new Date()) + " 09:00:00";  //早上9点进行推送
+        String single_schedule_time = formatter.format(new Date()) + " 11:20:00";  //早上9点进行推送
         List<Integer> userIds = adActivityService.getEndActivityList(date);
+        List<SysUserVo> sysUserVos = iSysUserService.findUserinfoByIds(userIds);
+        List<String> usernames = new ArrayList<>();
+        if(sysUserVos != null && sysUserVos.size() > 0) {
+        	for(SysUserVo sysUserVo : sysUserVos) {
+            	usernames.add(sysUserVo.getUsername());
+            }
+        }
+        List<SysUserExecute> sysUserExecutes = iSysUserExecuteService.selectByUsernames(usernames);
         //所有当前日期下活动已经结束的活动创建者别名列表
         //用set存储避免一个用户创建多个活动，进行多次推送 
         Set<String> aliases = new HashSet<String>();
-        for(Integer userId : userIds) {
-        	aliases.add(String.valueOf(userId)); //把userId列表转成String类型，极光推送api需要
+        if(sysUserExecutes != null && sysUserExecutes.size() > 0) {
+        	for(SysUserExecute sysUserExecute : sysUserExecutes) {
+            	aliases.add(String.valueOf(sysUserExecute.getId())); //把userId列表转成String类型，极光推送api需要
+            }
         }
         Map<String, Object> param = new HashMap<>();
         Map<String, String> extras = new HashMap<>();

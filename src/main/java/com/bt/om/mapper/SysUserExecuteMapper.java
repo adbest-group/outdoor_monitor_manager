@@ -59,6 +59,8 @@ public interface SysUserExecuteMapper {
     int updateByPrimaryKey(SysUserExecute record);
 
     SysUserExecute selectByUsername(String username);
+    List<SysUserExecute> selectByUsernames(@Param("usernames") List<String> usernames);
+    
     List<SysUserExecute> selectByConditionMap(Map map);
 
     int getPageCount(Map<String, Object> searchMap);

@@ -45,6 +45,11 @@ public class SysUserService implements ISysUserService {
 	}
 	
 	@Override
+	public List<SysUserVo> findUserinfoByIds(List<Integer> ids) {
+		return sysUserMapper.findUserinfoByIds(ids);
+	}
+	
+	@Override
 	public SysUserVo findByUsername(String username) {
 		return sysUserMapper.findByUsername(username);
 	}

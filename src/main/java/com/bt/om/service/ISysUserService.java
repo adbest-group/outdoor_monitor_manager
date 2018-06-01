@@ -23,6 +23,13 @@ public interface ISysUserService {
      * @return
      */
     SysUserVo findUserinfoById(Integer id);
+    /**
+     * 根据ids获取用户信息
+     *
+     * @param id
+     * @return
+     */
+    List<SysUserVo> findUserinfoByIds(List<Integer> ids);
 
     /**
      * 根据登录账户获取用户信息

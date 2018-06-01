@@ -256,8 +256,14 @@
   	update ad_monitor_user_task
 	   set
 	   		is_push = '1'
-	 where id in
+	 where 
+	 <if test="usernames != null and usernames.size != 0">
+	 id in
 	 <foreach collection="ids" separator="," open="(" close=")" item="s">#{s,jdbcType=INTEGER}
      </foreach> 
+     </if>
+     <if test="usernames == null or usernames.size == 0">
+     1 > 2
+     </if>
   </update>
 </mapper>

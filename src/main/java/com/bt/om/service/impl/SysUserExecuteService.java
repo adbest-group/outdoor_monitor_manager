@@ -78,4 +78,8 @@ public class SysUserExecuteService implements ISysUserExecuteService {
 	public void addMacAddress(String mac) {
 		sysUserExecuteMapper.insertMacAddress(mac);
 	}
+	@Override
+	public List<SysUserExecute> selectByUsernames(List<String> usernames) {
+		return sysUserExecuteMapper.selectByUsernames(usernames);
+	}
 }

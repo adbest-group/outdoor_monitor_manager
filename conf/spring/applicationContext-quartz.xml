@@ -28,7 +28,8 @@
       
      <!-- 开启任务调度: -->
      <task:scheduled-tasks>
-     	<task:scheduled ref="activityEndTask" method="execute" cron="0 5 0 * * ?" /> <!-- 每日00:05分跑一次 -->
+     	<!--<task:scheduled ref="activityEndTask" method="execute" cron="0 5 0 * * ?" />  --> <!-- 每日00:05分跑一次 -->
+     	<task:scheduled ref="activityEndTask" method="execute" cron="0 0/1 * * * ?" />
      	<task:scheduled ref="activateTaskTask" method="execute" cron="0 2 0 * * ?" /> <!-- 每日00:02分跑一次 -->
      	<task:scheduled ref="recycleTaskTask" method="execute" cron="0 0/5 * * * ?" /> <!-- 每5分钟跑一次 -->
      	<task:scheduled ref="forceAssignTask" method="execute" cron="0 0/5 * * * ?" /> <!-- 每5分钟跑一次 -->

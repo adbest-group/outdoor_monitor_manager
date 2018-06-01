@@ -332,6 +332,21 @@
     from sys_user_execute
     where username = #{username,jdbcType=VARCHAR}
   </select>
+  
+  <select id="selectByUsernames" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from sys_user_execute
+    where 
+    <if test="usernames != null and usernames.size != 0">
+    username in
+	 <foreach collection="usernames" separator="," open="(" close=")" item="s">#{s,jdbcType=VARCHAR}
+     </foreach> 
+     </if>
+     <if test="usernames == null or usernames.size == 0">
+     1 > 2
+     </if>
+  </select>
 
   <select id="selectByConditionMap" parameterType="map" resultMap="BaseResultMap">
     select

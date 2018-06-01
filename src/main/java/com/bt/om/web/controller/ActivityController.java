@@ -28,8 +28,10 @@ import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.SysUser;
+import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdActivityVo;
+import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.security.ShiroUtils;
@@ -37,6 +39,7 @@ import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IOperateLogService;
 import com.bt.om.service.ISysGroupService;
 import com.bt.om.service.ISysResourcesService;
+import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.service.ISysUserRoleService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.util.GsonUtil;
@@ -65,6 +68,8 @@ public class ActivityController extends BasicController {
 	private ISysResourcesService sysResourcesService;
 	@Autowired
 	private ISysUserRoleService sysUserRoleService;
+	@Autowired
+	private ISysUserExecuteService iSysUserExecuteService;
    
     @Autowired
 	private IOperateLogService operateLogService;
@@ -230,10 +235,12 @@ public class ActivityController extends BasicController {
             
             AdActivity adActivity = adActivityService.getById(id);
             //==========web端活动审核成功之后根据活动创建者id进行app消息推送==============
+            SysUserVo sysUserVo = sysUserService.findUserinfoById(adActivity.getUserId());  //通过user_id获取活动创建人信息
+            SysUserExecute sysUserExecute = iSysUserExecuteService.getByUsername(sysUserVo.getUsername());  //通过username找到对应的app用户id
             Map<String, Object> param = new HashMap<>();
             Map<String, String> extras = new HashMap<>();
             List<String> alias = new ArrayList<>(); //别名用户List
-            alias.add(String.valueOf(adActivity.getUserId()));  //活动创建者
+            alias.add(String.valueOf(sysUserExecute.getId()));  //活动创建者
             extras.put("type", "activity_confirm_push");
             param.put("msg", "您创建的活动有一条新的通知！");
             param.put("title", "玖凤平台");

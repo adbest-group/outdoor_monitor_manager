@@ -14,17 +14,17 @@
                 </div>
                 <div class="bd" style="font-size:15px">
                 <#if (vo?exists) >
-                    <p>广告活动名称：${vo.activityName}</p>
-                    <p>活动投放时间：${vo.startTime?string('yyyy-MM-dd')} 至 ${vo.endTime?string('yyyy-MM-dd')}</p>
-                    <p>投放地区：${vm.getCityName(vo.province)} - ${vm.getCityName(vo.city)} - ${vm.getCityName(vo.region)} - ${vm.getCityName(vo.street)} - ${vo.location!""}</p>
-                    <p>投放广告位：${vo.name}</p>
-                    <p>监测时间段：${vo.monitorsStart?string('yyyy-MM-dd')} 至 ${vo.monitorsEnd?string('yyyy-MM-dd')}</p>
-                    <p>监测时间点：${vm.getMonitorTaskTypeText(vo.taskType)}</p>
-                    <p>媒体名称：${vo.mediaName}</p>
-                    <p>投放品牌：${vo.brand}</p>
-                    <p>创建时间：${vo.createTime?string('yyyy-MM-dd HH:mm')}</p>
+                    <p>广告活动名称：${vo.activityName!""}</p>
+                    <p>活动投放时间：${vo.startTime?string('yyyy-MM-dd')!""} 至 ${vo.endTime?string('yyyy-MM-dd')!""}</p>
+                    <p>投放地区：${vm.getCityName(vo.province)!""} - ${vm.getCityName(vo.city!"")} - ${vm.getCityName(vo.region)!""} - ${vm.getCityName(vo.street)!""} - ${vo.location!""}</p>
+                    <p>投放广告位：${vo.name!""}</p>
+                    <p>监测时间段：${vo.monitorsStart?string('yyyy-MM-dd')!""} 至 ${vo.monitorsEnd?string('yyyy-MM-dd')!""}</p>
+                    <p>监测时间点：${vm.getMonitorTaskTypeText(vo.taskType)!""}</p>
+                    <p>媒体名称：${vo.mediaName!""}</p>
+                    <p>投放品牌：${vo.brand!""}</p>
+                    <p>创建时间：${vo.createTime?string('yyyy-MM-dd HH:mm')!""}</p>
                     <p>
-                        样例:</br><img style="vertical-align: top" src="${vo.samplePicUrl}"></img>
+                        样例:</br><img style="vertical-align: top" src="${vo.samplePicUrl!""}"></img>
                     </p>
                 <#else>
                     <div>没有相应结果。</div>
@@ -44,7 +44,7 @@
                 <div class="bd">
                     <div class="submitdetails-wrap" style="font-size: 15px">
                         <p>提交时间：${(pmTask.feedbackCreateTime?string('yyyy-MM-dd HH:mm'))!""}</p>
-                        <p>提交人：${pmTask.realname}</p>
+                        <p>提交人：${pmTask.realname!""}</p>
                     <#--<p>提交地区：${item.province}-${item.city}-${item.region}-${item.street}</p>-->
                     <#--<p>检测时间：-->
                     <#--${vm.getMonitorTaskTypeText(item.taskType)}-->
@@ -55,9 +55,9 @@
                             ，</#if> ${pmTask.problemOther!""}</span></p>
                         <p>
                             执行状态：
-                        ${vm.getMonitorTaskStatusText(pmTask.status)}
+                        ${vm.getMonitorTaskStatusText(pmTask.status)!""}
                             <#if (pmTask.reason?exists) >
-                                <span style="color:orangered;">(${pmTask.reason})</span>
+                                <span style="color:orangered;">(${pmTask.reason!""})</span>
                             </#if>
                         </p>
                         <p>
@@ -90,7 +90,7 @@
                 <div class="bd">
                     <div class="submitdetails-wrap" style="font-size: 15px">
                         <p>提交时间：${(pjTask.createTime?string('yyyy-MM-dd HH:mm'))!""}</p>
-                        <p>提交人：${pjTask.realname}</p>
+                        <p>提交人：${pjTask.realname!""}</p>
                     <#--<p>提交地区：${item.province}-${item.city}-${item.region}-${item.street}</p>-->
                     <#--<p>检测时间：-->
                     <#--${vm.getMonitorTaskTypeText(item.taskType)}-->
@@ -101,9 +101,9 @@
                             ，</#if> ${pjTask.problemOther!""}</span></p>
                         <p>
                             执行状态：
-                        ${vm.getJiucuoTaskStatusText(pjTask.status)}
+                        ${vm.getJiucuoTaskStatusText(pjTask.status)!""}
                             <#if (pjTask.reason?exists) >
-                                <span style="color:orangered;">(${pjTask.reason})</span>
+                                <span style="color:orangered;">(${pjTask.reason!""})</span>
                             </#if>
                         </p>
                         <p>
@@ -130,7 +130,7 @@
                     <div class="submitdetails-wrap" style="font-size: 15px">
                         <#list list as item>
                             <#if item.status!=1>
-                                <p>广告活动名称：${item.activityName}</p>
+                                <p>广告活动名称：${item.activityName!""}</p>
                                 <p>提交时间：${(item.feedbackCreateTime?string('yyyy-MM-dd HH:mm'))!""}</p>
                             <#--<p>提交地区：${item.province}-${item.city}-${item.region}-${item.street}</p>-->
                             <#--<p>检测时间：-->
@@ -143,11 +143,11 @@
                                 <p>
                                     执行状态：
                                     <#if item.feedbackStatus!=2>
-                                    ${vm.getMonitorTaskStatusText(item.status)} <#if item.status==5><span style="color:orangered;">(审核意见：${item.reason!""})</span></#if>
+                                    ${vm.getMonitorTaskStatusText(item.status)!""} <#if item.status==5><span style="color:orangered;">(审核意见：${item.reason!""})</span></#if>
                                     <#elseif item.feedbackStatus==2>
                                         审核未通过
                                         <#if (item.reason?exists && item.reason!="" && item.reason!="null") >
-                                            <span style="color:orangered;">(审核意见：${item.reason})</span>
+                                            <span style="color:orangered;">(审核意见：${item.reason!""})</span>
                                         </#if>
                                     </#if>
                                 </p>
@@ -171,7 +171,7 @@
                                     <p style="text-align: center;">
                                         <#if (item.status==3 && item.feedbackStatus==1)>
                                             <button style="margin-top: 10px" type="button"
-                                                    onclick="javascript:pass('${Request.taskId}')" class="btn btn-red"
+                                                    onclick="javascript:pass('${Request.taskId!""}')" class="btn btn-red"
                                                     style="margin-left:10px;" autocomplete="off" id="searchBtn"
                                                     onclick="">
                                                 通过
@@ -181,7 +181,7 @@
 
                                         <#if (item.status==3 && item.feedbackStatus==1)>
                                             <button style="margin-top: 10px" type="button"
-                                                    onclick="javascript:reject('${Request.taskId}')" class="btn btn-red"
+                                                    onclick="javascript:reject('${Request.taskId!""}')" class="btn btn-red"
                                                     style="margin-left:10px;" autocomplete="off" id="searchBtn">
                                                 拒绝
                                             </button>

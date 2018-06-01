@@ -44,7 +44,8 @@
                     <thead>
                     <tr>
                         <th>序号</th>
-                        <th>活动名称</th>                       
+                        <th>活动名称</th>
+                        <th>广告商</th>                        
                         <th>投放周期</th>
                         <th>活动状态</th>
                         <th>审核人</th>
@@ -59,6 +60,7 @@
                             <td>
                                 <div class="data-title w200" data-title="${activity.activityName}" data-id="${activity.id}">${activity.activityName?if_exists}</div>
                             </td>
+                            <td>${activity.customerName?if_exists}</td>
                             <td>${activity.startTime?string('yyyy-MM-dd')} 至 ${activity.endTime?string('yyyy-MM-dd')}</td>
                             <td>${vm.getActivityStatusTextWithColor(activity.status)}</td>
                             <td>${activity.realName?if_exists}</td>
@@ -179,6 +181,8 @@
                         layer.confirm(resultRet.resultDes, {
                             icon: 2,
                             btn: ['确定'] //按钮
+                        }, function(){
+                            window.location.reload();
                         });
                     } else {
                         layer.confirm("确认成功", {

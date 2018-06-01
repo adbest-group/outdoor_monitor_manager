@@ -21,9 +21,9 @@
                     <!--任务状态下拉框-->
                     <div class="select-box select-box-140 un-inp-select ll">
                         <select name="status" class="select" id="status">
-                            <option value="1" <#if (bizObj.queryMap.status?exists&&bizObj.queryMap.status=="1")>selected</#if> >待指派</option>
-                            <option value="8" <#if (bizObj.queryMap.status?exists&&bizObj.queryMap.status=="8")>selected</#if> >可抢单</option> 
-                            <option value="0" <#if (bizObj.queryMap.status?exists&&bizObj.queryMap.status=="0")>selected</#if> >已指派</option> 
+                            <option value="1" <#if (status?exists&&status==1)>selected</#if> >待指派</option>
+                            <option value="8" <#if (status?exists&&status==8)>selected</#if> >可抢单</option> 
+                            <option value="0" <#if (status?exists&&status==0)>selected</#if> >已指派</option> 
                         </select>
                     </div>
                     <div class="ll inputs-date">
@@ -37,6 +37,8 @@
                     </div>
                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="searchBtn">查询</button>
                     <#--<button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">指派</button>-->
+                    
+                    <#-- 
                     <#if (status?exists&&status == '1')>
                     <a disable="disable" style="display: inline;						
 						padding: 5px 7px;
@@ -54,6 +56,7 @@
 						border-radius: 3px;
 						overflow: hidden;"> 剩余待指派总数${shenheCount?if_exists}条</a>
 					</#if>
+					 -->
                 </form>
             </div>
         </div>
@@ -75,6 +78,7 @@
                         <#--<th>执行人员</th>-->
                         <th>监测时间点</th>
                         <th>状态</th>
+                        <th>指派人</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -90,11 +94,12 @@
                             <td><img width="50" src="${task.samplePicUrl}"/> </td>
                             <td><#if (task.startTime?exists)>${task.startTime?string('yyyy-MM-dd')} </#if><br/><#if (task.endTime?exists)>${task.endTime?string('yyyy-MM-dd')}</#if></td>
                             <td>${vm.getCityNameFull(task.street!task.region,"-")!""}</td>
-                            <td>${task.mediaName}</td>
-                            <td>${task.adSeatName}</td>
+                            <td>${task.mediaName!""}</td>
+                            <td>${task.adSeatName!""}</td>
                             <#--<td>${task.userId!""}</td>-->
-                            <td>${vm.getMonitorTaskTypeText(task.taskType)}</td>
-                            <td>${vm.getMonitorTaskStatusText(task.status)}</td>
+                            <td>${vm.getMonitorTaskTypeText(task.taskType)!""}</td>
+                            <td>${vm.getMonitorTaskStatusText(task.status)!""}</td>
+                            <td>${task.assignorName!""}</td>
                             <td>
                                 <#if (task.status==1 || task.status==8)><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if>
                                 <a href="/task/details?task_Id=${task.id}">详情</a>
@@ -292,6 +297,8 @@
                     layer.confirm(resultRet.resultDes, {
                         icon: 2,
                         btn: ['确定'] //按钮
+                    }, function(){
+                        window.location.reload();
                     });
                 } else {
                     layer.confirm("指派成功", {

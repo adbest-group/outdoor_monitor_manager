@@ -214,6 +214,7 @@
   
   <resultMap id="ExtResultMap2" extends="BaseResultMap" type="com.bt.om.entity.vo.AdActivityVo2">
     <result column="realname" jdbcType="VARCHAR" property="realName" />
+    <result column="customerName" jdbcType="VARCHAR" property="customerName" />
   </resultMap>
 
   <select id="getPageCount" parameterType="map" resultType="int">
@@ -243,15 +244,21 @@
     <if test="samplePicUrl != null" >
       and sample_pic_url = #{samplePicUrl,jdbcType=VARCHAR}
     </if>
+    <if test="customerIds != null">
+      and user_id in
+        <foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+    </if>
   </select>
 
   <select id="getPageData" parameterType="map" resultMap="ExtResultMap2">
     select
     	a.id, a.activity_name, a.start_time, a.end_time, a.status, a.user_id, a.create_time, a.update_time, a.assessor_id,
-    	b.realname
+    	b.realname,
+    	c.realname customerName
     from
     	ad_activity a 
     	left join sys_user b on a.assessor_id = b.id
+    	left join sys_user c on a.user_id = c.id
     where 1=1
     <if test="userId != null" >
       and a.user_id = #{userId,jdbcType=INTEGER}
@@ -270,6 +277,10 @@
     </if>
     <if test="assessorId != null" >
       and a.assessor_id = #{assessorId,jdbcType=INTEGER}
+    </if>
+    <if test="customerIds != null">
+      and a.user_id in
+        <foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
     </if>
     order by a.id desc
   </select>

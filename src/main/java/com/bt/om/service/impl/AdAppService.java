@@ -59,4 +59,9 @@ public class AdAppService implements IAppService {
 		return adAppMapper.deleteByPrimaryKey(id);
 	}
 
+	@Override
+	public AdApp selectById(Integer id) {
+		return adAppMapper.selectByPrimaryKey(id);
+	}
+
 }

@@ -15,11 +15,20 @@ public class SysUserVo extends SysUser {
     private SysUserDetail userinfo;
     private String isOwn;
     private String customerTypeName;
-
+    
     private String groupName;
     private String departmentName;
+    private String appTypeName;
     
-    public String getPrefix() {
+    public String getAppTypeName() {
+		return appTypeName;
+	}
+
+	public void setAppTypeName(String appTypeName) {
+		this.appTypeName = appTypeName;
+	}
+
+	public String getPrefix() {
         return prefix;
     }
 

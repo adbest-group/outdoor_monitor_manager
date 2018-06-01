@@ -20,6 +20,7 @@
     <result column="login_ip" jdbcType="VARCHAR" property="loginIp" />
     <result column="login_time" jdbcType="TIMESTAMP" property="loginTime" />
     <result column="default_page" jdbcType="VARCHAR" property="defaultPage" />
+    <result column="app_type_id" jdbcType="INTEGER" property="appTypeId" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>
@@ -30,7 +31,7 @@
       This element was generated on Tue Jan 16 16:41:44 CST 2018.
     -->
     id, username, password, platform, realname, mobile, usertype, customer_type_id, status, remark, login_ip, login_time,
-    default_page, create_time, update_time
+    default_page,app_type_id, create_time, update_time
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     <!--
@@ -61,12 +62,12 @@
     insert into sys_user (id, username, password, platform,
       realname, mobile, usertype, customer_type_id,
       status, remark, login_ip, 
-      login_time, default_page, create_time, 
+      login_time, default_page,app_type_id, create_time, 
       update_time)
     values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{platform,jdbcType=INTEGER},
       #{realname,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR}, #{usertype,jdbcType=INTEGER}, #{customerTypeId,jdbcType=INTEGER},
       #{status,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{loginIp,jdbcType=VARCHAR}, 
-      #{loginTime,jdbcType=TIMESTAMP}, #{defaultPage,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{loginTime,jdbcType=TIMESTAMP}, #{defaultPage,jdbcType=VARCHAR},#{appTypeId,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
       #{updateTime,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.bt.om.entity.SysUser" useGeneratedKeys="true" keyProperty="id">
@@ -224,7 +225,7 @@
         default_page = #{defaultPage,jdbcType=VARCHAR},
       </if>
       <if test="appTypeId != null" >
-        appTypeId = #{appTypeId,jdbcType=INTEGER},
+        app_type_id = #{appTypeId,jdbcType=INTEGER},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=TIMESTAMP},
@@ -254,6 +255,7 @@
       login_ip = #{loginIp,jdbcType=VARCHAR},
       login_time = #{loginTime,jdbcType=TIMESTAMP},
       default_page = #{defaultPage,jdbcType=VARCHAR},
+      app_type_id = #{appTypeId,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}
@@ -321,7 +323,7 @@
 
   <select id="getPageData" parameterType="map" resultMap="ListResultMap">
     select
-    	tt1.id, tt1.username, tt1.create_time, tt1.customer_type_id, tt1.realname, tt1.status,
+    	tt1.id, tt1.username, tt1.create_time, tt1.customer_type_id, tt1.realname, tt1.status,tt1.app_type_id,
     	tt2.id as userinfo_id, tt2.telephone, 
     	tt3.role_name
     from

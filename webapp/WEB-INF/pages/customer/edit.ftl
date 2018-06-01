@@ -53,9 +53,9 @@
 					<td style="padding-bottom:20px;">
                         <select name="appTypeId" class="searchable-select-holder" id="appTypeId">
                             <option value="">请选择</option>
-                            <@model.showAllAppTypeOps value="${(obj.app_type_id)?if_exists}"/> 
+                            <@model.showAllAppTypeOps value="${(obj.appTypeId)?if_exists}"/> 
                         </select>
-                        <span id="customerTypeIdTip"></span>
+                        <span id="appTypeIdTip"></span>
                     </td>
                 </tr>
 				<tr>
@@ -233,6 +233,20 @@ $(function() {
 	            onError:"客户类型不能为空，请选择"
 	        });
         	
+        	// app类型校验
+	        $("#appTypeId").formValidator({
+	            validatorGroup:"2",
+	            onShow:"",
+	            onFocus:"请选择app类型",
+	            onCorrect:""
+	        }).regexValidator({
+	            regExp:"^\\S+$",
+	            onError:"app类型不能为空，请选择"
+	        }).inputValidator({
+	            min: 1,
+	            onError:"app类型不能为空，请选择"
+	        });
+	        
 //        	// 权限配置
 //        	$("#checkBoxUl").formValidator({
 //        		validatorGroup:"2",

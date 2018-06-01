@@ -56,7 +56,9 @@ import com.bt.om.entity.AdMediaType;
 import com.bt.om.entity.AdMonitorReward;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
+import com.bt.om.entity.AdPoint;
 import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.AdUserPoint;
 import com.bt.om.entity.AdVersion;
 import com.bt.om.entity.City;
 import com.bt.om.entity.SysUserExecute;
@@ -85,9 +87,11 @@ import com.bt.om.service.IAdMediaTypeService;
 import com.bt.om.service.IAdMonitorRewardService;
 import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.service.IAdSeatService;
+import com.bt.om.service.IPointService;
 import com.bt.om.service.ISendSmsService;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.service.ISysUserService;
+import com.bt.om.service.IUserPointService;
 import com.bt.om.util.CityUtil;
 import com.bt.om.util.GeoUtil;
 import com.bt.om.util.QRcodeUtil;
@@ -149,7 +153,11 @@ public class ApiController extends BasicController {
     private ISendSmsService sendSmsService;
     @Autowired
 	private IAdMediaTypeService adMediaTypeService;
-
+    @Autowired
+	private IPointService pointService;
+    @Autowired
+	private IUserPointService userPointService;
+    
     @Value("${sms.checkcode.content.template}")
     private String SMS_CHECKCODE_CONTENT_TEMPLATE;
     @Value("${mobile.number.regex}")
@@ -562,8 +570,8 @@ public class ApiController extends BasicController {
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
+        //客户登录APP, 校验appSid
         if(userExecute.getUsertype() == 2) {
-        	//客户登录APP, 校验appSid
         	if(!StringUtil.equals(userExecute.getAppSid(), appSid)) {
         		result.setCode(ResultCode.RESULT_FAILURE.getCode());
                 result.setResultDes("用户名或密码有误！");
@@ -2004,7 +2012,7 @@ public class ApiController extends BasicController {
             return model;
         }
         
-        // 验证码必须验证
+        // 图片验证码必须填写
         if (StringUtils.isEmpty(vcode)) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("请填写验证码！");
@@ -2021,7 +2029,7 @@ public class ApiController extends BasicController {
             sessionCode = sessionByRedis.getImageCode();
         }
 
-        // 验证码有效验证
+        // 图片验证码有效验证
         if (!vcode.equalsIgnoreCase(sessionCode)) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("验证码错误！");
@@ -2153,6 +2161,7 @@ public class ApiController extends BasicController {
         String vcode = null;
         String token = null;
         String mac = null;
+        String mobile = null;
         try {
             InputStream is = request.getInputStream();
             Gson gson = new Gson();
@@ -2162,6 +2171,7 @@ public class ApiController extends BasicController {
             vcode = obj.get("vcode") == null ? null : obj.get("vcode").getAsString();
             token = obj.get("token") == null ? null : obj.get("token").getAsString();
             mac = obj.get("mac") == null ? null : obj.get("mac").getAsString();
+            mobile = obj.get("mobile") == null ? null : obj.get("mobile").getAsString();
             if (token != null) {
                 useSession.set(Boolean.FALSE);
                 this.sessionByRedis.setToken(token);
@@ -2198,7 +2208,7 @@ public class ApiController extends BasicController {
             return model;
         }
 
-        // 验证码必须验证
+        // 短信验证码必须填写
         if (StringUtils.isEmpty(vcode)) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("验证码为必填！");
@@ -2215,33 +2225,63 @@ public class ApiController extends BasicController {
             sessionCode = sessionByRedis.getImageCode();
         }
 
-        // 验证码有效验证
+        // 短信验证码有效验证
         if (!vcode.equalsIgnoreCase(sessionCode)) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("验证码错误！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
+        
+        //邀请码验证
+        if(!StringUtils.isEmpty(mobile)) {
+        	//有邀请码的情况
+        	SysUserExecute sysUserExecute = sysUserExecuteService.getMobile(mobile);
+        	if(sysUserExecute!=null) {
+        		//邀请码输入正确   ,获得注册默认积分
+        		AdPoint adpoint = pointService.findPointValue(1);
+        		
+        		//正常注册
+        		String md5Pwd = new Md5Hash(password, username).toString();
 
-
-        String md5Pwd = new Md5Hash(password, username).toString();
-
-        userExecute = new SysUserExecute();
-        userExecute.setUsername(username);
-        userExecute.setRealname(username);
-        userExecute.setPassword(md5Pwd);
-        userExecute.setUsertype(UserExecuteType.Social.getId());
-        userExecute.setStatus(1);
-        userExecute.setMobile(username);
-        userExecute.setMac(mac);
-        try{
-            sysUserExecuteService.add(userExecute);
-        }catch (Exception e){
-            result.setCode(ResultCode.RESULT_FAILURE.getCode());
-            result.setResultDes("注册失败！");
-            model.addAttribute(SysConst.RESULT_KEY, result);
-            return model;
+                userExecute = new SysUserExecute();
+                userExecute.setUsername(username);
+                userExecute.setRealname(username);
+                userExecute.setPassword(md5Pwd);
+                userExecute.setUsertype(UserExecuteType.Social.getId());
+                userExecute.setStatus(1);
+                userExecute.setMobile(username);
+                userExecute.setMac(mac);
+                
+                try{
+                    sysUserExecuteService.add(userExecute);
+                    Date now = new Date();
+            		AdUserPoint adUserPoint = new AdUserPoint();
+            		SysUserExecute sysUser = sysUserExecuteService.getByUsername(username);
+                    //被邀请人积分增加
+                    adUserPoint.setUserId(sysUser.getId());
+                    adUserPoint.setPoint(adpoint.getPoint());
+                    adUserPoint.setResult("恭喜您注册成功！获得"+adpoint.getPoint()+"积分");
+                    adUserPoint.setCreateTime(now);
+                    adUserPoint.setUpdateTime(now);
+                    userPointService.addUserPoint(adUserPoint);
+                    //邀请人积分增加
+            		adUserPoint.setUserId(sysUserExecute.getId());
+            		adUserPoint.setPoint(adpoint.getPoint());
+            		adUserPoint.setResult("邀请用户"+username+"成功！获得"+adpoint.getPoint()+"积分");
+            		adUserPoint.setCreateTime(now);
+            		adUserPoint.setUpdateTime(now);
+            		userPointService.addUserPoint(adUserPoint);
+                }catch (Exception e){
+                    result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                    result.setResultDes("注册失败！");
+                    model.addAttribute(SysConst.RESULT_KEY, result);
+                    return model;
+                }
+        	}
         }
+
+        
 
 //        SysUserExecute userExecute = sysUserExecuteService.getByUsername(username);
 //        if (userExecute == null || !md5Pwd.equals(userExecute.getPassword())) {

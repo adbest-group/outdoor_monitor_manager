@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -31,7 +32,7 @@ public class UploadController extends BasicController {
 
 	@RequestMapping(value = "/upload")
 	public @ResponseBody String uploadPic(@RequestParam(value = "file", required = false) MultipartFile file,
-			HttpServletRequest request, ModelMap model) {
+			HttpServletRequest request, ModelMap model, HttpServletResponse response) {
 		String path = request.getRealPath("/");
 		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"upload"+File.separatorChar;
 		String imageName = file.getOriginalFilename();
@@ -51,6 +52,8 @@ public class UploadController extends BasicController {
 //			filepath = path + filepath.substring(filepath.indexOf("/", 10));
 
 			filepath = saveFile(path,imageName,is);
+			
+			response.setContentType("text/html;charset=utf-8");
 		} catch (IOException e) {
 			return "error";
 		}

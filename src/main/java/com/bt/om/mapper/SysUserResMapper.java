@@ -58,7 +58,7 @@ public interface SysUserResMapper {
     int insertUserRess(@Param("sysUserRess") List<SysUserRes> sysUserRess);
     int deleteByResIdAndType(SysUserRes sysUserRes);
     
-    int selectGroupIdByUserId(Map<String, Object> searchMap);
+    Integer selectGroupIdByUserId(Map<String, Object> searchMap);
     List<Integer> selectCustomerIdsByResId(Map<String, Object> searchMap);
     List<Integer> selectUserIdsByResIds(Map<String, Object> searchMap);
     int deleteByResId(Integer id);

@@ -727,7 +727,7 @@ public class MonitorTaskController extends BasicController {
      * @param request
      * @return 详情页面
      */
-    @RequiresRoles(value = {"superadmin", "taskadmin", "customer", "media", "deptaskadmin", "superadmin","activityadmin","depactivityadmin"}, logical = Logical.OR)
+    @RequiresRoles(value = {"superadmin", "taskadmin", "customer", "media", "deptaskadmin", "activityadmin","depactivityadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/details")
     public String gotoDetailsPage(@RequestParam("task_Id") String taskId, Model model, HttpServletRequest request) {
         AdMonitorTaskVo vo = adMonitorTaskService.getTaskDetails(taskId);

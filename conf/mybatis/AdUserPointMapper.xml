@@ -135,4 +135,71 @@
       update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  
+  <select id="getPageCount" parameterType="map" resultType="int">
+    select
+    count(a.id)
+    from
+    ad_user_point a
+    left join sys_user_execute b on a.user_id=b.id
+    where 1=1
+    <if test="username != null" >
+      and username like #{username,jdbcType=VARCHAR}
+    </if>
+    <if test="userId != null">
+      and user_id = #{userId,jdbcType=INTEGER}
+    </if>
+    <if test="point != null">
+      and point = #{point,jdbcType=INTEGER}
+      </if>
+    <if test="result != null">
+      and result = #{result,jdbcType=VARCHAR}
+    </if>
+    <if test="createTime != null">
+       and create_time = #{createTime,jdbcType=TIMESTAMP}
+    </if>
+    <if test="updateTime != null">
+       and update_time = #{updateTime,jdbcType=TIMESTAMP}
+    </if>
+  </select>
+
+  <select id="getPageData" parameterType="map" resultType="com.bt.om.entity.vo.AdUserPointVo">
+    select
+    	a.id id, 
+    	a.user_id userId, 
+    	a.point point,
+    	a.result result,
+    	a.create_time createTime, 
+    	a.update_time updateTime,
+    	b.username username
+    from ad_user_point a
+    left join sys_user_execute b on a.user_id=b.id
+    where 1=1
+    <if test="username != null" >
+      and username like #{username,jdbcType=VARCHAR}
+    </if>
+    <if test="userId != null">
+      and user_id = #{userId,jdbcType=INTEGER}
+    </if>
+    <if test="point != null">
+      and point = #{point,jdbcType=INTEGER}
+    </if>
+    <if test="result != null">
+      and result = #{result,jdbcType=VARCHAR}
+    </if>
+    <if test="createTime != null">
+      and create_time = #{createTime,jdbcType=TIMESTAMP}
+    </if>
+    <if test="updateTime != null">
+      and update_time = #{updateTime,jdbcType=TIMESTAMP}
+    </if>
+    order by a.id desc
+  </select>
+  
+  <select id="getListById" parameterType="int" resultMap="BaseResultMap">
+  	select 
+  	<include refid="Base_Column_List" />
+  	from ad_user_point
+  	 where user_id = #{userId,jdbcType=INTEGER}
+  </select>
 </mapper>

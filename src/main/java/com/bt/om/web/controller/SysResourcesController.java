@@ -3,6 +3,7 @@ package com.bt.om.web.controller;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -12,16 +13,21 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
+import com.bt.om.entity.AdApp;
+import com.bt.om.entity.AdPoint;
 import com.bt.om.entity.SysResources;
 import com.bt.om.entity.vo.UserRoleVo;
 import com.bt.om.enums.ResultCode;
+import com.bt.om.service.IPointService;
 import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserService;
+import com.bt.om.service.IUserPointService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
@@ -36,6 +42,12 @@ public class SysResourcesController extends BasicController {
 	
 	@Autowired
 	private ISysUserService sysUserService;
+	
+	@Autowired
+	private IPointService pointService;
+	
+	@Autowired
+	private IUserPointService userpointService;
 	
 	/**
 	 * 超级管理员查询部门列表
@@ -174,4 +186,76 @@ public class SysResourcesController extends BasicController {
         return PageConst.SUPER_ADMIN_DEPT_EDIT;
     }
     
+    @RequiresRoles("superadmin")
+    @RequestMapping(value = "/pointList")
+    public String pointList(Model model, HttpServletRequest request,
+            @RequestParam(value = "name", required = false) String name) {
+    	SearchDataVo vo = SearchUtil.getVo();
+        //查询积分明细名称
+        if (name != null) {
+        	name = "%" + name + "%";
+            vo.putSearchParam("name", name, name);
+        }
+        //查询积分列表
+        pointService.getPageData(vo);
+        SearchUtil.putToModel(model, vo);
+        return PageConst.SUPER_ADMIN_POINT_LIST;
+    }
+    
+    @RequiresRoles("superadmin")
+	@RequestMapping(value = "/pointEdit")
+	public String appEdit(Model model, HttpServletRequest request,
+            @RequestParam(value = "id", required = false) Integer id) {
+		AdPoint adpoint = pointService.getVoById(id);
+		if (adpoint != null) {
+            model.addAttribute("adpoint", adpoint);
+		}	
+        return PageConst.SUPER_ADMIN_POINT_EDIT;
+	}
+	
+	@RequiresRoles("superadmin")
+	@ResponseBody
+	@RequestMapping(value = "/save", method=RequestMethod.POST)
+	public Model appSave(Model model, AdPoint adpoint, HttpServletRequest request) {
+		ResultVo<String> result = new ResultVo<String>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("保存成功");
+        model = new ExtendedModelMap();
+        Date now = new Date();
+     
+        try {
+            if (adpoint.getId() != null) {
+            	adpoint.setUpdateTime(now);
+            	pointService.modify(adpoint);
+            } else {
+            	adpoint.setCreateTime(now);
+            	adpoint.setUpdateTime(now);
+            	pointService.save(adpoint);
+            }
+        } catch (Exception e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("保存失败！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+    }
+	
+	 @RequiresRoles("superadmin")
+	 @RequestMapping(value = "/user/pointList")
+	 public String userPointList(Model model, HttpServletRequest request,
+	         @RequestParam(value = "username", required = false) String username) {
+	    SearchDataVo vo = SearchUtil.getVo();
+	    //查询指定用户积分明细
+	    if (username != null) {
+	    	username = "%" + username + "%";
+	        vo.putSearchParam("username", username, username);
+	    }
+	    //查询用户积分列表
+	    userpointService.getPageData(vo);
+	    SearchUtil.putToModel(model, vo);
+	    return PageConst.SUPER_ADMIN_USERPOINT_LIST;
+	}
 }

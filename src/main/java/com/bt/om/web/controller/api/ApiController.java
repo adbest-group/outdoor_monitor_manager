@@ -695,6 +695,68 @@ public class ApiController extends BasicController {
         return model;
     }
 
+    //请求积分明细列表
+    @RequestMapping(value = "/getpointlist")
+    @ResponseBody
+    public Model pointList(Model model, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    	ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("获取成功");
+        model = new ExtendedModelMap();
+    	
+        Integer userId = null;
+        String token = null;
+        Integer page = 1;
+        Integer pageSize = 10;
+        
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            userId = obj.get("userId").getAsInt();
+            if (token != null) {
+                useSession.set(Boolean.FALSE);
+                this.sessionByRedis.setToken(token);
+            } else {
+                useSession.set(Boolean.TRUE);
+            }
+            if(obj.get("page") != null){
+                page = obj.get("page").getAsInt();
+            }
+            if(obj.get("page_size") != null){
+                pageSize = obj.get("page_size").getAsInt();
+            }
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        
+        SearchDataVo vo = new SearchDataVo(null,null,(page-1)*pageSize,pageSize);
+        vo.putSearchParam("userId",null,userId);
+        
+        //通过用户id查找该用户的所有积分数据
+        userPointService.getPageData(vo);
+        List<?> list = vo.getList();
+        List<AdUserPoint> userpointlist = new ArrayList<>();
+        
+        int sum = 0;
+        for(Object obj : list) {
+        	AdUserPoint userPoint = (AdUserPoint) obj;
+        	userPoint.setCreateTimeStr(DateUtil.dateFormate(userPoint.getCreateTime(), "yyyy-MM-dd HH:mm:ss"));
+        	sum += userPoint.getPoint();
+        	userpointlist.add(userPoint);
+        }
+        
+        result.setResult(userpointlist);
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        model.addAttribute("totalPoint", sum);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
     //请求列表任务或纠错列表
     @RequestMapping(value = "/gettasklist")
     @ResponseBody
@@ -1793,7 +1855,7 @@ public class ApiController extends BasicController {
         Double lat = null;
         Double metre = null;
         Integer page = 1;
-        Integer pageSize = 20;
+        Integer pageSize = 10;
 
         try {
             InputStream is = request.getInputStream();

@@ -1,0 +1,18 @@
+package com.bt.om.entity.vo;
+
+import com.bt.om.entity.AdUserPoint;
+
+public class AdUserPointVo extends AdUserPoint{
+
+	private String username;
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	
+	
+}

@@ -151,5 +151,10 @@
   	where user_id in 
   	<foreach collection="userIds" separator="," open="(" close=")" item="userId">#{userId,jdbcType=INTEGER}</foreach>
   </update>
+    <update id="updateUserRoleIsAdmin" parameterType="com.bt.om.entity.vo.UserRoleVo">
+  	update sys_user_role
+  	set role_id = 100
+  	where user_id = #{userId,jdbcType=INTEGER} 
+  </update>
   
 </mapper>

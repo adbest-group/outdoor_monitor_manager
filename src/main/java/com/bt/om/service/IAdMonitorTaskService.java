@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
+import com.bt.om.entity.AdMonitorUserTask;
 import com.bt.om.entity.vo.AbandonTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
@@ -90,4 +91,8 @@ public interface IAdMonitorTaskService {
 	 public List<AdMonitorTask> getAllByStatusUnCheck(Map<String, Object> searchMap);
 	 public List<AdMonitorTask> getAllByStatusUnZhipai(Map<String, Object> searchMap);
 	List<PictureVo> selectFeedBackByActivityIdAndSeatId(Map<String, Object> searchMap);
+    /**
+     * 获取即将结束的任务(2小时之前),进行消息推送
+     */
+	String getTaskWillEnd(Integer duration);
 }

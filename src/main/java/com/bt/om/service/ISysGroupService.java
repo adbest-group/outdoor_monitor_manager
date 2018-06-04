@@ -25,4 +25,5 @@ public interface ISysGroupService {
 	public List<SysUser> selectNoCustomerName(Map<String, Object> searchMap);
 	public List<Integer> selectGroupIdsByDepartmentId(Integer parentId);
 	public void deleteGroup(Integer id);
+	public int deleteGroupById(Integer id);
 }

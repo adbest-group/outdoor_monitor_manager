@@ -3,6 +3,8 @@ package com.bt.om.mapper;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.bt.om.entity.AdMonitorUserTask;
 import com.bt.om.entity.vo.AbandonTaskVo;
 
@@ -58,4 +60,12 @@ public interface AdMonitorUserTaskMapper {
     List<Integer> selectRecycleTaskIds(Date nowDate);
     int recycleUserTask(AdMonitorUserTask task);
     int abandonUserTask(AbandonTaskVo vo);
+    /**
+     * 获取即将结束的任务(2小时之前)
+     */
+    List<AdMonitorUserTask> getTaskWillEnd(Integer duration);
+    /**
+     * 更新推送状态
+     */
+    int updateIsPush(@Param("ids") List<Integer> ids);
 }

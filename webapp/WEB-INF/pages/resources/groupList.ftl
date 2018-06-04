@@ -38,8 +38,8 @@
                             <td>${type.departmentName?if_exists}</td>
                             <td>${type.createTime?string('yyyy-MM-dd HH:mm')}</td>
                             <td>
-                            	<a href="javascript:void(0);" onclick="deleteGroup('${type.id}');">删除</a>
-                                <a href="javascript:void(0);" onclick="edit('${type.id}');">编辑</a>
+                            	<a href="javascript:void(0);" onclick="edit('${type.id}');">编辑</a>
+                                <a href="javascript:void(0);" onclick="deleteGroup('${type.id}');">删除</a>
                                 <a href="javascript:void(0);" onclick="editUser('${type.id}', '${type.parentid}');">员工</a>
                                 <a href="javascript:void(0);" onclick="editCustomer('${type.id}');">广告商</a>
                             </td>
@@ -117,7 +117,7 @@
             content: '/sysResources/resUser?id=' + id + '&parentId=' + parentId //iframe的url
         });
     }
-    
+
     function editCustomer(id) {
         layer.open({
             type: 2,
@@ -145,7 +145,6 @@
                 dataType: "json",
                 success: function(datas) {
                     var resultRet = datas.ret;
-                    console.log(resultRet);
                     if (resultRet.code == 101) {
                         layer.confirm(resultRet.resultDes, {
                             icon: 2,
@@ -168,6 +167,6 @@
                 }
             });
         });
-    }
+    };
 </script>
 <@model.webend />

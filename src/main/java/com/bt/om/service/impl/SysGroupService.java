@@ -97,6 +97,7 @@ public class SysGroupService implements ISysGroupService{
 	public List<Integer> selectGroupIdsByDepartmentId(Integer parentId) {
 		return sysResourcesMapper.selectGroupIdsByDepartmentId(parentId);
 	}
+
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void deleteGroup(Integer id) {
@@ -108,5 +109,10 @@ public class SysGroupService implements ISysGroupService{
              sysUserRoleMapper.updateUserRoleIsAdmin(id);
 			sysResourcesMapper.deleteGroup(id);
 			sysUserResMapper.deleteByResId(id);
+  }
+
+	@Override
+	public int deleteGroupById(Integer id) {
+		return sysResourcesMapper.deleteByPrimaryKey(id);
 	}
 }

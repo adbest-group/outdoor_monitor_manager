@@ -223,11 +223,32 @@
         </table>
          -->
         
+        <!-- 
         <table schema="outdoor-monitor" tableName="operate_log"
                domainObjectName="OperateLog" enableCountByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false"
                enableUpdateByExample="false">
         </table>
-
+        -->
+        
+        <!--
+        <table schema="outdoor-monitor" tableName="ad_app"
+               domainObjectName="AdApp" enableCountByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false"
+               enableUpdateByExample="false">
+        </table>
+		-->
+		<!-- 
+		<table schema="outdoor-monitor" tableName="ad_point"
+               domainObjectName="AdPoint" enableCountByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false"
+               enableUpdateByExample="false">
+        </table>
+		 -->
+		 <table schema="outdoor-monitor" tableName="ad_user_point"
+               domainObjectName="AdUserPoint" enableCountByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false"
+               enableUpdateByExample="false">
+        </table>
     </context>
 </generatorConfiguration>

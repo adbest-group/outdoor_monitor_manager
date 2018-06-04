@@ -48,6 +48,16 @@
                         <span id="customerTypeIdTip"></span>
                     </td>
                 </tr>
+                <tr>
+					<td style="padding-bottom:20px;" class="a-title">所属App：</td>
+					<td style="padding-bottom:20px;">
+                        <select name="appTypeId" class="searchable-select-holder" id="appTypeId">
+                            <option value="">请选择</option>
+                            <@model.showAllAppTypeOps value="${(obj.appTypeId)?if_exists}"/> 
+                        </select>
+                        <span id="appTypeIdTip"></span>
+                    </td>
+                </tr>
 				<tr>
 					<td class="a-title">&nbsp;</td>
 					<td>
@@ -85,7 +95,7 @@ $(function() {
 	                var telephone = $("#telephone").val();
 	                var password = $("#password").val();
 	                var customerTypeId = $("#customerTypeId").val();
-             
+             		var appTypeId = $("#appTypeId").val();
 //		             var selRoles = "";
 //				            $("input[name='role']:checked").each(function(i) {
 //				            	if (0==i) {
@@ -103,7 +113,8 @@ $(function() {
 		                    "password": password,
 		                    "name": name,
 		                    "telephone": telephone,
-		                    "customerTypeId": customerTypeId
+		                    "customerTypeId": customerTypeId,
+		                    "appTypeId": appTypeId
 		                },
 		                cache: false,
 		                dataType: "json",
@@ -222,6 +233,20 @@ $(function() {
 	            onError:"客户类型不能为空，请选择"
 	        });
         	
+        	// app类型校验
+	        $("#appTypeId").formValidator({
+	            validatorGroup:"2",
+	            onShow:"",
+	            onFocus:"请选择app类型",
+	            onCorrect:""
+	        }).regexValidator({
+	            regExp:"^\\S+$",
+	            onError:"app类型不能为空，请选择"
+	        }).inputValidator({
+	            min: 1,
+	            onError:"app类型不能为空，请选择"
+	        });
+	        
 //        	// 权限配置
 //        	$("#checkBoxUl").formValidator({
 //        		validatorGroup:"2",

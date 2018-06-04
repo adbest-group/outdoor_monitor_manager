@@ -4,23 +4,24 @@
         <#--<div class="crumb-nav">-->
         <#--<a href="/jiucuo/list">纠错管理</a>　>　纠错详情-->
         <#--</div>-->
+        
             <div class="bd new-active">
                 <div class="hd mt-10"><h3>广告位相关信息</h3></div>
                 <div class="bd">
                     <div class="bor-box detail-demand">
                         <div class="con">
-                            <p>广告活动名称：${activity.activityName}</p>
-                            <p>投放时间：${activity.startTime?string('yyyy-MM-dd')}
-                                至 ${activity.endTime?string('yyyy-MM-dd')}</p>
-                            <p>投放地区：${vm.getCityName(task.province)} - ${vm.getCityName(task.city)} - ${vm.getCityName(task.region)} - ${vm.getCityName(task.street)}</p>
-                            <p>媒体名称：${task.mediaName}</p>
-                            <p>投放广告位：${task.adSeatName}</p>
-                            <p>投放品牌：${seat.brand}</p>
-                            <p>监测时间段：${seat.monitorStart?string('yyyy-MM-dd')}
-                                至 ${seat.monitorEnd?string('yyyy-MM-dd')}</p>
-                            <p>监测次数：${seat.monitorCount}</p>
-                            <p>创建时间：${seat.createTime?string('yyyy-MM-dd HH:mm:ss')}</p>
-                            <p>广告样例：<img style="vertical-align: top" src="${seat.samplePicUrl}" width="300"/></p>
+                            <p>广告活动名称：${activity.activityName!""}</p>
+                            <p>投放时间：${activity.startTime?string('yyyy-MM-dd')!""}
+                                至 ${activity.endTime?string('yyyy-MM-dd')!""}</p>
+                            <p>投放地区：${vm.getCityName(task.province)!""} - ${vm.getCityName(task.city)!""} - ${vm.getCityName(task.region)!""} - ${vm.getCityName(task.street)!""}</p>
+                            <p>媒体名称：${task.mediaName!""}</p>
+                            <p>投放广告位：${task.adSeatName!""}</p>
+                            <p>投放品牌：${seat.brand!""}</p>
+                            <p>监测时间段：${seat.monitorStart?string('yyyy-MM-dd')!""}
+                                至 ${seat.monitorEnd?string('yyyy-MM-dd')!""}</p>
+                            <p>监测次数：${seat.monitorCount!""}</p>
+                            <p>创建时间：${seat.createTime?string('yyyy-MM-dd HH:mm:ss')!""}</p>
+                            <p>广告样例：<img style="vertical-align: top" src="${seat.samplePicUrl!""}" width="300"/></p>
                         </div>
                     </div>
                 </div>
@@ -29,14 +30,14 @@
                 <div class="bd">
                     <div class="bor-box detail-demand">
                         <div class="con">
-                            <p>广告活动名称：${activity.activityName}</p>
-                            <p>提交时间：${task.submitTime?string('yyyy-MM-dd HH:mm:dd')}</p>
-                            <p>提交人：${task.realname}</p>
+                            <p>广告活动名称：${activity.activityName!""}</p>
+                            <p>提交时间：${task.submitTime?string('yyyy-MM-dd HH:mm:dd')!""}</p>
+                            <p>提交人：${task.realname!""}</p>
                             <p>问题反馈：<span style="color:orangered;">${feedback.problem!""} ${feedback.problemOther!""}
                             </p>
-                            <p>执行状态：${vm.getJiucuoTaskStatusText(task.status)} <#if task.reason?exists><span style="color:orangered;">（审核意见：${task.reason}
+                            <p>执行状态：${vm.getJiucuoTaskStatusText(task.status)!""} <#if task.reason?exists><span style="color:orangered;">（审核意见：${task.reason!""}
                                 ）</span></#if></p>
-                            <p>提交照片：<img style="vertical-align: top" src="${feedback.picUrl1}" width="300"/></p>
+                            <p>提交照片：<img style="vertical-align: top" src="${feedback.picUrl1!""}" width="300"/></p>
                         <@shiro.hasRole name="admin">
                             <#if task.status ==1>
                                 <br/>
@@ -60,31 +61,31 @@
                     <div class="bd">
                         <div class="bor-box detail-demand">
                             <div class="con">
-                                <p>提交时间：${sub.feedbackCreateTime?string('yyyy-MM-dd HH:mm:dd')}</p>
+                                <p>提交时间：${sub.feedbackCreateTime?string('yyyy-MM-dd HH:mm:dd')!""}</p>
                                 <p>提交人：${sub.realname!""}</p>
                                 <#if (sub.problem?exists || sub.problemOther?exists) >
                                     <p>问题反馈：<span
                                             style="color:orangered;">${sub.problem!""} ${sub.problemOther!""}
                                     </p>
                                 </#if>
-                                <p>执行状态：${vm.getMonitorTaskStatusText(sub.status)} <#if sub.reason?exists>
-                                    （${sub.reason}
+                                <p>执行状态：${vm.getMonitorTaskStatusText(sub.status)!""} <#if sub.reason?exists>
+                                    （${sub.reason!""}
                                     ）</#if>
                                     <@shiro.hasRole name="admin">（<a href="/task/list?pid=${task.id}&ptype=2">管理监测任务</a>）</@shiro.hasRole>
                                 </p>
 
                                 <p>提交照片：
                                     <br/>
-                                    <#if sub.picUrl1?exists><img style="vertical-align: top" src="${sub.picUrl1}"
+                                    <#if sub.picUrl1?exists><img style="vertical-align: top" src="${sub.picUrl1!""}"
                                                                  width="300"/></#if>
                                     &nbsp;&nbsp;&nbsp;
-                                    <#if sub.picUrl2?exists><img style="vertical-align: top" src="${sub.picUrl2}"
+                                    <#if sub.picUrl2?exists><img style="vertical-align: top" src="${sub.picUrl2!""}"
                                                                  width="300"/></#if>
                                     <br/><br/>
-                                    <#if sub.picUrl3?exists><img style="vertical-align: top" src="${sub.picUrl3}"
+                                    <#if sub.picUrl3?exists><img style="vertical-align: top" src="${sub.picUrl3!""}"
                                                                  width="300"/></#if>
                                     &nbsp;&nbsp;&nbsp;
-                                    <#if sub.picUrl4?exists><img style="vertical-align: top" src="${sub.picUrl4}"
+                                    <#if sub.picUrl4?exists><img style="vertical-align: top" src="${sub.picUrl4!""}"
                                                                  width="300"/></#if>
                                 </p>
                             </div>
@@ -98,9 +99,12 @@
 
                 </#if>
             </#if>
+            
+            <button class="btn btn-primary ml-20" id="back">返回</button>
             </div>
         </div>
     </div>
+    
 </div>
 </div>
 </div>
@@ -118,6 +122,10 @@
 
     $(function () {
         $(window).resize();
+
+		$("#back").click(function () {
+            history.back();
+        });
 
         $("#btnPass").click(function () {
             pass(${task.id});

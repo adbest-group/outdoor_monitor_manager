@@ -3,6 +3,8 @@ package com.bt.om.web.controller;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -11,12 +13,19 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdApp;
+import com.bt.om.entity.OperateLog;
+import com.bt.om.entity.SysUser;
+import com.bt.om.entity.vo.AdSeatInfoVo;
 import com.bt.om.enums.ResultCode;
+import com.bt.om.enums.SessionKey;
+import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAppService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -75,13 +84,13 @@ public class AppController {
 		AdApp adapp = appService.getVoById(id);
 		if (adapp != null) {
             model.addAttribute("adapp", adapp);
-        }
-	
+		}	
         return PageConst.SUPER_ADMIN_APP_EDIT;
 	}
 	
 	@RequiresRoles("superadmin")
-	@RequestMapping(value = "/save")
+	@ResponseBody
+	@RequestMapping(value = "/save", method=RequestMethod.POST)
 	public Model appSave(Model model, AdApp adapp, HttpServletRequest request) {
 		ResultVo<String> result = new ResultVo<String>();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
@@ -94,8 +103,11 @@ public class AppController {
             	adapp.setUpdateTime(now);
             	appService.modify(adapp);
             } else {
+            	String appSid = UUID.randomUUID().toString();
+            	adapp.setAppSid(appSid);
             	adapp.setCreateTime(now);
             	adapp.setUpdateTime(now);
+            	adapp.setStatus(1);
             	appService.save(adapp);
             }
         } catch (Exception e) {
@@ -108,6 +120,33 @@ public class AppController {
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }
-    
+	
+	@RequiresRoles("superadmin")
+	@ResponseBody
+	@RequestMapping(value = "/delete")
+	public Model appDelete(Model model, HttpServletRequest request, @RequestParam(value = "id", required = false) Integer id) {
+		ResultVo<String> result = new ResultVo<String>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("保存成功");
+        model = new ExtendedModelMap();
+        Date now = new Date();
+        
+        try {
+            int count = appService.deleteAppById(id);
+            if(count == 0) {
+            	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("该app账号不能删除！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+            }
+        } catch (Exception e) {
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("删除失败！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+	}
 	
 }

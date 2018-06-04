@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.adtime.common.lang.StringUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdApp;
@@ -44,6 +45,8 @@ public class AppController {
 			@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "appName", required = false) String appName,
             @RequestParam(value = "appSid", required = false) String appSid,
+            @RequestParam(value = "appPictureUrl", required = false) String appPictureUrl,
+            @RequestParam(value = "appTitle", required = false) String appTitle,
             @RequestParam(value = "createDate", required = false) String createDate,
             @RequestParam(value = "updateDate", required = false) String updateDate) {
 		
@@ -58,6 +61,12 @@ public class AppController {
 	    }
 	    if (appSid != null) {
 	        vo.putSearchParam("appSid", appSid.toString(), appSid);
+	    }
+	    if (appPictureUrl != null) {
+	        vo.putSearchParam("appPictureUrl", appPictureUrl.toString(), appPictureUrl);
+	    }
+	    if (appTitle != null) {
+	        vo.putSearchParam("appTitle", appTitle.toString(), appTitle);
 	    }
 	    if (createDate != null) {
 	        try {
@@ -97,7 +106,7 @@ public class AppController {
         result.setResultDes("保存成功");
         model = new ExtendedModelMap();
         Date now = new Date();
-     
+        
         try {
             if (adapp.getId() != null) {
             	adapp.setUpdateTime(now);

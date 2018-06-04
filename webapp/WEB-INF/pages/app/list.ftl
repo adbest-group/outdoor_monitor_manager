@@ -27,6 +27,8 @@
 							<th width="30">序号</th>
 							<th>App名称</th>
 							<th>App序列号</th>
+							<th>App图片</th>
+							<th>App标题</th>
 							<th>创建时间</th>
 							<th>更新时间</th>
 							<th>操作</th>
@@ -39,6 +41,8 @@
 							<td>${(bizObj.page.currentPage-1)*20+adapp_index+1}</td>
 							<td>${adapp.appName!""}</td>
 							<td>${adapp.appSid!""}</td>
+							<td><img width="50" src="${adapp.appPictureUrl!""}"/></td>
+							<td>${adapp.appTitle!""}</td>
 							<td>${adapp.createTime?string('yyyy-MM-dd HH:mm:ss')}</td>
 							<td>${adapp.updateTime?string('yyyy-MM-dd HH:mm:ss')}</td>
 							<td style="width: 80px">

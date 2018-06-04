@@ -1,6 +1,10 @@
 package com.bt.om.mapper;
 
+import java.util.HashMap;
+import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.RowBounds;
 
 import com.bt.om.entity.AdPoint;
 
@@ -53,5 +57,18 @@ public interface AdPointMapper {
      */
     int updateByPrimaryKey(AdPoint record);
 
+    /**
+     * 通过type找到积分设置明细
+     * */
 	AdPoint selectByPointType(@Param("type")int type);
+
+	/**
+	 * 查询所有满足条件的数据条数
+	 * */
+	int getPageCount(HashMap<String, Object> searchMap);
+
+	/**
+	 * 查询所有满足条件的数据
+	 * */
+	List<?> getPageData(HashMap<String, Object> searchMap, RowBounds rowBounds);
 }

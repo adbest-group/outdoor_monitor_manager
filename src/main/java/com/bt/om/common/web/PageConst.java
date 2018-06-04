@@ -106,6 +106,11 @@ public class PageConst {
 	public static final String SUPER_ADMIN_APP_LIST = "app/list";
 	public static final String SUPER_ADMIN_APP_EDIT = "app/edit";
 	
+	/*** 超级管理员下的积分设置管理 ***/
+	public static final String SUPER_ADMIN_POINT_LIST = "resources/pointList";
+	public static final String SUPER_ADMIN_POINT_EDIT = "resources/pointEdit";
+	public static final String SUPER_ADMIN_USERPOINT_LIST = "resources/userpointList";
+	
 	/*** 各部门领导查看自己部门的审核任务 ***/
 	public static final String RESOURCES_ACTIVITY = "resources/activity";
 	public static final String RESOURCES_TASK_LIST = "resources/taskList";

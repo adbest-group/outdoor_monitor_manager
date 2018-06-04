@@ -213,4 +213,13 @@
       and user_id = #{userId,jdbcType=INTEGER}
     </if>
   </select>
+   <delete id="deleteByResId" parameterType="com.bt.om.entity.SysUserRes">
+  	delete from sys_user_res
+    where res_id = #{resId,jdbcType=INTEGER}
+  </delete>
+<!--      <select id="selectTypeByResId"  resultType="java.lang.Integer">
+  	select type
+  	from sys_user_res
+  	where res_id = #{resId,jdbcType=INTEGER}
+  </select> -->
 </mapper>

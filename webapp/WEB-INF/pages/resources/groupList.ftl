@@ -95,7 +95,7 @@
             content: '/sysResources/addGroup' //iframe的url
         });
     });
-
+    
     function edit(id) {
         layer.open({
             type: 2,
@@ -117,6 +117,7 @@
             content: '/sysResources/resUser?id=' + id + '&parentId=' + parentId //iframe的url
         });
     }
+
     function editCustomer(id) {
         layer.open({
             type: 2,
@@ -127,16 +128,18 @@
             content: '/sysResources/resCustomer?id=' + id //iframe的url
         });
     }
-	function deleteGroup(id){
-        layer.confirm("确认删除？", {
+    
+    //删除组-员工——广告商
+    function deleteGroup(id){
+        layer.confirm("确定删除该组？", {
             icon: 3,
             btn: ['确定', '取消'] //按钮
         }, function(){
             $.ajax({
-                url: "/sysResources/delete",
+                url: "/sysResources/deleteGroup",
                 type: "post",
                 data: {
-                    "id": id,
+                    "id": id
                 },
                 cache: false,
                 dataType: "json",
@@ -151,7 +154,7 @@
                         layer.confirm("删除成功", {
                             icon: 1,
                             btn: ['确定'] //按钮
-                        }, function () {
+                        }, function(){
                             window.location.reload();
                         });
                     }

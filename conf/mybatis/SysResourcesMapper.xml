@@ -297,5 +297,8 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-
+  <delete id = "deleteGroup" parameterType="java.lang.Integer">
+  	 delete from sys_resources
+  	where id =#{id,jdbcType=INTEGER} and type = 2
+  </delete>
 </mapper>

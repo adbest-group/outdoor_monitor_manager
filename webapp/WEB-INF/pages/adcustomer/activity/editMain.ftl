@@ -101,9 +101,9 @@
 							<td>
 								<#if (editMode && activity.status==1)!true>
 									<input type="hidden" id="img-demo-bak"/>
-                       					<div class="btn-file" style="width:74px;height:28px;top:0px;">
-										<a class="addBtn" href="javascript:;" id="resource_sel">上传</a>
-										<input type="file" id="img-demo" name="file" onchange="uploadPic('img-demo')">
+                       					<div class="btn-file addBtn" id="resource_sel" style="width:74px;height:28px;top:0px;cursor:pointer;line-height:28px;padding:0px;color:#fff">
+										上传
+										<input type="file" id="img-demo" name="file" unselectable="on" onchange="uploadPic('img-demo')">
 									</div> <span id="img-demoTip"></span>
 								</#if>
                    			</td>
@@ -532,7 +532,8 @@
         }).functionValidator({
         	fun: function(val, ele){
         		let now = new Date()
-        		let date = now.getFullYear()+ '-' + (now.getMonth() + 1).toString().padStart(2, 0) + '-' + now.getDate()
+        		let date = now.getFullYear()+ '-' + (now.getMonth() + 1).toString().padStart(2, 0) + '-' + now.getDate().toString().padStart(2, 0)
+
         		if($('#dts').val() < date) {
         			return false
         		}else {

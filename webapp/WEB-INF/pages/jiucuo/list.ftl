@@ -110,8 +110,7 @@
                                 <#if (task.status==2&&task.problemStatus?exists&&task.problemStatus==4)><a
                                         href="javascript:close('${task.id}');">关闭</a></#if>
                                			 <a href="/jiucuo/detail?id=${task.id}">详情</a>
-								 <#if task.status==1><a href="javascript:cancelJc('${task.id}')">撤消</a></#if>
-
+                               	<#-- <#if task.status==1><a href="javascript:cancelJc('${task.id}')">撤消</a></#if> -->
                             </td>
                         </tr>
                         </#list>

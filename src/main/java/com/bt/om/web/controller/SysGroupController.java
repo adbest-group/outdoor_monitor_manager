@@ -282,7 +282,8 @@ public class SysGroupController extends BasicController{
             	
             	//[1] 将员工的角色改为部门相关的角色
             	SysResources department = sysResourcesService.getById(parentId);//部门
-            	Integer departmentType = department.getDepartmentType(); //部门类型
+            	Integer departmentType = department.getDepartmentType(
+            			); //部门类型
             	
             	Integer roleId = 100;
             	if(departmentType == 1) {
@@ -581,5 +582,30 @@ public class SysGroupController extends BasicController{
         SearchUtil.putToModel(model, vo);
 
         return PageConst.RESOURCES_JIUCUO_LIST;
+    }
+    
+    /**
+     * 【活动审核部门】【任务审核部门】【纠错审核部门】领导 删除组
+     */
+    @RequiresRoles(value = {"departmentadmin", "depactivityadmin", "deptaskadmin", "depjiucuoadmin"}, logical = Logical.OR)
+    @ResponseBody
+    @RequestMapping(value = "/deleteGroup")
+    public Model deleteGroup(Model model ,HttpServletRequest request,
+            @RequestParam(value = "id", required = false) Integer id) {
+    	 ResultVo<String> result = new ResultVo<String>();
+         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+         result.setResultDes("删除成功");
+         model = new ExtendedModelMap();
+         Date now = new Date();
+    	 try {
+	         sysGroupService.deleteGroup(id);
+    	}catch (Exception e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("删除失败！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
     }
 }

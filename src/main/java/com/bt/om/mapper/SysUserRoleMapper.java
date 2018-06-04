@@ -53,5 +53,4 @@ public interface SysUserRoleMapper {
     int updateByPrimaryKey(SysUserRole record);
     
     int updateUserRole(UserRoleVo userRoleVo);
-    int updateUserRoleIsAdmin(Integer id);
 }

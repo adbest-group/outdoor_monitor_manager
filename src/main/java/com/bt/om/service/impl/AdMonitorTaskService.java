@@ -502,7 +502,9 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         String pushResult = JPushUtils.pushAllByAlias(param);
         System.out.println("pushResult:: " + pushResult);
         //消息推送之后将任务is_push状态更新为1（已推送）
-        adMonitorUserTaskMapper.updateIsPush(ids);
+        if(ids != null && ids.size() > 0) {
+        	adMonitorUserTaskMapper.updateIsPush(ids);
+        }
 		return pushResult;
 	}
 

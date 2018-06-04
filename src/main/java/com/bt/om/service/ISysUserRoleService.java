@@ -8,5 +8,5 @@ public interface ISysUserRoleService {
 
 	public int updateUserRole(UserRoleVo userRoleVo);
 
-	public int selectGroupIdByUserId(Map<String, Object> searchMap);
+	public Integer selectGroupIdByUserId(Map<String, Object> searchMap);
 }

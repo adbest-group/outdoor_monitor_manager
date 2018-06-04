@@ -106,11 +106,13 @@ public class SysAdminController {
 				searchMap.put("type", 1);
 				searchMap.put("userId", sysUserVo.getId());
 				Integer groupId = sysUserRoleService.selectGroupIdByUserId(searchMap);
-				SysResources group = sysGroupService.getById(groupId);
-				SysResources department = sysResourcesService.getById(group.getParentid());//通过组的parentid查部门
-				
-				sysUserVo.setGroupName(group.getName());
-				sysUserVo.setDepartmentName(department.getName());
+				if(groupId != null) {
+					SysResources group = sysGroupService.getById(groupId);
+					SysResources department = sysResourcesService.getById(group.getParentid());//通过组的parentid查部门
+					
+					sysUserVo.setGroupName(group.getName());
+					sysUserVo.setDepartmentName(department.getName());
+				}
 			}
 		}
     

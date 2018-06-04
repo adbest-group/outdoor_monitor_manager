@@ -65,12 +65,16 @@ public class CustomerController {
         List<?> list = vo.getList();
         for (Object object : list) {
         	SysUserVo userVo = (SysUserVo) object;
-        	AdCustomerType adCustomerType = customerService.selectById(userVo.getCustomerTypeId());
-        	AdApp adapp = appService.selectById(userVo.getAppTypeId());
-        	System.out.println(adapp);
-        	
-        	userVo.setCustomerTypeName(adCustomerType.getName());
-        	userVo.setAppTypeName(adapp.getAppName());
+        	if(userVo.getCustomerTypeId() != null) {
+        		AdCustomerType adCustomerType = customerService.selectById(userVo.getCustomerTypeId());
+        		if(adCustomerType != null) {
+        			userVo.setCustomerTypeName(adCustomerType.getName());
+        		}
+        	}
+        	if(userVo.getAppTypeId() != null) {
+        		AdApp adapp = appService.selectById(userVo.getAppTypeId());
+        		userVo.setAppTypeName(adapp.getAppName());
+        	}
 		}
         
         SearchUtil.putToModel(model, vo);

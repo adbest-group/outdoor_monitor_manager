@@ -28,7 +28,7 @@ public class SysUserRoleService implements ISysUserRoleService {
 	
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public int selectGroupIdByUserId(Map<String, Object> searchMap) {
+	public Integer selectGroupIdByUserId(Map<String, Object> searchMap) {
 		return sysUserResMapper.selectGroupIdByUserId(searchMap);
 	}
 

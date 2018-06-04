@@ -519,7 +519,7 @@
                     	})
                     	// 基于准备好的dom，初始化echarts实例
         				myChart = echarts.init(document.getElementById('chart'));
-                    	convertData(data);
+                    	data = convertData(data);
                     	
 				        var option = {
 				            tooltip: {
@@ -560,7 +560,7 @@
 				                    name: '广告位',
 				                    type: 'scatter',
 				                    coordinateSystem: 'geo',
-				                    data: convertData(data),
+				                    data,
 				                    symbolSize: function (val) {
 				                        if(val[2] >= 1 && val[2] <= 10) {
 				                    		return 5;
@@ -589,12 +589,10 @@
 				                    }
 				                },
 				                {
-				                    name: 'Top 5',
+				                    name: '广告位',
 				                    type: 'effectScatter',
 				                    coordinateSystem: 'geo',
-				                    data: convertData(data.sort(function (a, b) {
-				                        return b.value - a.value;
-				                    }).slice(0, 6)),
+				                    data,
 				                    symbolSize: function (val) {
 				                    	if(val[2] >= 1 && val[2] <= 10) {
 				                    		return 5;
@@ -643,7 +641,7 @@
         //页面一打开即调用
 		$('#searchBtn').click()
 		// 使用刚指定的配置项和数据显示图表
-        myChart.setOption(option);
+        // myChart.setOption(option);
     })
 </script>
 		

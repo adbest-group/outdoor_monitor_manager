@@ -1,5 +1,10 @@
 package com.bt.om.mapper;
 
+import java.util.HashMap;
+import java.util.List;
+
+import org.apache.ibatis.session.RowBounds;
+
 import com.bt.om.entity.AdUserPoint;
 
 public interface AdUserPointMapper {
@@ -50,4 +55,11 @@ public interface AdUserPointMapper {
      * @mbg.generated Thu May 31 11:25:13 CST 2018
      */
     int updateByPrimaryKey(AdUserPoint record);
+
+	int getPageCount(HashMap<String, Object> searchMap);
+
+	List<?> getPageData(HashMap<String, Object> searchMap, RowBounds rowBounds);
+
+	//通过用户id查找该用户的所有积分数据
+	List<AdUserPoint> getListById(Integer userId);
 }

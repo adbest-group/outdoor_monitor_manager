@@ -1,11 +1,17 @@
 package com.bt.om.service.impl;
 
+import java.util.ArrayList;
+import java.util.Date;
+
+import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.bt.om.entity.AdPoint;
+import com.bt.om.entity.SysResources;
 import com.bt.om.mapper.AdPointMapper;
 import com.bt.om.service.IPointService;
+import com.bt.om.vo.web.SearchDataVo;
 
 @Service
 public class PointService implements IPointService {
@@ -13,11 +19,10 @@ public class PointService implements IPointService {
 	@Autowired
 	private AdPointMapper adPointMapper;
 	/**
-	 * 将积分添加进用户积分表
+	 * 将积分添加进积分设置表
 	 * */
 	@Override
 	public void addUserPoint() {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -27,6 +32,35 @@ public class PointService implements IPointService {
 	@Override
 	public AdPoint findPointValue(int type) {
 		return adPointMapper.selectByPointType(type);
+	}
+
+	/**
+	 * 查找所有符合条件的数据
+	 * */
+	@Override
+	public void getPageData(SearchDataVo vo) {
+		int count = adPointMapper.getPageCount(vo.getSearchMap());
+		vo.setCount(count);
+		if (count > 0) {
+			vo.setList(adPointMapper.getPageData(vo.getSearchMap(), new RowBounds(vo.getStart(), vo.getSize())));
+		} else {
+			vo.setList(new ArrayList<SysResources>());
+		}
+	}
+
+	@Override
+	public AdPoint getVoById(Integer id) {
+		return adPointMapper.selectByPrimaryKey(id);
+	}
+
+	@Override
+	public void modify(AdPoint adpoint) {
+		adPointMapper.updateByPrimaryKeySelective(adpoint);
+	}
+
+	@Override
+	public void save(AdPoint adpoint) {
+		adPointMapper.insert(adpoint);
 	}
 
 }

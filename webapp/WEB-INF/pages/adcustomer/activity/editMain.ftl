@@ -532,7 +532,8 @@
         }).functionValidator({
         	fun: function(val, ele){
         		let now = new Date()
-        		let date = now.getFullYear()+ '-' + (now.getMonth() + 1).toString().padStart(2, 0) + '-' + now.getDate()
+        		let date = now.getFullYear()+ '-' + (now.getMonth() + 1).toString().padStart(2, 0) + '-' + now.getDate().toString().padStart(2, 0)
+
         		if($('#dts').val() < date) {
         			return false
         		}else {

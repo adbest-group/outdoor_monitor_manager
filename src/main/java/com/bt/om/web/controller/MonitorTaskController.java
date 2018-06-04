@@ -78,7 +78,7 @@ public class MonitorTaskController extends BasicController {
 	/**
      * 监测管理，任务审核
      **/
-    @RequiresRoles(value = {"taskadmin", "deptaskadmin", "depjiucuoadmin", "jiucuoadmin"}, logical = Logical.OR)
+    @RequiresRoles(value = {"taskadmin", "deptaskadmin", "depjiucuoadmin", "jiucuoadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/list")
     public String getTaskList(Model model, HttpServletRequest request,
                               @RequestParam(value = "activityId", required = false) Integer activityId,
@@ -727,7 +727,7 @@ public class MonitorTaskController extends BasicController {
      * @param request
      * @return 详情页面
      */
-    @RequiresRoles(value = {"superadmin", "taskadmin", "customer", "media", "deptaskadmin", "superadmin","activityadmin","depactivityadmin"}, logical = Logical.OR)
+    @RequiresRoles(value = {"superadmin", "taskadmin", "customer", "media", "deptaskadmin", "activityadmin","depactivityadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/details")
     public String gotoDetailsPage(@RequestParam("task_Id") String taskId, Model model, HttpServletRequest request) {
         AdMonitorTaskVo vo = adMonitorTaskService.getTaskDetails(taskId);

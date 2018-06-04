@@ -13,6 +13,8 @@ import com.bt.om.entity.SysResources;
 import com.bt.om.entity.SysUser;
 import com.bt.om.mapper.SysResourcesMapper;
 import com.bt.om.mapper.SysUserMapper;
+import com.bt.om.mapper.SysUserResMapper;
+import com.bt.om.mapper.SysUserRoleMapper;
 import com.bt.om.service.ISysGroupService;
 import com.bt.om.vo.web.SearchDataVo;
 
@@ -22,6 +24,10 @@ public class SysGroupService implements ISysGroupService{
 	private SysResourcesMapper sysResourcesMapper;
 	@Autowired
 	private SysUserMapper sysUserMapper;
+	@Autowired
+	SysUserResMapper sysUserResMapper;
+	@Autowired
+	SysUserRoleMapper sysUserRoleMapper;
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void insert(SysResources sysResources) {
@@ -91,6 +97,19 @@ public class SysGroupService implements ISysGroupService{
 	public List<Integer> selectGroupIdsByDepartmentId(Integer parentId) {
 		return sysResourcesMapper.selectGroupIdsByDepartmentId(parentId);
 	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void deleteGroup(Integer id) {
+		 List<SysUser> sysUsers=sysUserMapper.findUserName(id);
+		 List<Integer> userIds = new ArrayList<>(); //存所有与该组有关系的员工的id集合
+         for (SysUser sysUser : sysUsers) {
+         	userIds.add(sysUser.getId());
+			}
+             sysUserRoleMapper.updateUserRoleIsAdmin(id);
+			sysResourcesMapper.deleteGroup(id);
+			sysUserResMapper.deleteByResId(id);
+  }
 
 	@Override
 	public int deleteGroupById(Integer id) {

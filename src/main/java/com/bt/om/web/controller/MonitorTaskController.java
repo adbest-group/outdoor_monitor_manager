@@ -78,7 +78,7 @@ public class MonitorTaskController extends BasicController {
 	/**
      * 监测管理，任务审核
      **/
-    @RequiresRoles(value = {"taskadmin", "deptaskadmin", "depjiucuoadmin", "jiucuoadmin"}, logical = Logical.OR)
+    @RequiresRoles(value = {"taskadmin", "deptaskadmin", "depjiucuoadmin", "jiucuoadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/list")
     public String getTaskList(Model model, HttpServletRequest request,
                               @RequestParam(value = "activityId", required = false) Integer activityId,

@@ -23,7 +23,7 @@
                         <select name="status" class="select" id="status">
                             <option value="1" <#if (status?exists&&status==1)>selected</#if> >待指派</option>
                             <option value="8" <#if (status?exists&&status==8)>selected</#if> >可抢单</option> 
-                            <option value="0" <#if (status?exists&&status==0)>selected</#if> >已指派</option> 
+                            <#-- <option value="0" <#if (status?exists&&status==0)>selected</#if> >已指派</option> -->
                         </select>
                     </div>
                     <div class="ll inputs-date">
@@ -103,7 +103,7 @@
                             <td>
                                 <#if (task.status==1 || task.status==8)><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if>
                                 <a href="/task/details?task_Id=${task.id}">详情</a>
-                           		 <#if task.status==1><a href="javascript:cancelZp('${task.id}')">撤消</a></#if>
+                                <#-- <#if task.status==1><a href="javascript:cancelZp('${task.id}')">撤消</a></#if> -->
                             </td>
                         </tr>
                         </#list>

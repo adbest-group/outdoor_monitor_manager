@@ -472,7 +472,16 @@ img.demo {
             max:10000,
             onError:"高度支持1-10000(cm)"
         });
-        
+        //广告位面积
+        $("#adArea").formValidator({
+            validatorGroup:"2",
+            onShow: "　",
+            onFocus: "请输入面积(㎡)",
+            onCorrect: ""
+       }).inputValidator({
+            type:"number",
+            onError:"请输入数字格式(㎡)"
+        });      
         //联系人电话
 	    $("#contactCell").formValidator({
 	    	empty:true,
@@ -483,6 +492,17 @@ img.demo {
 	    }).regexValidator({
     		regExp:"^1([358][0-9]|4[579]|66|7[0135678]|9[89])[0-9]{8}$",
     		onError:"联系人电话为手机号码格式不正确"
+    	});
+    	 //联系人姓名
+	    $("#contactName").formValidator({
+	    	empty:true,
+			validatorGroup:"2",
+	        onShow: "　",
+	        onFocus: "请输入联系人姓名",
+	        onCorrect: ""
+	    }).regexValidator({
+    		regExp:"^[\u4E00-\u9FA5\uf900-\ufa2d·s]{2,20}$",
+    		onError:"联系人姓名格式不正确"
     	});
         
     	//广告位经度

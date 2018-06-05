@@ -20,10 +20,11 @@
                     </div>
                     <div class="select-box select-box-100 un-inp-select ll">
                         <select class="select" name="status">
-                        	<option value="1" <#if (status?exists&&status == '1')>selected</#if>>未确认</option>
+                        	 <#-- <option value="1" <#if (status?exists&&status == '1')>selected</#if>>未确认</option>
                         	<option value="2" <#if (status?exists&&status == '2')>selected</#if>>已确认</option>
-                        	<option value="3" <#if (status?exists&&status == '3')>selected</#if>>已结束</option>
-                            <#-- <@model.showActivityStatusOps value="${bizObj.queryMap.status?if_exists}" /> -->
+                        	<option value="3" <#if (status?exists&&status == '3')>selected</#if>>已结束</option>-->
+                        	 <option value="">所有状态</option>
+                           <@model.showActivityStatusOps value="${bizObj.queryMap.status?if_exists}" /> 
                         </select>
                     </div>
                     <div class="ll inputs-date">

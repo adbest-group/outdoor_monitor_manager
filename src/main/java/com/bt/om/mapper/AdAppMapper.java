@@ -50,5 +50,8 @@ public interface AdAppMapper {
 	List<?> getPageData(HashMap<String, Object> searchMap, RowBounds rowBounds);
 
 	List<AdApp> getAllAppType();
+	
+	AdApp getAppPicUrlAndTitleBySid(String sid);
+	
 
 }

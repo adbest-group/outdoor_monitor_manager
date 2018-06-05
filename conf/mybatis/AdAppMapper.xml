@@ -234,4 +234,10 @@
 	  where status=1
 	</select>
   
+  	<select id="getAppPicUrlAndTitleBySid" resultMap="BaseResultMap" parameterType="java.lang.String">
+	  select 
+	  	<include refid="Base_Column_List" />
+	  from ad_app
+	  where app_sid = #{appSid,jdbcType=VARCHAR}
+	</select>
 </mapper>

@@ -79,7 +79,7 @@
                         </tr>
 						</#if>
                         <tr>
-                            <td class="a-title"><font class="s-red">*</font>媒体选择：</td>
+                            <td class="a-title"><font class="s-red">*</font>媒体主：</td>
                             <td id="mediaTd">
                                 <#--<label>-->
                                     <#--<input type="checkbox" name="media" id="media0" value="1" checked> 媒体1-->
@@ -97,7 +97,7 @@
                         </tr>
 						
 						<tr>
-							<td class="a-title"><font class="s-red">*</font>样例：</td>
+							<td class="a-title"><font class="s-red">*</font>广告投放画面：</td>
 							<td>
 								<#if (editMode && activity.status==1)!true>
 									<input type="hidden" id="img-demo-bak"/>
@@ -119,7 +119,7 @@
                             <td class="a-title"><font class="s-red">*</font>广告位监测：</td>
                             <td>
                                 <#if editMode>
-                                    <a class="addBtn" href="javascript:;" id="add-adseat">新增</a>
+                                    <a class="addBtn" href="javascript:;" id="add-adseat">选择广告位</a>
                                 </#if>
                             </td>
                         </tr>
@@ -139,7 +139,7 @@
                                                 <#--<th>监测时间段</th>-->
                                                 <#--<th>监测次数</th>-->
                                                 <#--<th>监测时间</th>-->
-                                                <#--<th>样例</th>-->
+                                                <#--<th>广告投放画面</th>-->
                                                 <#--<th>操作</th>-->
                                             <#--</tr>-->
                                             <#--</thead>-->
@@ -419,7 +419,7 @@
                 var activityName = $("#activityName").val(); //活动名
                 var startDate = $("#dts").val(); //投放开始时间
                 var endDate = $("#dt").val(); //投放结束时间
-				samplePicUrl: $("#img-demo-bak").val()//样例图片地址
+				samplePicUrl: $("#img-demo-bak").val()//广告投放画面图片地址
                 
                 var startTime = new Date(startDate);
                 var time1 = startTime.getTime();
@@ -657,10 +657,10 @@
     renderASTable = function () {
         $("#as-container").html("");
         if (activity_seats.length > 0) {
-            var tab = $('<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead> <tr> <th>序号</th> <th>广告位</th> <th>媒体</th> <th>投放品牌</th> <th>监测时间段</th> <th>监测时间</th><#--  <th>样例</th>  --><th>操作</th> </tr> </thead> <tbody></tbody></table>');
+            var tab = $('<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead> <tr> <th>序号</th> <th>广告位</th> <th>媒体</th> <th>投放品牌</th> <th>监测时间段</th> <th>监测时间</th><#--  <th>广告投放画面</th>  --><th>操作</th> </tr> </thead> <tbody></tbody></table>');
             $.each(activity_seats, function (i, as) {
                 tab.find("tbody").append("<tr> <td width='30'>" + (i + 1) + "</td> <td>" + as.seatName + "</td> <td>" + as.mediaName + "</td> <td>" + as.brand + "</td> <td>" + as.startDate + "至" + as.endDate + "</td><td>" + (as.upMonitor == 1 ? "上刊" : "") + "&nbsp;" + (as.durationMonitor == 1 ? "投放期间" : "") + "&nbsp;" + (as.downMonitor == 1 ? "下刊" : "") + "&nbsp;" + "</td> <#-- <td><img src='" + as.samplePicUrl + "' class='demo'/></td> --> <td> <a href='javascript:modAS(" + i + ");'>详情</a> "+(editMode?"<a href='javascript:dealAS(" + i + ");'>删除</a>":"")+" </td> </tr>");
-                $("#img-demo-img").attr("src",as.samplePicUrl);//样例图片地址
+                $("#img-demo-img").attr("src",as.samplePicUrl);//广告投放画面图片地址
             });
             
             $("#as-container").append(tab);

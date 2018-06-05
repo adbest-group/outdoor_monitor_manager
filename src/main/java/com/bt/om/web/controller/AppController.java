@@ -107,6 +107,13 @@ public class AppController {
         model = new ExtendedModelMap();
         Date now = new Date();
         
+        if(StringUtil.isBlank(adapp.getAppPictureUrl())) {	
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("App logo不能为空！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        
         try {
             if (adapp.getId() != null) {
             	adapp.setUpdateTime(now);
@@ -117,7 +124,7 @@ public class AppController {
             	adapp.setCreateTime(now);
             	adapp.setUpdateTime(now);
             	adapp.setStatus(1);
-            	appService.save(adapp);
+        		appService.save(adapp);
             }
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());

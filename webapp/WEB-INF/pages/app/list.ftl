@@ -27,7 +27,7 @@
 							<th width="30">序号</th>
 							<th>App名称</th>
 							<th>App序列号</th>
-							<th>App图片</th>
+							<th>App logo</th>
 							<th>App标题</th>
 							<th>创建时间</th>
 							<th>更新时间</th>

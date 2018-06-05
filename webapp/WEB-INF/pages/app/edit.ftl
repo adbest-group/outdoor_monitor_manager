@@ -38,11 +38,11 @@
                                 <input type="text" <#-- disabled --> value="<#if (adapp?exists)>${adapp.appName!""}</#if>"
                                        style="width: 130px;" id="appName" name="appName" autocomplete="off"
                                        class="form-control">
-                                <span id="nameTip"></span>
+                                <span id="appNameTip"></span>
                             </td>
                         </tr>
                         <tr>
-                            <td class="a-title"><font class="s-red">*</font>App图片：</td>
+                            <td class="a-title"><font class="s-red">*</font>App logo：</td>
                     		<td>
 									<input type="hidden" id="img-demo-bak"/>
                        					<div class="btn-file" style="width:74px;height:28px;top:0px;">
@@ -54,7 +54,7 @@
                         <tr>
                     		<td class="a-title">&nbsp;</td>
                     		<td>
-                    			<img src="" id="img-demo-img" width="280" alt="请上传App图片"/>
+                    			<img src="" id="img-demo-img" width="280" alt="请上传App logo"/>
                     		</td>
                 		</tr>
                         <tr>
@@ -63,7 +63,7 @@
                                 <input type="text" <#-- disabled --> value="<#if (adapp?exists)>${adapp.appTitle!""}</#if>"
                                        style="width: 130px;" id="appTitle" name="appTitle" autocomplete="off"
                                        class="form-control">
-                                <span id="titleTip"></span>
+                                <span id="appTitleTip"></span>
                             </td>
                         </tr>
                         <#-- <tr>
@@ -198,35 +198,28 @@
             },
             submitAfterAjaxPrompt: '有数据正在异步验证，请稍等...'
         });
-		$("#appName").formValidator({
-				validatorGroup:"2",
-				onShow:"　",
-				onFocus:"请输入app名称",
-				onCorrect:"　"
-			}).regexValidator({
-				regExp:"^\\S+$",
-				onError:"app名称不能为空，请输入"
-			});
-			$("#appTitle").formValidator({
-				validatorGroup:"2",
-				onShow:"　",
-				onFocus:"请输入app标题",
-				onCorrect:"　"
-			}).regexValidator({
-				regExp:"^\\S+$",
-				onError:"app标题不能为空，请输入"
-			});
-			$("#appPictureUrl").formValidator({
-				validatorGroup:"2",
-				onShow:"　",
-				onFocus:"请上传app图片",
-				onCorrect:"　"
-			}).regexValidator({
-				regExp:"^\\S+$",
-				onError:"app图片不能为空，请输入"
-			});
+        
+        $("#appName").formValidator({
+			validatorGroup:"2",
+			onShow:"　",
+			onFocus:"请输入app名称",
+			onCorrect:"　"
+		}).regexValidator({
+			regExp:"^\\S+$",
+			onError:"app名称不能为空，请输入"
+		});
+		$("#appTitle").formValidator({
+			validatorGroup:"2",
+			onShow:"　",
+			onFocus:"请输入app标题",
+			onCorrect:"　"
+		}).regexValidator({
+			regExp:"^\\S+$",
+			onError:"app标题不能为空，请输入"
+		});
+        
     });
-
+    
     	function uploadPic(id){
 		var appName = $("#"+id).val();
 	

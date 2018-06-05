@@ -9,6 +9,7 @@
 <div class="main-container" style="height: auto;">
     <div class="main-box">
         <div class="title clearfix">
+        	<a href="/customer/activity/edit" class="btn btn-red mr-10 ll">创建活动</a>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <form id="form" method="get" action="/activity/list">
                     <!--活动下拉框-->

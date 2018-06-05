@@ -69,9 +69,12 @@ public interface SysUserMapper {
     List<SysUserVo> isExistsName(@Param("username") String username);
     
     List<SysUserVo> getAllByUserType(@Param("usertype") Integer usertype);
-/*
- * 部门领导
-*/   
+    
+    List<SysUser> getAvailableByUserType(@Param("usertype") Integer usertype);
+    
+	/*
+	 * 部门领导
+	*/   
     int createDepartmentLeader(SysUser record);
 	List<SysUser>findLeaderList();
 	int updatePasswordAndName(SysUser record);

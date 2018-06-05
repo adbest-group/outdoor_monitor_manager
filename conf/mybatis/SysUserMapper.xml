@@ -413,6 +413,7 @@
     from sys_user
   </select>
   
+  <!-- 通过组id查询所有与该组关联的员工信息 -->
   <select id="findUserName" resultMap="BaseResultMap">
     select
     	a.id id,

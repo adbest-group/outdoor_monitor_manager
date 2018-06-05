@@ -1,6 +1,7 @@
 package com.bt.om.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bt.om.entity.SysResources;
 import com.bt.om.entity.SysUser;
+import com.bt.om.entity.vo.UserRoleVo;
 import com.bt.om.mapper.SysResourcesMapper;
 import com.bt.om.mapper.SysUserMapper;
 import com.bt.om.mapper.SysUserResMapper;
@@ -105,10 +107,15 @@ public class SysGroupService implements ISysGroupService{
 		 List<Integer> userIds = new ArrayList<>(); //存所有与该组有关系的员工的id集合
          for (SysUser sysUser : sysUsers) {
          	userIds.add(sysUser.getId());
-			}
-             sysUserRoleMapper.updateUserRoleIsAdmin(id);
-			sysResourcesMapper.deleteGroup(id);
-			sysUserResMapper.deleteByResId(id);
+         }
+         UserRoleVo userRoleVo = new UserRoleVo();
+         userRoleVo.setRoleId(100);
+         userRoleVo.setUserIds(userIds);
+         Date now = new Date();
+         userRoleVo.setUpdateTime(now);
+         sysUserRoleMapper.updateUserRole(userRoleVo);
+         sysResourcesMapper.deleteGroup(id);
+         sysUserResMapper.deleteByResId(id);
   }
 
 	@Override

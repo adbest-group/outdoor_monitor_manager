@@ -596,7 +596,6 @@ public class SysGroupController extends BasicController{
          result.setCode(ResultCode.RESULT_SUCCESS.getCode());
          result.setResultDes("删除成功");
          model = new ExtendedModelMap();
-         Date now = new Date();
     	 try {
 	         sysGroupService.deleteGroup(id);
     	}catch (Exception e) {

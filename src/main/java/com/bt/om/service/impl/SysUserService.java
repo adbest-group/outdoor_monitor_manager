@@ -102,6 +102,11 @@ public class SysUserService implements ISysUserService {
 	}
 	
 	@Override
+	public List<SysUser> getAvailableByUserType(Integer userType) {
+		return sysUserMapper.getAvailableByUserType(userType);
+	}
+	
+	@Override
 	public List<SysUser> getIdNameByUserType(Integer userType) {
 		return sysUserMapper.getIdNameByUserType(userType);
 	}

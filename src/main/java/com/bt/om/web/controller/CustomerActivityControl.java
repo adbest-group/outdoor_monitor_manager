@@ -106,7 +106,7 @@ public class CustomerActivityControl extends BasicController {
 	/**
      * 编辑活动页面跳转
      */
-    @RequiresRoles("customer")
+    @RequiresRoles(value = {"activityadmin", "depactivityadmin", "superadmin", "customer"}, logical = Logical.OR)
     @RequestMapping(value = "/activity/edit")
     public String customerEdit(Model model, HttpServletRequest request,
                                @RequestParam(value = "id", required = false) Integer id) {
@@ -114,6 +114,13 @@ public class CustomerActivityControl extends BasicController {
 
         if (activity != null) {
             model.addAttribute("activity", activity);
+        }
+        
+        //获取登录用户信息
+        SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        
+        if(user != null) {
+        	model.addAttribute("usertype", user.getUsertype());
         }
 
         return PageConst.CUSTOMER_ACTIVITY_EDIT;
@@ -131,7 +138,7 @@ public class CustomerActivityControl extends BasicController {
     /**
      * 新增/编辑活动
      */
-    @RequiresRoles(value = {"superadmin", "customer"}, logical = Logical.OR)
+    @RequiresRoles(value = {"activityadmin", "depactivityadmin", "superadmin", "customer"}, logical = Logical.OR)
     @ResponseBody
     @RequestMapping("/activity/save")
     public Model save(Model model, HttpServletRequest request, HttpServletResponse response,
@@ -143,6 +150,7 @@ public class CustomerActivityControl extends BasicController {
                       @RequestParam(value = "media", required = false) String media,
                       @RequestParam(value = "dels", required = false) String dels,
                       @RequestParam(value = "samplePicUrl", required = false) String samplePicUrl,
+                      @RequestParam(value = "customerId", required = false) Integer customerId,
                       @RequestParam(value = "activeSeat", required = false) String activeSeat) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date now = new Date();
@@ -263,10 +271,16 @@ public class CustomerActivityControl extends BasicController {
         //新增
         if (StringUtil.isEmpty(id)) {
             adActivityVo.setStatus(ActivityStatus.UNCONFIRM.getId());
-            adActivityVo.setUserId(user.getId());
+            if(customerId != null) {
+            	//超级管理员/部门领导/活动审核部员工 帮助广告商创建的活动
+            	adActivityVo.setUserId(customerId);
+            } else {
+            	//广告商自行创建的活动
+            	adActivityVo.setUserId(user.getId());
+            }
             adActivityVo.setCreateTime(now);
             adActivityVo.setUpdateTime(now);
-            System.out.println(adActivityVo.getActivitySeats());
+            //System.out.println(adActivityVo.getActivitySeats());
             adActivityService.add(adActivityVo);
         } else {//更新
             adActivityVo.setId(new Integer(id));

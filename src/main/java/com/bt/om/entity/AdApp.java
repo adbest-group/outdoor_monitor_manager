@@ -142,4 +142,24 @@ public class AdApp {
 	public void setUpdateTime(Date updateTime) {
 		this.updateTime = updateTime;
 	}
+	//添加APP图片和标题
+	private String appPictureUrl;
+	private String appTitle;
+
+	public String getAppPictureUrl() {
+		return appPictureUrl;
+	}
+
+	public void setAppPictureUrl(String appPictureUrl) {
+		this.appPictureUrl = appPictureUrl;
+	}
+
+	public String getAppTitle() {
+		return appTitle;
+	}
+
+	public void setAppTitle(String appTitle) {
+		this.appTitle = appTitle;
+	}
+	
 }

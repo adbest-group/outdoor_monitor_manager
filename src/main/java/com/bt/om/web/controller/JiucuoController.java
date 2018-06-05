@@ -106,11 +106,11 @@ public class JiucuoController extends BasicController {
         if (activityId != null) {
             vo.putSearchParam("activityId", activityId.toString(), activityId);
         }
-        if (status == null) {
-        	status = 1; //如果没有传参status, 默认取1：待审核
+        if (status != null) {
+//        	status = 1; //如果没有传参status, 默认取1：待审核
+        	vo.putSearchParam("status", status.toString(), status);
+            model.addAttribute("status", status);
         }
-        vo.putSearchParam("status", status.toString(), status);
-        model.addAttribute("status", status);
         
         if (problemStatus != null) {
             vo.putSearchParam("problemStatus", problemStatus.toString(), problemStatus);

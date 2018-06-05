@@ -29,6 +29,21 @@ img.demo {
 					<input type="hidden" id="id" name="id" value="<#if (adSeatInfo?exists)&&(adSeatInfo.id?exists)>${adSeatInfo.id}</#if>" />
 					<table width="100%" cellpadding="0" cellspacing="0" border="0">
 						<tbody>
+						
+							<#if usertype?exists && usertype != 3 && !adSeatInfo?exists>
+								<tr>
+									<td class="a-title"><font class="s-red">*</font>媒体主：</td>
+									<td>
+										<select style="width: 156px;" name="mediaId" id="mediaId" class="form-control">
+											<option value="">请选择媒体主</option>
+											<@model.showAllAvailableMediaOps value="<#if (adSeatInfo?exists&&adSeatInfo.mediaId?exists)>adSeatInfo.mediaId</#if>"/>
+					                    </select>
+										
+	                                    <span id="mediaIdTip"></span>
+									</td>
+								</tr>
+							</#if>
+						
 							<tr>
 								<td class="a-title"><font class="s-red">*</font>广告位名称：</td>
 								<td>
@@ -366,7 +381,15 @@ img.demo {
                                 icon: 1,
                                 btn: ['确定'] //按钮
                             }, function () {
-                                window.location = "/platmedia/adseat/list";
+                            	<#-- 4：超级管理员 -->
+                            	<#if usertype?exists && usertype == 4>
+                            		window.location = "/adseat/list";
+                            	</#if>
+                            	
+                                <#-- 3：媒体账户 -->
+                                <#if usertype?exists && usertype == 3>
+	                                window.location = "/platmedia/adseat/list";
+                                </#if>
                             });
                         }
                     },
@@ -544,6 +567,23 @@ img.demo {
             max:90,
             onError:"纬度支持 -90 ~ 90"
         });
+        
+        <#if usertype?exists && usertype != 3>
+			// 媒体主
+	        $("#mediaId").formValidator({
+	            validatorGroup:"2",
+	            onShow:"",
+	            onFocus:"请选择媒体主",
+	            onCorrect:""
+	        }).regexValidator({
+	            regExp:"^\\S+$",
+	            onError:"媒体主不能为空，请选择"
+	        }).inputValidator({
+	            min: 1,
+	            max: 60,
+	            onError: "媒体主不能为空，请选择"
+	        });
+        </#if>
 	});
 
 //	$('#submit').click(function() {

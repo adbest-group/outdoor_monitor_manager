@@ -78,4 +78,6 @@ public interface AdSeatInfoMapper {
     List<AdSeatInfo> getAllLonLat(HeatMapVo heatMapVo);
 
 	int updateFlag(@Param("codeFlag")Integer codeFlag,@Param("id") Integer id);
+	
+	int selectByLocation(Map<String, Object> searchMap);
 }

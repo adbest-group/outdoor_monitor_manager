@@ -351,10 +351,19 @@ public class VMComponent {
      * 获取全部App类型
      * */
     public List<AdApp> getAllAppType() {
-    	System.out.println(adAppService.getAllAppType());
+//    	System.out.println(adAppService.getAllAppType());
     	return adAppService.getAllAppType();
     }
+    
+    /**
+     * 获取全部可用的客户
+     */
+    public List<SysUser> getAllCustomerAvailable() {
+    	return sysUserService.getAvailableByUserType(2); //2：客户账户
+    }
+    
     /***************************** 下面是工具类 ****************************************/
+    
     private HashMap<String, String> getParams(String qs) {
         HashMap<String, String> params = new HashMap<String, String>();
         if (qs != null) {

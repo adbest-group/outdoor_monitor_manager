@@ -358,11 +358,21 @@
     username = #{username}
   </select>
   
+  <!-- 通过usertype查询该类型的后台用户 -->
   <select id="getAllByUserType" resultMap="BaseResultMap" parameterType="java.lang.Integer">
   	select
   	<include refid="Base_Column_List" />
     from sys_user
     where usertype = #{usertype,jdbcType=INTEGER}
+  </select>
+  
+  <!-- 通过usertype查询该类型的可用的后台用户 -->
+  <select id="getAvailableByUserType" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+  	select
+  	<include refid="Base_Column_List" />
+    from sys_user
+    where usertype = #{usertype,jdbcType=INTEGER}
+    and status = 1
   </select>
   
   <!-- 添加管理领导账号 -->

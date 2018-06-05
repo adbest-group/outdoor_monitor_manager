@@ -366,6 +366,16 @@
 	</#if>
 </#macro>
 
+<#-- 所有可用客户下拉选项  -->
+<#macro showAllCustomerAvailableOps value="-1">
+	<#local list = vm.getAllCustomerAvailable() />
+	<#if (list?exists && list?size > 0)>
+		<#list list as type>
+			<@showOption value="${type.id?if_exists}" title="${type.realname?if_exists}" select="${value?if_exists}" />
+		</#list>
+	</#if>
+</#macro>
+
 <#-- 所有客户类型下拉选项  -->
 <#macro showAllCustomerTypeOps value="-1">
 	<#local list = vm.getAllCustomerType() />

@@ -20,5 +20,7 @@ public interface IAppService {
 	int deleteAppById(Integer id);
 
 	AdApp selectById(Integer id);
+	
+	AdApp selectAppPicUrlAndTitleBySid(String sid);
 
 }

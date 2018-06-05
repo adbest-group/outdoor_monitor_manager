@@ -64,4 +64,9 @@ public class AdAppService implements IAppService {
 		return adAppMapper.selectByPrimaryKey(id);
 	}
 
+	@Override
+	public AdApp selectAppPicUrlAndTitleBySid(String sid) {
+		return adAppMapper.getAppPicUrlAndTitleBySid(sid);
+	}
+
 }

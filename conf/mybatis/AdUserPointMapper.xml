@@ -136,7 +136,7 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
   
-  <select id="getPageCount" parameterType="map" resultType="int">
+  <select id="getPageCount" parameterType="map" resultType="java.lang.Integer">
     select
     count(a.id)
     from
@@ -144,22 +144,22 @@
     left join sys_user_execute b on a.user_id=b.id
     where 1=1
     <if test="username != null" >
-      and username like #{username,jdbcType=VARCHAR}
+      and b.username like #{username,jdbcType=VARCHAR}
     </if>
     <if test="userId != null">
-      and user_id = #{userId,jdbcType=INTEGER}
+      and a.user_id = #{userId,jdbcType=INTEGER}
     </if>
     <if test="point != null">
-      and point = #{point,jdbcType=INTEGER}
+      and a.point = #{point,jdbcType=INTEGER}
       </if>
     <if test="result != null">
-      and result = #{result,jdbcType=VARCHAR}
+      and a.result = #{result,jdbcType=VARCHAR}
     </if>
     <if test="createTime != null">
-       and create_time = #{createTime,jdbcType=TIMESTAMP}
+       and a.create_time = #{createTime,jdbcType=TIMESTAMP}
     </if>
     <if test="updateTime != null">
-       and update_time = #{updateTime,jdbcType=TIMESTAMP}
+       and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i')
     </if>
   </select>
 
@@ -176,22 +176,22 @@
     left join sys_user_execute b on a.user_id=b.id
     where 1=1
     <if test="username != null" >
-      and username like #{username,jdbcType=VARCHAR}
+      and b.username like #{username,jdbcType=VARCHAR}
     </if>
     <if test="userId != null">
-      and user_id = #{userId,jdbcType=INTEGER}
+      and a.user_id = #{userId,jdbcType=INTEGER}
     </if>
     <if test="point != null">
-      and point = #{point,jdbcType=INTEGER}
+      and a.point = #{point,jdbcType=INTEGER}
     </if>
     <if test="result != null">
-      and result = #{result,jdbcType=VARCHAR}
+      and a.result = #{result,jdbcType=VARCHAR}
     </if>
     <if test="createTime != null">
-      and create_time = #{createTime,jdbcType=TIMESTAMP}
+      and a.create_time = #{createTime,jdbcType=TIMESTAMP}
     </if>
     <if test="updateTime != null">
-      and update_time = #{updateTime,jdbcType=TIMESTAMP}
+      and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i')
     </if>
     order by a.id desc
   </select>
@@ -201,5 +201,11 @@
   	<include refid="Base_Column_List" />
   	from ad_user_point
   	 where user_id = #{userId,jdbcType=INTEGER}
+  </select>
+  
+  <select id="getPointCountById" parameterType="int" resultType="java.lang.Integer">
+  	select sum(point) 
+  	FROM ad_user_point 
+  	where user_id=#{userId,jdbcType=INTEGER}
   </select>
 </mapper>

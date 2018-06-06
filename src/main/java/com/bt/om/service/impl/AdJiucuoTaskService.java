@@ -222,4 +222,18 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
 	public List<AdJiucuoTask> selectInfoByMemo(Map<String, Object> searchMap) {
 		return adJiucuoTaskMapper.selectInfoByMemo(searchMap);
 	}
+
+	@Override
+	public void getJiucuoPageData(SearchDataVo datavo) {
+		int count = adJiucuoTaskMapper.getJiucuoPageCount(datavo.getSearchMap());
+        datavo.setCount(count);
+        if(count>0){
+            datavo.setList(adJiucuoTaskMapper.getJiucuoPageData(datavo.getSearchMap(), new RowBounds(datavo.getStart(), datavo.getSize())));
+        }else{
+        	datavo.setList(new ArrayList<AdJiucuoTask>());
+        }
+		
+	}
+
+	
 }

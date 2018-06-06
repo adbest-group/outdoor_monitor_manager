@@ -81,9 +81,27 @@ public class AdActivity extends ID{
     
     private String samplePicUrl;
     
+    private String createTimeStr;
     
+    private String updateTimeStr;
     
-    public String getSamplePicUrl() {
+    public String getCreateTimeStr() {
+		return createTimeStr;
+	}
+
+	public void setCreateTimeStr(String createTimeStr) {
+		this.createTimeStr = createTimeStr;
+	}
+
+	public String getUpdateTimeStr() {
+		return updateTimeStr;
+	}
+
+	public void setUpdateTimeStr(String updateTimeStr) {
+		this.updateTimeStr = updateTimeStr;
+	}
+
+	public String getSamplePicUrl() {
 		return samplePicUrl;
 	}
 

@@ -369,8 +369,8 @@
 		where activity_id = #{activityId,jdbcType=INTEGER}
 	</delete>
 
-    <select id="getPageCount" parameterType="map" resultType="int">
-        select count(a.id)
+    <select id="getPageCount" parameterType="map" resultType="java.lang.Integer">
+         select count(a.id)
         from ad_monitor_task a
         left join ad_activity b on
         a.activity_id = b.id
@@ -437,11 +437,11 @@
 	    </if>
 	    <if test="assignorId != null" >
 	      	and a.assignor_id = #{assignorId,jdbcType=INTEGER}
-	    </if>
+		</if>
     </select>
 
     <select id="getPageData" parameterType="map" resultMap="ExtResultMap">
-        select 
+          select 
         	a.id, a.activity_id, a.activity_adseat_id, a.task_type, a.monitor_date,a.monitor_last_days,a.user_id,
         	a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time, a.assessor_id,a.assignor_id,
         	b.activity_name,c.sample_pic_url,b.start_time,b.end_time,d.province,d.city,d.region,d.street,c.media_id,e.media_name,d.`name`
@@ -516,7 +516,7 @@
 	    <if test="assignorId != null" >
 	      	and a.assignor_id = #{assignorId,jdbcType=INTEGER}
 	    </if>
-        order by a.update_time desc,a.id desc
+		order by a.update_time desc,a.id desc
     </select>
 
     <select id="selectByUserId" resultMap="MobileResultMap">
@@ -540,6 +540,161 @@
     order by a.update_time desc,a.id desc
   </select>
 
+	<select id="getTaskPageCount" parameterType="map" resultType="java.lang.Integer">
+		select 
+        	count(a.id)
+        from ad_monitor_task a
+	        left join ad_activity b on a.activity_id = b.id
+    		left join ad_activity_adseat c on a.activity_adseat_id = c.id
+    		left join ad_seat_info d on c.ad_seat_id = d.id
+   			left join ad_monitor_task_feedback e on e.monitor_task_id = a.id and e.`status` = 1
+    		left join ad_monitor_user_task f on f.monitor_task_id = a.id
+        where 1=1
+        <if test="userId != null">
+            and a.user_id = #{userId,jdbcType=INTEGER}
+        </if>
+        <if test="activityId != null">
+            and a.activity_id = #{activityId,jdbcType=INTEGER}
+        </if>
+        <if test="customerIds != null">
+	      	and b.user_id in
+	        <foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+	    </if>
+        <if test="status != null">
+            and a.status = #{status,jdbcType=INTEGER}
+        </if>
+        <if test="statuses != null">
+            and a.status in
+            <foreach collection="statuses" separator="," open="(" close=")" item="s">#{s,jdbcType=INTEGER}
+            </foreach>
+        </if>
+        <if test="problemStatus != null">
+            and a.problem_status = #{problemStatus,jdbcType=INTEGER}
+        </if>
+        <if test="problemStatuses != null">
+            and a.problem_status in
+            <foreach collection="problemStatuses" separator="," open="(" close=")" item="ps">#{ps,jdbcType=INTEGER}
+            </foreach>
+        </if>
+        <if test="taskType != null">
+            and a.task_type = #{taskType,jdbcType=INTEGER}
+        </if>
+        <if test="mediaUserId != null">
+            and e.user_id = #{mediaUserId,jdbcType=INTEGER} and a.parent_id is null
+        </if>
+        <if test="taskTypes != null">
+            and a.task_type in
+            <foreach collection="taskTypes" separator="," open="(" close=")" item="task">#{task,jdbcType=INTEGER}
+            </foreach>
+        </if>
+        <if test="parentId != null">
+            and a.parent_id = #{parentId,jdbcType=INTEGER}
+        </if>
+        <if test="parentType != null">
+            and a.parent_type = #{parentType,jdbcType=INTEGER}
+        </if>
+        <if test="idpid != null">
+            and (a.id = #{idpid,jdbcType=INTEGER} or a.parent_id = #{idpid,jdbcType=INTEGER} and a.parent_type=1)
+        </if>
+        <if test="startDate != null">
+            and b.start_time >= DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+        </if>
+        <if test="endDate != null">
+            and b.end_time &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+        </if>
+        <if test="assessorId != null" >
+	      	and a.assessor_id = #{assessorId,jdbcType=INTEGER}
+	    </if>
+	    <if test="assignorId != null" >
+	      	and a.assignor_id = #{assignorId,jdbcType=INTEGER}
+	    </if>
+        <if test="updateTime != null">
+            and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i')
+        </if>
+        order by a.update_time desc,a.id desc
+	</select>
+	<select id="getTaskPageData" parameterType="map" resultMap="MobileResultMap">
+        select 
+        	a.id, a.activity_id, a.activity_adseat_id, a.task_type, a.monitor_date,a.monitor_last_days,a.user_id, a.status,a.problem_status,a.sub_created,
+    		a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time,
+    		b.activity_name,
+    		c.sample_pic_url,c.monitor_start,c.monitor_end,c.ad_seat_id,
+    		d.`name` as ad_seat_name, d.location as ad_seat_location, d.ad_code as ad_seat_code, d.lon, d.lat, d.region, d.street, d.province, d.city, 
+    		d.ad_code_flag, d.memo,
+    		e.reason,e.pic_url1,e.pic_url2,e.pic_url3,e.pic_url4,e.create_time as feedback_time,
+    		e.problem,e.problem_other,e.lon as feedback_lon,e.lat as feedback_lat,
+    		f.start_time, f.end_time, f.assign_type
+        from ad_monitor_task a
+	        left join ad_activity b on a.activity_id = b.id
+    		left join ad_activity_adseat c on a.activity_adseat_id = c.id
+    		left join ad_seat_info d on c.ad_seat_id = d.id
+   			left join ad_monitor_task_feedback e on e.monitor_task_id = a.id and e.`status` = 1
+    		left join ad_monitor_user_task f on f.monitor_task_id = a.id
+        where 1=1
+        <if test="userId != null">
+            and a.user_id = #{userId,jdbcType=INTEGER}
+        </if>
+        <if test="activityId != null">
+            and a.activity_id = #{activityId,jdbcType=INTEGER}
+        </if>
+        <if test="customerIds != null">
+	      	and b.user_id in
+	        <foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+	    </if>
+        <if test="status != null">
+            and a.status = #{status,jdbcType=INTEGER}
+        </if>
+        <if test="statuses != null">
+            and a.status in
+            <foreach collection="statuses" separator="," open="(" close=")" item="s">#{s,jdbcType=INTEGER}
+            </foreach>
+        </if>
+        <if test="problemStatus != null">
+            and a.problem_status = #{problemStatus,jdbcType=INTEGER}
+        </if>
+        <if test="problemStatuses != null">
+            and a.problem_status in
+            <foreach collection="problemStatuses" separator="," open="(" close=")" item="ps">#{ps,jdbcType=INTEGER}
+            </foreach>
+        </if>
+        <if test="taskType != null">
+            and a.task_type = #{taskType,jdbcType=INTEGER}
+        </if>
+        <if test="mediaUserId != null">
+            and e.user_id = #{mediaUserId,jdbcType=INTEGER} and a.parent_id is null
+        </if>
+        <if test="taskTypes != null">
+            and a.task_type in
+            <foreach collection="taskTypes" separator="," open="(" close=")" item="task">#{task,jdbcType=INTEGER}
+            </foreach>
+        </if>
+        <if test="parentId != null">
+            and a.parent_id = #{parentId,jdbcType=INTEGER}
+        </if>
+        <if test="parentType != null">
+            and a.parent_type = #{parentType,jdbcType=INTEGER}
+        </if>
+        <if test="idpid != null">
+            and (a.id = #{idpid,jdbcType=INTEGER} or a.parent_id = #{idpid,jdbcType=INTEGER} and a.parent_type=1)
+        </if>
+        <if test="startDate != null">
+            and b.start_time >= DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+        </if>
+        <if test="endDate != null">
+            and b.end_time &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+        </if>
+        <if test="assessorId != null" >
+	      	and a.assessor_id = #{assessorId,jdbcType=INTEGER}
+	    </if>
+	    <if test="assignorId != null" >
+	      	and a.assignor_id = #{assignorId,jdbcType=INTEGER}
+	    </if>
+        <if test="updateTime != null">
+            and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i')
+        </if>
+        order by a.update_time desc,a.id desc
+    </select>
+    
     <select id="getTaskDetails" resultMap="ExtResultMap">
 		select
 			task.id,task.parent_id,task.parent_type,task.task_type,task.monitor_date,task.monitor_last_days,
@@ -717,6 +872,9 @@
         <if test="city!=null">
           and d.city = #{city,jdbcType=BIGINT}
         </if>
+        <if test="updateTime != null">
+      	  and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i')
+    	</if>
         ) t
 
         order by

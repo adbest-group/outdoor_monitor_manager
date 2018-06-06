@@ -14,5 +14,9 @@ public interface IUserPointService {
 	//通过用户id查找该用户的所有积分数据
 	List<AdUserPoint> getListById(Integer userId);
 
+	int getPageCount(SearchDataVo vo);
+
+	Integer getPointCountById(Integer userId);
+
 
 }

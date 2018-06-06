@@ -482,7 +482,7 @@
                         "street": street,
                         <#-- "customerTypeId": customerTypeId, -->
                         "media": media.join(","),
-//                        "dels" : dels.join(","),
+//                      "dels" : dels.join(","),
 						"samplePicUrl" : samplePicUrl,
 						"customerId" : customerId,
                         "activeSeat": JSON.stringify(activity_seats)

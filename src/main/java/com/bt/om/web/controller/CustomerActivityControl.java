@@ -164,6 +164,7 @@ public class CustomerActivityControl extends BasicController {
         AdActivityVo adActivityVo = new AdActivityVo();
         adActivityVo.setActivityName(activityName);
         adActivityVo.setSamplePicUrl(samplePicUrl);
+        
 //		adActivityVo.setCustomerTypeId(customerTypeId); //客户类型
         try {
             adActivityVo.setStartTime(sdf.parse(startDate));
@@ -236,9 +237,11 @@ public class CustomerActivityControl extends BasicController {
                 if(as.getDownMonitor()==1){
                     as.setDownMonitorLastDays(obj.get("downMonitorLastDays").getAsInt());
                 }
-                as.setMediaId(obj.get("mediaId").getAsInt());
-                mediaSet.add(obj.get("mediaId").getAsInt());
+                as.setMediaId(obj.get("media").getAsInt());
+                mediaSet.add(obj.get("media").getAsInt());
                 
+//                as.setMediaId(obj.get("media").getAsInt());
+//                mediaSet.add(obj.get("media").getAsInt());
                 as.setMonitorCount(obj.get("monitorCount").getAsInt());
                 try {
                     as.setMonitorStart(sdf.parse(obj.get("startDate").getAsString()));
@@ -253,7 +256,6 @@ public class CustomerActivityControl extends BasicController {
 //                as.setSamplePicUrl(obj.get("samplePicUrl").getAsString());
                 as.setCreateTime(now);
                 as.setUpdateTime(now);
-                System.out.println("---as----"+as);
                 adActivityVo.getActivitySeats().add(as);
       
             }

@@ -389,6 +389,110 @@
     order by a.id desc
   </select>
 
+  <select id="getJiucuoPageCount" parameterType="map" resultType="int">
+        select count(a.id)
+        from ad_jiucuo_task a
+        left join ad_jiucuo_task_feedback b on a.id = b.jiucuo_task_id
+        left join ad_activity c on a.activity_id = c.id
+        left join ad_activity_adseat d on a.activity_id = d.activity_id and a.ad_seat_id = d.ad_seat_id
+        left join ad_seat_info e on d.ad_seat_id = e.id
+        left join ad_media f on d.media_id = f.id
+        where 1=1
+        <if test="activityId != null">
+            and a.activity_id = #{activityId,jdbcType=INTEGER}
+        </if>
+        <if test="customerIds != null">
+	      	and c.user_id in
+	        <foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+	    </if>
+        <if test="userId != null">
+            and a.userId = #{userId,jdbcType=INTEGER}
+        </if>
+        <if test="status != null">
+            and a.status = #{status,jdbcType=INTEGER}
+        </if>
+        <if test="problemStatus != null">
+            and a.problem_status = #{problemStatus,jdbcType=INTEGER}
+        </if>
+        <if test="problemStatuses != null">
+            and a.problem_status in
+            <foreach collection="problemStatuses" separator="," open="(" close=")" item="s">#{s,jdbcType=INTEGER}
+            </foreach>
+        </if>
+        <if test="mediaUserId != null">
+            and f.user_id = #{mediaUserId,jdbcType=INTEGER}
+        </if>
+        <if test="customerUserId != null">
+            and c.user_id = #{customerUserId,jdbcType=INTEGER}
+        </if>
+        <if test="startDate != null">
+            and c.start_time >= DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+        </if>
+        <if test="endDate != null">
+            and c.end_time &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+        </if>
+        <if test="assessorId != null" >
+	      	and a.assessor_id = #{assessorId,jdbcType=INTEGER}
+	    </if>
+	    <if test="updateTime != null">
+      		and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i')
+    	</if>
+    </select>
+
+    <select id="getJiucuoPageData" parameterType="map" resultMap="ExtResultMap">
+        select 
+	        a.id, a.activity_id, a.ad_seat_id, a.submit_time, a.user_id, a.status,a.reason,a.problem_status,a.sub_created,a.verify_time,a.create_time, a.update_time, a.assessor_id,
+    		b.pic_url1,b.pic_url2,b.pic_url3,b.pic_url4,b.create_time as feedback_time,
+    		c.activity_name,e.`name` as ad_seat_name,
+    		b.problem,b.problem_other
+    	from ad_jiucuo_task a
+    		left join ad_jiucuo_task_feedback b on a.id = b.jiucuo_task_id
+    		left join ad_activity c on a.activity_id = c.id
+    		left join ad_activity_adseat d on a.activity_id = d.activity_id and a.ad_seat_id = d.ad_seat_id
+   		 	left join ad_seat_info e on d.ad_seat_id = e.id
+        where 1=1
+        <if test="activityId != null">
+            and a.activity_id = #{activityId,jdbcType=INTEGER}
+        </if>
+        <if test="customerIds != null">
+	      	and c.user_id in
+	        <foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+	    </if>
+        <if test="userId != null">
+            and a.userId = #{userId,jdbcType=INTEGER}
+        </if>
+        <if test="status != null">
+            and a.status = #{status,jdbcType=INTEGER}
+        </if>
+        <if test="problemStatus != null">
+            and a.problem_status = #{problemStatus,jdbcType=INTEGER}
+        </if>
+        <if test="problemStatuses != null">
+            and a.problem_status in
+            <foreach collection="problemStatuses" separator="," open="(" close=")" item="s">#{s,jdbcType=INTEGER}
+            </foreach>
+        </if>
+        <if test="mediaUserId != null">
+            and f.user_id = #{mediaUserId,jdbcType=INTEGER}
+        </if>
+        <if test="customerUserId != null">
+            and c.user_id = #{customerUserId,jdbcType=INTEGER}
+        </if>
+        <if test="startDate != null">
+            and c.start_time >= DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+        </if>
+        <if test="endDate != null">
+            and c.end_time &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+        </if>
+        <if test="assessorId != null" >
+	      	and a.assessor_id = #{assessorId,jdbcType=INTEGER}
+	    </if>
+	    <if test="updateTime != null">
+      		and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i')
+    	</if>
+        order by a.id desc
+    </select>
+  
   <!-- 获取当前登录员工admin获取自己曾经捞取过的纠错任务 -->
   <select id="selectAllByAssessorId" parameterType="map" resultMap="ExtResultMap">
   	select 

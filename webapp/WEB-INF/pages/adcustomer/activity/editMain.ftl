@@ -467,7 +467,7 @@
                         "street": street,
                         <#-- "customerTypeId": customerTypeId, -->
                         "media": media.join(","),
-//                        "dels" : dels.join(","),
+//                      "dels" : dels.join(","),
 						"samplePicUrl" : samplePicUrl,
                         "activeSeat": JSON.stringify(activity_seats)
                     },

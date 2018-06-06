@@ -44,7 +44,9 @@ public class MonitorTaskExecutingVo extends BasicVo {
         this.task_type_text = MonitorTaskType.getText(task.getTaskType());
         this.ad_activity_name = task.getActivityName();
         this.ad_name = task.getAdSeatName();
-        this.monitor_time = sdf.format(task.getFeedbackTime());
+        if(task.getFeedbackTime() != null) {
+        	this.monitor_time = sdf.format(task.getFeedbackTime());
+        }
         this.ad_seat_id = task.getAdSeatId();
         this.ad_location = task.getAdSeatLocation();
         this.ad_status = task.getStatus();
@@ -59,8 +61,12 @@ public class MonitorTaskExecutingVo extends BasicVo {
         this.lat = task.getLat();
         this.feedback_lat = task.getFeedbackLat();
         this.feedback_lon = task.getFeedbackLon();
-        this.startTime = DateUtil.dateFormate(task.getStartTime(), "yyyy-MM-dd HH:mm:ss");
-        this.endTime = DateUtil.dateFormate(task.getEndTime(), "yyyy-MM-dd HH:mm:ss");
+        if(task.getStartTime() != null) {
+        	this.startTime = DateUtil.dateFormate(task.getStartTime(), "yyyy-MM-dd HH:mm:ss");
+        }
+        if(task.getEndTime() != null) {
+        	this.endTime = DateUtil.dateFormate(task.getEndTime(), "yyyy-MM-dd HH:mm:ss");
+        }
         this.assignType = task.getAssignType();
         this.adCodeFlag = task.getAdCodeFlag();
         this.adCode = task.getAdCode();

@@ -49,7 +49,9 @@ public class AppController {
 		
 		SearchDataVo vo = SearchUtil.getVo();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		
+		Integer page = 1;
+        Integer pageSize = 10;
+        
 		if (id != null) {
             vo.putSearchParam("id", id.toString(), id);
 		}
@@ -71,7 +73,7 @@ public class AppController {
 	        } catch (ParseException e) {
 	        }
 	    }
-
+	    
 	    appService.getPageData(vo);
 	    SearchUtil.putToModel(model, vo);
 	    return PageConst.SUPER_ADMIN_APP_LIST;

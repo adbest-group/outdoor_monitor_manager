@@ -178,4 +178,63 @@
     where user_id = #{userId,jdbcType=INTEGER}
     order by id desc
   </select>
+  
+  <select id="getPageCount" parameterType="map" resultType="int">
+    select
+    count(id)
+    from
+    ad_monitor_reward
+    where 1=1
+    <if test="monitorTaskId != null" >
+      and monitor_task_id = #{monitorTaskId,jdbcType=INTEGER}
+    </if>
+    <if test="userId != null" >
+      and user_id = #{userId,jdbcType=INTEGER}
+    </if>
+    <if test="type != null" >
+      and type = #{type,jdbcType=INTEGER}
+    </if>
+    <if test="taskType != null" >
+      and task_type = #{taskType,jdbcType=INTEGER}
+    </if>
+    <if test="rewardPoints != null" >
+      and reward_points = #{rewardPoints,jdbcType=INTEGER}
+    </if>
+    <if test="createTime != null" >
+      and create_time = #{createTime,jdbcType=TIMESTAMP}
+    </if>
+    <if test="updateTime != null" >
+      and update_time = #{updateTime,jdbcType=TIMESTAMP}
+    </if>
+  </select>
+
+  <select id="getPageData" parameterType="map" resultMap="BaseResultMap">
+    select
+    	a.id, a.monitor_task_id, a.user_id, a.type, a.task_type, a.user_id, a.reward_points, a.create_time, a.update_time
+    from
+    	ad_monitor_reward a 
+    where 1=1
+    <if test="monitorTaskId != null" >
+      and monitor_task_id = #{monitorTaskId,jdbcType=INTEGER}
+    </if>
+    <if test="userId != null" >
+      and user_id = #{userId,jdbcType=INTEGER}
+    </if>
+    <if test="type != null" >
+      and type = #{type,jdbcType=INTEGER}
+    </if>
+    <if test="taskType != null" >
+      and task_type = #{taskType,jdbcType=INTEGER}
+    </if>
+    <if test="rewardPoints != null" >
+      and reward_points = #{rewardPoints,jdbcType=INTEGER}
+    </if>
+    <if test="createTime != null" >
+      and create_time = #{createTime,jdbcType=TIMESTAMP}
+    </if>
+    <if test="updateTime != null" >
+      and update_time = #{updateTime,jdbcType=TIMESTAMP}
+    </if>
+    order by a.id desc
+  </select>
 </mapper>

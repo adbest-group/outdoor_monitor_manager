@@ -583,7 +583,7 @@ public class ApiController extends BasicController {
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
         	}
-        }
+        } 
 
         if (useSession.get()) {
             session.setAttribute(SessionKey.SESSION_LOGIN_USER.toString(), userExecute);

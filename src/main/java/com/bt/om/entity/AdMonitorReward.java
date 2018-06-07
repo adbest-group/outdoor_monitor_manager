@@ -75,6 +75,25 @@ public class AdMonitorReward extends ID {
      *
      * @mbggenerated Fri Jan 26 14:10:24 CST 2018
      */
+    private String createTimeStr;
+    
+    private String updateTimeStr;
+    
+    public String getCreateTimeStr() {
+		return createTimeStr;
+	}
+
+	public void setCreateTimeStr(String createTimeStr) {
+		this.createTimeStr = createTimeStr;
+	}
+
+	public String getUpdateTimeStr() {
+		return updateTimeStr;
+	}
+
+	public void setUpdateTimeStr(String updateTimeStr) {
+		this.updateTimeStr = updateTimeStr;
+	}
     public Integer getId() {
         return id;
     }

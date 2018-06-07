@@ -49,8 +49,12 @@ public class MonitorTaskWaitToExecutedVo extends BasicVo{
         this.sample_url = task.getSamplePicUrl();
         this.lon = task.getLon();
         this.lat = task.getLat();
-        this.startTime = DateUtil.dateFormate(task.getStartTime(), "yyyy-MM-dd HH:mm:ss");
-        this.endTime = DateUtil.dateFormate(task.getEndTime(), "yyyy-MM-dd HH:mm:ss");
+        if(task.getStartTime() != null) {
+        	this.startTime = DateUtil.dateFormate(task.getStartTime(), "yyyy-MM-dd HH:mm:ss");
+        }
+        if(task.getEndTime() != null) {
+        	this.endTime = DateUtil.dateFormate(task.getEndTime(), "yyyy-MM-dd HH:mm:ss");
+        }
         this.assignType = task.getAssignType();
         this.adCodeFlag = task.getAdCodeFlag();
         this.adCode = task.getAdCode();

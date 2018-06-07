@@ -48,9 +48,15 @@ public class MonitorTaskUnFinishedVo extends BasicVo {
         this.task_type_text = MonitorTaskType.getText(task.getTaskType());
         this.ad_activity_name = task.getActivityName();
         this.ad_name = task.getAdSeatName();
-        this.monitor_time = sdf.format(task.getFeedbackTime());
-        this.monitor_start = sdf.format(task.getMonitorStart());
-        this.monitor_end = sdf.format(task.getMonitorEnd());
+        if(task.getFeedbackTime() != null) {
+        	this.monitor_time = sdf.format(task.getFeedbackTime());
+        }
+        if(task.getMonitorStart() != null) {
+        	this.monitor_start = sdf.format(task.getMonitorStart());
+        }
+        if(task.getMonitorEnd() != null) {
+        	this.monitor_end = sdf.format(task.getMonitorEnd());
+        }
         this.ad_seat_id = task.getAdSeatId();
         this.ad_seat_code = task.getAdSeatCode();
         this.ad_location = task.getAdSeatLocation();
@@ -67,8 +73,12 @@ public class MonitorTaskUnFinishedVo extends BasicVo {
         this.lat = task.getLat();
         this.feedback_lat = task.getFeedbackLat();
         this.feedback_lon = task.getFeedbackLon();
-        this.startTime = DateUtil.dateFormate(task.getStartTime(), "yyyy-MM-dd HH:mm:ss");
-        this.endTime = DateUtil.dateFormate(task.getEndTime(), "yyyy-MM-dd HH:mm:ss");
+        if(task.getStartTime() != null) {
+        	this.startTime = DateUtil.dateFormate(task.getStartTime(), "yyyy-MM-dd HH:mm:ss");
+        }
+        if(task.getEndTime() != null) {
+        	this.endTime = DateUtil.dateFormate(task.getEndTime(), "yyyy-MM-dd HH:mm:ss");
+        }
         this.assignType = task.getAssignType();
         this.adCodeFlag = task.getAdCodeFlag();
         this.adCode = task.getAdCode();

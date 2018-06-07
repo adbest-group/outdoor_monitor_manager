@@ -1,6 +1,7 @@
 package com.bt.om.mapper;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -135,4 +136,9 @@ public interface AdMonitorTaskMapper {
     List<AdMonitorTask> getAllByStatusUnZhipai(Map<String, Object> searchMap);
 	
 	List<PictureVo> selectFeedBackByActivityIdAndSeatId(Map<String, Object> searchMap);
+
+	List<?> getTaskPageData(HashMap<String, Object> searchMap, RowBounds rowBounds);
+
+	int getTaskPageCount(HashMap<String, Object> searchMap);
+
 }

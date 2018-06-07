@@ -49,4 +49,5 @@ public interface IAdJiucuoTaskService {
 	List<AdJiucuoTask> selectInfoByQrCode(Map<String, Object> searchMap);
 	List<AdJiucuoTask> selectInfoByLonLatTitle(Map<String, Object> searchMap);
 	List<AdJiucuoTask> selectInfoByMemo(Map<String, Object> searchMap);
+	public void getJiucuoPageData(SearchDataVo datavo);
 }

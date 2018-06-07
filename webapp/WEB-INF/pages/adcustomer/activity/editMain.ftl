@@ -482,7 +482,7 @@
                         "street": street,
                         <#-- "customerTypeId": customerTypeId, -->
                         "media": media.join(","),
-//                        "dels" : dels.join(","),
+//                      "dels" : dels.join(","),
 						"samplePicUrl" : samplePicUrl,
 						"customerId" : customerId,
                         "activeSeat": JSON.stringify(activity_seats)
@@ -583,7 +583,9 @@
         }).functionValidator({
         	fun: function(val, ele){
         		var now = new Date();
-        		var date = now.getFullYear()+ '-' + (now.getMonth() + 1).toString().padStart(2, 0) + '-' + now.getDate().toString().padStart(2, 0)
+        		var month = (now.getMonth() + 1).toString().length < 2 ? '0' + (now.getMonth() + 1).toString() : (now.getMonth() + 1).toString()
+        		var day = now.getDate().toString().length < 2 ? '0' + now.getDate().toString() : now.getDate().toString()
+        		var date = now.getFullYear()+ '-' + month + '-' + day
 
         		if($('#dts').val() < date) {
         			return false

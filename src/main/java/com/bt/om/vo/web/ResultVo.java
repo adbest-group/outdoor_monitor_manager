@@ -47,4 +47,5 @@ public class ResultVo<T> extends ID {
     public void setResultDes(String resultDes) {
         this.resultDes = resultDes;
     }
+
 }

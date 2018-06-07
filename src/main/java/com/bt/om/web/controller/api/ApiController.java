@@ -577,6 +577,8 @@ public class ApiController extends BasicController {
         }
         //客户登录APP, 校验appSid
         if(userExecute.getUsertype() == 2) {
+        	System.out.println(userExecute.getAppSid());
+        	System.out.println(appSid);
         	if(!StringUtil.equals(userExecute.getAppSid(), appSid)) {
         		result.setCode(ResultCode.RESULT_FAILURE.getCode());
                 result.setResultDes("用户名或密码有误！");

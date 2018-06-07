@@ -90,9 +90,11 @@ public class ActivityController extends BasicController {
             vo.putSearchParam("activityId", activityId.toString(), activityId);
         }
         
-        if (status == null) {status = 1;} //如果没有传参status, 默认取1：未确认
-        vo.putSearchParam("status", status.toString(), status);
-        model.addAttribute("status", status);
+        if (status != null) {
+        	//status = 1;
+            vo.putSearchParam("status", status.toString(), status);
+            model.addAttribute("status", status);
+        } //如果没有传参status, 默认取1：未确认
        
         if (startDate != null) {
             try {

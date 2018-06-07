@@ -139,7 +139,7 @@ $(function() {
 	$("#password").formValidator({
 		validatorGroup:"2",
 		onShow:"　",
-		onFocus:"请输入6-16位密码",
+		onFocus:"请输入6-16位密码，字母和数字组合",
 		onCorrect:"　"
 	}).inputValidator({
 		min:6,

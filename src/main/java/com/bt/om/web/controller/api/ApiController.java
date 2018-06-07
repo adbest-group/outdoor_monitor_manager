@@ -51,6 +51,7 @@ import com.bt.om.common.DateUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdActivityAdseat;
+import com.bt.om.entity.AdApp;
 import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.entity.AdJiucuoTaskFeedback;
 import com.bt.om.entity.AdMediaType;
@@ -88,6 +89,7 @@ import com.bt.om.service.IAdMediaTypeService;
 import com.bt.om.service.IAdMonitorRewardService;
 import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.service.IAdSeatService;
+import com.bt.om.service.IAppService;
 import com.bt.om.service.IPointService;
 import com.bt.om.service.ISendSmsService;
 import com.bt.om.service.ISysUserExecuteService;
@@ -158,6 +160,8 @@ public class ApiController extends BasicController {
 	private IPointService pointService;
     @Autowired
 	private IUserPointService userPointService;
+    @Autowired
+	private IAppService appService;
     
     @Value("${sms.checkcode.content.template}")
     private String SMS_CHECKCODE_CONTENT_TEMPLATE;
@@ -3238,13 +3242,51 @@ public class ApiController extends BasicController {
         	
         	model.addAttribute("provinceAndCities", provinceAndCities); //该活动下所有广告位的省市关联集合
         	model.addAttribute("parentMediaTypes", parentMediaTypes); //该活动下所有广告位的媒体大类集合
-        } catch (IOException e) {
+        } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
 
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+    
+    //获取app logo和app标题
+    @RequestMapping(value = "/getBranch")
+    @ResponseBody
+    public Model getBranch(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("调用成功");
+        model = new ExtendedModelMap();
+        
+        String sid = null;
+        
+        try {
+        	InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            sid = obj.get("sid").getAsString();
+            
+           if(StringUtil.isBlank(sid)) {
+            	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("系统繁忙，请稍后再试！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+            }
+            AdApp adApp = appService.selectAppPicUrlAndTitleBySid(sid);
+            result.setResult(adApp);
+        } catch (Exception e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        
         model.addAttribute(SysConst.RESULT_KEY, result);
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");
@@ -3313,6 +3355,4 @@ public class ApiController extends BasicController {
         System.out.println(new Md5Hash("admin123", "superadmin").toString());
 //        System.out.println("【浙江百泰】您的验证码为${code}".replaceAll("\\$\\{code\\}","122321"));
     }
-    
-   
 }

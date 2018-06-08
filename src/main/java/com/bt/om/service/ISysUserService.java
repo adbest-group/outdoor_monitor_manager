@@ -128,4 +128,7 @@ public interface ISysUserService {
 	SysUserDetail getUserDetail(Integer userId);
 
 	List<SysUser> getAvailableByUserType(Integer userType);
+
+	int updateByPrimaryKeySelective(SysUser u);
+
 }

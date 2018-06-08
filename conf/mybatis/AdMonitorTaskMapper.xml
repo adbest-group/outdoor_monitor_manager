@@ -805,6 +805,9 @@
         where a.status = 8
         and d.lon between (#{lon,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lon,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
         and d.lat between (#{lat,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lat,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
+        <if test="updateTime != null">
+      		and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i')
+    	</if>
         ) t ) t2 where t2.distance &lt;= #{metre,jdbcType=DOUBLE}
     </select>
 
@@ -827,6 +830,9 @@
         where a.status = 8
         and d.lon between (#{lon,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lon,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
         and d.lat between (#{lat,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lat,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
+        <if test="updateTime != null">
+      		and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i')
+    	</if>
         ) t
         having distance &lt;= #{metre,jdbcType=DOUBLE}
         order by distance,update_time desc

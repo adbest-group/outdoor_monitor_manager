@@ -6,8 +6,10 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
+import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.SysUserExecuteVo;
+import com.bt.om.entity.vo.SysUserVo;
 
 public interface SysUserExecuteMapper {
     /**
@@ -71,4 +73,6 @@ public interface SysUserExecuteMapper {
 	void insertMacAddress(@Param("mac")String mac);
 
 	SysUserExecute getMobile(@Param("mobile")String mobile);
+
+	int updateUserPwd(SysUser u);
 }

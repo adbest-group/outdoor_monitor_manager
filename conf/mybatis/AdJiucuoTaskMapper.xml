@@ -406,7 +406,12 @@
 	        <foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
 	    </if>
         <if test="userId != null">
-            and a.userId = #{userId,jdbcType=INTEGER}
+            and a.user_id = #{userId,jdbcType=INTEGER}
+        </if>
+        <if test="statuses != null">
+            and a.status in
+            <foreach collection="statuses" separator="," open="(" close=")" item="s">#{s,jdbcType=INTEGER}
+            </foreach>
         </if>
         <if test="status != null">
             and a.status = #{status,jdbcType=INTEGER}
@@ -439,7 +444,7 @@
     	</if>
     </select>
 
-    <select id="getJiucuoPageData" parameterType="map" resultMap="ExtResultMap">
+    <select id="getJiucuoPageData" parameterType="map" resultMap="MobileResultMap">
         select 
 	        a.id, a.activity_id, a.ad_seat_id, a.submit_time, a.user_id, a.status,a.reason,a.problem_status,a.sub_created,a.verify_time,a.create_time, a.update_time, a.assessor_id,
     		b.pic_url1,b.pic_url2,b.pic_url3,b.pic_url4,b.create_time as feedback_time,
@@ -459,7 +464,12 @@
 	        <foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
 	    </if>
         <if test="userId != null">
-            and a.userId = #{userId,jdbcType=INTEGER}
+            and a.user_id = #{userId,jdbcType=INTEGER}
+        </if>
+        <if test="statuses != null">
+            and a.status in
+            <foreach collection="statuses" separator="," open="(" close=")" item="s">#{s,jdbcType=INTEGER}
+            </foreach>
         </if>
         <if test="status != null">
             and a.status = #{status,jdbcType=INTEGER}

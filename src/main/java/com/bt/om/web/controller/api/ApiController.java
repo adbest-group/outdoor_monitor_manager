@@ -827,19 +827,19 @@ public class ApiController extends BasicController {
         SysUserExecute user = getLoginUser(request, token);
         SearchDataVo datavo = new SearchDataVo(null,null,(page-1)*pageSize,pageSize);
         datavo.putSearchParam("userId",null,user.getId());
-        if(status == MonitorTaskStatus.VERIFY.getId()) {
-        	//9：已审核 包括 审核通过 和 审核未通过
-        	List<Integer> statuses = new ArrayList<>();
-        	statuses.add(MonitorTaskStatus.VERIFIED.getId());
-        	statuses.add(MonitorTaskStatus.VERIFY_FAILURE.getId());
-        	datavo.putSearchParam("statuses", null, statuses);
-        } else {
-        	datavo.putSearchParam("status", null, status);
-        }
-        datavo.putSearchParam("updateTime", null, updateTime);
         
         //监测任务列表(已修改：添加了province, city, region, street, startTime, endTime, assignType)
         if (type == 1) {
+        	if(status == MonitorTaskStatus.VERIFY.getId()) {
+            	//9：已审核 包括 审核通过 和 审核未通过
+            	List<Integer> statuses = new ArrayList<>();
+            	statuses.add(MonitorTaskStatus.VERIFIED.getId());
+            	statuses.add(MonitorTaskStatus.VERIFY_FAILURE.getId());
+            	datavo.putSearchParam("statuses", null, statuses);
+            } else {
+            	datavo.putSearchParam("status", null, status);
+            }
+            datavo.putSearchParam("updateTime", null, updateTime);
             //List<AdMonitorTaskMobileVo> tasks = adMonitorTaskService.getByUserIdForMobile(user.getId());
             adMonitorTaskService.getTaskPageData(datavo);
             List<AdMonitorTaskMobileVo> list = (List<AdMonitorTaskMobileVo>) datavo.getList();
@@ -899,6 +899,15 @@ public class ApiController extends BasicController {
             
             result.setResult(resultVo);
         } else if (type == 2) {
+        	if(status == JiucuoTaskStatus.VERIFY.getId()) {
+            	//4：纠错审核已结束 包括 审核通过 和 审核未通过
+            	List<Integer> statuses = new ArrayList<>();
+            	statuses.add(JiucuoTaskStatus.VERIFIED.getId());
+            	statuses.add(JiucuoTaskStatus.VERIFY_FAILURE.getId());
+            	datavo.putSearchParam("statuses", null, statuses);
+            } else {
+            	datavo.putSearchParam("status", null, status);
+            } 
         	//纠错任务列表
 //            List<AdJiucuoTaskMobileVo> tasks = adJiucuoTaskService.getByUserIdForMobile(user.getId());
             adJiucuoTaskService.getJiucuoPageData(datavo);
@@ -909,7 +918,9 @@ public class ApiController extends BasicController {
                     resultVo.getJiucuo_submit().add(new JiucuoTaskVo(task));
                 } else if (task.getStatus() == JiucuoTaskStatus.VERIFIED.getId() || task.getStatus() == JiucuoTaskStatus.VERIFY_FAILURE.getId()) {
                     resultVo.getJiucuo_success().add(new JiucuoTaskVo(task));
-                }
+                } else if (task.getStatus() == JiucuoTaskStatus.VERIFY.getId()) {
+                    resultVo.getJiucuo_success().add(new JiucuoTaskVo(task));
+                } 
             }
             result.setResult(resultVo);
         }
@@ -1937,7 +1948,8 @@ public class ApiController extends BasicController {
         Double metre = null;
         Integer page = 1;
         Integer pageSize = 10;
-
+        String updateTime = null;
+        
         try {
             InputStream is = request.getInputStream();
             Gson gson = new Gson();
@@ -1946,6 +1958,7 @@ public class ApiController extends BasicController {
             lon = obj.get("lon") == null ? null : obj.get("lon").getAsDouble();
             lat = obj.get("lat") == null ? null : obj.get("lat").getAsDouble();
             metre = obj.get("metre") == null ? null : obj.get("metre").getAsDouble();
+            updateTime = obj.get("updateTime") == null ? null : obj.get("updateTime").getAsString();
             if(obj.get("page") != null){
                 page = obj.get("page").getAsInt();
             }
@@ -1987,7 +2000,8 @@ public class ApiController extends BasicController {
         vo.putSearchParam("lat",null,lat);
         vo.putSearchParam("metre",null,metre);
         vo.putSearchParam("metreDegree",null, GeoUtil.getDegreeFromDistance(metre));
-
+        vo.putSearchParam("updateTime", null, updateTime);
+        
         adMonitorTaskService.getByPointAroundPageData(vo);
         List<MonitorTaskArroundVo> list = Lists.newArrayList();
 
@@ -2006,6 +2020,10 @@ public class ApiController extends BasicController {
 
         result.setResult(list);
 
+        //设置总页数
+        int totalCount = (int) ((vo.getCount() + pageSize - 1) / pageSize);
+
+        model.addAttribute("totalCount", totalCount);
         model.addAttribute(SysConst.RESULT_KEY, result);
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");
@@ -2029,7 +2047,7 @@ public class ApiController extends BasicController {
         Integer pageSize = 20;
         String province = null;
         String city = null;
-
+        String updateTime = null;
         try {
             InputStream is = request.getInputStream();
             Gson gson = new Gson();
@@ -2040,6 +2058,7 @@ public class ApiController extends BasicController {
             metre = obj.get("metre") == null ? null : obj.get("metre").getAsDouble();
             province = obj.get("province") == null ? null : obj.get("province").getAsString();
             city = obj.get("city") == null ? null : obj.get("city").getAsString();
+            updateTime = obj.get("updateTime") == null ? null : obj.get("updateTime").getAsString();
             if(obj.get("page") != null){
                 page = obj.get("page").getAsInt();
             }
@@ -2098,7 +2117,7 @@ public class ApiController extends BasicController {
         vo.putSearchParam("lat",null,lat);
         vo.putSearchParam("province",null,provinceId);
         vo.putSearchParam("city",null,cityId);
-
+        vo.putSearchParam("updateTime", null, updateTime);
         adMonitorTaskService.getByCurCityPageData(vo);
         List<MonitorTaskArroundVo> list = Lists.newArrayList();
 
@@ -2786,7 +2805,7 @@ public class ApiController extends BasicController {
         String endDate = null; //搜索的结束时间
         String activityName = null; //活动名称
         Integer status = null; //广告活动状态(1：未确认 2：已确认 3：已结束)
-
+        String updateTime = null;
         try {
             InputStream is = request.getInputStream();
             Gson gson = new Gson();
@@ -2796,6 +2815,7 @@ public class ApiController extends BasicController {
             endDate = obj.get("endDate") == null ? null : obj.get("endDate").getAsString();
             activityName = obj.get("activityName") == null ? null : obj.get("activityName").getAsString();
             status = obj.get("status") == null ? null : obj.get("status").getAsInt();
+            updateTime = obj.get("updateTime") == null ? null : obj.get("updateTime").getAsString();
             if(obj.get("page") != null){
                 page = obj.get("page").getAsInt();
             }
@@ -3052,7 +3072,7 @@ public class ApiController extends BasicController {
         Date now = new Date();
         Integer cityId = null; //城市id
         Integer mediaTypeParentId = null; //媒体大类id
-
+        String updateTime = null;
         try {
             InputStream is = request.getInputStream();
             Gson gson = new Gson();
@@ -3061,6 +3081,7 @@ public class ApiController extends BasicController {
             token = obj.get("token") == null ? null : obj.get("token").getAsString();
             cityId = obj.get("cityId") == null ? null : obj.get("cityId").getAsInt();
             mediaTypeParentId = obj.get("mediaTypeParentId") == null ? null : obj.get("mediaTypeParentId").getAsInt();
+            updateTime = obj.get("updateTime") == null ? null : obj.get("updateTime").getAsString();
             if(obj.get("page") != null){
                 page = obj.get("page").getAsInt();
             }
@@ -3103,7 +3124,7 @@ public class ApiController extends BasicController {
             searchDataVo.putSearchParam("activityId", null, activityId);
             searchDataVo.putSearchParam("cityId", null, cityId);
             searchDataVo.putSearchParam("mediaTypeParentId", null, mediaTypeParentId);
-    		
+    		searchDataVo.putSearchParam("updateTime", null, updateTime);
     		//设置结果集
     		AppDetailReports appDetailReports = new AppDetailReports(); //总结果集
             List<AppDetailReport> notStartReport = new ArrayList<>(); //未开始的广告位结果集
@@ -3227,7 +3248,6 @@ public class ApiController extends BasicController {
 
         Integer activityId = null;
         String token = null;
-        
         try {
             InputStream is = request.getInputStream();
             Gson gson = new Gson();

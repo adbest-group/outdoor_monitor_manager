@@ -4,13 +4,18 @@ import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.MonitorDailyReport;
+import com.bt.om.entity.SysUser;
+import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.service.IMonitorDailyReportService;
+import com.bt.om.service.ISysUserExecuteService;
+import com.bt.om.service.ISysUserService;
 import com.bt.om.vo.report.ManageIndexReportVo;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.web.BasicController;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ExtendedModelMap;
@@ -35,6 +40,8 @@ public class IndexController extends BasicController {
 	@Autowired
 	private IMonitorDailyReportService monitorDailyReportService;
 
+	@Autowired
+	private ISysUserService userService;
 	/**
 	 * 首页
 	 * 
@@ -100,44 +107,41 @@ public class IndexController extends BasicController {
 	@RequestMapping(value = "/index/updatepwd", method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody Model updatepwd(Model model, HttpServletRequest req) {
 
-		// ResultVo<SysUser> resultVo = new ResultVo<SysUser>();
-		// OttvUser user = getLoginUser();
-		// if (user.getPassword().equals((new
-		// Md5Hash(req.getParameter("password"),
-		// user.getUsername())).toString())) {
-		// if
-		// (req.getParameter("password1").equals(req.getParameter("password2")))
-		// {
-		// OttvUser u = new OttvUser();
-		// u.setId(user.getId());
-		// u.setPassword(new Md5Hash(req.getParameter("password1"),
-		// user.getUsername()).toString());
-		// u.setUpdateTime(new Date());
-		//
-		// try {
-		//
-		// // 更新密码
-		// if (ottvUserService.updateByPrimaryKeySelective(u) == 1) {
-		// resultVo.setResultDes("修改成功");
-		// } else {
-		// resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
-		// resultVo.setResultDes("修改失败");
-		// }
-		// } catch (Exception ex) {
-		// ex.printStackTrace();
-		// resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
-		// resultVo.setResultDes("服务忙，请稍后再试");
-		// }
-		// } else {
-		// resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
-		// resultVo.setResultDes("新密码和确认密码不一致");
-		// }
-		// } else {
-		// resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
-		// resultVo.setResultDes("原密码错误");
-		// }
-		//
-		// model.addAttribute(SysConst.RESULT_KEY, resultVo);
+		 ResultVo<SysUser> resultVo = new ResultVo<SysUser>();
+		 SysUser user = getLoginUser();
+		 if (user.getPassword().equals((new	 Md5Hash(req.getParameter("password"),
+		 user.getUsername())).toString())) {
+		 if
+		 (req.getParameter("password1").equals(req.getParameter("password2")))
+		 {
+		 SysUser u = new SysUser();
+		 u.setId(user.getId());
+		 u.setUsername(user.getUsername());
+		 u.setPassword(new Md5Hash(req.getParameter("password1"), user.getUsername()).toString());
+		 u.setUpdateTime(new Date());
+		 try {
+		 // 更新密码
+		 if (userService.updateByPrimaryKeySelective(u) == 1) {
+		 resultVo.setResultDes("修改成功");
+		 } else {
+		 resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
+		 resultVo.setResultDes("修改失败");
+		 }
+		 } catch (Exception ex) {
+		 ex.printStackTrace();
+		 resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
+		 resultVo.setResultDes("服务忙，请稍后再试");
+		 }
+		 } else {
+		 resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
+		 resultVo.setResultDes("新密码和确认密码不一致");
+		 }
+		 } else {
+		 resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
+		 resultVo.setResultDes("原密码错误");
+		 }
+		
+		 model.addAttribute(SysConst.RESULT_KEY, resultVo);
 
 		return model;
 	}

@@ -287,6 +287,9 @@
       <if test="defaultPage != null">
         default_page = #{defaultPage,jdbcType=VARCHAR},
       </if>
+      <if test="appSid != null">
+        app_sid = #{appSid,jdbcType=VARCHAR},
+      </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=TIMESTAMP},
       </if>

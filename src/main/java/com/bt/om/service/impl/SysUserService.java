@@ -238,4 +238,9 @@ public class SysUserService implements ISysUserService {
 		return sysUserResMapper.selectUserIdsByResIds(searchMap);
 	}
 
+	@Override
+	public int updateByPrimaryKeySelective(SysUser u) {
+		return sysUserMapper.updateUserPwd(u);
+	}
+
 }

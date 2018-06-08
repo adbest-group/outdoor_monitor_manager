@@ -338,6 +338,9 @@
       and id not in
         <foreach collection="activityIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
     </if>
+    <if test="updateTime != null">
+      and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i')
+    </if>
   	order by create_time desc
   </select>
   
@@ -359,6 +362,9 @@
     <if test="activityIds != null">
       and id not in
         <foreach collection="activityIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+    </if>
+    <if test="updateTime != null">
+      and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i')
     </if>
   </select>
   

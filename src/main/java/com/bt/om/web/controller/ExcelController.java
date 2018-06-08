@@ -433,10 +433,18 @@ public class ExcelController extends BasicController {
 		List<String> databaseAdSeats = new ArrayList<>();
 		for (AdSeatInfo adSeatInfo : adSeatsByMediaId) {
 			StringBuffer buffer = new StringBuffer();
-			buffer.append(cityCache.getCityName(adSeatInfo.getProvince())); //省
-			buffer.append(cityCache.getCityName(adSeatInfo.getCity())); //市
-			buffer.append(cityCache.getCityName(adSeatInfo.getRegion())); //区
-			buffer.append(cityCache.getCityName(adSeatInfo.getStreet())); //街道
+			if(adSeatInfo.getProvince() != null) {
+				buffer.append(cityCache.getCityName(adSeatInfo.getProvince())); //省
+			}
+			if(adSeatInfo.getCity() != null) {
+				buffer.append(cityCache.getCityName(adSeatInfo.getCity())); //市
+			}
+			if(adSeatInfo.getRegion() != null) {
+				buffer.append(cityCache.getCityName(adSeatInfo.getRegion())); //区
+			}
+			if(adSeatInfo.getStreet() != null) {
+				buffer.append(cityCache.getCityName(adSeatInfo.getStreet())); //街道
+			}
 			buffer.append(adSeatInfo.getLocation()); //详细位置
 			databaseAdSeats.add(buffer.toString());
 		}
@@ -608,26 +616,30 @@ public class ExcelController extends BasicController {
                         		hasProblem = true;
                     		}
                     	} else {
-                    		String cityName = String.valueOf(lo.get(6)).trim(); //市
-                    		/*if(!cityName.endsWith("市")) {
-                    			cityName = cityName + "市";
-                    		}*/
                     		if(zhiXiaShiFlag == true) {
-                    			info.setCity(info.getProvince());
-                    			cityId = provinceId;
+                    			//直辖市的city字段不存库
                     		} else {
-                    			List<City> cities = cityCache.getCity(provinceId);
-                        		Map<String, Long> cityMap = citiesToMap(cities);
-                        		Set<String> cityNames = cityMap.keySet();
-                        		for (String name : cityNames) {
-    								if(name.contains(cityName)) {
-    									cityName = name;
-    									break;
-    								}
-    							}
-                        		cityId = cityMap.get(cityName);
-                        		info.setCity(cityId);
-                        		buffer.append(cityName);
+                    			String cityName = String.valueOf(lo.get(6)).trim(); //市
+                        		/*if(!cityName.endsWith("市")) {
+                        			cityName = cityName + "市";
+                        		}*/
+                        		if(zhiXiaShiFlag == true) {
+                        			info.setCity(info.getProvince());
+                        			cityId = provinceId;
+                        		} else {
+                        			List<City> cities = cityCache.getCity(provinceId);
+                            		Map<String, Long> cityMap = citiesToMap(cities);
+                            		Set<String> cityNames = cityMap.keySet();
+                            		for (String name : cityNames) {
+        								if(name.contains(cityName)) {
+        									cityName = name;
+        									break;
+        								}
+        							}
+                            		cityId = cityMap.get(cityName);
+                            		info.setCity(cityId);
+                            		buffer.append(cityName);
+                        		}
                     		}
     					}
                 	}

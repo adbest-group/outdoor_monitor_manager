@@ -86,5 +86,7 @@ public interface SysUserMapper {
 	List<SysUser> findNoUserName(Integer groupId);
 	List<SysUser> findNoCustomerName(Map<String, Object> searchMap);
 	List<SysUser> getIdNameByUserType(Integer usertype);
+
+	int updateUserPwd(SysUser u);
 	 
 }

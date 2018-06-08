@@ -7,11 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bt.om.entity.AdApp;
 import com.bt.om.entity.AdCustomerType;
 import com.bt.om.entity.SysUserDetail;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.SysUserRole;
 import com.bt.om.entity.vo.SysUserVo;
+import com.bt.om.mapper.AdAppMapper;
 import com.bt.om.mapper.AdCustomerTypeMapper;
 import com.bt.om.mapper.SysUserDetailMapper;
 import com.bt.om.mapper.SysUserExecuteMapper;
@@ -35,7 +37,9 @@ public class CustomerService implements ICustomerService {
     private SysUserExecuteMapper sysUserExecuteMapper;
     @Autowired
     private AdCustomerTypeMapper adCustomerTypeMapper;
-
+    @Autowired
+    private AdAppMapper adAppMapper;
+    
     private ThreadLocal<SimpleDateFormat> localFormat = new ThreadLocal<>();
 
     private SimpleDateFormat getFormat(){
@@ -100,6 +104,8 @@ public class CustomerService implements ICustomerService {
         }
         userExe.setRealname(user.getRealname());
         userExe.setMobile(user.getTelephone());
+        AdApp adApp = adAppMapper.selectByPrimaryKey(user.getAppTypeId());
+        userExe.setAppSid(adApp.getAppSid());
         sysUserExecuteMapper.updateByPrimaryKeySelective(userExe);
     }
     

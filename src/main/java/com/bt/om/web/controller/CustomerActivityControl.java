@@ -2,6 +2,7 @@ package com.bt.om.web.controller;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -163,7 +164,14 @@ public class CustomerActivityControl extends BasicController {
 
         AdActivityVo adActivityVo = new AdActivityVo();
         adActivityVo.setActivityName(activityName);
-        adActivityVo.setSamplePicUrl(samplePicUrl);
+        adActivityVo.setSamplePicUrl(samplePicUrl);    
+        
+        String[] str = media.split(",");
+        for(String i : str) {
+        	AdActivityMedia aam = new AdActivityMedia();
+        	aam.setMediaId(Integer.parseInt(i));
+        	adActivityVo.getActivityMedias().add(aam);
+        }
         
 //		adActivityVo.setCustomerTypeId(customerTypeId); //客户类型
         try {
@@ -213,7 +221,7 @@ public class CustomerActivityControl extends BasicController {
                 adActivityVo.getActivityAreas().add(aa);
             }
         }
-      
+        
         //选中的广告位所属媒体（不重复）集合
         Set<Integer> mediaSet = new HashSet<>();
       
@@ -237,11 +245,9 @@ public class CustomerActivityControl extends BasicController {
                 if(as.getDownMonitor()==1){
                     as.setDownMonitorLastDays(obj.get("downMonitorLastDays").getAsInt());
                 }
-                as.setMediaId(obj.get("media").getAsInt());
-                mediaSet.add(obj.get("media").getAsInt());
+                as.setMediaId(obj.get("mediaId").getAsInt());
+                mediaSet.add(obj.get("mediaId").getAsInt());
                 
-//                as.setMediaId(obj.get("media").getAsInt());
-//                mediaSet.add(obj.get("media").getAsInt());
                 as.setMonitorCount(obj.get("monitorCount").getAsInt());
                 try {
                     as.setMonitorStart(sdf.parse(obj.get("startDate").getAsString()));
@@ -282,7 +288,6 @@ public class CustomerActivityControl extends BasicController {
             }
             adActivityVo.setCreateTime(now);
             adActivityVo.setUpdateTime(now);
-            //System.out.println(adActivityVo.getActivitySeats());
             adActivityService.add(adActivityVo);
         } else {//更新
             adActivityVo.setId(new Integer(id));

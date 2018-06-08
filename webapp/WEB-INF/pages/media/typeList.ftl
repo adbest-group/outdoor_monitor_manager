@@ -24,6 +24,8 @@
                     <input type="text" placeholder="请输入媒体类型名称" value="${searchMediaName?if_exists}" id="searchMediaName" name="searchMediaName">
                 </div>
                 <button type="button" class="btn btn-red" autocomplete="off" id="searchBtn">查询</button>
+                
+                <button style="margin-left: 10px" type="button" class="btn" id="insertBatchId" autocomplete="off">批量导入</button>
             </div>
         </div>
 
@@ -263,5 +265,36 @@
             }
         });
     }
+    
+    //批量导入
+	layui.use('upload', function(){
+	  var upload = layui.upload;
+	  
+	  //执行实例
+	  var uploadInst = upload.render({
+	    elem: '#insertBatchId' //绑定元素
+	    ,data: {
+		}
+	    ,accept: 'file' //指定只允许上次文件
+	    ,exts: 'xlsx|xls' //指定只允许上次xlsx和xls格式的excel文件
+	    ,field: 'excelFile' //设置字段名
+	    ,url: '/excel/insertMediaTypeByExcel' //上传接口
+	    ,done: function(res){
+	    	if(res.ret.code == 100){
+	    		layer.alert('导入成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
+	    		//window.open(res.ret.result);
+	    		window.location.reload();
+	    	} else if (res.ret.code == 101){
+	    		layer.alert(res.ret.resultDes, {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	} else if (res.ret.code == 105){
+	    		layer.alert('没有导入权限', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	}
+	    }
+	    ,error: function(res){
+	       layer.alert('导入失败', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    }
+	  });
+	});
+	
 </script>
 <@model.webend />

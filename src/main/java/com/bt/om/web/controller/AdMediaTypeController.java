@@ -132,7 +132,7 @@ public class AdMediaTypeController {
     }
     
     /**
-     * 保存广告位
+     * 保存媒体类型
      **/
     @RequiresRoles("superadmin")
     @RequestMapping(value = "/save")

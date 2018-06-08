@@ -66,4 +66,8 @@ public interface AdMediaTypeMapper {
     List<AdMediaType> getAll();
     
     List<AdMediaType> selectByParentId(@Param("parentId") Integer parentId);
+    
+    List<AdMediaType> getByType(Integer mediaType);
+    
+    int insertBatchByExcel(@Param("adMediaTypes") List<AdMediaType> adMediaTypes);
 }

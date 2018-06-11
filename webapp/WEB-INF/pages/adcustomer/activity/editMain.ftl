@@ -430,6 +430,15 @@
             submitOnce: false,
             errorFocus: false,
             onSuccess: function () {
+            	var html = $("#as-container").html();
+            	if(html.length <= 37) {
+            		layer.confirm("请选择广告位", {
+                        icon: 2,
+                        btn: ['确定'] //按钮
+                    });
+                	return ;
+            	}
+            	
                 var activityName = $("#activityName").val(); //活动名
                 var startDate = $("#dts").val(); //投放开始时间
                 var endDate = $("#dt").val(); //投放结束时间
@@ -453,6 +462,14 @@
                 var region = $("#region").val();
                 var street = $("#street").val();
 				var samplePicUrl = $("#img-demo-bak").val();
+				if(samplePicUrl.length <= 0) {
+            		layer.confirm("请上传广告投放画面", {
+                        icon: 2,
+                        btn: ['确定'] //按钮
+                    });
+                	return ;
+            	}
+				
 				var customerId = $("#customerId").val();
                 <#-- var customerTypeId = $("#customerTypeId").val(); -->
                 var media = [];

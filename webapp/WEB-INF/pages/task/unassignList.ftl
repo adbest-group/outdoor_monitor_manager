@@ -313,7 +313,7 @@
             url: "/task/assign",
             type: "post",
             data: {
-            	"id": id,
+            	//"ids": id,
                 "ids": assign_ids,
                 "status": status,
                 "userId":userId

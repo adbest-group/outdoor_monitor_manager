@@ -253,7 +253,7 @@
                 url: "/activity/confirm",
                 type: "post",
                 data: {
-                    "id": activityId
+                    "ids": activityId
                 },
                 cache: false,
                 dataType: "json",

@@ -3009,15 +3009,15 @@ public class ApiController extends BasicController {
         }
 
         //验证登录
-        if (useSession.get()) {
-            if (!checkLogin(model, result, request)) {
-                return model;
-            }
-        } else {
-            if (!checkLogin(model, result, token)) {
-                return model;
-            }
-        }
+//        if (useSession.get()) {
+//            if (!checkLogin(model, result, request)) {
+//                return model;
+//            }
+//        } else {
+//            if (!checkLogin(model, result, token)) {
+//                return model;
+//            }
+//        }
         
         if(monitorTaskId == null){
             result.setCode(ResultCode.RESULT_FAILURE.getCode());

@@ -38,7 +38,7 @@ public interface IAdMonitorTaskService {
     /**
      * 审核通过
      **/
-    public void pass(String[] taskIds, Integer assessorId);
+    public void pass(String[] taskIds, Integer assessorId, Integer status);
     /**
      * 审核不通过
      **/

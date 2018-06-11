@@ -210,7 +210,8 @@
 			            url: "/jiucuo/verify",
 			            type: "post",
 			            data: {
-			                "ids": id_sel
+			                "ids": id_sel,
+			                "status": 2
 			            },
 			            cache: false,
 			            dataType: "json",

@@ -7,7 +7,7 @@
 <div class="main-container" style="height: auto;">
     <div class="main-box ott-market">
         <div class="title clearfix">
-            <button href="javascript:;" class="add-new-btn ll" id="add_media"><i></i> 新建账号</button>
+            <button href="javascript:;" class="add-new-btn ll" id="add_media"><i></i> 新建App账号</button>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <div class="inp">
                     <input type="text" value="${nameOrUsername?if_exists}" placeholder="姓名/手机号" id="nameOrUsername"
@@ -24,7 +24,7 @@
                     <thead>
                     <tr>
                         <th>序号</th>
-                        <th>登录账户</th>
+                        <th>App账户</th>
                         <th>账户类型</th>
                         <th>姓名</th>
                         <th>联系电话</th>

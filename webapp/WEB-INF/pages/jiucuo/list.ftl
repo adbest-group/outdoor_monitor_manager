@@ -306,7 +306,7 @@
             url: "/jiucuo/verify",
             type: "post",
             data: {
-                "id": id,
+                "ids": id,
                 "status": status,
                 "reason": reason
             },

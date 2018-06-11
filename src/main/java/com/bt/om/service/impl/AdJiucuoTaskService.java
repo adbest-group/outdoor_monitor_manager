@@ -86,10 +86,15 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void pass(AdJiucuoTask task, Integer assessorId) {
+    public void pass(String[] jiucuoIds, Integer assessorId) {
+    	//[4] 确认操作在业务层方法里进行循环
+    	for (String jcId : jiucuoIds) {
+    		Integer id = Integer.parseInt(jcId);
         Date now = new Date();
+        AdJiucuoTask task= new AdJiucuoTask();
         task.setStatus(JiucuoTaskStatus.VERIFIED.getId());
         task.setVerifyTime(now);
+        task.setId(id);
         task.setAssessorId(assessorId); //审核人id
         adJiucuoTaskMapper.updateByPrimaryKeySelective(task);
         
@@ -108,7 +113,7 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
 //            adMonitorRewardMapper.insert(reward);
 //        }
     }
-
+    }
     @Override
     public void reject(AdJiucuoTask task, String reason, Integer assessorId) {
         task.setReason(reason);

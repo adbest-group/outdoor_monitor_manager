@@ -117,18 +117,27 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void pass(String[] taskIds, Integer assessorId) {
+    public void pass(String[] taskIds, Integer assessorId, Integer status) {
     	//[4] 确认操作在业务层方法里进行循环
     	for (String taskId : taskIds) {
     		Integer id = Integer.parseInt(taskId);
         Date now = new Date();
         AdMonitorTask task= new AdMonitorTask();
+        task.setId(id);
+        task.setStatus(status);
+        AdMonitorTaskFeedback feedback = null;
         //如果监测反馈有问题，问题状态置为有问题，否则无问题
-        AdMonitorTaskFeedback feedback = adMonitorTaskFeedbackMapper.selectByTaskId(task.getId(), 1).get(0);
-        if (feedback.getProblem() != null || feedback.getProblemOther() != null) {
-            task.setProblemStatus(TaskProblemStatus.PROBLEM.getId());
+        List<AdMonitorTaskFeedback> feedbacks = adMonitorTaskFeedbackMapper.selectByTaskId(task.getId(), 1);
+//        AdMonitorTaskFeedback feedback = adMonitorTaskFeedbackMapper.selectByTaskId(task.getId(), 1).get(0);
+        if(feedbacks == null || feedbacks.size() == 0) {
+        	task.setProblemStatus(TaskProblemStatus.NO_PROBLEM.getId());
         } else {
-            task.setProblemStatus(TaskProblemStatus.NO_PROBLEM.getId());
+        	feedback = feedbacks.get(0);
+        	if (feedback.getProblem() != null || feedback.getProblemOther() != null) {
+                task.setProblemStatus(TaskProblemStatus.PROBLEM.getId());
+            } else {
+                task.setProblemStatus(TaskProblemStatus.NO_PROBLEM.getId());
+            }
         }
         task.setVerifyTime(now);
         task.setUpdateTime(now);
@@ -177,9 +186,11 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         //审核通过时，如果广告位上并未记录经纬度,就把该任务完成时的经纬度记录给广告位
         AdSeatInfo seatInfo = adSeatInfoMapper.getAdSeatInfoByAdActivitySeatId(task.getActivityAdseatId());
         if(seatInfo.getLon()==null||seatInfo.getLat()==null){
-            seatInfo.setLon(feedback.getLon());
-            seatInfo.setLat(feedback.getLat());
-            adSeatInfoMapper.updateByPrimaryKeySelective(seatInfo);
+        	if(feedback != null) {
+        		seatInfo.setLon(feedback.getLon());
+                seatInfo.setLat(feedback.getLat());
+                adSeatInfoMapper.updateByPrimaryKeySelective(seatInfo);
+        	}
         }
 
         //奖励相关

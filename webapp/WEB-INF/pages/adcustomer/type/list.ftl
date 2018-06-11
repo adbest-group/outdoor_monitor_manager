@@ -23,7 +23,7 @@
                     <thead>
                     <tr>
                         <th>序号</th>
-                        <th>客户类型名称</th>
+                        <th>行业类型</th>
                         <th>操作</th>
                     </tr>
                     </thead>

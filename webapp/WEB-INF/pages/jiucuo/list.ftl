@@ -43,7 +43,7 @@
                         </div>
                     </div>
                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="searchBtn">查询</button>
-                    
+                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">批量审核</button> 
                     <#-- 
                     <#if (status?exists&&status == '1')>
                     <a disable="disable" style="display: inline;						
@@ -73,6 +73,7 @@
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan">
                     <thead>
                     <tr>
+                   	     <th width="30"><input type="checkbox" style="visibility: hidden" id='thead-checkbox' name="ck-alltask" value=""/></th>
                         <th>序号</th>
                         <th>活动名称</th>
                         <th>纠错照片</th>
@@ -89,6 +90,7 @@
                     <#if (bizObj.list?exists && bizObj.list?size>0) >
                         <#list bizObj.list as task>
                         <tr id="task_${task.id}">
+                         	<td width="30"><#if (task.status?exists&&task.status == 1)><input type="checkbox" data-status='${task.status}' name="ck-task" value="${task.id}"/></#if></td>  
                             <td width="30">${(bizObj.page.currentPage-1)*20+task_index+1}</td>
                             <td>
                                 <div class="data-title w200" data-title="${task.activityName!""}"
@@ -154,27 +156,7 @@
             $(".nav-sidebar>ul>li").removeClass("on");
             $(this).addClass("on");
         });
-    });
-
-    $(function () {
         $(window).resize();
-    });
-
-    $(window).resize(function () {
-        var h = $(document.body).height() - 115;
-        $('.main-container').css('height', h);
-    });
-
-    function createDateStr(alt) {
-        var today = new Date();
-        var t = today.getTime() + 1000 * 60 * 60 * 24 * alt;
-        var newDate = new Date(t).Format("yyyy-MM-dd");
-        if (alt == -6 || alt == -29)
-            return newDate + " 至 " + today.Format("yyyy-MM-dd");
-        return newDate + " 至 " + newDate;
-    }
-
-    $(function () {
         $('.select').searchableSelect();
 
         $('.inputs-date').dateRangePicker({
@@ -200,16 +182,96 @@
 
             }
         });
+        // 如果列表中有未确认的状态就显示表头的多选框
+        $("input[name='ck-task']").each(function() {
+        	if($(this).data('status') === 1){
+        		$('#thead-checkbox').css('visibility', 'visible')
+        		return false;
+        	}
+        })
+        //批量处理纠错
+       $("#assignBtn").click(function(){
+            if($("input[name='ck-task']:checked").length<1){
+                layer.confirm('请选择需要纠错的任务', {
+                    icon: 0,
+                    btn: ['确定'] //按钮
+                });
+            }else{
+                var ids = [];
+                $("input[name='ck-task']:checked").each(function(i,ck){
+                    if(ck.value) ids.push(ck.value);
+                });
+                id_sel = ids.join(",");
+                     $.ajax({
+			            url: "/jiucuo/verify",
+			            type: "post",
+			            data: {
+			                "ids": id_sel
+			            },
+			            cache: false,
+			            dataType: "json",
+			            success: function(datas) {
+			                var resultRet = datas.ret;
+			                if (resultRet.code == 101) {
+			                    layer.confirm(resultRet.resultDes, {
+			                        icon: 2,
+			                        btn: ['确定'] //按钮
+			                    }, function(){
+			                        window.location.reload();
+			                    });
+			                } else {
+			                    layer.confirm("确认成功", {
+			                        icon: 1,
+			                        btn: ['确定'] //按钮
+			                    },function () {
+			                        window.location.reload();
+			                    });
+			                }
+			            },
+			            error: function(e) {
+			                layer.confirm("服务忙，请稍后再试", {
+			                    icon: 5,
+			                    btn: ['确定'] //按钮
+			                });
+			            }
+			        });
+            }
+        });
+        $("input[name='ck-alltask']").change(function(){
+            if(this.value){
 
+            }else{
+                if($(this).is(":checked")){
+                    $("input[name='ck-task']").prop("checked",true)
+                }else{
+                    $("input[name='ck-task']").removeAttr("checked");
+                }
+            }
+        });	 
+    });
+
+
+    $(window).resize(function () {
+        var h = $(document.body).height() - 115;
+        $('.main-container').css('height', h);
+    });
+
+    function createDateStr(alt) {
+        var today = new Date();
+        var t = today.getTime() + 1000 * 60 * 60 * 24 * alt;
+        var newDate = new Date(t).Format("yyyy-MM-dd");
+        if (alt == -6 || alt == -29)
+            return newDate + " 至 " + today.Format("yyyy-MM-dd");
+        return newDate + " 至 " + newDate;
+    }
+        
 //        var newDate=new Date().Format("yyyy-MM-dd");
 //        $('.inputs-date').data('dateRangePicker').setDateRange(newDate,newDate, true);
 
-    });
-
     $("#searchBtn").on("click", function () {
-        $("#form").submit();
-    });
-
+	        $("#form").submit();
+  	 });   	
+   
     //审核通过
     pass = function (id) {
         layer.confirm("确认审核通过？", {

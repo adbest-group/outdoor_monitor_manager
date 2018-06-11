@@ -36,7 +36,7 @@
                         </div>
                     </div>
                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="searchBtn">查询</button>
-                    <#-- <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">指派</button> -->
+                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">批量指派</button> 
                 </form>
             </div>
         </div>
@@ -47,7 +47,7 @@
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan">
                     <thead>
                     <tr>
-                      <#--<th width="30"><input type="checkbox" name="ck-task" value=""/></th> -->  
+                     <th width="30"><input type="checkbox" style="visibility: hidden" id='thead-checkbox' name="ck-alltask" value=""/></th>
                         <th width="30">序号</th>
                         <th>活动名称</th>
                         <th>上刊示例</th>
@@ -66,7 +66,7 @@
                     <#if (bizObj.list?exists && bizObj.list?size>0) >
                         <#list bizObj.list as task>
                         <tr>
-                           <#--<td width="30"><input type="checkbox" name="ck-task" value="${task.id}"/></td>  --> 
+                        	<td width="30"><#if (task.status?exists&&task.status == 1)><input type="checkbox" data-status='${task.status}'  name="ck-task" value="${task.id}"/><div style='display:none;' data-id='${task.mediaId}'></div></#if></td>
                             <td width="30">${(bizObj.page.currentPage-1)*20+task_index+1}</td>
                             <td>
                                 <div class="data-title w200" data-title="${task.activityName!""}" data-id="${task.id}">${task.activityName?if_exists}</div>
@@ -74,7 +74,7 @@
                             <td><img width="50" src="${task.samplePicUrl!""}"/> </td>
                             <td>${task.startTime?string('yyyy-MM-dd')}<br/>${task.endTime?string('yyyy-MM-dd')}</td>
                             <td>${vm.getCityNameFull(task.street!task.region,"-")!""}</td>
-                            <td>${task.mediaName!""}</td>
+                            <td  id="media_${task.id}">${task.mediaName!""}</td>
                             <td>${task.adSeatName!""}</td>
                             <#--<td>${task.userId!""}</td>-->
                             <td>${vm.getMonitorTaskTypeText(task.taskType)!""}</td>
@@ -164,7 +164,16 @@
 
             }
         });
-
+        
+       // 如果列表中有未确认的状态就显示表头的多选框
+        $("input[name='ck-task']").each(function() {
+        	if($(this).data('status') === 1){
+        		$('#thead-checkbox').css('visibility', 'visible')
+        		return false;
+        	}
+        })
+		
+		//批量指派
         $("#assignBtn").click(function(){
             if($("input[name='ck-task']:checked").length<1){
                 layer.confirm('请选择需要指派的任务', {
@@ -173,14 +182,40 @@
                 });
             }else{
                 var ids = [];
+                var preMediaTxt;
+                var mediaTxt;
+                var flag=true;
+                var mediaId;
+                
+                //添加校验，如果批量选择中媒体类型不一致，提醒用户选择相同的媒体类型
                 $("input[name='ck-task']:checked").each(function(i,ck){
-                    if(ck.value) ids.push(ck.value);
+                	if(ck.value){
+                		if(!preMediaTxt){
+                			preMediaTxt=$(ck).parent().siblings("#media_"+ck.value).text();
+	                	}
+	            		mediaTxt=$(ck).parent().siblings("#media_"+ck.value).text();
+	            		if(preMediaTxt!=mediaTxt){
+	            			flag=false;
+	            			layer.confirm("请选择同一家媒体的指派任务", {
+		                        icon: 2,
+		                        btn: ['确定'] //按钮
+		                    }, function(){
+		                        window.location.reload();
+		                    });
+	            		}
+	                    ids.push(ck.value);
+	                    //传到前台媒体id
+	                    mediaId = $(ck).next().data('id');
+                	}
                 });
-                assign_ids = ids.join(",");
-                openSelect();
+                if(flag){
+                	assign_ids = ids.join(",");
+                	openSelect(mediaId);
+                }
             }
         });
-        $("input[name='ck-task']").change(function(){
+		
+        $("input[name='ck-alltask']").change(function(){
             if(this.value){
 
             }else{
@@ -198,19 +233,19 @@
     });
 
     //指派
-    assign = function (id) {
+    assign = function (id,mediaId) {
         assign_ids = id;
-        openSelect();
+        openSelect(mediaId);
     }
 
     //打开选择执行者
-    openSelect = function() {
+    openSelect = function(mediaId) {
         layer.open({
             type: 2,
             title: '选择监测人员',
             shade: 0.8,
-            area: ['400px', '220px'],
-            content: '/task/selectUserExecute' //iframe的url
+            area: ['600px', '420px'],
+            content: '/task/selectUserExecute?mediaId=' + mediaId //iframe的url
         });
     }
     //选择执行人后的回调

@@ -15,6 +15,7 @@ import com.bt.om.vo.web.ResultVo;
 import com.bt.om.web.BasicController;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -123,6 +124,8 @@ public class IndexController extends BasicController {
 		 // 更新密码
 		 if (userService.updateByPrimaryKeySelective(u) == 1) {
 		 resultVo.setResultDes("修改成功");
+		 SecurityUtils.getSubject().logout();
+		 
 		 } else {
 		 resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
 		 resultVo.setResultDes("修改失败");

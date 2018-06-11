@@ -789,6 +789,5 @@ public class MonitorTaskController extends BasicController {
 
         SearchUtil.putToModel(model, vo);
     	return PageConst.ALLTASK_LIST;
-        
     }
 }

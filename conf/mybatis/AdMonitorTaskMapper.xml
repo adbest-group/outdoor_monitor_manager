@@ -603,7 +603,7 @@
 	      	and a.assignor_id = #{assignorId,jdbcType=INTEGER}
 	    </if>
         <if test="updateTime != null">
-            and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i')
+            and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
         </if>
         order by a.update_time desc,a.id desc
 	</select>
@@ -684,7 +684,7 @@
 	      	and a.assignor_id = #{assignorId,jdbcType=INTEGER}
 	    </if>
         <if test="updateTime != null">
-            and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i')
+            and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
         </if>
         order by a.update_time desc,a.id desc
     </select>
@@ -800,7 +800,7 @@
         and d.lon between (#{lon,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lon,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
         and d.lat between (#{lat,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lat,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
         <if test="updateTime != null">
-      		and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i')
+      		and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i:%s')
     	</if>
         ) t ) t2 where t2.distance &lt;= #{metre,jdbcType=DOUBLE}
     </select>
@@ -825,7 +825,7 @@
         and d.lon between (#{lon,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lon,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
         and d.lat between (#{lat,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lat,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
         <if test="updateTime != null">
-      		and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i')
+      		and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i:%s')
     	</if>
         ) t
         having distance &lt;= #{metre,jdbcType=DOUBLE}
@@ -846,6 +846,9 @@
         <if test="city!=null">
             and d.city = #{city,jdbcType=BIGINT}
         </if>
+        <if test="updateTime != null">
+      	  and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i:%s')
+    	</if>
     </select>
 
     <select id="getByCurCityPageData" resultMap="MobileResultMap">
@@ -873,7 +876,7 @@
           and d.city = #{city,jdbcType=BIGINT}
         </if>
         <if test="updateTime != null">
-      	  and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i')
+      	  and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i:%s')
     	</if>
         ) t
 

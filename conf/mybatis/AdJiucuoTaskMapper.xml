@@ -441,7 +441,7 @@
 	      	and a.assessor_id = #{assessorId,jdbcType=INTEGER}
 	    </if>
 	    <if test="updateTime != null">
-      		and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i')
+      		and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
     	</if>
     </select>
 
@@ -499,7 +499,7 @@
 	      	and a.assessor_id = #{assessorId,jdbcType=INTEGER}
 	    </if>
 	    <if test="updateTime != null">
-      		and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i')
+      		and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
     	</if>
         order by a.id desc
     </select>

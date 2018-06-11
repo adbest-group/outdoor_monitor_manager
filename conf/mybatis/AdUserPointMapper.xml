@@ -159,7 +159,7 @@
        and a.create_time = #{createTime,jdbcType=TIMESTAMP}
     </if>
     <if test="updateTime != null">
-       and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i')
+       and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
     </if>
   </select>
 
@@ -191,7 +191,7 @@
       and a.create_time = #{createTime,jdbcType=TIMESTAMP}
     </if>
     <if test="updateTime != null">
-      and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i')
+      and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
     </if>
     order by a.id desc
   </select>

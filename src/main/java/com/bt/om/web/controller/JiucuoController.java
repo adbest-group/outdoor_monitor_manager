@@ -79,7 +79,7 @@ public class JiucuoController extends BasicController {
      * 查看纠错审核列表
      */
     @RequestMapping(value = "/list")
-    @RequiresRoles(value = {"jiucuoadmin","superadmin","depjiucuoadmin"},logical = Logical.OR)
+    @RequiresRoles(value = {"jiucuoadmin","superadmin","depjiucuoadmin","deptaskadmin","taskadmin"},logical = Logical.OR)
     public String joucuoList(Model model, HttpServletRequest request,
                              @RequestParam(value = "id", required = false) Integer id,
                              @RequestParam(value = "activityId", required = false) Integer activityId,
@@ -128,17 +128,20 @@ public class JiucuoController extends BasicController {
             }
         }
         
-        List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId()); //根据员工id查询所属组对应的所有广告商id集合
-        if(customerIds != null && customerIds.size() == 0) {
-        	//员工对应的广告商id集合为空, 不需要再去查询纠错审核列表
-        	vo.setCount(0);
-        	vo.setSize(20);
-        	vo.setStart(0);
-        	vo.setList(null);
-        } else {
-        	vo.putSearchParam("customerIds", null, customerIds);
-        	adJiucuoTaskService.getPageData(vo);
+        if(userObj.getUsertype() != 4 && userObj.getUsertype() != 5) {
+        	List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId()); //根据员工id查询所属组对应的所有广告商id集合
+            if(customerIds != null && customerIds.size() == 0) {
+            	//员工对应的广告商id集合为空, 不需要再去查询纠错审核列表
+            	vo.setCount(0);
+            	vo.setSize(20);
+            	vo.setStart(0);
+            	vo.setList(null);
+            } else {
+        		vo.putSearchParam("customerIds", null, customerIds);
+            }
         }
+        
+        adJiucuoTaskService.getPageData(vo);
         
 //        //只能查询自己参与的纠错任务审核
 //        if(userObj != null) {
@@ -240,7 +243,7 @@ public class JiucuoController extends BasicController {
 	/**
      * 查看纠错详情
      */
-    @RequiresRoles(value = {"jiucuoadmin", "media", "customer", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)
+    //@RequiresRoles(value = {"jiucuoadmin","superadmin","depjiucuoadmin","deptaskadmin","taskadmin"},logical = Logical.OR)
     @RequestMapping(value = "/detail")
     public String showDetail(Model model, HttpServletRequest request,
                              @RequestParam(value = "id", required = false) Integer id) {
@@ -385,7 +388,7 @@ public class JiucuoController extends BasicController {
     /**
      * 关闭纠错问题任务
      */
-    @RequiresRoles(value = {"jiucuoadmin", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)
+    //@RequiresRoles(value = {"jiucuoadmin", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/close")
     @ResponseBody
     public Model close(Model model, HttpServletRequest request,
@@ -414,7 +417,7 @@ public class JiucuoController extends BasicController {
     /**
      * 创建复查子任务
      */
-    @RequiresRoles(value = {"jiucuoadmin", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)
+    //@RequiresRoles(value = {"jiucuoadmin", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/createTask")
     @ResponseBody
     public Model newSub(Model model, HttpServletRequest request,

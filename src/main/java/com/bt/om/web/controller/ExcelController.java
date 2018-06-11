@@ -110,6 +110,50 @@ public class ExcelController extends BasicController {
 	private IAdCustomerTypeService adCustomerTypeService;
 	
 	/**
+	 * 批量导入媒体类型(包括媒体大类媒体小类)
+	 */
+	@RequiresRoles(value = {"superadmin"}, logical = Logical.OR)
+    @RequestMapping(value = "/insertMediaTypeByExcel")
+	@ResponseBody
+	public Model insertMediaTypeByExcel(Model model, HttpServletRequest request, HttpServletResponse response,
+            @RequestParam(value = "excelFile", required = false) MultipartFile file) {
+		//相关返回结果
+		ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("操作成功");
+        model = new ExtendedModelMap();
+        
+        //获取数据库里已有的媒体类型
+  		List<AdMediaTypeVo> adMediaTypeVos = adMediaTypeService.selectParentAndSecond();
+  		//(大类名-小类名-信息)
+  		Table<String, String, AdMediaTypeVo> table = getTable(adMediaTypeVos);
+  		
+  		try {
+  			if (file.isEmpty()) {
+				logger.error(MessageFormat.format("批量导入文件不能为空, 导入失败", new Object[] {}));
+        		throw new ExcelException("批量导入文件不能为空, 导入失败");
+			}
+  			
+  			InputStream in = file.getInputStream();
+	        List<List<Object>> listob = new ArrayList<List<Object>>();
+	       
+            //excel上传支持
+            listob = new ImportExcelUtil().getBankListByExcel(in, file.getOriginalFilename());
+
+            //业务层操作
+            adMediaTypeService.insertBatchByExcel(listob, table);
+  		} catch (Exception e) {
+        	logger.error(MessageFormat.format("批量导入文件有误, 导入失败", new Object[] {}));
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+        	result.setResultDes("导入失败");
+            e.printStackTrace();
+        }
+		
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+	}
+	
+	/**
 	 * 具体活动的pdf导出
 	 */
 	@RequiresRoles(value = {"superadmin", "activityadmin", "depactivityadmin", "admin" , "customer"}, logical = Logical.OR)
@@ -389,10 +433,18 @@ public class ExcelController extends BasicController {
 		List<String> databaseAdSeats = new ArrayList<>();
 		for (AdSeatInfo adSeatInfo : adSeatsByMediaId) {
 			StringBuffer buffer = new StringBuffer();
-			buffer.append(cityCache.getCityName(adSeatInfo.getProvince())); //省
-			buffer.append(cityCache.getCityName(adSeatInfo.getCity())); //市
-			buffer.append(cityCache.getCityName(adSeatInfo.getRegion())); //区
-			buffer.append(cityCache.getCityName(adSeatInfo.getStreet())); //街道
+			if(adSeatInfo.getProvince() != null) {
+				buffer.append(cityCache.getCityName(adSeatInfo.getProvince())); //省
+			}
+			if(adSeatInfo.getCity() != null) {
+				buffer.append(cityCache.getCityName(adSeatInfo.getCity())); //市
+			}
+			if(adSeatInfo.getRegion() != null) {
+				buffer.append(cityCache.getCityName(adSeatInfo.getRegion())); //区
+			}
+			if(adSeatInfo.getStreet() != null) {
+				buffer.append(cityCache.getCityName(adSeatInfo.getStreet())); //街道
+			}
 			buffer.append(adSeatInfo.getLocation()); //详细位置
 			databaseAdSeats.add(buffer.toString());
 		}
@@ -564,26 +616,30 @@ public class ExcelController extends BasicController {
                         		hasProblem = true;
                     		}
                     	} else {
-                    		String cityName = String.valueOf(lo.get(6)).trim(); //市
-                    		/*if(!cityName.endsWith("市")) {
-                    			cityName = cityName + "市";
-                    		}*/
                     		if(zhiXiaShiFlag == true) {
-                    			info.setCity(info.getProvince());
-                    			cityId = provinceId;
+                    			//直辖市的city字段不存库
                     		} else {
-                    			List<City> cities = cityCache.getCity(provinceId);
-                        		Map<String, Long> cityMap = citiesToMap(cities);
-                        		Set<String> cityNames = cityMap.keySet();
-                        		for (String name : cityNames) {
-    								if(name.contains(cityName)) {
-    									cityName = name;
-    									break;
-    								}
-    							}
-                        		cityId = cityMap.get(cityName);
-                        		info.setCity(cityId);
-                        		buffer.append(cityName);
+                    			String cityName = String.valueOf(lo.get(6)).trim(); //市
+                        		/*if(!cityName.endsWith("市")) {
+                        			cityName = cityName + "市";
+                        		}*/
+                        		if(zhiXiaShiFlag == true) {
+                        			info.setCity(info.getProvince());
+                        			cityId = provinceId;
+                        		} else {
+                        			List<City> cities = cityCache.getCity(provinceId);
+                            		Map<String, Long> cityMap = citiesToMap(cities);
+                            		Set<String> cityNames = cityMap.keySet();
+                            		for (String name : cityNames) {
+        								if(name.contains(cityName)) {
+        									cityName = name;
+        									break;
+        								}
+        							}
+                            		cityId = cityMap.get(cityName);
+                            		info.setCity(cityId);
+                            		buffer.append(cityName);
+                        		}
                     		}
     					}
                 	}
@@ -1035,7 +1091,20 @@ public class ExcelController extends BasicController {
         	table.addCell(new Paragraph(list.get(1), fontChinese));
 //        	table.addCell(new Paragraph(list.get(22), fontChinese));
         	table.addCell(new Paragraph(list.get(21), fontChinese));
-            table.addCell(new Paragraph(list.get(2) + list.get(3) + list.get(4) + list.get(5), fontChinese));
+        	StringBuffer location = new StringBuffer();
+        	if(StringUtil.isNotBlank(list.get(2))) {
+        		location.append(list.get(2));
+        	}
+        	if(StringUtil.isNotBlank(list.get(3))) {
+        		location.append(list.get(3));
+        	}
+        	if(StringUtil.isNotBlank(list.get(4))) {
+        		location.append(list.get(4));
+        	}
+        	if(StringUtil.isNotBlank(list.get(5))) {
+        		location.append(list.get(5));
+        	}
+            table.addCell(new Paragraph(location.toString(), fontChinese));
             table.addCell(new Paragraph(list.get(6), fontChinese));
             table.addCell(new Paragraph(list.get(19), fontChinese));
             table.addCell(new Paragraph(list.get(20), fontChinese));

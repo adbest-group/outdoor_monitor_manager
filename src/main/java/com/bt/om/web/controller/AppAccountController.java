@@ -49,15 +49,19 @@ public class AppAccountController extends BasicController {
     @RequiresRoles({"superadmin"})
     @RequestMapping(value = "/list")
     public String getWorkerList(Model model, HttpServletRequest request,
-                                @RequestParam(value = "name", required = false) String name) {
+                                @RequestParam(value = "nameOrUsername", required = false) String name,
+                                @RequestParam(value = "searchUserType", required = false) String usertype) {
         SearchDataVo vo = SearchUtil.getVo();
 
-        vo.putSearchParam("usertypes", null, new Integer[]{UserExecuteType.CUSTOMER.getId(), UserExecuteType.MONITOR.getId(),UserExecuteType.MEDIA_WORKER.getId(),UserExecuteType.Social.getId()});
+        //vo.putSearchParam("usertypes", null, new Integer[]{UserExecuteType.CUSTOMER.getId(), UserExecuteType.MONITOR.getId(),UserExecuteType.MEDIA_WORKER.getId(),UserExecuteType.Social.getId()});
         SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
 //        vo.putSearchParam("operateId",null,user.getId());
         // 名称或登录账号
         if (StringUtils.isNotBlank(name)) {
             vo.putSearchParam("nameOrUsername", name, "%" + name + "%");
+        }
+        if (StringUtils.isNotBlank(usertype)) {
+        	vo.putSearchParam("usertype", usertype, usertype);
         }
         
         sysUserExecuteService.getPageData(vo);

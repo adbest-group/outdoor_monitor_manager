@@ -126,4 +126,9 @@ public interface ISysUserService {
 	int updateListUserRes(UserRoleVo userRoleVo);
 
 	SysUserDetail getUserDetail(Integer userId);
+
+	List<SysUser> getAvailableByUserType(Integer userType);
+
+	int updateByPrimaryKeySelective(SysUser u);
+
 }

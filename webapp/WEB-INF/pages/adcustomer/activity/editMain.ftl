@@ -9,11 +9,11 @@
     }
 </style>
 <#assign editMode=false/>
-<@shiro.hasRole name="customer">
+<#-- <@shiro.hasRole name="customer"> -->
     <#if !activity?exists||activity.status = 1>
         <#assign editMode=true />
     </#if>
-</@shiro.hasRole>
+<#-- </@shiro.hasRole> -->
 
 <div class="main-container" style="height: auto;">
     <div class="clearfix">
@@ -23,6 +23,20 @@
                     <input type="hidden" id="id" value=""/>
                     <table width="100%" cellpadding="0" cellspacing="0" border="0" type="">
                         <tbody>
+						
+						<#if usertype?exists && usertype != 2 && !activity?exists>
+							<tr>
+								<td class="a-title"><font class="s-red">*</font>广告主：</td>
+								<td>
+									<select style="width: 156px;" name="customerId" id="customerId" class="form-control">
+										<option value="">请选择广告主</option>
+										<@model.showAllCustomerAvailableOps value="<#if (activity?exists&&activity.userId?exists)>activity.userId</#if>"/>
+				                    </select>
+									
+                                    <span id="customerIdTip"></span>
+								</td>
+							</tr>
+						</#if>
 
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>广告活动名称：</td>
@@ -416,6 +430,15 @@
             submitOnce: false,
             errorFocus: false,
             onSuccess: function () {
+            	var html = $("#as-container").html();
+            	if(html.length <= 37) {
+            		layer.confirm("请选择广告位", {
+                        icon: 2,
+                        btn: ['确定'] //按钮
+                    });
+                	return ;
+            	}
+            	
                 var activityName = $("#activityName").val(); //活动名
                 var startDate = $("#dts").val(); //投放开始时间
                 var endDate = $("#dt").val(); //投放结束时间
@@ -439,6 +462,15 @@
                 var region = $("#region").val();
                 var street = $("#street").val();
 				var samplePicUrl = $("#img-demo-bak").val();
+				if(samplePicUrl.length <= 0) {
+            		layer.confirm("请上传广告投放画面", {
+                        icon: 2,
+                        btn: ['确定'] //按钮
+                    });
+                	return ;
+            	}
+				
+				var customerId = $("#customerId").val();
                 <#-- var customerTypeId = $("#customerTypeId").val(); -->
                 var media = [];
                 $("input[name='media']:checked").each(function (i, n) {
@@ -467,8 +499,9 @@
                         "street": street,
                         <#-- "customerTypeId": customerTypeId, -->
                         "media": media.join(","),
-//                        "dels" : dels.join(","),
+//                      "dels" : dels.join(","),
 						"samplePicUrl" : samplePicUrl,
+						"customerId" : customerId,
                         "activeSeat": JSON.stringify(activity_seats)
                     },
                     cache: false,
@@ -489,7 +522,25 @@
                                 icon: 1,
                                 btn: ['确定'] //按钮
                             }, function () {
-                                window.location.href = "/customer/activity/list";
+                            	<#-- 4：超级管理员 -->
+                            	<#if usertype?exists && usertype == 4>
+                            		window.location.href = "/sysResources/activity";
+                            	</#if>
+                            	
+                            	<#-- 5：部门领导 -->
+                            	<#if usertype?exists && usertype == 5>
+                            		window.location.href = "/sysResources/activity";
+                            	</#if>
+                            	
+                            	<#-- 2：客户账户-->
+                            	<#if usertype?exists && usertype == 2>
+	                                window.location.href = "/customer/activity/list";
+                                </#if>
+                                
+                                <#-- 1：运营平台账户 -->
+                                <#if usertype?exists && usertype == 1>
+	                                window.location.href = "/activity/list";
+                                </#if>
                             });
                         }
                     },
@@ -503,6 +554,23 @@
             },
             submitAfterAjaxPrompt: '有数据正在异步验证，请稍等...'
         });
+        
+        <#if usertype?exists && usertype != 2>
+			// 广告主
+	        $("#customerId").formValidator({
+	            validatorGroup:"2",
+	            onShow:"",
+	            onFocus:"请选择广告主",
+	            onCorrect:""
+	        }).regexValidator({
+	            regExp:"^\\S+$",
+	            onError:"广告主不能为空，请选择"
+	        }).inputValidator({
+	            min: 1,
+	            max: 60,
+	            onError: "广告主不能为空，请选择"
+	        });
+        </#if>
 
         // 活动名称
         $("#activityName").formValidator({
@@ -532,7 +600,9 @@
         }).functionValidator({
         	fun: function(val, ele){
         		var now = new Date();
-        		var date = now.getFullYear()+ '-' + (now.getMonth() + 1).toString().padStart(2, 0) + '-' + now.getDate().toString().padStart(2, 0)
+        		var month = (now.getMonth() + 1).toString().length < 2 ? '0' + (now.getMonth() + 1).toString() : (now.getMonth() + 1).toString()
+        		var day = now.getDate().toString().length < 2 ? '0' + now.getDate().toString() : now.getDate().toString()
+        		var date = now.getFullYear()+ '-' + month + '-' + day
 
         		if($('#dts').val() < date) {
         			return false

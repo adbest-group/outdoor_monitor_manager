@@ -7,6 +7,7 @@ import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -78,4 +79,8 @@ public interface AdJiucuoTaskMapper {
     List<AdJiucuoTask> selectInfoByLonLatTitle(Map<String, Object> searchMap);
 
 	List<AdJiucuoTask> selectInfoByMemo(Map<String, Object> searchMap);
+
+	int getJiucuoPageCount(HashMap<String, Object> searchMap);
+
+	List<?> getJiucuoPageData(HashMap<String, Object> searchMap, RowBounds rowBounds);
 }

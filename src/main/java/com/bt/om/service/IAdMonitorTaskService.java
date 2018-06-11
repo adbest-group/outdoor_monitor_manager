@@ -95,4 +95,5 @@ public interface IAdMonitorTaskService {
      * 获取即将结束的任务(2小时之前),进行消息推送
      */
 	String getTaskWillEnd(Integer duration);
+	public void getTaskPageData(SearchDataVo datavo);
 }

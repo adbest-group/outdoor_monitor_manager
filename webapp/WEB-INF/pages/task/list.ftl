@@ -31,14 +31,16 @@
                     </div>
                     <div class="select-box select-box-100 un-inp-select ll">
                         <select class="select" name="status">
-                        	<option value="3" <#if (status?exists&&status == 3)>selected</#if>>待审核</option>
+                        	<option value="">所有任务状态</option>
+                        	<@model.showMonitorTaskStatusOps value="${bizObj.queryMap.status?if_exists}"/>
+                        	<#-- <option value="3" <#if (status?exists&&status == 3)>selected</#if>>待审核</option>
                         	<option value="4" <#if (status?exists&&status == 4)>selected</#if>>审核通过</option>
                         	<option value="5" <#if (status?exists&&status == 5)>selected</#if>>审核未通过</option>
                         	<#-- <option value="7" <#if (status?exists&&status == 7)>selected</#if>>待激活</option> -->
                         	<#-- <option value="8" <#if (status?exists&&status == 8)>selected</#if>>可抢单</option> -->
                         	<#-- <option value="1" <#if (status?exists&&status == 1)>selected</#if>>待指派</option> -->
-                        	<option value="2" <#if (status?exists&&status == 2)>selected</#if>>待执行</option>
-                        	<option value="6" <#if (status?exists&&status == 6)>selected</#if>>未完成</option>
+                        	<#-- <option value="2" <#if (status?exists&&status == 2)>selected</#if>>待执行</option>
+                        	<option value="6" <#if (status?exists&&status == 6)>selected</#if>>未完成</option> -->
                         	<#-- <@model.showMonitorTaskStatusOps value="${bizObj.queryMap.status?if_exists}"/> -->
                         </select>
                     </div>

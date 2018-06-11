@@ -8,6 +8,7 @@ import com.bt.om.entity.vo.HeatMapVo;
 import com.bt.om.vo.web.SearchDataVo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by caiting on 2018/3/5.
@@ -36,4 +37,5 @@ public interface IAdSeatService {
 	List<CountGroupByCityVo> getCountGroupByCity(HeatMapVo heatMapVo, Integer userId);
 	List<AdSeatInfo> getAllLonLat(HeatMapVo heatMapVo, Integer userId);
 	int updateFlag(Integer codeFlag,Integer id);
+	int selectByLocation(Map<String, Object> searchMap);
 }

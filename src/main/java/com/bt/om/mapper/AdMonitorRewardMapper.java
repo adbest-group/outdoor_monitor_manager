@@ -2,7 +2,9 @@ package com.bt.om.mapper;
 
 import com.bt.om.entity.AdMonitorReward;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.RowBounds;
 
+import java.util.HashMap;
 import java.util.List;
 
 public interface AdMonitorRewardMapper {
@@ -57,4 +59,8 @@ public interface AdMonitorRewardMapper {
     List<AdMonitorReward> selectByUserId(@Param("userId") Integer userId);
 
     int selectTotalRewardByUserId(@Param("userId") Integer userId);
+
+	int getPageCount(HashMap<String, Object> searchMap);
+
+	List<?> getPageData(HashMap<String, Object> searchMap, RowBounds rowBounds);
 }

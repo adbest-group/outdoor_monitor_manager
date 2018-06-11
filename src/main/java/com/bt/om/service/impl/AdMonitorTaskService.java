@@ -556,4 +556,16 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	public List<PictureVo> selectFeedBackByActivityIdAndSeatId(Map<String, Object> searchMap) {
 		return adMonitorTaskMapper.selectFeedBackByActivityIdAndSeatId(searchMap);
 	}
+
+	@Override
+	public void getTaskPageData(SearchDataVo datavo) {
+		int count = adMonitorTaskMapper.getTaskPageCount(datavo.getSearchMap());
+		datavo.setCount(count);
+        if (count > 0) {
+        	datavo.setList(adMonitorTaskMapper.getTaskPageData(datavo.getSearchMap(), new RowBounds(datavo.getStart(), datavo.getSize())));
+        } else {
+        	datavo.setList(new ArrayList<AdMonitorTask>());
+        }
+		
+	}
 }

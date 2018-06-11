@@ -2,6 +2,7 @@ package com.bt.om.service;
 
 import com.bt.om.entity.AdMonitorReward;
 import com.bt.om.entity.AdMonitorTask;
+import com.bt.om.vo.web.SearchDataVo;
 
 import java.util.List;
 
@@ -11,4 +12,5 @@ import java.util.List;
 public interface IAdMonitorRewardService {
     public Integer getTotalRewardByUserId(Integer userId);
     public List<AdMonitorReward> getByUserId(Integer userId);
+	public void getPageData(SearchDataVo vo);
 }

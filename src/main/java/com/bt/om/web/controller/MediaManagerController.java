@@ -361,7 +361,7 @@ public class MediaManagerController {
     /**
      * 广告位编辑
      **/
-    @RequiresRoles("media")
+    @RequiresRoles(value = {"superadmin", "media"}, logical = Logical.OR)
     @RequestMapping(value = "/adseat/edit")
     public String toEdit(Model model, HttpServletRequest request,
                          @RequestParam(value = "id", required = false) Integer id) {
@@ -374,16 +374,23 @@ public class MediaManagerController {
             model.addAttribute("adSeatInfo", adSeatInfoVo);
         }
         
+        //获取登录用户信息
+        SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        
+        if(user != null) {
+        	model.addAttribute("usertype", user.getUsertype());
+        }
+        
         return PageConst.MEDIA_ADSEAT_EDIT;
     }
 
     /**
      * 保存广告位
      **/
-    @RequiresRoles("media")
+    @RequiresRoles(value = {"superadmin", "media"}, logical = Logical.OR)
     @RequestMapping(value = "/adseat/save")
     @ResponseBody
-    public Model addInfo(Model model, AdSeatInfo adSeatInfo, HttpServletRequest request) {
+    public Model addInfo(Model model, AdSeatInfo adSeatInfo, HttpServletRequest request, Integer mediaId) {
         ResultVo<String> result = new ResultVo<String>();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("保存成功");
@@ -393,6 +400,26 @@ public class MediaManagerController {
 		Map<String, Object> modelMap = new HashMap<String, Object>();
 
         try {
+        	//校验地址唯一性
+        	Long province = adSeatInfo.getProvince();
+        	Long city = adSeatInfo.getCity();
+        	Long region = adSeatInfo.getRegion();
+        	Long street = adSeatInfo.getStreet();
+        	String location = adSeatInfo.getLocation();
+        	Map<String, Object> searchMap = new HashMap<>();
+        	searchMap.put("province", province);
+        	searchMap.put("city", city);
+        	searchMap.put("region", region);
+        	searchMap.put("street", street);
+        	searchMap.put("location", location);
+        	int count = adSeatService.selectByLocation(searchMap);
+        	if(count > 0) {
+        		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("广告位位置重复！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+        	}
+        	
         	if(adSeatInfo.getMultiNum() == 0) {
         		adSeatInfo.setMultiNum(1);
         	}
@@ -417,9 +444,13 @@ public class MediaManagerController {
             	SysUserVo mediaUser = new SysUserVo();
         		Integer usertype = user.getUsertype();
         		if (usertype == 3) {
-        			//媒体人员自行添加
-        			media = adMediaMapper.selectByUserId(user.getId());
-        			mediaUser = sysUserService.findUserinfoById(media.getUserId());
+        			//媒体人员自行添加 3：媒体账户
+        			media = adMediaMapper.selectByUserId(user.getId()); //通过登录后台用户id查询AdMedia信息
+        			mediaUser = sysUserService.findUserinfoById(media.getUserId()); //通过登录后台用户id查询媒体信息(比如二维码前缀)
+        		} else {
+        			//超级管理员添加广告位
+        			media = adMediaMapper.selectByPrimaryKey(mediaId);
+        			mediaUser = sysUserService.findUserinfoById(media.getUserId()); //通过媒体的后台用户id查询媒体信息(比如二维码前缀)
         		}
         		
         		//生成广告位对应的二维码
@@ -432,7 +463,7 @@ public class MediaManagerController {
         		//默认贴上二维码
         		adSeatInfo.setCodeFlag(1);
 
-            adSeatService.save(adSeatInfo, user.getId());
+        		adSeatService.save(adSeatInfo, user.getId());
             }
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());

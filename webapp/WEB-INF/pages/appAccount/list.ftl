@@ -9,11 +9,21 @@
         <div class="title clearfix">
             <button href="javascript:;" class="add-new-btn ll" id="add_media"><i></i> 新建账号</button>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
-                <div class="inp">
-                    <input type="text" value="${nameOrUsername?if_exists}" placeholder="姓名/手机号" id="nameOrUsername"
-                           name="nameOrUsername">
-                </div>
-                <button type="button" class="btn btn-red" autocomplete="off" id="searchBtn">查询</button>
+            	<form id="form" method="get" action="/appAccount/list">
+	            	<div class="select-box select-box-100 un-inp-select ll">
+	                    <select name="searchUserType" class="select" id="searchUserType">
+	            			<option value="">所有类型</option>
+	                        <option value="2" <#if (bizObj.queryMap.usertype?exists&&bizObj.queryMap.usertype == '2')>selected</#if>>客户人员</option>
+	                    	<option value="3" <#if (bizObj.queryMap.usertype?exists&&bizObj.queryMap.usertype == '3')>selected</#if>>媒体人员</option>
+	                    	<option value="4" <#if (bizObj.queryMap.usertype?exists&&bizObj.queryMap.usertype == '4')>selected</#if>>社会人员</option>
+	                    </select>
+	                </div>
+	                <div class="inp">
+	                    <input type="text" value="${nameOrUsername?if_exists}" placeholder="登录账户" id="nameOrUsername" name="nameOrUsername">
+	                </div>
+	                
+	                <button type="button" class="btn btn-red" autocomplete="off" id="searchBtn">查询</button>
+	            </form>
             </div>
         </div>
 
@@ -26,6 +36,7 @@
                         <th>序号</th>
                         <th>登录账户</th>
                         <th>账户类型</th>
+                        <th>所属媒体主</th>
                         <th>姓名</th>
                         <th>联系电话</th>
                         <th>状态</th>
@@ -39,6 +50,7 @@
                             <td width="30">${(bizObj.page.currentPage-1)*20+user_index+1}</td>
                             <td>${user.username?if_exists}</td>
                             <td>${vm.getUserExecuteTypeText(user.usertype)?if_exists}</td>
+                            <td>${user.mediaName?if_exists}</td>
                             <td>${user.realname?if_exists}</td>
                             <td>${user.mobile?if_exists}</td>
                             <td><span onclick="updStatus('${user.id}', '${user.status}');"
@@ -62,7 +74,13 @@
 </div>
 </div>
 </div>
+
+<link href="${model.static_domain}/js/select/jquery.searchableSelect.css" rel="stylesheet">
+<script src="${model.static_domain}/js/select/jquery.searchableSelect.js"></script>
+
 <script type="text/javascript">
+	$('.select').searchableSelect();
+
     $("#add_media").on("click", function () {
         //iframe层
         layer.open({
@@ -86,15 +104,8 @@
         });
     }
 
-    // 查询
     $("#searchBtn").on("click", function () {
-        var strParam = "";
-        var nameOrUsername = $("#nameOrUsername").val();
-        if (nameOrUsername != null && $.trim(nameOrUsername).length) {
-            strParam = strParam + "?name=" + nameOrUsername;
-        }
-
-        window.location.href = "/appAccount/list" + strParam;
+        $("#form").submit();
     });
 
     // 删除账户

@@ -68,6 +68,7 @@ public class ActivityController extends BasicController {
 	private ISysUserRoleService sysUserRoleService;
 	@Autowired
 	private IOperateLogService operateLogService;
+
 	@Autowired
 	protected RedisTemplate redisTemplate;
 
@@ -218,19 +219,26 @@ public class ActivityController extends BasicController {
 		return PageConst.ACTIVITY_LIST;
 	}
 
-	// 前往编辑活动
-	@RequiresRoles(value = { "activityadmin", "depactivityadmin", "superadmin" }, logical = Logical.OR)
-	@RequestMapping(value = "/edit")
-	public String customerEdit(Model model, HttpServletRequest request,
-			@RequestParam(value = "id", required = false) Integer id) {
-		AdActivityVo activity = adActivityService.getVoById(id);
+	//前往编辑活动
+    @RequiresRoles(value = {"activityadmin", "depactivityadmin", "superadmin", "customer"}, logical = Logical.OR)
+    @RequestMapping(value = "/edit")
+    public String customerEdit(Model model, HttpServletRequest request,
+                               @RequestParam(value = "id", required = false) Integer id) {
+        AdActivityVo activity = adActivityService.getVoById(id);
 
-		if (activity != null) {
-			model.addAttribute("activity", activity);
-		}
+        if (activity != null) {
+            model.addAttribute("activity", activity);
+        }
+        
+        //获取登录用户信息
+        SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        
+        if(user != null) {
+        	model.addAttribute("usertype", user.getUsertype());
+        }
 
-		return PageConst.ACTIVITY_EDIT;
-	}
+        return PageConst.ACTIVITY_EDIT;
+    }
 
 	// 确认活动
 	@RequiresRoles(value = { "activityadmin", "depactivityadmin", "superadmin" }, logical = Logical.OR)
@@ -335,6 +343,7 @@ public class ActivityController extends BasicController {
 			// 获取当前登录的后台用户信息
 			SysUser sysUser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
 			Map<String, Object> searchMap = new HashMap<>();
+
 			searchMap.put("userId", sysUser.getId());
 			Integer groupId = sysUserRoleService.selectGroupIdByUserId(searchMap);
 			/*

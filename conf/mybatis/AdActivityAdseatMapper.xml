@@ -422,6 +422,9 @@
     <if test="mediaTypeParentId != null" >
       and c.media_type_parent_id = #{mediaTypeParentId,jdbcType=INTEGER}
     </if>
+    <if test="updateTime != null">
+      and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i')
+    </if>
   </select>
   
   <!-- APP端广告主查询活动的广告位信息, 需分页 -->
@@ -462,6 +465,9 @@
     </if>
     <if test="mediaTypeParentId != null" >
       and c.media_type_parent_id = #{mediaTypeParentId,jdbcType=INTEGER}
+    </if>
+    <if test="updateTime != null">
+      and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i')
     </if>
   </select>
   

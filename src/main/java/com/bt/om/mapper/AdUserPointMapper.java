@@ -62,4 +62,6 @@ public interface AdUserPointMapper {
 
 	//通过用户id查找该用户的所有积分数据
 	List<AdUserPoint> getListById(Integer userId);
+
+	Integer getPointCountById(Integer userId);
 }

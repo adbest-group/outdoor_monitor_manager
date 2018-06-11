@@ -79,6 +79,7 @@
                         <th>状态</th>
                         <th>问题状态</th>
                         <th>审核人</th>
+                        <th>审核时间</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -89,7 +90,7 @@
                           	<td width="30"><#if (task.status?exists&&task.status == 3)><input type="checkbox" data-status='${task.status}'  name="ck-task" value="${task.id}"/></#if></td> 
                             <td width="30">${(bizObj.page.currentPage-1)*20+task_index+1}</td>
                             <td>
-                                <div class="data-title w200" data-title="${task.activityName}"
+                                <div class="data-title w200" data-title="${task.activityName!""}"
                                      data-id="${task.id}">${task.activityName?if_exists}</div>
                             </td>
                             <td><img width="50" src="${task.samplePicUrl!""}"/></td>
@@ -102,6 +103,7 @@
                             <td>${vm.getMonitorTaskStatusText(task.status)!""}</td>
                             <td>${vm.getProblemStatusText(task.problemStatus!0)}</td>
                             <td>${task.assessorName!""}</td>
+                            <td>${task.updateTime?string('yyyy-MM-dd')}</td>
                             <td>
                             <#--<#if task.status==1><a href="javascript:assign('${task.id}')">指派</a></#if>-->
                             <#--<#if task.status==2><a href="javascript:assign('${task.id}')">重新指派</a></#if>-->

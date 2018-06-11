@@ -10,13 +10,15 @@
 <div class="main-container" style="height: auto;">
     <div class="main-box">
         <div class="title clearfix" style="display: block;">
-            <div class="search-box search-ll" style="margin: 0 0 0 20px">
+            <div class="search-box search-ll" style="margin: 0 0 0 20px;display: inline-block;">
+            	<button type="button" class="btn btn-red" autocomplete="off"
+					onclick="window.location.href='/platmedia/adseat/edit'">新增广告位</button>
                 <#--<button type="button" class="btn btn-red" autocomplete="off"-->
                         <#--onclick="window.location.href='/adseat/edit'">新增广告位</button>-->
 			<#--<button style="margin-left: 10px" type="button" class="btn"-->
 			<#--autocomplete="off" onclick="">批量导入</button>-->
                 <#--<div style="border-bottom: 1px solid black; margin:10px auto"></div>-->
-                <form id="form" method="get" action="/adseat/list">
+                <form id="form" method="get" action="/adseat/list" style="display: inline-block;">
                     <!--销售下拉框-->
                     <div id="demo3" class="citys" style="float: left; font-size: 12px">
                         <p>

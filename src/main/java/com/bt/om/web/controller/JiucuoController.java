@@ -314,7 +314,7 @@ public class JiucuoController extends BasicController {
             SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
             
             if (status == JiucuoTaskStatus.VERIFIED.getId()) {//审核通过
-                adJiucuoTaskService.pass(jiucuoIds, userObj.getId());
+                adJiucuoTaskService.pass(jiucuoIds, userObj.getId(), status);
             } else if (status == JiucuoTaskStatus.VERIFY_FAILURE.getId()) {//审核不通过
                 adJiucuoTaskService.reject(task, reason, userObj.getId());
             }

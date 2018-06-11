@@ -86,7 +86,7 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void pass(String[] jiucuoIds, Integer assessorId) {
+    public void pass(String[] jiucuoIds, Integer assessorId, Integer status) {
     	//[4] 确认操作在业务层方法里进行循环
     	for (String jcId : jiucuoIds) {
     		Integer id = Integer.parseInt(jcId);
@@ -96,6 +96,7 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
         task.setVerifyTime(now);
         task.setId(id);
         task.setAssessorId(assessorId); //审核人id
+        task.setStatus(status);
         adJiucuoTaskMapper.updateByPrimaryKeySelective(task);
         
 //        task = adJiucuoTaskMapper.selectByPrimaryKey(task.getId());

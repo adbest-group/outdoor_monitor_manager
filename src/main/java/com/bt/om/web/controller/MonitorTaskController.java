@@ -573,7 +573,7 @@ public class MonitorTaskController extends BasicController {
         	
             if (task.getStatus() == MonitorTaskStatus.VERIFIED.getId()) {
                 // adMonitorTaskService.update(task);
-                adMonitorTaskService.pass(taskIds, userObj.getId());
+                adMonitorTaskService.pass(taskIds, userObj.getId(), status);
             } else {
                 adMonitorTaskService.reject(task, reason, userObj.getId());
             } 

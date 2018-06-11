@@ -240,7 +240,8 @@
 			            url: "/task/verify",
 			            type: "post",
 			            data: {
-			                "ids": id_sel
+			                "ids": id_sel,
+			                "status": 4
 			            },
 			            cache: false,
 			            dataType: "json",

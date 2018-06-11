@@ -24,7 +24,7 @@ public interface IAdJiucuoTaskService {
     /**
      *  审核通过
      **/
-    public void pass(String[] jiucuoIds, Integer assessorId);
+    public void pass(String[] jiucuoIds, Integer assessorId, Integer status);
     /**
      *  审核不通过
      **/

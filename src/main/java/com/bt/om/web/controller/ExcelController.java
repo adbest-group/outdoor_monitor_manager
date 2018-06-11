@@ -1091,7 +1091,20 @@ public class ExcelController extends BasicController {
         	table.addCell(new Paragraph(list.get(1), fontChinese));
 //        	table.addCell(new Paragraph(list.get(22), fontChinese));
         	table.addCell(new Paragraph(list.get(21), fontChinese));
-            table.addCell(new Paragraph(list.get(2) + list.get(3) + list.get(4) + list.get(5), fontChinese));
+        	StringBuffer location = new StringBuffer();
+        	if(StringUtil.isNotBlank(list.get(2))) {
+        		location.append(list.get(2));
+        	}
+        	if(StringUtil.isNotBlank(list.get(3))) {
+        		location.append(list.get(3));
+        	}
+        	if(StringUtil.isNotBlank(list.get(4))) {
+        		location.append(list.get(4));
+        	}
+        	if(StringUtil.isNotBlank(list.get(5))) {
+        		location.append(list.get(5));
+        	}
+            table.addCell(new Paragraph(location.toString(), fontChinese));
             table.addCell(new Paragraph(list.get(6), fontChinese));
             table.addCell(new Paragraph(list.get(19), fontChinese));
             table.addCell(new Paragraph(list.get(20), fontChinese));

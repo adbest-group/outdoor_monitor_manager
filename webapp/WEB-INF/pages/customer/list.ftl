@@ -10,7 +10,7 @@
             <a href="javascript:;" class="add-new-btn ll" id="add_media"><i></i> 新建客户账号</a>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <div class="inp">
-                    <input type="text" value="${nameOrUsername?if_exists}" placeholder="请输入媒体名/登录账户" id="nameOrUsername"
+                    <input type="text" value="${nameOrUsername?if_exists}" placeholder="请输入广告主账户/登录账户" id="nameOrUsername"
                            name="nameOrUsername">
                 </div>
                 <button type="button" class="btn btn-red" autocomplete="off" id="searchBtn">查询</button>
@@ -24,11 +24,11 @@
                     <thead>
                     <tr>
                         <th>序号</th>
-                        <th>客户名称</th>
+                        <th>广告主账户名称</th>
                         <th>登录账户</th>
                         <th>联系电话</th>
-                        <th>客户类型</th>
-                        <th>app类型</th>
+                        <th>客户行业类型</th>
+                        <th>App类型</th>
                         <th>状态</th>
                         <th>操作</th>
                     </tr>

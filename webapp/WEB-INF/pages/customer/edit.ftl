@@ -13,7 +13,7 @@
 			<tbody>
 			     <input type="hidden" name="id" id="id" value="${(obj.id)?if_exists}"/>
 				<tr>
-					<td class="a-title" style="padding:20px 10px;">登录账户：</td>
+					<td class="a-title" style="padding:20px 10px;">广告主账户：</td>
 					<td style="padding:20px 10px;">
 					<#if (obj.id)?exists>
 					   ${(obj.username)?if_exists}
@@ -39,7 +39,7 @@
 					<td><input type="text" id="telephone" name="telephone" value="${(obj.telephone)?if_exists}" autocomplete="off" class="form-control"> <br><span id="telephoneTip"></span></td>
 				</tr>
 				<tr>
-					<td style="padding-bottom:20px;" class="a-title">客户类型：</td>
+					<td style="padding-bottom:20px;" class="a-title">客户行业：</td>
 					<td style="padding-bottom:20px;">
                         <select name="customerTypeId" class="searchable-select-holder" id="customerTypeId">
                             <option value="">请选择</option>
@@ -219,18 +219,18 @@ $(function() {
         		onError:"手机或电话格式不正确，请重新输入"
         	});
         	
-        	// 客户类型校验
+        	// 客户行业类型校验
 	        $("#customerTypeId").formValidator({
 	            validatorGroup:"2",
 	            onShow:"",
-	            onFocus:"请选择客户类型",
+	            onFocus:"请选择客户行业类型",
 	            onCorrect:""
 	        }).regexValidator({
 	            regExp:"^\\S+$",
-	            onError:"客户类型不能为空，请选择"
+	            onError:"客户行业类型不能为空，请选择"
 	        }).inputValidator({
 	            min: 1,
-	            onError:"客户类型不能为空，请选择"
+	            onError:"客户行业类型不能为空，请选择"
 	        });
         	
         	// app类型校验

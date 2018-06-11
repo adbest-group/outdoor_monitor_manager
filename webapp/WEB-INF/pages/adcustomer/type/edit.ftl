@@ -13,7 +13,7 @@
 			<tbody>
 			    <input type="hidden" name="id" id="id" value="${(obj.id)?if_exists}"/>
 				<tr>
-					<td class="a-title">客户类型名称：</td>
+					<td class="a-title">客户行业类型名称：</td>
 					<td>
 					    <input type="text" id="custormerTypeName" name="custormerTypeName" value="${(obj.name)?if_exists}" autocomplete="off" class="form-control">
 					    <br><span id="custormerTypeNameTip"></span>
@@ -96,15 +96,15 @@ $(function() {
     $("#custormerTypeName").formValidator({
 		validatorGroup:"2",
         onShow: "　",
-        onFocus: "请输入客户类型名称",
+        onFocus: "请输入客户行业类型名称",
         onCorrect: "　"
     }).inputValidator({
         min:1,
 		max:100,
-		onError:"客户类型名称不能为空，请输入"
+		onError:"客户行业类型名称不能为空，请输入"
     }).regexValidator({
 		regExp:"^\\S+$",
-		onError:"客户类型名称不能为空，请输入"
+		onError:"客户行业类型名称不能为空，请输入"
 	});
 });
             

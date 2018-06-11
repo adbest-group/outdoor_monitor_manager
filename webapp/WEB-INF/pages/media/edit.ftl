@@ -13,7 +13,7 @@
 			<tbody>
 			     <input type="hidden" name="id" id="id" value="${(obj.id)?if_exists}"/>
 				<tr>
-					<td class="a-title" style="padding:20px 10px;">登录账户：</td>
+					<td class="a-title" style="padding:20px 10px;">媒体账户：</td>
 					<td style="padding:20px 10px;">
 					<#if (obj.id)?exists>
 					   ${(obj.username)?if_exists}

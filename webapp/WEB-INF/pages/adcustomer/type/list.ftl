@@ -10,7 +10,7 @@
             <a href="javascript:;" class="add-new-btn ll" id="add_type"><i></i> 新建客户类型</a>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <div class="inp">
-                    <input type="text" placeholder="请输入客户类型名称" value="${searchName?if_exists}" id="searchName" name="searchName">
+                    <input type="text" placeholder="请输入客户行业类型名称" value="${searchName?if_exists}" id="searchName" name="searchName">
                 </div>
                 <button type="button" class="btn btn-red" autocomplete="off" id="searchBtn">查询</button>
             </div>

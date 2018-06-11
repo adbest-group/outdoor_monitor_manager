@@ -77,6 +77,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     @Transactional(rollbackFor = Exception.class)
     public void assign(String[] taskIds, Integer userId, Integer assignorId) {
         Date now = new Date();
+      //[4] 确认操作在业务层方法里进行循环
         for (String taskId : taskIds) {
             Integer id = Integer.valueOf(taskId);
 //            AdMonitorTask task = new AdMonitorTask();
@@ -116,8 +117,12 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void pass(AdMonitorTask task, Integer assessorId) {
+    public void pass(String[] taskIds, Integer assessorId) {
+    	//[4] 确认操作在业务层方法里进行循环
+    	for (String taskId : taskIds) {
+    		Integer id = Integer.parseInt(taskId);
         Date now = new Date();
+        AdMonitorTask task= new AdMonitorTask();
         //如果监测反馈有问题，问题状态置为有问题，否则无问题
         AdMonitorTaskFeedback feedback = adMonitorTaskFeedbackMapper.selectByTaskId(task.getId(), 1).get(0);
         if (feedback.getProblem() != null || feedback.getProblemOther() != null) {
@@ -189,7 +194,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         reward.setUpdateTime(now);
         adMonitorRewardMapper.insert(reward);
     }
-
+    }
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void reject(AdMonitorTask task, String reason, Integer assessorId) {

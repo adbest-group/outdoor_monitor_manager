@@ -36,7 +36,7 @@
                         </div>
                     </div>
                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="searchBtn">查询</button>
-                    <#--<button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">指派</button>-->
+                    <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">批量指派</button>
                     
                     <#-- 
                     <#if (status?exists&&status == '1')>
@@ -67,7 +67,7 @@
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan">
                     <thead>
                     <tr>
-                        <#-- <th width="30"><input type="checkbox" name="ck-task" value=""/></th>  -->
+                   	     <th width="30"><input type="checkbox" style="visibility: hidden" id='thead-checkbox' name="ck-alltask" value=""/></th>
                         <th width="30">序号</th>
                         <th>活动名称</th>
                         <th>上刊示例</th>
@@ -86,15 +86,15 @@
                     <#if (bizObj.list?exists && bizObj.list?size>0) >
                         <#list bizObj.list as task>
                         <tr>
-                        	<#-- <td width="30"><input type="checkbox" name="ck-task" value="${task.id}"/></td> -->
+                         	<td width="30"><#if (task.status?exists&&task.status == 1)><input type="checkbox"  name="ck-task" value="${task.id}" data-status='${task.status}'/><div style='display:none;' data-id='${task.mediaId}'></div></#if></td>  
                             <td width="30">${(bizObj.page.currentPage-1)*20+task_index+1}</td>
                             <td>
                                 <div class="data-title w200" data-title="${task.activityName!""}" data-id="${task.id}">${task.activityName?if_exists}</div>
                             </td>
-                            <td><img width="50" src="${task.samplePicUrl}"/> </td>
+                            <td><img width="50" src="${task.samplePicUrl!""}"/> </td>
                             <td><#if (task.startTime?exists)>${task.startTime?string('yyyy-MM-dd')} </#if><br/><#if (task.endTime?exists)>${task.endTime?string('yyyy-MM-dd')}</#if></td>
                             <td>${vm.getCityNameFull(task.street!task.region,"-")!""}</td>
-                            <td>${task.mediaName!""}</td>
+                            <td id="media_${task.id}">${task.mediaName!""}</td>
                             <td>${task.adSeatName!""}</td>
                             <#--<td>${task.userId!""}</td>-->
                             <td>${vm.getMonitorTaskTypeText(task.taskType)!""}</td>
@@ -132,33 +132,14 @@
 <script type="text/javascript" src="${model.static_domain}/js/date.js"></script>
 
 <script type="text/javascript">
-            $(function(){
-                $(".nav-sidebar>ul>li").on("click",function(){
-                    $(".nav-sidebar>ul>li").removeClass("on");
-                    $(this).addClass("on");
-                });
-            });
-
+	var assign_ids;
     $(function(){
+        $(".nav-sidebar>ul>li").on("click",function(){
+            $(".nav-sidebar>ul>li").removeClass("on");
+            $(this).addClass("on");
+        });
         $(window).resize();
-    });
-
-    $(window).resize(function() {
-        var h = $(document.body).height() - 115;
-        $('.main-container').css('height', h);
-    });
-
-            function createDateStr(alt){
-                var today =  new Date();
-                var t=today.getTime()+1000*60*60*24*alt;
-                var newDate=new Date(t).Format("yyyy-MM-dd");
-                if(alt==-6||alt==-29)
-                    return newDate+" 至 "+today.Format("yyyy-MM-dd");
-                return newDate+" 至 "+newDate;
-            }
-    var assign_ids;
-    $(function(){
-        $('.select').searchableSelect();
+         $('.select').searchableSelect();
 
         $('.inputs-date').dateRangePicker({
             separator : ' 至 ',
@@ -185,7 +166,16 @@
 
             }
         });
-
+        
+         // 如果列表中有未确认的状态就显示表头的多选框
+         $("input[name='ck-task']").each(function() {
+        	if($(this).data('status') === 1){
+        		$('#thead-checkbox').css('visibility', 'visible')
+        		return false;
+        	}
+        })
+        
+		//批量指派
         $("#assignBtn").click(function(){
             if($("input[name='ck-task']:checked").length<1){
                 layer.confirm('请选择需要指派的任务', {
@@ -194,17 +184,40 @@
                 });
             }else{
                 var ids = [];
+                var preMediaTxt;
+                var mediaTxt;
+                var flag=true;
+                var mediaId;
+                
+                //添加校验，如果批量选择中媒体类型不一致，提醒用户选择相同的媒体类型
                 $("input[name='ck-task']:checked").each(function(i,ck){
-                    if(ck.value) ids.push(ck.value);
+                	if(ck.value){
+                		if(!preMediaTxt){
+                			preMediaTxt=$(ck).parent().siblings("#media_"+ck.value).text();
+	                	}
+	            		mediaTxt=$(ck).parent().siblings("#media_"+ck.value).text();
+	            		if(preMediaTxt!=mediaTxt){
+	            			flag=false;
+	            			layer.confirm("请选择同一家媒体的指派任务", {
+		                        icon: 2,
+		                        btn: ['确定'] //按钮
+		                    }, function(){
+		                        window.location.reload();
+		                    });
+	            		}
+	                    ids.push(ck.value);
+	                    //传到前台媒体id
+	                    mediaId = $(ck).next().data('id');
+                	}
                 });
-                assign_ids = ids.join(",");
-                openSelect();
+                if(flag){
+                	assign_ids = ids.join(",");
+                	openSelect(mediaId);
+                }
             }
         });
-        $("input[name='ck-task']").change(function(){
-            if(this.value){
-
-            }else{
+        $("input[name='ck-alltask']").change(function(){
+            if(!this.value){
                 if($(this).is(":checked")){
                     $("input[name='ck-task']").prop("checked",true)
                 }else{
@@ -213,6 +226,22 @@
             }
         });
     });
+
+
+    $(window).resize(function() {
+        var h = $(document.body).height() - 115;
+        $('.main-container').css('height', h);
+    });
+
+    function createDateStr(alt){
+        var today =  new Date();
+        var t=today.getTime()+1000*60*60*24*alt;
+        var newDate=new Date(t).Format("yyyy-MM-dd");
+        if(alt==-6||alt==-29)
+            return newDate+" 至 "+today.Format("yyyy-MM-dd");
+        return newDate+" 至 "+newDate;
+    }
+    
 
     $("#searchBtn").on("click",function() {
         $("#form").submit();

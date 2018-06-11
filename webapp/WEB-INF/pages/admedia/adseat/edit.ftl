@@ -460,7 +460,9 @@ img.demo {
 //            onError: "已存在该编号，请修改",
 //            onWait: "正在对编号进行校验，请稍候..."
 //        }).defaultPassed();
-        //广告位位置
+
+		<#-- 
+		//广告位位置
         $("#location").formValidator({
             validatorGroup:"2",
             onShow: "　",
@@ -471,6 +473,8 @@ img.demo {
             max:30,
             onError:"请输入广告位位置，30字以内"
         });
+		-->
+        
       //广告位宽度
         $("#width").formValidator({
             validatorGroup:"2",

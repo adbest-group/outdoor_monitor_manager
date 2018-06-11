@@ -449,312 +449,317 @@ public class MonitorTaskController extends BasicController {
 	/**
 	 * 指派任务
 	 **/
-	@RequiresRoles(value = {"taskadmin", "media", "deptaskadmin", "superadmin"}, logical = Logical.OR)
-    @RequestMapping(value = "/assign")
-    @ResponseBody
-    public Model assign(Model model, HttpServletRequest request,
-                        @RequestParam(value = "ids", required = false) String ids,
-                        @RequestParam(value = "userId", required = false) Integer userId) {
-	        ResultVo<String> result = new ResultVo<String>();
-	      //[1] ids拆分成id集合
-	        String[] taskIds = ids.split(",");
-	        //[2] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
-	        for(String taskId : taskIds) {
-	        //注意：这里没有考虑批量指派的问题. 如果批量指派, 需要循环放入Redis
-	    	String beginRedisStr = "zhipai_" + taskId + "_begin";
-	    	String finishRedisStr = "zhipai_" + taskId + "_finish";
-		    	if (redisTemplate.opsForValue().get(finishRedisStr) != null && StringUtil.equals(redisTemplate.opsForValue().get(finishRedisStr) + "", "true")) {
-		    		result.setCode(ResultCode.RESULT_FAILURE.getCode());
-		            result.setResultDes("任务已被指派，请刷新再试！");
-		            model.addAttribute(SysConst.RESULT_KEY, result);
-		            return model;
-		    	}
-		    	if (redisTemplate.opsForValue().get(beginRedisStr) != null && StringUtil.equals(redisTemplate.opsForValue().get(beginRedisStr) + "", "true")) {
-		    		result.setCode(ResultCode.RESULT_FAILURE.getCode());
-		    		result.setResultDes("任务正被指派中，请刷新再试！");
-		            model.addAttribute(SysConst.RESULT_KEY, result);
-		            return model;
-		    	}
-		        }
-	        //[3] 循环放入redis中
-	     	 for(String taskId : taskIds) {
-	   		 String beginRedisStr = "monitorTask_" + taskId + "_begin";
-	   		 //放入Redis缓存处理并发
-	   		 redisTemplate.opsForValue().set(beginRedisStr, "true", 60*30, TimeUnit.SECONDS); //设置半小时超时时间
-	     	 } 
-	        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
-	        result.setResultDes("指派成功");
-	        model = new ExtendedModelMap();
-	
-	        try {
-	        	//获取登录的审核人(员工/部门领导/超级管理员)
-	            SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-	        	
-	            adMonitorTaskService.assign(taskIds, userId, userObj.getId());
-	            //==========web端指派成功之后根据userId进行app消息推送==============
-	            Map<String, Object> param = new HashMap<>();
-	            Map<String, String> extras = new HashMap<>();
-	            List<String> alias = new ArrayList<>(); //别名用户List
-	            alias.add(String.valueOf(userId));
-	            extras.put("type", "new_assign_push");
-	            param.put("msg", "您被指派一条新的任务！");
-	            param.put("title", "玖凤平台");
-	            param.put("alias", alias);  //根据别名选择推送用户（这里userId用作推送时的用户别名）
-	            param.put("extras", extras);
-	            String pushResult = JPushUtils.pushAllByAlias(param);
-	            System.out.println("pushResult:: " + pushResult);        
-	        }catch(Exception e){
-	        	//[5] 异常情况, 循环删除redis
-	            for(String taskId : taskIds) {
-	            	String beginRedisStr = "monitorTask_" + taskId + "_begin";
-	        	//异常情况, 移除Redis缓存处理并发
-	        	redisTemplate.delete(beginRedisStr);
-	            }
-	            result.setCode(ResultCode.RESULT_FAILURE.getCode());
-	            result.setResultDes("指派失败！");
-	            model.addAttribute(SysConst.RESULT_KEY, result);
-	            return model;
-	        }
-	        // [6] 处理成功, 循环放入redis
-	        for(String taskId:taskIds){
-			// 放入Redis缓存处理并发
-			String finishRedisStr = "zhipai_" + taskId + "_finish";
-			redisTemplate.opsForValue().set(finishRedisStr, "true", 60*30, TimeUnit.SECONDS); //设置半小时超时时间
-	        }
-	        model.addAttribute(SysConst.RESULT_KEY,result);return model;
-			}
+	@RequiresRoles(value = { "taskadmin", "media", "deptaskadmin", "superadmin" }, logical = Logical.OR)
+	@RequestMapping(value = "/assign")
+	@ResponseBody
+	public Model assign(Model model, HttpServletRequest request,
+			@RequestParam(value = "ids", required = false) String ids,
+			@RequestParam(value = "userId", required = false) Integer userId) {
+		ResultVo<String> result = new ResultVo<String>();
+		// [1] ids拆分成id集合
+		String[] taskIds = ids.split(",");
+//		// [2] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
+//		for (String taskId : taskIds) {
+//			// 注意：这里没有考虑批量指派的问题. 如果批量指派, 需要循环放入Redis
+//			String beginRedisStr = "zhipai_" + taskId + "_begin";
+//			String finishRedisStr = "zhipai_" + taskId + "_finish";
+//			if (redisTemplate.opsForValue().get(finishRedisStr) != null
+//					&& StringUtil.equals(redisTemplate.opsForValue().get(finishRedisStr) + "", "true")) {
+//				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+//				result.setResultDes("任务已被指派，请刷新再试！");
+//				model.addAttribute(SysConst.RESULT_KEY, result);
+//				return model;
+//			}
+//			if (redisTemplate.opsForValue().get(beginRedisStr) != null
+//					&& StringUtil.equals(redisTemplate.opsForValue().get(beginRedisStr) + "", "true")) {
+//				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+//				result.setResultDes("任务正被指派中，请刷新再试！");
+//				model.addAttribute(SysConst.RESULT_KEY, result);
+//				return model;
+//			}
+//		}
+//		// [3] 循环放入redis中
+//		for (String taskId : taskIds) {
+//			String beginRedisStr = "monitorTask_" + taskId + "_begin";
+//			// 放入Redis缓存处理并发
+//			redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
+//		}
+		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+		result.setResultDes("指派成功");
+		model = new ExtendedModelMap();
+
+		try {
+			// 获取登录的审核人(员工/部门领导/超级管理员)
+			SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+
+			adMonitorTaskService.assign(taskIds, userId, userObj.getId());
+			// ==========web端指派成功之后根据userId进行app消息推送==============
+			Map<String, Object> param = new HashMap<>();
+			Map<String, String> extras = new HashMap<>();
+			List<String> alias = new ArrayList<>(); // 别名用户List
+			alias.add(String.valueOf(userId));
+			extras.put("type", "new_assign_push");
+			param.put("msg", "您被指派一条新的任务！");
+			param.put("title", "玖凤平台");
+			param.put("alias", alias); // 根据别名选择推送用户（这里userId用作推送时的用户别名）
+			param.put("extras", extras);
+			String pushResult = JPushUtils.pushAllByAlias(param);
+			System.out.println("pushResult:: " + pushResult);
+		} catch (Exception e) {
+//			// [5] 异常情况, 循环删除redis
+//			for (String taskId : taskIds) {
+//				String beginRedisStr = "monitorTask_" + taskId + "_begin";
+//				// 异常情况, 移除Redis缓存处理并发
+//				redisTemplate.delete(beginRedisStr);
+//			}
+			result.setCode(ResultCode.RESULT_FAILURE.getCode());
+			result.setResultDes("指派失败！");
+			model.addAttribute(SysConst.RESULT_KEY, result);
+			return model;
+		}
+//		// [6] 处理成功, 循环放入redis
+//		for (String taskId : taskIds) {
+//			// 放入Redis缓存处理并发
+//			String finishRedisStr = "zhipai_" + taskId + "_finish";
+//			redisTemplate.opsForValue().set(finishRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
+//		}
+		model.addAttribute(SysConst.RESULT_KEY, result);
+		return model;
+	}
 
 	/**
 	 * 审核任务
 	 **/
-	@RequiresRoles(value = {"taskadmin", "deptaskadmin", "superadmin"}, logical = Logical.OR)
-    @RequestMapping(value = "/verify")
-    @ResponseBody
-    public Model verify(Model model, HttpServletRequest request,
-                        @RequestParam(value = "ids", required = false) String ids,
-                        @RequestParam(value = "status", required = false) Integer status,
-                        @RequestParam(value = "reason", required = false) String reason) {
-        ResultVo<String> result = new ResultVo<String>();
-      //[1] ids拆分成id集合
-        String[] taskIds = ids.split(",");
-        //[2] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
-        for(String taskId : taskIds) {
-    	String beginRedisStr = "monitorTask_" + taskId + "_begin";
-    	String finishRedisStr = "monitorTask_" + taskId + "_finish";
-    	if (redisTemplate.opsForValue().get(finishRedisStr) != null && StringUtil.equals(redisTemplate.opsForValue().get(finishRedisStr) + "", "true")) {
-    		result.setCode(ResultCode.RESULT_FAILURE.getCode());
-            result.setResultDes("任务已被审核，请刷新再试！");
-            model.addAttribute(SysConst.RESULT_KEY, result);
-            return model;
-    	}
-    	if (redisTemplate.opsForValue().get(beginRedisStr) != null && StringUtil.equals(redisTemplate.opsForValue().get(beginRedisStr) + "", "true")) {
-    		result.setCode(ResultCode.RESULT_FAILURE.getCode());
-    		 result.setResultDes("任务正被审核中，请刷新再试！");
-            model.addAttribute(SysConst.RESULT_KEY, result);
-            return model;
-    	}
-    }
-        //[3] 循环放入redis中
-      	 for(String taskId : taskIds) {
-    		 String beginRedisStr = "monitorTask_" + taskId + "_begin";
-    	//放入Redis缓存处理并发
-    		 redisTemplate.opsForValue().set(beginRedisStr, "true", 60*30, TimeUnit.SECONDS); //设置半小时超时时间
-      	 } 
-        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
-        result.setResultDes("审核成功");
-        model = new ExtendedModelMap();
-        AdMonitorTask task = new AdMonitorTask();
-        //task.setId(taskId);
-        task.setStatus(status);
-        
-        try {
-        	//获取登录的审核人(员工/部门领导/超级管理员)
-            SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-        	
-            if (task.getStatus() == MonitorTaskStatus.VERIFIED.getId()) {
-                // adMonitorTaskService.update(task);
-                adMonitorTaskService.pass(taskIds, userObj.getId(), status);
-            } else {
-                adMonitorTaskService.reject(task, reason, userObj.getId());
-            } 
-          //[3] 循环放入redis中
-         	 for(String taskId : taskIds) {
-            task = adMonitorTaskService.selectByPrimaryKey(Integer.parseInt(taskId));
-            //==========web端任务审核之后根据userId进行app消息推送==============
-            Map<String, Object> param = new HashMap<>();
-            Map<String, String> extras = new HashMap<>();
-            List<String> alias = new ArrayList<>(); //别名用户List
-            alias.add(String.valueOf(task.getUserId()));  //任务执行者
-            extras.put("type", "task_audit_push");
-            param.put("msg", "您的任务有一条新的后台审核通知！");
-            param.put("title", "玖凤平台");
-            param.put("alias", alias);  //根据别名选择推送用户（这里userId用作推送时的用户别名）
-            param.put("extras", extras);
-            String pushResult = JPushUtils.pushAllByAlias(param);
-            System.out.println("pushResult:: " + pushResult);
-         	 }
-        } catch (Exception e) {
-         	//[5] 异常情况, 循环删除redis
-            for(String taskId : taskIds) {
-            	String beginRedisStr = "monitorTask_" + taskId + "_begin";
-        	//异常情况, 移除Redis缓存处理并发
-        	redisTemplate.delete(beginRedisStr);
-            }
-            result.setCode(ResultCode.RESULT_FAILURE.getCode());
-            result.setResultDes("审核失败！");
+	@RequiresRoles(value = { "taskadmin", "deptaskadmin", "superadmin" }, logical = Logical.OR)
+	@RequestMapping(value = "/verify")
+	@ResponseBody
+	public Model verify(Model model, HttpServletRequest request,
+			@RequestParam(value = "ids", required = false) String ids,
+			@RequestParam(value = "status", required = false) Integer status,
+			@RequestParam(value = "reason", required = false) String reason) {
+		ResultVo<String> result = new ResultVo<String>();
+		// [1] ids拆分成id集合
+		String[] taskIds = ids.split(",");
+//		// [2] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
+//		for (String taskId : taskIds) {
+//			String beginRedisStr = "monitorTask_" + taskId + "_begin";
+//			String finishRedisStr = "monitorTask_" + taskId + "_finish";
+//			if (redisTemplate.opsForValue().get(finishRedisStr) != null
+//					&& StringUtil.equals(redisTemplate.opsForValue().get(finishRedisStr) + "", "true")) {
+//				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+//				result.setResultDes("任务已被审核，请刷新再试！");
+//				model.addAttribute(SysConst.RESULT_KEY, result);
+//				return model;
+//			}
+//			if (redisTemplate.opsForValue().get(beginRedisStr) != null
+//					&& StringUtil.equals(redisTemplate.opsForValue().get(beginRedisStr) + "", "true")) {
+//				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+//				result.setResultDes("任务正被审核中，请刷新再试！");
+//				model.addAttribute(SysConst.RESULT_KEY, result);
+//				return model;
+//			}
+//		}
+//		// [3] 循环放入redis中
+//		for (String taskId : taskIds) {
+//			String beginRedisStr = "monitorTask_" + taskId + "_begin";
+//			// 放入Redis缓存处理并发
+//			redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
+//		}
+		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+		result.setResultDes("审核成功");
+		model = new ExtendedModelMap();
+		AdMonitorTask task = new AdMonitorTask();
+		// task.setId(taskId);
+		task.setStatus(status);
+
+		try {
+			// 获取登录的审核人(员工/部门领导/超级管理员)
+			SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+
+			if (task.getStatus() == MonitorTaskStatus.VERIFIED.getId()) {
+				// adMonitorTaskService.update(task);
+				adMonitorTaskService.pass(taskIds, userObj.getId(), status);
+			} else {
+				adMonitorTaskService.reject(task, reason, userObj.getId());
+			}
+			// [3] 循环推送
+			for (String taskId : taskIds) {
+				task = adMonitorTaskService.selectByPrimaryKey(Integer.parseInt(taskId));
+				// ==========web端任务审核之后根据userId进行app消息推送==============
+				Map<String, Object> param = new HashMap<>();
+				Map<String, String> extras = new HashMap<>();
+				List<String> alias = new ArrayList<>(); // 别名用户List
+				alias.add(String.valueOf(task.getUserId())); // 任务执行者
+				extras.put("type", "task_audit_push");
+				param.put("msg", "您的任务有一条新的后台审核通知！");
+				param.put("title", "玖凤平台");
+				param.put("alias", alias); // 根据别名选择推送用户（这里userId用作推送时的用户别名）
+				param.put("extras", extras);
+				String pushResult = JPushUtils.pushAllByAlias(param);
+				System.out.println("pushResult:: " + pushResult);
+			}
+		} catch (Exception e) {
+//			// [5] 异常情况, 循环删除redis
+//			for (String taskId : taskIds) {
+//				String beginRedisStr = "monitorTask_" + taskId + "_begin";
+//				// 异常情况, 移除Redis缓存处理并发
+//				redisTemplate.delete(beginRedisStr);
+//			}
+			result.setCode(ResultCode.RESULT_FAILURE.getCode());
+			result.setResultDes("审核失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
 			return model;
-        }
-        //[6] 处理成功, 循环放入redis
-        for(String taskId : taskIds) {
-        //放入Redis缓存处理并发
-        String finishRedisStr = "monitorTask_" + taskId + "_finish";
-    	redisTemplate.opsForValue().set(finishRedisStr, "true", 60*30, TimeUnit.SECONDS); //设置半小时超时时间
-        }  
-        model.addAttribute(SysConst.RESULT_KEY, result);
-        return model;
-    }
+		}
+//		// [6] 处理成功, 循环放入redis
+//		for (String taskId : taskIds) {
+//			// 放入Redis缓存处理并发
+//			String finishRedisStr = "monitorTask_" + taskId + "_finish";
+//			redisTemplate.opsForValue().set(finishRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
+//		}
+		model.addAttribute(SysConst.RESULT_KEY, result);
+		return model;
+	}
 
 	// 撤消审核任务
 	@RequiresRoles("taskadmin")
-    @RequestMapping(value = "/cancel")
-    @ResponseBody
-    public Model cancel(Model model, HttpServletRequest request,
-                        @RequestParam(value = "id", required = false) Integer id,
-                        @RequestParam(value = "userId", required = false) Integer userId,
-                        @RequestParam(value = "reason", required = false) String reason) {
-        ResultVo<String> result = new ResultVo<String>();
-        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
-        result.setResultDes("撤消成功");
-        model = new ExtendedModelMap();
-        AdMonitorTask task = new AdMonitorTask();
-   
-        try {
-        	//获取当前登录的后台用户信息
-        	SysUser sysUser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-        	Map<String, Object> searchMap = new HashMap<>();
+	@RequestMapping(value = "/cancel")
+	@ResponseBody
+	public Model cancel(Model model, HttpServletRequest request,
+			@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "userId", required = false) Integer userId,
+			@RequestParam(value = "reason", required = false) String reason) {
+		ResultVo<String> result = new ResultVo<String>();
+		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+		result.setResultDes("撤消成功");
+		model = new ExtendedModelMap();
+		AdMonitorTask task = new AdMonitorTask();
+
+		try {
+			// 获取当前登录的后台用户信息
+			SysUser sysUser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+			Map<String, Object> searchMap = new HashMap<>();
 			searchMap.put("userId", sysUser.getId());
 			Integer groupId = sysUserRoleService.selectGroupIdByUserId(searchMap);
-        	//获取该组所有员工
-        	List<SysUser> sysUsers = sysGroupService.selectUserName(groupId);
-        	
-        	if(sysUsers.size() > 1) {//待审核
-        		adMonitorTaskService.offAdMonitorTaskByAssessorId(id); 
-        	}else if(sysUsers.size() <= 1){
-        		result.setCode(ResultCode.RESULT_FAILURE.getCode());
-                result.setResultDes("只剩一人不能撤销！");
-                model.addAttribute(SysConst.RESULT_KEY, result);
-                return model;
-        	}
-        } catch (Exception e) {
-            result.setCode(ResultCode.RESULT_FAILURE.getCode());
-            result.setResultDes("撤消失败！");
-            model.addAttribute(SysConst.RESULT_KEY, result);
-            return model;
-        } 
-        model.addAttribute(SysConst.RESULT_KEY, result);
-        return model;
-    }
+			// 获取该组所有员工
+			List<SysUser> sysUsers = sysGroupService.selectUserName(groupId);
+
+			if (sysUsers.size() > 1) {// 待审核
+				adMonitorTaskService.offAdMonitorTaskByAssessorId(id);
+			} else if (sysUsers.size() <= 1) {
+				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+				result.setResultDes("只剩一人不能撤销！");
+				model.addAttribute(SysConst.RESULT_KEY, result);
+				return model;
+			}
+		} catch (Exception e) {
+			result.setCode(ResultCode.RESULT_FAILURE.getCode());
+			result.setResultDes("撤消失败！");
+			model.addAttribute(SysConst.RESULT_KEY, result);
+			return model;
+		}
+		model.addAttribute(SysConst.RESULT_KEY, result);
+		return model;
+	}
 
 	// 撤消指派任务
 	@RequiresRoles("taskadmin")
-    @RequestMapping(value = "/cancelZhipai")
-    @ResponseBody
-    public Model cancelZhipai(Model model, HttpServletRequest request,
-                        @RequestParam(value = "id", required = false) Integer id,
-                        @RequestParam(value = "userId", required = false) Integer userId,
-                        @RequestParam(value = "reason", required = false) String reason) {
-        ResultVo<String> result = new ResultVo<String>();
-        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
-        result.setResultDes("撤消成功");
-        model = new ExtendedModelMap();
-        AdMonitorTask task = new AdMonitorTask();
-   
-        try {
-        	//获取当前登录的后台用户信息
-        	SysUser sysUser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-        	Map<String, Object> searchMap = new HashMap<>();
+	@RequestMapping(value = "/cancelZhipai")
+	@ResponseBody
+	public Model cancelZhipai(Model model, HttpServletRequest request,
+			@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "userId", required = false) Integer userId,
+			@RequestParam(value = "reason", required = false) String reason) {
+		ResultVo<String> result = new ResultVo<String>();
+		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+		result.setResultDes("撤消成功");
+		model = new ExtendedModelMap();
+		AdMonitorTask task = new AdMonitorTask();
+
+		try {
+			// 获取当前登录的后台用户信息
+			SysUser sysUser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+			Map<String, Object> searchMap = new HashMap<>();
 			searchMap.put("userId", sysUser.getId());
 			Integer groupId = sysUserRoleService.selectGroupIdByUserId(searchMap);
-        	//获取该组所有员工
-        	List<SysUser> sysUsers = sysGroupService.selectUserName(groupId);
+			// 获取该组所有员工
+			List<SysUser> sysUsers = sysGroupService.selectUserName(groupId);
 
-        	if(sysUsers.size() > 1) {//待指派
-        		adMonitorTaskService.offAdMonitorTaskByAssignorId(id);        	
-        	}else if( sysUsers.size() <= 1){
-        		result.setCode(ResultCode.RESULT_FAILURE.getCode());
-                result.setResultDes("只剩一人不能撤销！");
-                model.addAttribute(SysConst.RESULT_KEY, result);
-                return model;
-        	}
-        } catch (Exception e) {
-            result.setCode(ResultCode.RESULT_FAILURE.getCode());
-            result.setResultDes("撤消失败！");
-            model.addAttribute(SysConst.RESULT_KEY, result);
-            return model;
-        } 
-        model.addAttribute(SysConst.RESULT_KEY, result);
-        return model;
-    }
+			if (sysUsers.size() > 1) {// 待指派
+				adMonitorTaskService.offAdMonitorTaskByAssignorId(id);
+			} else if (sysUsers.size() <= 1) {
+				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+				result.setResultDes("只剩一人不能撤销！");
+				model.addAttribute(SysConst.RESULT_KEY, result);
+				return model;
+			}
+		} catch (Exception e) {
+			result.setCode(ResultCode.RESULT_FAILURE.getCode());
+			result.setResultDes("撤消失败！");
+			model.addAttribute(SysConst.RESULT_KEY, result);
+			return model;
+		}
+		model.addAttribute(SysConst.RESULT_KEY, result);
+		return model;
+	}
 
 	/**
 	 * 关闭问题任务
 	 **/
-	@RequiresRoles(value = {"taskadmin", "deptaskadmin", "superadmin"}, logical = Logical.OR)
-    @RequestMapping(value = "/close")
-    @ResponseBody
-    public Model close(Model model, HttpServletRequest request,
-                       @RequestParam(value = "id", required = false) Integer id) {
-        ResultVo<String> result = new ResultVo<String>();
-        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
-        result.setResultDes("关闭成功");
-        model = new ExtendedModelMap();
+	@RequiresRoles(value = { "taskadmin", "deptaskadmin", "superadmin" }, logical = Logical.OR)
+	@RequestMapping(value = "/close")
+	@ResponseBody
+	public Model close(Model model, HttpServletRequest request,
+			@RequestParam(value = "id", required = false) Integer id) {
+		ResultVo<String> result = new ResultVo<String>();
+		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+		result.setResultDes("关闭成功");
+		model = new ExtendedModelMap();
 
-        AdMonitorTask task = new AdMonitorTask();
-        task.setProblemStatus(TaskProblemStatus.CLOSED.getId());
-        task.setId(id);
-        try {
-            adMonitorTaskService.update(task);
-        } catch (Exception e) {
-            result.setCode(ResultCode.RESULT_FAILURE.getCode());
-            result.setResultDes("关闭失败！");
-            model.addAttribute(SysConst.RESULT_KEY, result);
-            return model;
-        }
+		AdMonitorTask task = new AdMonitorTask();
+		task.setProblemStatus(TaskProblemStatus.CLOSED.getId());
+		task.setId(id);
+		try {
+			adMonitorTaskService.update(task);
+		} catch (Exception e) {
+			result.setCode(ResultCode.RESULT_FAILURE.getCode());
+			result.setResultDes("关闭失败！");
+			model.addAttribute(SysConst.RESULT_KEY, result);
+			return model;
+		}
 
-        model.addAttribute(SysConst.RESULT_KEY, result);
-        return model;
-    }
+		model.addAttribute(SysConst.RESULT_KEY, result);
+		return model;
+	}
 
 	/**
 	 * 创建子任务
 	 **/
-	@RequiresRoles(value = {"taskadmin", "deptaskadmin", "superadmin"}, logical = Logical.OR)
-    @RequestMapping(value = "/createTask")
-    @ResponseBody
-    public Model newSub(Model model, HttpServletRequest request,
-                        @RequestParam(value = "id", required = false) Integer id) {
-        ResultVo<String> result = new ResultVo<String>();
-        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
-        result.setResultDes("创建成功");
-        model = new ExtendedModelMap();
+	@RequiresRoles(value = { "taskadmin", "deptaskadmin", "superadmin" }, logical = Logical.OR)
+	@RequestMapping(value = "/createTask")
+	@ResponseBody
+	public Model newSub(Model model, HttpServletRequest request,
+			@RequestParam(value = "id", required = false) Integer id) {
+		ResultVo<String> result = new ResultVo<String>();
+		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+		result.setResultDes("创建成功");
+		model = new ExtendedModelMap();
 
-        AdMonitorTask task = new AdMonitorTask();
-        task.setProblemStatus(TaskProblemStatus.CLOSED.getId());
-        task.setId(id);
-        try {
-            adMonitorTaskService.createSubTask(id);
-        } catch (Exception e) {
-            e.printStackTrace();
-            result.setCode(ResultCode.RESULT_FAILURE.getCode());
-            result.setResultDes("创建失败！");
-            model.addAttribute(SysConst.RESULT_KEY, result);
-            return model;
-        }
+		AdMonitorTask task = new AdMonitorTask();
+		task.setProblemStatus(TaskProblemStatus.CLOSED.getId());
+		task.setId(id);
+		try {
+			adMonitorTaskService.createSubTask(id);
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.setCode(ResultCode.RESULT_FAILURE.getCode());
+			result.setResultDes("创建失败！");
+			model.addAttribute(SysConst.RESULT_KEY, result);
+			return model;
+		}
 
-        model.addAttribute(SysConst.RESULT_KEY, result);
-        return model;
-    }
+		model.addAttribute(SysConst.RESULT_KEY, result);
+		return model;
+	}
 
 	/**
 	 * 详情页面
@@ -764,67 +769,68 @@ public class MonitorTaskController extends BasicController {
 	 * @param request
 	 * @return 详情页面
 	 */
-	@RequiresRoles(value = {"superadmin", "taskadmin", "customer", "media", "deptaskadmin", "activityadmin","depactivityadmin"}, logical = Logical.OR)
-    @RequestMapping(value = "/details")
-    public String gotoDetailsPage(@RequestParam("task_Id") String taskId, Model model, HttpServletRequest request) {
-        AdMonitorTaskVo vo = adMonitorTaskService.getTaskDetails(taskId);
-        List<AdMonitorTaskVo> list = adMonitorTaskService.getSubmitDetails(taskId);
+	@RequiresRoles(value = { "superadmin", "taskadmin", "customer", "media", "deptaskadmin", "activityadmin",
+			"depactivityadmin" }, logical = Logical.OR)
+	@RequestMapping(value = "/details")
+	public String gotoDetailsPage(@RequestParam("task_Id") String taskId, Model model, HttpServletRequest request) {
+		AdMonitorTaskVo vo = adMonitorTaskService.getTaskDetails(taskId);
+		List<AdMonitorTaskVo> list = adMonitorTaskService.getSubmitDetails(taskId);
 
-        //获取父任务信息，分监测和纠错
-        if (vo.getParentId() != null) {
-            if (vo.getParentType() == RewardTaskType.MONITOR.getId()) {
-                //父任务是监测
-                model.addAttribute("pmTask", adMonitorTaskService.getTaskVoById(vo.getParentId()));
-            } else if (vo.getParentType() == RewardTaskType.JIUCUO.getId()) {
-                //父任务是纠错
-                model.addAttribute("pjTask", adJiucuoTaskService.getVoById(vo.getParentId()));
-            }
-        }
-        
-        //重新设置监测时间段
-        vo.setMonitorsStart(vo.getMonitorDate());
-        long timestamp = vo.getMonitorDate().getTime() + (24*60*60*1000)* (vo.getMonitorLastDays() - 1);
-        vo.setMonitorsEnd(new Date(timestamp));
+		// 获取父任务信息，分监测和纠错
+		if (vo.getParentId() != null) {
+			if (vo.getParentType() == RewardTaskType.MONITOR.getId()) {
+				// 父任务是监测
+				model.addAttribute("pmTask", adMonitorTaskService.getTaskVoById(vo.getParentId()));
+			} else if (vo.getParentType() == RewardTaskType.JIUCUO.getId()) {
+				// 父任务是纠错
+				model.addAttribute("pjTask", adJiucuoTaskService.getVoById(vo.getParentId()));
+			}
+		}
 
-        if (vo != null && list != null) {
-            model.addAttribute("vo", vo);
-            model.addAttribute("list", list);
-            model.addAttribute("taskId", taskId);
-        }
-        return PageConst.DETAILS_PAGE;
-    }
+		// 重新设置监测时间段
+		vo.setMonitorsStart(vo.getMonitorDate());
+		long timestamp = vo.getMonitorDate().getTime() + (24 * 60 * 60 * 1000) * (vo.getMonitorLastDays() - 1);
+		vo.setMonitorsEnd(new Date(timestamp));
+
+		if (vo != null && list != null) {
+			model.addAttribute("vo", vo);
+			model.addAttribute("list", list);
+			model.addAttribute("taskId", taskId);
+		}
+		return PageConst.DETAILS_PAGE;
+	}
 
 	/**
-     * 所有任务页面
-     */
-    @RequiresRoles("superadmin")
-    @RequestMapping(value = "/allList")
-    public String gotoAllTaskPage(Model model, HttpServletRequest request,
-            @RequestParam(value = "activityId", required = false) Integer activityId,
-            @RequestParam(value = "taskType", required = false) Integer taskType,
-            @RequestParam(value = "status", required = false) Integer status,
-            @RequestParam(value = "problemStatus", required = false) Integer problemStatus
+	 * 所有任务页面
+	 */
+	@RequiresRoles("superadmin")
+	@RequestMapping(value = "/allList")
+	public String gotoAllTaskPage(Model model, HttpServletRequest request,
+			@RequestParam(value = "activityId", required = false) Integer activityId,
+			@RequestParam(value = "taskType", required = false) Integer taskType,
+			@RequestParam(value = "status", required = false) Integer status,
+			@RequestParam(value = "problemStatus", required = false) Integer problemStatus
 
-           ) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        SearchDataVo vo = SearchUtil.getVo();
+	) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		SearchDataVo vo = SearchUtil.getVo();
 
-        if (problemStatus != null) {
-            vo.putSearchParam("problemStatus", problemStatus.toString(), problemStatus);
-        }
-        if (activityId != null) {
-            vo.putSearchParam("activityId", activityId.toString(), activityId);
-        }
-        if (taskType != null) {
-            vo.putSearchParam("taskType", taskType.toString(), taskType);
-        }
-        if (status != null) {
-            vo.putSearchParam("status", status.toString(), status);
-        }
-      
-        adMonitorTaskService.getPageDataAllTask(vo);
+		if (problemStatus != null) {
+			vo.putSearchParam("problemStatus", problemStatus.toString(), problemStatus);
+		}
+		if (activityId != null) {
+			vo.putSearchParam("activityId", activityId.toString(), activityId);
+		}
+		if (taskType != null) {
+			vo.putSearchParam("taskType", taskType.toString(), taskType);
+		}
+		if (status != null) {
+			vo.putSearchParam("status", status.toString(), status);
+		}
 
-        SearchUtil.putToModel(model, vo);
-    	return PageConst.ALLTASK_LIST;
-    }
+		adMonitorTaskService.getPageDataAllTask(vo);
+
+		SearchUtil.putToModel(model, vo);
+		return PageConst.ALLTASK_LIST;
+	}
 }

@@ -15,7 +15,7 @@ public class TestRedis {
 		Set<String> set = jedis.keys("monitor*");  
         for (String key : set) {  
             System.out.println(key);
-            jedis.del(key);
+//            jedis.del(key);
         }
 	}
 }

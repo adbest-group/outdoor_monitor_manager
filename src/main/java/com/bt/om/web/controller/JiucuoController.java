@@ -78,8 +78,8 @@ public class JiucuoController extends BasicController {
 	/**
      * 查看纠错审核列表
      */
-    @RequiresRoles(value = {"jiucuoadmin", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/list")
+    @RequiresRoles(value = {"jiucuoadmin","superadmin","depjiucuoadmin"},logical = Logical.OR)
     public String joucuoList(Model model, HttpServletRequest request,
                              @RequestParam(value = "id", required = false) Integer id,
                              @RequestParam(value = "activityId", required = false) Integer activityId,

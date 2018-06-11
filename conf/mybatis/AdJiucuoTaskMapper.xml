@@ -264,6 +264,9 @@
         left join ad_seat_info e on d.ad_seat_id = e.id
         left join ad_media f on d.media_id = f.id
         where 1=1
+        <if test="id != null">
+            and a.id = #{id,jdbcType=INTEGER}
+        </if>
         <if test="activityId != null">
             and a.activity_id = #{activityId,jdbcType=INTEGER}
         </if>
@@ -319,6 +322,9 @@
 	        left join ad_media f on d.media_id = f.id
 	        left join sys_user g on a.assessor_id = g.id
         where 1=1
+        <if test="id != null">
+            and a.id = #{id,jdbcType=INTEGER}
+        </if>
         <if test="activityId != null">
             and a.activity_id = #{activityId,jdbcType=INTEGER}
         </if>
@@ -326,11 +332,6 @@
 	      	and c.user_id in
 	        <foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
 	    </if>
-        <!-- 
-        <if test="id != null">
-            and a.id = #{id,jdbcType=INTEGER}
-        </if>
-         -->
         <if test="status != null">
             and a.status = #{status,jdbcType=INTEGER}
         </if>

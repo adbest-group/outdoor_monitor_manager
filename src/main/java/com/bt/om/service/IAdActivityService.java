@@ -33,7 +33,7 @@ public interface IAdActivityService {
     
     public AdActivity getById(Integer id);
 
-    public void confirm(Integer id, Integer assessorId);
+    public void confirm(String[] activityIds, Integer assessorId);
 
     public void delete(Integer id);
 
@@ -88,4 +88,5 @@ public interface IAdActivityService {
 
 	public List<AdActivityAdseatVo> getActivitySeatByMemo(String memo);
 	List<Integer> getEndActivityList(Date nowDate);
+
 }

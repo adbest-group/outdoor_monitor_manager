@@ -12,6 +12,7 @@
 		<script type="text/javascript" src="/static/js/layer/layer.js"></script>
 		<script type="text/javascript" src="/static/js/layer/layui.js"></script>
 		<script type="text/javascript" src="${model.static_domain}/js/common.js"></script>
+		<link rel="stylesheet" type="text/css" href="/static/css/page.css">
 	</head>
 	<body>
 		

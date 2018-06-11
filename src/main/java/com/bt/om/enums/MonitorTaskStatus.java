@@ -11,7 +11,8 @@ public enum MonitorTaskStatus {
     UN_FINISHED(6, "未完成"),
     UNVERIFY(3, "待审核"),
     VERIFIED(4, "审核通过"),
-    VERIFY_FAILURE(5, "审核未通过");
+    VERIFY_FAILURE(5, "审核未通过"),
+    VERIFY(9, "已审核");;
 
     private Integer id;
     private String text;

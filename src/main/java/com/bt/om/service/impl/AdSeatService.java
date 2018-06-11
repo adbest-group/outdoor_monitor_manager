@@ -192,8 +192,12 @@ public class AdSeatService implements IAdSeatService {
 
 	@Override
 	public int updateFlag(Integer codeFlag,Integer id) {
-		// TODO Auto-generated method stub
 		return adSeatInfoMapper.updateFlag(codeFlag,id);
+	}
+	
+	@Override
+	public int selectByLocation(Map<String, Object> searchMap) {
+		return adSeatInfoMapper.selectByLocation(searchMap);
 	}
 
 }

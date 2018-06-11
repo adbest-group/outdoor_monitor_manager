@@ -1,7 +1,9 @@
 package com.bt.om.web.component;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -255,7 +257,7 @@ public class VMComponent {
     public MonitorTaskType[] getMonitorTaskTypeList() {
         return MonitorTaskType.values();
     }
-
+    
     /**
      * 获取广告活动监测任务类型文字
      */
@@ -351,10 +353,30 @@ public class VMComponent {
      * 获取全部App类型
      * */
     public List<AdApp> getAllAppType() {
-    	System.out.println(adAppService.getAllAppType());
     	return adAppService.getAllAppType();
     }
+    
+    /**
+     * 获取带指派任务是否过时
+     * */
+    public Integer getUnassignTask(Date endTime) {
+    	Date date = new Date();
+    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    	String t1 = sdf.format(date);
+    	String t2 = sdf.format(endTime);
+    	
+    	Integer i = t1.compareTo(t2);
+    	return i;
+    }
+    /**
+     * 获取全部可用的客户
+     */
+    public List<SysUser> getAllCustomerAvailable() {
+    	return sysUserService.getAvailableByUserType(2); //2：客户账户
+    }
+    
     /***************************** 下面是工具类 ****************************************/
+    
     private HashMap<String, String> getParams(String qs) {
         HashMap<String, String> params = new HashMap<String, String>();
         if (qs != null) {

@@ -193,7 +193,7 @@
 				dataType : 'json',
 				success : function(town) {
 					$town.show();
-                    $town.append('<option value> - 请选择 - </option>');
+                    $town.append('<option value> - 所有地区 - </option>');
 					for (i in town) {
 						$town.append('<option value="'+i+'" <#if (street?exists&&street?length>0)>'+(i==${street!0}?"selected":"")+'</#if>>' + town[i]
 								+ '</option>');

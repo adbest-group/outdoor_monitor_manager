@@ -21,6 +21,7 @@
                     <!--任务状态下拉框-->
                     <div class="select-box select-box-140 un-inp-select ll">
                         <select name="status" class="select" id="status">
+                        	<option value="">所有任务状态</option>
                             <option value="1" <#if (bizObj.queryMap.status?exists&&bizObj.queryMap.status=="1")>selected</#if> >待指派</option>
                             <option value="8" <#if (bizObj.queryMap.status?exists&&bizObj.queryMap.status=="8")>selected</#if> >可抢单</option>
                         </select>
@@ -80,7 +81,7 @@
                             <td>${vm.getMonitorTaskStatusText(task.status)!""}</td>
                             <td>${task.assignorName!""}</td>
                             <td>
-                            	<#if (task.status==1 || task.status==8)><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if>
+                            	<#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status==1 || task.status==8)><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if></#if>
                                 <a href="/task/details?task_Id=${task.id}">详情</a>
                             </td>
                         </tr>

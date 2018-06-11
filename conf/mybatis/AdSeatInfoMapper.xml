@@ -528,7 +528,7 @@
 		<if test="exceptId != null" >
 			and a.id &lt;> #{exceptId,jdbcType=INTEGER}
 		</if>
-		order by a.id asc
+		order by a.id desc
 	</select>
 	
 	<select id="getAdSeatInfoById" parameterType="Integer" resultMap="ExtResultMap">
@@ -726,4 +726,26 @@
 		set ad_code_flag = #{codeFlag,jdbcType=INTEGER}
     	where id = #{id,jdbcType=INTEGER}
 	</update>
+	
+	<select id="selectByLocation" parameterType="map" resultType="java.lang.Integer">
+		select 
+			count(1)
+		from ad_seat_info
+		where 1=1 
+		<if test="province != null" >
+	      and province = #{province,jdbcType=BIGINT}
+	    </if>
+	    <if test="city != null" >
+	      and city = #{city,jdbcType=BIGINT}
+	    </if>
+	    <if test="region != null" >
+	      and region = #{region,jdbcType=BIGINT}
+	    </if>
+	    <if test="street != null" >
+	      and street = #{street,jdbcType=BIGINT}
+	    </if>
+	    <if test="location != null" >
+	      and location = #{location,jdbcType=VARCHAR}
+	    </if>
+	</select>
 </mapper>

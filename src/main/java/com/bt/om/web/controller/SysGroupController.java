@@ -437,7 +437,7 @@ public class SysGroupController extends BasicController{
     /**
      * 【任务审核部门】领导查看 任务审核页面
      */
-    @RequiresRoles(value = {"departmentadmin", "deptaskadmin", "superadmin"}, logical = Logical.OR)
+    @RequiresRoles(value = {"departmentadmin", "deptaskadmin", "superadmin","jiucuoadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/taskList")
     public String getTaskList(Model model, HttpServletRequest request,
                               @RequestParam(value = "activityId", required = false) Integer activityId,

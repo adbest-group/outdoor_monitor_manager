@@ -37,7 +37,7 @@
       This element was generated on Tue Jan 23 17:12:28 CST 2018.
     -->
     id, username, password, realname, mobile,mac, company, head_img_url, usertype, operate_id,status,
-    province, city, region, street, remark, login_ip, login_time, default_page,app_sid, create_time, 
+    province, city, region, street, remark, login_ip, login_time, default_page, app_sid, create_time, 
     update_time
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -286,6 +286,9 @@
       </if>
       <if test="defaultPage != null">
         default_page = #{defaultPage,jdbcType=VARCHAR},
+      </if>
+      <if test="appSid != null">
+        app_sid = #{appSid,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=TIMESTAMP},

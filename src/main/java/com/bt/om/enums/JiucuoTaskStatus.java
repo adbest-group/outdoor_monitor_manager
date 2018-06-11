@@ -4,7 +4,7 @@ package com.bt.om.enums;
  * Created by caiting on 2018/1/20.
  */
 public enum JiucuoTaskStatus {
-    UNVERIFY(1,"待审核"),VERIFIED(2,"通过审核"),VERIFY_FAILURE(3,"审核未通过");
+    UNVERIFY(1,"待审核"),VERIFIED(2,"通过审核"),VERIFY_FAILURE(3,"审核未通过"),VERIFY(4,"审核已结束");
 
     private Integer id;
     private String text;

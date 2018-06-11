@@ -102,6 +102,11 @@ public class SysUserService implements ISysUserService {
 	}
 	
 	@Override
+	public List<SysUser> getAvailableByUserType(Integer userType) {
+		return sysUserMapper.getAvailableByUserType(userType);
+	}
+	
+	@Override
 	public List<SysUser> getIdNameByUserType(Integer userType) {
 		return sysUserMapper.getIdNameByUserType(userType);
 	}
@@ -231,6 +236,11 @@ public class SysUserService implements ISysUserService {
 	@Override
 	public List<Integer> selectUserIdsByResIds(Map<String, Object> searchMap) {
 		return sysUserResMapper.selectUserIdsByResIds(searchMap);
+	}
+
+	@Override
+	public int updateByPrimaryKeySelective(SysUser u) {
+		return sysUserMapper.updateUserPwd(u);
 	}
 
 }

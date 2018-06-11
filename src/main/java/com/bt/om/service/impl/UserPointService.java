@@ -39,6 +39,17 @@ public class UserPointService implements IUserPointService {
 	public List<AdUserPoint> getListById(Integer userId) {
 		return adUserPointMapper.getListById(userId);
 	}
+
+	@Override
+	public int getPageCount(SearchDataVo vo) {
+		return adUserPointMapper.getPageCount(vo.getSearchMap());
+		
+	}
+
+	@Override
+	public Integer getPointCountById(Integer userId) {
+		return adUserPointMapper.getPointCountById(userId);
+	}
 	
 	
 

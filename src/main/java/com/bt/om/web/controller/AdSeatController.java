@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,7 +24,6 @@ import com.bt.om.cache.CityCache;
 import com.bt.om.common.DateUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
-import com.bt.om.entity.AdCrowd;
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.AdSeatType;
@@ -34,7 +34,6 @@ import com.bt.om.entity.vo.AdSeatInfoVo;
 import com.bt.om.entity.vo.CountGroupByCityVo;
 import com.bt.om.entity.vo.HeatMapVo;
 import com.bt.om.entity.vo.ResourceVo;
-import com.bt.om.enums.AgePart;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.security.ShiroUtils;
@@ -46,10 +45,6 @@ import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
 import com.bt.om.web.util.SearchUtil;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 @Controller
 @RequestMapping(value = "/adseat")
@@ -240,7 +235,10 @@ public class AdSeatController extends BasicController {
 //		return PageConst.ADSEAT_EDIT;
 //	}
 
-    @RequiresRoles("superadmin")
+    /**
+     * 前往编辑广告位页面
+     */
+    @RequiresRoles(value = {"superadmin", "media"}, logical = Logical.OR)
     @RequestMapping(value = "/edit")
     public ModelAndView toEdit(Model model, HttpServletRequest request,
                                @RequestParam(value = "id", required = false) Integer id) {
@@ -270,6 +268,13 @@ public class AdSeatController extends BasicController {
 
             mv.getModel().put("adSeatInfo", adSeatInfoVo);
         }
+        
+        //获取登录用户信息
+        SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        
+        if(user != null) {
+        	model.addAttribute("usertype", user.getUsertype());
+        }
 
 //        mv.getModel().put("agePartValues", AgePart.values());
 
@@ -279,7 +284,7 @@ public class AdSeatController extends BasicController {
     /**
      * 保存广告位
      **/
-    @RequiresRoles("superadmin")
+    @RequiresRoles(value = {"superadmin", "media"}, logical = Logical.OR)
     @RequestMapping(value = "/save")
     @ResponseBody
     public Model addInfo(Model model, AdSeatInfo adSeatInfo, HttpServletRequest request) {

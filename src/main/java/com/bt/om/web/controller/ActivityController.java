@@ -90,6 +90,7 @@ public class ActivityController extends BasicController {
 
 		if (activityId != null) {
 			vo.putSearchParam("activityId", activityId.toString(), activityId);
+			//hhjskjskjsk
 		}
 
 		if (status != null) {

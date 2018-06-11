@@ -55,6 +55,7 @@
                     <button type="button" class="btn btn-red" style="margin-left:10px;" autocomplete="off"
                             id="searchBtn">查询
                     </button>
+                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">批量审核</button> 
                 </form>
             </div>
         </div>
@@ -65,6 +66,7 @@
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan">
                     <thead>
                     <tr>
+                    	<th width="30"><input type="checkbox" style="visibility: hidden" id='thead-checkbox' name="ck-alltask" value=""/></th>
                         <th width="30">序号</th>
                         <th>活动名称</th>
                         <th>上刊示例</th>
@@ -85,6 +87,7 @@
                     <#if (bizObj.list?exists && bizObj.list?size>0) >
                         <#list bizObj.list as task>
                         <tr>
+                          	<td width="30"><#if (task.status?exists&&task.status == 3)><input type="checkbox" data-status='${task.status}'  name="ck-task" value="${task.id}"/></#if></td> 
                             <td width="30">${(bizObj.page.currentPage-1)*20+task_index+1}</td>
                             <td>
                                 <div class="data-title w200" data-title="${task.activityName!""}"
@@ -203,12 +206,77 @@
 //        var newDate=new Date().Format("yyyy-MM-dd");
 //        $('.inputs-date').data('dateRangePicker').setDateRange(newDate,newDate, true);
 
-    });
+
 
     $("#searchBtn").on("click", function () {
         $("#form").submit();
     });
-
+    
+      // 如果列表中有未确认的状态就显示表头的多选框
+        $("input[name='ck-task']").each(function() {
+        	if($(this).data('status') === 3){
+        		$('#thead-checkbox').css('visibility', 'visible')
+        		return false;
+        	}
+        })
+        
+              
+    //批量审核任务
+       $("#assignBtn").click(function(){
+            if($("input[name='ck-task']:checked").length<1){
+                layer.confirm('请选择需要审核的任务', {
+                    icon: 0,
+                    btn: ['确定'] //按钮
+                });
+            }else{
+           		var ids = [];
+                $("input[name='ck-task']:checked").each(function(i,ck){
+                    if(ck.value) ids.push(ck.value);
+                });
+                id_sel = ids.join(",");
+	             $.ajax({
+			            url: "/task/verify",
+			            type: "post",
+			            data: {
+			                "ids": id_sel
+			            },
+			            cache: false,
+			            dataType: "json",
+			            success: function(datas) {
+			                var resultRet = datas.ret;
+			                if (resultRet.code == 101) {
+			                    layer.confirm(resultRet.resultDes, {
+			                        icon: 2,
+			                        btn: ['确定'] //按钮
+			                    }, function(){
+			                        window.location.reload();
+			                    });
+			                } else {
+			                    layer.confirm("确认成功", {
+			                        icon: 1,
+			                        btn: ['确定'] //按钮
+			                    },function () {
+			                        window.location.reload();
+			                    });
+			                }
+			            },
+			            error: function(e) {
+			                layer.confirm("服务忙，请稍后再试", {
+			                    icon: 5,
+			                    btn: ['确定'] //按钮
+			                });
+			            }
+			        });
+            }
+        });
+        $("input[name='ck-alltask']").change(function(){
+            if($(this).is(":checked")){
+                $("input[name='ck-task']").prop("checked",true)
+            }else{
+                $("input[name='ck-task']").removeAttr("checked");
+            }
+        });
+    });
     //指派
     assign = function (id) {
         assign_ids = id;

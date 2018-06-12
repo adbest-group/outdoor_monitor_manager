@@ -28,7 +28,7 @@ public interface IAdJiucuoTaskService {
     /**
      *  审核不通过
      **/
-    public void reject(AdJiucuoTask task,String reason, Integer assessorId);
+    public void reject(String[] taskIds, String reason, Integer assessorId, Integer status);
     public void feedback(AdJiucuoTask task,AdJiucuoTaskFeedback feedback);
     public List<AdJiucuoTaskMobileVo> getByUserIdForMobile(Integer userId);
     /**

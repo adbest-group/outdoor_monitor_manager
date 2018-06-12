@@ -327,7 +327,7 @@ public class JiucuoController extends BasicController {
 			if (status == JiucuoTaskStatus.VERIFIED.getId()) {// 审核通过
 				adJiucuoTaskService.pass(jiucuoIds, userObj.getId(), status);
 			} else if (status == JiucuoTaskStatus.VERIFY_FAILURE.getId()) {// 审核不通过
-				adJiucuoTaskService.reject(task, reason, userObj.getId());
+				adJiucuoTaskService.reject(jiucuoIds, reason, userObj.getId(),status);
 			}
 
 			// 循环推送消息

@@ -580,7 +580,7 @@ public class MonitorTaskController extends BasicController {
 				// adMonitorTaskService.update(task);
 				adMonitorTaskService.pass(taskIds, userObj.getId(), status);
 			} else {
-				adMonitorTaskService.reject(task, reason, userObj.getId());
+				adMonitorTaskService.reject(taskIds, reason, userObj.getId(),status);
 			}
 			// [3] 循环推送
 			for (String taskId : taskIds) {

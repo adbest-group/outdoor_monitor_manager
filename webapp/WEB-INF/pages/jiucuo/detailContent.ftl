@@ -13,7 +13,7 @@
                             <p>广告活动名称：${activity.activityName!""}</p>
                             <p>投放时间：${activity.startTime?string('yyyy-MM-dd')!""}
                                 至 ${activity.endTime?string('yyyy-MM-dd')!""}</p>
-                            <p>投放地区：${vm.getCityName(task.province)!""} - <#if (task.city?if_exists)>${vm.getCityName(task.city)!""}</#if> - ${vm.getCityName(task.region)!""} - ${vm.getCityName(task.street)!""}</p>
+                            <p>投放地区：${vm.getCityName(task.province)!""} - ${vm.getCityName(task.city!"")} - ${vm.getCityName(task.region)!""} - ${vm.getCityName(task.street)!""}</p>
                             <p>媒体名称：${task.mediaName!""}</p>
                             <p>投放广告位：${task.adSeatName!""}</p>
                             <p>投放品牌：${seat.brand!""}</p>

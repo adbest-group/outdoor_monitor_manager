@@ -125,6 +125,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         AdMonitorTask task= new AdMonitorTask();
         task.setId(id);
         task.setStatus(status);
+        task.setAssessorId(assessorId);
         AdMonitorTaskFeedback feedback = null;
         //如果监测反馈有问题，问题状态置为有问题，否则无问题
         List<AdMonitorTaskFeedback> feedbacks = adMonitorTaskFeedbackMapper.selectByTaskId(task.getId(), 1);
@@ -208,17 +209,25 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     }
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void reject(AdMonitorTask task, String reason, Integer assessorId) {
-        Date now = new Date();
-        task.setVerifyTime(now);
-        task.setUpdateTime(now);
-        adMonitorTaskMapper.updateByPrimaryKeySelective(task);
-        List<AdMonitorTaskFeedback> feedbacks = adMonitorTaskFeedbackMapper.selectByTaskId(task.getId(), 1);
-        for (AdMonitorTaskFeedback feedback : feedbacks) {
-            feedback.setReason(reason);
-            feedback.setUpdateTime(now);
-            adMonitorTaskFeedbackMapper.updateByPrimaryKeySelective(feedback);
-        }
+    public void reject(String[] taskIds, String reason, Integer assessorId, Integer status) {
+    	//[4] 确认操作在业务层方法里进行循环
+    	for (String taskId : taskIds) {
+	    	Integer id = Integer.parseInt(taskId);
+	        Date now = new Date();
+	        AdMonitorTask task= new AdMonitorTask();
+	        task.setVerifyTime(now);
+	        task.setUpdateTime(now);
+	        task.setId(id);
+	        task.setStatus(status);
+	        task.setAssessorId(assessorId);
+	        adMonitorTaskMapper.updateByPrimaryKeySelective(task);
+	        List<AdMonitorTaskFeedback> feedbacks = adMonitorTaskFeedbackMapper.selectByTaskId(task.getId(), 1);
+	        for (AdMonitorTaskFeedback feedback : feedbacks) {
+	            feedback.setReason(reason);
+	            feedback.setUpdateTime(now);
+	            adMonitorTaskFeedbackMapper.updateByPrimaryKeySelective(feedback);
+	        }
+    	}
     }
 
     @Override

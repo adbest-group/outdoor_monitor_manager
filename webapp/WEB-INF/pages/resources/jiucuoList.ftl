@@ -41,6 +41,7 @@
                     </div>
                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="searchBtn">查询</button>
                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">批量审核</button> 
+                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="batchRefuse">批量拒绝</button>
 
                 </form>
             </div>
@@ -240,8 +241,60 @@
 			                });
 			            }
 			        });
+            	}
+           });
+           
+          //批量拒绝通过任务
+        $("#batchRefuse").click(function(){
+        	var id_sel;
+            if($("input[name='ck-task']:checked").length<1){
+                layer.confirm('请选择需要拒绝的活动', {
+                    icon: 0,
+                    btn: ['确定'] //按钮
+                });
+            }else{
+                var ids = [];
+                $("input[name='ck-task']:checked").each(function(i,ck){
+                    if(ck.value) ids.push(ck.value);
+                });
+                id_sel = ids.join(",");
+	             $.ajax({
+			            url: "/jiucuo/verify",
+			            type: "post",
+			            data: {
+			                "ids": id_sel,
+			                "status": 3
+			            },
+			            cache: false,
+			            dataType: "json",
+			            success: function(datas) {
+			                var resultRet = datas.ret;
+			                if (resultRet.code == 101) {
+			                    layer.confirm(resultRet.resultDes, {
+			                        icon: 2,
+			                        btn: ['确定'] //按钮
+			                    }, function(){
+			                        window.location.reload();
+			                    });
+			                } else {
+			                    layer.confirm("拒绝成功", {
+			                        icon: 1,
+			                        btn: ['确定'] //按钮
+			                    },function () {
+			                        window.location.reload();
+			                    });
+			                }
+			            },
+			            error: function(e) {
+			                layer.confirm("服务忙，请稍后再试", {
+			                    icon: 5,
+			                    btn: ['确定'] //按钮
+			                });
+			            }
+			        });
             }
         });
+
         $("input[name='ck-alltask']").change(function(){
             if($(this).is(":checked")){
                 $("input[name='ck-task']").prop("checked",true)

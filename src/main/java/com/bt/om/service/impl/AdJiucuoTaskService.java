@@ -116,14 +116,20 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
     }
     }
     @Override
-    public void reject(AdJiucuoTask task, String reason, Integer assessorId) {
+    public void reject(String[] jiucuoIds, String reason, Integer assessorId, Integer status) {
+    	//[4] 确认操作在业务层方法里进行循环
+    	for (String taskId : jiucuoIds) {
+	    	Integer id = Integer.parseInt(taskId);
+	        Date now = new Date();
+	        AdJiucuoTask task= new AdJiucuoTask();
+	    task.setId(id);
         task.setReason(reason);
         task.setStatus(JiucuoTaskStatus.VERIFY_FAILURE.getId());
-        task.setVerifyTime(new Date());
+        task.setVerifyTime(now);
         task.setAssessorId(assessorId); //审核人id
         adJiucuoTaskMapper.updateByPrimaryKeySelective(task);
     }
-
+    }
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void feedback(AdJiucuoTask task, AdJiucuoTaskFeedback feedback) {

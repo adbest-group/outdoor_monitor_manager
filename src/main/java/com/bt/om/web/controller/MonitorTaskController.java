@@ -458,32 +458,32 @@ public class MonitorTaskController extends BasicController {
 		ResultVo<String> result = new ResultVo<String>();
 		// [1] ids拆分成id集合
 		String[] taskIds = ids.split(",");
-//		// [2] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
-//		for (String taskId : taskIds) {
-//			// 注意：这里没有考虑批量指派的问题. 如果批量指派, 需要循环放入Redis
-//			String beginRedisStr = "zhipai_" + taskId + "_begin";
-//			String finishRedisStr = "zhipai_" + taskId + "_finish";
-//			if (redisTemplate.opsForValue().get(finishRedisStr) != null
-//					&& StringUtil.equals(redisTemplate.opsForValue().get(finishRedisStr) + "", "true")) {
-//				result.setCode(ResultCode.RESULT_FAILURE.getCode());
-//				result.setResultDes("任务已被指派，请刷新再试！");
-//				model.addAttribute(SysConst.RESULT_KEY, result);
-//				return model;
-//			}
-//			if (redisTemplate.opsForValue().get(beginRedisStr) != null
-//					&& StringUtil.equals(redisTemplate.opsForValue().get(beginRedisStr) + "", "true")) {
-//				result.setCode(ResultCode.RESULT_FAILURE.getCode());
-//				result.setResultDes("任务正被指派中，请刷新再试！");
-//				model.addAttribute(SysConst.RESULT_KEY, result);
-//				return model;
-//			}
-//		}
-//		// [3] 循环放入redis中
-//		for (String taskId : taskIds) {
-//			String beginRedisStr = "monitorTask_" + taskId + "_begin";
-//			// 放入Redis缓存处理并发
-//			redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
-//		}
+		// [2] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
+		for (String taskId : taskIds) {
+			// 注意：这里没有考虑批量指派的问题. 如果批量指派, 需要循环放入Redis
+			String beginRedisStr = "zhipai_" + taskId + "_begin";
+			String finishRedisStr = "zhipai_" + taskId + "_finish";
+			if (redisTemplate.opsForValue().get(finishRedisStr) != null
+					&& StringUtil.equals(redisTemplate.opsForValue().get(finishRedisStr) + "", "true")) {
+				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+				result.setResultDes("任务已被指派，请刷新再试！");
+				model.addAttribute(SysConst.RESULT_KEY, result);
+				return model;
+			}
+			if (redisTemplate.opsForValue().get(beginRedisStr) != null
+					&& StringUtil.equals(redisTemplate.opsForValue().get(beginRedisStr) + "", "true")) {
+				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+				result.setResultDes("任务正被指派中，请刷新再试！");
+				model.addAttribute(SysConst.RESULT_KEY, result);
+				return model;
+			}
+		}
+		// [3] 循环放入redis中
+		for (String taskId : taskIds) {
+			String beginRedisStr = "zhipai_" + taskId + "_begin";
+			// 放入Redis缓存处理并发
+			redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
+		}
 		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
 		result.setResultDes("指派成功");
 		model = new ExtendedModelMap();
@@ -506,23 +506,23 @@ public class MonitorTaskController extends BasicController {
 			String pushResult = JPushUtils.pushAllByAlias(param);
 			System.out.println("pushResult:: " + pushResult);
 		} catch (Exception e) {
-//			// [5] 异常情况, 循环删除redis
-//			for (String taskId : taskIds) {
-//				String beginRedisStr = "monitorTask_" + taskId + "_begin";
-//				// 异常情况, 移除Redis缓存处理并发
-//				redisTemplate.delete(beginRedisStr);
-//			}
+			// [5] 异常情况, 循环删除redis
+			for (String taskId : taskIds) {
+				String beginRedisStr = "zhipai_" + taskId + "_begin";
+				// 异常情况, 移除Redis缓存处理并发
+				redisTemplate.delete(beginRedisStr);
+			}
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("指派失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
 			return model;
 		}
-//		// [6] 处理成功, 循环放入redis
-//		for (String taskId : taskIds) {
-//			// 放入Redis缓存处理并发
-//			String finishRedisStr = "zhipai_" + taskId + "_finish";
-//			redisTemplate.opsForValue().set(finishRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
-//		}
+		// [6] 处理成功, 循环放入redis
+		for (String taskId : taskIds) {
+			// 放入Redis缓存处理并发
+			String finishRedisStr = "zhipai_" + taskId + "_finish";
+			redisTemplate.opsForValue().set(finishRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
+		}
 		model.addAttribute(SysConst.RESULT_KEY, result);
 		return model;
 	}
@@ -540,31 +540,31 @@ public class MonitorTaskController extends BasicController {
 		ResultVo<String> result = new ResultVo<String>();
 		// [1] ids拆分成id集合
 		String[] taskIds = ids.split(",");
-//		// [2] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
-//		for (String taskId : taskIds) {
-//			String beginRedisStr = "monitorTask_" + taskId + "_begin";
-//			String finishRedisStr = "monitorTask_" + taskId + "_finish";
-//			if (redisTemplate.opsForValue().get(finishRedisStr) != null
-//					&& StringUtil.equals(redisTemplate.opsForValue().get(finishRedisStr) + "", "true")) {
-//				result.setCode(ResultCode.RESULT_FAILURE.getCode());
-//				result.setResultDes("任务已被审核，请刷新再试！");
-//				model.addAttribute(SysConst.RESULT_KEY, result);
-//				return model;
-//			}
-//			if (redisTemplate.opsForValue().get(beginRedisStr) != null
-//					&& StringUtil.equals(redisTemplate.opsForValue().get(beginRedisStr) + "", "true")) {
-//				result.setCode(ResultCode.RESULT_FAILURE.getCode());
-//				result.setResultDes("任务正被审核中，请刷新再试！");
-//				model.addAttribute(SysConst.RESULT_KEY, result);
-//				return model;
-//			}
-//		}
-//		// [3] 循环放入redis中
-//		for (String taskId : taskIds) {
-//			String beginRedisStr = "monitorTask_" + taskId + "_begin";
-//			// 放入Redis缓存处理并发
-//			redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
-//		}
+		// [2] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
+		for (String taskId : taskIds) {
+			String beginRedisStr = "monitorTask_" + taskId + "_begin";
+			String finishRedisStr = "monitorTask_" + taskId + "_finish";
+			if (redisTemplate.opsForValue().get(finishRedisStr) != null
+					&& StringUtil.equals(redisTemplate.opsForValue().get(finishRedisStr) + "", "true")) {
+				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+				result.setResultDes("任务已被审核，请刷新再试！");
+				model.addAttribute(SysConst.RESULT_KEY, result);
+				return model;
+			}
+			if (redisTemplate.opsForValue().get(beginRedisStr) != null
+					&& StringUtil.equals(redisTemplate.opsForValue().get(beginRedisStr) + "", "true")) {
+				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+				result.setResultDes("任务正被审核中，请刷新再试！");
+				model.addAttribute(SysConst.RESULT_KEY, result);
+				return model;
+			}
+		}
+		// [3] 循环放入redis中
+		for (String taskId : taskIds) {
+			String beginRedisStr = "monitorTask_" + taskId + "_begin";
+			// 放入Redis缓存处理并发
+			redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
+		}
 		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
 		result.setResultDes("审核成功");
 		model = new ExtendedModelMap();
@@ -580,7 +580,7 @@ public class MonitorTaskController extends BasicController {
 				// adMonitorTaskService.update(task);
 				adMonitorTaskService.pass(taskIds, userObj.getId(), status);
 			} else {
-				adMonitorTaskService.reject(task, reason, userObj.getId());
+				adMonitorTaskService.reject(taskIds, reason, userObj.getId(),status);
 			}
 			// [3] 循环推送
 			for (String taskId : taskIds) {
@@ -599,23 +599,23 @@ public class MonitorTaskController extends BasicController {
 				System.out.println("pushResult:: " + pushResult);
 			}
 		} catch (Exception e) {
-//			// [5] 异常情况, 循环删除redis
-//			for (String taskId : taskIds) {
-//				String beginRedisStr = "monitorTask_" + taskId + "_begin";
-//				// 异常情况, 移除Redis缓存处理并发
-//				redisTemplate.delete(beginRedisStr);
-//			}
+			// [5] 异常情况, 循环删除redis
+			for (String taskId : taskIds) {
+				String beginRedisStr = "monitorTask_" + taskId + "_begin";
+				// 异常情况, 移除Redis缓存处理并发
+				redisTemplate.delete(beginRedisStr);
+			}
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("审核失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
 			return model;
 		}
-//		// [6] 处理成功, 循环放入redis
-//		for (String taskId : taskIds) {
-//			// 放入Redis缓存处理并发
-//			String finishRedisStr = "monitorTask_" + taskId + "_finish";
-//			redisTemplate.opsForValue().set(finishRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
-//		}
+		// [6] 处理成功, 循环放入redis
+		for (String taskId : taskIds) {
+			// 放入Redis缓存处理并发
+			String finishRedisStr = "monitorTask_" + taskId + "_finish";
+			redisTemplate.opsForValue().set(finishRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
+		}
 		model.addAttribute(SysConst.RESULT_KEY, result);
 		return model;
 	}

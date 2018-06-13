@@ -289,31 +289,31 @@ public class JiucuoController extends BasicController {
 		ResultVo<String> result = new ResultVo<String>();
 		// [1] ids拆分成id集合
 		String[] jiucuoIds = ids.split(",");
-//		// [2] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
-//		for (String jcId : jiucuoIds) {
-//			String beginRedisStr = "jiucuo_" + jcId + "_begin";
-//			String finishRedisStr = "jiucuo_" + jcId + "_finish";
-//			if (redisTemplate.opsForValue().get(finishRedisStr) != null
-//					&& StringUtil.equals(redisTemplate.opsForValue().get(finishRedisStr) + "", "true")) {
-//				result.setCode(ResultCode.RESULT_FAILURE.getCode());
-//				result.setResultDes("纠错已被审核，请刷新再试！");
-//				model.addAttribute(SysConst.RESULT_KEY, result);
-//				return model;
-//			}
-//			if (redisTemplate.opsForValue().get(beginRedisStr) != null
-//					&& StringUtil.equals(redisTemplate.opsForValue().get(beginRedisStr) + "", "true")) {
-//				result.setCode(ResultCode.RESULT_FAILURE.getCode());
-//				result.setResultDes("纠错正被审核中，请刷新再试！");
-//				model.addAttribute(SysConst.RESULT_KEY, result);
-//				return model;
-//			}
-//		}
-//		// [3] 循环放入redis中
-//		for (String jcId : jiucuoIds) {
-//			String beginRedisStr = "jiucuo_" + jcId + "_begin";
-//			// 放入Redis缓存处理并发
-//			redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
-//		}
+		// [2] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
+		for (String jcId : jiucuoIds) {
+			String beginRedisStr = "jiucuo_" + jcId + "_begin";
+			String finishRedisStr = "jiucuo_" + jcId + "_finish";
+			if (redisTemplate.opsForValue().get(finishRedisStr) != null
+					&& StringUtil.equals(redisTemplate.opsForValue().get(finishRedisStr) + "", "true")) {
+				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+				result.setResultDes("纠错已被审核，请刷新再试！");
+				model.addAttribute(SysConst.RESULT_KEY, result);
+				return model;
+			}
+			if (redisTemplate.opsForValue().get(beginRedisStr) != null
+					&& StringUtil.equals(redisTemplate.opsForValue().get(beginRedisStr) + "", "true")) {
+				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+				result.setResultDes("纠错正被审核中，请刷新再试！");
+				model.addAttribute(SysConst.RESULT_KEY, result);
+				return model;
+			}
+		}
+		// [3] 循环放入redis中
+		for (String jcId : jiucuoIds) {
+			String beginRedisStr = "jiucuo_" + jcId + "_begin";
+			// 放入Redis缓存处理并发
+			redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
+		}
 		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
 		result.setResultDes("审核成功");
 		model = new ExtendedModelMap();
@@ -327,7 +327,7 @@ public class JiucuoController extends BasicController {
 			if (status == JiucuoTaskStatus.VERIFIED.getId()) {// 审核通过
 				adJiucuoTaskService.pass(jiucuoIds, userObj.getId(), status);
 			} else if (status == JiucuoTaskStatus.VERIFY_FAILURE.getId()) {// 审核不通过
-				adJiucuoTaskService.reject(task, reason, userObj.getId());
+				adJiucuoTaskService.reject(jiucuoIds, reason, userObj.getId(),status);
 			}
 
 			// 循环推送消息
@@ -347,23 +347,23 @@ public class JiucuoController extends BasicController {
 				System.out.println("pushResult:: " + pushResult);
 			}
 		} catch (Exception e) {
-//			// [5] 异常情况, 循环删除redis
-//			for (String jcId : jiucuoIds) {
-//				String beginRedisStr = "jiucuo_" + jcId + "_begin";
-//				// 异常情况, 移除Redis缓存处理并发
-//				redisTemplate.delete(beginRedisStr);
-//			}
+			// [5] 异常情况, 循环删除redis
+			for (String jcId : jiucuoIds) {
+				String beginRedisStr = "jiucuo_" + jcId + "_begin";
+				// 异常情况, 移除Redis缓存处理并发
+				redisTemplate.delete(beginRedisStr);
+			}
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("审核失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
 			return model;
 		}
-//		// [6] 处理成功, 循环放入redis
-//		for (String jcId : jiucuoIds) {
-//			String finishRedisStr = "jiucuo_" + jcId + "_finish";
-//			// 放 入Redis缓存处理并发
-//			redisTemplate.opsForValue().set(finishRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
-//		}
+		// [6] 处理成功, 循环放入redis
+		for (String jcId : jiucuoIds) {
+			String finishRedisStr = "jiucuo_" + jcId + "_finish";
+			// 放 入Redis缓存处理并发
+			redisTemplate.opsForValue().set(finishRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
+		}
 		model.addAttribute(SysConst.RESULT_KEY, result);
 		return model;
 	}

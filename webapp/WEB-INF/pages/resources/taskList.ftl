@@ -56,6 +56,8 @@
                             id="searchBtn">查询
                     </button>
                      <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">批量审核</button> 
+                      <button type="button" class="btn btn-red" style="margin-left:10px;" id="batchRefuse">批量拒绝</button>
+
                 </form>
             </div>
         </div>
@@ -103,7 +105,7 @@
                             <td>${vm.getMonitorTaskStatusText(task.status)!""}</td>
                             <td>${vm.getProblemStatusText(task.problemStatus!0)}</td>
                             <td>${task.assessorName!""}</td>
-                            <td>${task.updateTime?string('yyyy-MM-dd')}</td>
+                            <td>${task.updateTime?string('yyyy-MM-dd HH:mm:ss')}</td>
                             <td>
                             <#--<#if task.status==1><a href="javascript:assign('${task.id}')">指派</a></#if>-->
                             <#--<#if task.status==2><a href="javascript:assign('${task.id}')">重新指派</a></#if>-->
@@ -270,11 +272,64 @@
 			        });
             }
         });
-        $("input[name='ck-alltask']").change(function(){
-            if($(this).is(":checked")){
-                $("input[name='ck-task']").prop("checked",true)
+          
+        //批量拒绝通过任务
+        $("#batchRefuse").click(function(){
+        	var id_sel;
+            if($("input[name='ck-task']:checked").length<1){
+                layer.confirm('请选择需要拒绝的活动', {
+                    icon: 0,
+                    btn: ['确定'] //按钮
+                });
             }else{
-                $("input[name='ck-task']").removeAttr("checked");
+                var ids = [];
+                $("input[name='ck-task']:checked").each(function(i,ck){
+                    if(ck.value) ids.push(ck.value);
+                });
+                id_sel = ids.join(",");
+	             $.ajax({
+			            url: "/task/verify",
+			            type: "post",
+			            data: {
+			                "ids": id_sel,
+			                "status": 5
+			            },
+			            cache: false,
+			            dataType: "json",
+			            success: function(datas) {
+			                var resultRet = datas.ret;
+			                if (resultRet.code == 101) {
+			                    layer.confirm(resultRet.resultDes, {
+			                        icon: 2,
+			                        btn: ['确定'] //按钮
+			                    }, function(){
+			                        window.location.reload();
+			                    });
+			                } else {
+			                    layer.confirm("拒绝成功", {
+			                        icon: 1,
+			                        btn: ['确定'] //按钮
+			                    },function () {
+			                        window.location.reload();
+			                    });
+			                }
+			            },
+			            error: function(e) {
+			                layer.confirm("服务忙，请稍后再试", {
+			                    icon: 5,
+			                    btn: ['确定'] //按钮
+			                });
+			            }
+			        });
+            }
+        });
+         $("input[name='ck-alltask']").change(function(){
+            if(!this.value){
+                if($(this).is(":checked")){
+                    $("input[name='ck-task']").prop("checked",true)
+                }else{
+                    $("input[name='ck-task']").removeAttr("checked");
+                }
             }
         });
     });

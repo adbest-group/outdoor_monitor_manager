@@ -42,7 +42,7 @@ public interface IAdMonitorTaskService {
     /**
      * 审核不通过
      **/
-    public void reject(AdMonitorTask task,String reason, Integer assessorId);
+    public void reject(String[] taskIds, String reason, Integer assessorId, Integer status);
 
     public List<AdMonitorTaskMobileVo> getByUserIdForMobile(Integer userId);
 

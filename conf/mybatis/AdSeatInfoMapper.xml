@@ -748,4 +748,77 @@
 	      and location = #{location,jdbcType=VARCHAR}
 	    </if>
 	</select>
+	
+	<select id="checkUnique" parameterType="com.bt.om.entity.AdSeatInfo" resultType="com.bt.om.entity.AdSeatInfo">
+		select
+		<include refid="Base_Column_List" />
+		from ad_seat_info
+		where 1=1
+		<if test="name != null">
+			and name = #{name,jdbcType=VARCHAR}
+		</if>
+		<if test="mediaTypeParentId != null">
+			and media_type_parent_id =#{mediaTypeParentId,jdbcType=INTEGER}
+		</if>
+		<if test="mediaTypeId != null">
+			and media_type_id =#{mediaTypeId,jdbcType=INTEGER}
+		</if>
+		<if test="allowMulti != null">
+			and allow_multi =#{allowMulti,jdbcType=INTEGER}
+		</if>
+		<if test="multiNum != null">
+			and multi_num =#{multiNum,jdbcType=INTEGER}
+		</if>
+		<if test="province != null" >
+	      and province = #{province,jdbcType=BIGINT}
+	    </if>
+	    <if test="city != null" >
+	      and city = #{city,jdbcType=BIGINT}
+	    </if>
+	    <if test="region != null" >
+	      and region = #{region,jdbcType=BIGINT}
+	    </if>
+	    <if test="street != null" >
+	      and street = #{street,jdbcType=BIGINT}
+	    </if>
+	    <if test="location != null" >
+	      and location = #{location,jdbcType=VARCHAR}
+	    </if>
+	    <if test="uniqueKey != null">
+		  and unique_key =#{uniqueKey,jdbcType=VARCHAR}
+		</if>
+		<if test="adSize != null">
+		  and ad_size =#{adSize,jdbcType=VARCHAR}
+		</if>
+		<if test="adArea != null">
+		  and ad_area =#{adArea,jdbcType=VARCHAR}
+		</if>
+		<if test="lon != null">
+		  and lon =#{lon,jdbcType=DOUBLE}
+		</if>
+		<if test="lat != null">
+		  and lat =#{lat,jdbcType=DOUBLE}
+		</if>
+		<if test="mapStandard != null">
+		  and map_standard =#{mapStandard,jdbcType=INTEGER}
+		</if>
+		<if test="contactName != null">
+		  and contact_name =#{contactName,jdbcType=VARCHAR}
+		</if>
+		<if test="contactCell != null">
+		  and contact_cell =#{contactCell,jdbcType=VARCHAR}
+		</if>
+		<if test="memo != null">
+		  and memo =#{memo,jdbcType=VARCHAR}
+		</if>
+		<if test="mediaId != null">
+		  and media_id =#{mediaId,jdbcType=INTEGER}
+		</if>
+		<if test="contactCell != null">
+		  and contact_cell =#{contactCell,jdbcType=VARCHAR}
+		</if>
+		<if test="codeFlag != null">
+		  and ad_code_flag =#{codeFlag,jdbcType=INTEGER}
+		</if>
+	</select>
 </mapper>

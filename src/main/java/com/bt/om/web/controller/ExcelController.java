@@ -600,6 +600,11 @@ public class ExcelController extends BasicController {
     							}
                     		}
                     		provinceId = provinceMap.get(provinceName);
+                    		if(provinceId == null) {
+                    			lo.set(20, importFail);
+                        		lo.set(21, ExcelImportFailEnum.PROVINCE_INVALID.getText());
+                        		hasProblem = true;
+                    		}
                     		info.setProvince(provinceId);
                     		buffer.append(provinceName);
     					}
@@ -637,6 +642,11 @@ public class ExcelController extends BasicController {
         								}
         							}
                             		cityId = cityMap.get(cityName);
+                            		if(cityId == null) {
+                            			lo.set(20, importFail);
+                                		lo.set(21, ExcelImportFailEnum.CITY_INVALID.getText());
+                                		hasProblem = true;
+                            		}
                             		info.setCity(cityId);
                             		buffer.append(cityName);
                         		}
@@ -668,6 +678,11 @@ public class ExcelController extends BasicController {
     								}
     							}
                         		regionId = regionMap.get(regionName);
+                        		if(regionId == null) {
+                        			lo.set(20, importFail);
+                            		lo.set(21, ExcelImportFailEnum.REGION_INVALID.getText());
+                            		hasProblem = true;
+                        		}
                         		info.setRegion(regionId);
                         		buffer.append(regionName);
                     		} else {
@@ -681,6 +696,11 @@ public class ExcelController extends BasicController {
     								}
     							}
                         		regionId = regionMap.get(regionName);
+                        		if(regionId == null) {
+                        			lo.set(20, importFail);
+                            		lo.set(21, ExcelImportFailEnum.REGION_INVALID.getText());
+                            		hasProblem = true;
+                        		}
                         		info.setRegion(regionId);
                         		buffer.append(regionName);
                     		}
@@ -710,6 +730,11 @@ public class ExcelController extends BasicController {
 								}
 							}
                     		Long streetId = streetMap.get(streetName);
+                    		if(streetId == null) {
+                    			lo.set(20, importFail);
+                        		lo.set(21, ExcelImportFailEnum.STREET_INVALID.getText());
+                        		hasProblem = true;
+                    		}
                     		info.setStreet(streetId);
                     		buffer.append(streetName);
     					}
@@ -870,7 +895,10 @@ public class ExcelController extends BasicController {
                     	}
                 	}
                 	
-                	if(!StringUtils.equals(String.valueOf(lo.get(20)), importFail)) {
+//                	//检查地址唯一性
+//                	AdSeatInfo res = adSeatService.checkUnique(info);
+                	
+                	if(!(StringUtils.equals(String.valueOf(lo.get(20)), importFail))) {
                 		//导入成功
                 		lo.set(20, importSucc);
                 		//生成广告位对应的二维码

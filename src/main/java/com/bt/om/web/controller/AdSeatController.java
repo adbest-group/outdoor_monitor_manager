@@ -98,7 +98,6 @@ public class AdSeatController extends BasicController {
         } else if (province != null) {
             vo.putSearchParam("province", province.toString(), province);
         }
-
         if (mediaId != null) {
             vo.putSearchParam("mediaId", mediaId.toString(), mediaId);
         }

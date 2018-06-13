@@ -22,7 +22,11 @@ public enum ExcelImportFailEnum {
 	SECOND_INVALID(16, "媒体小类无效"),
 	MEDIA_TYPE_INVALID(17, "媒体类型无效"),
 	UNIQUE_KEY_NULL(18, "该媒体类型唯一标识不能为空"),
-	NUM_INVALID(19, "数字有误");
+	NUM_INVALID(19, "数字有误"),
+	PROVINCE_INVALID(20, "省份/直辖市有误"),
+	CITY_INVALID(21, "城市有误"),
+	REGION_INVALID(22, "区/县有误"),
+	STREET_INVALID(23, "街道/镇/乡有误");
 
     private Integer id;
     private String text;

@@ -64,6 +64,7 @@
                         <th>状态</th>
                         <th>问题状态</th>
                         <th>审核人</th>
+                        <th>审核时间</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -79,12 +80,13 @@
                             </td>
                             <td><img width="50" src="${task.picUrl1!""}"/></td>
                             <td>${task.submitTime?string('yyyy-MM-dd HH:mm:ss')}</td>
-                            <td>${vm.getCityNameFull(task.street!task.region,"-")!""}</td>
+                            <td>${vm.getCityName(task.province)!""} ${vm.getCityName(task.city!"")}</td>
                             <td>${task.mediaName!""}</td>
                             <td>${task.adSeatName!""}</td>
                             <td>${vm.getJiucuoTaskStatusText(task.status)}</td>
                             <td>${vm.getProblemStatusText(task.problemStatus!0)}</td>
                             <td>${task.assessorName!""}</td>
+                            <td>${task.updateTime?string('yyyy-MM-dd HH:mm:ss')}</td>
                             <td>
                             	<#if task.status==1><a href="javascript:pass('${task.id}');">通过</a></#if>
                                 <#if task.status==1><a href="javascript:reject('${task.id}');">拒绝</a></#if>

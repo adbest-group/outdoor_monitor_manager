@@ -33,8 +33,18 @@ public class AdActivityAdseatTaskVo extends AdActivityAdseat {
     private String info_uniqueKey;
     private String info_memo;
     private String demoPic; //活动预览图
+	private Integer info_adNum;//面数
 	
-    public String getMediaName() {
+    
+    public Integer getInfo_adNum() {
+		return info_adNum;
+	}
+
+	public void setInfo_adNum(Integer info_adNum) {
+		this.info_adNum = info_adNum;
+	}
+
+	public String getMediaName() {
 		return mediaName;
 	}
     

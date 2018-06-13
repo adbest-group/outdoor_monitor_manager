@@ -409,8 +409,8 @@ public class MediaManagerController {
         	Map<String, Object> searchMap = new HashMap<>();
         	searchMap.put("province", province);
         	searchMap.put("city", city);
-        	searchMap.put("region", region);
-        	searchMap.put("street", street);
+//        	searchMap.put("region", region);
+//        	searchMap.put("street", street);
         	searchMap.put("location", location);
         	int count = adSeatService.selectByLocation(searchMap);
         	if(count > 0) {

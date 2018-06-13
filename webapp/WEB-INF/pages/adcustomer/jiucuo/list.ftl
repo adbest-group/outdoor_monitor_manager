@@ -65,7 +65,7 @@
                                 <div class="data-title w200" data-title="${task.activityName!""}" data-id="${task.id}">${task.activityName?if_exists}</div></td>
                             <td><img width="50" src="${task.picUrl1!""}"/></td>
                             <td>${task.submitTime?string('yyyy-MM-dd HH:mm:ss')}</td>
-                            <td>${vm.getCityNameFull(task.street!task.region,"-")!""}</td>
+                            <td>${vm.getCityName(task.province)!""} ${vm.getCityName(task.city!"")}</td>
                             <td>${task.mediaName!""}</td>
                             <td>${task.adSeatName!""}</td>
                             <td>${vm.getJiucuoTaskStatusText(task.status)}</td>

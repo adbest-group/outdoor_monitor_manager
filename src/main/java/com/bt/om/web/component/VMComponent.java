@@ -106,16 +106,16 @@ public class VMComponent {
             if (StringUtil.isNotEmpty(subName)) {
                 sb.append(split).append(subName);
             }
-            sub = CityUtil.getRegionCode(code);
-            if (sub != null) {
-                subName = cityCache.getCityName(sub);
-                if (StringUtil.isNotEmpty(subName)) {
-                    sb.append(split).append(subName);
-                }
-                if (CityUtil.isStreet(code)) {
-                    sb.append(split).append(cityCache.getCityName(code));
-                }
-            }
+//            sub = CityUtil.getRegionCode(code);
+//            if (sub != null) {
+//                subName = cityCache.getCityName(sub);
+//                if (StringUtil.isNotEmpty(subName)) {
+//                    sb.append(split).append(subName);
+//                }
+//                if (CityUtil.isStreet(code)) {
+//                    sb.append(split).append(cityCache.getCityName(code));
+//                }
+//            }
         }
         return sb.toString();
     }

@@ -843,6 +843,8 @@ public class ApiController extends BasicController {
             }
             datavo.putSearchParam("updateTime", null, updateTime);
             //List<AdMonitorTaskMobileVo> tasks = adMonitorTaskService.getByUserIdForMobile(user.getId());
+            Integer userTaskStatus = 1; //状态：1.正常 2.主动放弃 3.超时回收
+            datavo.putSearchParam("userTaskStatus", null, userTaskStatus);
             adMonitorTaskService.getTaskPageData(datavo);
             List<AdMonitorTaskMobileVo> list = (List<AdMonitorTaskMobileVo>) datavo.getList();
             MonitorTaskListResultVo resultVo = new MonitorTaskListResultVo();

@@ -160,7 +160,25 @@ public class AdSeatInfo {
 	
     private String createTimeStr;
     private String updateTimeStr;
+    private Integer adNum;//面数
+    private String road;//主要路段
     
+	public String getRoad() {
+		return road;
+	}
+
+	public void setRoad(String road) {
+		this.road = road;
+	}
+
+	public Integer getAdNum() {
+		return adNum;
+	}
+
+	public void setAdNum(Integer adNum) {
+		this.adNum = adNum;
+	}
+
 	public String getCreateTimeStr() {
 		return createTimeStr;
 	}

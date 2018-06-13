@@ -59,6 +59,7 @@
                         <th>监测时间点</th>
                         <th>状态</th>
                         <th>指派人</th>
+                        <th>指派时间</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -73,13 +74,14 @@
                             </td>
                             <td><img width="50" src="${task.samplePicUrl!""}"/> </td>
                             <td>${task.startTime?string('yyyy-MM-dd')}<br/>${task.endTime?string('yyyy-MM-dd')}</td>
-                            <td>${vm.getCityNameFull(task.street!task.region,"-")!""}</td>
+                           <td>${vm.getCityName(task.province)!""} ${vm.getCityName(task.city!"")}</td>
                             <td  id="media_${task.id}">${task.mediaName!""}</td>
                             <td>${task.adSeatName!""}</td>
                             <#--<td>${task.userId!""}</td>-->
                             <td>${vm.getMonitorTaskTypeText(task.taskType)!""}</td>
                             <td>${vm.getMonitorTaskStatusText(task.status)!""}</td>
                             <td>${task.assignorName!""}</td>
+                            <td>${(task.assignorTime?string('yyyy-MM-dd HH:mm:ss'))!""}</td>
                             <td>
                             	<#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status==1 || task.status==8)><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if></#if>
                                 <a href="/task/details?task_Id=${task.id}">详情</a>

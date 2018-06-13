@@ -80,6 +80,4 @@ public interface AdSeatInfoMapper {
 	int updateFlag(@Param("codeFlag")Integer codeFlag,@Param("id") Integer id);
 	
 	int selectByLocation(Map<String, Object> searchMap);
-	//检查批量导入的唯一性
-	AdSeatInfo checkUnique(AdSeatInfo info);
 }

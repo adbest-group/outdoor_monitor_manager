@@ -93,7 +93,7 @@
                             </td>
                             <td><img width="50" src="${task.samplePicUrl!""}"/> </td>
                             <td><#if (task.startTime?exists)>${task.startTime?string('yyyy-MM-dd')} </#if><br/><#if (task.endTime?exists)>${task.endTime?string('yyyy-MM-dd')}</#if></td>
-                            <td>${vm.getCityNameFull(task.street!task.region,"-")!""}</td>
+                            <td>${vm.getCityName(task.province)!""} ${vm.getCityName(task.city!"")}</td>
                             <td id="media_${task.id}">${task.mediaName!""}</td>
                             <td>${task.adSeatName!""}</td>
                             <#--<td>${task.userId!""}</td>-->

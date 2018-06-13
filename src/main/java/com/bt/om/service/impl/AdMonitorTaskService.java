@@ -105,6 +105,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             userTask.setStatus(1);
             userTask.setCreateTime(now);
             userTask.setUpdateTime(now);
+            
             adMonitorUserTaskMapper.insertSelective(userTask);
         }
     }

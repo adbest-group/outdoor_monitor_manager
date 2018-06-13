@@ -125,6 +125,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         AdMonitorTask task= new AdMonitorTask();
         task.setId(id);
         task.setStatus(status);
+        task.setAssessorId(assessorId);
         AdMonitorTaskFeedback feedback = null;
         //如果监测反馈有问题，问题状态置为有问题，否则无问题
         List<AdMonitorTaskFeedback> feedbacks = adMonitorTaskFeedbackMapper.selectByTaskId(task.getId(), 1);

@@ -38,4 +38,6 @@ public interface IAdSeatService {
 	List<AdSeatInfo> getAllLonLat(HeatMapVo heatMapVo, Integer userId);
 	int updateFlag(Integer codeFlag,Integer id);
 	int selectByLocation(Map<String, Object> searchMap);
+	//检查地址唯一性
+	public AdSeatInfo checkUnique(AdSeatInfo info);
 }

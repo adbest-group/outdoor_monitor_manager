@@ -103,7 +103,7 @@
                             <td>${vm.getMonitorTaskStatusText(task.status)!""}</td>
                             <td>${vm.getProblemStatusText(task.problemStatus!0)}</td>
                             <td>${task.assessorName!""}</td>
-                            <td>${task.updateTime?string('yyyy-MM-dd')}</td>
+                            <td>${task.updateTime?string('yyyy-MM-dd HH:mm:ss')}</td>
                             <td>
                             <#--<#if task.status==1><a href="javascript:assign('${task.id}')">指派</a></#if>-->
                             <#--<#if task.status==2><a href="javascript:assign('${task.id}')">重新指派</a></#if>-->

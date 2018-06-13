@@ -605,6 +605,9 @@
         <if test="updateTime != null">
             and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
         </if>
+        <if test="userTaskStatus != null">
+            and f.status = #{userTaskStatus,jdbcType=INTEGER}
+        </if>
         order by a.update_time desc,a.id desc
 	</select>
 	<select id="getTaskPageData" parameterType="map" resultMap="MobileResultMap">
@@ -685,6 +688,9 @@
 	    </if>
         <if test="updateTime != null">
             and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="userTaskStatus != null">
+            and f.status = #{userTaskStatus,jdbcType=INTEGER}
         </if>
         order by a.update_time desc,a.id desc
     </select>

@@ -78,7 +78,7 @@
 						<td>${adseat.secondName!""}</td>
 						<td>${adseat.mediaName!""}</td>
 						<td>${adseat.memo!""}</td>
-						<td>${vm.getCityName(adseat.province)!""} - ${vm.getCityName(adseat.city!"")}</td>
+						<td>${vm.getCityName(adseat.province)!""} ${vm.getCityName(adseat.city!"")}</td>
 						<td>${adseat.road!""}</td>
 						<td>${adseat.location!""}</td>
 						<td>${adseat.adNum!""}</td>

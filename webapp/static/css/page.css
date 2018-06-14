@@ -1,3 +1,7 @@
 .main-container{
 	overflow-x: auto;
 }
+
+table tr th{
+	word-break: keep-all;
+}

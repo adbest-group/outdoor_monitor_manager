@@ -105,7 +105,11 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             userTask.setStatus(1);
             userTask.setCreateTime(now);
             userTask.setUpdateTime(now);
-            
+            task.setAssignorId(loginUser.getId());
+            task.setAssignorTime(now);
+            task.setStatus(2);//变为待执行
+            task.setUserId(userId);//执行人员id
+            adMonitorTaskMapper.updateByPrimaryKey(task);
             adMonitorUserTaskMapper.insertSelective(userTask);
         }
     }

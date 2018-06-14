@@ -58,8 +58,6 @@
                         <#--<th>执行人员</th>-->
                         <th>监测时间点</th>
                         <th>状态</th>
-                        <th>指派人</th>
-                        <th>指派时间</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -80,8 +78,6 @@
                             <#--<td>${task.userId!""}</td>-->
                             <td>${vm.getMonitorTaskTypeText(task.taskType)!""}</td>
                             <td>${vm.getMonitorTaskStatusText(task.status)!""}</td>
-                            <td>${task.assignorName!""}</td>
-                            <td>${(task.assignorTime?string('yyyy-MM-dd HH:mm:ss'))!""}</td>
                             <td>
                             	<#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status==1 || task.status==8)><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if></#if>
                                 <a href="/task/details?task_Id=${task.id}">详情</a>

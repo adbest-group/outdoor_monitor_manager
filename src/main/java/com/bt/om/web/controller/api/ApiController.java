@@ -278,13 +278,13 @@ public class ApiController extends BasicController {
         } catch (IOException e) {
             e.printStackTrace();
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
-            result.setResultDes("二维码解析失败失败！");
+            result.setResultDes("二维码解析失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         } catch (Exception e) {
             e.printStackTrace();
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
-            result.setResultDes("二维码解析失败失败！");
+            result.setResultDes("二维码解析失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         } finally {
@@ -352,7 +352,7 @@ public class ApiController extends BasicController {
                 list = adActivityService.getActivitySeatBySeatCode(seatCode);
                 if(list == null || list.size() == 0) {
                 	result.setCode(ResultCode.RESULT_FAILURE.getCode());
-                    result.setResultDes("没有查询到二维码信息！");
+                    result.setResultDes("当前活动未激活！");
                     model.addAttribute(SysConst.RESULT_KEY, result);
                     return model;
                 }

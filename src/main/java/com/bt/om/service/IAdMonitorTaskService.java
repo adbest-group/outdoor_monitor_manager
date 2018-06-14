@@ -96,4 +96,5 @@ public interface IAdMonitorTaskService {
      */
 	String getTaskWillEnd(Integer duration);
 	public void getTaskPageData(SearchDataVo datavo);
+	void newActivateMonitorTask(Date nowDate);
 }

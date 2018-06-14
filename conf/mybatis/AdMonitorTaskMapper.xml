@@ -1115,12 +1115,25 @@
 		group by a.activity_adseat_id;
     </select>
     
+    <!-- 
+    	老版本的激活任务定时: 有24小时的逻辑激活任务成"待指派"或"可抢单"
+     -->
     <update id="activateMonitorTask" parameterType="java.util.Date">
     	update ad_monitor_task
 	    set status = 
 	    case when monitor_last_days = 1 then 1
 	    else 8
 	    end
+	    where status = 7 and 
+	    monitor_date &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+    </update>
+    
+    <!-- 
+    	新版本的激活任务定时: 只有"待指派"
+     -->
+    <update id="newActivateMonitorTask" parameterType="java.util.Date">
+    	update ad_monitor_task
+	    set status = 1
 	    where status = 7 and 
 	    monitor_date &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
     </update>

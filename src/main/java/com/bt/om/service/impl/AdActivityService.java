@@ -5,6 +5,7 @@ import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -348,6 +349,21 @@ public class AdActivityService implements IAdActivityService {
 	@Transactional(rollbackFor = Exception.class)
 	public void updateStatusByEndTime(Date nowDate) {
 		adActivityMapper.updateStatusByEndTime(nowDate);
+	}
+	
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void deadLineAuditActivity(Date endDate) {
+		//[1] 获取超时未确认的活动id集合
+		List<Integer> activityIds = adActivityMapper.getDeadLineAuditActivity(endDate);
+		if(activityIds != null && activityIds.size() > 0) {
+			//[2] 更新超时未确认的活动
+			adActivityMapper.deadLineAuditActivity(endDate);
+			//[3] 删除超时未确认的活动的广告位占用信息
+			Map<String, Object> searchMap = new HashMap<>();
+			searchMap.put("activityIds", activityIds);
+			adActivityAdseatMapper.deleteByActivityIds(searchMap);
+		}
 	}
 	
 	/**

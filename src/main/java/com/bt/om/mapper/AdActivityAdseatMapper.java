@@ -93,4 +93,6 @@ public interface AdActivityAdseatMapper {
     List<AdSeatInfo> selectSeatInfoByActivityId(@Param("activityId") Integer activityId);
 
 	List<AdActivityAdseatVo> selectVoByMemo(@Param("memo")String memo);
+	
+	int deleteByActivityIds(Map<String, Object> searchMap);
 }

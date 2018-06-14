@@ -74,8 +74,8 @@
                             	<#if activity.status==1><a href="javascript:queren('${activity.id}')">确认</a></#if>
                                 <#if activity.status gt 0 ><a href="/activity/edit?id=${activity.id}">详情</a></#if>
                                 <#if activity.status==1><a href="javascript:del('${activity.id}')">删除</a></#if>
-                                <#if activity.status gt 1><a id="exportExcel" href="javascript:exportExcel('${activity.id}')">导出excel</a></#if>
-                                <#if activity.status gt 1><a id="exportPdf" href="javascript:exportPdf('${activity.id}')">导出pdf</a></#if>
+                                <#if activity.status!=1&&activity.status!=4><a id="exportExcel" href="javascript:exportExcel('${activity.id}')">导出excel</a></#if>
+                                <#if activity.status!=1&&activity.status!=4><a id="exportPdf" href="javascript:exportPdf('${activity.id}')">导出pdf</a></#if>
                             </td>
                         </tr>
                         </#list>

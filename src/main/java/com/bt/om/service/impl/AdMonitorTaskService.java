@@ -480,6 +480,18 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 		return adMonitorTaskFeedbackMapper.selectByActivity(monitorTaskIds);
 	}
 
+	/**
+	 * 新版本的激活任务定时: 只有"待指派"
+	 */
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void newActivateMonitorTask(Date nowDate) {
+		adMonitorTaskMapper.newActivateMonitorTask(nowDate);
+	}
+	
+	/**
+	 * 老版本的激活任务定时: 有24小时的逻辑激活任务成"待指派"或"可抢单"
+	 */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void activateMonitorTask(Date nowDate) {

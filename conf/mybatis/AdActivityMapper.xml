@@ -461,6 +461,22 @@
     </if>
   </update>
 
+  <!-- 查询超时未确认的活动 -->
+  <select id="getDeadLineAuditActivity" parameterType="java.util.Date" resultType="java.lang.Integer">
+  	 select id from ad_activity
+     where status = 1 
+     and start_time &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+  </select>
+
+  <!-- 设置超时未确认的活动 -->
+  <update id="deadLineAuditActivity" parameterType="java.util.Date">
+  	 update ad_activity
+     set status = 4
+     where status = 1 
+     and start_time &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+  </update>
+  
+  <!-- 设置已经结束的活动 -->
   <update id="updateStatusByEndTime" parameterType="java.util.Date">
   	 update ad_activity
      set status = 3

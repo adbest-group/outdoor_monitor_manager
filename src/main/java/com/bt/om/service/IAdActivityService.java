@@ -89,4 +89,6 @@ public interface IAdActivityService {
 	public List<AdActivityAdseatVo> getActivitySeatByMemo(String memo);
 	List<Integer> getEndActivityList(Date nowDate);
 
+	void deadLineAuditActivity(Date endDate);
+
 }

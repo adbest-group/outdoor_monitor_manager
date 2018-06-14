@@ -722,6 +722,7 @@ public class ExcelController extends BasicController {
                     		String road = String.valueOf(lo.get(8)).trim(); //主要路段
                     		info.setRoad(road);
                     		buffer.append(road);
+                    	}
                 	}
                 	
                 	//设置广告位详细地址
@@ -939,7 +940,6 @@ public class ExcelController extends BasicController {
             
             result.setCode(ResultCode.RESULT_SUCCESS.getCode());
             result.setResult("/static/excel/" + fileName);
-            }
         } catch (Exception e) {
         	logger.error(MessageFormat.format("批量导入文件有误, 导入失败", new Object[] {}));
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());

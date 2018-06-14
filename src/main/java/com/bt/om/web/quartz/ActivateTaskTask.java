@@ -22,6 +22,10 @@ public class ActivateTaskTask extends AbstractTask {
 	@Override
 	protected void process() {
         Date date = new Date();
-        adMonitorTaskService.activateMonitorTask(date);
+        //老版本的激活任务定时: 有24小时的逻辑激活任务成"待指派"或"可抢单"
+        //adMonitorTaskService.activateMonitorTask(date);
+        
+        //新版本的激活任务定时: 只有"待指派"
+        adMonitorTaskService.newActivateMonitorTask(date);
 	}
 }

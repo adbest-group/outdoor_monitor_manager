@@ -719,7 +719,7 @@ public class ExcelController extends BasicController {
                     		lo.set(20, ExcelImportFailEnum.STREET_NULL.getText());
                     		hasProblem = true;
                     	} else {
-                    		String road = String.valueOf(lo.get(8)).trim(); //主要路段
+                    		String road = String.valueOf(lo.get(7)).trim(); //主要路段
                     		info.setRoad(road);
                     		buffer.append(road);
                     	}

@@ -435,18 +435,19 @@ public class ExcelController extends BasicController {
 		List<String> databaseAdSeats = new ArrayList<>();
 		for (AdSeatInfo adSeatInfo : adSeatsByMediaId) {
 			StringBuffer buffer = new StringBuffer();
-//			if(adSeatInfo.getProvince() != null) {
-//				buffer.append(cityCache.getCityName(adSeatInfo.getProvince())); //省
-//			}
-//			if(adSeatInfo.getCity() != null) {
-//				buffer.append(cityCache.getCityName(adSeatInfo.getCity())); //市
-//			}
+			if(adSeatInfo.getProvince() != null) {
+				buffer.append(cityCache.getCityName(adSeatInfo.getProvince())); //省
+			}
+			if(adSeatInfo.getCity() != null) {
+				buffer.append(cityCache.getCityName(adSeatInfo.getCity())); //市
+			}
 //			if(adSeatInfo.getRegion() != null) {
 //				buffer.append(cityCache.getCityName(adSeatInfo.getRegion())); //区
 //			}
 //			if(adSeatInfo.getStreet() != null) {
-//				buffer.append(cityCache.getCityName(adSeatInfo.getStreet())); //街道 ->主要路段
+//				buffer.append(cityCache.getCityName(adSeatInfo.getStreet())); //街道 
 //			}
+			buffer.append(adSeatInfo.getRoad());//主要路段
 			buffer.append(adSeatInfo.getLocation()); //详细位置
 			databaseAdSeats.add(buffer.toString());
 		}
@@ -608,7 +609,7 @@ public class ExcelController extends BasicController {
                         		hasProblem = true;
                     		}
                     		info.setProvince(provinceId);
-//                    		buffer.append(provinceName);
+                    		buffer.append(provinceName);
     					}
                 	}
                 	
@@ -650,7 +651,7 @@ public class ExcelController extends BasicController {
                                 		hasProblem = true;
                             		}
                             		info.setCity(cityId);
-//                            		buffer.append(cityName);
+                            		buffer.append(cityName);
                         		}
                     		}
     					}
@@ -720,6 +721,7 @@ public class ExcelController extends BasicController {
                     	} else {
                     		String road = String.valueOf(lo.get(8)).trim(); //主要路段
                     		info.setRoad(road);
+                    		buffer.append(road);
                 	}
                 	
                 	//设置广告位详细地址
@@ -918,7 +920,7 @@ public class ExcelController extends BasicController {
             }
             
             //正常数据插入到数据库中
-            if(insertAdSeatInfos != null && insertAdSeatInfos.size() ==(listob.size()-1)){
+            if(insertAdSeatInfos != null && insertAdSeatInfos.size()>0){
             	adSeatService.insertBatchByExcel(insertAdSeatInfos);
             }
             

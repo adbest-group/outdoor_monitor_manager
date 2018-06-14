@@ -435,12 +435,12 @@ public class ExcelController extends BasicController {
 		List<String> databaseAdSeats = new ArrayList<>();
 		for (AdSeatInfo adSeatInfo : adSeatsByMediaId) {
 			StringBuffer buffer = new StringBuffer();
-			if(adSeatInfo.getProvince() != null) {
-				buffer.append(cityCache.getCityName(adSeatInfo.getProvince())); //省
-			}
-			if(adSeatInfo.getCity() != null) {
-				buffer.append(cityCache.getCityName(adSeatInfo.getCity())); //市
-			}
+//			if(adSeatInfo.getProvince() != null) {
+//				buffer.append(cityCache.getCityName(adSeatInfo.getProvince())); //省
+//			}
+//			if(adSeatInfo.getCity() != null) {
+//				buffer.append(cityCache.getCityName(adSeatInfo.getCity())); //市
+//			}
 //			if(adSeatInfo.getRegion() != null) {
 //				buffer.append(cityCache.getCityName(adSeatInfo.getRegion())); //区
 //			}
@@ -608,7 +608,7 @@ public class ExcelController extends BasicController {
                         		hasProblem = true;
                     		}
                     		info.setProvince(provinceId);
-                    		buffer.append(provinceName);
+//                    		buffer.append(provinceName);
     					}
                 	}
                 	
@@ -650,7 +650,7 @@ public class ExcelController extends BasicController {
                                 		hasProblem = true;
                             		}
                             		info.setCity(cityId);
-                            		buffer.append(cityName);
+//                            		buffer.append(cityName);
                         		}
                     		}
     					}
@@ -740,11 +740,12 @@ public class ExcelController extends BasicController {
                 	if(hasProblem == false) {
                 		if(lo.get(9) != null) {
                 			info.setMemo(String.valueOf(lo.get(9)).trim());
-                		}else {
-                			lo.set(19, importFail);
-                    		lo.set(20, ExcelImportFailEnum.MEDIA_NUM_INVAILD.getText());
-                    		hasProblem = true;
                 		}
+//                		else {
+//                			lo.set(19, importFail);
+//                    		lo.set(20, ExcelImportFailEnum.MEDIA_NUM_INVAILD.getText());
+//                    		hasProblem = true;
+//                		}
                 	}
                 	//设置唯一标识
 //                	if(hasProblem == false) {
@@ -917,7 +918,7 @@ public class ExcelController extends BasicController {
             }
             
             //正常数据插入到数据库中
-            if(insertAdSeatInfos != null && insertAdSeatInfos.size() > 0){
+            if(insertAdSeatInfos != null && insertAdSeatInfos.size() ==(listob.size()-1)){
             	adSeatService.insertBatchByExcel(insertAdSeatInfos);
             }
             

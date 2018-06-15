@@ -82,4 +82,6 @@ public interface AdSeatInfoMapper {
 	int selectByLocation(Map<String, Object> searchMap);
 	//检查批量导入的唯一性
 	AdSeatInfo checkUnique(AdSeatInfo info);
+	
+	List<AdSeatInfo> selectInfoByIds(Map<String, Object> searchMap);
 }

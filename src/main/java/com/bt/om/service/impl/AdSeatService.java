@@ -74,7 +74,7 @@ public class AdSeatService implements IAdSeatService {
     public void save(AdSeatInfo adSeatInfo) {
         adSeatInfoMapper.insertSelective(adSeatInfo);
     }
-
+    
     @Override
     public void save(AdSeatInfo adSeatInfo, Integer userId) {
         AdMedia media = adMediaMapper.selectByUserId(userId);

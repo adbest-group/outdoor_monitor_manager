@@ -26,11 +26,24 @@
                             <select name="media" class="select" id="media">
                             </select>
                         </div>
-                        <#-- <input type="button" id="btnDemo" class="btn btn-green" value="演示专用" style="display: none;"/> -->
+                        <#-- <input edit.ftledit.ftltype="button" id="btnDemo" class="btn btn-green" value="演示专用" style="display: none;"/> -->
                     </td>
                 </tr>
 
-				
+				<#-- 				<#if editMode>
+				<tr>
+                    <td class="a-title"><font class="s-red">*</font>投放广告位地区：</td>
+                    <td>    
+			 		<div id="demo3" class="citys">
+                                <select name="province" ${editMode?string("","disabled")} class="searchable-select-holder" id="province">
+                                </select>
+                                <select name="city" ${editMode?string("","disabled")} class="searchable-select-holder" id="city">
+                                </select>
+                        </div>
+                        <span style="margin-left:10px;" id="areaTip"></span>
+                    </td>
+                </tr>
+				</#if>  -->		
 				<tr>
                     <td class="a-title"><font class="s-red">*</font>广告位：</td>
                     <td>
@@ -475,6 +488,7 @@
                 },
                 onError: "该广告位已添加"
             });
+
 
             //品牌
             $("#brand").formValidator({

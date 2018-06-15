@@ -4,7 +4,9 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +40,7 @@ import com.bt.om.mapper.AdActivityAreaMapper;
 import com.bt.om.mapper.AdActivityMapper;
 import com.bt.om.mapper.AdActivityMediaMapper;
 import com.bt.om.mapper.AdMonitorTaskMapper;
+import com.bt.om.mapper.AdSeatInfoMapper;
 import com.bt.om.mapper.SysUserMapper;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.vo.web.SearchDataVo;
@@ -61,6 +64,8 @@ public class AdActivityService implements IAdActivityService {
     AdMonitorTaskMapper adMonitorTaskMapper;
     @Autowired
     SysUserMapper sysUserMapper;
+    @Autowired
+    AdSeatInfoMapper adSeatInfoMapper;
 
     @Override
     public void save(AdActivity adActivity) {
@@ -69,58 +74,146 @@ public class AdActivityService implements IAdActivityService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void add(AdActivityVo adActivityVo) {
+    public void add(AdActivityVo adActivityVo, String activeSeat) {
+    	Date now = new Date();
+    	
         //保存活动
-        int n = adActivityMapper.insert((AdActivity) adActivityVo);
+        adActivityMapper.insert((AdActivity) adActivityVo);
+        
 //        if(n<1){
 //            throw new RuntimeException("保存广告活动失败！");
 //        }
 
-        //保存广告活动区域
-        for (AdActivityArea area : adActivityVo.getActivityAreas()) {
-            area.setActivityId(adActivityVo.getId());
-            adActivityAreaMapper.insert(area);
-        }
+//        //保存广告活动区域
+//        for (AdActivityArea area : adActivityVo.getActivityAreas()) {
+//            area.setActivityId(adActivityVo.getId());
+//            adActivityAreaMapper.insert(area);
+//        }
 
-        //保存广告活动媒体
-        for (AdActivityMedia media : adActivityVo.getActivityMedias()) {
-            media.setActivityId(adActivityVo.getId());
-            adActivityMediaMapper.insert(media);
-        }
+//        //保存广告活动媒体
+//        for (AdActivityMedia media : adActivityVo.getActivityMedias()) {
+//            media.setActivityId(adActivityVo.getId());
+//            adActivityMediaMapper.insert(media);
+//        }
 
         //保存广告活动广告位
-        for (AdActivityAdseat seat : adActivityVo.getActivitySeats()) {
-            seat.setActivityId(adActivityVo.getId());
-            adActivityAdseatMapper.insert(seat);
+        List<AdActivityAdseat> adActivityAdseats = new ArrayList<>();
+        
+        String[] seatIds = activeSeat.split(",");
+        List<String> seatIdList = Arrays.asList(seatIds);
+        //查询广告位的相关信息
+        Map<String, Object> searchMap = new HashMap<>();
+        searchMap.put("ids", seatIdList);
+        List<AdSeatInfo> adSeatInfos = adSeatInfoMapper.selectInfoByIds(searchMap);
+        
+        for (String seatId : seatIds) {
+        	Integer id = Integer.parseInt(seatId);
+        	
+        	AdActivityAdseat seat = new AdActivityAdseat();
+        	seat.setActivityId(adActivityVo.getId());
+        	seat.setAdSeatId(id); //广告位id
+        	seat.setMonitorStart(adActivityVo.getStartTime());
+        	seat.setMonitorEnd(adActivityVo.getEndTime());
+        	seat.setUpMonitor(1);
+        	seat.setUpMonitorLastDays(3); //默认3天
+        	seat.setDownMonitor(1);
+        	seat.setDownMonitorLastDays(3); //默认3天
+        	seat.setDurationMonitor(1);
+        	seat.setDurationMonitorLastDays(3); //默认3天
+        	seat.setSamplePicUrl(adActivityVo.getSamplePicUrl());
+        	seat.setTaskCreate(2); //默认已创建
+        	seat.setCreateTime(now);
+        	seat.setUpdateTime(now);
+        	
+        	for (AdSeatInfo adSeatInfo : adSeatInfos) {
+				if(adSeatInfo.getId().equals(id)) {
+					seat.setMediaId(adSeatInfo.getMediaId());
+					break;
+				}
+			}
+        	
+        	adActivityAdseats.add(seat);
+		}
+        
+        if(adActivityAdseats != null && adActivityAdseats.size() > 0) {
+        	//批量插入
+        	adActivityAdseatMapper.insertBatch(adActivityAdseats);
         }
-
     }
 
     @Override
-    public void modify(AdActivityVo adActivityVo) {
+    public void modify(AdActivityVo adActivityVo, String activeSeat) {
+    	Date now = new Date();
+    	
         //保存活动
-        int n = adActivityMapper.updateByPrimaryKeySelective((AdActivity) adActivityVo);
+        adActivityMapper.updateByPrimaryKeySelective((AdActivity) adActivityVo);
 
-        //保存广告活动区域
-        adActivityAreaMapper.deleteByActivityId(adActivityVo.getId());
-        for (AdActivityArea area : adActivityVo.getActivityAreas()) {
-            area.setActivityId(adActivityVo.getId());
-            adActivityAreaMapper.insert(area);
-        }
+//        //保存广告活动区域
+//        adActivityAreaMapper.deleteByActivityId(adActivityVo.getId());
+//        for (AdActivityArea area : adActivityVo.getActivityAreas()) {
+//            area.setActivityId(adActivityVo.getId());
+//            adActivityAreaMapper.insert(area);
+//        }
+//
+//        //保存广告活动媒体
+//        adActivityMediaMapper.deleteByActivityId(adActivityVo.getId());
+//        for (AdActivityMedia media : adActivityVo.getActivityMedias()) {
+//            media.setActivityId(adActivityVo.getId());
+//            adActivityMediaMapper.insert(media);
+//        }
 
-        //保存广告活动媒体
-        adActivityMediaMapper.deleteByActivityId(adActivityVo.getId());
-        for (AdActivityMedia media : adActivityVo.getActivityMedias()) {
-            media.setActivityId(adActivityVo.getId());
-            adActivityMediaMapper.insert(media);
-
-        }
-
+//        //保存广告活动广告位
+//        adActivityAdseatMapper.deleteByActivityId(adActivityVo.getId());
+//        for (AdActivityAdseat seat : adActivityVo.getActivitySeats()) {
+//            seat.setActivityId(adActivityVo.getId());
+//            adActivityAdseatMapper.insert(seat);
+//        }
+        
         //保存广告活动广告位
+        List<AdActivityAdseat> adActivityAdseats = new ArrayList<>();
+        
+        String[] seatIds = activeSeat.split(",");
+        List<String> seatIdList = Arrays.asList(seatIds);
+        //查询广告位的相关信息
+        Map<String, Object> searchMap = new HashMap<>();
+        searchMap.put("ids", seatIdList);
+        List<AdSeatInfo> adSeatInfos = adSeatInfoMapper.selectInfoByIds(searchMap);
+        
+        for (String seatId : seatIds) {
+        	Integer id = Integer.parseInt(seatId);
+        	
+        	AdActivityAdseat seat = new AdActivityAdseat();
+        	seat.setActivityId(adActivityVo.getId());
+        	seat.setAdSeatId(id);
+        	seat.setMonitorStart(adActivityVo.getStartTime());
+        	seat.setMonitorEnd(adActivityVo.getEndTime());
+        	seat.setUpMonitor(1);
+        	seat.setUpMonitorLastDays(3); //默认3天
+        	seat.setDownMonitor(1);
+        	seat.setDownMonitorLastDays(3); //默认3天
+        	seat.setDurationMonitor(1);
+        	seat.setDurationMonitorLastDays(3); //默认3天
+        	seat.setSamplePicUrl(adActivityVo.getSamplePicUrl());
+        	seat.setTaskCreate(2); //默认已创建
+        	seat.setCreateTime(now);
+        	seat.setUpdateTime(now);
+        	
+        	for (AdSeatInfo adSeatInfo : adSeatInfos) {
+        		if(adSeatInfo.getId().equals(id)) {
+					seat.setMediaId(adSeatInfo.getMediaId());
+					break;
+				}
+			}
+        	
+        	adActivityAdseats.add(seat);
+		}
+        
+        //先删除
         adActivityAdseatMapper.deleteByActivityId(adActivityVo.getId());
-        for (AdActivityAdseat seat : adActivityVo.getActivitySeats()) {
-            seat.setActivityId(adActivityVo.getId());
-            adActivityAdseatMapper.insert(seat);
+        
+        if(adActivityAdseats != null && adActivityAdseats.size() > 0) {
+        	//批量插入
+        	adActivityAdseatMapper.insertBatch(adActivityAdseats);
         }
     }
 
@@ -142,7 +235,14 @@ public class AdActivityService implements IAdActivityService {
 
     @Override
     public AdActivityVo getVoById(Integer id) {
-        return adActivityMapper.selectVoByPrimaryKey(id);
+    	if(id != null) {
+    		AdActivityVo adActivityVo = adActivityMapper.selectVoByPrimaryKey(id);
+        	List<AdActivityAdseatVo> adseatVos = adActivityAdseatMapper.selectByActivityId(id);
+        	adActivityVo.setAdActivityAdseatVos(adseatVos);
+        	return adActivityVo;
+    	} else {
+    		return null;
+    	}
     }
 
     @Override

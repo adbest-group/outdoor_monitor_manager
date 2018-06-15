@@ -21,9 +21,9 @@ import com.bt.om.vo.web.SearchDataVo;
 public interface IAdActivityService {
     public void save(AdActivity adActivity);
 
-    public void add(AdActivityVo adActivityVo);
+    public void add(AdActivityVo adActivityVo, String activeSeat);
 
-    public void modify(AdActivityVo adActivityVo);
+    public void modify(AdActivityVo adActivityVo, String activeSeat);
 
     public void modify(AdActivityVo adActivityVo,Integer[] activitySeatDels);
 

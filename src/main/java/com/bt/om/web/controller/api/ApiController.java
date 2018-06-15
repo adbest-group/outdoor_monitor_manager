@@ -350,29 +350,46 @@ public class ApiController extends BasicController {
             if(StringUtil.isNotEmpty(seatCode)){
             	//[1] 扫描二维码调取接口
                 list = adActivityService.getActivitySeatBySeatCode(seatCode);
+                Date now = new Date();
+                for(AdActivityAdseatVo vo : list) {
+                	if((now.compareTo(vo.getMonitorStart())>=0) && (now.compareTo(vo.getMonitorEnd())<=0)) {
+                		Map<String, Object> searchMap = new HashMap<>();
+                    	searchMap.put("status", 1); //待审核
+                    	searchMap.put("adSeatCode", seatCode); //二维码信息
+                    	jiucuoTasks = adJiucuoTaskService.selectInfoByQrCode(searchMap);
+                        
+                    	//移除
+                    	Iterator<AdActivityAdseatVo> iterator = list.iterator();
+                    	while (iterator.hasNext()) {
+        					AdActivityAdseatVo adActivityAdseatVo = (AdActivityAdseatVo) iterator.next();
+        					for (AdJiucuoTask task : jiucuoTasks) {
+        						if(task.getActivityId() == adActivityAdseatVo.getActivityId()) {
+        							iterator.remove();
+        							break;
+        						}
+        					}
+        				}
+                	}else if(now.compareTo(vo.getMonitorStart())<=0){
+                		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                        result.setResultDes("广告位的活动暂未开始！");
+                        model.addAttribute(SysConst.RESULT_KEY, result);
+                        return model;
+                	}else if(now.compareTo(vo.getMonitorEnd())>=0) {
+                		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                        result.setResultDes("广告位的活动已结束！");
+                        model.addAttribute(SysConst.RESULT_KEY, result);
+                        return model;
+                	}
+                }
+                
                 if(list == null || list.size() == 0) {
                 	result.setCode(ResultCode.RESULT_FAILURE.getCode());
-                    result.setResultDes("当前活动未激活！");
+                    result.setResultDes("广告位暂无活动！");
                     model.addAttribute(SysConst.RESULT_KEY, result);
                     return model;
                 }
                 
-                Map<String, Object> searchMap = new HashMap<>();
-            	searchMap.put("status", 1); //待审核
-            	searchMap.put("adSeatCode", seatCode); //二维码信息
-            	jiucuoTasks = adJiucuoTaskService.selectInfoByQrCode(searchMap);
                 
-            	//移除
-            	Iterator<AdActivityAdseatVo> iterator = list.iterator();
-            	while (iterator.hasNext()) {
-					AdActivityAdseatVo adActivityAdseatVo = (AdActivityAdseatVo) iterator.next();
-					for (AdJiucuoTask task : jiucuoTasks) {
-						if(task.getActivityId() == adActivityAdseatVo.getActivityId()) {
-							iterator.remove();
-							break;
-						}
-					}
-				}
             } else if(lon != null && lat != null && StringUtil.isNotEmpty(title)) {
             	//[2] 通过经纬度调取接口
                 list = adActivityService.selectVoByLonLatTitle(lon, lat, title);

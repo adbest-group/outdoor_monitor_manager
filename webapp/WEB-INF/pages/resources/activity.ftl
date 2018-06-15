@@ -11,13 +11,16 @@
         	<a href="/customer/activity/edit" class="btn btn-red mr-10 ll">创建活动</a>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <form id="form" method="get" action="/sysResources/activity">
-                    <!--活动下拉框-->
-                    <div class="select-box select-box-140 un-inp-select ll">
+                    <!--活动搜索框-->
+                     <div class="inp">
+                    	<input type="text" placeholder="请输入活动名称" value="${name?if_exists}" id="searchName" name="name">
+                	</div>
+                    <#-- <div class="select-box select-box-140 un-inp-select ll">
                         <select name="activityId" class="select" id="activityId">
                             <option value="">所有活动</option>
                         <@model.showAllActivityOps value="${bizObj.queryMap.activityId?if_exists}"/>
                         </select>
-                    </div>
+                    </div> -->
                     <div class="select-box select-box-100 un-inp-select ll">
                         <select class="select" name="status">
                         	<option value="">所有状态</option>
@@ -120,6 +123,18 @@
         $('.main-container').css('height', h);
     });
 
+ 	// 查询
+    $("#searchBtn").on("click", function () {
+        var strParam = "";
+        var name = $("#searchName").val();
+        
+        if (name != null && $.trim(name).length) {
+            strParam = strParam + "?name=" + name;
+        }
+
+        window.location.href = "/sysResources/activity" + strParam;
+    });
+    
             function createDateStr(alt){
                 var today =  new Date();
                 var t=today.getTime()+1000*60*60*24*alt;

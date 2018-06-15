@@ -79,7 +79,8 @@ public class ActivityController extends BasicController {
 			@RequestParam(value = "activityId", required = false) Integer activityId,
 			@RequestParam(value = "status", required = false) Integer status,
 			@RequestParam(value = "startDate", required = false) String startDate,
-			@RequestParam(value = "endDate", required = false) String endDate) throws ParseException {
+			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "name", required = false) String name) throws ParseException {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
 		SearchDataVo vo = SearchUtil.getVo();
@@ -111,6 +112,11 @@ public class ActivityController extends BasicController {
 			} catch (ParseException e) {
 			}
 		}
+		//查询活动名称
+        if (name != null) {
+        	name = "%" + name + "%";
+            vo.putSearchParam("activityName", name, name);
+        }
 		// //只能查询自己参与的活动审核
 		// if(userObj != null) {
 		// Integer assessorId = userObj.getId();

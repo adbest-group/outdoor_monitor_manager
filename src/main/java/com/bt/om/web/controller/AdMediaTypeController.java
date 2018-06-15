@@ -55,16 +55,13 @@ public class AdMediaTypeController {
         	name = "%" + name + "%";
             vo.putSearchParam("name", name, name);
         }
-        if (mediaType == null) {
-        	mediaType = 1;
+        if (mediaType != null) {
+        	vo.putSearchParam("mediaType", mediaType.toString(), mediaType);
         }
-        vo.putSearchParam("mediaType", mediaType.toString(), mediaType);
         if (searchParentMediaId != null) {
             vo.putSearchParam("parentId", searchParentMediaId.toString(), searchParentMediaId);
         }
 
-        model.addAttribute("searchMediaType", mediaType);
-        
         adMediaTypeService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
 
@@ -146,6 +143,9 @@ public class AdMediaTypeController {
         adMediaType.setStatus(1); //可用
         if(adMediaType.getMediaType() == 1) {
         	adMediaType.setParentId(null);
+        }
+        if(adMediaType.getUniqueKeyNeed() == null) {
+        	adMediaType.setUniqueKeyNeed(2);
         }
         
         try {

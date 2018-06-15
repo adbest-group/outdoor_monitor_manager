@@ -230,7 +230,7 @@ public class ActivityController extends BasicController {
     @RequestMapping(value = "/edit")
     public String customerEdit(Model model, HttpServletRequest request,
                                @RequestParam(value = "id", required = false) Integer id) {
-        AdActivityVo activity = adActivityService.getVoById(id);
+    	AdActivityVo activity = adActivityService.getVoById(id);
 
         if (activity != null) {
             model.addAttribute("activity", activity);

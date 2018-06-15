@@ -94,5 +94,7 @@ public interface AdActivityAdseatMapper {
 
 	List<AdActivityAdseatVo> selectVoByMemo(@Param("memo")String memo);
 	
+	int insertBatch(@Param("adActivityAdseats") List<AdActivityAdseat> adActivityAdseats);
+
 	int deleteByActivityIds(Map<String, Object> searchMap);
 }

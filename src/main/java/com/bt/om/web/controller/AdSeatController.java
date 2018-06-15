@@ -88,7 +88,7 @@ public class AdSeatController extends BasicController {
                                      @RequestParam(value = "mediaId", required = false) Integer mediaId) {
         SearchDataVo vo = SearchUtil.getVo();
 
-
+        
         if (street != null) {
             vo.putSearchParam("street", street.toString(), street);
         } else if (region != null) {

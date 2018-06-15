@@ -61,7 +61,7 @@
 		                 -->
 
                         <tr>
-                            <td class="a-title"><font class="s-red">*</font>投放时间：</td>
+                            <td class="a-title"><font class="s-red">*</font>活动时间：</td>
                             <td>
                                 <div class="ll inputs-date">
                                     <div class="date">
@@ -72,13 +72,40 @@
                                 <span style="margin-left:10px;" id="dateTip"></span>
                             </td>
                         </tr>
-						<#if editMode>
-                        <tr>
+
+                <tr id="upMonitorLastDaysTr">
+                    <td class="a-title"><font class="s-red">*</font>上刊监测任务<br/>可持续天数：</td>
+                    <td>
+                        <input type="text" style="width:50px;text-align:right;" id="upMonitorLastDays" name="upMonitorLastDays" value="2" autocomplete="off" class="form-control">
+                        <span id="upMonitorLastDaysTip"></span>
+                    </td>
+                </tr>
+
+                <tr id="durationMonitorLastDaysTr">
+                    <td class="a-title"><font class="s-red">*</font>投放期间监测任务<br/>可持续天数：</td>
+                    <td>
+                        <input type="text" style="width:50px;text-align:right;" id="durationMonitorLastDays" name="durationMonitorLastDays" value="2" autocomplete="off" class="form-control">
+                        <span id="durationMonitorLastDaysTip"></span>
+                    </td>
+                </tr>
+
+                <tr id="downMonitorLastDaysTr">
+                    <td class="a-title"><font class="s-red">*</font>下刊监测任务<br/>可持续天数：</td>
+                    <td>
+                        <input type="text" style="width:50px;text-align:right;" id="downMonitorLastDays" name="downMonitorLastDays" value="3" autocomplete="off" class="form-control">
+                        <span id="downMonitorLastDaysTip"></span>
+                    </td>
+                </tr>
+
+						<#--<#if editMode>
+						<tr>
                             <td class="a-title"><font class="s-red">*</font>投放地区(筛选广告位)：</td>
-                            <td>
+                            <td>  -->
+                        
                             <#--<input type="text" style="width:100px;"  id="province" name="province" value="浙江省" autocomplete="off" class="form-control">-->
                             <#--<a class="addBtn" href="javascript:;" id="resource_sel">选择</a>-->
-                                <div id="demo3" class="citys">
+                              
+						<#--   <div id="demo3" class="citys">
                                         <select name="province" ${editMode?string("","disabled")} class="searchable-select-holder" id="province">
                                         </select>
                                         <select name="city" ${editMode?string("","disabled")} class="searchable-select-holder" id="city">
@@ -91,10 +118,11 @@
                                 <span style="margin-left:10px;" id="areaTip"></span>
                             </td>
                         </tr>
-						</#if>
-                        <tr>
+						</#if> -->
+						<#-- <tr>
                             <td class="a-title"><font class="s-red">*</font>媒体主：</td>
-                            <td id="mediaTd">
+                            <td id="mediaTd"> -->
+                        
                                 <#--<label>-->
                                     <#--<input type="checkbox" name="media" id="media0" value="1" checked> 媒体1-->
                                 <#--</label>-->
@@ -107,9 +135,9 @@
                                 <#--<label>-->
                                     <#--<input type="checkbox" name="media" id="media0" value="4" checked> 媒体4-->
                                 <#--</label>-->
-                            </td>
-                        </tr>
-						
+                          
+						<#--   </td>
+                        </tr> -->
 						<tr>
 							<td class="a-title"><font class="s-red">*</font>广告投放画面：</td>
 							<td>
@@ -139,8 +167,7 @@
                         </tr>
 
                         <tr>
-                            <td class="a-title">&nbsp;</td>
-                            <td>
+                            <td colspan="2" >
                                 <div class="data-report" style="margin: 0px;">
                                     <div id="as-container" class="bd" style="padding:0px;">
                                     <#--<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan">-->
@@ -184,7 +211,7 @@
                             <td class="a-title">&nbsp;</td>
                             <td>
                                 <#if editMode>
-                                    <input type="submit" id="btnSave" class="btn btn-red" value="　保 存　"/>
+                                    <input type="button" id="btnSave" class="btn btn-red" value="　保 存　"/>
                                 </#if>
                                     <input type="button" id="btnBack" class="btn btn-primary" value="　返 回　"/>
 
@@ -223,47 +250,49 @@
     var mod_activity_seat = null;
     var del_activity_seats = [];
     <#if activity?exists>
-    var activity = {
-        "id":${activity.id},
-        "activityName": '${activity.activityName}',
-        <#-- "customerTypeId": '${activity.customerTypeId}', -->
-        "dts": "${activity.startTime?string('yyyy-MM-dd')}",
-        "dt": "${activity.endTime?string('yyyy-MM-dd')}",
-        "samplePicUrl": '${activity.samplePicUrl!""}'
-    }
-    var activity_seats = [
-        <#if (activity.activitySeats?exists && activity.activitySeats?size>0) >
-            <#list activity.activitySeats as seat>
-                {
-                    id: ${seat.id},
-                    mediaId: "${seat.mediaId!""}",
-                    mediaName: "${seat.mediaName!""}",
-                    seatId: "${seat.adSeatId!""}",
-                    seatName: "${seat.adSeatName!""}",
-                    startDate: "${seat.monitorStart?string("yyyy-MM-dd")}",
-                    endDate: "${seat.monitorEnd?string("yyyy-MM-dd")}",
-                    brand: "${seat.brand!""}",
-                    upMonitor: "${seat.upMonitor!""}",
-                    downMonitor: "${seat.downMonitor!""}",
-                    durationMonitor: "${seat.durationMonitor!""}",
-                    upMonitorLastDays: "${seat.upMonitorLastDays!"3"}",
-                    downMonitorLastDays: "${seat.downMonitorLastDays!"3"}",
-                    durationMonitorLastDays: "${seat.durationMonitorLastDays!"3"}",
-                    monitorCount: "${seat.monitorCount!""}",
-                    samplePicUrl: "${seat.samplePicUrl!""}"
-                }<#if seat_has_next>,</#if>
-            </#list>
-        </#if>];
-    var activity_meias = [
-        <#if (activity.activityMedias?exists && activity.activityMedias?size>0) >
-            <#list activity.activityMedias as media>
-            ${media.mediaId}<#if media_has_next>,</#if>
-            </#list>
-        </#if>]
+	    var activity = {
+	        "id":${activity.id},
+	        "activityName": '${activity.activityName}',
+	        <#-- "customerTypeId": '${activity.customerTypeId}', -->
+	        "dts": "${activity.startTime?string('yyyy-MM-dd')}",
+	        "dt": "${activity.endTime?string('yyyy-MM-dd')}",
+	        "samplePicUrl": '${activity.samplePicUrl!""}'
+	    }
+	    $("#img-demo-img").attr("src",activity.samplePicUrl);//广告投放画面图片地址
+	    $("#img-demo-bak").attr("src",activity.samplePicUrl);//广告投放画面图片地址
+	    var activity_seats = [
+	        <#if (activity.adActivityAdseatVos?exists && activity.adActivityAdseatVos?size>0) >
+	            <#list activity.adActivityAdseatVos as seat>
+	                {
+	                    id: ${seat.id},
+	                    mediaId: "${seat.mediaId!""}",
+	                    mediaName: "${seat.mediaName!""}",
+	                    seatId: "${seat.adSeatId!""}",
+	                    seatName: "${seat.adSeatName!""}",
+	                    startDate: "${seat.monitorStart?string("yyyy-MM-dd")!""}",
+	                    endDate: "${seat.monitorEnd?string("yyyy-MM-dd")!""}",
+	                    <#-- brand: "${seat.brand!""}", -->
+	                    upMonitor: "${seat.upMonitor!""}",
+	                    downMonitor: "${seat.downMonitor!""}",
+	                    durationMonitor: "${seat.durationMonitor!""}",
+	                    upMonitorLastDays: "${seat.upMonitorLastDays!"3"}",
+	                    downMonitorLastDays: "${seat.downMonitorLastDays!"3"}",
+	                    durationMonitorLastDays: "${seat.durationMonitorLastDays!"3"}",
+	                    <#-- monitorCount: "${seat.monitorCount!""}", -->
+	                    samplePicUrl: "${seat.samplePicUrl!""}"
+	                }<#if seat_has_next>,</#if>
+	            </#list>
+	        </#if>];
+	    var activity_meias = [
+	        <#if (activity.activityMedias?exists && activity.activityMedias?size>0) >
+	            <#list activity.activityMedias as media>
+	            ${media.mediaId}<#if media_has_next>,</#if>
+	            </#list>
+	        </#if>]
     <#else>
-    var activity = null;
-    var activity_seats = [];
-    var activity_meias = [];
+	    var activity = null;
+	    var activity_seats = [];
+	    var activity_meias = [];
     </#if>
     $(function () {
         $(".nav-sidebar>ul>li").on("click", function () {
@@ -312,17 +341,21 @@
         }
 
         $("#add-adseat").click(function () {
-            if($("#dts").val().length<1||$("#province").val().length<1||$("input:checkbox:checked").length<1){
-                layer.alert("请先确认投放时间，地区和媒体");
+            <#-- if($("#dts").val().length<1||$("#province").val().length<1||$("input:checkbox:checked").length<1){ -->
+            if($("#dts").val().length<1){
+                layer.alert("请先确认活动时间");
                 return;
             }
             mod_activity_seat = null;
+
+            delDataArr = []
+            
             layer.open({
                 type: 2,
                 title: '新增广告位监测',
                 shade: 0.8,
-                area: ['820px', '600px'],
-                content: '/customer/activity/adseat/edit' //iframe的url
+                area: ['1020px', '600px'],
+                content: '/customer/activity/adseat/select?startDate=' + $('#dts').val() + '&endDate=' + $('#dt').val() + '&seatIds=' + getSeatIds() //iframe的url
             });
         });
 
@@ -357,8 +390,7 @@
             var info = api.getInfo();
             townFormat(info);
         });
-        $("#btnBack").click(function(){history.back();});
-
+        $("#btnBack").click(function(){location=document.referrer});
     });
 
 </script>
@@ -419,7 +451,7 @@
                     $("input:checkbox[name='media'][value='" + n.id + "']").prop("checked",false);
                 }
             });
-            renderASTable();
+            // renderASTable();
         }
 
         //表单处理
@@ -442,7 +474,7 @@
                 var activityName = $("#activityName").val(); //活动名
                 var startDate = $("#dts").val(); //投放开始时间
                 var endDate = $("#dt").val(); //投放结束时间
-				samplePicUrl: $("#img-demo-bak").val()//广告投放画面图片地址
+				var samplePicUrl= $("#img-demo-img").attr('src')//广告投放画面图片地址
                 
                 var startTime = new Date(startDate);
                 var time1 = startTime.getTime();
@@ -461,7 +493,7 @@
                 var city = $("#city").val();
                 var region = $("#region").val();
                 var street = $("#street").val();
-				var samplePicUrl = $("#img-demo-bak").val();
+                console.log(samplePicUrl)
 				if(samplePicUrl.length <= 0) {
             		layer.confirm("请上传广告投放画面", {
                         icon: 2,
@@ -502,7 +534,10 @@
 //                      "dels" : dels.join(","),
 						"samplePicUrl" : samplePicUrl,
 						"customerId" : customerId,
-                        "activeSeat": JSON.stringify(activity_seats)
+                        "activeSeat": getSeatIds(),
+                        "upMonitorLastDays": $('#upMonitorLastDays').val(),
+                        "durationMonitorLastDays": $('#durationMonitorLastDays').val(),
+                        "downMonitorLastDays": $('#downMonitorLastDays').val()
                     },
                     cache: false,
                     dataType: "json",
@@ -724,7 +759,7 @@
         }*/
     ];
 
-    renderASTable = function () {
+    /*renderASTable = function () {
         $("#as-container").html("");
         if (activity_seats.length > 0) {
             var tab = $('<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead> <tr> <th>序号</th> <th>广告位</th> <th>媒体</th> <th>投放品牌</th> <th>监测时间段</th> <th>监测时间</th><#--  <th>广告投放画面</th>  --><th>操作</th> </tr> </thead> <tbody></tbody></table>');
@@ -754,7 +789,7 @@
             area: ['820px', '600px'],
             content: '/customer/activity/adseat/edit' //iframe的url
         });
-    }
+    }*/
 
     showQR = function (id) {
         layer.open({
@@ -818,5 +853,169 @@
 			}
 		});
 	}
+	
+	var checkArr = [];
+	var delDataArr = []
+	
+	function addDelData(val) {
+		delDataArr.push(val)
+	}
+	
+	// 添加子页面中选中的checkbox
+	function addCheck(val){
+		var hasVal = true
+		var len = checkArr.length
+		for(var i = 0; i < len; i++){
+			if(parseInt(checkArr[i].id) === parseInt(val.id)){
+				hasVal = false
+				break;
+			}
+		}
+		// 如果原先中不存在则添加
+		if(hasVal){
+			checkArr.push(val)
+		}
+	}
+	
+	// 获取所有选中的checkbox
+	function getCheck(){
+		return checkArr
+	}
+	
+	// 根据下方表格显示的数据获取checkArr
+	function getAllCheckArr(){
+		$('#plan tbody tr').each(function() {
+			checkArr.push({
+				id: $(this).find('td').eq(5).find('a').data('id'),
+				html: '<tr>' + $(this).html() + '</tr>'
+			})
+		})
+		return checkArr
+	}
+	
+	// 设置checkbox
+	function setCheck(val){
+		checkArr = val
+	}
+	
+	// 移除取消选中的checkbox
+	function removeCheck(id) {
+		for(var i = 0; i < checkArr.length; i++) {
+			if(parseInt(id) === parseInt(checkArr[i].id)){
+				checkArr.splice(i, 1)
+				break;
+			}
+		}
+	}
+	
+	function getCheckboxData(isEdit) {
+		var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>操作</th> </tr></thead><tbody>'
+		console.log('save', checkArr)
+		if(!isEdit){ // 如果是创建的时候
+			activity_seats = []
+				
+			var len = checkArr.length
+			for(var i = 0;i < len; i++){
+				html += '<tr>' + checkArr[i].html
+				// 如果有a标签就不添加
+				html += checkArr[i].html.indexOf('</a>') != -1 ? '</tr>' : '<td><a style="cursor:pointer" class="deleteCheckBtn" data-id='+ checkArr[i].id + '>删除</a></td></tr>'
+				
+				activity_seats.push(checkArr[i].id)
+			}
+			html += '</thbody>'
+			$('#as-container').html(html)
+			$('.deleteCheckBtn').click(function(){
+				
+				removeCheck($(this).data('id'))
+				getCheckboxData()
+			})
+		} else {
+			var len = checkArr.length
+			for(var i = 0;i < len; i++){
+				html += checkArr[i].html
+			}
+			html += '</thbody>'
+			$('#as-container').html(html)
+			$('.deleteCheckBtn').click(function(){
+				removeCheck($(this).data('id'))
+				getCheckboxData(true)
+			})
+		}
+		
+	}
+	
+	ModCheckboxData()
+	
+	function ModCheckboxData() {
+		var len = activity_seats.length
+		if(len > 0){
+			var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>操作</th> </tr></thead><tbody>'
+			for(var i = 0; i < len; i++){
+				var str = '<tr><td>' + activity_seats[i].seatName + '</td><td>' + activity_seats[i].mediaName + '</td><td>' + activity_seats[i].mediaName + '</td> <td>' + activity_seats[i].mediaName + '</td><td>' + activity_seats[i].mediaName + '</td><td><a style="cursor:pointer" class="deleteCheckBtn" data-id='+ activity_seats[i].seatId + '>删除</a></td></td> </tr>'
+				checkArr.push({
+					id: activity_seats[i].seatId,
+					html: str
+				})
+				html += str
+			}
+			html += '</thbody>'
+			$('#as-container').html(html)
+			$('.deleteCheckBtn').click(function(){
+				removeCheck($(this).data('id'))
+				getCheckboxData(true)
+			})
+		}
+	}
+	
+	function getSeatIds() {
+		
+		var seatIds = []
+		var len = checkArr.length
+		for(var i = 0;i < len; i++){
+			seatIds.push(checkArr[i].id)
+		}
+		return seatIds.join(',')
+	}
+	
+	
+        //上刊监测持续天数
+        $("#upMonitorLastDays").formValidator({
+            validatorGroup: "2",
+            onShow: "　",
+            onCorrect: "",
+            onFocus:"请填写1-2的数字"
+        }).functionValidator({
+            fun:function(val){
+                return ($("#durationMonitor:checked").length<1) || /^[1-2]$/.test(val);
+            },
+            onError: "只允许填写1-2的数字"
+        });
+
+        //投放期间监测持续天数
+        $("#durationMonitorLastDays").formValidator({
+            validatorGroup: "2",
+            onShow: "　",
+            onCorrect: "",
+            onFocus:"请填写1-2的数字"
+        }).functionValidator({
+            fun:function(val){
+                return ($("#durationMonitor:checked").length<1) || /^[1-2]$/.test(val);
+            },
+            onError: "只允许填写1-2的数字"
+        });
+
+        //下刊监测持续天数
+        $("#downMonitorLastDays").formValidator({
+            validatorGroup: "2",
+            onShow: "　",
+            onCorrect: "",
+            onFocus:"请填写1-3的数字"
+        }).functionValidator({
+            fun:function(val){
+                return ($("#downMonitor:checked").length<1) || /^[1-3]$/.test(val);
+            },
+            onError: "只允许填写1-3的数字"
+        });
+        
 
 </script>

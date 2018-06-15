@@ -308,7 +308,7 @@
     where a.media_id = b.id and a.ad_seat_id = c.id and a.activity_id = d.id
     and a.activity_id = #{activityId,jdbcType=INTEGER}
   </select>
-
+  
   <delete id="deleteByActivityId" parameterType="java.lang.Integer" >
     delete from ad_activity_adseat
     where activity_id = #{activityId,jdbcType=INTEGER}
@@ -551,8 +551,9 @@
   <!-- 查询正在进行活动的广告位id及活动数量（情况1） -->
   <select id="selectActiveActivityCount1" resultType="com.bt.om.entity.vo.AdSeatCount" parameterType="map">
   	select 
-		count(1) count, e.ad_seat_id adseatId
+		count(1) count, e.ad_seat_id adseatId, f.allow_multi allowMulti, f.multi_num multiNum
 	from ad_activity_adseat e
+	left join ad_seat_info f on e.ad_seat_id = f.id
 	where 1=1
 	<if test="startDate != null" >
       and e.monitor_start >= DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
@@ -569,8 +570,9 @@
   <!-- 查询正在进行活动的广告位id及活动数量（情况2） -->
   <select id="selectActiveActivityCount2" resultType="com.bt.om.entity.vo.AdSeatCount" parameterType="map">
   	select 
-		count(1) count, e.ad_seat_id adseatId
+		count(1) count, e.ad_seat_id adseatId, f.allow_multi allowMulti, f.multi_num multiNum
 	from ad_activity_adseat e
+	left join ad_seat_info f on e.ad_seat_id = f.id
 	where 1=1
 	<if test="startDate != null" >
       and e.monitor_start > DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
@@ -584,8 +586,9 @@
   <!-- 查询正在进行活动的广告位id及活动数量（情况3） -->
   <select id="selectActiveActivityCount3" resultType="com.bt.om.entity.vo.AdSeatCount" parameterType="map">
   	select 
-		count(1) count, e.ad_seat_id adseatId
+		count(1) count, e.ad_seat_id adseatId, f.allow_multi allowMulti, f.multi_num multiNum
 	from ad_activity_adseat e
+	left join ad_seat_info f on e.ad_seat_id = f.id
 	where 1=1
 	<if test="startDate != null" >
       and e.monitor_start &lt; DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
@@ -602,8 +605,9 @@
   <!-- 查询正在进行活动的广告位id及活动数量（情况4） -->
   <select id="selectActiveActivityCount4" resultType="com.bt.om.entity.vo.AdSeatCount" parameterType="map">
   	select 
-		count(1) count, e.ad_seat_id adseatId
+		count(1) count, e.ad_seat_id adseatId, f.allow_multi allowMulti, f.multi_num multiNum
 	from ad_activity_adseat e
+	left join ad_seat_info f on e.ad_seat_id = f.id
 	where 1=1
 	<if test="startDate != null" >
       and e.monitor_start &lt;= DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
@@ -632,6 +636,30 @@
   	and a.activity_id = #{activityId,jdbcType=INTEGER}
   </select>
   
+  <!-- 批量插入活动的广告位信息 -->
+  <insert id="insertBatch" parameterType="com.bt.om.entity.AdActivityAdseat">
+    insert into ad_activity_adseat (
+      activity_id, media_id, 
+      ad_seat_id, brand, monitor_start, 
+      monitor_end, monitor_count, up_monitor, 
+      down_monitor, duration_monitor,
+      up_monitor_last_days,down_monitor_last_days,duration_monitor_last_days,sample_pic_url,
+      task_create, create_time, update_time
+    )
+    values 
+    <foreach collection="adActivityAdseats" item="as" separator=",">  
+    (
+    	  #{as.activityId,jdbcType=INTEGER}, #{as.mediaId,jdbcType=INTEGER}, 
+	      #{as.adSeatId,jdbcType=INTEGER}, #{as.brand,jdbcType=VARCHAR}, #{as.monitorStart,jdbcType=TIMESTAMP}, 
+	      #{as.monitorEnd,jdbcType=TIMESTAMP}, #{as.monitorCount,jdbcType=INTEGER}, #{as.upMonitor,jdbcType=INTEGER}, 
+	      #{as.downMonitor,jdbcType=INTEGER}, #{as.durationMonitor,jdbcType=INTEGER},
+	      #{as.upMonitorLastDays,jdbcType=INTEGER}, #{as.downMonitorLastDays,jdbcType=INTEGER}, #{as.durationMonitorLastDays,jdbcType=INTEGER},
+	      #{as.samplePicUrl,jdbcType=VARCHAR},
+	      #{as.taskCreate,jdbcType=INTEGER}, #{as.createTime,jdbcType=TIMESTAMP}, #{as.updateTime,jdbcType=TIMESTAMP}
+     )
+    </foreach>
+  </insert>
+
   <!-- 批量删除活动的广告位 -->
   <delete id="deleteByActivityIds" parameterType="map" >
     delete from ad_activity_adseat
@@ -641,5 +669,6 @@
        	<foreach collection="activityIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
     </if>
   </delete>
+
   
 </mapper>

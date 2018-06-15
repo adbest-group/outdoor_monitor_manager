@@ -313,6 +313,11 @@ img.demo {
 
 	function changeMediaTypeId() {
 		var mediaTypeParentId = $("#mediaTypeParentId").val();
+		if(mediaTypeParentId == "" || mediaTypeParentId.length <= 0) {
+			var option = '<option value="">请选择媒体小类</option>';
+			$("#mediaTypeId").html(option);
+			return ;
+		}
 		$.ajax({
 			url : '/platmedia/adseat/searchMediaType',
 			type : 'POST',

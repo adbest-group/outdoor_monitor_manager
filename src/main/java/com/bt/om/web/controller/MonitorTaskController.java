@@ -90,7 +90,8 @@ public class MonitorTaskController extends BasicController {
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "pid", required = false) Integer pid,
-			@RequestParam(value = "ptype", required = false) Integer ptype) throws ParseException {
+			@RequestParam(value = "ptype", required = false) Integer ptype,
+			@RequestParam(value = "name", required = false) String name) throws ParseException {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		SearchDataVo vo = SearchUtil.getVo();
 
@@ -144,7 +145,11 @@ public class MonitorTaskController extends BasicController {
 			} catch (ParseException e) {
 			}
 		}
-
+		//查询活动名称
+        if (name != null) {
+        	name = "%" + name + "%";
+            vo.putSearchParam("activityName", name, name);
+        }
 		List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId()); // 根据员工id查询所属组对应的所有广告商id集合
 		if (customerIds != null && customerIds.size() == 0) {
 			// 员工对应的广告商id集合为空, 不需要再去查询任务审核列表
@@ -280,7 +285,8 @@ public class MonitorTaskController extends BasicController {
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "mediaId", required = false) Integer mediaId,
 			@RequestParam(value = "status", required = false) Integer status,
-			@RequestParam(value = "endDate", required = false) String endDate) throws ParseException {
+			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "name", required = false) String name) throws ParseException {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		SearchDataVo vo = SearchUtil.getVo();
 		AdMonitorTask task = new AdMonitorTask();
@@ -328,7 +334,11 @@ public class MonitorTaskController extends BasicController {
 			} catch (ParseException e) {
 			}
 		}
-
+		 //查询活动名称
+        if (name != null) {
+        	name = "%" + name + "%";
+            vo.putSearchParam("activityName", name, name);
+        }
 		List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId()); // 根据员工id查询所属组对应的所有广告商id集合
 		if (customerIds != null && customerIds.size() == 0) {
 			// 员工对应的广告商id集合为空, 不需要再去查询任务指派列表

@@ -226,6 +226,9 @@
     <if test="userId != null" >
       and user_id = #{userId,jdbcType=INTEGER}
     </if>
+    <if test="activityName != null">
+      and activity_name like #{activityName,jdbcType=VARCHAR}
+    </if>
     <if test="activityId != null" >
       and id = #{activityId,jdbcType=INTEGER}
     </if>
@@ -262,6 +265,9 @@
     where 1=1
     <if test="userId != null" >
       and a.user_id = #{userId,jdbcType=INTEGER}
+    </if>
+    <if test="activityName != null">
+      and a.activity_name like #{activityName,jdbcType=VARCHAR}
     </if>
     <if test="activityId != null" >
       and a.id = #{activityId,jdbcType=INTEGER}

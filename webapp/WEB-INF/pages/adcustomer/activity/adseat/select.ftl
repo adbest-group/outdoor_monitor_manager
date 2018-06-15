@@ -13,7 +13,7 @@
 		.interaction-bac-big img{width: 296px;height: 194px;float: left}
 		.interaction-bac-big label{height: 194px;line-height: 194px;display: block;float: left;padding-left: 15px}
 </style>
-<div class="main-container" style="height: auto;">
+<div class="main-container" style="height: auto; overflow-x:auto">
     <div class="main-box">
         <div class="title clearfix" style="display: block;">
             <div class="search-box search-ll" style="margin: 0 0 0 20px;display: inline-block;">
@@ -61,7 +61,7 @@
 	        <!-- 数据报表 -->
         <div class="data-report">
             <div class="bd">
-                <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                <table width="100%" cellpadding="0" cellspacing="0" border="0"  
                        class="tablesorter" id="plan">
                     <thead>
                     <tr>
@@ -69,6 +69,8 @@
                         <th width="30">序号</th>
                         <th>广告位名称</th>
                         <th>区域</th>
+                        <th>主要路段</th>
+                        <th>详细位置</th>
                         <th>媒体主</th>
                         <th>媒体大类</th>
 						<th>媒体小类</th>
@@ -81,7 +83,9 @@
 	                       <td width="30"><input  type="checkbox"  name="ck-task" value="${adseat.id}"/></td>  
 	                        <td>${(bizObj.page.currentPage-1)*20+adseat_index+1}</td>
 	                        <td>${adseat.name!""}</td>
-	                        <td>${vm.getCityNameFull(adseat.street!adseat.region,"-")!""}</td>
+	                        <td>${vm.getCityName(adseat.province)!""} ${vm.getCityName(adseat.city!"")}</td>
+	                        <td>${adseat.road!""}</td>
+							<td>${adseat.location!""}</td>
 	                        <td>${adseat.mediaName!""}</td>
 	                        <td>${adseat.parentName!""}</td>
 	                        <td>${adseat.secondName!""}</td>

@@ -267,6 +267,11 @@
 	                    id: ${seat.id},
 	                    mediaId: "${seat.mediaId!""}",
 	                    mediaName: "${seat.mediaName!""}",
+	                    parentName: "${seat.parentName!""}",
+	                    secondName: "${seat.secondName!""}",
+	                    road: "${seat.road!""}",
+	                    location: "${seat.location!""}",
+	                    area: "${vm.getCityName(seat.province)!""} ${vm.getCityName(seat.city!"")}",
 	                    seatId: "${seat.adSeatId!""}",
 	                    seatName: "${seat.adSeatName!""}",
 	                    startDate: "${seat.monitorStart?string("yyyy-MM-dd")!""}",
@@ -909,7 +914,7 @@
 	}
 	
 	function getCheckboxData(isEdit) {
-		var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>操作</th> </tr></thead><tbody>'
+		var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>操作</th> </tr></thead><tbody>'
 		console.log('save', checkArr)
 		if(!isEdit){ // 如果是创建的时候
 			activity_seats = []
@@ -949,9 +954,9 @@
 	function ModCheckboxData() {
 		var len = activity_seats.length
 		if(len > 0){
-			var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>操作</th> </tr></thead><tbody>'
+			var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>操作</th> </tr></thead><tbody>'
 			for(var i = 0; i < len; i++){
-				var str = '<tr><td>' + activity_seats[i].seatName + '</td><td>' + activity_seats[i].mediaName + '</td><td>' + activity_seats[i].mediaName + '</td> <td>' + activity_seats[i].mediaName + '</td><td>' + activity_seats[i].mediaName + '</td><td><a style="cursor:pointer" class="deleteCheckBtn" data-id='+ activity_seats[i].seatId + '>删除</a></td></td> </tr>'
+				var str = '<tr><td>' + activity_seats[i].seatName + '</td><td>' + activity_seats[i].area + '</td><td>' + activity_seats[i].road + '</td><td>' + activity_seats[i].location + '</td><td>' + activity_seats[i].mediaName + '</td> <td>' + activity_seats[i].parentName + '</td><td>' + activity_seats[i].secondName + '</td><td><a style="cursor:pointer" class="deleteCheckBtn" data-id='+ activity_seats[i].seatId + '>删除</a></td></td> </tr>'
 				checkArr.push({
 					id: activity_seats[i].seatId,
 					html: str

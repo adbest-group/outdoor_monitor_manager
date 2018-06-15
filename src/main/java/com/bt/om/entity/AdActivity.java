@@ -85,6 +85,14 @@ public class AdActivity extends ID{
     
     private String updateTimeStr;
     
+    private String upTaskTime;
+    
+    private String upMonitorTaskTime;
+    
+    private String durationMonitorTaskTime;
+    
+    private String downMonitorTaskTime;
+    
     public String getCreateTimeStr() {
 		return createTimeStr;
 	}
@@ -308,4 +316,37 @@ public class AdActivity extends ID{
     public void setCustomerTypeId(Integer customerTypeId) {
 		this.customerTypeId = customerTypeId;
 	}
+
+	public String getUpTaskTime() {
+		return upTaskTime;
+	}
+
+	public void setUpTaskTime(String upTaskTime) {
+		this.upTaskTime = upTaskTime;
+	}
+
+	public String getUpMonitorTaskTime() {
+		return upMonitorTaskTime;
+	}
+
+	public void setUpMonitorTaskTime(String upMonitorTaskTime) {
+		this.upMonitorTaskTime = upMonitorTaskTime;
+	}
+
+	public String getDurationMonitorTaskTime() {
+		return durationMonitorTaskTime;
+	}
+
+	public void setDurationMonitorTaskTime(String durationMonitorTaskTime) {
+		this.durationMonitorTaskTime = durationMonitorTaskTime;
+	}
+
+	public String getDownMonitorTaskTime() {
+		return downMonitorTaskTime;
+	}
+
+	public void setDownMonitorTaskTime(String downMonitorTaskTime) {
+		this.downMonitorTaskTime = downMonitorTaskTime;
+	}
+    
 }

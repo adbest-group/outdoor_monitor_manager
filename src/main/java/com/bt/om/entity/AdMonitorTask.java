@@ -270,6 +270,7 @@ public class AdMonitorTask extends ID{
     private Integer assessorId;
     private Integer assignorId;
     private Date assignorTime;
+    private Date reportTime;
     
     public Date getAssignorTime() {
 		return assignorTime;
@@ -351,4 +352,11 @@ public class AdMonitorTask extends ID{
         this.verifyTime = verifyTime;
     }
     
+    public Date getReportTime() {
+		return reportTime;
+	}
+    
+    public void setReportTime(Date reportTime) {
+		this.reportTime = reportTime;
+	}
 }

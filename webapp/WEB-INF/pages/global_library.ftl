@@ -244,6 +244,16 @@
 	</#if>
 </#macro>
 
+<#-- 媒体类型下拉选项  -->
+<#macro showMediaTypeOps value="-1">
+	<#local list = vm.getMediaTypeList() />
+	<#if (list?exists && list?size > 0)>
+		<#list list as res>
+			<@showOption value="${res.id?if_exists}" title="${res.text?if_exists}" select="${value?if_exists}" />
+		</#list>
+	</#if>
+</#macro>
+
 <#-- 活动状态下拉选项  -->
 <#macro showActivityStatusOps value="-1">
 	<#local list = vm.getActivityStatusList() />

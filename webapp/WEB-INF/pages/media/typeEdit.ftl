@@ -50,6 +50,8 @@
 		                </div>
 					</td>
 				</tr>
+				
+				<#-- 
 				<tr id="selectUniqueKeyNeed" style="display: none">
 					<td class="a-title">需要唯一标识：</td>
 					<td>
@@ -64,6 +66,8 @@
 		                </div>
 					</td>
 				</tr>
+				 -->
+				
 				<tr>
 					<td class="a-title">&nbsp;</td>
 					<td>
@@ -90,20 +94,20 @@ $(function() {
 	var type = $('#addMediaType').val();
 	if(type == 1) {
 		$("#selectParentMedia").hide();
-		$("#selectUniqueKeyNeed").hide();
+		//$("#selectUniqueKeyNeed").hide();
 	} else {
 		$("#selectParentMedia").show();
-		$("#selectUniqueKeyNeed").show();
+		//$("#selectUniqueKeyNeed").show();
 	}
 
 	$("#addMediaType").siblings().find(".searchable-select-item").click(function(){
         var type = $('#addMediaType').val();
 		if(type == 1) {
 			$("#selectParentMedia").hide();
-			$("#selectUniqueKeyNeed").hide();
+			//$("#selectUniqueKeyNeed").hide();
 		} else {
 			$("#selectParentMedia").show();
-			$("#selectUniqueKeyNeed").show();
+			//$("#selectUniqueKeyNeed").show();
 		}
     });
 

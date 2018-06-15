@@ -105,7 +105,13 @@ img.demo {
 							</tr>
 							
 	                        </#if>
-
+							<tr>
+								<td class="a-title">媒体方广告位编号：</td>
+								<td><input type="text" style="width: 130px;" id="memo" name="memo" value="<#if (adSeatInfo?exists)>${adSeatInfo.memo!""}</#if>"
+									autocomplete="off" class="form-control">
+                                    <span id="memoTip"></span>
+								</td>
+							</tr>
 							<#--
 							<tr>
 								<td class="a-title"><font class="s-red">*</font>广告位类型：</td>
@@ -126,26 +132,26 @@ img.demo {
 										<p>
 											<select class="searchable-select-holder" id="adSeatInfo-province" name="province" style="width: 147px"></select>
 											<select class="searchable-select-holder" id="adSeatInfo-city" name="city"></select>
-											<select class="searchable-select-holder" id="adSeatInfo-region" name="region"></select>
-											<select class="searchable-select-holder" id="adSeatInfo-street" name="street"></select>
+											<#-- <select class="searchable-select-holder" id="adSeatInfo-region" name="region"></select>
+											<select class="searchable-select-holder" id="adSeatInfo-street" name="street"></select> -->
 										</p>
 									</div>
 								</td>
 							</tr>
 							
 							<tr>
-								<td class="a-title"><font class="s-red">*</font>广告位置：</td>
-								<td><input type="text" style="width: 130px;" id="location" name="location" value="<#if (adSeatInfo?exists)>${adSeatInfo.location!""}</#if>"
+								<td class="a-title"><font class="s-red">*</font>主要路段：</td>
+								<td><input type="text" style="width: 130px;" id="road" name="road" value="<#if (adSeatInfo?exists)>${adSeatInfo.road!""}</#if>"
 									autocomplete="off" class="form-control">
-                                    <span id="locationTip"></span>
+                                    <span id="roadTip"></span>
 								</td>
 							</tr>
 							
 							<tr>
-								<td class="a-title">唯一标识：</td>
-								<td><input type="text" style="width: 130px;" id="uniqueKey" name="uniqueKey" value="<#if (adSeatInfo?exists)>${adSeatInfo.uniqueKey!""}</#if>"
+								<td class="a-title"><font class="s-red">*</font>广告位详细位置：</td>
+								<td><input type="text" style="width: 130px;" id="location" name="location" value="<#if (adSeatInfo?exists)>${adSeatInfo.location!""}</#if>"
 									autocomplete="off" class="form-control">
-                                    <span id="uniqueKeyTip"></span>
+                                    <span id="locationTip"></span>
 								</td>
 							</tr>
 							
@@ -169,6 +175,13 @@ img.demo {
 								</td>
 							</tr>
 							
+							<tr>
+								<td class="a-title">面数：</td>
+								<td><input type="text" style="width: 130px;" id="adNum" name="adNum" value="<#if (adSeatInfo?exists)>${adSeatInfo.adNum!""}</#if>"
+									autocomplete="off" class="form-control">
+                                    <span id="adNumTip"></span>
+								</td>
+							</tr>
 							<#setting number_format="#0.######" />
 							<tr>
 								<td class="a-title">广告位经度：</td>
@@ -234,14 +247,6 @@ img.demo {
 								<td><input type="text" style="width: 130px;" id="contactCell" name="contactCell" value="<#if (adSeatInfo?exists)>${adSeatInfo.contactCell!""}</#if>"
 									autocomplete="off" class="form-control">
                                     <span id="contactCellTip"></span>
-								</td>
-							</tr>
-							
-							<tr>
-								<td class="a-title">媒体方编号：</td>
-								<td><input type="text" style="width: 130px;" id="memo" name="memo" value="<#if (adSeatInfo?exists)>${adSeatInfo.memo!""}</#if>"
-									autocomplete="off" class="form-control">
-                                    <span id="memoTip"></span>
 								</td>
 							</tr>
 							

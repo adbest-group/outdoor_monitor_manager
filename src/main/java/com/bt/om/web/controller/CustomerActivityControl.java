@@ -80,7 +80,8 @@ public class CustomerActivityControl extends BasicController {
                                @RequestParam(value = "activityId", required = false) Integer activityId,
                                @RequestParam(value = "status", required = false) Integer status,
                                @RequestParam(value = "startDate", required = false) String startDate,
-                               @RequestParam(value = "endDate", required = false) String endDate) {
+                               @RequestParam(value = "endDate", required = false) String endDate,
+                               @RequestParam(value = "name", required = false) String name) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
         SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
@@ -106,7 +107,11 @@ public class CustomerActivityControl extends BasicController {
             } catch (ParseException e) {
             }
         }
-
+        //查询活动名称
+        if (name != null) {
+        	name = "%" + name + "%";
+            vo.putSearchParam("activityName", name, name);
+        }
         adActivityService.getPageData(vo);
 
         SearchUtil.putToModel(model, vo);
@@ -405,7 +410,8 @@ public class CustomerActivityControl extends BasicController {
                              @RequestParam(value = "activityId", required = false) Integer activityId,
                              @RequestParam(value = "problemStatus", required = false) Integer problemStatus,
                              @RequestParam(value = "startDate", required = false) String startDate,
-                             @RequestParam(value = "endDate", required = false) String endDate) {
+                             @RequestParam(value = "endDate", required = false) String endDate,
+                             @RequestParam(value = "name", required = false) String name) {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
@@ -435,7 +441,11 @@ public class CustomerActivityControl extends BasicController {
             } catch (ParseException e) {
             }
         }
-
+      //查询活动名称
+        if (name != null) {
+        	name = "%" + name + "%";
+            vo.putSearchParam("activityName", name, name);
+        }
         adJiucuoTaskService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
 

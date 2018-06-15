@@ -270,6 +270,9 @@
         <if test="activityId != null">
             and a.activity_id = #{activityId,jdbcType=INTEGER}
         </if>
+        <if test="activityName != null">
+        	and c.activity_name like #{activityName,jdbcType=VARCHAR}
+        </if>
         <if test="customerIds != null">
 	      	and c.user_id in
 	        <foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
@@ -327,6 +330,9 @@
         </if>
         <if test="activityId != null">
             and a.activity_id = #{activityId,jdbcType=INTEGER}
+        </if>
+        <if test="activityName != null">
+        	and c.activity_name like #{activityName,jdbcType=VARCHAR}
         </if>
         <if test="customerIds != null">
 	      	and c.user_id in

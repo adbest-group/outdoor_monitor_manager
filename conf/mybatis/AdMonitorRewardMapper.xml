@@ -87,7 +87,7 @@
         create_time,
       </if>
       <if test="updateTime != null">
-        update_time,
+        update_time
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -113,7 +113,7 @@
         #{createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="updateTime != null">
-        #{updateTime,jdbcType=TIMESTAMP},
+        #{updateTime,jdbcType=TIMESTAMP}
       </if>
     </trim>
   </insert>

@@ -9,13 +9,18 @@
         <div class="title clearfix">
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <form id="form" method="get" action="/jiucuo/list">
+                	<!--活动搜索框-->
+                     <div class="inp">
+                    	<input type="text" placeholder="请输入活动名称" value="${name?if_exists}" id="searchName" name="name">
+                	</div>
                     <!--活动下拉框-->
+                    <#-- 
                     <div class="select-box select-box-140 un-inp-select ll">
                         <select name="activityId" class="select" id="activityId">
                             <option value="">所有活动</option>
                         <@model.showAllActivityOps value="${bizObj.queryMap.activityId?if_exists}"/>
                         </select>
-                    </div>
+                    </div> -->
                     <div class="select-box select-box-100 un-inp-select ll">
                         <select class="select" name="status">
                         <#--	<option value="1" <#if (status?exists&&status == '1')>selected</#if>>待审核</option>
@@ -100,7 +105,7 @@
                             </td>
                             <td><img width="50" src="${task.picUrl1!""}"/></td>
                             <td>${task.submitTime?string('yyyy-MM-dd HH:mm:ss')}</td>
-                            <td>${vm.getCityNameFull(task.street!task.region,"-")!""}</td>
+                            <td>${vm.getCityName(task.province)!""} ${vm.getCityName(task.city!"")}</td>
                             <td>${task.mediaName!""}</td>
                             <td>${task.adSeatName!""}</td>
                             <td>${vm.getJiucuoTaskStatusText(task.status)}</td>
@@ -191,6 +196,17 @@
         		return false;
         	}
         })
+        // 查询
+    	$("#searchBtn").on("click", function () {
+       	 	var strParam = "";
+        	var name = $("#searchName").val();
+        
+        	if (name != null && $.trim(name).length) {
+            strParam = strParam + "?name=" + name;
+        }
+
+      	  window.location.href = "/jiucuo/list" + strParam;
+   		 });
         //批量处理纠错
        $("#assignBtn").click(function(){
             if($("input[name='ck-task']:checked").length<1){

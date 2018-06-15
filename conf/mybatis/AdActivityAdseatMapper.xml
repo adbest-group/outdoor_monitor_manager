@@ -373,8 +373,8 @@
     	ad_activity d
     where 
 	    a.media_id = b.id and a.ad_seat_id = c.id and a.activity_id = d.id
-	    and a.monitor_start &lt;= now()
-	    and a.monitor_end >= date_add(NOW(),INTERVAL -1 DAY)
+	    <!-- and a.monitor_start &lt;= now()
+	    and a.monitor_end >= date_add(NOW(),INTERVAL -1 DAY) -->
 	    and c.ad_code = #{adSeatCode,jdbcType=VARCHAR}
     order by id
   </select>
@@ -393,7 +393,7 @@
     where 
 	    a.media_id = b.id and a.ad_seat_id = c.id and a.activity_id = d.id
 	    and a.monitor_start &lt;= now()
-	    and a.monitor_end >= date_add(NOW(),INTERVAL -1 DAY)
+	    and a.monitor_end >= date_add(NOW(),INTERVAL -1 DAY) 
 	    and c.memo = #{memo,jdbcType=VARCHAR}
     order by id
   </select>
@@ -659,5 +659,16 @@
      )
     </foreach>
   </insert>
+
+  <!-- 批量删除活动的广告位 -->
+  <delete id="deleteByActivityIds" parameterType="map" >
+    delete from ad_activity_adseat
+    where 1=1
+    <if test="activityIds != null" >
+    	and activity_id in
+       	<foreach collection="activityIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+    </if>
+  </delete>
+
   
 </mapper>

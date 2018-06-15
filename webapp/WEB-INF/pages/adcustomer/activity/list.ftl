@@ -12,13 +12,18 @@
             <a href="/customer/activity/edit" class="btn btn-red mr-10 ll">创建活动</a>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <form id="form" method="get" action="/customer/activity/list">
+                	<!--活动搜索框-->
+                     <div class="inp">
+                    	<input type="text" placeholder="请输入活动名称" value="${name?if_exists}" id="searchName" name="name">
+                	</div>
                     <!--活动下拉框-->
+                    <#-- 
                     <div class="select-box select-box-140 un-inp-select ll">
                         <select name="activityId" class="select" id="activityId">
                             <option value="">所有活动</option>
                         <@model.showOwnActivityOps value="${bizObj.queryMap.activityId?if_exists}"/>
                         </select>
-                    </div>
+                    </div> -->
                     <div class="select-box select-box-100 un-inp-select ll">
                         <select class="select" name="status">
                             <option value="">所有状态</option>
@@ -65,8 +70,8 @@
                                 <#if activity.status==1><a href="/customer/activity/edit?id=${activity.id}">修改</a></#if>
                                 <#if activity.status==2||activity.status==3><a href="/customer/activity/edit?id=${activity.id}">详情</a></#if>
                                 <#if activity.status==1><a href="javascript:del('${activity.id}')">删除</a></#if>
-                                <#if activity.status gt 1><a id="exportExcel" href="javascript:exportExcel('${activity.id}')">导出excel</a></#if>
-                                <#if activity.status gt 1><a id="exportPdf" href="javascript:exportPdf('${activity.id}')">导出pdf</a></#if>
+                                <#if activity.status!=1&&activity.status!=4><a id="exportExcel" href="javascript:exportExcel('${activity.id}')">导出excel</a></#if>
+                                <#if activity.status!=1&&activity.status!=4><a id="exportPdf" href="javascript:exportPdf('${activity.id}')">导出pdf</a></#if>
                             </td>
                         </tr>
                         </#list>
@@ -110,7 +115,17 @@
         var h = $(document.body).height() - 115;
         $('.main-container').css('height', h);
     });
+	// 查询
+    $("#searchBtn").on("click", function () {
+        var strParam = "";
+        var name = $("#searchName").val();
+        
+        if (name != null && $.trim(name).length) {
+            strParam = strParam + "?name=" + name;
+        }
 
+        window.location.href = "/customer/activity/list" + strParam;
+    });
             function createDateStr(alt){
                 var today =  new Date();
                 var t=today.getTime()+1000*60*60*24*alt;

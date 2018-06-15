@@ -11,13 +11,17 @@
         <div class="title clearfix" style="display:block;">
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <form id="form" method="get" action="/sysResources/taskUnassign">
-                    <!--活动下拉框-->
+                	<div class="inp">
+                    	<input type="text" placeholder="请输入活动名称" value="${name?if_exists}" id="searchName" name="name">
+                	</div>
+                    <#-- <!--活动下拉框
                     <div class="select-box select-box-140 un-inp-select ll">
                         <select name="activityId" class="select" id="activityId">
                             <option value="">所有活动</option>
                         <@model.showAllActivityOps value="${bizObj.queryMap.activityId?if_exists}"/>
                         </select>
                     </div>
+                     -->
                     <!--任务状态下拉框-->
                     <div class="select-box select-box-140 un-inp-select ll">
                         <select name="status" class="select" id="status">
@@ -58,7 +62,6 @@
                         <#--<th>执行人员</th>-->
                         <th>监测时间点</th>
                         <th>状态</th>
-                        <th>指派人</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -73,13 +76,12 @@
                             </td>
                             <td><img width="50" src="${task.samplePicUrl!""}"/> </td>
                             <td>${task.startTime?string('yyyy-MM-dd')}<br/>${task.endTime?string('yyyy-MM-dd')}</td>
-                            <td>${vm.getCityNameFull(task.street!task.region,"-")!""}</td>
+                           <td>${vm.getCityName(task.province)!""} ${vm.getCityName(task.city!"")}</td>
                             <td  id="media_${task.id}">${task.mediaName!""}</td>
                             <td>${task.adSeatName!""}</td>
                             <#--<td>${task.userId!""}</td>-->
                             <td>${vm.getMonitorTaskTypeText(task.taskType)!""}</td>
                             <td>${vm.getMonitorTaskStatusText(task.status)!""}</td>
-                            <td>${task.assignorName!""}</td>
                             <td>
                             	<#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status==1 || task.status==8)><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if></#if>
                                 <a href="/task/details?task_Id=${task.id}">详情</a>
@@ -126,7 +128,17 @@
         var h = $(document.body).height() - 115;
         $('.main-container').css('height', h);
     });
+	// 查询
+    $("#searchBtn").on("click", function () {
+        var strParam = "";
+        var name = $("#searchName").val();
+        
+        if (name != null && $.trim(name).length) {
+            strParam = strParam + "?name=" + name;
+        }
 
+        window.location.href = "/sysResources/taskUnassign" + strParam;
+    });
             function createDateStr(alt){
                 var today =  new Date();
                 var t=today.getTime()+1000*60*60*24*alt;

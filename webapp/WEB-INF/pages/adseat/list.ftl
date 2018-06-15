@@ -53,17 +53,19 @@
                        class="tablesorter" id="plan">
                     <thead>
                     <tr>
-                        <th width="30">序号</th>
-                        <th>广告位名称</th>
-                        <th>区域</th>
-                        <th>所属媒体</th>
-					<#--<th>媒体广告位编号</th>-->
-                        <th>广告位位置</th>
-                        <th>广告位尺寸</th>
-                        <th>媒体大类</th>
-						<th>媒体小类</th>
-						<th>是否已贴上二维码</th>
-                        <th>操作</th>
+                       <th width="30">序号</th>
+					   <th>广告位名称</th>
+					   <th>媒体大类</th>
+					   <th>媒体小类</th>
+					    <th>媒体主</th>
+					    <th>媒体方广告位编号</th>
+					   <th>区域</th>
+					   <th>主要路段</th>
+					   <th>广告位具体位置</th>
+					   <th>面数</th>
+					   <th>广告位尺寸</th> 
+					   <th>是否已贴上二维码</th>
+					   <th>操作</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -71,19 +73,20 @@
 					bizObj.list as adseat>
                     <tr>
                         <td>${(bizObj.page.currentPage-1)*20+adseat_index+1}</td>
-                        <td>${adseat.name!""}</td>
-                        <td>${vm.getCityNameFull(adseat.street!adseat.region,"-")!""}</td>
-                        <td>${adseat.mediaName!""}</td>
-					<#--<td>${adseat.adCode!""}</td>-->
-                        <td>${adseat.location!""}</td>
-                        <td>${adseat.adSize!""}</td>
-                        <td>${adseat.parentName!""}</td>
-                        <td>${adseat.secondName!""}</td>
-                        <td>
-                            	<#if adseat.codeFlag?exists && adseat.codeFlag == 1>已贴</#if>
-                            	<#if adseat.codeFlag?exists && adseat.codeFlag == 0>未贴</#if>
+						<td>${adseat.name!""}</td>
+						<td>${adseat.parentName!""}</td>
+						<td>${adseat.secondName!""}</td>
+						<td>${adseat.mediaName!""}</td>
+						<td>${adseat.memo!""}</td>
+						<td>${vm.getCityName(adseat.province)!""} ${vm.getCityName(adseat.city!"")}</td>
+						<td>${adseat.road!""}</td>
+						<td>${adseat.location!""}</td>
+						<td>${adseat.adNum!""}</td>
+						<td>${adseat.adSize!""}</td>
+						<td>
+                           	<#if adseat.codeFlag?exists && adseat.codeFlag == 1>已贴</#if>
+                           	<#if adseat.codeFlag?exists && adseat.codeFlag == 0>未贴</#if>
                         </td>
-                        
                         <td style="width: 80px">
 						<#--<a href="#" style="margin-right: 5px">数据上传</a> -->
                             <a href="/adseat/edit?id=${adseat.id}" style="margin-right: 5px">编辑</a>

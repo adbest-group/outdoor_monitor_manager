@@ -11,13 +11,17 @@
         <div class="title clearfix" style="display:block;">
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <form id="form" method="get" action="/platmedia/task/list">
-                    <!--销售下拉框-->
+                	<!--活动搜索框-->
+                     <div class="inp">
+                    	<input type="text" placeholder="请输入活动名称" value="${name?if_exists}" id="searchName" name="name">
+                	</div>
+                    <#-- <!--销售下拉框
                     <div class="select-box select-box-140 un-inp-select ll">
                         <select name="activityId" class="select" id="activityId">
                             <option value="">所有活动</option>
                         <@model.showAllActivityOps value="${bizObj.queryMap.activityId?if_exists}"/>
                         </select>
-                    </div>
+                    </div> -->
                     <#--<div class="select-box select-box-100 un-inp-select ll">-->
                         <#--<select class="select" name="status">-->
                             <#--<option value="">所有状态</option>-->
@@ -54,6 +58,8 @@
                         <th>执行人员</th>
                         <th>监测类型</th>
                         <th>状态</th>
+                        <th>指派人</th>
+                        <th>指派时间</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -67,13 +73,16 @@
                             </td>
                             <td><img width="50" src="${task.samplePicUrl!""}"/> </td>
                             <td>${task.startTime?string('yyyy-MM-dd')}<br/>${task.endTime?string('yyyy-MM-dd')}</td>
-                            <td>${vm.getCityNameFull(task.street!task.region,"-")!""}</td>
+                            <td>${vm.getCityName(task.province)!""} ${vm.getCityName(task.city!"")}</td>
                             <td>${task.mediaName!""}</td>
                             <td>${task.adSeatName!""}</td>
                             <td>${task.realname!""}</td>
                             <td>${vm.getMonitorTaskTypeText(task.taskType)!""}</td>
                             <td>${vm.getMonitorTaskStatusText(task.status)!""}</td>
+                            <td>${task.assignorName!""}</td>
+                            <td>${(task.assignorTime?string('yyyy-MM-dd HH:mm:ss'))!""}</td>
                             <td>
+                            	<#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status==1 || task.status==8)><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if></#if>
                                <#--   <#if task.status==1><a href="javascript:assign('${task.id}')">指派</a></#if>
                                 <#--<#if task.status==2><a href="javascript:assign('${task.id}')">重新指派</a></#if>-->
                                <#--   <#if task.status==3><a href="javascript:pass('${task.id}')">通过</a></#if>
@@ -123,7 +132,17 @@
         var h = $(document.body).height() - 115;
         $('.main-container').css('height', h);
     });
+ 	// 查询
+    $("#searchBtn").on("click", function () {
+        var strParam = "";
+        var name = $("#searchName").val();
+        
+        if (name != null && $.trim(name).length) {
+            strParam = strParam + "?name=" + name;
+        }
 
+        window.location.href = "/platmedia/task/list" + strParam;
+    });
             function createDateStr(alt){
                 var today =  new Date();
                 var t=today.getTime()+1000*60*60*24*alt;

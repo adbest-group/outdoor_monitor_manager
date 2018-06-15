@@ -26,6 +26,7 @@ import com.bt.om.entity.vo.SysMenuVo;
 import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.ActivityStatus;
 import com.bt.om.enums.JiucuoTaskStatus;
+import com.bt.om.enums.MediaType;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.SessionKey;
@@ -106,16 +107,16 @@ public class VMComponent {
             if (StringUtil.isNotEmpty(subName)) {
                 sb.append(split).append(subName);
             }
-            sub = CityUtil.getRegionCode(code);
-            if (sub != null) {
-                subName = cityCache.getCityName(sub);
-                if (StringUtil.isNotEmpty(subName)) {
-                    sb.append(split).append(subName);
-                }
-                if (CityUtil.isStreet(code)) {
-                    sb.append(split).append(cityCache.getCityName(code));
-                }
-            }
+//            sub = CityUtil.getRegionCode(code);
+//            if (sub != null) {
+//                subName = cityCache.getCityName(sub);
+//                if (StringUtil.isNotEmpty(subName)) {
+//                    sb.append(split).append(subName);
+//                }
+//                if (CityUtil.isStreet(code)) {
+//                    sb.append(split).append(cityCache.getCityName(code));
+//                }
+//            }
         }
         return sb.toString();
     }
@@ -256,6 +257,13 @@ public class VMComponent {
      */
     public MonitorTaskType[] getMonitorTaskTypeList() {
         return MonitorTaskType.values();
+    }
+    
+    /**
+     * 获取媒体类型列表
+     */
+    public MediaType[] getMediaTypeList() {
+        return MediaType.values();
     }
     
     /**

@@ -200,9 +200,4 @@ public class AdSeatService implements IAdSeatService {
 		return adSeatInfoMapper.selectByLocation(searchMap);
 	}
 
-	@Override
-	public AdSeatInfo checkUnique(AdSeatInfo info) {
-		return adSeatInfoMapper.checkUnique(info);
-	}
-
 }

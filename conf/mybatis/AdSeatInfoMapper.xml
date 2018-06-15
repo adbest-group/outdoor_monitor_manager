@@ -36,6 +36,8 @@
 		<result column="allow_multi" property="allowMulti" jdbcType="INTEGER" />
 		<result column="multi_num" property="multiNum" jdbcType="INTEGER" />
 		<result column="ad_code_flag" jdbcType="INTEGER" property="codeFlag"/>
+		<result column="ad_num" jdbcType="INTEGER" property="adNum"/>
+		<result column="road" jdbcType="VARCHAR" property="road"/>
 	</resultMap>
 
 	<sql id="Base_Column_List">
@@ -47,7 +49,7 @@
 		ad_code, ad_code_url, location,
 		ad_size, ad_area, pv, private_car_pv, bus_pv, lon, lat, map_standard,
 		contact_name, contact_cell,
-		create_time, update_time, memo, allow_multi, multi_num,ad_code_flag
+		create_time, update_time, memo, allow_multi, multi_num,ad_code_flag,ad_num,road
 	</sql>
 
 	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
@@ -82,7 +84,7 @@
 		private_car_pv,
 		bus_pv, lon,
 		lat, map_standard, contact_name, contact_cell,
-		create_time, update_time, memo, allow_multi, multi_num,ad_code_flag
+		create_time, update_time, memo, allow_multi, multi_num,ad_code_flag,ad_num,road
 		)
 		values
 		(#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
@@ -99,7 +101,7 @@
 		#{lat,jdbcType=DOUBLE},
 		#{mapStandard,jdbcType=INTEGER}, #{contactName,jdbcType=VARCHAR}, #{contactCell,jdbcType=VARCHAR},
 		#{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{memo,jdbcType=VARCHAR},
-		#{allowMulti,jdbcType=INTEGER}, #{multiNum,jdbcType=INTEGER},#{codeFlag,jdbcType=INTEGER}
+		#{allowMulti,jdbcType=INTEGER}, #{multiNum,jdbcType=INTEGER},#{codeFlag,jdbcType=INTEGER},#{adNum,jdbcType=INTEGER},#{road,jdbcType=VARCHAR}
 		)
 	</insert>
 
@@ -200,7 +202,13 @@
 				multi_num,
 			</if>
 			<if test="codeFlag != null">
-				ad_code_flag
+				ad_code_flag,
+			</if>
+			<if test="adNum != null">
+				ad_num,
+			</if>
+			<if test="road != null">
+				road
 			</if>
 		</trim>
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -295,7 +303,13 @@
 				#{multiNum,jdbcType=TIMESTAMP},
 			</if>
 			<if test="codeFlag != null">
-				#{codeFlag,jdbcType=INTEGER}
+				#{codeFlag,jdbcType=INTEGER},
+			</if>
+			<if test="adNum != null">
+				#{adNum,jdbcType=INTEGER},
+			</if>
+			<if test="road != null">
+				#{road,jdbcType=VARCHAR}
 			</if>
 		</trim>
 	</insert>
@@ -394,7 +408,13 @@
 				multi_num = #{multiNum,jdbcType=VARCHAR},
 			</if>
 			<if test="codeFlag != null">
-				ad_code_flag = #{codeFlag,jdbcType=INTEGER}
+				ad_code_flag = #{codeFlag,jdbcType=INTEGER},
+			</if>
+			<if test="adNum != null">
+				ad_num = #{adNum,jdbcType=INTEGER},
+			</if>
+			<if test="road != null">
+				road = #{road,jdbcType=VARCHAR}
 			</if>
 		</set>
 		where id = #{id,jdbcType=INTEGER}
@@ -431,7 +451,11 @@
 		update_time 
 		= #{updateTime,jdbcType=TIMESTAMP},
 		ad_code_flag
-		= #{codeFlag,jdbcType=INTEGER}
+		= #{codeFlag,jdbcType=INTEGER},
+		ad_num 
+		= #{adNum,jdbcType=INTEGER},
+		road
+		= #{road,jdbcType=VARCHAR}
 		where id = #{id,jdbcType=INTEGER}
 	</update>
 	
@@ -505,7 +529,7 @@
 			a.ad_code, a.ad_code_url, a.location,
 			a.ad_size, a.ad_area, a.pv, a.private_car_pv, a.bus_pv, a.lon, a.lat, a.map_standard,
 			a.contact_name, a.contact_cell,
-			a.create_time, a.update_time, a.memo, a.allow_multi, a.multi_num,
+			a.create_time, a.update_time, a.memo, a.allow_multi, a.multi_num,a.ad_num,a.road,
 			b.media_name,
 			c.name as parentName,
 			d.name as secondName,
@@ -585,6 +609,8 @@
 			a.memo,
 			a.allow_multi,
 			a.multi_num,
+			a.ad_num,
+			a.road,
 			b.id as mediaid,
 			c.name as parentName,
 			d.name as secondName,
@@ -603,7 +629,7 @@
 		a.ad_code, a.ad_code_url, a.location,
 		a.ad_size, a.ad_area, a.pv, a.private_car_pv, a.bus_pv, a.lon, a.lat,
 		a.map_standard, a.contact_name, a.contact_cell,
-		a.create_time, a.update_time, a.memo, a.allow_multi, a.multi_num ,a.ad_code_flag
+		a.create_time, a.update_time, a.memo, a.allow_multi, a.multi_num ,a.ad_code_flag,a.ad_num,a.road
 		from ad_seat_info a
 		left join ad_media b on a.media_id = b.id
 		where b.user_id = #{userId,jdbcType=INTEGER}
@@ -617,7 +643,7 @@
 		a.ad_code, a.ad_code_url, a.location,
 		a.ad_size, a.ad_area, a.pv, a.private_car_pv, a.bus_pv, a.lon, a.lat,
 		a.map_standard, a.contact_name, a.contact_cell,
-		a.create_time, a.update_time, a.memo, a.allow_multi, a.multi_num ,a.ad_code_flag
+		a.create_time, a.update_time, a.memo, a.allow_multi, a.multi_num ,a.ad_code_flag,a.ad_num,a.road
 		from ad_seat_info a
 		left join ad_activity_adseat b on a.id = b.ad_seat_id
 		where b.id = #{adActivitySeatId,jdbcType=INTEGER}
@@ -641,7 +667,7 @@
 			bus_pv, lon,
 			lat, map_standard,
 			contact_name, contact_cell,
-			create_time, update_time, memo, allow_multi, multi_num, ad_code_flag
+			create_time, update_time, memo, allow_multi, multi_num, ad_code_flag, ad_num ,road
 		)
 		values
 		<foreach collection="adSeatInfos" item="info" separator=",">  
@@ -664,7 +690,8 @@
 			#{info.mapStandard,jdbcType=INTEGER},
 			#{info.contactName,jdbcType=VARCHAR}, #{info.contactCell,jdbcType=VARCHAR},
 			#{info.createTime,jdbcType=TIMESTAMP}, #{info.updateTime,jdbcType=TIMESTAMP}, #{info.memo,jdbcType=VARCHAR},
-			#{info.allowMulti,jdbcType=INTEGER}, #{info.multiNum,jdbcType=INTEGER},#{info.codeFlag,jdbcType=INTEGER}
+			#{info.allowMulti,jdbcType=INTEGER}, #{info.multiNum,jdbcType=INTEGER},#{info.codeFlag,jdbcType=INTEGER},
+			#{info.adNum,jdbcType=INTEGER},#{info.road,jdbcType=VARCHAR}
 			)
         </foreach>
 	</insert>
@@ -771,79 +798,6 @@
 	    <if test="location != null" >
 	      and location = #{location,jdbcType=VARCHAR}
 	    </if>
-	</select>
-	
-	<select id="checkUnique" parameterType="com.bt.om.entity.AdSeatInfo" resultType="com.bt.om.entity.AdSeatInfo">
-		select
-		<include refid="Base_Column_List" />
-		from ad_seat_info
-		where 1=1
-		<if test="name != null">
-			and name = #{name,jdbcType=VARCHAR}
-		</if>
-		<if test="mediaTypeParentId != null">
-			and media_type_parent_id =#{mediaTypeParentId,jdbcType=INTEGER}
-		</if>
-		<if test="mediaTypeId != null">
-			and media_type_id =#{mediaTypeId,jdbcType=INTEGER}
-		</if>
-		<if test="allowMulti != null">
-			and allow_multi =#{allowMulti,jdbcType=INTEGER}
-		</if>
-		<if test="multiNum != null">
-			and multi_num =#{multiNum,jdbcType=INTEGER}
-		</if>
-		<if test="province != null" >
-	      and province = #{province,jdbcType=BIGINT}
-	    </if>
-	    <if test="city != null" >
-	      and city = #{city,jdbcType=BIGINT}
-	    </if>
-	    <if test="region != null" >
-	      and region = #{region,jdbcType=BIGINT}
-	    </if>
-	    <if test="street != null" >
-	      and street = #{street,jdbcType=BIGINT}
-	    </if>
-	    <if test="location != null" >
-	      and location = #{location,jdbcType=VARCHAR}
-	    </if>
-	    <if test="uniqueKey != null">
-		  and unique_key =#{uniqueKey,jdbcType=VARCHAR}
-		</if>
-		<if test="adSize != null">
-		  and ad_size =#{adSize,jdbcType=VARCHAR}
-		</if>
-		<if test="adArea != null">
-		  and ad_area =#{adArea,jdbcType=VARCHAR}
-		</if>
-		<if test="lon != null">
-		  and lon =#{lon,jdbcType=DOUBLE}
-		</if>
-		<if test="lat != null">
-		  and lat =#{lat,jdbcType=DOUBLE}
-		</if>
-		<if test="mapStandard != null">
-		  and map_standard =#{mapStandard,jdbcType=INTEGER}
-		</if>
-		<if test="contactName != null">
-		  and contact_name =#{contactName,jdbcType=VARCHAR}
-		</if>
-		<if test="contactCell != null">
-		  and contact_cell =#{contactCell,jdbcType=VARCHAR}
-		</if>
-		<if test="memo != null">
-		  and memo =#{memo,jdbcType=VARCHAR}
-		</if>
-		<if test="mediaId != null">
-		  and media_id =#{mediaId,jdbcType=INTEGER}
-		</if>
-		<if test="contactCell != null">
-		  and contact_cell =#{contactCell,jdbcType=VARCHAR}
-		</if>
-		<if test="codeFlag != null">
-		  and ad_code_flag =#{codeFlag,jdbcType=INTEGER}
-		</if>
 	</select>
 	
 	<!-- 通过id集合查询出相关的广告位信息 -->

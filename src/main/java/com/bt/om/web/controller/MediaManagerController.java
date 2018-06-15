@@ -95,7 +95,8 @@ public class MediaManagerController {
                               @RequestParam(value = "activityId", required = false) Integer activityId,
                               @RequestParam(value = "status", required = false) Integer status,
                               @RequestParam(value = "startDate", required = false) String startDate,
-                              @RequestParam(value = "endDate", required = false) String endDate) {
+                              @RequestParam(value = "endDate", required = false) String endDate,
+                              @RequestParam(value = "name", required = false) String name) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
         
@@ -127,7 +128,11 @@ public class MediaManagerController {
             } catch (ParseException e) {
             }
         }
-
+        //查询活动名称
+        if (name != null) {
+        	name = "%" + name + "%";
+            vo.putSearchParam("activityName", name, name);
+        }
         // vo.putSearchParam("hasUserId","1","1");
         adMonitorTaskService.getPageData(vo);
 
@@ -145,7 +150,8 @@ public class MediaManagerController {
                                         @RequestParam(value = "activityId", required = false) Integer activityId,
                                         @RequestParam(value = "problemStatus", required = false) Integer problemStatus,
                                         @RequestParam(value = "startDate", required = false) String startDate,
-                                        @RequestParam(value = "endDate", required = false) String endDate) {
+                                        @RequestParam(value = "endDate", required = false) String endDate,
+                                        @RequestParam(value = "name", required = false) String name) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
 
@@ -176,7 +182,11 @@ public class MediaManagerController {
             } catch (ParseException e) {
             }
         }
-
+        //查询活动名称
+        if (name != null) {
+        	name = "%" + name + "%";
+            vo.putSearchParam("activityName", name, name);
+        }
         // vo.putSearchParam("hasUserId","1","1");
         adMonitorTaskService.getPageData(vo);
 
@@ -236,7 +246,8 @@ public class MediaManagerController {
                              @RequestParam(value = "activityId", required = false) Integer activityId,
                              @RequestParam(value = "problemStatus", required = false) Integer problemStatus,
                              @RequestParam(value = "startDate", required = false) String startDate,
-                             @RequestParam(value = "endDate", required = false) String endDate) {
+                             @RequestParam(value = "endDate", required = false) String endDate,
+                             @RequestParam(value = "name", required = false) String name) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
 
@@ -267,6 +278,11 @@ public class MediaManagerController {
             }
         }
 
+        //查询活动名称
+        if (name != null) {
+        	name = "%" + name + "%";
+            vo.putSearchParam("activityName", name, name);
+        }
         adJiucuoTaskService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
 
@@ -409,8 +425,8 @@ public class MediaManagerController {
         	Map<String, Object> searchMap = new HashMap<>();
         	searchMap.put("province", province);
         	searchMap.put("city", city);
-        	searchMap.put("region", region);
-        	searchMap.put("street", street);
+//        	searchMap.put("region", region);
+//        	searchMap.put("street", street);
         	searchMap.put("location", location);
         	int count = adSeatService.selectByLocation(searchMap);
         	if(count > 0) {

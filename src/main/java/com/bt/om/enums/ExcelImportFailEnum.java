@@ -8,7 +8,7 @@ public enum ExcelImportFailEnum {
 	PROVINCE_NULL(2, "所在省份不能为空"),
 	CITY_NULL(3, "所在市不能为空"),
 	REGION_NULL(4, "所在区不能为空"),
-	STREET_NULL(5, "所在街道不能为空"),
+	STREET_NULL(5, "主要路段不能为空"),
 	LOCATION_NULL(6, "详细地址不能为空"),
 	SIZE_ONLYONE(7, "广告位尺寸不能只填写一个"),
 	LOC_ONLYONE(8, "经纬度不能只填写一个"),
@@ -26,8 +26,8 @@ public enum ExcelImportFailEnum {
 	PROVINCE_INVALID(20, "省份/直辖市有误"),
 	CITY_INVALID(21, "城市有误"),
 	REGION_INVALID(22, "区/县有误"),
-	STREET_INVALID(23, "街道/镇/乡有误");
-
+	STREET_INVALID(23, "主要路段有误"),
+	MEDIA_NUM_INVAILD(24,"媒体方广告位编号不能为空");
     private Integer id;
     private String text;
 

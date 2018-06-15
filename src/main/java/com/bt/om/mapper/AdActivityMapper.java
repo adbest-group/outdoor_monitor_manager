@@ -81,10 +81,13 @@ public interface AdActivityMapper {
     int updateAssessorId(Map<String, Object> searchMap);
 	
 	int updateStatusByEndTime(Date nowDate);
+	int deadLineAuditActivity(Date endDate);
 	int cancelActivityByAssessorId(Integer id);
 	
 	List<Integer> selectActivityReportByTime1(Map<String, Object> searchMap);
 	List<Integer> selectActivityReportByTime2(Map<String, Object> searchMap);
 	
 	List<Integer> getEndActivityList(Date nowDate);
+	
+	List<Integer> getDeadLineAuditActivity(Date endDate);
 }

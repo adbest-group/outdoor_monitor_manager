@@ -265,20 +265,20 @@
 	            <#list activity.adActivityAdseatVos as seat>
 	                {
 	                    id: ${seat.id},
-	                    mediaId: "${seat.mediaId}",
-	                    mediaName: "${seat.mediaName}",
-	                    seatId: "${seat.adSeatId}",
-	                    seatName: "${seat.adSeatName}",
-	                    startDate: "${seat.monitorStart?string("yyyy-MM-dd")}",
-	                    endDate: "${seat.monitorEnd?string("yyyy-MM-dd")}",
-	                    <#-- brand: "${seat.brand}", -->
-	                    upMonitor: "${seat.upMonitor}",
-	                    downMonitor: "${seat.downMonitor}",
-	                    durationMonitor: "${seat.durationMonitor}",
+	                    mediaId: "${seat.mediaId!""}",
+	                    mediaName: "${seat.mediaName!""}",
+	                    seatId: "${seat.adSeatId!""}",
+	                    seatName: "${seat.adSeatName!""}",
+	                    startDate: "${seat.monitorStart?string("yyyy-MM-dd")!""}",
+	                    endDate: "${seat.monitorEnd?string("yyyy-MM-dd")!""}",
+	                    <#-- brand: "${seat.brand!""}", -->
+	                    upMonitor: "${seat.upMonitor!""}",
+	                    downMonitor: "${seat.downMonitor!""}",
+	                    durationMonitor: "${seat.durationMonitor!""}",
 	                    upMonitorLastDays: "${seat.upMonitorLastDays!"3"}",
 	                    downMonitorLastDays: "${seat.downMonitorLastDays!"3"}",
 	                    durationMonitorLastDays: "${seat.durationMonitorLastDays!"3"}",
-	                    <#-- monitorCount: "${seat.monitorCount}", -->
+	                    <#-- monitorCount: "${seat.monitorCount!""}", -->
 	                    samplePicUrl: "${seat.samplePicUrl!""}"
 	                }<#if seat_has_next>,</#if>
 	            </#list>

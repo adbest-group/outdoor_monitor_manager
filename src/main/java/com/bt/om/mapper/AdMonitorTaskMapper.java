@@ -127,6 +127,7 @@ public interface AdMonitorTaskMapper {
 	List<AdMonitorTask> selectLatestMonitorTaskIds(@Param("activityId")Integer activityId);
 	
 	int activateMonitorTask(Date nowDate);
+	int newActivateMonitorTask(Date nowDate);
 	
 	int recycleTask(@Param("monitorTaskIds") List<Integer> monitorTaskIds, @Param("duration") Integer duration);
 	int forceAssignTask(@Param("duration") Integer duration);

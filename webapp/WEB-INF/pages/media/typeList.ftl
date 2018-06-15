@@ -9,23 +9,26 @@
         <div class="title clearfix">
             <a href="javascript:;" class="add-new-btn ll" id="add_media"><i></i> 新建媒体类型</a>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
-                <div class="select-box select-box-100 un-inp-select ll">
-                    <select name="searchMediaType" class="select" id="searchMediaType">
-            			<option value="1" <#if (searchMediaType?exists&&searchMediaType == 1)>selected</#if>>媒体大类</option>
-                        <option value="2" <#if (searchMediaType?exists&&searchMediaType == 2)>selected</#if>>媒体小类</option>
-                    </select>
-                </div>
-                <div class="select-box select-box-100 un-inp-select ll">
-                    <select name="parentId" class="select" id="parentId">
-                        <@model.showAllAdMediaTypeOps value="${bizObj.queryMap.parentId?if_exists}"/>
-                    </select>
-                </div>
-                <div class="inp">
-                    <input type="text" placeholder="请输入媒体类型名称" value="${searchMediaName?if_exists}" id="searchMediaName" name="searchMediaName">
-                </div>
-                <button type="button" class="btn btn-red" autocomplete="off" id="searchBtn">查询</button>
-                
-                <button style="margin-left: 10px" type="button" class="btn" id="insertBatchId" autocomplete="off">批量导入</button>
+            	<form id="form" method="get" action="/mediaType/list">
+	                <div class="select-box select-box-100 un-inp-select ll">
+	                    <select name="mediaType" class="select" id="mediaType">
+	                    	<option value="">全部媒体类型</option>
+	                        <@model.showMediaTypeOps value="${bizObj.queryMap.mediaType?if_exists}"/>
+	                    </select>
+	                </div>
+	                <div class="select-box select-box-100 un-inp-select ll">
+	                    <select name="parentId" class="select" id="parentId">
+	                    	<option value="">全部媒体大类</option>
+	                        <@model.showAllAdMediaTypeOps value="${bizObj.queryMap.parentId?if_exists}"/>
+	                    </select>
+	                </div>
+	                <div class="inp">
+	                    <input type="text" placeholder="请输入媒体类型名称" value="${searchMediaName?if_exists}" id="name" name="name">
+	                </div>
+	                <button type="button" class="btn btn-red" autocomplete="off" id="searchBtn">查询</button>
+	                
+	                <button style="margin-left: 10px" type="button" class="btn" id="insertBatchId" autocomplete="off">批量导入</button>
+                </form>
             </div>
         </div>
 
@@ -38,7 +41,7 @@
                         <th>序号</th>
                         <th>媒体类型名称</th>
                         <th>类型</th>
-                        <th>需要唯一标识</th>
+                        <#-- <th>需要唯一标识</th> -->
                         <th>状态</th>
                         <th>操作</th>
                     </tr>
@@ -53,10 +56,12 @@
                             	<#if type.mediaType?exists && type.mediaType == 1>媒体大类</#if>
                             	<#if type.mediaType?exists && type.mediaType == 2>媒体小类</#if>
                             </td>
+                            <#-- 
                             <td>
                             	<#if type.uniqueKeyNeed?exists && type.mediaType == 2 && type.uniqueKeyNeed == 1>需要</#if>
                             	<#if type.uniqueKeyNeed?exists && type.mediaType == 2 && type.uniqueKeyNeed == 2>不需要</#if>
                             </td>
+                             -->
                             <td>
                             	<#if type.status?exists && type.status == 1>可用</#if>
                             	<#if type.status?exists && type.status == 2>不可用</#if>
@@ -72,6 +77,7 @@
                             		<a href="javascript:void(0);" onclick="updateStatus('${type.id}', 1, '${type.mediaType}');">可用</a>
                                 </#if>
                                 
+                                <#-- 
                                 <#if type.mediaType?exists && type.mediaType == 2 && type.uniqueKeyNeed == 2>
                                 	&nbsp;&nbsp;
                                 	<a href="javascript:void(0);" onclick="updateNeed('${type.id}', 1);">需要唯一标识</a>
@@ -80,6 +86,7 @@
                                 	&nbsp;&nbsp;
                             		<a href="javascript:void(0);" onclick="updateNeed('${type.id}', 2);">不需要唯一标识</a>
                                 </#if>
+                                 -->
                             </td>
                         </tr>
                         </#list>
@@ -111,16 +118,20 @@
 
 	$('.select').searchableSelect();
 	$("#parentId").siblings().hide();
-	var type = $('#searchMediaType').val();
-	if(type == 1) {
+	var type = $('#mediaType').val();
+	if(type == "") {
+		$("#parentId").siblings().hide();
+	} else if(type == 1) {
 		$("#parentId").siblings().hide();
 	} else {
 		$("#parentId").siblings().show();
 	}
 
-	$("#searchMediaType").siblings().find(".searchable-select-item").click(function(){
-        var type = $('#searchMediaType').val();
-		if(type == 1) {
+	$("#mediaType").siblings().find(".searchable-select-item").click(function(){
+        var type = $('#mediaType').val();
+		if(type == "") {
+			$("#parentId").siblings().hide();
+		} else if(type == 1) {
 			$("#parentId").siblings().hide();
 		} else {
 			$("#parentId").siblings().show();
@@ -128,26 +139,33 @@
     });
     
     // 查询
+    $("#searchBtn").on("click",function() {
+        $("#form").submit();
+    });
+    
+    <#-- 
+    // 查询
     $("#searchBtn").on("click", function () {
         var strParam = "";
-        var searchMediaType = $("#searchMediaType").val();
+        var mediaType = $("#mediaType").val();
         var parentId = $("#parentId").val();
-        var searchMediaName = $("#searchMediaName").val();
+        var name = $("#name").val();
         
-        if (searchMediaType != null && $.trim(searchMediaType).length) {
-            strParam = strParam + "?mediaType=" + searchMediaType;
+        if (mediaType != null && $.trim(mediaType).length) {
+            strParam = strParam + "?mediaType=" + mediaType;
         }
-        if (searchMediaType == 2) {
+        if (mediaType == 2) {
         	if (parentId != null && $.trim(parentId).length) {
 	            strParam = strParam + "&parentId=" + parentId;
 	        }
         }
-        if (searchMediaName != null && $.trim(searchMediaName).length) {
-            strParam = strParam + "&name=" + searchMediaName;
+        if (name != null && $.trim(name).length) {
+            strParam = strParam + "&name=" + name;
         }
 
         window.location.href = "/mediaType/list" + strParam;
     });
+     -->
 
     $("#add_media").on("click", function () {
         //iframe层

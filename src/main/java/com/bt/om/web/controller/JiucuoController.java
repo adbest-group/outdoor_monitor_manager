@@ -88,7 +88,8 @@ public class JiucuoController extends BasicController {
 			@RequestParam(value = "status", required = false) Integer status,
 			@RequestParam(value = "problemStatus", required = false) Integer problemStatus,
 			@RequestParam(value = "startDate", required = false) String startDate,
-			@RequestParam(value = "endDate", required = false) String endDate) throws ParseException {
+			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "name", required = false) String name) throws ParseException {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		SearchDataVo vo = SearchUtil.getVo();
 
@@ -132,7 +133,11 @@ public class JiucuoController extends BasicController {
 			} catch (ParseException e) {
 			}
 		}
-
+		 //查询活动名称
+        if (name != null) {
+        	name = "%" + name + "%";
+            vo.putSearchParam("activityName", name, name);
+        }
 		if (userObj.getUsertype() != 4 && userObj.getUsertype() != 5) {
 			List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId()); // 根据员工id查询所属组对应的所有广告商id集合
 			if (customerIds != null && customerIds.size() == 0) {

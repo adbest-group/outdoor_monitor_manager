@@ -14,6 +14,13 @@
 					<#--autocomplete="off" onclick="">批量导入</button>-->
 	                <#--<div style="border-bottom: 1px solid black; margin:10px auto"></div>-->
                 <form id="form" method="get" action="/adseat/list" style="display: inline-block;">
+               		 <input type="hidden" id="startDate" value="" name="startDate">
+                	<input type="hidden" id="endDate" value="" name="endDate">
+                	<input type="hidden" id="seatIds" value="" name="seatIds">
+                	<input type="hidden" id="start" value="" name="start">
+                	<input type="hidden" id="size" value="" name="size">
+                	<input type="hidden" id="mediaTypeIdHidden" value="${bizObj.queryMap.mediaTypeId?if_exists}">
+                
                     <!--销售下拉框-->
                     <div id="demo3" class="citys" style="float: left; font-size: 12px">
                         <p>
@@ -26,14 +33,27 @@
                         </p>
                     </div>
 
-                   <#--  <div style="float: left; margin-left: 40px; font-size: 12px">
+                    <div style="float: left; margin-left: 40px; font-size: 12px">
                         	媒体: <select style="height: 30px" name="mediaId" onchange="importEnabled()" id="selectMediaId">
                         			<option value="">所有媒体</option> 
                         			<@model.showAllMediaOps value="${bizObj.queryMap.mediaId?if_exists}" />
                     			</select>
-                    </div> -->
+                    </div> 
+                    
+                    <div style="float: left; margin-left: 40px; font-size: 12px">
+                    		  媒体大类: <select style="height: 30px" name="mediaTypeParentId" id="mediaTypeParentId" onchange="changeMediaTypeId();">
+                        <option value="">请选择媒体大类</option>
+						<@model.showAllAdMediaTypeAvailableOps value="${bizObj.queryMap.mediaTypeParentId?if_exists}"/>
+                    </select>
+                    </div>        
+                    <div style="float: left; margin-left: 40px; font-size: 12px">
+                 		       媒体小类: <select style="height: 30px" name="mediaTypeId" id="mediaTypeId">
+                        <option value="">请选择媒体小类</option>
+                    </select>
+                    </div>
 						<button type="button" class="btn btn-red" style="margin-left: 10px;" autocomplete="off" id="searchBtn">查询</button>
                     	<button type="button" class="btn btn-primary" style="margin-left: 10px;" autocomplete="off" id="clear">清除条件</button>
+                    	&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
                     	<button style="margin-left: 10px" type="button" class="btn" id="batchInsert" autocomplete="off">批量导入</button>
 						<button style="margin-left: 10px" type="button" class="btn" id="downloadBatch" autocomplete="off" onclick="">模板下载</button>
                     
@@ -58,8 +78,8 @@
 					   <th>主要路段</th>
 					   <th>广告位具体位置</th>
 					   <th>面数</th>
-					   <th>广告位尺寸</th> 
-					   <th>是否已贴上二维码</th>
+					   <!--<th>广告位尺寸</th>  -->
+					   <th>是否已贴二维码</th>
 					   <th>操作</th>
                     </tr>
                     </thead>
@@ -77,7 +97,7 @@
 							<td>${adseat.road!""}</td>
 							<td>${adseat.location!""}</td>
 							<td>${adseat.adNum!""}</td>
-							<td>${adseat.adSize!""}</td>
+							<!--<td>${adseat.adSize!""}</td>  -->
 							<td>
 	                           	<#if adseat.codeFlag?exists && adseat.codeFlag == 1>已贴</#if>
 	                           	<#if adseat.codeFlag?exists && adseat.codeFlag == 0>未贴</#if>
@@ -113,7 +133,7 @@
 	           			&nbsp;
 	           		</div>
 	           		<div class="layui-col-md7">
-	           			<span style="margin-left: 40px;">媒体:</span><select style="margin-top: 20px;height: 30px" name="mediaId" onchange="importEnabled()" id="selectMediaId">
+	           			<span style="margin-left: 40px;">媒体:</span><select style="margin-top: 20px;height: 30px" name="mediaId" onchange="importEnabled()" id="importMediaId">
 	           			<#-- <option value="">所有媒体</option>  -->
 	           			<@model.showAllMediaOps value="${bizObj.queryMap.mediaId?if_exists}" />
 	       			</select>
@@ -148,6 +168,41 @@
 
 
 <script type="text/javascript">
+
+changeMediaTypeId();
+
+function changeMediaTypeId() {
+	var mediaTypeParentId = $("#mediaTypeParentId").val();
+	if(mediaTypeParentId == "" || mediaTypeParentId.length <= 0) {
+		var option = '<option value="">请选择媒体小类</option>';
+		$("#mediaTypeId").html(option);
+		return ;
+	}
+	$.ajax({
+		url : '/platmedia/adseat/searchMediaType',
+		type : 'POST',
+		data : {"parentId":mediaTypeParentId},
+		dataType : "json",
+		traditional : true,
+		success : function(data) {
+			var result = data.ret;
+			if (result.code == 100) {
+				var adMediaTypes = result.result;
+				var htmlOption = '<option value="">请选择媒体小类</option>';
+				for (var i=0; i < adMediaTypes.length;i++) { 
+					var type = adMediaTypes[i];
+					htmlOption = htmlOption + '<option value="' + type.id + '">' + type.name + '</option>';
+				}
+				
+				$("#mediaTypeId").html(htmlOption);
+				$("#mediaTypeId").val($("#mediaTypeIdHidden").val());
+			} else {
+				alert('修改失败!');
+			}
+		}
+	});
+}
+
     var deleteSeat = function(id){
         layer.confirm("确认删除？", {
             icon: 3,
@@ -194,6 +249,8 @@
     $("#clear").click(function () {
         $("#demo3 select").val("");
         $("#selectMediaId").val("");
+        $("#mediaTypeParentId").val("");
+        $("#mediaTypeId").val("");
         /* $('#insertBatchId').attr("disabled","disabled"); */
     });
 
@@ -211,6 +268,7 @@
     	})
     })
 
+    
     /*获取城市  */
     var $town = $('#demo3 select[name="street"]');
     var townFormat = function(info) {
@@ -303,7 +361,7 @@
 	    elem: '#insertBatchId' //绑定元素 
 	    ,data: {
 		  mediaId: function() {
-		  	return $('#selectMediaId').val()
+		  	return $('#importMediaId').val()
 		  }
 		}
 	    ,accept: 'file' //指定只允许上次文件

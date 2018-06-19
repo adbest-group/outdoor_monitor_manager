@@ -85,6 +85,8 @@ public class AdSeatController extends BasicController {
                                      @RequestParam(value = "city", required = false) Long city,
                                      @RequestParam(value = "region", required = false) Long region,
                                      @RequestParam(value = "street", required = false) Long street,
+                                     @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
+                                     @RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
                                      @RequestParam(value = "mediaId", required = false) Integer mediaId) {
         SearchDataVo vo = SearchUtil.getVo();
 
@@ -97,6 +99,12 @@ public class AdSeatController extends BasicController {
             vo.putSearchParam("city", city.toString(), city);
         } else if (province != null) {
             vo.putSearchParam("province", province.toString(), province);
+        }
+        if (mediaTypeParentId != null) {
+            vo.putSearchParam("mediaTypeParentId", mediaTypeParentId.toString(), mediaTypeParentId);
+        }
+        if (mediaTypeId != null) {
+            vo.putSearchParam("mediaTypeId", mediaTypeId.toString(), mediaTypeId);
         }
         if (mediaId != null) {
             vo.putSearchParam("mediaId", mediaId.toString(), mediaId);

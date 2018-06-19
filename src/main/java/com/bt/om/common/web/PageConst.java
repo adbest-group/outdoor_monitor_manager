@@ -50,6 +50,7 @@ public class PageConst {
 	/*** 任务管理 ***/
 	public static final String TASK_LIST = "task/list";
 	public static final String UNASSIGN_TASK_LIST = "task/unassignList";
+	public static final String UP_TASK_LIST = "task/upTaskList";
 	public static final String SELECT_USER_EXECUTE = "task/selectExeUser";
 	public static final String DETAILS_PAGE = "task/detailsPage";
 	public static final String ALLTASK_LIST = "task/allTaskList";
@@ -116,6 +117,7 @@ public class PageConst {
 	public static final String RESOURCES_ACTIVITY = "resources/activity";
 	public static final String RESOURCES_TASK_LIST = "resources/taskList";
 	public static final String RESOURCES_TASK_UNASSIGN = "resources/taskUnassign";
+	public static final String UP_TASK_UNASSIGN = "resources/upTaskList";
 	public static final String RESOURCES_JIUCUO_LIST = "resources/jiucuoList";
 	
 	/*** 后台人员操作日志管理  ***/

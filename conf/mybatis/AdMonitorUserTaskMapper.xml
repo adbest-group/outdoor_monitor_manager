@@ -241,9 +241,10 @@
 		and b.status in (2, 6)
 		and b.id = #{id,jdbcType=INTEGER}
   </update>
+  
   <!--获取即将结束的任务(2小时之前)  -->
   <select id="getTaskWillEnd" resultMap="BaseResultMap" parameterType="java.lang.Integer">
-  select a.id,a.monitor_task_id,a.user_id
+  	select a.id,a.monitor_task_id,a.user_id
 	  from ad_monitor_user_task a 
  		left join ad_monitor_task b on a.monitor_task_id = b.id
 	 where a.status = 1 
@@ -251,6 +252,7 @@
   	   and b.status in (2, 6)
 	   and a.is_push != '1'
   </select>
+  
   <!--更新推送状态  -->
   <update id="updateIsPush">
   	update ad_monitor_user_task
@@ -260,4 +262,16 @@
 	 <foreach collection="ids" separator="," open="(" close=")" item="s">#{s,jdbcType=INTEGER}
      </foreach> 
   </update>
+  
+  <!-- 清理任务副表的执行任务人员信息 -->    
+  <update id="cleanTask" parameterType="com.bt.om.entity.AdMonitorUserTask">
+  	update 
+  		ad_monitor_user_task
+  	set
+	   	abandon_time = CURRENT_TIMESTAMP,
+	   	update_time = CURRENT_TIMESTAMP,
+	   	status = 4
+  	where monitor_task_id = #{monitorTaskId,jdbcType=INTEGER} and status = #{status,jdbcType=INTEGER}
+  </update>
+  
 </mapper>

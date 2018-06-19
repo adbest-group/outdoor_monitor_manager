@@ -77,7 +77,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     @Transactional(rollbackFor = Exception.class)
     public void assign(String[] taskIds, Integer userId, Integer assignorId) {
         Date now = new Date();
-      //[4] 确认操作在业务层方法里进行循环
+        //[4] 确认操作在业务层方法里进行循环
         for (String taskId : taskIds) {
             Integer id = Integer.valueOf(taskId);
 //            AdMonitorTask task = new AdMonitorTask();
@@ -88,11 +88,26 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 //            adMonitorTaskMapper.updateByPrimaryKeySelective(task);
             //先查询该任务
             AdMonitorTask task = adMonitorTaskMapper.selectByPrimaryKey(id);
-            //任务未查到或任务执行人已指派，抢任务失败
-            if(task==null||task.getUserId()!=null){
+            //任务未查到
+            if(task == null){
                 continue;
             }
-            int count = adMonitorTaskMapper.grabTask(userId,id,task.getUpdateTime());
+            
+            //【待执行】状态时 修改被指派人
+            if(task.getStatus() == MonitorTaskStatus.TO_CARRY_OUT.getId()) {
+            	//[1] 清理主表信息
+            	AdMonitorTask adMonitorTask = new AdMonitorTask();
+            	adMonitorTask.setId(id);
+            	adMonitorTask.setStatus(MonitorTaskStatus.UNASSIGN.getId()); //改回待指派
+            	adMonitorTaskMapper.cleanTask(adMonitorTask);
+            	//[2] 清理副表信息
+            	AdMonitorUserTask userTask = new AdMonitorUserTask();
+            	userTask.setMonitorTaskId(id);
+            	userTask.setStatus(1);
+    			adMonitorUserTaskMapper.cleanTask(userTask);
+            }
+            
+            adMonitorTaskMapper.grabTask(userId,id,task.getUpdateTime()); //用户获取任务, 修改任务主表
             SysUser loginUser = (SysUser)ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
             //添加用户和任务关联关系
             AdMonitorUserTask userTask = new AdMonitorUserTask();

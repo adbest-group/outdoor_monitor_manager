@@ -12,8 +12,61 @@ public class AdActivityAdseatVo extends AdActivityAdseat {
     private Double lon;
     private Double lat;
     private String memo;
-    
-    public String getMemo() {
+	private String parentName;
+	private String secondName;
+	private Long province;
+	private Long city;
+	private String location;
+	private String road;//主要路段
+    public Long getProvince() {
+		return province;
+	}
+
+	public void setProvince(Long province) {
+		this.province = province;
+	}
+
+	public Long getCity() {
+		return city;
+	}
+
+	public void setCity(Long city) {
+		this.city = city;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
+
+	public String getRoad() {
+		return road;
+	}
+
+	public void setRoad(String road) {
+		this.road = road;
+	}
+
+	public String getParentName() {
+		return parentName;
+	}
+
+	public void setParentName(String parentName) {
+		this.parentName = parentName;
+	}
+
+	public String getSecondName() {
+		return secondName;
+	}
+
+	public void setSecondName(String secondName) {
+		this.secondName = secondName;
+	}
+
+	public String getMemo() {
 		return memo;
 	}
 

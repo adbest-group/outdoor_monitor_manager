@@ -15,6 +15,7 @@ public class AdActivityVo extends AdActivity {
     List<AdActivityArea> activityAreas = new ArrayList<>();
     List<AdActivityAdseat> activitySeats = new ArrayList<>();
     List<AdActivityMedia> activityMedias = new ArrayList<>();
+    List<AdActivityAdseatVo> adActivityAdseatVos = new ArrayList<>();
 
     public List<AdActivityArea> getActivityAreas() {
         return activityAreas;
@@ -40,5 +41,11 @@ public class AdActivityVo extends AdActivity {
         this.activityMedias = activityMedias;
     }
     
+    public List<AdActivityAdseatVo> getAdActivityAdseatVos() {
+		return adActivityAdseatVos;
+	}
     
+    public void setAdActivityAdseatVos(List<AdActivityAdseatVo> adActivityAdseatVos) {
+		this.adActivityAdseatVos = adActivityAdseatVos;
+	}
 }

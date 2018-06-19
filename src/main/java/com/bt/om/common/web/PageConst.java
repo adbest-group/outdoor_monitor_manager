@@ -27,6 +27,7 @@ public class PageConst {
 	public static final String CUSTOMER_ACTIVITY_LIST = "adcustomer/activity/list";
 	public static final String CUSTOMER_ACTIVITY_EDIT = "adcustomer/activity/edit";
 	public static final String CUSTOMER_ACTIVITY_ADSEAT_EDIT = "adcustomer/activity/adseat/edit";
+	public static final String CUSTOMER_ACTIVITY_ADSEAT_SELE = "adcustomer/activity/adseat/select";
 	public static final String CUSTOMER_JIUCUO_LIST = "adcustomer/jiucuo/list";
 	public static final String CUSTOMER_JIUCUO_DETAIL = "adcustomer/jiucuo/detail";
 	public static final String CUSTOMER_RESOURCE = "adcustomer/resource/index";

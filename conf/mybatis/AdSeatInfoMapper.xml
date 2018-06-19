@@ -504,11 +504,23 @@
 		<if test="adCode != null" >
 			and a.ad_code = #{adCode,jdbcType=VARCHAR}
 		</if>
+		<if test="mediaTypeParentId != null" >
+			and a.media_type_parent_id = #{mediaTypeParentId,jdbcType=VARCHAR}
+		</if>
+		<if test="mediaTypeId != null" >
+			and a.media_type_id = #{mediaTypeId,jdbcType=VARCHAR}
+		</if>
 		<if test="exceptId != null" >
 			and a.id &lt;> #{exceptId,jdbcType=INTEGER}
 		</if>
 		<if test="codeFlag != null" >
 			and a.ad_code_flag &lt;> #{codeFlag,jdbcType=INTEGER}
+		</if>
+		<if test="adseatInfoIds != null" >
+			and a.id not in
+		    <foreach collection="adseatInfoIds" item="id" index="index" open="(" close=")" separator=",">
+		    	#{id}
+		    </foreach>
 		</if>
 		order by a.id asc
 	</select>
@@ -555,8 +567,20 @@
 		<if test="adCode != null" >
 			and a.ad_code = #{adCode,jdbcType=VARCHAR}
 		</if>
+		<if test="mediaTypeParentId != null" >
+			and a.media_type_parent_id = #{mediaTypeParentId,jdbcType=VARCHAR}
+		</if>
+		<if test="mediaTypeId != null" >
+			and a.media_type_id = #{mediaTypeId,jdbcType=VARCHAR}
+		</if>
 		<if test="exceptId != null" >
 			and a.id &lt;> #{exceptId,jdbcType=INTEGER}
+		</if>
+		<if test="adseatInfoIds != null" >
+			and a.id not in
+		    <foreach collection="adseatInfoIds" item="id" index="index" open="(" close=")" separator=",">
+		    	#{id}
+		    </foreach>
 		</if>
 		order by a.id desc
 	</select>
@@ -779,6 +803,19 @@
 	    </if>
 	    <if test="location != null" >
 	      and location = #{location,jdbcType=VARCHAR}
+	    </if>
+	</select>
+	
+	<!-- 通过id集合查询出相关的广告位信息 -->
+	<select id="selectInfoByIds" resultMap="BaseResultMap" parameterType="map">
+		select
+		<include refid="Base_Column_List" />
+		from ad_seat_info
+		where 1=1
+		<if test="ids != null" >
+	    	and id in 
+	    	<foreach collection="ids" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}
+	        </foreach>
 	    </if>
 	</select>
 	

@@ -404,7 +404,11 @@ public class SysGroupController extends BasicController{
                                @RequestParam(value = "status", required = false) Integer status,
                                @RequestParam(value = "startDate", required = false) String startDate,
                                @RequestParam(value = "endDate", required = false) String endDate,
-                               @RequestParam(value = "name", required = false) String name) throws ParseException {
+                               @RequestParam(value = "name", required = false) String name,
+                               @RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
+                               @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
+                               @RequestParam(value = "province", required = false) String province,
+                               @RequestParam(value = "city", required = false) String city) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
         SearchDataVo vo = SearchUtil.getVo();
@@ -434,6 +438,22 @@ public class SysGroupController extends BasicController{
         	name = "%" + name + "%";
             vo.putSearchParam("activityName", name, name);
         }
+        //媒体大类
+        if (mediaTypeParentId != null) {
+            vo.putSearchParam("mediaTypeParentId", mediaTypeParentId.toString(), mediaTypeParentId);
+        }
+        //媒体小类
+        if (mediaTypeId != null) {
+        	vo.putSearchParam("mediaTypeId", mediaTypeId.toString(), mediaTypeId);
+        }
+        //省
+        if (province != null) {
+        	vo.putSearchParam("province", province.toString(), province);
+        }
+        //城市
+        if (city != null) {
+            vo.putSearchParam("city", city.toString(), city);
+        }
     	adActivityService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
         return PageConst.RESOURCES_ACTIVITY;
@@ -453,7 +473,12 @@ public class SysGroupController extends BasicController{
                               @RequestParam(value = "endDate", required = false) String endDate,
                               @RequestParam(value = "pid", required = false) Integer pid,
                               @RequestParam(value = "ptype", required = false) Integer ptype,
-                              @RequestParam(value = "name", required = false) String name) throws ParseException {
+                              @RequestParam(value = "mediaId", required = false) Integer mediaId,
+                              @RequestParam(value = "name", required = false) String name,
+                              @RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
+                              @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
+                              @RequestParam(value = "province", required = false) Long province,
+                              @RequestParam(value = "city", required = false) Long city) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
         
@@ -465,6 +490,7 @@ public class SysGroupController extends BasicController{
         }
         if (status != null) {
             vo.putSearchParam("status", status.toString(), status);
+            model.addAttribute("status", status);
         }
         if (problemStatus != null) {
             vo.putSearchParam("problemStatus", problemStatus.toString(), problemStatus);
@@ -492,10 +518,30 @@ public class SysGroupController extends BasicController{
             } catch (ParseException e) {
             }
         }
+        //查询媒体主
+        if (mediaId != null) {
+            vo.putSearchParam("mediaId", mediaId.toString(), mediaId);
+        }
         //查询活动名称
         if (name != null) {
         	name = "%" + name + "%";
             vo.putSearchParam("activityName", name, name);
+        }
+        //媒体大类
+        if (mediaTypeParentId != null) {
+            vo.putSearchParam("mediaTypeParentId", mediaTypeParentId.toString(), mediaTypeParentId);
+        }
+        //媒体小类
+        if (mediaTypeId != null) {
+        	vo.putSearchParam("mediaTypeId", mediaTypeId.toString(), mediaTypeId);
+        }
+        //省
+        if (province != null) {
+        	vo.putSearchParam("province", province.toString(), province);
+        }
+        //城市
+        if (city != null) {
+            vo.putSearchParam("city", city.toString(), city);
         }
     	adMonitorTaskService.getPageData(vo);
         // vo.putSearchParam("hasUserId","1","1");
@@ -514,7 +560,12 @@ public class SysGroupController extends BasicController{
                                   @RequestParam(value = "startDate", required = false) String startDate,
                                   @RequestParam(value = "status", required = false) Integer status,
                                   @RequestParam(value = "endDate", required = false) String endDate,
-                                  @RequestParam(value = "name", required = false) String name) throws ParseException {
+                                  @RequestParam(value = "mediaId", required = false) Integer mediaId,
+                                  @RequestParam(value = "name", required = false) String name,
+                                  @RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
+                                  @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
+                                  @RequestParam(value = "province", required = false) Long province,
+                                  @RequestParam(value = "city", required = false) Long city) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
 
@@ -542,10 +593,30 @@ public class SysGroupController extends BasicController{
             } catch (ParseException e) {
             }
         }
+       //查询媒体主
+        if (mediaId != null) {
+            vo.putSearchParam("mediaId", mediaId.toString(), mediaId);
+        }
         //查询活动名称
         if (name != null) {
         	name = "%" + name + "%";
             vo.putSearchParam("activityName", name, name);
+        }
+        //媒体大类
+        if (mediaTypeParentId != null) {
+            vo.putSearchParam("mediaTypeParentId", mediaTypeParentId.toString(), mediaTypeParentId);
+        }
+        //媒体小类
+        if (mediaTypeId != null) {
+        	vo.putSearchParam("mediaTypeId", mediaTypeId.toString(), mediaTypeId);
+        }
+        //省
+        if (province != null) {
+        	vo.putSearchParam("province", province.toString(), province);
+        }
+        //城市
+        if (city != null) {
+            vo.putSearchParam("city", city.toString(), city);
         }
     	adMonitorTaskService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
@@ -564,7 +635,12 @@ public class SysGroupController extends BasicController{
                              @RequestParam(value = "problemStatus", required = false) Integer problemStatus,
                              @RequestParam(value = "startDate", required = false) String startDate,
                              @RequestParam(value = "endDate", required = false) String endDate,
-                             @RequestParam(value = "name", required = false) String name) throws ParseException {
+                             @RequestParam(value = "mediaId", required = false) Integer mediaId,
+                             @RequestParam(value = "name", required = false) String name,
+                             @RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
+                             @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
+                             @RequestParam(value = "province", required = false) Long province,
+                             @RequestParam(value = "city", required = false) Long city) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
         
@@ -593,10 +669,30 @@ public class SysGroupController extends BasicController{
             } catch (ParseException e) {
             }
         }
+      //查询媒体主
+        if (mediaId != null) {
+            vo.putSearchParam("mediaId", mediaId.toString(), mediaId);
+        }
         //查询活动名称
         if (name != null) {
         	name = "%" + name + "%";
             vo.putSearchParam("activityName", name, name);
+        }
+        //媒体大类
+        if (mediaTypeParentId != null) {
+            vo.putSearchParam("mediaTypeParentId", mediaTypeParentId.toString(), mediaTypeParentId);
+        }
+        //媒体小类
+        if (mediaTypeId != null) {
+        	vo.putSearchParam("mediaTypeId", mediaTypeId.toString(), mediaTypeId);
+        }
+        //省
+        if (province != null) {
+        	vo.putSearchParam("province", province.toString(), province);
+        }
+        //城市
+        if (city != null) {
+            vo.putSearchParam("city", city.toString(), city);
         }
     	adJiucuoTaskService.getPageData(vo);
         SearchUtil.putToModel(model, vo);

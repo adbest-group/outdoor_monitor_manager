@@ -226,8 +226,8 @@
     <resultMap id="ExtResultMap" extends="BaseResultMap" type="com.bt.om.entity.vo.AdJiucuoTaskVo">
         <result column="pic_url1" jdbcType="VARCHAR" property="picUrl1"/>
         <result column="activity_name" jdbcType="VARCHAR" property="activityName"/>
-        <result column="province" jdbcType="VARCHAR" property="province"/>
-        <result column="city" jdbcType="VARCHAR" property="city"/>
+        <result column="province" jdbcType="BIGINT" property="province"/>
+        <result column="city" jdbcType="BIGINT" property="city"/>
         <result column="region" jdbcType="VARCHAR" property="region"/>
         <result column="street" jdbcType="VARCHAR" property="street"/>
         <result column="activity_adseat_id" jdbcType="VARCHAR" property="activityAdseatId"/>
@@ -241,6 +241,8 @@
         <result column="start_time" jdbcType="VARCHAR" property="startTime"/>
         <result column="end_time" jdbcType="VARCHAR" property="endTime"/>
         <result column="assessorName" jdbcType="VARCHAR" property="assessorName"/>
+        <result column="media_type_parent_id" jdbcType="INTEGER" property="mediaTypeParentId"/>
+        <result column="media_type_id" jdbcType="INTEGER" property="mediaTypeId"/>
     </resultMap>
 
     <resultMap id="MobileResultMap" extends="BaseResultMap" type="com.bt.om.entity.vo.AdJiucuoTaskMobileVo">
@@ -296,6 +298,9 @@
         <if test="mediaUserId != null">
             and f.user_id = #{mediaUserId,jdbcType=INTEGER}
         </if>
+        <if test="mediaId != null" >
+	      and f.id = #{mediaId,jdbcType=INTEGER}
+	    </if>
         <if test="customerUserId != null">
             and c.user_id = #{customerUserId,jdbcType=INTEGER}
         </if>
@@ -307,6 +312,18 @@
         </if>
         <if test="assessorId != null" >
 	      	and a.assessor_id = #{assessorId,jdbcType=INTEGER}
+	    </if>
+	    <if test="mediaTypeParentId != null">
+	    	and e.media_type_parent_id = #{mediaTypeParentId,jdbcType=INTEGER}
+	    </if>
+	    <if test="mediaTypeId != null">
+	    	and e.media_type_id = #{mediaTypeId,jdbcType=INTEGER}
+	    </if>
+	    <if test="province != null">
+	    	and e.province = #{province,jdbcType=BIGINT}
+	    </if>
+	    <if test="city != null">
+	    	and e.city = #{city,jdbcType=BIGINT}
 	    </if>
     </select>
 
@@ -352,6 +369,9 @@
         <if test="mediaUserId != null">
             and f.user_id = #{mediaUserId,jdbcType=INTEGER}
         </if>
+        <if test="mediaId != null" >
+	      and f.id = #{mediaId,jdbcType=INTEGER}
+	    </if>
         <if test="customerUserId != null">
             and c.user_id = #{customerUserId,jdbcType=INTEGER}
         </if>
@@ -363,6 +383,18 @@
         </if>
         <if test="assessorId != null" >
 	      	and a.assessor_id = #{assessorId,jdbcType=INTEGER}
+	    </if>
+	      <if test="mediaTypeParentId != null">
+	    	and e.media_type_parent_id = #{mediaTypeParentId,jdbcType=INTEGER}
+	    </if>
+	    <if test="mediaTypeId != null">
+	    	and e.media_type_id = #{mediaTypeId,jdbcType=INTEGER}
+	    </if>
+	    <if test="province != null">
+	    	and e.province = #{province,jdbcType=BIGINT}
+	    </if>
+	    <if test="city != null">
+	    	and e.city = #{city,jdbcType=BIGINT}
 	    </if>
         order by a.id desc
     </select>

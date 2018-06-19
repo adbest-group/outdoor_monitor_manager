@@ -85,6 +85,7 @@ public class AdSeatController extends BasicController {
                                      @RequestParam(value = "city", required = false) Long city,
                                      @RequestParam(value = "region", required = false) Long region,
                                      @RequestParam(value = "street", required = false) Long street,
+                                     @RequestParam(value = "name", required = false) String name) {
                                      @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
                                      @RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
                                      @RequestParam(value = "mediaId", required = false) Integer mediaId) {
@@ -109,7 +110,11 @@ public class AdSeatController extends BasicController {
         if (mediaId != null) {
             vo.putSearchParam("mediaId", mediaId.toString(), mediaId);
         }
-
+        //查询活动名称
+        if (name != null) {
+        	name = "%" + name + "%";
+            vo.putSearchParam("activityName", name, name);
+        }
         adSeatService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
 

@@ -14,13 +14,16 @@
 					<#--autocomplete="off" onclick="">批量导入</button>-->
 	                <#--<div style="border-bottom: 1px solid black; margin:10px auto"></div>-->
                 <form id="form" method="get" action="/adseat/list" style="display: inline-block;">
+                	<!--活动搜索框-->
+                     <div class="inp">
+                    	<input type="text" placeholder="请输入活动名称" value="${name?if_exists}" id="searchName" name="name">
+                	</div>
                		 <input type="hidden" id="startDate" value="" name="startDate">
                 	<input type="hidden" id="endDate" value="" name="endDate">
                 	<input type="hidden" id="seatIds" value="" name="seatIds">
                 	<input type="hidden" id="start" value="" name="start">
                 	<input type="hidden" id="size" value="" name="size">
                 	<input type="hidden" id="mediaTypeIdHidden" value="${bizObj.queryMap.mediaTypeId?if_exists}">
-                
                     <!--销售下拉框-->
                     <div id="demo3" class="citys" style="float: left; font-size: 12px">
                         <p>
@@ -169,7 +172,7 @@
 
 <script type="text/javascript">
 
-changeMediaTypeId();
+	changeMediaTypeId();
 
 function changeMediaTypeId() {
 	var mediaTypeParentId = $("#mediaTypeParentId").val();
@@ -241,7 +244,17 @@ function changeMediaTypeId() {
             });
         });
     };
+	// 查询
+    $("#searchBtn").on("click", function () {
+        var strParam = "";
+        var name = $("#searchName").val();
+        
+        if (name != null && $.trim(name).length) {
+            strParam = strParam + "?name=" + name;
+        }
 
+        window.location.href = "/adseat/list" + strParam;
+    });
 
     $("#searchBtn").on("click", function() {
         $("#form").submit();

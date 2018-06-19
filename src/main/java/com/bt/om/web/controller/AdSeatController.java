@@ -85,7 +85,7 @@ public class AdSeatController extends BasicController {
                                      @RequestParam(value = "city", required = false) Long city,
                                      @RequestParam(value = "region", required = false) Long region,
                                      @RequestParam(value = "street", required = false) Long street,
-                                     @RequestParam(value = "name", required = false) String name) {
+                                     @RequestParam(value = "name", required = false) String name,
                                      @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
                                      @RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
                                      @RequestParam(value = "mediaId", required = false) Integer mediaId) {

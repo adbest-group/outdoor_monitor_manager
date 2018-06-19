@@ -7,41 +7,56 @@
     <div class="main-box">
         <div class="title clearfix" style="display: block;">
             <div class="search-box search-ll" style="margin: 0 0 0 20px;display: inline-block;">
-            	<button type="button" class="btn btn-red" autocomplete="off"
-					onclick="window.location.href='/platmedia/adseat/edit'">新增广告位</button>
-                <#--<button type="button" class="btn btn-red" autocomplete="off"-->
-                        <#--onclick="window.location.href='/adseat/edit'">新增广告位</button>-->
-			<#--<button style="margin-left: 10px" type="button" class="btn"-->
-			<#--autocomplete="off" onclick="">批量导入</button>-->
-                <#--<div style="border-bottom: 1px solid black; margin:10px auto"></div>-->
+            	<button type="button" class="btn btn-red" autocomplete="off" onclick="window.location.href='/platmedia/adseat/edit'">新增广告位</button>
+	                <#--<button type="button" class="btn btn-red" autocomplete="off"-->
+	                <#--onclick="window.location.href='/adseat/edit'">新增广告位</button>-->
+					<#--<button style="margin-left: 10px" type="button" class="btn"-->
+					<#--autocomplete="off" onclick="">批量导入</button>-->
+	                <#--<div style="border-bottom: 1px solid black; margin:10px auto"></div>-->
                 <form id="form" method="get" action="/adseat/list" style="display: inline-block;">
+               		 <input type="hidden" id="startDate" value="" name="startDate">
+                	<input type="hidden" id="endDate" value="" name="endDate">
+                	<input type="hidden" id="seatIds" value="" name="seatIds">
+                	<input type="hidden" id="start" value="" name="start">
+                	<input type="hidden" id="size" value="" name="size">
+                	<input type="hidden" id="mediaTypeIdHidden" value="${bizObj.queryMap.mediaTypeId?if_exists}">
+                
                     <!--销售下拉框-->
                     <div id="demo3" class="citys" style="float: left; font-size: 12px">
                         <p>
-                            投放地区： <select style="height: 30px" id="adSeatInfo-province"
-                                          name="province">
-                            <option value=""></option>
-                        </select> <select style="height: 30px" id="adSeatInfo-city" name="city"></select>
-                            <select style="height: 30px" id="adSeatInfo-region" name="region"></select>
-                            <select style="height: 30px" id="adSeatInfo-street" name="street"></select>
+                           	 投放地区： <select style="height: 30px" id="adSeatInfo-province" name="province">
+                            			<option value=""></option>
+                        			</select> 
+                        	<select style="height: 30px" id="adSeatInfo-city" name="city"></select>
+                            <!-- <select style="height: 30px" id="adSeatInfo-region" name="region"></select>
+                            <select style="height: 30px" id="adSeatInfo-street" name="street"></select> -->
                         </p>
                     </div>
 
                     <div style="float: left; margin-left: 40px; font-size: 12px">
-                        媒体: <select style="height: 30px" name="mediaId" onchange="importEnabled()" id="selectMediaId">
-                        <option value="">所有媒体</option> <@model.showAllMediaOps
-                    value="${bizObj.queryMap.mediaId?if_exists}" />
+                        	媒体: <select style="height: 30px" name="mediaId" onchange="importEnabled()" id="selectMediaId">
+                        			<option value="">所有媒体</option> 
+                        			<@model.showAllMediaOps value="${bizObj.queryMap.mediaId?if_exists}" />
+                    			</select>
+                    </div> 
+                    
+                    <div style="float: left; margin-left: 40px; font-size: 12px">
+                    		  媒体大类: <select style="height: 30px" name="mediaTypeParentId" id="mediaTypeParentId" onchange="changeMediaTypeId();">
+                        <option value="">请选择媒体大类</option>
+						<@model.showAllAdMediaTypeAvailableOps value="${bizObj.queryMap.mediaTypeParentId?if_exists}"/>
+                    </select>
+                    </div>        
+                    <div style="float: left; margin-left: 40px; font-size: 12px">
+                 		       媒体小类: <select style="height: 30px" name="mediaTypeId" id="mediaTypeId">
+                        <option value="">请选择媒体小类</option>
                     </select>
                     </div>
-
-                    <button type="button" class="btn btn-red"
-                            style="margin-left: 10px;" autocomplete="off" id="searchBtn">查询</button>
-                    <button type="button" class="btn btn-primary"
-                            style="margin-left: 10px;" autocomplete="off" id="clear">清除条件</button>
-                    <button style="margin-left: 10px" type="button" class="btn" id="insertBatchId"
-							autocomplete="off" disabled="disabled">批量导入</button>
-					<button style="margin-left: 10px" type="button" class="btn" id="downloadBatch"
-							autocomplete="off" onclick="">模板下载</button>
+						<button type="button" class="btn btn-red" style="margin-left: 10px;" autocomplete="off" id="searchBtn">查询</button>
+                    	<button type="button" class="btn btn-primary" style="margin-left: 10px;" autocomplete="off" id="clear">清除条件</button>
+                    	&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+                    	<button style="margin-left: 10px" type="button" class="btn" id="batchInsert" autocomplete="off">批量导入</button>
+						<button style="margin-left: 10px" type="button" class="btn" id="downloadBatch" autocomplete="off" onclick="">模板下载</button>
+                    
                 </form>
             </div>
         </div>
@@ -63,41 +78,41 @@
 					   <th>主要路段</th>
 					   <th>广告位具体位置</th>
 					   <th>面数</th>
-					   <th>广告位尺寸</th> 
-					   <th>是否已贴上二维码</th>
+					   <!--<th>广告位尺寸</th>  -->
+					   <th>是否已贴二维码</th>
 					   <th>操作</th>
                     </tr>
                     </thead>
                     <tbody>
-					<#if (bizObj.list?exists && bizObj.list?size>0) > <#list
-					bizObj.list as adseat>
-                    <tr>
-                        <td>${(bizObj.page.currentPage-1)*20+adseat_index+1}</td>
-						<td>${adseat.name!""}</td>
-						<td>${adseat.parentName!""}</td>
-						<td>${adseat.secondName!""}</td>
-						<td>${adseat.mediaName!""}</td>
-						<td>${adseat.memo!""}</td>
-						<td>${vm.getCityName(adseat.province)!""} ${vm.getCityName(adseat.city!"")}</td>
-						<td>${adseat.road!""}</td>
-						<td>${adseat.location!""}</td>
-						<td>${adseat.adNum!""}</td>
-						<td>${adseat.adSize!""}</td>
-						<td>
-                           	<#if adseat.codeFlag?exists && adseat.codeFlag == 1>已贴</#if>
-                           	<#if adseat.codeFlag?exists && adseat.codeFlag == 0>未贴</#if>
-                        </td>
-                        <td style="width: 80px">
-						<#--<a href="#" style="margin-right: 5px">数据上传</a> -->
-                            <a href="/adseat/edit?id=${adseat.id}" style="margin-right: 5px">编辑</a>
-                            <a href="javascript:deleteSeat('${adseat.id}');" style="margin-right: 5px">删除</a>
-                            <#if adseat.codeFlag?exists && adseat.codeFlag == 1>
-	                             <a href="javascript:void(0);" onclick="updateStatus('${adseat.id}', 0);">未贴</a>
-	                        </#if>
-	                        <#if adseat.codeFlag?exists && adseat.codeFlag == 0>
-	                            <a href="javascript:void(0);" onclick="updateStatus('${adseat.id}', 1);">已贴</a>
-	                        </#if>
-                    </tr>
+					<#if (bizObj.list?exists && bizObj.list?size>0) > 
+					<#list bizObj.list as adseat>
+	                    <tr>
+	                        <td>${(bizObj.page.currentPage-1)*20+adseat_index+1}</td>
+							<td>${adseat.name!""}</td>
+							<td>${adseat.parentName!""}</td>
+							<td>${adseat.secondName!""}</td>
+							<td>${adseat.mediaName!""}</td>
+							<td>${adseat.memo!""}</td>
+							<td>${vm.getCityName(adseat.province)!""} ${vm.getCityName(adseat.city!"")}</td>
+							<td>${adseat.road!""}</td>
+							<td>${adseat.location!""}</td>
+							<td>${adseat.adNum!""}</td>
+							<!--<td>${adseat.adSize!""}</td>  -->
+							<td>
+	                           	<#if adseat.codeFlag?exists && adseat.codeFlag == 1>已贴</#if>
+	                           	<#if adseat.codeFlag?exists && adseat.codeFlag == 0>未贴</#if>
+	                        </td>
+	                        <td style="width: 80px">
+							<#--<a href="#" style="margin-right: 5px">数据上传</a> -->
+	                            <a href="/adseat/edit?id=${adseat.id}" style="margin-right: 5px">编辑</a>
+	                            <a href="javascript:deleteSeat('${adseat.id}');" style="margin-right: 5px">删除</a>
+	                            <#if adseat.codeFlag?exists && adseat.codeFlag == 1>
+		                             <a href="javascript:void(0);" onclick="updateStatus('${adseat.id}', 0);">未贴</a>
+		                        </#if>
+		                        <#if adseat.codeFlag?exists && adseat.codeFlag == 0>
+		                            <a href="javascript:void(0);" onclick="updateStatus('${adseat.id}', 1);">已贴</a>
+		                        </#if>
+	                    </tr>
 					</#list> <#else>
                     <tr>
                         <td colspan="20">没有相应结果。</td>
@@ -109,6 +124,31 @@
 				"size"]) p=bizObj.page parEnd="" colsnum=9 />
                 </table>
             </div>
+        </div>
+        
+        <div id="mediaSelCV" style="display:none">
+        
+	        	<div class="layui-row">
+	           		<div class="layui-col-md2">
+	           			&nbsp;
+	           		</div>
+	           		<div class="layui-col-md7">
+	           			<span style="margin-left: 40px;">媒体:</span><select style="margin-top: 20px;height: 30px" name="mediaId" onchange="importEnabled()" id="importMediaId">
+	           			<#-- <option value="">所有媒体</option>  -->
+	           			<@model.showAllMediaOps value="${bizObj.queryMap.mediaId?if_exists}" />
+	       			</select>
+	           		</div>
+	           	</div>
+	           	<div class="layui-row" style="margin-top:20px">
+	           		<div class="layui-col-md7">&nbsp;</div>
+	           		<div class="layui-col-md4">
+	           			<button style="float:left" type="button" class="layui-btn layui-btn-primary layui-btn-xs" id="insertBatchId" autocomplete="off">批量导入</button>
+	           		<div>
+	           		<div class="layui-col-md4">
+					<button style="margin-left: 8px;width: 60px;" type="button" class="layui-btn layui-btn-primary layui-btn-xs" id="batchCancel" autocomplete="off">&nbsp;&nbsp;&nbsp;取消&nbsp;&nbsp;&nbsp;</button>
+					</div>
+	           	</div>     	
+			  
         </div>
     </div>
 </div>
@@ -128,6 +168,41 @@
 
 
 <script type="text/javascript">
+
+changeMediaTypeId();
+
+function changeMediaTypeId() {
+	var mediaTypeParentId = $("#mediaTypeParentId").val();
+	if(mediaTypeParentId == "" || mediaTypeParentId.length <= 0) {
+		var option = '<option value="">请选择媒体小类</option>';
+		$("#mediaTypeId").html(option);
+		return ;
+	}
+	$.ajax({
+		url : '/platmedia/adseat/searchMediaType',
+		type : 'POST',
+		data : {"parentId":mediaTypeParentId},
+		dataType : "json",
+		traditional : true,
+		success : function(data) {
+			var result = data.ret;
+			if (result.code == 100) {
+				var adMediaTypes = result.result;
+				var htmlOption = '<option value="">请选择媒体小类</option>';
+				for (var i=0; i < adMediaTypes.length;i++) { 
+					var type = adMediaTypes[i];
+					htmlOption = htmlOption + '<option value="' + type.id + '">' + type.name + '</option>';
+				}
+				
+				$("#mediaTypeId").html(htmlOption);
+				$("#mediaTypeId").val($("#mediaTypeIdHidden").val());
+			} else {
+				alert('修改失败!');
+			}
+		}
+	});
+}
+
     var deleteSeat = function(id){
         layer.confirm("确认删除？", {
             icon: 3,
@@ -174,7 +249,9 @@
     $("#clear").click(function () {
         $("#demo3 select").val("");
         $("#selectMediaId").val("");
-        $('#insertBatchId').attr("disabled","disabled");
+        $("#mediaTypeParentId").val("");
+        $("#mediaTypeId").val("");
+        /* $('#insertBatchId').attr("disabled","disabled"); */
     });
 
 	// 下载模板
@@ -191,6 +268,7 @@
     	})
     })
 
+    
     /*获取城市  */
     var $town = $('#demo3 select[name="street"]');
     var townFormat = function(info) {
@@ -223,17 +301,33 @@
         var info = api.getInfo();
         townFormat(info);
     });
-
+    var assign_ids;
     $(function() {
         $(window).resize(function() {
             var h = $(document.body).height() - 115;
             $('.main-container').css('height', h);
         });
         $(window).resize();
-    });
-
-    $(function() {
-        $(window).resize();
+        $('.select').searchableSelect();
+        
+        //批量导入打开媒体界面
+        $('#batchInsert').on('click',function(){
+        	 var layMediaSel=layer.open({
+        		 type: 1,
+        		 title:"批量导入",
+                 closeBtn: false,
+                 shift: 2,
+                 shade: 0.8,
+                 area: ['320px', '150px'], 
+                 shadeClose: false,
+                 content: $("#mediaSelCV")
+        	 });
+        	
+        });
+        
+        $('#batchCancel').on('click',function(){
+        	layer.closeAll();
+        })
     });
 
     $(window).resize(function() {
@@ -241,19 +335,22 @@
         $('.main-container').css('height', h);
     });
 
-    var assign_ids;
-    $(function() {
-        $('.select').searchableSelect();
-    });
     
     function importEnabled(){
     	var mediaId = $('#selectMediaId').val();
-    	if(mediaId){
+    	/* if(mediaId){
     		$('#insertBatchId').removeAttr("disabled");
     	} else {
     		$('#insertBatchId').attr("disabled","disabled");
-    	}
+    	} */
     }
+   
+    
+    
+    
+    
+    
+    
     
     //批量导入
 	layui.use('upload', function(){
@@ -261,10 +358,10 @@
 	  
 	  //执行实例
 	  var uploadInst = upload.render({
-	    elem: '#insertBatchId' //绑定元素
+	    elem: '#insertBatchId' //绑定元素 
 	    ,data: {
 		  mediaId: function() {
-		  	return $('#selectMediaId').val()
+		  	return $('#importMediaId').val()
 		  }
 		}
 	    ,accept: 'file' //指定只允许上次文件
@@ -286,7 +383,7 @@
 	       layer.alert('导入失败', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
 	    }
 	  });
-	});
+	}); 
 	// 更新二维码状态
     function updateStatus(id, codeFlag) {
         if (codeFlag == 0) {

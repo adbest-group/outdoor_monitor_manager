@@ -15,6 +15,10 @@
 			<#--autocomplete="off" onclick="">批量导入</button>-->
                 <#--<div style="border-bottom: 1px solid black; margin:10px auto"></div>-->
                 <form id="form" method="get" action="/adseat/list" style="display: inline-block;">
+                	<!--活动搜索框-->
+                     <div class="inp">
+                    	<input type="text" placeholder="请输入活动名称" value="${name?if_exists}" id="searchName" name="name">
+                	</div>
                     <!--销售下拉框-->
                     <div id="demo3" class="citys" style="float: left; font-size: 12px">
                         <p>
@@ -128,6 +132,7 @@
 
 
 <script type="text/javascript">
+	changeMediaTypeId();
     var deleteSeat = function(id){
         layer.confirm("确认删除？", {
             icon: 3,
@@ -166,7 +171,17 @@
             });
         });
     };
+	// 查询
+    $("#searchBtn").on("click", function () {
+        var strParam = "";
+        var name = $("#searchName").val();
+        
+        if (name != null && $.trim(name).length) {
+            strParam = strParam + "?name=" + name;
+        }
 
+        window.location.href = "/adseat/list" + strParam;
+    });
 
     $("#searchBtn").on("click", function() {
         $("#form").submit();

@@ -16,6 +16,8 @@ public class AdJiucuoTaskVo extends AdJiucuoTask {
     private Long street;
     private Integer activityAdseatId;
     private Integer mediaId;
+    private Integer mediaTypeParentId;//媒体大类
+    private Integer mediaTypeId;//媒体小类
     private String mediaName;
     private String adSeatName;
     private String realname;
@@ -25,8 +27,24 @@ public class AdJiucuoTaskVo extends AdJiucuoTask {
     private Date startTime;
     private Date endTime;
     private String assessorName;
+    
+    public Integer getMediaTypeParentId() {
+		return mediaTypeParentId;
+	}
 
-    public String getProblem() {
+	public void setMediaTypeParentId(Integer mediaTypeParentId) {
+		this.mediaTypeParentId = mediaTypeParentId;
+	}
+
+	public Integer getMediaTypeId() {
+		return mediaTypeId;
+	}
+
+	public void setMediaTypeId(Integer mediaTypeId) {
+		this.mediaTypeId = mediaTypeId;
+	}
+
+	public String getProblem() {
         return problem;
     }
 

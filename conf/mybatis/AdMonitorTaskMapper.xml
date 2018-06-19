@@ -340,6 +340,8 @@
         <result column="feedback_lon" jdbcType="DOUBLE" property="feedbackLon"/>
         <result column="assessorName" jdbcType="VARCHAR" property="assessorName"/>
         <result column="assignorName" jdbcType="VARCHAR" property="assignorName"/>
+        <result column="media_type_parent_id" jdbcType="INTEGER" property="mediaTypeParentId"/>
+        <result column="media_type_id" jdbcType="INTEGER" property="mediaTypeId"/>
     </resultMap>
 
     <resultMap id="MobileResultMap" extends="BaseResultMap" type="com.bt.om.entity.vo.AdMonitorTaskMobileVo">
@@ -439,6 +441,21 @@
         <if test="mediaUserId != null">
             and e.user_id = #{mediaUserId,jdbcType=INTEGER}
         </if>
+        <if test="mediaId != null" >
+	      and e.id = #{mediaId,jdbcType=INTEGER}
+	    </if>
+	    <if test="mediaTypeParentId != null">
+	    	and d.media_type_parent_id = #{mediaTypeParentId,jdbcType=INTEGER}
+	    </if>
+	    <if test="mediaTypeId != null">
+	    	and d.media_type_id = #{mediaTypeId,jdbcType=INTEGER}
+	    </if>
+	    <if test="province != null">
+	    	and d.province = #{province,jdbcType=BIGINT}
+	    </if>
+	    <if test="city != null">
+	    	and d.city = #{city,jdbcType=BIGINT}
+	    </if>
         <if test="taskTypes != null">
             and a.task_type in
             <foreach collection="taskTypes" separator="," open="(" close=")" item="task">#{task,jdbcType=INTEGER}
@@ -475,8 +492,7 @@
           select 
         	a.id, a.activity_id, a.activity_adseat_id, a.task_type, a.monitor_date,a.monitor_last_days,a.user_id,
         	a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time, a.assessor_id,a.assignor_id,a.assignor_time,
-        	b.activity_name,c.sample_pic_url,b.start_time,b.end_time,d.province,d.city,d.region,d.street,c.media_id,e.media_name,d.`name`
-        	as ad_seat_name,
+        	b.activity_name,c.sample_pic_url,b.start_time,b.end_time,d.province,d.city,d.region,d.street,c.media_id,e.media_name,d.`name` as ad_seat_name,
         	f.realname,
         	g.realname as assessorName,
         	h.realname as assignorName
@@ -521,6 +537,21 @@
         <if test="mediaUserId != null">
             and e.user_id = #{mediaUserId,jdbcType=INTEGER} and a.parent_id is null
         </if>
+        <if test="mediaId != null" >
+	      and e.id = #{mediaId,jdbcType=INTEGER}
+	    </if>
+	    <if test="mediaTypeParentId != null">
+	    	and d.media_type_parent_id = #{mediaTypeParentId,jdbcType=INTEGER}
+	    </if>
+	    <if test="mediaTypeId != null">
+	    	and d.media_type_id = #{mediaTypeId,jdbcType=INTEGER}
+	    </if>
+	    <if test="province != null">
+	    	and d.province = #{province,jdbcType=BIGINT}
+	    </if>
+	    <if test="city != null">
+	    	and d.city = #{city,jdbcType=BIGINT}
+	    </if>
         <if test="taskTypes != null">
             and a.task_type in
             <foreach collection="taskTypes" separator="," open="(" close=")" item="task">#{task,jdbcType=INTEGER}

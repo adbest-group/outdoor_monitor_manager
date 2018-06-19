@@ -36,17 +36,16 @@
                     </div>
                     <div class="select-box select-box-100 un-inp-select ll">
                         <select class="select" name="status">
-                        	<option value="">所有任务状态</option>
-                        	<@model.showMonitorTaskStatusOps value="${bizObj.queryMap.status?if_exists}"/>
-                        	<#-- <option value="3" <#if (status?exists&&status == 3)>selected</#if>>待审核</option>
+                        	<#-- <option value="">所有任务状态</option> -->
+                        	<#-- <@model.showMonitorTaskStatusOps value="${bizObj.queryMap.status?if_exists}"/> -->
+                        	<option value="3" <#if (status?exists&&status == 3)>selected</#if>>待审核</option>
                         	<option value="4" <#if (status?exists&&status == 4)>selected</#if>>审核通过</option>
                         	<option value="5" <#if (status?exists&&status == 5)>selected</#if>>审核未通过</option>
-                        	<#-- <option value="7" <#if (status?exists&&status == 7)>selected</#if>>待激活</option> -->
                         	<#-- <option value="8" <#if (status?exists&&status == 8)>selected</#if>>可抢单</option> -->
                         	<#-- <option value="1" <#if (status?exists&&status == 1)>selected</#if>>待指派</option> -->
-                        	<#-- <option value="2" <#if (status?exists&&status == 2)>selected</#if>>待执行</option>
-                        	<option value="6" <#if (status?exists&&status == 6)>selected</#if>>未完成</option> -->
-                        	<#-- <@model.showMonitorTaskStatusOps value="${bizObj.queryMap.status?if_exists}"/> -->
+                        	<option value="2" <#if (status?exists&&status == 2)>selected</#if>>待执行</option>
+                        	<option value="6" <#if (status?exists&&status == 6)>selected</#if>>未完成</option>
+                        	<option value="7" <#if (status?exists&&status == 7)>selected</#if>>待激活</option>
                         </select>
                     </div>
                     <div class="select-box select-box-100 un-inp-select ll">
@@ -55,10 +54,33 @@
                         <@model.showProblemStatusList value="${bizObj.queryMap.problemStatus?if_exists}" />
                         </select>
                     </div>
-                    <div class="ll inputs-date">
+                    <div class="select-box select-box-100 un-inp-select ll">
+	                    <select style="width: 120px;height:31px;" name="mediaTypeParentId" id="mediaTypeParentId" onchange="changeMediaTypeId();">
+	                    <option value="">所有媒体大类</option>
+	                    <@model.showAllAdMediaTypeAvailableOps value="${bizObj.queryMap.mediaTypeParentId?if_exists}"/>
+	                     </select>
+                	</div>
+                    <div class="select-box select-box-100 un-inp-select ll">
+	                    <select style="width: 120px;height:31px;" name="mediaTypeId" id="mediaTypeId">
+	                    	<option value="">所有媒体小类</option>
+	                    </select>
+	                </div>
+	                <#-- 城市 -->
+					<div id="demo3" class="citys" style="float: left; font-size: 12px">
+                        <p>
+                                               城市： <select style="height: 30px" id="adSeatInfo-province" name="province">
+                            <option value=""></option>
+                        </select> <select style="height: 30px" id="adSeatInfo-city" name="city"></select>
+    
+                        </p>
+                    </div>
+                    
+                    <#-- 
+                    <div class="ll inputs-date"> -->
                     <#--<input class="ui-date-button" type="button" value="昨天" alt="-1" name="">-->
                     <#--<input class="ui-date-button" type="button" value="近7天" alt="-6" name="">-->
                     <#--<input class="ui-date-button on" type="button" value="近30天" alt="-29" name="">-->
+                    <#-- 
                         <div class="date">
                             <input id="dts" class="Wdate" type="text" name="startDate"
                                    value="${bizObj.queryMap.startDate?if_exists}"> -
@@ -66,6 +88,7 @@
                                    value="${bizObj.queryMap.endDate?if_exists}">
                         </div>
                     </div>
+                     -->
                     <button type="button" class="btn btn-red" style="margin-left:10px;" autocomplete="off"
                             id="searchBtn">查询
                     </button>
@@ -177,6 +200,7 @@
 <!-- 下拉 -->
 <link href="${model.static_domain}/js/select/jquery.searchableSelect.css" rel="stylesheet">
 <script src="${model.static_domain}/js/select/jquery.searchableSelect.js"></script>
+<script type="text/javascript" src="/static/js/jquery.citys.js"></script>
 <!-- 时期 -->
 <link href="${model.static_domain}/js/date/daterangepicker.css" rel="stylesheet">
 <script type="text/javascript" src="${model.static_domain}/js/date/moment.min.js"></script>
@@ -184,6 +208,8 @@
 <script type="text/javascript" src="${model.static_domain}/js/date.js"></script>
 
 <script type="text/javascript">
+	changeMediaTypeId();
+
     var assign_ids;
     $(function () {
     
@@ -194,6 +220,7 @@
         });
         $('.select').searchableSelect();
 
+		<#-- 
         $('.inputs-date').dateRangePicker({
             separator: ' 至 ',
             showShortcuts: false,
@@ -217,8 +244,8 @@
 
             }
         });
-        
-            
+         -->
+       
       // 如果列表中有未确认的状态就显示表头的多选框
         $("input[name='ck-task']").each(function() {
         	if($(this).data('status') === 3){
@@ -226,6 +253,38 @@
         		return false;
         	}
         })
+	/*获取城市  */
+    var $town = $('#demo3 select[name="street"]');
+    var townFormat = function(info) {
+        $town.hide().empty();
+        if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
+            $.ajax({
+                url : 'http://passer-by.com/data_location/town/' + info['code']
+                + '.json',
+                dataType : 'json',
+                success : function(town) {
+                    $town.show();
+                    $town.append('<option value> - 请选择 - </option>');
+                    for (i in town) {
+                        $town.append('<option value="'+i+'" <#if (street?exists&&street?length>0)>'+(i==${street!0}?"selected":"")+'</#if>>' + town[i]
+                                + '</option>');
+                    }
+                }
+            });
+        }
+    };
+    $('#demo3').citys({
+        required:false,
+        province : '${province!"所有城市"}',
+        city : '${city!""}',
+        onChange : function(info) {
+            townFormat(info);
+        }
+    }, function(api) {
+        var info = api.getInfo();
+        townFormat(info);
+    });
+    	<#-- 
         // 查询
     	$("#searchBtn").on("click", function () {
         	var strParam = "";
@@ -237,6 +296,7 @@
 
         	window.location.href = "/task/list" + strParam;
     	});
+    	 -->
         //批量审核任务
         $("#assignBtn").click(function(){
         	var id_sel;
@@ -579,6 +639,37 @@
             });
         });
     }
+
+	function changeMediaTypeId() {	
+		var mediaTypeParentId = $("#mediaTypeParentId").val();
+		if(mediaTypeParentId == "" || mediaTypeParentId.length <= 0) {
+			var option = '<option value="">请选择媒体小类</option>';
+			$("#mediaTypeId").html(option);
+			return ;
+		}
+		$.ajax({
+			url : '/platmedia/adseat/searchMediaType',
+			type : 'POST',
+			data : {"parentId":mediaTypeParentId},
+			dataType : "json",
+			traditional : true,
+			success : function(data) {
+				var result = data.ret;
+				if (result.code == 100) {
+					var adMediaTypes = result.result;
+					var htmlOption = '<option value="">请选择媒体小类</option>';
+					for (var i=0; i < adMediaTypes.length;i++) { 
+						var type = adMediaTypes[i];
+						htmlOption = htmlOption + '<option value="' + type.id + '">' + type.name + '</option>';
+					}
+					$("#mediaTypeId").html(htmlOption);
+					$("#mediaTypeId").val(${mediaTypeId?if_exists});
+				} else {
+					alert('修改失败!');
+				}
+			}
+		});
+	} 
 
     //创建子任务
     createTask = function (id) {

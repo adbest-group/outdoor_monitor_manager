@@ -93,7 +93,7 @@
 		                            <a href="javascript:void(0);" onclick="updateStatus('${adseat.id}', 1);">已贴</a>
 		                        </#if>
 	                    </tr>
-					</#list> 
+					</#list> <#else>
                     <tr>
                         <td colspan="20">没有相应结果。</td>
                     </tr>

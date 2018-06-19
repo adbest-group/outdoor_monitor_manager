@@ -49,6 +49,7 @@ import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
 import com.bt.om.service.IAdSeatService;
+import com.bt.om.util.ConfigUtil;
 import com.bt.om.util.GsonUtil;
 import com.bt.om.util.StringUtil;
 import com.bt.om.vo.web.ResultVo;
@@ -138,6 +139,12 @@ public class CustomerActivityControl extends BasicController {
         if(user != null) {
         	model.addAttribute("usertype", user.getUsertype());
         }
+        
+        Integer monitorTime = ConfigUtil.getInt("monitor_time"); //允许任务执行天数
+        Integer auditTime = ConfigUtil.getInt("audit_time"); //允许任务审核天数
+        
+        model.addAttribute("monitorTime", monitorTime);
+        model.addAttribute("auditTime", auditTime);
 
         return PageConst.CUSTOMER_ACTIVITY_EDIT;
     }
@@ -252,7 +259,11 @@ public class CustomerActivityControl extends BasicController {
                       @RequestParam(value = "activeSeat", required = false) String activeSeat,
                       @RequestParam(value = "upMonitorLastDays", required = false) String upMonitorLastDays,
                       @RequestParam(value = "durationMonitorLastDays", required = false) String durationMonitorLastDays,
-                      @RequestParam(value = "downMonitorLastDays", required = false) String downMonitorLastDays) {
+                      @RequestParam(value = "downMonitorLastDays", required = false) String downMonitorLastDays,
+                      @RequestParam(value = "upTaskTime", required = false) String upTaskTime,
+                      @RequestParam(value = "upMonitorTaskTime", required = false) String upMonitorTaskTime,
+                      @RequestParam(value = "durationMonitorTaskTime", required = false) String durationMonitorTaskTime,
+                      @RequestParam(value = "downMonitorTaskTime", required = false) String downMonitorTaskTime) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date now = new Date();
         ResultVo<String> result = new ResultVo<String>();
@@ -381,6 +392,11 @@ public class CustomerActivityControl extends BasicController {
 //            adActivityVo.getActivityMedias().add(am);
 //        }
 
+        adActivityVo.setUpTaskTime(upTaskTime); //上刊任务出报告时间
+        adActivityVo.setUpMonitorTaskTime(upMonitorTaskTime); //上刊监测任务出报告时间
+        adActivityVo.setDurationMonitorTaskTime(durationMonitorTaskTime); //投放期间监测任务出报告时间
+        adActivityVo.setDownMonitorTaskTime(downMonitorTaskTime); //下刊监测任务出报告时间
+        
         //新增
         if (StringUtil.isEmpty(id)) {
             adActivityVo.setStatus(ActivityStatus.UNCONFIRM.getId());

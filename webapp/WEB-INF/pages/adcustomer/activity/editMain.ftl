@@ -20,6 +20,9 @@
         <div class="main-box basic-info">
             <div class="bd">
                 <form id="subForm" method="post">
+                	<input type="hidden" id="monitorTime" value="${monitorTime?if_exists}"/>
+                	<input type="hidden" id="auditTime" value="${auditTime?if_exists}"/>
+                
                     <input type="hidden" id="id" value=""/>
                     <table width="100%" cellpadding="0" cellspacing="0" border="0" type="">
                         <tbody>
@@ -60,19 +63,74 @@
 		                </tr>
 		                 -->
 
+						<!-- 活动开始时间是今天的至少m+n+1天以后 -->
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>活动时间：</td>
                             <td>
-                                <div class="ll inputs-date">
+                                <div class="ll inputs-date" id="activityTime">
                                     <div class="date">
-                                        <input id="dts" ${editMode?string("","disabled")} class="Wdate" type="text"> -
-                                        <input id="dt" ${editMode?string("","disabled")} class="Wdate" type="text">
+                                        <input id="dts" ${editMode?string("","disabled")} class="activityTime-Wdate Wdate" type="text"> -
+                                        <input id="dt" ${editMode?string("","disabled")} class="activityTime-Wdate Wdate" type="text">
                                     </div>
                                 </div>
                                 <span style="margin-left:10px;" id="dateTip"></span>
                             </td>
                         </tr>
+                        
+                        <!-- 与活动开始时间同步, 不能改 -->
+                        <tr>
+                            <td class="a-title"><font class="s-red">*</font>上刊任务出报告时间：</td>
+                            <td>
+                                <div class="ll inputs-date">
+                                    <div class="date">
+                                        <input id="upTaskTime" disabled class="Wdate" type="text">
+                                    </div>
+                                </div>
+                                <span style="margin-left:10px;" id="upTaskTimeTip"></span>
+                            </td>
+                        </tr>
+                        
+                        <!-- 1、是活动开始时间的至少m+n天以后  2、在活动结束时间之前 -->
+                        <tr>
+                            <td class="a-title"><font class="s-red">*</font>上刊监测任务出报告时间：</td>
+                            <td>
+                                <div class="ll inputs-date" id="upMonitorTaskTime" >
+                                    <div class="date">
+                                        <input id="upMonitor-Wdate" ${editMode?string("","disabled")} class="upMonitor-Wdate Wdate" type="text">
+                                    </div>
+                                </div>
+                                <span style="margin-left:10px;" id="upMonitorTaskTimeTip"></span>
+                            </td>
+                        </tr>
+                        
+                        <!-- 1、是活动开始时间的至少m+n天以后  1、在活动结束时间之前  2、扩展 -->
+                        <tr class='last'>
+                            <td class="a-title"><font class="s-red">*</font>投放期间监测任务出报告时间：</td>
+                            <td>
+                                <div class="ll inputs-date durationMonitorTaskTime">
+                                    <div class="date">
+                                        <input id="durationMonitorTaskTime0" ${editMode?string("","disabled")} class="durationMonitor-Wdate Wdate" type="text">
+                                    </div>
+                                </div>
+                                <span style="margin-left:10px;" id="durationMonitorTaskTimeTip0"></span>
+                                <input type='button' id="addDurationMonitor" value='添加'>
+                            </td>
+                        </tr>
+                        
+                        <!-- 与活动结束时间同步 -->
+                        <tr>
+                            <td class="a-title"><font class="s-red">*</font>下刊监测任务出报告时间：</td>
+                            <td>
+                                <div class="ll inputs-date">
+                                    <div class="date">
+                                        <input id="downMonitorTaskTime" disabled class="Wdate" type="text">
+                                    </div>
+                                </div>
+                                <span style="margin-left:10px;" id="downMonitorTaskTimeTip"></span>
+                            </td>
+                        </tr>
 
+				<#-- 
                 <tr id="upMonitorLastDaysTr">
                     <td class="a-title"><font class="s-red">*</font>上刊监测任务<br/>可持续天数：</td>
                     <td>
@@ -96,6 +154,7 @@
                         <span id="downMonitorLastDaysTip"></span>
                     </td>
                 </tr>
+                 -->
 
 						<#--<#if editMode>
 						<tr>
@@ -256,10 +315,20 @@
 	        <#-- "customerTypeId": '${activity.customerTypeId}', -->
 	        "dts": "${activity.startTime?string('yyyy-MM-dd')}",
 	        "dt": "${activity.endTime?string('yyyy-MM-dd')}",
-	        "samplePicUrl": '${activity.samplePicUrl!""}'
+	        "samplePicUrl": '${activity.samplePicUrl!""}',
+	        "upTaskTime": '${activity.upTaskTime!""}',
+	        "upMonitorTaskTime": '${activity.upMonitorTaskTime!""}',
+	        "durationMonitorTaskTime": '${activity.durationMonitorTaskTime!""}',
+	        "downMonitorTaskTime": '${activity.downMonitorTaskTime!""}'
 	    }
 	    $("#img-demo-img").attr("src",activity.samplePicUrl);//广告投放画面图片地址
 	    $("#img-demo-bak").attr("src",activity.samplePicUrl);//广告投放画面图片地址
+	    
+	    $("#upTaskTime").val(activity.upTaskTime); //上刊任务时间
+	    $("#upMonitor-Wdate").val(activity.upMonitorTaskTime); //上刊监测任务时间
+	    $("#durationMonitorTaskTime0").val(activity.durationMonitorTaskTime); //投放期间监测任务时间
+	    $("#downMonitorTaskTime").val(activity.downMonitorTaskTime); //下刊监测任务时间
+	    
 	    var activity_seats = [
 	        <#if (activity.adActivityAdseatVos?exists && activity.adActivityAdseatVos?size>0) >
 	            <#list activity.adActivityAdseatVos as seat>
@@ -323,7 +392,7 @@
 
         if(editMode) {
             //日期
-            $('.inputs-date').dateRangePicker({
+            $('#activityTime').dateRangePicker({
                 separator: ' 至 ',
                 showShortcuts: false,
                 getValue: function () {
@@ -335,9 +404,36 @@
                 setValue: function (s, s1, s2) {
                     $('#dts').val(s1);
                     $('#dt').val(s2);
-					$('.Wdate').blur()
+					$('.activityTime-Wdate').blur()
+					$('#upTaskTime').val(s1);
+                    $('#downMonitorTaskTime').val(s2);
                 }
             });
+            
+            $('#upMonitorTaskTime').dateRangePicker({
+            	   singleDate: true,
+            	   showShortcuts: false,
+                   getValue: function () {
+                       return $(this).find('.upMonitor-Wdate').val()
+                   },
+                   setValue: function (s) {
+                      $(this).find('.upMonitor-Wdate').val(s)
+   					  $(this).find('.upMonitor-Wdate').blur()
+                   }
+              });
+            
+
+            $('.durationMonitorTaskTime').dateRangePicker({
+           	   singleDate: true,
+           	   showShortcuts: false,
+                  getValue: function () {
+                      return $(this).find('.durationMonitor-Wdate').val()
+                  },
+                  setValue: function (s) {
+                     $(this).find('.durationMonitor-Wdate').val(s)
+  					  $(this).find('.durationMonitor-Wdate').blur()
+                  }
+             });
         }
 
         $("#add-adseat").click(function () {
@@ -482,7 +578,7 @@
                 var time2 = endTime.getTime();
                 
                 if((time2 - time1) < 2*24*60*60*1000) {
-                	layer.confirm("投放时间间隔至少3天", {
+                	layer.confirm("活动时间间隔至少3天", {
                         icon: 2,
                         btn: ['确定'] //按钮
                     });
@@ -512,6 +608,12 @@
 //                $.each(del_activity_seats,function(i,n){
 //                   dels.push(n.id);
 //                });
+
+				var upTaskTime = $("#upTaskTime").val(); //上刊任务时间
+				var upMonitorTaskTime = $("#upMonitor-Wdate").val(); //上刊监测任务时间
+				var durationMonitorTaskTime = $("#durationMonitorTaskTime0").val(); //投放期间监测任务时间
+				var downMonitorTaskTime = $("#downMonitorTaskTime").val(); //下刊监测任务时间
+				
                 $.ajax({
                     url: "/customer/activity/save",
                     type: "post",
@@ -537,7 +639,11 @@
                         "activeSeat": getSeatIds(),
                         "upMonitorLastDays": $('#upMonitorLastDays').val(),
                         "durationMonitorLastDays": $('#durationMonitorLastDays').val(),
-                        "downMonitorLastDays": $('#downMonitorLastDays').val()
+                        "downMonitorLastDays": $('#downMonitorLastDays').val(),
+                        "upTaskTime": upTaskTime,
+                        "upMonitorTaskTime": upMonitorTaskTime,
+                        "durationMonitorTaskTime": durationMonitorTaskTime,
+                        "downMonitorTaskTime": downMonitorTaskTime
                     },
                     cache: false,
                     dataType: "json",
@@ -621,9 +727,8 @@
             max: 60,
             onError: "请输入活动名称，30字以内"
         });
-
-        //投放时间
-        $(".Wdate").formValidator({
+        //活动投放时间
+        $(".activityTime-Wdate").formValidator({
             validatorGroup:"2",
             tipID:"dateTip",
             onShow:"",
@@ -635,18 +740,144 @@
         }).functionValidator({
         	fun: function(val, ele){
         		var now = new Date();
-        		var month = (now.getMonth() + 1).toString().length < 2 ? '0' + (now.getMonth() + 1).toString() : (now.getMonth() + 1).toString()
-        		var day = now.getDate().toString().length < 2 ? '0' + now.getDate().toString() : now.getDate().toString()
-        		var date = now.getFullYear()+ '-' + month + '-' + day
-
+        		var date = getDate(now)
+        		var m = parseInt($('#monitorTime').val())
+        		var n = parseInt($('#auditTime').val())
+        		var after = m + n + 1
+        		var afterDay = new Date(now.getTime() + 24 * 60 * 60 * 1000 * after)
+        		var afterDate = getDate(afterDay)
+				console.log($('#dts').val() < afterDate, $('#dts').val(), afterDate)
         		if($('#dts').val() < date) {
-        			return false
-        		}else {
+        			return '不能选择过去的时间'
+        		}else if ($('#dts').val() < afterDate){
+        			return '活动开始时间是今天的至少' + after + '天以后'
+        		}else{
         			return true
         		}
-        	},
-        	onError: '不能选择过去的时间'
+        	}
         })
+        
+        //上刊监测任务出报告时间
+        $('.upMonitor-Wdate').formValidator({
+               validatorGroup: '2',
+               tipID:"upMonitorTaskTimeTip",
+               onShow:"",
+               onFocus:"请选择上刊监测任务出报告时间",
+               onCorrect:""
+           }).regexValidator({
+               regExp:"^\\S+$",
+               onError:"请输入上刊监测任务出报告时间"
+           }).functionValidator({
+	           	fun: function(val, ele){
+	           		// 1、是活动开始时间的至少m+n天以后  2、在活动结束时间之前
+	           		var startDate = new Date($('#dts').val())
+	           		var m = parseInt($('#monitorTime').val())
+	           		var n = parseInt($('#auditTime').val())
+	           		var after = m + n
+	           		var afterDay = new Date(startDate.getTime() + 24 * 60 * 60 * 1000 * after)
+	           		var afterDate = getDate(afterDay)
+	           		console.log(afterDate < $('.upMonitor-Wdate').val(), afterDate, $('.upMonitor-Wdate').val())
+	           		if(!$('#dts').val() || !$('#dt').val()){
+	           			return '请先选择活动时间'
+	           		}else if($('#dt').val() < val) {
+	           			return '出报告时间是在活动结束时间之前'
+	           		}else if (val < afterDate){
+	           			return '出报告时间是活动开始时间的至少' + after + '天以后'
+	           		}else{
+	           			return true
+	           		}
+	           	}
+          })
+          
+          // 投放期间监测任务出报告时间
+          $('.durationMonitor-Wdate').each(function(index){
+        	  $(this).formValidator({
+                   validatorGroup: '2',
+                   tipID:"durationMonitorTaskTimeTip" + index,
+                   onShow:"",
+                   onFocus:"请选择投放期间监测任务出报告时间",
+                   onCorrect:""
+               }).regexValidator({
+                   regExp:"^\\S+$",
+                   onError:"请输入投放期间监测任务出报告时间"
+               }).functionValidator({
+    	           	fun: function(val, ele){
+    	           		// 1、是活动开始时间的至少m+n天以后  2、在活动结束时间之前
+    	           		var startDate = new Date($('#dts').val())
+    	           		var m = parseInt($('#monitorTime').val())
+    	           		var n = parseInt($('#auditTime').val())
+    	           		var after = m + n
+    	           		var afterDay = new Date(startDate.getTime() + 24 * 60 * 60 * 1000 * after)
+    	           		var afterDate = getDate(afterDay)
+    	           		console.log($('#dt').val() < afterDate, $('#dt').val(), afterDate)
+    	           		if(!$('#dts').val() || !$('#dt').val()){
+    	           			return '请先选择活动时间'
+    	           		}else if($('#dt').val() < val) {
+    	           			return '出报告时间是在活动结束时间之前'
+    	           		}else if (val < afterDate){
+    	           			return '出报告时间是活动开始时间的至少' + after + '天以后'
+    	           		}else{
+    	           			return true
+    	           		}
+    	           	}
+              })
+       		})
+        $('#addDurationMonitor').click(function(){
+        	var index = $('.last').length
+        	var str = '<tr class="last"><td class="a-title"><font class="s-red">*</font>投放期间监测任务出报告时间：</td><td><div class="ll inputs-date durationMonitorTaskTime"><div class="date"><input id="durationMonitorTaskTime'+index+'" ${editMode?string("","disabled")} class="durationMonitor-Wdate Wdate" type="text"></div></div><span style="margin-left:10px;" id="durationMonitorTaskTimeTip'+index+'"></span></td></tr>'
+        	$('.last:last').after(str)
+        	
+        	$('.durationMonitorTaskTime').dateRangePicker({
+           	   singleDate: true,
+           	   showShortcuts: false,
+                  getValue: function () {
+                      return $(this).find('.durationMonitor-Wdate').val()
+                  },
+                  setValue: function (s) {
+                     $(this).find('.durationMonitor-Wdate').val(s)
+  					  $(this).find('.durationMonitor-Wdate').blur()
+                  }
+             });
+        	
+       		$('.durationMonitor-Wdate').each(function(index){
+        	  $(this).formValidator({
+                   validatorGroup: '2',
+                   tipID:"durationMonitorTaskTimeTip" + index,
+                   onShow:"",
+                   onFocus:"请选择投放期间监测任务出报告时间",
+                   onCorrect:""
+               }).regexValidator({
+                   regExp:"^\\S+$",
+                   onError:"请输入投放期间监测任务出报告时间"
+               }).functionValidator({
+    	           	fun: function(val, ele){
+    	           		// 1、是活动开始时间的至少m+n天以后  2、在活动结束时间之前
+    	           		var startDate = new Date($('#dts').val())
+    	           		var m = parseInt($('#monitorTime').val())
+    	           		var n = parseInt($('#auditTime').val())
+    	           		var after = m + n
+    	           		var afterDay = new Date(startDate.getTime() + 24 * 60 * 60 * 1000 * after)
+    	           		var afterDate = getDate(afterDay)
+    	           		console.log($('#dt').val() < afterDate, $('#dt').val(), afterDate)
+    	           		if(!$('#dts').val() || !$('#dt').val()){
+    	           			return '请先选择活动时间'
+    	           		}else if($('#dt').val() < val) {
+    	           			return '出报告时间是在活动结束时间之前'
+    	           		}else if (val < afterDate){
+    	           			return '出报告时间是活动开始时间的至少' + after + '天以后'
+    	           		}else{
+    	           			return true
+    	           		}
+    	           	}
+              })
+       		})
+        })
+        
+        function getDate(date) {
+        	var month = (date.getMonth() + 1).toString().length < 2 ? '0' + (date.getMonth() + 1).toString() : (date.getMonth() + 1).toString()
+       		var day = date.getDate().toString().length < 2 ? '0' + date.getDate().toString() : date.getDate().toString()
+       		return date.getFullYear()+ '-' + month + '-' + day
+        }
 
         //投放媒体
         $("input:checkbox[name='media']").formValidator({

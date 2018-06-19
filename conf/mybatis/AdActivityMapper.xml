@@ -262,42 +262,62 @@
   <resultMap id="ExtResultMap2" extends="BaseResultMap" type="com.bt.om.entity.vo.AdActivityVo2">
     <result column="realname" jdbcType="VARCHAR" property="realName" />
     <result column="customerName" jdbcType="VARCHAR" property="customerName" />
+    <result column="media_type_parent_id" jdbcType="INTEGER" property="mediaTypeParentId"/>
+    <result column="media_type_id" jdbcType="INTEGER" property="mediaTypeId"/>
+    <result column="province" jdbcType="BIGINT" property="province"/>
+    <result column="city" jdbcType="BIGINT" property="city"/>
   </resultMap>
 
   <select id="getPageCount" parameterType="map" resultType="int">
     select
-    count(id)
+    count(a.id)
     from
-    ad_activity
+    ad_activity a 
+    	left join sys_user b on a.assessor_id = b.id
+    	left join sys_user c on a.user_id = c.id
+    	left join ad_activity_adseat d on a.id = d.activity_id
+	    left join ad_seat_info e on e.id = d.ad_seat_id
     where 1=1
     <if test="userId != null" >
-      and user_id = #{userId,jdbcType=INTEGER}
+      and a.user_id = #{userId,jdbcType=INTEGER}
     </if>
     <if test="activityName != null">
-      and activity_name like #{activityName,jdbcType=VARCHAR}
+      and a.activity_name like #{activityName,jdbcType=VARCHAR}
     </if>
     <if test="activityId != null" >
-      and id = #{activityId,jdbcType=INTEGER}
+      and a.id = #{activityId,jdbcType=INTEGER}
     </if>
     <if test="status != null" >
-      and status = #{status,jdbcType=INTEGER}
+      and a.status = #{status,jdbcType=INTEGER}
     </if>
     <if test="startDate != null" >
-      and start_time >= DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+      and a.start_time >= DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
     </if>
     <if test="endDate != null" >
-      and end_time &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+      and a.end_time &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
     </if>
     <if test="assessorId != null" >
-      and assessor_id = #{assessorId,jdbcType=INTEGER}
+      and a.assessor_id = #{assessorId,jdbcType=INTEGER}
     </if>
     <if test="samplePicUrl != null" >
-      and sample_pic_url = #{samplePicUrl,jdbcType=VARCHAR}
+      and a.sample_pic_url = #{samplePicUrl,jdbcType=VARCHAR}
     </if>
     <if test="customerIds != null">
-      and user_id in
+      and a.user_id in
         <foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
     </if>
+     <if test="mediaTypeParentId != null">
+	  and e.media_type_parent_id = #{mediaTypeParentId,jdbcType=INTEGER}
+	</if>
+	<if test="mediaTypeId != null">
+	   and e.media_type_id = #{mediaTypeId,jdbcType=INTEGER}
+	</if>
+	<if test="province != null">
+	  	and e.province = #{province,jdbcType=BIGINT}
+	</if>
+    <if test="city != null">
+   		and e.city = #{city,jdbcType=BIGINT}
+	</if>
   </select>
 
   <select id="getPageData" parameterType="map" resultMap="ExtResultMap2">
@@ -309,6 +329,8 @@
     	ad_activity a 
     	left join sys_user b on a.assessor_id = b.id
     	left join sys_user c on a.user_id = c.id
+    	left join ad_activity_adseat d on a.id = d.activity_id
+	    left join ad_seat_info e on e.id = d.ad_seat_id
     where 1=1
     <if test="userId != null" >
       and a.user_id = #{userId,jdbcType=INTEGER}
@@ -335,6 +357,18 @@
       and a.user_id in
         <foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
     </if>
+    <if test="mediaTypeParentId != null">
+	  and e.media_type_parent_id = #{mediaTypeParentId,jdbcType=INTEGER}
+	</if>
+	<if test="mediaTypeId != null">
+	   and e.media_type_id = #{mediaTypeId,jdbcType=INTEGER}
+	</if>
+	<if test="province != null">
+	  	and e.province = #{province,jdbcType=BIGINT}
+	</if>
+    <if test="city != null">
+   		and e.city = #{city,jdbcType=BIGINT}
+	</if>
     order by a.id desc
   </select>
 

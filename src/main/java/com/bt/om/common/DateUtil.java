@@ -1,5 +1,6 @@
 package com.bt.om.common;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
@@ -16,7 +17,84 @@ import org.springframework.util.StringUtils;
  * @version $Id: DateUtil.java, v 0.1 2015年8月29日 上午9:50:03 hl-tanyong Exp $
  */
 public class DateUtil {
+	public final static long      ONE_DAY_SECONDS          = 86400;
+	public final static long      ONE_DAY_MILL_SECONDS     = 86400000;
+	
+	/**
+     * 获得指定时间当天起点时间
+     * 
+     * @param date
+     * @return
+     */
+    public static Date getDayBegin(Date date) {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        df.setLenient(false);
 
+        String dateString = df.format(date);
+
+        try {
+            return df.parse(dateString);
+        } catch (ParseException e) {
+            return date;
+        }
+    }
+    
+    /** 获得一天的最后时刻 */
+    public static Date getDayEnd(Date date) {
+        if (date == null)
+            return null;
+        return DateUtil.addSeconds(DateUtil.addDays(getDayBegin(date), 1), -1);
+    }
+    
+    /**
+     * 计算当前时间几小时之后的时间
+     * 
+     * @param date
+     * @param hours
+     * 
+     * @return
+     */
+    public static Date addHours(Date date, long hours) {
+        return addMinutes(date, hours * 60);
+    }
+
+    /**
+     * 计算当前时间几分钟之后的时间
+     * 
+     * @param date
+     * @param minutes
+     * 
+     * @return
+     */
+    public static Date addMinutes(Date date, long minutes) {
+        return addSeconds(date, minutes * 60);
+    }
+
+    /**
+     * @param date1
+     * @param secs
+     * 
+     * @return
+     */
+
+    public static Date addSeconds(Date date1, long secs) {
+        return new Date(date1.getTime() + (secs * 1000));
+    }
+    
+    /**
+     * 取得新的日期
+     * 
+     * @param date1
+     *            日期
+     * @param days
+     *            天数
+     * 
+     * @return 新的日期
+     */
+    public static Date addDays(Date date1, long days) {
+        return addSeconds(date1, days * ONE_DAY_SECONDS);
+    }
+	
     /**
      * @param interval
      *            值类型

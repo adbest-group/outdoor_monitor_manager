@@ -31,6 +31,7 @@ import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.enums.MonitorTaskStatus;
+import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.SessionKey;
@@ -77,10 +78,9 @@ public class MonitorTaskController extends BasicController {
 	protected RedisTemplate redisTemplate;
 
 	/**
-	 * 监测管理，任务审核
+	 * 监测任务管理（任务审核指派部员工登录）
 	 **/
-	@RequiresRoles(value = { "taskadmin", "deptaskadmin", "depjiucuoadmin", "jiucuoadmin",
-			"superadmin" }, logical = Logical.OR)
+	@RequiresRoles(value = { "taskadmin", "deptaskadmin", "depjiucuoadmin", "jiucuoadmin", "superadmin" }, logical = Logical.OR)
 	@RequestMapping(value = "/list")
 	public String getTaskList(Model model, HttpServletRequest request,
 			@RequestParam(value = "activityId", required = false) Integer activityId,
@@ -91,7 +91,11 @@ public class MonitorTaskController extends BasicController {
 			@RequestParam(value = "endDate", required = false) String endDate,
 			@RequestParam(value = "pid", required = false) Integer pid,
 			@RequestParam(value = "ptype", required = false) Integer ptype,
-			@RequestParam(value = "name", required = false) String name) throws ParseException {
+			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
+            @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
+            @RequestParam(value = "province", required = false) String province,
+            @RequestParam(value = "city", required = false) String city) throws ParseException {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		SearchDataVo vo = SearchUtil.getVo();
 
@@ -111,6 +115,12 @@ public class MonitorTaskController extends BasicController {
 		if (taskType != null) {
 			vo.putSearchParam("taskType", taskType.toString(), taskType);
 		}
+		
+		//限制不查询【上刊任务】
+		List<Integer> notTaskTypes = new ArrayList<>();
+		notTaskTypes.add(MonitorTaskType.UP_TASK.getId());
+		vo.putSearchParam("notTaskTypes", null, notTaskTypes);
+		
 		List<Integer> statuses = new ArrayList<>();
 		if (status == null) {
 			status = 3; // 如果没有传参status, 默认取3：待审核
@@ -149,6 +159,22 @@ public class MonitorTaskController extends BasicController {
         if (name != null) {
         	name = "%" + name + "%";
             vo.putSearchParam("activityName", name, name);
+        }
+        //媒体大类
+        if (mediaTypeParentId != null) {
+            vo.putSearchParam("mediaTypeParentId", mediaTypeParentId.toString(), mediaTypeParentId);
+        }
+        //媒体小类
+        if (mediaTypeId != null) {
+        	vo.putSearchParam("mediaTypeId", mediaTypeId.toString(), mediaTypeId);
+        }
+        //省
+        if (province != null) {
+        	vo.putSearchParam("province", province.toString(), province);
+        }
+        //城市
+        if (city != null) {
+            vo.putSearchParam("city", city.toString(), city);
         }
 		List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId()); // 根据员工id查询所属组对应的所有广告商id集合
 		if (customerIds != null && customerIds.size() == 0) {
@@ -275,7 +301,7 @@ public class MonitorTaskController extends BasicController {
 	}
 
 	/**
-	 * 监测管理，任务指派
+	 * 监测任务指派（任务审核指派部员工登录）
 	 **/
 	@RequiresRoles(value = { "taskadmin", "deptaskadmin", "superadmin" }, logical = Logical.OR)
 	@RequestMapping(value = "/unassign")
@@ -306,19 +332,23 @@ public class MonitorTaskController extends BasicController {
 		// List<AdMonitorTask> allMonitorTaskUnZhipai=
 		// adMonitorTaskService.getAllByStatusUnZhipai(searchMap2);
 
-		List<Integer> statuses = new ArrayList<>();
 		if (status == null) {
-			status = 1; // 如果不传查询参数, 默认是1：待指派
-		}
-		statuses.add(status);
-		vo.putSearchParam("statuses", null, statuses);
-		model.addAttribute("status", status);
+            vo.putSearchParam("statuses", null,
+                    new Integer[]{MonitorTaskStatus.UNASSIGN.getId(), MonitorTaskStatus.TO_CARRY_OUT.getId(), MonitorTaskStatus.CAN_GRAB.getId()});
+        } else {
+            vo.putSearchParam("status", String.valueOf(status), String.valueOf(status));
+        }
 
 		// 运营平台指派任务只指派监测期间的任务
 		// vo.putSearchParam("taskTypes", null, new
 		// Integer[]{MonitorTaskType.UP_MONITOR.getId(),MonitorTaskType.DURATION_MONITOR.getId(),MonitorTaskType.DOWNMONITOR.getId(),
 		// MonitorTaskType.FIX_CONFIRM.getId()});
 
+		//限制不查询【上刊任务】
+  		List<Integer> notTaskTypes = new ArrayList<>();
+  		notTaskTypes.add(MonitorTaskType.UP_TASK.getId());
+  		vo.putSearchParam("notTaskTypes", null, notTaskTypes);
+		
 		if (activityId != null) {
 			vo.putSearchParam("activityId", activityId.toString(), activityId);
 		}
@@ -437,6 +467,171 @@ public class MonitorTaskController extends BasicController {
 	}
 
 	/**
+	 * 上刊任务指派（任务审核指派部员工登录）
+	 **/
+	@RequiresRoles(value = { "taskadmin", "deptaskadmin", "superadmin" }, logical = Logical.OR)
+	@RequestMapping(value = "/upTaskList")
+	public String getUpTaskList(Model model, HttpServletRequest request,
+			@RequestParam(value = "id", required = false) Integer id,
+			@RequestParam(value = "activityId", required = false) Integer activityId,
+			@RequestParam(value = "startDate", required = false) String startDate,
+			@RequestParam(value = "mediaId", required = false) Integer mediaId,
+			@RequestParam(value = "status", required = false) Integer status,
+			@RequestParam(value = "endDate", required = false) String endDate,
+			@RequestParam(value = "name", required = false) String name) throws ParseException {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		SearchDataVo vo = SearchUtil.getVo();
+		AdMonitorTask task = new AdMonitorTask();
+		task.setId(id);
+		task.setStatus(status);
+		// Integer shenheCount = 0;
+
+		// 获取登录的审核员工taskadmin
+		SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+
+		// 指派员登录显示属于自己组的所有未指派的任务
+		// Map<String, Object> searchMap2 = new HashMap<>();
+		// List<Integer> customerIds =
+		// sysUserService.getCustomerIdsByAdminId(userObj.getId());
+		// //根据员工id查询所属组对应的所有广告商id集合
+		// searchMap2.put("customerIds", customerIds);
+		// List<AdMonitorTask> allMonitorTaskUnZhipai=
+		// adMonitorTaskService.getAllByStatusUnZhipai(searchMap2);
+
+		if (status == null) {
+            vo.putSearchParam("statuses", null,
+                    new Integer[]{MonitorTaskStatus.UNASSIGN.getId(), MonitorTaskStatus.TO_CARRY_OUT.getId(), MonitorTaskStatus.CAN_GRAB.getId()});
+        } else {
+            vo.putSearchParam("status", String.valueOf(status), String.valueOf(status));
+        }
+
+		// 运营平台指派任务只指派监测期间的任务
+		// vo.putSearchParam("taskTypes", null, new
+		// Integer[]{MonitorTaskType.UP_MONITOR.getId(),MonitorTaskType.DURATION_MONITOR.getId(),MonitorTaskType.DOWNMONITOR.getId(),
+		// MonitorTaskType.FIX_CONFIRM.getId()});
+
+		//限制只查询【上刊任务】
+		Integer taskType = MonitorTaskType.UP_TASK.getId();
+  		vo.putSearchParam("taskType", taskType.toString(), taskType);
+		
+		if (activityId != null) {
+			vo.putSearchParam("activityId", activityId.toString(), activityId);
+		}
+		if (startDate != null) {
+			try {
+				vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
+			} catch (ParseException e) {
+			}
+		}
+		if (endDate != null) {
+			try {
+				vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
+			} catch (ParseException e) {
+			}
+		}
+		 //查询活动名称
+        if (name != null) {
+        	name = "%" + name + "%";
+            vo.putSearchParam("activityName", name, name);
+        }
+		List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId()); // 根据员工id查询所属组对应的所有广告商id集合
+		if (customerIds != null && customerIds.size() == 0) {
+			// 员工对应的广告商id集合为空, 不需要再去查询任务指派列表
+			vo.setCount(0);
+			vo.setSize(20);
+			vo.setStart(0);
+			vo.setList(null);
+		} else {
+			vo.putSearchParam("customerIds", null, customerIds);
+			adMonitorTaskService.getPageData(vo);
+		}
+
+		// //只能查询自己参与的任务指派
+		// if(userObj != null) {
+		// Integer assignorId = userObj.getId();
+		// vo.putSearchParam("assignorId", assignorId.toString(), assignorId);
+		// }
+
+		// if(status != 1) {
+		// //查询非待审核的监测指派
+		// adMonitorTaskService.getPageData(vo);
+		// } else {
+		// //查询待审核的监测指派
+		// //[1] 先查询审核id的所有待审核的监测任务
+		// Map<String, Object> searchMap = new HashMap<>();
+		// searchMap.put("status", status); //1: 待指派
+		// searchMap.put("assignorId", userObj.getId()); //指派员id
+		// List<AdMonitorTaskVo> taskVos =
+		// adMonitorTaskService.selectAllByAssessorId(searchMap);
+		//
+		// if(taskVos != null && taskVos.size() > 0) {
+		// //条数大于0, 返回给页面
+		// Iterator<AdMonitorTaskVo> iterator = taskVos.iterator();
+		// while(iterator.hasNext()) {
+		// boolean remove = false; //不用抹去
+		// AdMonitorTaskVo taskVo = iterator.next();
+		// //通过页面上的activityId做筛选
+		// if(activityId != null) {
+		// if(taskVo.getActivityId() != activityId) {
+		// remove = true;
+		// }
+		// }
+		// //通过页面上的startDate做筛选
+		// if(StringUtil.isNotBlank(startDate)) {
+		// if(taskVo.getStartTime().getTime() < sdf.parse(startDate).getTime()) {
+		// remove = true;
+		// }
+		// }
+		// //通过页面上的endDate做筛选
+		// if(StringUtil.isNotBlank(endDate)) {
+		// if(taskVo.getEndTime().getTime() > sdf.parse(endDate).getTime()) {
+		// remove = true;
+		// }
+		// }
+		// if(remove == true) {
+		// iterator.remove();
+		// }
+		// }
+		// vo.setCount(taskVos.size());
+		// vo.setSize(20);
+		// vo.setStart(0);
+		// vo.setList(taskVos);
+		//
+		// shenheCount = allMonitorTaskUnZhipai.size() - taskVos.size();
+		// if(shenheCount < 0) {
+		// shenheCount = 0;
+		// }
+		// model.addAttribute("shenheCount", shenheCount);
+		// } else {
+		// //条数等于0, 新查询10条或者小于10条没人认领的待审核的监测指派任务(需要匹配 员工 - 组 - 广告商 之间的关系)
+		// //List<Integer> customerIds =
+		// sysUserService.getCustomerIdsByAdminId(userObj.getId());
+		// if(customerIds != null && customerIds.size() > 0) {
+		// searchMap.clear();
+		// searchMap.put("status", 1);
+		// searchMap.put("customerIds", customerIds);
+		// searchMap.put("assignorId", userObj.getId());
+		// List<AdMonitorTaskVo> monitorTaskVos =
+		// adMonitorTaskService.getTenAdMonitorTaskAssignVo(searchMap);
+		// vo.setCount(monitorTaskVos.size());
+		// vo.setSize(20);
+		// vo.setStart(0);
+		// vo.setList(monitorTaskVos);
+		// shenheCount = allMonitorTaskUnZhipai.size() - monitorTaskVos.size();
+		// if(shenheCount < 0) {
+		// shenheCount = 0;
+		// }
+		// model.addAttribute("shenheCount", shenheCount);
+		// }
+		// }
+		// }
+
+		SearchUtil.putToModel(model, vo);
+
+		return PageConst.UP_TASK_LIST;
+	}
+	
+	/**
 	 * 选择监测人员页面
 	 **/
 	@RequiresRoles(value = { "taskadmin", "media", "deptaskadmin", "superadmin" }, logical = Logical.OR)
@@ -468,32 +663,32 @@ public class MonitorTaskController extends BasicController {
 		ResultVo<String> result = new ResultVo<String>();
 		// [1] ids拆分成id集合
 		String[] taskIds = ids.split(",");
-		// [2] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
-		for (String taskId : taskIds) {
-			// 注意：这里没有考虑批量指派的问题. 如果批量指派, 需要循环放入Redis
-			String beginRedisStr = "zhipai_" + taskId + "_begin";
-			String finishRedisStr = "zhipai_" + taskId + "_finish";
-			if (redisTemplate.opsForValue().get(finishRedisStr) != null
-					&& StringUtil.equals(redisTemplate.opsForValue().get(finishRedisStr) + "", "true")) {
-				result.setCode(ResultCode.RESULT_FAILURE.getCode());
-				result.setResultDes("任务已被指派，请刷新再试！");
-				model.addAttribute(SysConst.RESULT_KEY, result);
-				return model;
-			}
-			if (redisTemplate.opsForValue().get(beginRedisStr) != null
-					&& StringUtil.equals(redisTemplate.opsForValue().get(beginRedisStr) + "", "true")) {
-				result.setCode(ResultCode.RESULT_FAILURE.getCode());
-				result.setResultDes("任务正被指派中，请刷新再试！");
-				model.addAttribute(SysConst.RESULT_KEY, result);
-				return model;
-			}
-		}
-		// [3] 循环放入redis中
-		for (String taskId : taskIds) {
-			String beginRedisStr = "zhipai_" + taskId + "_begin";
-			// 放入Redis缓存处理并发
-			redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
-		}
+//		// [2] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
+//		for (String taskId : taskIds) {
+//			// 注意：这里没有考虑批量指派的问题. 如果批量指派, 需要循环放入Redis
+//			String beginRedisStr = "zhipai_" + taskId + "_begin";
+//			String finishRedisStr = "zhipai_" + taskId + "_finish";
+//			if (redisTemplate.opsForValue().get(finishRedisStr) != null
+//					&& StringUtil.equals(redisTemplate.opsForValue().get(finishRedisStr) + "", "true")) {
+//				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+//				result.setResultDes("任务已被指派，请刷新再试！");
+//				model.addAttribute(SysConst.RESULT_KEY, result);
+//				return model;
+//			}
+//			if (redisTemplate.opsForValue().get(beginRedisStr) != null
+//					&& StringUtil.equals(redisTemplate.opsForValue().get(beginRedisStr) + "", "true")) {
+//				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+//				result.setResultDes("任务正被指派中，请刷新再试！");
+//				model.addAttribute(SysConst.RESULT_KEY, result);
+//				return model;
+//			}
+//		}
+//		// [3] 循环放入redis中
+//		for (String taskId : taskIds) {
+//			String beginRedisStr = "zhipai_" + taskId + "_begin";
+//			// 放入Redis缓存处理并发
+//			redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
+//		}
 		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
 		result.setResultDes("指派成功");
 		model = new ExtendedModelMap();
@@ -516,23 +711,23 @@ public class MonitorTaskController extends BasicController {
 			String pushResult = JPushUtils.pushAllByAlias(param);
 			System.out.println("pushResult:: " + pushResult);
 		} catch (Exception e) {
-			// [5] 异常情况, 循环删除redis
-			for (String taskId : taskIds) {
-				String beginRedisStr = "zhipai_" + taskId + "_begin";
-				// 异常情况, 移除Redis缓存处理并发
-				redisTemplate.delete(beginRedisStr);
-			}
+//			// [5] 异常情况, 循环删除redis
+//			for (String taskId : taskIds) {
+//				String beginRedisStr = "zhipai_" + taskId + "_begin";
+//				// 异常情况, 移除Redis缓存处理并发
+//				redisTemplate.delete(beginRedisStr);
+//			}
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("指派失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
 			return model;
 		}
-		// [6] 处理成功, 循环放入redis
-		for (String taskId : taskIds) {
-			// 放入Redis缓存处理并发
-			String finishRedisStr = "zhipai_" + taskId + "_finish";
-			redisTemplate.opsForValue().set(finishRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
-		}
+//		// [6] 处理成功, 循环放入redis
+//		for (String taskId : taskIds) {
+//			// 放入Redis缓存处理并发
+//			String finishRedisStr = "zhipai_" + taskId + "_finish";
+//			redisTemplate.opsForValue().set(finishRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
+//		}
 		model.addAttribute(SysConst.RESULT_KEY, result);
 		return model;
 	}

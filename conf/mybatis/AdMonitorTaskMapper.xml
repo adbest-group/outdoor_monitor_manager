@@ -340,6 +340,8 @@
         <result column="feedback_lon" jdbcType="DOUBLE" property="feedbackLon"/>
         <result column="assessorName" jdbcType="VARCHAR" property="assessorName"/>
         <result column="assignorName" jdbcType="VARCHAR" property="assignorName"/>
+        <result column="media_type_parent_id" jdbcType="INTEGER" property="mediaTypeParentId"/>
+        <result column="media_type_id" jdbcType="INTEGER" property="mediaTypeId"/>
     </resultMap>
 
     <resultMap id="MobileResultMap" extends="BaseResultMap" type="com.bt.om.entity.vo.AdMonitorTaskMobileVo">
@@ -375,18 +377,50 @@
         <result column="memo" jdbcType="VARCHAR" property="memo"/>
     </resultMap>
 
-    <insert id="insertList" parameterType="java.util.List">
-        insert into ad_monitor_task (id, activity_id, activity_adseat_id,
-        task_type, user_id, status,problem_status,sub_created,parent_id,parent_type,
-        verify_time,create_time, update_time, assignor_time, report_time)
+	<!-- 批量插入任务 -->
+    <insert id="insertList" parameterType="com.bt.om.entity.AdMonitorTask">
+        insert into ad_monitor_task (
+        	activity_id, 
+        	activity_adseat_id, 
+        	task_type, 
+        	monitor_date,
+        	monitor_last_days,
+        	user_id, 
+        	status, 
+        	problem_status, 
+        	sub_created, 
+        	parent_id, 
+        	parent_type, 
+        	verify_time, 
+        	create_time, 
+        	update_time, 
+        	assessor_id,
+        	assignor_id,
+        	assignor_time, 
+        	report_time
+        )
         values
         <foreach collection="tasks" item="task" separator=",">
-            (#{id,jdbcType=INTEGER}, #{activityId,jdbcType=INTEGER}, #{activityAdseatId,jdbcType=INTEGER},
-            #{taskType,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{status,jdbcType=INTEGER},
-            #{problemStatus,jdbcType=INTEGER}, #{subCreated,jdbcType=INTEGER}, #{parentId,jdbcType=INTEGER},
-            #{parentType,jdbcType=INTEGER},
-            #{verifyTime,jdbcType=TIMESTAMP},#{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP},
-            #{assessorId,jdbcType=INTEGER},#{assignorId,jdbcType=INTEGER},#{assignorTime,jdbcType=TIMESTAMP},#{reportTime,jdbcType=TIMESTAMP})
+        (
+	         #{task.activityId,jdbcType=INTEGER}, 
+	         #{task.activityAdseatId,jdbcType=INTEGER},
+	         #{task.taskType,jdbcType=INTEGER}, 
+	         #{task.monitorDate,jdbcType=TIMESTAMP},
+	         #{task.monitorLastDays,jdbcType=INTEGER},
+	         #{task.userId,jdbcType=INTEGER}, 
+	         #{task.status,jdbcType=INTEGER},
+	         #{task.problemStatus,jdbcType=INTEGER}, 
+	         #{task.subCreated,jdbcType=INTEGER}, 
+	         #{task.parentId,jdbcType=INTEGER},
+	         #{task.parentType,jdbcType=INTEGER},
+	         #{task.verifyTime,jdbcType=TIMESTAMP},
+	         #{task.createTime,jdbcType=TIMESTAMP}, 
+	         #{task.updateTime,jdbcType=TIMESTAMP}, 
+	         #{task.assessorId,jdbcType=INTEGER}, 
+	         #{task.assignorId,jdbcType=INTEGER}, 
+	         #{task.assignorTime,jdbcType=TIMESTAMP}, 
+	         #{task.reportTime,jdbcType=TIMESTAMP}
+        )
         </foreach>
     </insert>
 
@@ -436,9 +470,29 @@
         <if test="taskType != null">
             and a.task_type = #{taskType,jdbcType=INTEGER}
         </if>
+        <if test="notTaskTypes != null">
+            and a.task_type not in
+            <foreach collection="notTaskTypes" separator="," open="(" close=")" item="s">#{s,jdbcType=INTEGER}
+            </foreach>
+        </if>
         <if test="mediaUserId != null">
             and e.user_id = #{mediaUserId,jdbcType=INTEGER}
         </if>
+        <if test="mediaId != null" >
+	      and e.id = #{mediaId,jdbcType=INTEGER}
+	    </if>
+	    <if test="mediaTypeParentId != null">
+	    	and d.media_type_parent_id = #{mediaTypeParentId,jdbcType=INTEGER}
+	    </if>
+	    <if test="mediaTypeId != null">
+	    	and d.media_type_id = #{mediaTypeId,jdbcType=INTEGER}
+	    </if>
+	    <if test="province != null">
+	    	and d.province = #{province,jdbcType=BIGINT}
+	    </if>
+	    <if test="city != null">
+	    	and d.city = #{city,jdbcType=BIGINT}
+	    </if>
         <if test="taskTypes != null">
             and a.task_type in
             <foreach collection="taskTypes" separator="," open="(" close=")" item="task">#{task,jdbcType=INTEGER}
@@ -475,8 +529,7 @@
           select 
         	a.id, a.activity_id, a.activity_adseat_id, a.task_type, a.monitor_date,a.monitor_last_days,a.user_id,
         	a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time, a.assessor_id,a.assignor_id,a.assignor_time,
-        	b.activity_name,c.sample_pic_url,b.start_time,b.end_time,d.province,d.city,d.region,d.street,c.media_id,e.media_name,d.`name`
-        	as ad_seat_name,
+        	b.activity_name,c.sample_pic_url,b.start_time,b.end_time,d.province,d.city,d.region,d.street,c.media_id,e.media_name,d.`name` as ad_seat_name,
         	f.realname,
         	g.realname as assessorName,
         	h.realname as assignorName
@@ -518,9 +571,29 @@
         <if test="taskType != null">
             and a.task_type = #{taskType,jdbcType=INTEGER}
         </if>
+        <if test="notTaskTypes != null">
+            and a.task_type not in
+            <foreach collection="notTaskTypes" separator="," open="(" close=")" item="s">#{s,jdbcType=INTEGER}
+            </foreach>
+        </if>
         <if test="mediaUserId != null">
             and e.user_id = #{mediaUserId,jdbcType=INTEGER} and a.parent_id is null
         </if>
+        <if test="mediaId != null" >
+	      and e.id = #{mediaId,jdbcType=INTEGER}
+	    </if>
+	    <if test="mediaTypeParentId != null">
+	    	and d.media_type_parent_id = #{mediaTypeParentId,jdbcType=INTEGER}
+	    </if>
+	    <if test="mediaTypeId != null">
+	    	and d.media_type_id = #{mediaTypeId,jdbcType=INTEGER}
+	    </if>
+	    <if test="province != null">
+	    	and d.province = #{province,jdbcType=BIGINT}
+	    </if>
+	    <if test="city != null">
+	    	and d.city = #{city,jdbcType=BIGINT}
+	    </if>
         <if test="taskTypes != null">
             and a.task_type in
             <foreach collection="taskTypes" separator="," open="(" close=")" item="task">#{task,jdbcType=INTEGER}
@@ -1256,5 +1329,14 @@
 		) as t
 		group by monitor_task_id
     </select>
+	
+	<!-- 清理任务主表的执行任务人员信息 -->    
+    <update id="cleanTask" parameterType="com.bt.om.entity.AdMonitorTask">
+    	update ad_monitor_task
+    	set
+	    	user_id = null,
+	    	status = #{status,jdbcType=INTEGER}
+    	where id = #{id,jdbcType=INTEGER}
+    </update>
     
 </mapper>

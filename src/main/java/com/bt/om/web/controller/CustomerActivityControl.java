@@ -3,9 +3,12 @@ package com.bt.om.web.controller;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.bt.om.common.DateUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdActivity;
@@ -30,10 +34,13 @@ import com.bt.om.entity.AdActivityAdseat;
 import com.bt.om.entity.AdActivityArea;
 import com.bt.om.entity.AdActivityMedia;
 import com.bt.om.entity.AdJiucuoTaskFeedback;
+import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AdActivityVo;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.entity.vo.AdSeatCount;
+import com.bt.om.entity.vo.AdSeatInfoVo;
 import com.bt.om.enums.ActivityStatus;
 import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.ResultCode;
@@ -41,6 +48,8 @@ import com.bt.om.enums.SessionKey;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
+import com.bt.om.service.IAdSeatService;
+import com.bt.om.util.ConfigUtil;
 import com.bt.om.util.GsonUtil;
 import com.bt.om.util.StringUtil;
 import com.bt.om.vo.web.ResultVo;
@@ -60,6 +69,8 @@ public class CustomerActivityControl extends BasicController {
     private IAdActivityService adActivityService;
     @Autowired
     private IAdJiucuoTaskService adJiucuoTaskService;
+    @Autowired
+    private IAdSeatService adSeatService;
 
 	/**
      * 查询活动列表
@@ -71,7 +82,11 @@ public class CustomerActivityControl extends BasicController {
                                @RequestParam(value = "status", required = false) Integer status,
                                @RequestParam(value = "startDate", required = false) String startDate,
                                @RequestParam(value = "endDate", required = false) String endDate,
-                               @RequestParam(value = "name", required = false) String name) {
+                               @RequestParam(value = "name", required = false) String name,
+                               @RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
+                               @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
+                               @RequestParam(value = "province", required = false) String province,
+                               @RequestParam(value = "city", required = false) String city) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
         SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
@@ -102,6 +117,22 @@ public class CustomerActivityControl extends BasicController {
         	name = "%" + name + "%";
             vo.putSearchParam("activityName", name, name);
         }
+        //媒体大类
+        if (mediaTypeParentId != null) {
+            vo.putSearchParam("mediaTypeParentId", mediaTypeParentId.toString(), mediaTypeParentId);
+        }
+        //媒体小类
+        if (mediaTypeId != null) {
+        	vo.putSearchParam("mediaTypeId", mediaTypeId.toString(), mediaTypeId);
+        }
+        //省
+        if (province != null) {
+        	vo.putSearchParam("province", province.toString(), province);
+        }
+        //城市
+        if (city != null) {
+            vo.putSearchParam("city", city.toString(), city);
+        }
         adActivityService.getPageData(vo);
 
         SearchUtil.putToModel(model, vo);
@@ -128,19 +159,107 @@ public class CustomerActivityControl extends BasicController {
         if(user != null) {
         	model.addAttribute("usertype", user.getUsertype());
         }
+        
+        Integer monitorTime = ConfigUtil.getInt("monitor_time"); //允许任务执行天数
+        Integer auditTime = ConfigUtil.getInt("audit_time"); //允许任务审核天数
+        
+        model.addAttribute("monitorTime", monitorTime);
+        model.addAttribute("auditTime", auditTime);
 
         return PageConst.CUSTOMER_ACTIVITY_EDIT;
     }
 
 	/**
-     * 编辑活动广告位页面跳转
+     * 编辑活动广告位页面跳转(已废弃)
      */
     @RequiresRoles(value = {"superadmin", "customer","depactivityadmin","activityadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/activity/adseat/edit")
     public String adSeatEdit(Model model, HttpServletRequest request) {
         return PageConst.CUSTOMER_ACTIVITY_ADSEAT_EDIT;
     }
+    
+	/**
+     * 选择活动的广告位二级页面跳转
+     */
+    @RequiresRoles(value = {"superadmin", "customer","depactivityadmin","activityadmin"}, logical = Logical.OR)
+    @RequestMapping(value = "/activity/adseat/select")
+    public String adSeatSelect(Model model, HttpServletRequest request,
+            @RequestParam(value = "province", required = false) Long province,
+            @RequestParam(value = "city", required = false) Long city,
+            @RequestParam(value = "region", required = false) Long region,
+            @RequestParam(value = "street", required = false) Long street,
+            @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
+            @RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
+            @RequestParam(value = "mediaId", required = false) Integer mediaId,
+            @RequestParam(value = "startDate", required = false) String startDate,
+            @RequestParam(value = "endDate", required = false) String endDate,
+            @RequestParam(value = "seatIds", required = false) String seatIds) {
+    	SearchDataVo vo = SearchUtil.getVo();
+        if (street != null) {
+            vo.putSearchParam("street", street.toString(), street);
+        } else if (region != null) {
+            vo.putSearchParam("region", region.toString(), region);
+        } else if (city != null) {
+            vo.putSearchParam("city", city.toString(), city);
+        } else if (province != null) {
+            vo.putSearchParam("province", province.toString(), province);
+        }
+        if (mediaTypeParentId != null) {
+            vo.putSearchParam("mediaTypeParentId", mediaTypeParentId.toString(), mediaTypeParentId);
+        }
+        if (mediaTypeId != null) {
+            vo.putSearchParam("mediaTypeId", mediaTypeId.toString(), mediaTypeId);
+        }
+        if (mediaId != null) {
+            vo.putSearchParam("mediaId", mediaId.toString(), mediaId);
+        }
 
+        //[1] 查询传递的时间段内正在参与活动的广告位id及参与活动数量
+        Map<String, Object> searchMap = new HashMap<>();
+        searchMap.put("startDate", DateUtil.parseStrDate(startDate, "yyyy-MM-dd"));
+        searchMap.put("endDate", DateUtil.parseStrDate(endDate, "yyyy-MM-dd"));
+        List<AdSeatCount> adSeatCounts = adActivityService.selectActiveActivityCount(searchMap);
+        
+        List<Integer> adseatInfoIds = new ArrayList<Integer>(); //待移除的广告位id集合
+        for (AdSeatCount adSeatCount : adSeatCounts) {
+			if(adSeatCount != null) {
+				//判断是否要移除
+				if(adSeatCount.getAllowMulti() == 0 && adSeatCount.getCount() >= 1) {
+					//否：不允许同时有多个活动; 当前广告位正在参与活动的数量 大于等于 1
+					adseatInfoIds.add(adSeatCount.getAdseatId());
+				}
+				if(adSeatCount.getAllowMulti() == 1 && adSeatCount.getCount() >= adSeatCount.getMultiNum()) {
+					//是: 允许同时有多个活动; 当前广告位正在参与活动的数量 大于等于 最大允许数量
+					adseatInfoIds.add(adSeatCount.getAdseatId());
+				}
+			}
+		}
+        
+        if(adseatInfoIds != null && adseatInfoIds.size() > 0) {
+        	List<Integer> existSeatIds = new ArrayList<>();
+        	if(StringUtil.isNotEmpty(seatIds)) {
+        		String[] splitIds = seatIds.split(","); //活动已有的广告位id集合
+        		for (String string : splitIds) {
+        			existSeatIds.add(Integer.parseInt(string));
+				}
+        	}
+        	if(existSeatIds.size() > 0) {
+        		adseatInfoIds.removeAll(existSeatIds);
+        	}
+        	vo.putSearchParam("adseatInfoIds", null, adseatInfoIds);
+        }
+        
+        adSeatService.getPageData(vo);
+        SearchUtil.putToModel(model, vo);
+    	
+        model.addAttribute("count", vo.getCount()); //总条数
+        int totalPageCount = (int) ((vo.getCount() + 20 - 1) / 20);
+        model.addAttribute("totalPageCount", totalPageCount); //总页数
+        model.addAttribute("start", vo.getStart()); //当前页
+        
+        return PageConst.CUSTOMER_ACTIVITY_ADSEAT_SELE;
+    }
+    
     /**
      * 新增/编辑活动
      */
@@ -157,7 +276,14 @@ public class CustomerActivityControl extends BasicController {
                       @RequestParam(value = "dels", required = false) String dels,
                       @RequestParam(value = "samplePicUrl", required = false) String samplePicUrl,
                       @RequestParam(value = "customerId", required = false) Integer customerId,
-                      @RequestParam(value = "activeSeat", required = false) String activeSeat) {
+                      @RequestParam(value = "activeSeat", required = false) String activeSeat,
+                      @RequestParam(value = "upMonitorLastDays", required = false) String upMonitorLastDays,
+                      @RequestParam(value = "durationMonitorLastDays", required = false) String durationMonitorLastDays,
+                      @RequestParam(value = "downMonitorLastDays", required = false) String downMonitorLastDays,
+                      @RequestParam(value = "upTaskTime", required = false) String upTaskTime,
+                      @RequestParam(value = "upMonitorTaskTime", required = false) String upMonitorTaskTime,
+                      @RequestParam(value = "durationMonitorTaskTime", required = false) String durationMonitorTaskTime,
+                      @RequestParam(value = "downMonitorTaskTime", required = false) String downMonitorTaskTime) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date now = new Date();
         ResultVo<String> result = new ResultVo<String>();
@@ -171,12 +297,12 @@ public class CustomerActivityControl extends BasicController {
         adActivityVo.setActivityName(activityName);
         adActivityVo.setSamplePicUrl(samplePicUrl);    
         
-        String[] str = media.split(",");
-        for(String i : str) {
-        	AdActivityMedia aam = new AdActivityMedia();
-        	aam.setMediaId(Integer.parseInt(i));
-        	adActivityVo.getActivityMedias().add(aam);
-        }
+//        String[] str = media.split(",");
+//        for(String i : str) {
+//        	AdActivityMedia aam = new AdActivityMedia();
+//        	aam.setMediaId(Integer.parseInt(i));
+//        	adActivityVo.getActivityMedias().add(aam);
+//        }
         
 //		adActivityVo.setCustomerTypeId(customerTypeId); //客户类型
         try {
@@ -186,7 +312,6 @@ public class CustomerActivityControl extends BasicController {
             result.setResultDes("日期格式有误！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
-
         }
         try {
             adActivityVo.setEndTime(sdf.parse(endDate));
@@ -196,91 +321,102 @@ public class CustomerActivityControl extends BasicController {
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
-        
 
+        //构建活动的广告位
+        if(StringUtil.isEmpty(activeSeat)) {
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("请先选择活动的广告位！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        
         //构造样例图
 //        AdActivityAdseat adActivityAdseat = new AdActivityAdseat();
 //        adActivityAdseat.setSamplePicUrl(samplePicUrl);
 //        adActivityVo.getActivitySeats().add(adActivityAdseat);
         
-        //构造活动地区
-        List<JsonObject> areas = GsonUtil.getObjectList(area, JsonObject.class);
-        if (areas.size() > 0) {
-            for (JsonObject obj : areas) {
-            	boolean zhixiashiFlag = false;
-            	if(obj.get("city") == null || StringUtils.equals(String.valueOf(obj.get("city")), "null")) {
-            		//直辖市"市为空"
-            		zhixiashiFlag = true;
-            	}
-                AdActivityArea aa = new AdActivityArea();
-                aa.setProvince(obj.get("province").getAsLong());
-                if(zhixiashiFlag == true) {
-                	aa.setCity(obj.get("province").getAsLong());
-                } else {
-                	aa.setCity(obj.get("city").getAsLong());
-                }
-                aa.setRegion(obj.get("region").getAsLong());
-                aa.setStreet(obj.get("street").getAsLong());
-                aa.setCreateTime(now);
-                aa.setUpdateTime(now);
-                adActivityVo.getActivityAreas().add(aa);
-            }
-        }
+//        //构造活动地区
+//        List<JsonObject> areas = GsonUtil.getObjectList(area, JsonObject.class);
+//        if (areas.size() > 0) {
+//            for (JsonObject obj : areas) {
+//            	boolean zhixiashiFlag = false;
+//            	if(obj.get("city") == null || StringUtils.equals(String.valueOf(obj.get("city")), "null")) {
+//            		//直辖市"市为空"
+//            		zhixiashiFlag = true;
+//            	}
+//                AdActivityArea aa = new AdActivityArea();
+//                aa.setProvince(obj.get("province").getAsLong());
+//                if(zhixiashiFlag == true) {
+//                	aa.setCity(obj.get("province").getAsLong());
+//                } else {
+//                	aa.setCity(obj.get("city").getAsLong());
+//                }
+//                aa.setRegion(obj.get("region").getAsLong());
+//                aa.setStreet(obj.get("street").getAsLong());
+//                aa.setCreateTime(now);
+//                aa.setUpdateTime(now);
+//                adActivityVo.getActivityAreas().add(aa);
+//            }
+//        }
         
-        //选中的广告位所属媒体（不重复）集合
-        Set<Integer> mediaSet = new HashSet<>();
+//        //选中的广告位所属媒体（不重复）集合
+//        Set<Integer> mediaSet = new HashSet<>();
       
         //构造活动广告位
-        List<JsonObject> seats = GsonUtil.getObjectList(activeSeat, JsonObject.class);
-        if (seats.size() > 0) {
-            for (JsonObject obj : seats) {
-                AdActivityAdseat as = new AdActivityAdseat();
-                as.setAdSeatId(obj.get("seatId").getAsInt());
-                as.setBrand(obj.get("brand").getAsString());
-                as.setUpMonitor(obj.get("upMonitor").getAsInt());
-                as.setSamplePicUrl(samplePicUrl);
-                if(as.getUpMonitor()==1){
-                    as.setUpMonitorLastDays(obj.get("upMonitorLastDays").getAsInt());
-                }
-                as.setDurationMonitor(obj.get("durationMonitor").getAsInt());
-                if(as.getDurationMonitor()==1){
-                    as.setDurationMonitorLastDays(obj.get("durationMonitorLastDays").getAsInt());
-                }
-                as.setDownMonitor(obj.get("downMonitor").getAsInt());
-                if(as.getDownMonitor()==1){
-                    as.setDownMonitorLastDays(obj.get("downMonitorLastDays").getAsInt());
-                }
-                as.setMediaId(obj.get("mediaId").getAsInt());
-                mediaSet.add(obj.get("mediaId").getAsInt());
-                
-                as.setMonitorCount(obj.get("monitorCount").getAsInt());
-                try {
-                    as.setMonitorStart(sdf.parse(obj.get("startDate").getAsString()));
-                    as.setMonitorEnd(sdf.parse(obj.get("endDate").getAsString()));
-                } catch (ParseException e) {
-                    result.setCode(ResultCode.RESULT_FAILURE.getCode());
-                    result.setResultDes("日期格式有误！");
-                    model.addAttribute(SysConst.RESULT_KEY, result);
-                    return model;
-                }
-                as.setTaskCreate(1);
-//                as.setSamplePicUrl(obj.get("samplePicUrl").getAsString());
-                as.setCreateTime(now);
-                as.setUpdateTime(now);
-                adActivityVo.getActivitySeats().add(as);
-      
-            }
-        }
+//        List<JsonObject> seats = GsonUtil.getObjectList(activeSeat, JsonObject.class);
+//        if (seats.size() > 0) {
+//            for (JsonObject obj : seats) {
+//                AdActivityAdseat as = new AdActivityAdseat();
+//                as.setAdSeatId(obj.get("seatId").getAsInt());
+//                as.setBrand(obj.get("brand").getAsString());
+//                as.setUpMonitor(obj.get("upMonitor").getAsInt());
+//                as.setSamplePicUrl(samplePicUrl);
+//                if(as.getUpMonitor()==1){
+//                    as.setUpMonitorLastDays(obj.get("upMonitorLastDays").getAsInt());
+//                }
+//                as.setDurationMonitor(obj.get("durationMonitor").getAsInt());
+//                if(as.getDurationMonitor()==1){
+//                    as.setDurationMonitorLastDays(obj.get("durationMonitorLastDays").getAsInt());
+//                }
+//                as.setDownMonitor(obj.get("downMonitor").getAsInt());
+//                if(as.getDownMonitor()==1){
+//                    as.setDownMonitorLastDays(obj.get("downMonitorLastDays").getAsInt());
+//                }
+//                as.setMediaId(obj.get("mediaId").getAsInt());
+//                mediaSet.add(obj.get("mediaId").getAsInt());
+//                
+//                as.setMonitorCount(obj.get("monitorCount").getAsInt());
+//                try {
+//                    as.setMonitorStart(sdf.parse(obj.get("startDate").getAsString()));
+//                    as.setMonitorEnd(sdf.parse(obj.get("endDate").getAsString()));
+//                } catch (ParseException e) {
+//                    result.setCode(ResultCode.RESULT_FAILURE.getCode());
+//                    result.setResultDes("日期格式有误！");
+//                    model.addAttribute(SysConst.RESULT_KEY, result);
+//                    return model;
+//                }
+//                as.setTaskCreate(1);
+////                as.setSamplePicUrl(obj.get("samplePicUrl").getAsString());
+//                as.setCreateTime(now);
+//                as.setUpdateTime(now);
+//                adActivityVo.getActivitySeats().add(as);
+//            }
+//        }
 
-        //构造活动媒体
-        for (Integer mediaId : mediaSet) {
-            AdActivityMedia am = new AdActivityMedia();
-            am.setMediaId(mediaId);
-            am.setCreateTime(now);
-            am.setUpdateTime(now);
-            adActivityVo.getActivityMedias().add(am);
-        }
+//        //构造活动媒体
+//        for (Integer mediaId : mediaSet) {
+//            AdActivityMedia am = new AdActivityMedia();
+//            am.setMediaId(mediaId);
+//            am.setCreateTime(now);
+//            am.setUpdateTime(now);
+//            adActivityVo.getActivityMedias().add(am);
+//        }
 
+        adActivityVo.setUpTaskTime(upTaskTime); //上刊任务出报告时间
+        adActivityVo.setUpMonitorTaskTime(upMonitorTaskTime); //上刊监测任务出报告时间
+        adActivityVo.setDurationMonitorTaskTime(durationMonitorTaskTime); //投放期间监测任务出报告时间
+        adActivityVo.setDownMonitorTaskTime(downMonitorTaskTime); //下刊监测任务出报告时间
+        
         //新增
         if (StringUtil.isEmpty(id)) {
             adActivityVo.setStatus(ActivityStatus.UNCONFIRM.getId());
@@ -293,11 +429,11 @@ public class CustomerActivityControl extends BasicController {
             }
             adActivityVo.setCreateTime(now);
             adActivityVo.setUpdateTime(now);
-            adActivityService.add(adActivityVo);
+            adActivityService.add(adActivityVo, activeSeat);
         } else {//更新
             adActivityVo.setId(new Integer(id));
             adActivityVo.setUpdateTime(now);
-            adActivityService.modify(adActivityVo);
+            adActivityService.modify(adActivityVo, activeSeat);
         }
 
         model.addAttribute(SysConst.RESULT_KEY, result);
@@ -311,7 +447,12 @@ public class CustomerActivityControl extends BasicController {
                              @RequestParam(value = "problemStatus", required = false) Integer problemStatus,
                              @RequestParam(value = "startDate", required = false) String startDate,
                              @RequestParam(value = "endDate", required = false) String endDate,
-                             @RequestParam(value = "name", required = false) String name) {
+                             @RequestParam(value = "mediaId", required = false) Integer mediaId,
+                             @RequestParam(value = "name", required = false) String name,
+                             @RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
+                             @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
+                             @RequestParam(value = "province", required = false) String province,
+                             @RequestParam(value = "city", required = false) String city) {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
@@ -341,10 +482,30 @@ public class CustomerActivityControl extends BasicController {
             } catch (ParseException e) {
             }
         }
-      //查询活动名称
+        //查询活动名称
         if (name != null) {
         	name = "%" + name + "%";
             vo.putSearchParam("activityName", name, name);
+        }
+        //查询媒体主
+        if (mediaId != null) {
+            vo.putSearchParam("mediaId", mediaId.toString(), mediaId);
+        }
+        //媒体大类
+        if (mediaTypeParentId != null) {
+            vo.putSearchParam("mediaTypeParentId", mediaTypeParentId.toString(), mediaTypeParentId);
+        }
+        //媒体小类
+        if (mediaTypeId != null) {
+        	vo.putSearchParam("mediaTypeId", mediaTypeId.toString(), mediaTypeId);
+        }
+        //省
+        if (province != null) {
+        	vo.putSearchParam("province", province.toString(), province);
+        }
+        //城市
+        if (city != null) {
+            vo.putSearchParam("city", city.toString(), city);
         }
         adJiucuoTaskService.getPageData(vo);
         SearchUtil.putToModel(model, vo);

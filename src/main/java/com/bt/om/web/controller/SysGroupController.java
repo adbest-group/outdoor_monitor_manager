@@ -28,6 +28,7 @@ import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserRes;
 import com.bt.om.entity.vo.UserRoleVo;
 import com.bt.om.enums.MonitorTaskStatus;
+import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.SessionKey;
@@ -395,7 +396,7 @@ public class SysGroupController extends BasicController{
     }
     
     /**
-     * 【活动审核部门】领导查看 所有活动页面
+     * 【活动审核部门】领导/【超级管理员】查看 所有活动页面
      */
     @RequiresRoles(value = {"departmentadmin", "depactivityadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/activity")
@@ -404,7 +405,11 @@ public class SysGroupController extends BasicController{
                                @RequestParam(value = "status", required = false) Integer status,
                                @RequestParam(value = "startDate", required = false) String startDate,
                                @RequestParam(value = "endDate", required = false) String endDate,
-                               @RequestParam(value = "name", required = false) String name) throws ParseException {
+                               @RequestParam(value = "name", required = false) String name,
+                               @RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
+                               @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
+                               @RequestParam(value = "province", required = false) String province,
+                               @RequestParam(value = "city", required = false) String city) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
         SearchDataVo vo = SearchUtil.getVo();
@@ -434,13 +439,29 @@ public class SysGroupController extends BasicController{
         	name = "%" + name + "%";
             vo.putSearchParam("activityName", name, name);
         }
+        //媒体大类
+        if (mediaTypeParentId != null) {
+            vo.putSearchParam("mediaTypeParentId", mediaTypeParentId.toString(), mediaTypeParentId);
+        }
+        //媒体小类
+        if (mediaTypeId != null) {
+        	vo.putSearchParam("mediaTypeId", mediaTypeId.toString(), mediaTypeId);
+        }
+        //省
+        if (province != null) {
+        	vo.putSearchParam("province", province.toString(), province);
+        }
+        //城市
+        if (city != null) {
+            vo.putSearchParam("city", city.toString(), city);
+        }
     	adActivityService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
         return PageConst.RESOURCES_ACTIVITY;
     }
     
     /**
-     * 【任务审核部门】领导查看 任务审核页面
+     * 【任务审核部门】领导/【超级管理员】查看 监测任务审核页面
      */
     @RequiresRoles(value = {"departmentadmin", "deptaskadmin", "superadmin","jiucuoadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/taskList")
@@ -453,7 +474,12 @@ public class SysGroupController extends BasicController{
                               @RequestParam(value = "endDate", required = false) String endDate,
                               @RequestParam(value = "pid", required = false) Integer pid,
                               @RequestParam(value = "ptype", required = false) Integer ptype,
-                              @RequestParam(value = "name", required = false) String name) throws ParseException {
+                              @RequestParam(value = "mediaId", required = false) Integer mediaId,
+                              @RequestParam(value = "name", required = false) String name,
+                              @RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
+                              @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
+                              @RequestParam(value = "province", required = false) Long province,
+                              @RequestParam(value = "city", required = false) Long city) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
         
@@ -463,8 +489,15 @@ public class SysGroupController extends BasicController{
         if (taskType != null) {
             vo.putSearchParam("taskType", taskType.toString(), taskType);
         }
+        
+        //限制不查询【上刊任务】
+  		List<Integer> notTaskTypes = new ArrayList<>();
+  		notTaskTypes.add(MonitorTaskType.UP_TASK.getId());
+  		vo.putSearchParam("notTaskTypes", null, notTaskTypes);
+  		
         if (status != null) {
             vo.putSearchParam("status", status.toString(), status);
+            model.addAttribute("status", status);
         }
         if (problemStatus != null) {
             vo.putSearchParam("problemStatus", problemStatus.toString(), problemStatus);
@@ -492,10 +525,30 @@ public class SysGroupController extends BasicController{
             } catch (ParseException e) {
             }
         }
+        //查询媒体主
+        if (mediaId != null) {
+            vo.putSearchParam("mediaId", mediaId.toString(), mediaId);
+        }
         //查询活动名称
         if (name != null) {
         	name = "%" + name + "%";
             vo.putSearchParam("activityName", name, name);
+        }
+        //媒体大类
+        if (mediaTypeParentId != null) {
+            vo.putSearchParam("mediaTypeParentId", mediaTypeParentId.toString(), mediaTypeParentId);
+        }
+        //媒体小类
+        if (mediaTypeId != null) {
+        	vo.putSearchParam("mediaTypeId", mediaTypeId.toString(), mediaTypeId);
+        }
+        //省
+        if (province != null) {
+        	vo.putSearchParam("province", province.toString(), province);
+        }
+        //城市
+        if (city != null) {
+            vo.putSearchParam("city", city.toString(), city);
         }
     	adMonitorTaskService.getPageData(vo);
         // vo.putSearchParam("hasUserId","1","1");
@@ -505,7 +558,7 @@ public class SysGroupController extends BasicController{
     }
 
     /**
-     * 【任务审核部门】领导查看 任务指派页面
+     * 【任务审核部门】领导/【超级管理员】查看 监测任务指派页面
      */
     @RequiresRoles(value = {"departmentadmin", "deptaskadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/taskUnassign")
@@ -514,19 +567,29 @@ public class SysGroupController extends BasicController{
                                   @RequestParam(value = "startDate", required = false) String startDate,
                                   @RequestParam(value = "status", required = false) Integer status,
                                   @RequestParam(value = "endDate", required = false) String endDate,
-                                  @RequestParam(value = "name", required = false) String name) throws ParseException {
+                                  @RequestParam(value = "mediaId", required = false) Integer mediaId,
+                                  @RequestParam(value = "name", required = false) String name,
+                                  @RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
+                                  @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
+                                  @RequestParam(value = "province", required = false) Long province,
+                                  @RequestParam(value = "city", required = false) Long city) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
 
         if (status == null) {
             vo.putSearchParam("statuses", null,
-                    new Integer[]{MonitorTaskStatus.UNASSIGN.getId(), MonitorTaskStatus.CAN_GRAB.getId()});
+                    new Integer[]{MonitorTaskStatus.UNASSIGN.getId(), MonitorTaskStatus.CAN_GRAB.getId(), MonitorTaskStatus.TO_CARRY_OUT.getId()});
         } else {
             vo.putSearchParam("status", String.valueOf(status), String.valueOf(status));
         }
         //运营平台指派任务只指派监测期间的任务
 //        vo.putSearchParam("taskTypes", null, new Integer[]{MonitorTaskType.UP_MONITOR.getId(),MonitorTaskType.DURATION_MONITOR.getId(),MonitorTaskType.DOWNMONITOR.getId(), MonitorTaskType.FIX_CONFIRM.getId()});
 
+        //限制不查询【上刊任务】
+  		List<Integer> notTaskTypes = new ArrayList<>();
+  		notTaskTypes.add(MonitorTaskType.UP_TASK.getId());
+  		vo.putSearchParam("notTaskTypes", null, notTaskTypes);
+        
         if (activityId != null) {
             vo.putSearchParam("activityId", activityId.toString(), activityId);
         }
@@ -542,10 +605,30 @@ public class SysGroupController extends BasicController{
             } catch (ParseException e) {
             }
         }
+       //查询媒体主
+        if (mediaId != null) {
+            vo.putSearchParam("mediaId", mediaId.toString(), mediaId);
+        }
         //查询活动名称
         if (name != null) {
         	name = "%" + name + "%";
             vo.putSearchParam("activityName", name, name);
+        }
+        //媒体大类
+        if (mediaTypeParentId != null) {
+            vo.putSearchParam("mediaTypeParentId", mediaTypeParentId.toString(), mediaTypeParentId);
+        }
+        //媒体小类
+        if (mediaTypeId != null) {
+        	vo.putSearchParam("mediaTypeId", mediaTypeId.toString(), mediaTypeId);
+        }
+        //省
+        if (province != null) {
+        	vo.putSearchParam("province", province.toString(), province);
+        }
+        //城市
+        if (city != null) {
+            vo.putSearchParam("city", city.toString(), city);
         }
     	adMonitorTaskService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
@@ -553,7 +636,84 @@ public class SysGroupController extends BasicController{
     }
     
     /**
-     * 【纠错审核部门】领导查看 纠错任务页面
+     * 【任务审核部门】领导/【超级管理员】查看 上刊任务指派页面
+     */
+    @RequiresRoles(value = {"departmentadmin", "deptaskadmin", "superadmin"}, logical = Logical.OR)
+    @RequestMapping(value = "/upTaskList")
+    public String getUpTaskList(Model model, HttpServletRequest request,
+                                  @RequestParam(value = "activityId", required = false) Integer activityId,
+                                  @RequestParam(value = "startDate", required = false) String startDate,
+                                  @RequestParam(value = "status", required = false) Integer status,
+                                  @RequestParam(value = "endDate", required = false) String endDate,
+                                  @RequestParam(value = "mediaId", required = false) Integer mediaId,
+                                  @RequestParam(value = "name", required = false) String name,
+                                  @RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
+                                  @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
+                                  @RequestParam(value = "province", required = false) Long province,
+                                  @RequestParam(value = "city", required = false) Long city) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        SearchDataVo vo = SearchUtil.getVo();
+
+        if (status == null) {
+            vo.putSearchParam("statuses", null,
+                    new Integer[]{MonitorTaskStatus.UNASSIGN.getId(), MonitorTaskStatus.TO_CARRY_OUT.getId(), MonitorTaskStatus.CAN_GRAB.getId()});
+        } else {
+            vo.putSearchParam("status", String.valueOf(status), String.valueOf(status));
+        }
+        //运营平台指派任务只指派监测期间的任务
+//        vo.putSearchParam("taskTypes", null, new Integer[]{MonitorTaskType.UP_MONITOR.getId(),MonitorTaskType.DURATION_MONITOR.getId(),MonitorTaskType.DOWNMONITOR.getId(), MonitorTaskType.FIX_CONFIRM.getId()});
+
+        //限制只查询【上刊任务】
+		Integer taskType = MonitorTaskType.UP_TASK.getId();
+		vo.putSearchParam("taskType", taskType.toString(), taskType);
+        
+        if (activityId != null) {
+            vo.putSearchParam("activityId", activityId.toString(), activityId);
+        }
+        if (startDate != null) {
+            try {
+                vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
+            } catch (ParseException e) {
+            }
+        }
+        if (endDate != null) {
+            try {
+                vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
+            } catch (ParseException e) {
+            }
+        }
+       //查询媒体主
+        if (mediaId != null) {
+            vo.putSearchParam("mediaId", mediaId.toString(), mediaId);
+        }
+        //查询活动名称
+        if (name != null) {
+        	name = "%" + name + "%";
+            vo.putSearchParam("activityName", name, name);
+        }
+        //媒体大类
+        if (mediaTypeParentId != null) {
+            vo.putSearchParam("mediaTypeParentId", mediaTypeParentId.toString(), mediaTypeParentId);
+        }
+        //媒体小类
+        if (mediaTypeId != null) {
+        	vo.putSearchParam("mediaTypeId", mediaTypeId.toString(), mediaTypeId);
+        }
+        //省
+        if (province != null) {
+        	vo.putSearchParam("province", province.toString(), province);
+        }
+        //城市
+        if (city != null) {
+            vo.putSearchParam("city", city.toString(), city);
+        }
+    	adMonitorTaskService.getPageData(vo);
+        SearchUtil.putToModel(model, vo);
+        return PageConst.UP_TASK_UNASSIGN;
+    }
+    
+    /**
+     * 【纠错审核部门】领导/【超级管理员】查看 纠错任务页面
      */
     @RequiresRoles(value = {"departmentadmin", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/jiucuoList")
@@ -564,7 +724,12 @@ public class SysGroupController extends BasicController{
                              @RequestParam(value = "problemStatus", required = false) Integer problemStatus,
                              @RequestParam(value = "startDate", required = false) String startDate,
                              @RequestParam(value = "endDate", required = false) String endDate,
-                             @RequestParam(value = "name", required = false) String name) throws ParseException {
+                             @RequestParam(value = "mediaId", required = false) Integer mediaId,
+                             @RequestParam(value = "name", required = false) String name,
+                             @RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
+                             @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
+                             @RequestParam(value = "province", required = false) Long province,
+                             @RequestParam(value = "city", required = false) Long city) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
         
@@ -593,10 +758,30 @@ public class SysGroupController extends BasicController{
             } catch (ParseException e) {
             }
         }
+      //查询媒体主
+        if (mediaId != null) {
+            vo.putSearchParam("mediaId", mediaId.toString(), mediaId);
+        }
         //查询活动名称
         if (name != null) {
         	name = "%" + name + "%";
             vo.putSearchParam("activityName", name, name);
+        }
+        //媒体大类
+        if (mediaTypeParentId != null) {
+            vo.putSearchParam("mediaTypeParentId", mediaTypeParentId.toString(), mediaTypeParentId);
+        }
+        //媒体小类
+        if (mediaTypeId != null) {
+        	vo.putSearchParam("mediaTypeId", mediaTypeId.toString(), mediaTypeId);
+        }
+        //省
+        if (province != null) {
+        	vo.putSearchParam("province", province.toString(), province);
+        }
+        //城市
+        if (city != null) {
+            vo.putSearchParam("city", city.toString(), city);
         }
     	adJiucuoTaskService.getPageData(vo);
         SearchUtil.putToModel(model, vo);

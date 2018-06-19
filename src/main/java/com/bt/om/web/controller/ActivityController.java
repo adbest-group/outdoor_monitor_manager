@@ -40,6 +40,7 @@ import com.bt.om.service.ISysGroupService;
 import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserRoleService;
 import com.bt.om.service.ISysUserService;
+import com.bt.om.util.ConfigUtil;
 import com.bt.om.util.GsonUtil;
 import com.bt.om.util.QRcodeUtil;
 import com.bt.om.vo.api.AdActivitySeatInfoInQRVO;
@@ -80,7 +81,11 @@ public class ActivityController extends BasicController {
 			@RequestParam(value = "status", required = false) Integer status,
 			@RequestParam(value = "startDate", required = false) String startDate,
 			@RequestParam(value = "endDate", required = false) String endDate,
-			@RequestParam(value = "name", required = false) String name) throws ParseException {
+			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
+            @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
+            @RequestParam(value = "province", required = false) String province,
+            @RequestParam(value = "city", required = false) String city) throws ParseException {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
 		SearchDataVo vo = SearchUtil.getVo();
@@ -116,6 +121,22 @@ public class ActivityController extends BasicController {
         if (name != null) {
         	name = "%" + name + "%";
             vo.putSearchParam("activityName", name, name);
+        }
+        //媒体大类
+        if (mediaTypeParentId != null) {
+            vo.putSearchParam("mediaTypeParentId", mediaTypeParentId.toString(), mediaTypeParentId);
+        }
+        //媒体小类
+        if (mediaTypeId != null) {
+        	vo.putSearchParam("mediaTypeId", mediaTypeId.toString(), mediaTypeId);
+        }
+        //省
+        if (province != null) {
+        	vo.putSearchParam("province", province.toString(), province);
+        }
+        //城市
+        if (city != null) {
+            vo.putSearchParam("city", city.toString(), city);
         }
 		// //只能查询自己参与的活动审核
 		// if(userObj != null) {
@@ -225,12 +246,12 @@ public class ActivityController extends BasicController {
 		return PageConst.ACTIVITY_LIST;
 	}
 
-	//前往编辑活动
+	// 前往编辑活动
     @RequiresRoles(value = {"activityadmin", "depactivityadmin", "superadmin", "customer"}, logical = Logical.OR)
     @RequestMapping(value = "/edit")
     public String customerEdit(Model model, HttpServletRequest request,
                                @RequestParam(value = "id", required = false) Integer id) {
-        AdActivityVo activity = adActivityService.getVoById(id);
+    	AdActivityVo activity = adActivityService.getVoById(id);
 
         if (activity != null) {
             model.addAttribute("activity", activity);
@@ -242,6 +263,12 @@ public class ActivityController extends BasicController {
         if(user != null) {
         	model.addAttribute("usertype", user.getUsertype());
         }
+        
+        Integer monitorTime = ConfigUtil.getInt("monitor_time"); //允许任务执行天数
+        Integer auditTime = ConfigUtil.getInt("audit_time"); //允许任务审核天数
+        
+        model.addAttribute("monitorTime", monitorTime);
+        model.addAttribute("auditTime", auditTime);
 
         return PageConst.ACTIVITY_EDIT;
     }

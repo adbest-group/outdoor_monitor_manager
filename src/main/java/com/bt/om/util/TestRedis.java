@@ -12,7 +12,25 @@ public class TestRedis {
 	public static void main(String[] args) {
 		Jedis jedis = new Jedis("10.2.30.54", 6379); 
 		
-		Set<String> set = jedis.keys("monitor*");  
+		Set<String> set = jedis.keys("activity_*");  
+        for (String key : set) {  
+            System.out.println(key);
+//            jedis.del(key);
+        }
+        
+        set = jedis.keys("jiucuo_*");  
+        for (String key : set) {  
+            System.out.println(key);
+//            jedis.del(key);
+        }
+        
+        set = jedis.keys("zhipai_*");  
+        for (String key : set) {  
+            System.out.println(key);
+//            jedis.del(key);
+        }
+        
+        set = jedis.keys("monitorTask_*");  
         for (String key : set) {  
             System.out.println(key);
 //            jedis.del(key);

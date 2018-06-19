@@ -222,13 +222,14 @@ public class ExcelController extends BasicController {
 				list.add(cityCache.getCityName(vo.getInfo_province())); //省 2
 				list.add(cityCache.getCityName(vo.getInfo_city())); //市 3
 //				list.add(cityCache.getCityName(vo.getInfo_region())); //区（县） 4
-				list.add(cityCache.getCityName(vo.getInfo_street())); //主要路段 5  
-				list.add(vo.getInfo_location()); //详细位置 6
-				list.add(vo.getInfo_memo()); //媒体方广告位编号 7
+//				list.add(cityCache.getCityName(vo.getInfo_street())); //街道 5  
+				list.add(vo.getInfo_road());//主要路段 4
+				list.add(vo.getInfo_location()); //详细位置 5
+				list.add(vo.getInfo_memo()); //媒体方广告位编号 6
 //				list.add(vo.getInfo_uniqueKey()); //唯一标识 7
-				list.add(DateUtil.dateFormate(vo.getMonitorStart(), "yyyy-MM-dd")); //开始监测时间 8
-				list.add(DateUtil.dateFormate(vo.getMonitorEnd(), "yyyy-MM-dd")); //结束监测时间 9
-				String status = AdMediaInfoStatus.WATCHING.getText(); //当前状态 10
+				list.add(DateUtil.dateFormate(vo.getMonitorStart(), "yyyy-MM-dd")); //开始监测时间 7
+				list.add(DateUtil.dateFormate(vo.getMonitorEnd(), "yyyy-MM-dd")); //结束监测时间 8
+				String status = AdMediaInfoStatus.WATCHING.getText(); //当前状态 9
 				if(vo.getProblem_count() > 0) {
 					status = AdMediaInfoStatus.HAS_PROBLEM.getText();
 				}
@@ -239,21 +240,21 @@ public class ExcelController extends BasicController {
 					status = AdMediaInfoStatus.FINISHED.getText();
 	        	}
 				list.add(status);
-				list.add(vo.getInfo_adSize()); //尺寸 11
-				list.add(vo.getInfo_adArea()); //面积 12
-				list.add(vo.getInfo_adNum()+"");//面数13
-				list.add(vo.getInfo_lon() + ""); //经度 14
-				list.add(vo.getInfo_lat() + ""); //纬度 15
+				list.add(vo.getInfo_adSize()); //尺寸 10
+				list.add(vo.getInfo_adArea()); //面积 11
+				list.add(vo.getInfo_adNum()+"");//面数12
+				list.add(vo.getInfo_lon() + ""); //经度 13
+				list.add(vo.getInfo_lat() + ""); //纬度 14
 				if(vo.getInfo_mapStandard() != null) {
-					list.add(MapStandardEnum.getText(vo.getInfo_mapStandard())); //地图标准 16
+					list.add(MapStandardEnum.getText(vo.getInfo_mapStandard())); //地图标准 15
 				} else {
 					list.add(null);
 				}
-				list.add(vo.getInfo_contactName()); //联系人姓名 17
-				list.add(vo.getInfo_contactCell()); //联系人电话 18
-				list.add(mediaTypeMap.get(vo.getInfo_mediaTypeParentId())); //媒体大类 20
-				list.add(mediaTypeMap.get(vo.getInfo_mediaTypeId())); //媒体小类 21
-				list.add(vo.getMediaName()); //媒体名称22
+				list.add(vo.getInfo_contactName()); //联系人姓名 16
+				list.add(vo.getInfo_contactCell()); //联系人电话 17
+				list.add(mediaTypeMap.get(vo.getInfo_mediaTypeParentId())); //媒体大类 18
+				list.add(mediaTypeMap.get(vo.getInfo_mediaTypeId())); //媒体小类 19
+				list.add(vo.getMediaName()); //媒体名称20
 //				if(customerType != null) {
 //					list.add(customerType.getName()); //客户类型22
 //				} else {
@@ -1113,33 +1114,33 @@ public class ExcelController extends BasicController {
         table.addCell(new Paragraph("开始监测时间", fontChinese));
         table.addCell(new Paragraph("结束监测时间", fontChinese));
         table.addCell(new Paragraph("当前状态", subBoldFontChinese));
-        table.addCell(new Paragraph("媒体方编号", fontChinese));
+        table.addCell(new Paragraph("媒体方广告位编号", fontChinese));
         
         for (List<String> list : listString) {
-        	table.addCell(new Paragraph(list.get(1), fontChinese));
+        	table.addCell(new Paragraph(list.get(1), fontChinese)); //广告位名称
 //        	table.addCell(new Paragraph(list.get(22), fontChinese));
-        	table.addCell(new Paragraph(list.get(21), fontChinese));
+        	table.addCell(new Paragraph(list.get(20), fontChinese));//供应商
         	StringBuffer location = new StringBuffer();
         	if(StringUtil.isNotBlank(list.get(2))) {
-        		location.append(list.get(2));
+        		location.append(list.get(2));  //省
         	}
         	if(StringUtil.isNotBlank(list.get(3))) {
-        		location.append(list.get(3));
+        		location.append(list.get(3));  //市
         	}
         	if(StringUtil.isNotBlank(list.get(4))) {
-        		location.append(list.get(4));
+        		location.append(list.get(4));  //主要路段
         	}
-        	if(StringUtil.isNotBlank(list.get(5))) {
-        		location.append(list.get(5));
-        	}
+//        	if(StringUtil.isNotBlank(list.get(5))) {
+//        		location.append(list.get(5));
+//        	}
             table.addCell(new Paragraph(location.toString(), fontChinese));
-            table.addCell(new Paragraph(list.get(6), fontChinese));
-            table.addCell(new Paragraph(list.get(19), fontChinese));
-            table.addCell(new Paragraph(list.get(20), fontChinese));
-            table.addCell(new Paragraph(list.get(8), fontChinese));
-            table.addCell(new Paragraph(list.get(9), fontChinese));
-            table.addCell(new Paragraph(list.get(10), subBoldFontChinese));
-            table.addCell(new Paragraph(list.get(18), fontChinese));
+            table.addCell(new Paragraph(list.get(5), fontChinese));//详细位置
+            table.addCell(new Paragraph(list.get(18), fontChinese));//媒体大类
+            table.addCell(new Paragraph(list.get(19), fontChinese));//媒体小类
+            table.addCell(new Paragraph(list.get(7), fontChinese));//开始监测时间
+            table.addCell(new Paragraph(list.get(8), fontChinese));//结束监测时间
+            table.addCell(new Paragraph(list.get(9), subBoldFontChinese));//当前状态
+            table.addCell(new Paragraph(list.get(6), fontChinese));//媒体方广告位编号
 		}
 		return table;
 	}

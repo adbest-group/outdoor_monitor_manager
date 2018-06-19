@@ -308,11 +308,13 @@ img.demo {
 
 <script type="text/javascript" src="/static/js/jquery.citys.js"></script>
 <script type="text/javascript">
-
-
-
 	function changeMediaTypeId() {
 		var mediaTypeParentId = $("#mediaTypeParentId").val();
+		if(mediaTypeParentId == "" || mediaTypeParentId.length <= 0) {
+			var option = '<option value="">请选择媒体小类</option>';
+			$("#mediaTypeId").html(option);
+			return ;
+		}
 		$.ajax({
 			url : '/platmedia/adseat/searchMediaType',
 			type : 'POST',
@@ -323,7 +325,7 @@ img.demo {
 				var result = data.ret;
 				if (result.code == 100) {
 					var adMediaTypes = result.result;
-					var htmlOption;
+					var htmlOption = '<option value="">请选择媒体小类</option>';
 					for (var i=0; i < adMediaTypes.length;i++) { 
 						var type = adMediaTypes[i];
 						htmlOption = htmlOption + '<option value="' + type.id + '">' + type.name + '</option>';

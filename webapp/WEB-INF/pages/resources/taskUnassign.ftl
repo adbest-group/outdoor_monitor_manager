@@ -1,9 +1,9 @@
-<#assign webTitle="任务管理-任务指派" in model>
+<#assign webTitle="任务管理-监测任务指派" in model>
 <#assign webHead in model>
 </#assign>
 <@model.webhead />
     <!-- 头部 -->
-    <@model.webMenu current="任务管理" child="任务指派" />
+    <@model.webMenu current="任务管理" child="监测任务指派" />
 
 	<!-- 特色内容 -->
 <div class="main-container" style="height: auto;">
@@ -28,6 +28,7 @@
                         	<option value="">所有任务状态</option>
                             <option value="1" <#if (bizObj.queryMap.status?exists&&bizObj.queryMap.status=="1")>selected</#if> >待指派</option>
                             <option value="8" <#if (bizObj.queryMap.status?exists&&bizObj.queryMap.status=="8")>selected</#if> >可抢单</option>
+                            <option value="2" <#if (bizObj.queryMap.status?exists&&bizObj.queryMap.status=="2")>selected</#if> >待执行</option>
                         </select>
                     </div>
                     <div class="select-box select-box-100 un-inp-select ll">
@@ -86,8 +87,8 @@
                         <th>地区</th>
                         <th>媒体</th>
                         <th>广告位</th>
-                        <#--<th>执行人员</th>-->
-                        <th>监测时间点</th>
+                        <th>执行人员</th>
+                        <th>任务类型</th>
                         <th>状态</th>
                         <th>操作</th>
                     </tr>
@@ -96,7 +97,7 @@
                     <#if (bizObj.list?exists && bizObj.list?size>0) >
                         <#list bizObj.list as task>
                         <tr>
-                        	<td width="30"><#if (task.status?exists&&task.status == 1)><input type="checkbox" data-status='${task.status}'  name="ck-task" value="${task.id}"/><div style='display:none;' data-id='${task.mediaId}'></div></#if></td>
+                        	<td width="30"><#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status?exists&&task.status == 1||task.status == 2)><input type="checkbox" data-status='${task.status}'  name="ck-task" value="${task.id}"/><div style='display:none;' data-id='${task.mediaId}'></div></#if></#if></td>
                             <td width="30">${(bizObj.page.currentPage-1)*20+task_index+1}</td>
                             <td>
                                 <div class="data-title w200" data-title="${task.activityName!""}" data-id="${task.id}">${task.activityName?if_exists}</div>
@@ -106,11 +107,11 @@
                            <td>${vm.getCityName(task.province)!""} ${vm.getCityName(task.city!"")}</td>
                             <td  id="media_${task.id}">${task.mediaName!""}</td>
                             <td>${task.adSeatName!""}</td>
-                            <#--<td>${task.userId!""}</td>-->
+                            <td>${task.realname!""}</td>
                             <td>${vm.getMonitorTaskTypeText(task.taskType)!""}</td>
                             <td>${vm.getMonitorTaskStatusText(task.status)!""}</td>
                             <td>
-                            	<#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status==1 || task.status==8)><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if></#if>
+                            	<#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status==1 || task.status==8 || task.status==2)><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if></#if>
                                 <a href="/task/details?task_Id=${task.id}">详情</a>
                             </td>
                         </tr>

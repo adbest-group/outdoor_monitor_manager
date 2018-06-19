@@ -102,7 +102,7 @@
                             <td>${task.assignorName!""}</td>
                             <td>${(task.assignorTime?string('yyyy-MM-dd HH:mm:ss'))!""}</td>
                             <td>
-                            	<#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status==1 || task.status==8)><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if></#if>
+                            	<#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status==1 || task.status==8 || task.status==2)><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if></#if>
                                <#--   <#if task.status==1><a href="javascript:assign('${task.id}')">指派</a></#if>
                                 <#--<#if task.status==2><a href="javascript:assign('${task.id}')">重新指派</a></#if>-->
                                <#--   <#if task.status==3><a href="javascript:pass('${task.id}')">通过</a></#if>

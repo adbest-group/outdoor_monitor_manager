@@ -8,6 +8,8 @@ public enum MonitorTaskType {
     UP_MONITOR(1,"上刊监测"),
     DURATION_MONITOR(2,"投放期间监测"),
     DOWNMONITOR(3,"下刊监测"),
+    UP_TASK(5,"上刊任务"),
+    ZHUIJIA_MONITOR(6,"追加监测"),
     FIX_CONFIRM(4,"复查监测");
 
     private Integer id;

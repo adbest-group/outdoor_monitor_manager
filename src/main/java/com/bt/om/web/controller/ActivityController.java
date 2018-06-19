@@ -40,6 +40,7 @@ import com.bt.om.service.ISysGroupService;
 import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserRoleService;
 import com.bt.om.service.ISysUserService;
+import com.bt.om.util.ConfigUtil;
 import com.bt.om.util.GsonUtil;
 import com.bt.om.util.QRcodeUtil;
 import com.bt.om.vo.api.AdActivitySeatInfoInQRVO;
@@ -225,7 +226,7 @@ public class ActivityController extends BasicController {
 		return PageConst.ACTIVITY_LIST;
 	}
 
-	//前往编辑活动
+	// 前往编辑活动
     @RequiresRoles(value = {"activityadmin", "depactivityadmin", "superadmin", "customer"}, logical = Logical.OR)
     @RequestMapping(value = "/edit")
     public String customerEdit(Model model, HttpServletRequest request,
@@ -242,6 +243,12 @@ public class ActivityController extends BasicController {
         if(user != null) {
         	model.addAttribute("usertype", user.getUsertype());
         }
+        
+        Integer monitorTime = ConfigUtil.getInt("monitor_time"); //允许任务执行天数
+        Integer auditTime = ConfigUtil.getInt("audit_time"); //允许任务审核天数
+        
+        model.addAttribute("monitorTime", monitorTime);
+        model.addAttribute("auditTime", auditTime);
 
         return PageConst.ACTIVITY_EDIT;
     }
@@ -255,32 +262,32 @@ public class ActivityController extends BasicController {
 		ResultVo<String> result = new ResultVo<String>();
 		// [1] ids拆分成id集合
 		String[] activityIds = ids.split(",");
-		// [2] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
-		for (String actId : activityIds) {
-			String beginRedisStr = "activity_" + actId + "_begin";
-			String finishRedisStr = "activity_" + actId + "_finish";
-			if (redisTemplate.opsForValue().get(finishRedisStr) != null
-					&& StringUtil.equals(redisTemplate.opsForValue().get(finishRedisStr) + "", "true")) {
-				result.setCode(ResultCode.RESULT_FAILURE.getCode());
-				result.setResultDes("活动已被确认，请刷新再试！");
-				model.addAttribute(SysConst.RESULT_KEY, result);
-				return model;
-			}
-			if (redisTemplate.opsForValue().get(beginRedisStr) != null
-					&& StringUtil.equals(redisTemplate.opsForValue().get(beginRedisStr) + "", "true")) {
-				result.setCode(ResultCode.RESULT_FAILURE.getCode());
-				result.setResultDes("活动正被确认中，请刷新再试！");
-				model.addAttribute(SysConst.RESULT_KEY, result);
-				return model;
-			}
-		}
-
-		// [3] 循环放入redis中
-		for (String actId : activityIds) {
-			String beginRedisStr = "activity_" + actId + "_begin";
-			// 放入Redis缓存处理并发
-			redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 30, TimeUnit.SECONDS); //设置半小时超时时间
-		}
+//		// [2] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
+//		for (String actId : activityIds) {
+//			String beginRedisStr = "activity_" + actId + "_begin";
+//			String finishRedisStr = "activity_" + actId + "_finish";
+//			if (redisTemplate.opsForValue().get(finishRedisStr) != null
+//					&& StringUtil.equals(redisTemplate.opsForValue().get(finishRedisStr) + "", "true")) {
+//				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+//				result.setResultDes("活动已被确认，请刷新再试！");
+//				model.addAttribute(SysConst.RESULT_KEY, result);
+//				return model;
+//			}
+//			if (redisTemplate.opsForValue().get(beginRedisStr) != null
+//					&& StringUtil.equals(redisTemplate.opsForValue().get(beginRedisStr) + "", "true")) {
+//				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+//				result.setResultDes("活动正被确认中，请刷新再试！");
+//				model.addAttribute(SysConst.RESULT_KEY, result);
+//				return model;
+//			}
+//		}
+//
+//		// [3] 循环放入redis中
+//		for (String actId : activityIds) {
+//			String beginRedisStr = "activity_" + actId + "_begin";
+//			// 放入Redis缓存处理并发
+//			redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 30, TimeUnit.SECONDS); //设置半小时超时时间
+//		}
 
 		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
 		result.setResultDes("确认成功");
@@ -310,12 +317,12 @@ public class ActivityController extends BasicController {
 				System.out.println("pushResult:: " + pushResult);
 			}
 		} catch (Exception e) {
-			// [5] 异常情况, 循环删除redis
-			for (String actId : activityIds) {
-				String beginRedisStr = "activity_" + actId + "_begin";
-				// 异常情况, 移除Redis缓存处理并发
-				redisTemplate.delete(beginRedisStr);
-			}
+//			// [5] 异常情况, 循环删除redis
+//			for (String actId : activityIds) {
+//				String beginRedisStr = "activity_" + actId + "_begin";
+//				// 异常情况, 移除Redis缓存处理并发
+//				redisTemplate.delete(beginRedisStr);
+//			}
 
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("确认失败！");
@@ -323,12 +330,12 @@ public class ActivityController extends BasicController {
 			return model;
 		}
 
-		// [6] 处理成功, 循环放入redis
-		for (String actId : activityIds) {
-			// 放入Redis缓存处理并发
-			String finishRedisStr = "activity_" + actId + "_finish";
-			redisTemplate.opsForValue().set(finishRedisStr, "true", 60*30, TimeUnit.SECONDS); //设置半小时超时时间
-		}
+//		// [6] 处理成功, 循环放入redis
+//		for (String actId : activityIds) {
+//			// 放入Redis缓存处理并发
+//			String finishRedisStr = "activity_" + actId + "_finish";
+//			redisTemplate.opsForValue().set(finishRedisStr, "true", 60*30, TimeUnit.SECONDS); //设置半小时超时时间
+//		}
 		model.addAttribute(SysConst.RESULT_KEY, result);
 		return model;
 	}

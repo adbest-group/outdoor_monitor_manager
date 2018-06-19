@@ -375,18 +375,50 @@
         <result column="memo" jdbcType="VARCHAR" property="memo"/>
     </resultMap>
 
-    <insert id="insertList" parameterType="java.util.List">
-        insert into ad_monitor_task (id, activity_id, activity_adseat_id,
-        task_type, user_id, status,problem_status,sub_created,parent_id,parent_type,
-        verify_time,create_time, update_time, assignor_time, report_time)
+	<!-- 批量插入任务 -->
+    <insert id="insertList" parameterType="com.bt.om.entity.AdMonitorTask">
+        insert into ad_monitor_task (
+        	activity_id, 
+        	activity_adseat_id, 
+        	task_type, 
+        	monitor_date,
+        	monitor_last_days,
+        	user_id, 
+        	status, 
+        	problem_status, 
+        	sub_created, 
+        	parent_id, 
+        	parent_type, 
+        	verify_time, 
+        	create_time, 
+        	update_time, 
+        	assessor_id,
+        	assignor_id,
+        	assignor_time, 
+        	report_time
+        )
         values
         <foreach collection="tasks" item="task" separator=",">
-            (#{id,jdbcType=INTEGER}, #{activityId,jdbcType=INTEGER}, #{activityAdseatId,jdbcType=INTEGER},
-            #{taskType,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{status,jdbcType=INTEGER},
-            #{problemStatus,jdbcType=INTEGER}, #{subCreated,jdbcType=INTEGER}, #{parentId,jdbcType=INTEGER},
-            #{parentType,jdbcType=INTEGER},
-            #{verifyTime,jdbcType=TIMESTAMP},#{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP},
-            #{assessorId,jdbcType=INTEGER},#{assignorId,jdbcType=INTEGER},#{assignorTime,jdbcType=TIMESTAMP},#{reportTime,jdbcType=TIMESTAMP})
+        (
+	         #{task.activityId,jdbcType=INTEGER}, 
+	         #{task.activityAdseatId,jdbcType=INTEGER},
+	         #{task.taskType,jdbcType=INTEGER}, 
+	         #{task.monitorDate,jdbcType=TIMESTAMP},
+	         #{task.monitorLastDays,jdbcType=INTEGER},
+	         #{task.userId,jdbcType=INTEGER}, 
+	         #{task.status,jdbcType=INTEGER},
+	         #{task.problemStatus,jdbcType=INTEGER}, 
+	         #{task.subCreated,jdbcType=INTEGER}, 
+	         #{task.parentId,jdbcType=INTEGER},
+	         #{task.parentType,jdbcType=INTEGER},
+	         #{task.verifyTime,jdbcType=TIMESTAMP},
+	         #{task.createTime,jdbcType=TIMESTAMP}, 
+	         #{task.updateTime,jdbcType=TIMESTAMP}, 
+	         #{task.assessorId,jdbcType=INTEGER}, 
+	         #{task.assignorId,jdbcType=INTEGER}, 
+	         #{task.assignorTime,jdbcType=TIMESTAMP}, 
+	         #{task.reportTime,jdbcType=TIMESTAMP}
+        )
         </foreach>
     </insert>
 

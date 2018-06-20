@@ -54,6 +54,7 @@ public class PageConst {
 	public static final String SELECT_USER_EXECUTE = "task/selectExeUser";
 	public static final String DETAILS_PAGE = "task/detailsPage";
 	public static final String ALLTASK_LIST = "task/allTaskList";
+	public static final String ADD_ZHUIJIA = "task/addZhuijia";
 
 	/*** 纠错管理 ***/
 	public static final String JIUCUO_LIST = "jiucuo/list";

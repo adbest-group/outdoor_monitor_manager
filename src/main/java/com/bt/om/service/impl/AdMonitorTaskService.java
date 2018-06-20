@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.adtime.common.lang.CollectionUtil;
+import com.bt.om.common.DateUtil;
 import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.entity.AdMonitorReward;
 import com.bt.om.entity.AdMonitorTask;
@@ -33,6 +34,7 @@ import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.RewardType;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.mapper.AdActivityAdseatMapper;
 import com.bt.om.mapper.AdJiucuoTaskMapper;
 import com.bt.om.mapper.AdMonitorRewardMapper;
 import com.bt.om.mapper.AdMonitorTaskFeedbackMapper;
@@ -41,6 +43,7 @@ import com.bt.om.mapper.AdMonitorUserTaskMapper;
 import com.bt.om.mapper.AdSeatInfoMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdMonitorTaskService;
+import com.bt.om.util.ConfigUtil;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.util.JPushUtils;
 
@@ -61,6 +64,8 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     private AdSeatInfoMapper adSeatInfoMapper;
     @Autowired
     private AdMonitorUserTaskMapper adMonitorUserTaskMapper;
+    @Autowired
+    private AdActivityAdseatMapper adActivityAdseatMapper;
 
     @Override
     public void getPageData(SearchDataVo vo) {
@@ -618,6 +623,50 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         } else {
         	datavo.setList(new ArrayList<AdMonitorTask>());
         }
+	}
+	
+	/**
+	 * 批量插入追加监测任务
+	 */
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void insertMonitorTask(Integer activityId, List<String> seatIds, String reportTime) {
+		Integer monitorTime = ConfigUtil.getInt("monitor_time"); //允许任务执行天数
+        Integer auditTime = ConfigUtil.getInt("audit_time"); //允许任务审核天数
 		
+        //查询需要追加监测任务的广告位关联id集合
+        Map<String, Object> searchMap = new HashMap<>();
+        searchMap.put("activityId", activityId);
+        searchMap.put("seatIds", seatIds);
+        List<Integer> adActivityAdseatIds = adActivityAdseatMapper.selectByActivityIdAndSeatIds(searchMap);
+        
+		List<AdMonitorTask> tasks = new ArrayList<>();
+		for (Integer seatId : adActivityAdseatIds) {
+			// 追加监测任务
+ 			AdMonitorTask adMonitorTask = new AdMonitorTask();
+ 			
+ 			Date now = new Date();
+ 			adMonitorTask.setActivityId(activityId);
+ 			adMonitorTask.setActivityAdseatId(seatId);
+ 			adMonitorTask.setStatus(MonitorTaskStatus.UN_ACTIVE.getId());
+ 			adMonitorTask.setProblemStatus(TaskProblemStatus.UNMONITOR.getId());
+ 			adMonitorTask.setCreateTime(now);
+ 			adMonitorTask.setUpdateTime(now);
+ 			
+ 			adMonitorTask.setTaskType(MonitorTaskType.ZHUIJIA_MONITOR.getId());
+            Date durationMonitorTask = DateUtil.parseStrDate(reportTime, "yyyy-MM-dd"); //页面上的追加监测任务出报告时间
+            Date auditDate = DateUtil.addDays(durationMonitorTask, -auditTime); //提前两天审核+替换图片
+            Date monitorDate = DateUtil.addDays(auditDate, -monitorTime); //提前三天执行任务
+            int betweenDays = DateUtil.getBetweenDays(monitorDate, auditDate);
+            adMonitorTask.setMonitorDate(monitorDate);
+            adMonitorTask.setMonitorLastDays(betweenDays);
+            adMonitorTask.setReportTime(durationMonitorTask);
+            
+            tasks.add(adMonitorTask);
+		}
+		
+		if(tasks != null && tasks.size() > 0) {
+			adMonitorTaskMapper.insertList(tasks);
+		}
 	}
 }

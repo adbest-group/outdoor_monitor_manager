@@ -107,7 +107,7 @@
                         <tr class='last'>
                             <td class="a-title"><font class="s-red">*</font>投放期间监测任务出报告时间：</td>
                             <td>
-                                <div class="ll inputs-date durationMonitorTaskTime">
+                                <div class="ll inputs-date durationMonitorTaskTime" id="durationTime0">
                                     <div class="date">
                                         <input id="durationMonitorTaskTime0" ${editMode?string("","disabled")} class="durationMonitor-Wdate Wdate" type="text">
                                     </div>
@@ -326,8 +326,19 @@
 	    
 	    $("#upTaskTime").val(activity.upTaskTime); //上刊任务时间
 	    $("#upMonitor-Wdate").val(activity.upMonitorTaskTime); //上刊监测任务时间
-	    $("#durationMonitorTaskTime0").val(activity.durationMonitorTaskTime); //投放期间监测任务时间
 	    $("#downMonitorTaskTime").val(activity.downMonitorTaskTime); //下刊监测任务时间
+	    
+	    //拼接显示 投放期间监测任务
+	    var result = activity.durationMonitorTaskTime.split(",");
+	    //回显时添加新的 投放期间监测任务
+		for (var i = 1; i < result.length; i++) {
+		  	var index = $('.last').length;
+	    	var str = '<tr class="last"><td class="a-title"><font class="s-red">*</font>投放期间监测任务出报告时间：</td><td><div class="ll inputs-date durationMonitorTaskTime" id="durationTime'+index+'"><div class="date"><input id="durationMonitorTaskTime'+index+'" ${editMode?string("","disabled")} class="durationMonitor-Wdate Wdate" type="text"></div></div><span style="margin-left:10px;" id="durationMonitorTaskTimeTip'+index+'"></span></td></tr>'
+	    	$('.last:last').after(str);
+		}
+		for (var i = 0; i < result.length; i++) {
+			$("#durationMonitorTaskTime" + i).val(result[i]); //投放期间监测任务时间
+		}
 	    
 	    var activity_seats = [
 	        <#if (activity.adActivityAdseatVos?exists && activity.adActivityAdseatVos?size>0) >
@@ -427,18 +438,35 @@
                    }
               });
             
-
-            $('.durationMonitorTaskTime').dateRangePicker({
+            <#-- 
+            $('#durationTime0').dateRangePicker({
            	   singleDate: true,
            	   showShortcuts: false,
                   getValue: function () {
-                      return $(this).find('.durationMonitor-Wdate').val()
+                      return $(this).find('#durationMonitorTaskTime0').val()
                   },
                   setValue: function (s) {
-                     $(this).find('.durationMonitor-Wdate').val(s)
-  					  $(this).find('.durationMonitor-Wdate').blur()
+                     $(this).find('#durationMonitorTaskTime0').val(s)
+  					  $(this).find('#durationMonitorTaskTime0').blur()
                   }
              });
+            -->
+            
+            $('.durationMonitor-Wdate').each(function(index){
+	    		var topId = "durationTime" + index;
+	    		var lastId = "durationMonitorTaskTime" + index;
+	    		$('#' + topId).dateRangePicker({
+	            	   singleDate: true,
+	            	   showShortcuts: false,
+	                   getValue: function () {
+	                       return $(this).find('#' + lastId).val()
+	                   },
+	                   setValue: function (s) {
+	                      $(this).find('#' + lastId).val(s)
+	   					  $(this).find('#' + lastId).blur()
+	                   }
+	             });
+	    	})
         }
 
         $("#add-adseat").click(function () {
@@ -619,6 +647,12 @@
 				var durationMonitorTaskTime = $("#durationMonitorTaskTime0").val(); //投放期间监测任务时间
 				var downMonitorTaskTime = $("#downMonitorTaskTime").val(); //下刊监测任务时间
 				
+				var durationTimeArray = [];
+                $(".durationMonitor-Wdate").each(function(i,ck){
+                    if(ck.value) durationTimeArray.push(ck.value);
+                });
+                var durationTimes = durationTimeArray.join(",");
+				
                 $.ajax({
                     url: "/customer/activity/save",
                     type: "post",
@@ -647,7 +681,7 @@
                         "downMonitorLastDays": $('#downMonitorLastDays').val(),
                         "upTaskTime": upTaskTime,
                         "upMonitorTaskTime": upMonitorTaskTime,
-                        "durationMonitorTaskTime": durationMonitorTaskTime,
+                        "durationMonitorTaskTime": durationTimes,
                         "downMonitorTaskTime": downMonitorTaskTime
                     },
                     cache: false,
@@ -702,7 +736,7 @@
         });
         
         <#if usertype?exists && usertype != 2>
-			// 广告主
+			// 广告主校验
 	        $("#customerId").formValidator({
 	            validatorGroup:"2",
 	            onShow:"",
@@ -718,7 +752,7 @@
 	        });
         </#if>
 
-        // 活动名称
+        // 活动名称的校验
         $("#activityName").formValidator({
             validatorGroup:"2",
             onShow:"",
@@ -732,7 +766,8 @@
             max: 60,
             onError: "请输入活动名称，30字以内"
         });
-        //活动投放时间
+        
+        // 活动投放时间的校验
         $(".activityTime-Wdate").formValidator({
             validatorGroup:"2",
             tipID:"dateTip",
@@ -762,7 +797,7 @@
         	}
         })
         
-        //上刊监测任务出报告时间
+        // 上刊监测任务出报告时间的校验
         $('.upMonitor-Wdate').formValidator({
                validatorGroup: '2',
                tipID:"upMonitorTaskTimeTip",
@@ -794,7 +829,7 @@
 	           	}
           })
           
-          // 投放期间监测任务出报告时间
+          // 投放期间监测任务出报告时间的校验
           $('.durationMonitor-Wdate').each(function(index){
         	  $(this).formValidator({
                    validatorGroup: '2',
@@ -826,12 +861,50 @@
     	           		}
     	           	}
               })
-       		})
+       	})
+       	
+       	//添加投放期间监测任务出报告时间
         $('#addDurationMonitor').click(function(){
-        	var index = $('.last').length
-        	var str = '<tr class="last"><td class="a-title"><font class="s-red">*</font>投放期间监测任务出报告时间：</td><td><div class="ll inputs-date durationMonitorTaskTime"><div class="date"><input id="durationMonitorTaskTime'+index+'" ${editMode?string("","disabled")} class="durationMonitor-Wdate Wdate" type="text"></div></div><span style="margin-left:10px;" id="durationMonitorTaskTimeTip'+index+'"></span></td></tr>'
+			var flag = false;
+			var durationVar = $('.durationMonitor-Wdate');
+        	$(".durationMonitor-Wdate").each(function(index){
+        		var wdateValue = $(this).val();
+        		if(wdateValue == ""){
+					if(flag == false){
+						flag = true;
+					}
+        		}
+        	})
+        	
+        	if(flag == true){
+        		layer.confirm("请先选择投放期间监测任务出报告时间再添加", {
+                    icon: 2,
+                    btn: ['确定'] //按钮
+                });	
+        		return false;
+        	}
+        	
+        	var index = $('.last').length;
+        	var str = '<tr class="last"><td class="a-title"><font class="s-red">*</font>投放期间监测任务出报告时间：</td><td><div class="ll inputs-date durationMonitorTaskTime" id="durationTime'+index+'"><div class="date"><input id="durationMonitorTaskTime'+index+'" ${editMode?string("","disabled")} class="durationMonitor-Wdate Wdate" type="text"></div></div><span style="margin-left:10px;" id="durationMonitorTaskTimeTip'+index+'"></span></td></tr>'
         	$('.last:last').after(str)
         	
+        	$('.durationMonitor-Wdate').each(function(index){
+        		var topId = "durationTime" + index;
+        		var lastId = "durationMonitorTaskTime" + index;
+        		$('#' + topId).dateRangePicker({
+                	   singleDate: true,
+                	   showShortcuts: false,
+                       getValue: function () {
+                           return $(this).find('#' + lastId).val()
+                       },
+                       setValue: function (s) {
+                          $(this).find('#' + lastId).val(s)
+       					  $(this).find('#' + lastId).blur()
+                       }
+                 });
+        	})
+        	
+        	<#--
         	$('.durationMonitorTaskTime').dateRangePicker({
            	   singleDate: true,
            	   showShortcuts: false,
@@ -843,6 +916,7 @@
   					  $(this).find('.durationMonitor-Wdate').blur()
                   }
              });
+            -->
         	
        		$('.durationMonitor-Wdate').each(function(index){
         	  $(this).formValidator({

@@ -480,6 +480,9 @@
 		left join ad_media_type c on a.media_type_parent_id=c.id
 		left join ad_media_type d on a.media_type_id=d.id
 		 where 1=1
+		<if test="activityName != null">
+			and a.name like #{activityName,jdbcType=VARCHAR}
+		</if>
 	    <if test="province != null" >
 	      and a.province = #{province,jdbcType=BIGINT}
 	    </if>
@@ -540,6 +543,9 @@
 		left join ad_media_type c on a.media_type_parent_id=c.id
 		left join ad_media_type d on a.media_type_id=d.id
 		 where 1=1
+		<if test="activityName != null">
+			and a.name like #{activityName,jdbcType=VARCHAR}
+		</if>
 	    <if test="province != null" >
 	      and a.province = #{province,jdbcType=BIGINT}
 	    </if>

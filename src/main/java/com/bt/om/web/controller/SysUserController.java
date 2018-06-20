@@ -48,7 +48,7 @@ public class SysUserController extends BasicController{
         //查询领导名称
         if (name != null) {
         	name = "%" + name + "%";
-            vo.putSearchParam("name", name, name);
+            vo.putSearchParam("nameOrUsername", name, name);
         }
         
         Integer usertype = 5;

@@ -32,6 +32,26 @@
                            <@model.showActivityStatusOps value="${bizObj.queryMap.status?if_exists}" /> 
                         </select>
                     </div>
+                     <div class="select-box select-box-100 un-inp-select ll">
+	                    <select style="width: 120px;height:31px;" name="mediaTypeParentId" id="mediaTypeParentId" onchange="changeMediaTypeId();">
+	                    <option value="">所有媒体大类</option>
+	                    <@model.showAllAdMediaTypeAvailableOps value="${bizObj.queryMap.mediaTypeParentId?if_exists}"/>
+	                     </select>
+                	</div>
+                    <div class="select-box select-box-100 un-inp-select ll">
+	                    <select style="width: 120px;height:31px;" name="mediaTypeId" id="mediaTypeId">
+	                    	<option value="">所有媒体小类</option>
+	                    </select>
+	                </div>
+	                <#-- 城市 -->
+					<div id="demo3" class="citys" style="float: left; font-size: 12px">
+                        <p>
+                                               城市： <select style="height: 30px" id="adSeatInfo-province" name="province">
+                            <option value=""></option>
+                        </select> <select style="height: 30px" id="adSeatInfo-city" name="city"></select>
+    
+                        </p>
+                    </div>
                     <div class="ll inputs-date">
                         <#--<input class="ui-date-button" type="button" value="昨天" alt="-1" name="">-->
                         <#--<input class="ui-date-button" type="button" value="近7天" alt="-6" name="">-->
@@ -123,6 +143,7 @@
 <!-- 下拉 -->
 <link href="${model.static_domain}/js/select/jquery.searchableSelect.css" rel="stylesheet">
 <script src="${model.static_domain}/js/select/jquery.searchableSelect.js"></script>
+<script type="text/javascript" src="/static/js/jquery.citys.js"></script>
 <!-- 时期 -->
 <link href="${model.static_domain}/js/date/daterangepicker.css" rel="stylesheet">
 <script type="text/javascript" src="${model.static_domain}/js/date/moment.min.js"></script>
@@ -130,6 +151,37 @@
 <script type="text/javascript" src="${model.static_domain}/js/date.js"></script>
 
 <script type="text/javascript">
+changeMediaTypeId();
+function changeMediaTypeId() {	
+		var mediaTypeParentId = $("#mediaTypeParentId").val();
+		if(mediaTypeParentId == "" || mediaTypeParentId.length <= 0) {
+			var option = '<option value="">请选择媒体小类</option>';
+			$("#mediaTypeId").html(option);
+			return ;
+		}
+		$.ajax({
+			url : '/platmedia/adseat/searchMediaType',
+			type : 'POST',
+			data : {"parentId":mediaTypeParentId},
+			dataType : "json",
+			traditional : true,
+			success : function(data) {
+				var result = data.ret;
+				if (result.code == 100) {
+					var adMediaTypes = result.result;
+					var htmlOption = '<option value="">请选择媒体小类</option>';
+					for (var i=0; i < adMediaTypes.length;i++) { 
+						var type = adMediaTypes[i];
+						htmlOption = htmlOption + '<option value="' + type.id + '">' + type.name + '</option>';
+					}
+					$("#mediaTypeId").html(htmlOption);
+					$("#mediaTypeId").val(${mediaTypeId?if_exists});
+				} else {
+					alert('修改失败!');
+				}
+			}
+		});
+	}
     $(function(){
      	$(".nav-sidebar>ul>li").on("click",function(){
                     $(".nav-sidebar>ul>li").removeClass("on");
@@ -171,8 +223,40 @@
         		return false;
         	}
         })
+     
+	/*获取城市  */
+    var $town = $('#demo3 select[name="street"]');
+    var townFormat = function(info) {
+        $town.hide().empty();
+        if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
+            $.ajax({
+                url : 'http://passer-by.com/data_location/town/' + info['code']
+                + '.json',
+                dataType : 'json',
+                success : function(town) {
+                    $town.show();
+                    $town.append('<option value> - 请选择 - </option>');
+                    for (i in town) {
+                        $town.append('<option value="'+i+'" <#if (street?exists&&street?length>0)>'+(i==${street!0}?"selected":"")+'</#if>>' + town[i]
+                                + '</option>');
+                    }
+                }
+            });
+        }
+    };
+    $('#demo3').citys({
+        required:false,
+        province : '${province!"所有城市"}',
+        city : '${city!""}',
+        onChange : function(info) {
+            townFormat(info);
+        }
+    }, function(api) {
+        var info = api.getInfo();
+        townFormat(info);
+    });
         // 查询
-    	$("#searchBtn").on("click", function () {
+    	<#-- $("#searchBtn").on("click", function () {
       	  var strParam = "";
       	  var name = $("#searchName").val();
         
@@ -181,7 +265,7 @@
       	  }
 	
       	  window.location.href = "/activity/list" + strParam;
-   		 });
+   		 }); -->
         //批量确认活动
         $("#assignBtn").click(function(){
         	var id_sel;

@@ -1,16 +1,16 @@
-<#assign webTitle="任务管理-监测任务指派" in model>
+<#assign webTitle="任务管理-上刊任务指派" in model>
 <#assign webHead in model>
 </#assign>
 <@model.webhead />
     <!-- 头部 -->
-    <@model.webMenu current="任务管理" child="监测任务指派" />
+    <@model.webMenu current="任务管理" child="上刊任务指派" />
 
 	<!-- 特色内容 -->
 <div class="main-container" style="height: auto;">
     <div class="main-box">
         <div class="title clearfix" style="display:block;">
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
-                <form id="form" method="get" action="/task/unassign">
+                <form id="form" method="get" action="/task/upTaskList">
                 	<!--活动搜索框-->
                      <div class="inp">
                     	<input type="text" placeholder="请输入活动名称" value="${name?if_exists}" id="searchName" name="name">

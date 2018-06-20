@@ -10,7 +10,7 @@
             <a href="javascript:;" class="add-new-btn ll" id="add_leader"><i></i> 新建领导账号</a>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <div class="inp">
-                    <input type="text" placeholder="请输入领导名称" value="${searchName?if_exists}" id="searchName" name="searchName">
+                    <input type="text" placeholder="请输入领导用户名/真实姓名" value="${nameOrUsername?if_exists}" id="searchName" name="searchName">
                 </div>
                 <button type="button" class="btn btn-red" autocomplete="off" id="searchBtn">查询</button>
             </div>
@@ -27,7 +27,6 @@
                         <th>真实名字</th>
                   		<th>电话号码</th>
                   		<th>状态</th>
-                  		
                   		<th>创建时间</th>
                         <th>操作</th>
                         

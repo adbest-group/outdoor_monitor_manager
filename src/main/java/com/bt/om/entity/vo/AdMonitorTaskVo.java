@@ -19,6 +19,8 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 	private String location; //详细地址
 	private Integer mediaId;//媒体id
 	private String mediaName;// 媒体名
+    private Integer mediaTypeParentId;//媒体大类
+    private Integer mediaTypeId;//媒体小类
 	private String adSeatName;//
 	private String realname;
 	private Date monitorsStart;// 监测开始时间
@@ -42,6 +44,23 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 	private Integer feedbackId;
 	private String assessorName;
 	private String assignorName;
+
+	
+	public Integer getMediaTypeParentId() {
+		return mediaTypeParentId;
+	}
+
+	public void setMediaTypeParentId(Integer mediaTypeParentId) {
+		this.mediaTypeParentId = mediaTypeParentId;
+	}
+
+	public Integer getMediaTypeId() {
+		return mediaTypeId;
+	}
+
+	public void setMediaTypeId(Integer mediaTypeId) {
+		this.mediaTypeId = mediaTypeId;
+	}
 
 	public Integer getMediaId() {
 		return mediaId;

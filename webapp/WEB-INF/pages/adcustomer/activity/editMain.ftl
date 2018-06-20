@@ -118,7 +118,7 @@
                         </tr>
                         
                         <!-- 与活动结束时间同步 -->
-                        <tr>
+                        <tr class='down'>
                             <td class="a-title"><font class="s-red">*</font>下刊监测任务出报告时间：</td>
                             <td>
                                 <div class="ll inputs-date">
@@ -319,7 +319,8 @@
 	        "upTaskTime": '${activity.upTaskTime!""}',
 	        "upMonitorTaskTime": '${activity.upMonitorTaskTime!""}',
 	        "durationMonitorTaskTime": '${activity.durationMonitorTaskTime!""}',
-	        "downMonitorTaskTime": '${activity.downMonitorTaskTime!""}'
+	        "downMonitorTaskTime": '${activity.downMonitorTaskTime!""}',
+	        "zhuijiaMonitorTaskTime": '${activity.zhuijiaMonitorTaskTime!""}'
 	    }
 	    $("#img-demo-img").attr("src",activity.samplePicUrl);//广告投放画面图片地址
 	    $("#img-demo-bak").attr("src",activity.samplePicUrl);//广告投放画面图片地址
@@ -338,6 +339,20 @@
 		}
 		for (var i = 0; i < result.length; i++) {
 			$("#durationMonitorTaskTime" + i).val(result[i]); //投放期间监测任务时间
+		}
+		
+		//拼接显示 追加监测任务
+		if(activity.zhuijiaMonitorTaskTime != null && activity.zhuijiaMonitorTaskTime != "") {
+			var resultZhuijia = activity.zhuijiaMonitorTaskTime.split(",");
+			//回显时添加追加监测任务
+			for (var i = 0; i < resultZhuijia.length; i++) {
+			  	var index = $('.zhuijia').length;
+		    	var str = '<tr class="zhuijia"><td class="a-title"><font class="s-red">*</font>追加监测任务出报告时间：</td><td><div class="ll inputs-date zhuijiaMonitorTaskTime" id="zhuijiaTime'+index+'"><div class="date"><input id="zhuijiaMonitorTaskTime'+index+'" ${editMode?string("","disabled")} class="zhuijiaMonitor-Wdate Wdate" type="text"></div></div><span style="margin-left:10px;" id="zhuijiaMonitorTaskTimeTip'+index+'"></span></td></tr>'
+		    	$('.down').after(str);
+			}
+			for (var i = 0; i < resultZhuijia.length; i++) {
+				$("#zhuijiaMonitorTaskTime" + i).val(resultZhuijia[i]); //追加监测任务时间
+			}
 		}
 	    
 	    var activity_seats = [

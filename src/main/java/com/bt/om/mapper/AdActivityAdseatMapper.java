@@ -97,4 +97,6 @@ public interface AdActivityAdseatMapper {
 	int insertBatch(@Param("adActivityAdseats") List<AdActivityAdseat> adActivityAdseats);
 
 	int deleteByActivityIds(Map<String, Object> searchMap);
+	
+	List<Integer> selectByActivityIdAndSeatIds(Map<String, Object> searchMap);
 }

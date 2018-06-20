@@ -41,6 +41,7 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 	private Double lat;
 	private Double feedbackLon;
 	private Double feedbackLat;
+	private Integer feedbackId;
 	private String assessorName;
 	private String assignorName;
 
@@ -99,6 +100,14 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 
 	public void setFeedbackLat(Double feedbackLat) {
 		this.feedbackLat = feedbackLat;
+	}
+	
+	public Integer getFeedbackId() {
+		return feedbackId;
+	}
+	
+	public void setFeedbackId(Integer feedbackId) {
+		this.feedbackId = feedbackId;
 	}
 
 	public int getDownMonitor() {

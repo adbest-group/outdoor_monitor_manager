@@ -16,7 +16,7 @@
                 <form id="form" method="get" action="/adseat/list" style="display: inline-block;">
                 	<!--活动搜索框-->
                      <div class="inp">
-                    	<input type="text" placeholder="请输入活动名称" value="${name?if_exists}" id="searchName" name="name">
+                    	<input type="text" placeholder="请输入广告位名称" value="${name?if_exists}" id="searchName" name="name">
                 	</div>
                		 <input type="hidden" id="startDate" value="" name="startDate">
                 	<input type="hidden" id="endDate" value="" name="endDate">
@@ -56,7 +56,6 @@
                     </div>
 						<button type="button" class="btn btn-red" style="margin-left: 10px;" autocomplete="off" id="searchBtn">查询</button>
                     	<button type="button" class="btn btn-primary" style="margin-left: 10px;" autocomplete="off" id="clear">清除条件</button>
-                    	&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
                     	<button style="margin-left: 10px" type="button" class="btn" id="batchInsert" autocomplete="off">批量导入</button>
 						<button style="margin-left: 10px" type="button" class="btn" id="downloadBatch" autocomplete="off" onclick="">模板下载</button>
                     

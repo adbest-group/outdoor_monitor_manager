@@ -3,6 +3,7 @@ package com.bt.om.web.controller;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import com.bt.om.entity.AdActivityAdseat;
 import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.entity.AdJiucuoTaskFeedback;
 import com.bt.om.entity.AdMonitorTask;
+import com.bt.om.entity.AdUserMessage;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
@@ -36,10 +38,12 @@ import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
 import com.bt.om.service.IAdMonitorTaskService;
+import com.bt.om.service.IAdUserMessageService;
 import com.bt.om.service.IMediaService;
 import com.bt.om.service.ISysGroupService;
 import com.bt.om.service.ISysResourcesService;
@@ -75,6 +79,10 @@ public class JiucuoController extends BasicController {
 	private ISysUserRoleService sysUserRoleService;
 	@Autowired
 	protected RedisTemplate redisTemplate;
+	@Autowired
+	private SysUserResMapper sysUserResMapper;
+    @Autowired
+	private IAdUserMessageService adUserMessageService;
 
 	/**
 	 * 查看纠错审核列表
@@ -310,6 +318,7 @@ public class JiucuoController extends BasicController {
 			@RequestParam(value = "status", required = false) Integer status,
 			@RequestParam(value = "reason", required = false) String reason) {
 		ResultVo<String> result = new ResultVo<String>();
+		Date now = new Date();
 		// [1] ids拆分成id集合
 		String[] jiucuoIds = ids.split(",");
 		// [2] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
@@ -343,12 +352,57 @@ public class JiucuoController extends BasicController {
 
 		AdJiucuoTask task = new AdJiucuoTask();
 		// task.setId(jcId);
+		
+		List<Integer> list = new ArrayList<>();
+		List<Integer> cuslist = new ArrayList<>();
+        list = sysUserService.getUserId(4);//超级管理员id
+        Integer dep_id = sysResourcesService.getUserId(3);//部门领导id
+        
+        
+        
 		try {
 			// 获取登录的审核人(员工/部门领导/超级管理员)
 			SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
 
 			if (status == JiucuoTaskStatus.VERIFIED.getId()) {// 审核通过
 				adJiucuoTaskService.pass(jiucuoIds, userObj.getId(), status);
+				List<AdUserMessage> message = new ArrayList<>();
+				
+				AdActivity adActivity = null;
+				for(String id:jiucuoIds) {
+		        	AdJiucuoTask adJiucuoTask = adJiucuoTaskService.getActivityId(Integer.parseInt(id));//通过纠错id找到activityId
+		        	adActivity = adActivityService.getUserId(adJiucuoTask.getActivityId());//通过id找到广告商id
+		        	SysUser sysUser = sysUserService.getUserNameById(adActivity.getUserId());//获得广告商名
+		        	List<Integer> reslist = sysUserResMapper.getUserId(adActivity.getUserId(),2);//获取广告商下面的组id集合
+		        	Integer resId = null;
+		            for(Integer i:reslist) {
+		            	resId = sysResourcesService.getResId(i,3);//找到审核纠错的组id
+		            	if(resId != null) {
+		            		break;
+		            	}
+		            }
+		            cuslist = sysUserResMapper.getAnotherUserId(resId, 1);//获取组下面的员工id集合
+		            List<Integer> userIdList = new ArrayList<>();
+		            for(Integer i : list) {
+		            	userIdList.add(i);
+		            }
+		            for(Integer i: cuslist) {
+		            	userIdList.add(i);
+		            }
+		            userIdList.add(dep_id);
+		            for(Integer i: userIdList) {
+		            	AdUserMessage mess = new AdUserMessage();
+		            	mess.setContent(sysUser.getRealname()+"广告商的"+adActivity.getActivityName()+"纠错任务已被"+userObj.getUsername()+"审核");
+		            	mess.setTargetId(adActivity.getId());
+		            	mess.setTargetUserId(i);
+		            	mess.setIsFinish(1);
+		            	mess.setType(4);
+		            	mess.setCreateTime(now);
+		            	mess.setUpdateTime(now);
+		            	message.add(mess);
+		            }
+		            adUserMessageService.insertMessage(message);
+		        }
 			} else if (status == JiucuoTaskStatus.VERIFY_FAILURE.getId()) {// 审核不通过
 				adJiucuoTaskService.reject(jiucuoIds, reason, userObj.getId(),status);
 			}

@@ -301,4 +301,17 @@
   	 delete from sys_resources
   	where id =#{id,jdbcType=INTEGER} and type = 2
   </delete>
+  
+  <select id="getUserId" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+  	select user_id 
+  	from sys_resources
+  	where department_type = #{departmentType,jdbcType=INTEGER}
+  </select>
+  
+  <select id="getResId" resultType="java.lang.Integer">
+  	select id
+  	from sys_resources
+  	where parentId=#{parentId,jdbcType=INTEGER}
+  	and id=#{id,jdbcType=INTEGER}
+  </select>
 </mapper>

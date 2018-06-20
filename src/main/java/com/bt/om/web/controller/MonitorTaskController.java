@@ -1,5 +1,10 @@
 package com.bt.om.web.controller;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -7,9 +12,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -21,12 +28,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.adtime.common.lang.StringUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
+import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdMonitorTask;
+import com.bt.om.entity.AdUserMessage;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
@@ -36,15 +46,19 @@ import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.security.ShiroUtils;
+import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
 import com.bt.om.service.IAdMonitorTaskService;
+import com.bt.om.service.IAdUserMessageService;
 import com.bt.om.service.IMediaService;
 import com.bt.om.service.ISysGroupService;
 import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.service.ISysUserRoleService;
 import com.bt.om.service.ISysUserService;
+import com.bt.om.service.impl.SysResourcesService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
@@ -76,6 +90,12 @@ public class MonitorTaskController extends BasicController {
 	private ISysUserRoleService sysUserRoleService;
 	@Autowired
 	protected RedisTemplate redisTemplate;
+	@Autowired
+	private SysUserResMapper sysUserResMapper;
+	@Autowired
+	private IAdActivityService adActivityService;
+	@Autowired
+	private IAdUserMessageService adUserMessageService;
 
 	/**
 	 * 监测任务管理（任务审核指派部员工登录）
@@ -661,34 +681,35 @@ public class MonitorTaskController extends BasicController {
 			@RequestParam(value = "ids", required = false) String ids,
 			@RequestParam(value = "userId", required = false) Integer userId) {
 		ResultVo<String> result = new ResultVo<String>();
+		Date now = new Date();
 		// [1] ids拆分成id集合
 		String[] taskIds = ids.split(",");
-//		// [2] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
-//		for (String taskId : taskIds) {
-//			// 注意：这里没有考虑批量指派的问题. 如果批量指派, 需要循环放入Redis
-//			String beginRedisStr = "zhipai_" + taskId + "_begin";
-//			String finishRedisStr = "zhipai_" + taskId + "_finish";
-//			if (redisTemplate.opsForValue().get(finishRedisStr) != null
-//					&& StringUtil.equals(redisTemplate.opsForValue().get(finishRedisStr) + "", "true")) {
-//				result.setCode(ResultCode.RESULT_FAILURE.getCode());
-//				result.setResultDes("任务已被指派，请刷新再试！");
-//				model.addAttribute(SysConst.RESULT_KEY, result);
-//				return model;
-//			}
-//			if (redisTemplate.opsForValue().get(beginRedisStr) != null
-//					&& StringUtil.equals(redisTemplate.opsForValue().get(beginRedisStr) + "", "true")) {
-//				result.setCode(ResultCode.RESULT_FAILURE.getCode());
-//				result.setResultDes("任务正被指派中，请刷新再试！");
-//				model.addAttribute(SysConst.RESULT_KEY, result);
-//				return model;
-//			}
-//		}
-//		// [3] 循环放入redis中
-//		for (String taskId : taskIds) {
-//			String beginRedisStr = "zhipai_" + taskId + "_begin";
-//			// 放入Redis缓存处理并发
-//			redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
-//		}
+		// [2] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
+		for (String taskId : taskIds) {
+			// 注意：这里没有考虑批量指派的问题. 如果批量指派, 需要循环放入Redis
+			String beginRedisStr = "zhipai_" + taskId + "_begin";
+			String finishRedisStr = "zhipai_" + taskId + "_finish";
+			if (redisTemplate.opsForValue().get(finishRedisStr) != null
+					&& StringUtil.equals(redisTemplate.opsForValue().get(finishRedisStr) + "", "true")) {
+				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+				result.setResultDes("任务已被指派，请刷新再试！");
+				model.addAttribute(SysConst.RESULT_KEY, result);
+				return model;
+			}
+			if (redisTemplate.opsForValue().get(beginRedisStr) != null
+					&& StringUtil.equals(redisTemplate.opsForValue().get(beginRedisStr) + "", "true")) {
+				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+				result.setResultDes("任务正被指派中，请刷新再试！");
+				model.addAttribute(SysConst.RESULT_KEY, result);
+				return model;
+			}
+		}
+		// [3] 循环放入redis中
+		for (String taskId : taskIds) {
+			String beginRedisStr = "zhipai_" + taskId + "_begin";
+			// 放入Redis缓存处理并发
+			redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
+		}
 		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
 		result.setResultDes("指派成功");
 		model = new ExtendedModelMap();
@@ -710,6 +731,63 @@ public class MonitorTaskController extends BasicController {
 			param.put("extras", extras);
 			String pushResult = JPushUtils.pushAllByAlias(param);
 			System.out.println("pushResult:: " + pushResult);
+			
+			//指派成功发送站内信
+			SysUserExecute sysUserExecute = sysUserExecuteService.getById(userId);
+			List<Integer> list = new ArrayList<>();
+			AdActivity adActivity = null;
+			
+	        list = sysUserService.getUserId(4);//超级管理员id
+	        Integer dep_id = sysResourcesService.getUserId(2);//部门领导id 指派
+	        for(String id : taskIds) {
+	        	List<AdUserMessage> message = new ArrayList<>();
+	        	AdMonitorTask adMonitorTask = adMonitorTaskService.getActivityId(Integer.parseInt(id));
+	        	adActivity = adActivityService.getUserId(adMonitorTask.getActivityId());//通过id找到广告商id
+	        	SysUser sysUser = sysUserService.getUserNameById(adActivity.getUserId());//获得广告商名
+	        	List<Integer> reslist = sysUserResMapper.getUserId(adActivity.getUserId(),2);//获取广告商下面的组id集合
+		        Integer resId = null;
+		        for(Integer i:reslist) {
+		        	resId = sysResourcesService.getResId(i,2);//找到任务指派的组id
+		        	if(resId != null) {
+		        		break;
+		        	}
+		        }
+		        List<Integer> cuslist = sysUserResMapper.getAnotherUserId(resId, 1);//获取组下面的员工id集合
+		        
+		        List<Integer> userIdList = new ArrayList<>();
+		        for(Integer i : list) {
+		        	userIdList.add(i);
+		        }
+		        for(Integer i: cuslist) {
+		        	userIdList.add(i);
+		        }
+		        userIdList.add(dep_id);
+		        String taskType = null;
+		        if(adMonitorTask.getTaskType()==1) {
+		        	taskType = "上刊监测";
+		        }else if(adMonitorTask.getTaskType()==2) {
+		        	taskType = "投放期间监测";
+		        }else if(adMonitorTask.getTaskType()==3) {
+		        	taskType = "下刊监测";
+		        }else if(adMonitorTask.getTaskType()==5) {
+		        	taskType = "上刊任务";
+		        }else if(adMonitorTask.getTaskType()==6) {
+		        	taskType = "追加任务";
+		        }
+		        for(Integer i: userIdList) {
+	            	AdUserMessage mess = new AdUserMessage();
+	            	mess.setContent(sysUser.getRealname()+"广告商的"+adActivity.getActivityName()+taskType +"指派任务已被"+userObj.getUsername()+"指派给"+sysUserExecute.getRealname()+"待执行");
+	            	mess.setTargetId(adActivity.getId());
+	            	mess.setTargetUserId(i);
+	            	mess.setIsFinish(0);
+	            	mess.setType(3);
+	            	mess.setCreateTime(now);
+	            	mess.setUpdateTime(now);
+	            	message.add(mess);
+	            }
+	            adUserMessageService.insertMessage(message);
+	        }
+	        
 		} catch (Exception e) {
 //			// [5] 异常情况, 循环删除redis
 //			for (String taskId : taskIds) {
@@ -743,6 +821,7 @@ public class MonitorTaskController extends BasicController {
 			@RequestParam(value = "status", required = false) Integer status,
 			@RequestParam(value = "reason", required = false) String reason) {
 		ResultVo<String> result = new ResultVo<String>();
+		Date now = new Date();
 		// [1] ids拆分成id集合
 		String[] taskIds = ids.split(",");
 		// [2] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
@@ -765,7 +844,7 @@ public class MonitorTaskController extends BasicController {
 			}
 		}
 		// [3] 循环放入redis中
-		for (String taskId : taskIds) {
+		for (String taskId : taskIds) { 
 			String beginRedisStr = "monitorTask_" + taskId + "_begin";
 			// 放入Redis缓存处理并发
 			redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
@@ -776,7 +855,6 @@ public class MonitorTaskController extends BasicController {
 		AdMonitorTask task = new AdMonitorTask();
 		// task.setId(taskId);
 		task.setStatus(status);
-
 		try {
 			// 获取登录的审核人(员工/部门领导/超级管理员)
 			SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
@@ -787,6 +865,65 @@ public class MonitorTaskController extends BasicController {
 			} else {
 				adMonitorTaskService.reject(taskIds, reason, userObj.getId(),status);
 			}
+			//审核成功发送站内信
+//			SysUserExecute sysUserExecute = sysUserExecuteService.getById(userId);
+			List<Integer> list = new ArrayList<>();
+			AdActivity adActivity = null;
+			
+	        list = sysUserService.getUserId(4);//超级管理员id
+	        Integer dep_id = sysResourcesService.getUserId(2);//部门领导id
+	        for(String id : taskIds) {
+	        	List<AdUserMessage> message = new ArrayList<>();
+ 	        	AdMonitorTask adMonitorTask = adMonitorTaskService.getActivityId(Integer.parseInt(id));
+	        	adActivity = adActivityService.getUserId(adMonitorTask.getActivityId());//通过id找到广告商id
+	        	SysUser sysUser = sysUserService.getUserNameById(adActivity.getUserId());//获得广告商名
+	        	List<Integer> reslist = sysUserResMapper.getUserId(adActivity.getUserId(),2);//获取广告商下面的组id集合
+		        Integer resId = null;
+		        for(Integer i:reslist) {
+		        	resId = sysResourcesService.getResId(i,1);//找到任务审核的组id
+		        	if(resId != null) {
+		        		break;
+		        	}
+		        }
+		        List<Integer> cuslist = sysUserResMapper.getAnotherUserId(resId, 1);//获取组下面的员工id集合
+		        
+		        List<Integer> userIdList = new ArrayList<>();
+		        for(Integer i : list) {
+		        	userIdList.add(i);
+		        }
+		        for(Integer i: cuslist) {
+		        	userIdList.add(i);
+		        }
+		        userIdList.add(dep_id);
+		        String taskType = null;
+		        if(adMonitorTask.getTaskType()==1) {
+		        	taskType = "上刊监测";
+		        }else if(adMonitorTask.getTaskType()==2) {
+		        	taskType = "投放期间监测";
+		        }else if(adMonitorTask.getTaskType()==3) {
+		        	taskType = "下刊监测";
+		        }else if(adMonitorTask.getTaskType()==5) {
+		        	taskType = "上刊任务";
+		        }else if(adMonitorTask.getTaskType()==6) {
+		        	taskType = "追加任务";
+		        }
+		        for(Integer i: userIdList) {
+	            	AdUserMessage mess = new AdUserMessage();
+	            	if(task.getStatus() == MonitorTaskStatus.VERIFIED.getId()){
+	            		mess.setContent(sysUser.getRealname()+"广告商的"+adActivity.getActivityName()+taskType +"审核任务已被"+userObj.getUsername()+"审核通过");
+	            	}else {
+	            		mess.setContent(sysUser.getRealname()+"广告商的"+adActivity.getActivityName()+taskType +"审核任务已被"+userObj.getUsername()+"审核拒绝");
+	            	}
+	            	mess.setTargetId(adActivity.getId());
+	            	mess.setTargetUserId(i);
+	            	mess.setIsFinish(1);
+	            	mess.setType(3);
+	            	mess.setCreateTime(now);
+	            	mess.setUpdateTime(now);
+	            	message.add(mess);
+	            }
+	            adUserMessageService.insertMessage(message);
+	        }
 			// [3] 循环推送
 			for (String taskId : taskIds) {
 				task = adMonitorTaskService.selectByPrimaryKey(Integer.parseInt(taskId));
@@ -981,6 +1118,10 @@ public class MonitorTaskController extends BasicController {
 		AdMonitorTaskVo vo = adMonitorTaskService.getTaskDetails(taskId);
 		List<AdMonitorTaskVo> list = adMonitorTaskService.getSubmitDetails(taskId);
 
+		// 获取当前登录的后台用户信息
+		SysUser sysUser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+		model.addAttribute("usertype", sysUser.getUsertype());
+		
 		// 获取父任务信息，分监测和纠错
 		if (vo.getParentId() != null) {
 			if (vo.getParentType() == RewardTaskType.MONITOR.getId()) {
@@ -1014,9 +1155,7 @@ public class MonitorTaskController extends BasicController {
 			@RequestParam(value = "activityId", required = false) Integer activityId,
 			@RequestParam(value = "taskType", required = false) Integer taskType,
 			@RequestParam(value = "status", required = false) Integer status,
-			@RequestParam(value = "problemStatus", required = false) Integer problemStatus
-
-	) {
+			@RequestParam(value = "problemStatus", required = false) Integer problemStatus) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		SearchDataVo vo = SearchUtil.getVo();
 
@@ -1037,5 +1176,105 @@ public class MonitorTaskController extends BasicController {
 
 		SearchUtil.putToModel(model, vo);
 		return PageConst.ALLTASK_LIST;
+	}
+	
+	/**
+	 * 任务图片更替
+	 */
+	@RequestMapping(value = "/changePic")
+	@ResponseBody
+	public Model changeDetailsPage(Model model, @RequestParam("taskFeedBackId") Integer id, HttpServletRequest request, HttpServletResponse response,
+									@RequestParam(value = "picFile", required = false) MultipartFile file,
+									@RequestParam(value = "index", required = false) Integer index) {
+		ResultVo<String> result = new ResultVo<String>();
+		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+		result.setResultDes("替换成功");
+		model = new ExtendedModelMap();
+		
+		if(id == null) {
+			result.setCode(ResultCode.RESULT_FAILURE.getCode());
+			result.setResultDes("替换失败！");
+			model.addAttribute(SysConst.RESULT_KEY, result);
+			return model;
+		}
+		
+		String path = request.getRealPath("/");
+		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"upload"+File.separatorChar;
+		String imageName = file.getOriginalFilename();
+		InputStream is;
+		String filepath;
+		try {
+			is = file.getInputStream();
+			Long size = file.getSize();
+			if (!isImg(imageName.toLowerCase())) {
+				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+				result.setResultDes("上传的不是图片！");
+				model.addAttribute(SysConst.RESULT_KEY, result);
+				return model;
+			}
+			if (size > 1024 * 1024) {
+				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+				result.setResultDes("图片尺寸太大！");
+				model.addAttribute(SysConst.RESULT_KEY, result);
+				return model;
+			}
+			//[1] 上传图片
+			filepath = saveFile(path,imageName,is);
+			//[2] 更改数据库
+			adMonitorTaskService.updatePicUrl(id, filepath, index);
+		} catch (IOException e) {
+			result.setCode(ResultCode.RESULT_FAILURE.getCode());
+			result.setResultDes("替换失败！");
+			model.addAttribute(SysConst.RESULT_KEY, result);
+			return model;
+		}
+		
+		model.addAttribute(SysConst.RESULT_KEY, result);
+		return model;
+	}
+	
+	//保存在本服务器
+	private String saveFile(String path,String filename,InputStream is){
+		String ext = filename.substring(filename.lastIndexOf(".") + 1);
+		filename = UUID.randomUUID().toString().toLowerCase()+"."+ext.toLowerCase();
+		FileOutputStream fos = null;
+		try {
+			 fos = new FileOutputStream(path+filename);
+			int len = 0;
+			byte[] buff = new byte[1024];
+			while((len=is.read(buff))>0){
+				fos.write(buff);
+			}
+			return "/static/upload/"+filename;
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}finally {
+			if(fos!=null){
+				try {
+					fos.flush();
+					fos.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			if(is!=null){
+				try {
+					is.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return "error";
+	}
+
+	private boolean isImg(String imgName) {
+		imgName = imgName.toLowerCase();
+		if (imgName.endsWith(".jpg") || imgName.endsWith(".jpeg") || imgName.endsWith(".png") || imgName.endsWith(".gif")) {
+			return true;
+		}
+		return false;
 	}
 }

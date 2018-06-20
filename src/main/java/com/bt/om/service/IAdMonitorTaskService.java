@@ -97,5 +97,8 @@ public interface IAdMonitorTaskService {
 	String getTaskWillEnd(Integer duration);
 	public void getTaskPageData(SearchDataVo datavo);
 	void newActivateMonitorTask(Date nowDate);
+
 	public AdMonitorTask getActivityId(int id);
+
+	void insertMonitorTask(Integer activityId, List<String> seatIds, String reportTime);
 }

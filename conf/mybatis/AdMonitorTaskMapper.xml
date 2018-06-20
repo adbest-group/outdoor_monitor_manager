@@ -470,6 +470,11 @@
         <if test="taskType != null">
             and a.task_type = #{taskType,jdbcType=INTEGER}
         </if>
+        <if test="notTaskTypes != null">
+            and a.task_type not in
+            <foreach collection="notTaskTypes" separator="," open="(" close=")" item="s">#{s,jdbcType=INTEGER}
+            </foreach>
+        </if>
         <if test="mediaUserId != null">
             and e.user_id = #{mediaUserId,jdbcType=INTEGER}
         </if>
@@ -565,6 +570,11 @@
         </if>
         <if test="taskType != null">
             and a.task_type = #{taskType,jdbcType=INTEGER}
+        </if>
+        <if test="notTaskTypes != null">
+            and a.task_type not in
+            <foreach collection="notTaskTypes" separator="," open="(" close=")" item="s">#{s,jdbcType=INTEGER}
+            </foreach>
         </if>
         <if test="mediaUserId != null">
             and e.user_id = #{mediaUserId,jdbcType=INTEGER} and a.parent_id is null
@@ -1332,5 +1342,14 @@
 		) as t
 		group by monitor_task_id
     </select>
+	
+	<!-- 清理任务主表的执行任务人员信息 -->    
+    <update id="cleanTask" parameterType="com.bt.om.entity.AdMonitorTask">
+    	update ad_monitor_task
+    	set
+	    	user_id = null,
+	    	status = #{status,jdbcType=INTEGER}
+    	where id = #{id,jdbcType=INTEGER}
+    </update>
     
 </mapper>

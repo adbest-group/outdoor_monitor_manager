@@ -1,9 +1,11 @@
 package com.bt.om.mapper;
 
-import com.bt.om.entity.AdMonitorTaskFeedback;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
+import com.bt.om.entity.AdMonitorTaskFeedback;
 
 public interface AdMonitorTaskFeedbackMapper {
     /**
@@ -57,4 +59,12 @@ public interface AdMonitorTaskFeedbackMapper {
     List<AdMonitorTaskFeedback> selectByTaskId(@Param("taskId") Integer taskId,@Param("status") Integer status);
     
     List<AdMonitorTaskFeedback> selectByActivity(@Param("monitorTaskIds") List<Integer> monitorTaskIds);
+    
+    int updatePicUrl1(Map<String, Object> searchMap);
+    
+    int updatePicUrl2(Map<String, Object> searchMap);
+    
+    int updatePicUrl3(Map<String, Object> searchMap);
+    
+    int updatePicUrl4(Map<String, Object> searchMap);
 }

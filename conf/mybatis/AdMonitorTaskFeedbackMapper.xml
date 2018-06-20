@@ -280,5 +280,36 @@
     and status = 1
   </select>
   
+  <update id="updatePicUrl1" parameterType="map">
+   	update ad_monitor_task_feedback
+   	set
+    	update_time = CURRENT_TIMESTAMP,
+    	pic_url1 = #{picUrl1,jdbcType=VARCHAR}
+   	where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <update id="updatePicUrl2" parameterType="map">
+   	update ad_monitor_task_feedback
+   	set
+    	update_time = CURRENT_TIMESTAMP,
+    	pic_url2 = #{picUrl2,jdbcType=VARCHAR}
+   	where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <update id="updatePicUrl3" parameterType="map">
+   	update ad_monitor_task_feedback
+   	set
+    	update_time = CURRENT_TIMESTAMP,
+    	pic_url3 = #{picUrl3,jdbcType=VARCHAR}
+   	where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <update id="updatePicUrl4" parameterType="map">
+   	update ad_monitor_task_feedback
+   	set
+    	update_time = CURRENT_TIMESTAMP,
+    	pic_url4 = #{picUrl4,jdbcType=VARCHAR}
+   	where id = #{id,jdbcType=INTEGER}
+  </update>
   
 </mapper>

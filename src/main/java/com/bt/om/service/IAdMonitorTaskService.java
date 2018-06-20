@@ -98,6 +98,8 @@ public interface IAdMonitorTaskService {
 	public void getTaskPageData(SearchDataVo datavo);
 	void newActivateMonitorTask(Date nowDate);
 
+	void updatePicUrl(Integer id, String picUrl, Integer index);
+
 	public AdMonitorTask getActivityId(int id);
 
 	void insertMonitorTask(Integer activityId, List<String> seatIds, String reportTime);

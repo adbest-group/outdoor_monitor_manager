@@ -22,6 +22,7 @@
     <result column="up_monitor_task_time" property="upMonitorTaskTime" jdbcType="VARCHAR" />
     <result column="duration_monitor_task_time" property="durationMonitorTaskTime" jdbcType="VARCHAR" />
     <result column="down_monitor_task_time" property="downMonitorTaskTime" jdbcType="VARCHAR" />
+    <result column="zhuijia_monitor_task_time" property="zhuijiaMonitorTaskTime" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
     <!--
@@ -30,7 +31,7 @@
       This element was generated on Thu Jan 18 14:25:00 CST 2018.
     -->
     id, activity_name, start_time, end_time, status, user_id, customer_type_id, create_time, update_time, assessor_id, sample_pic_url,
-    up_task_time, up_monitor_task_time, duration_monitor_task_time, down_monitor_task_time
+    up_task_time, up_monitor_task_time, duration_monitor_task_time, down_monitor_task_time, zhuijia_monitor_task_time
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     <!--
@@ -61,11 +62,12 @@
     insert into ad_activity (id, activity_name, start_time, 
       end_time, status, user_id, customer_type_id,
       create_time, update_time, assessor_id,sample_pic_url,
-      up_task_time, up_monitor_task_time, duration_monitor_task_time, down_monitor_task_time)
+      up_task_time, up_monitor_task_time, duration_monitor_task_time, down_monitor_task_time, zhuijia_monitor_task_time)
     values (#{id,jdbcType=INTEGER}, #{activityName,jdbcType=VARCHAR}, #{startTime,jdbcType=TIMESTAMP}, 
       #{endTime,jdbcType=TIMESTAMP}, #{status,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{customerTypeId,jdbcType=INTEGER},
       #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{assessorId,jdbcType=INTEGER}, #{samplePicUrl,jdbcType=VARCHAR},
-      #{upTaskTime,jdbcType=VARCHAR}, #{upMonitorTaskTime,jdbcType=VARCHAR}, #{durationMonitorTaskTime,jdbcType=VARCHAR}, #{downMonitorTaskTime,jdbcType=VARCHAR})
+      #{upTaskTime,jdbcType=VARCHAR}, #{upMonitorTaskTime,jdbcType=VARCHAR}, #{durationMonitorTaskTime,jdbcType=VARCHAR}, #{downMonitorTaskTime,jdbcType=VARCHAR}, 
+      #{zhuijiaMonitorTaskTime,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.bt.om.entity.AdActivity" useGeneratedKeys="true" keyProperty="id" >
     <!--
@@ -120,6 +122,9 @@
       <if test="downMonitorTaskTime != null" >
         down_monitor_task_time,
       </if>
+      <if test="zhuijiaMonitorTaskTime != null" >
+        zhuijia_monitor_task_time,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -166,6 +171,9 @@
       </if>
       <if test="downMonitorTaskTime != null" >
         #{downMonitorTaskTime,jdbcType=VARCHAR},
+      </if>
+      <if test="zhuijiaMonitorTaskTime != null" >
+        #{zhuijiaMonitorTaskTime,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -219,6 +227,9 @@
       <if test="downMonitorTaskTime != null" >
         down_monitor_task_time = #{downMonitorTaskTime,jdbcType=VARCHAR},
       </if>
+      <if test="zhuijiaMonitorTaskTime != null" >
+        zhuijia_monitor_task_time = #{zhuijiaMonitorTaskTime,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -246,7 +257,8 @@
       up_task_time = #{upTaskTime,jdbcType=VARCHAR},
       up_monitor_task_time = #{upMonitorTaskTime,jdbcType=VARCHAR},
       duration_monitor_task_time = #{durationMonitorTaskTime,jdbcType=VARCHAR},
-      down_monitor_task_time = #{downMonitorTaskTime,jdbcType=VARCHAR}
+      down_monitor_task_time = #{downMonitorTaskTime,jdbcType=VARCHAR},
+      zhuijia_monitor_task_time = #{zhuijiaMonitorTaskTime,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 

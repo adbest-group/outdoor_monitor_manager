@@ -3,6 +3,7 @@ package com.bt.om.web.controller;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +38,11 @@ import com.bt.om.enums.SessionKey;
 import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
+
 import com.bt.om.service.IAdUserMessageService;
+
+import com.bt.om.service.IAdMonitorTaskService;
+
 import com.bt.om.service.IOperateLogService;
 import com.bt.om.service.ISysGroupService;
 import com.bt.om.service.ISysResourcesService;
@@ -74,8 +79,10 @@ public class ActivityController extends BasicController {
 	private IOperateLogService operateLogService;
 	@Autowired
 	private SysUserResMapper sysUserResMapper;
-    @Autowired
+  @Autowired
 	private IAdUserMessageService adUserMessageService;
+  @Autowired
+	private IAdMonitorTaskService adMonitorTaskService;
 
 	@Autowired
 	protected RedisTemplate redisTemplate;
@@ -280,6 +287,52 @@ public class ActivityController extends BasicController {
         return PageConst.ACTIVITY_EDIT;
     }
 
+    // 追加监测任务页面跳转
+    @RequestMapping(value = "/addTask")
+    public String gotoAddPage(Model model, Integer seatId, String startTime, String endTime, String activityId) {
+        model.addAttribute("monitorTime", ConfigUtil.getInt("monitor_time")); //允许任务执行天数
+        model.addAttribute("auditTime", ConfigUtil.getInt("audit_time")); //允许任务审核天数
+    	model.addAttribute("seatId", seatId);
+    	model.addAttribute("startTime", startTime);
+    	model.addAttribute("endTime", endTime);
+    	model.addAttribute("activityId", activityId);
+        return PageConst.ADD_ZHUIJIA;
+    }
+    
+    // 【已确认但未结束的活动】追加监测任务
+ 	@RequestMapping(value = "/zhuijiaTask")
+ 	@ResponseBody
+ 	public Model zhuijiaTask(Model model, HttpServletRequest request,
+ 			@RequestParam(value = "activityId", required = false) Integer activityId,
+ 			@RequestParam(value = "seatIds", required = false) String seatIds,
+ 			@RequestParam(value = "reportTime", required = false) String reportTime) {
+ 		ResultVo<String> result = new ResultVo<String>();
+ 		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+ 		result.setResultDes("确认成功");
+ 		model = new ExtendedModelMap();
+ 		
+ 		if(activityId == null || StringUtil.isBlank(reportTime) || StringUtil.isBlank(seatIds)) {
+ 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
+ 			result.setResultDes("添加失败！");
+ 			model.addAttribute(SysConst.RESULT_KEY, result);
+ 			return model;
+ 		}
+ 		
+ 		try {
+ 			String[] splitSeatIds = seatIds.split(",");
+ 			//批量插入
+			adMonitorTaskService.insertMonitorTask(activityId, Arrays.asList(splitSeatIds), reportTime);
+ 		} catch (Exception e) {
+ 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
+ 			result.setResultDes("确认失败！");
+ 			model.addAttribute(SysConst.RESULT_KEY, result);
+ 			return model;
+ 		}
+
+ 		model.addAttribute(SysConst.RESULT_KEY, result);
+ 		return model;
+ 	}
+    
 	// 确认活动
 	@RequiresRoles(value = { "activityadmin", "depactivityadmin", "superadmin" }, logical = Logical.OR)
 	@RequestMapping(value = "/confirm")

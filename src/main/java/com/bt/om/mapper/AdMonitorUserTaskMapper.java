@@ -68,4 +68,6 @@ public interface AdMonitorUserTaskMapper {
      * 更新推送状态
      */
     int updateIsPush(@Param("ids") List<Integer> ids);
+    
+    int cleanTask(AdMonitorUserTask task);
 }

@@ -27,6 +27,8 @@ import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.ActivityStatus;
 import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.MediaType;
+import com.bt.om.enums.MessageIsFinish;
+import com.bt.om.enums.MessageType;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.SessionKey;
@@ -216,6 +218,20 @@ public class VMComponent {
     public String getUserExecuteTypeText(int id) {	
         return UserExecuteType.getText(id);
     }
+    
+    /**
+     * 获取用户站内信名称
+     **/
+    public String getUserMessageText(int id) {	
+        return MessageIsFinish.getText(id);
+    }
+    
+    /**
+     * 获取用户站内信类型的名称
+     **/
+    public String getUserMessageTypeText(int id) {	
+        return MessageType.getText(id);
+    }
 
     /**
      * 获取app端用户类型列表
@@ -223,7 +239,7 @@ public class VMComponent {
     public UserExecuteType[] getUserExecuteTypeList() {
         return UserExecuteType.values();
     }
-
+    
     /**
      * 获取广告活动状态文字
      */

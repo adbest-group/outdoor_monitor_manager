@@ -1,7 +1,6 @@
 package com.bt.om.web.quartz;
 
 import java.util.Date;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bt.om.service.IAdMonitorTaskService;

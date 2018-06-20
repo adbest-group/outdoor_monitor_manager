@@ -89,6 +89,16 @@ public class SysResourcesService implements ISysResourcesService {
 		return sysResourcesMapper.getByUserId(userId);
 	}
 
+	@Override
+	public int getUserId(Integer departmentType) {
+		return sysResourcesMapper.getUserId(departmentType);
+	}
+
+	@Override
+	public Integer getResId(Integer id, Integer parentId) {
+		return sysResourcesMapper.getResId(id,parentId);
+	}
+
 /*	@Override
 	public List<SysResources> selectByUserId(List<Integer> groupIds) {
 		return null;

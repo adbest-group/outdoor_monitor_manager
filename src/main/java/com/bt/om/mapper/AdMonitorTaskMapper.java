@@ -142,4 +142,5 @@ public interface AdMonitorTaskMapper {
 
 	int getTaskPageCount(HashMap<String, Object> searchMap);
 
+	List<Integer> getWaitToActivateIds(Date nowDate);
 }

@@ -865,7 +865,26 @@
        	
        	//添加投放期间监测任务出报告时间
         $('#addDurationMonitor').click(function(){
-        	var index = $('.last').length
+			var flag = false;
+			var durationVar = $('.durationMonitor-Wdate');
+        	$(".durationMonitor-Wdate").each(function(index){
+        		var wdateValue = $(this).val();
+        		if(wdateValue == ""){
+					if(flag == false){
+						flag = true;
+					}
+        		}
+        	})
+        	
+        	if(flag == true){
+        		layer.confirm("请先选择投放期间监测任务出报告时间再添加", {
+                    icon: 2,
+                    btn: ['确定'] //按钮
+                });	
+        		return false;
+        	}
+        	
+        	var index = $('.last').length;
         	var str = '<tr class="last"><td class="a-title"><font class="s-red">*</font>投放期间监测任务出报告时间：</td><td><div class="ll inputs-date durationMonitorTaskTime" id="durationTime'+index+'"><div class="date"><input id="durationMonitorTaskTime'+index+'" ${editMode?string("","disabled")} class="durationMonitor-Wdate Wdate" type="text"></div></div><span style="margin-left:10px;" id="durationMonitorTaskTimeTip'+index+'"></span></td></tr>'
         	$('.last:last').after(str)
         	

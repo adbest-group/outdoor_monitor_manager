@@ -494,4 +494,10 @@
     </set>
     where username = #{username,jdbcType=VARCHAR}
   </update>
+  <select id="getUserId" resultType="java.lang.Integer">
+  	select id 
+  	from sys_user
+  	where usertype = 4
+  </select>
+
 </mapper>

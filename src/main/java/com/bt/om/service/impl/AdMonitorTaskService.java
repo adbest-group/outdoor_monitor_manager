@@ -15,12 +15,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.adtime.common.lang.CollectionUtil;
+
+import com.adtime.common.lang.StringUtil;
+import com.bt.om.common.DateUtil;
+import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.entity.AdMonitorReward;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.AdMonitorUserTask;
 import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.AdUserMessage;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AbandonTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
@@ -33,14 +38,22 @@ import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.RewardType;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.mapper.AdActivityAdseatMapper;
+import com.bt.om.mapper.AdActivityMapper;
 import com.bt.om.mapper.AdJiucuoTaskMapper;
 import com.bt.om.mapper.AdMonitorRewardMapper;
 import com.bt.om.mapper.AdMonitorTaskFeedbackMapper;
 import com.bt.om.mapper.AdMonitorTaskMapper;
 import com.bt.om.mapper.AdMonitorUserTaskMapper;
 import com.bt.om.mapper.AdSeatInfoMapper;
+import com.bt.om.mapper.AdUserMessageMapper;
+import com.bt.om.mapper.SysResourcesMapper;
+import com.bt.om.mapper.SysUserMapper;
+import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdMonitorTaskService;
+import com.bt.om.service.IAdUserMessageService;
+import com.bt.om.util.ConfigUtil;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.util.JPushUtils;
 
@@ -61,6 +74,19 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     private AdSeatInfoMapper adSeatInfoMapper;
     @Autowired
     private AdMonitorUserTaskMapper adMonitorUserTaskMapper;
+    @Autowired
+    private SysUserMapper sysUserMapper;
+    @Autowired
+    private SysResourcesMapper sysResourcesMapper;
+	@Autowired
+	private SysUserResMapper sysUserResMapper;
+    @Autowired
+	private AdUserMessageMapper adUserMessageMapper;
+   @Autowired
+    private AdActivityAdseatMapper adActivityAdseatMapper;
+    @Autowired
+    private AdActivityMapper adActivityMapper;
+
 
     @Override
     public void getPageData(SearchDataVo vo) {
@@ -505,7 +531,70 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void newActivateMonitorTask(Date nowDate) {
+		//[1] 激活任务
 		adMonitorTaskMapper.newActivateMonitorTask(nowDate);
+		
+		//[2] 添加站内信
+		List<Integer> userIds = new ArrayList<>();
+		Date now = new Date();
+		List<Integer> ids = adMonitorTaskMapper.getWaitToActivateIds(nowDate);
+		if(ids != null && ids.size() > 0) {
+			//查询添加站内信的用户id集合
+			userIds = sysUserMapper.getUserId(4);//超级管理员id
+			Integer dep_id = sysResourcesMapper.getUserId(2);//部门领导id
+			userIds.add(dep_id);
+			
+			for (Integer monitorId : ids) {
+				List<AdUserMessage> message = new ArrayList<>();
+				//员工
+				AdMonitorTask adMonitorTask = adMonitorTaskMapper.selectByPrimaryKey(monitorId);
+	        	AdActivity adActivity = adActivityMapper.selectByPrimaryKey(adMonitorTask.getActivityId());//通过id找到广告商id
+	        	SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivity.getUserId());//获得广告商名
+				
+				List<Integer> reslist = sysUserResMapper.getUserId(adActivity.getUserId(),2);//获取广告商下面的组id集合
+		        Integer resId = null;
+		        for(Integer i:reslist) {
+		        	resId = sysResourcesMapper.getResId(i,1);//找到任务审核的组id
+		        	if(resId != null) {
+		        		break;
+		        	}
+		        }
+		        List<Integer> cuslist = sysUserResMapper.getAnotherUserId(resId, 1);//获取组下面的员工id集合
+		        
+		        List<Integer> userIdList = new ArrayList<>();
+		        for(Integer i : userIds) {
+		        	userIdList.add(i);
+		        }
+		        for(Integer i: cuslist) {
+		        	userIdList.add(i);
+		        }
+		        userIdList.add(dep_id);
+		        String taskType = null;
+		        if(adMonitorTask.getTaskType()==1) {
+		        	taskType = "上刊监测";
+		        }else if(adMonitorTask.getTaskType()==2) {
+		        	taskType = "投放期间监测";
+		        }else if(adMonitorTask.getTaskType()==3) {
+		        	taskType = "下刊监测";
+		        }else if(adMonitorTask.getTaskType()==5) {
+		        	taskType = "上刊任务";
+		        }else if(adMonitorTask.getTaskType()==6) {
+		        	taskType = "追加任务";
+		        }
+		        for(Integer i: userIdList) {
+	            	AdUserMessage mess = new AdUserMessage();
+	            	mess.setContent(sysUser.getRealname()+"广告商的"+adActivity.getActivityName()+taskType +"指派任务已被激活");
+	            	mess.setTargetId(adActivity.getId());
+	            	mess.setTargetUserId(i);
+	            	mess.setIsFinish(0);
+	            	mess.setType(3);
+	            	mess.setCreateTime(now);
+	            	mess.setUpdateTime(now);
+	            	message.add(mess);
+	            }
+		        adUserMessageMapper.insertMessage(message);
+			}
+		}
 	}
 	
 	/**
@@ -641,5 +730,65 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 			searchMap.put("picUrl4", picUrl);
 			adMonitorTaskFeedbackMapper.updatePicUrl4(searchMap);
 		}
+  }
+
+	 * 批量插入追加监测任务
+	 */
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void insertMonitorTask(Integer activityId, List<String> seatIds, String reportTime) {
+		Integer monitorTime = ConfigUtil.getInt("monitor_time"); //允许任务执行天数
+        Integer auditTime = ConfigUtil.getInt("audit_time"); //允许任务审核天数
+		
+        //查询需要追加监测任务的广告位关联id集合
+        Map<String, Object> searchMap = new HashMap<>();
+        searchMap.put("activityId", activityId);
+        searchMap.put("seatIds", seatIds);
+        List<Integer> adActivityAdseatIds = adActivityAdseatMapper.selectByActivityIdAndSeatIds(searchMap);
+        
+		List<AdMonitorTask> tasks = new ArrayList<>();
+		for (Integer seatId : adActivityAdseatIds) {
+			// 追加监测任务
+ 			AdMonitorTask adMonitorTask = new AdMonitorTask();
+ 			
+ 			Date now = new Date();
+ 			adMonitorTask.setActivityId(activityId);
+ 			adMonitorTask.setActivityAdseatId(seatId);
+ 			adMonitorTask.setStatus(MonitorTaskStatus.UN_ACTIVE.getId());
+ 			adMonitorTask.setProblemStatus(TaskProblemStatus.UNMONITOR.getId());
+ 			adMonitorTask.setCreateTime(now);
+ 			adMonitorTask.setUpdateTime(now);
+ 			
+ 			adMonitorTask.setTaskType(MonitorTaskType.ZHUIJIA_MONITOR.getId());
+            Date durationMonitorTask = DateUtil.parseStrDate(reportTime, "yyyy-MM-dd"); //页面上的追加监测任务出报告时间
+            Date auditDate = DateUtil.addDays(durationMonitorTask, -auditTime); //提前两天审核+替换图片
+            Date monitorDate = DateUtil.addDays(auditDate, -monitorTime); //提前三天执行任务
+            int betweenDays = DateUtil.getBetweenDays(monitorDate, auditDate);
+            adMonitorTask.setMonitorDate(monitorDate);
+            adMonitorTask.setMonitorLastDays(betweenDays);
+            adMonitorTask.setReportTime(durationMonitorTask);
+            
+            tasks.add(adMonitorTask);
+		}
+		
+		//[1] 插入任务表
+		if(tasks != null && tasks.size() > 0) {
+			adMonitorTaskMapper.insertList(tasks);
+		}
+		
+		//[2] 更新活动表
+		AdActivity adActivity = adActivityMapper.selectByPrimaryKey(activityId);
+		String zhuijiaMonitorTaskTime = adActivity.getZhuijiaMonitorTaskTime();
+		if(StringUtil.isBlank(zhuijiaMonitorTaskTime)) {
+			adActivity.setZhuijiaMonitorTaskTime(reportTime);
+		} else {
+			adActivity.setZhuijiaMonitorTaskTime(zhuijiaMonitorTaskTime + "," + reportTime);
+		}
+		adActivityMapper.updateByPrimaryKeySelective(adActivity);
+	}
+
+	@Override
+	public AdMonitorTask getActivityId(int id) {
+		return adMonitorTaskMapper.selectByPrimaryKey(id);
 	}
 }

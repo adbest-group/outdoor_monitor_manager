@@ -247,5 +247,10 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
 		
 	}
 
+	@Override
+	public AdJiucuoTask getActivityId(int id) {
+		return adJiucuoTaskMapper.selectByPrimaryKey(id);
+	}
+
 	
 }

@@ -35,20 +35,26 @@ import com.bt.om.entity.AdActivityArea;
 import com.bt.om.entity.AdActivityMedia;
 import com.bt.om.entity.AdJiucuoTaskFeedback;
 import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.AdUserMessage;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AdActivityVo;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.entity.vo.AdSeatCount;
 import com.bt.om.entity.vo.AdSeatInfoVo;
+import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.ActivityStatus;
 import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
+import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
 import com.bt.om.service.IAdSeatService;
+import com.bt.om.service.IAdUserMessageService;
+import com.bt.om.service.ISysResourcesService;
+import com.bt.om.service.ISysUserService;
 import com.bt.om.util.ConfigUtil;
 import com.bt.om.util.GsonUtil;
 import com.bt.om.util.StringUtil;
@@ -71,7 +77,14 @@ public class CustomerActivityControl extends BasicController {
     private IAdJiucuoTaskService adJiucuoTaskService;
     @Autowired
     private IAdSeatService adSeatService;
-
+    @Autowired
+	private IAdUserMessageService adUserMessageService;
+    @Autowired 
+    private ISysResourcesService sysResourcesService;
+    @Autowired 
+    private ISysUserService sysUserService;
+	@Autowired
+	private SysUserResMapper sysUserResMapper;
 	/**
      * 查询活动列表
      */
@@ -417,6 +430,29 @@ public class CustomerActivityControl extends BasicController {
         adActivityVo.setDurationMonitorTaskTime(durationMonitorTaskTime); //投放期间监测任务出报告时间
         adActivityVo.setDownMonitorTaskTime(downMonitorTaskTime); //下刊监测任务出报告时间
         
+        SysUser sysUser = sysUserService.getUserNameById(customerId);
+        List<Integer> list = new ArrayList<>();
+        list = sysUserService.getUserId(4);//超级管理员id
+        Integer dep_id = sysResourcesService.getUserId(1);//部门领导id
+        
+        List<Integer> reslist = sysUserResMapper.getUserId(customerId,2);//获取广告商下面的组id集合
+        Integer resId = null;
+        for(Integer i:reslist) {
+        	resId = sysResourcesService.getResId(i,1);//找到审核活动的组id
+        	if(resId != null) {
+        		break;
+        	}
+        }
+        List<Integer> cuslist = sysUserResMapper.getAnotherUserId(resId, 1);//获取组下面的员工id集合
+        
+        List<Integer> userIdList = new ArrayList<>();
+        for(Integer i : list) {
+        	userIdList.add(i);
+        }
+        for(Integer i: cuslist) {
+        	userIdList.add(i);
+        }
+        userIdList.add(dep_id);
         //新增
         if (StringUtil.isEmpty(id)) {
             adActivityVo.setStatus(ActivityStatus.UNCONFIRM.getId());
@@ -430,6 +466,20 @@ public class CustomerActivityControl extends BasicController {
             adActivityVo.setCreateTime(now);
             adActivityVo.setUpdateTime(now);
             adActivityService.add(adActivityVo, activeSeat);
+            
+            List<AdUserMessage> message = new ArrayList<>();
+            for(Integer i: userIdList) {
+            	AdUserMessage mess = new AdUserMessage();
+            	mess.setContent(sysUser.getRealname()+"广告商的"+activityName+"活动待确认！");
+            	mess.setTargetId(24);
+            	mess.setTargetUserId(i);
+            	mess.setIsFinish(0);
+            	mess.setType(1);
+            	mess.setCreateTime(now);
+            	mess.setUpdateTime(now);
+            	message.add(mess);
+            }
+            adUserMessageService.insertMessage(message);
         } else {//更新
             adActivityVo.setId(new Integer(id));
             adActivityVo.setUpdateTime(now);

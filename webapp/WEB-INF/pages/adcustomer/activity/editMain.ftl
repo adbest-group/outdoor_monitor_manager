@@ -113,12 +113,12 @@
                                     </div>
                                 </div>
                                 <span style="margin-left:10px;" id="durationMonitorTaskTimeTip0"></span>
-                                <input type='button' id="addDurationMonitor" value='添加'>
+                                <#if editMode><input type='button' id="addDurationMonitor" value='添加'></#if>
                             </td>
                         </tr>
                         
                         <!-- 与活动结束时间同步 -->
-                        <tr>
+                        <tr class='down'>
                             <td class="a-title"><font class="s-red">*</font>下刊监测任务出报告时间：</td>
                             <td>
                                 <div class="ll inputs-date">
@@ -319,7 +319,8 @@
 	        "upTaskTime": '${activity.upTaskTime!""}',
 	        "upMonitorTaskTime": '${activity.upMonitorTaskTime!""}',
 	        "durationMonitorTaskTime": '${activity.durationMonitorTaskTime!""}',
-	        "downMonitorTaskTime": '${activity.downMonitorTaskTime!""}'
+	        "downMonitorTaskTime": '${activity.downMonitorTaskTime!""}',
+	        "zhuijiaMonitorTaskTime": '${activity.zhuijiaMonitorTaskTime!""}'
 	    }
 	    $("#img-demo-img").attr("src",activity.samplePicUrl);//广告投放画面图片地址
 	    $("#img-demo-bak").attr("src",activity.samplePicUrl);//广告投放画面图片地址
@@ -338,6 +339,20 @@
 		}
 		for (var i = 0; i < result.length; i++) {
 			$("#durationMonitorTaskTime" + i).val(result[i]); //投放期间监测任务时间
+		}
+		
+		//拼接显示 追加监测任务
+		if(activity.zhuijiaMonitorTaskTime != null && activity.zhuijiaMonitorTaskTime != "") {
+			var resultZhuijia = activity.zhuijiaMonitorTaskTime.split(",");
+			//回显时添加追加监测任务
+			for (var i = 0; i < resultZhuijia.length; i++) {
+			  	var index = $('.zhuijia').length;
+		    	var str = '<tr class="zhuijia"><td class="a-title"><font class="s-red">*</font>追加监测任务出报告时间：</td><td><div class="ll inputs-date zhuijiaMonitorTaskTime" id="zhuijiaTime'+index+'"><div class="date"><input id="zhuijiaMonitorTaskTime'+index+'" ${editMode?string("","disabled")} class="zhuijiaMonitor-Wdate Wdate" type="text"></div></div><span style="margin-left:10px;" id="zhuijiaMonitorTaskTimeTip'+index+'"></span></td></tr>'
+		    	$('.down').after(str);
+			}
+			for (var i = 0; i < resultZhuijia.length; i++) {
+				$("#zhuijiaMonitorTaskTime" + i).val(resultZhuijia[i]); //追加监测任务时间
+			}
 		}
 	    
 	    var activity_seats = [
@@ -1261,7 +1276,7 @@
 		if(len > 0){
 			var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>操作</th> </tr></thead><tbody>'
 			for(var i = 0; i < len; i++){
-				var str = '<tr><td>' + activity_seats[i].seatName + '</td><td>' + activity_seats[i].area + '</td><td>' + activity_seats[i].road + '</td><td>' + activity_seats[i].location + '</td><td>' + activity_seats[i].mediaName + '</td> <td>' + activity_seats[i].parentName + '</td><td>' + activity_seats[i].secondName + '</td><td><a style="cursor:pointer" class="deleteCheckBtn" data-id='+ activity_seats[i].seatId + '>删除</a></td></td> </tr>'
+				var str = '<tr><td>' + activity_seats[i].seatName + '</td><td>' + activity_seats[i].area + '</td><td>' + activity_seats[i].road + '</td><td>' + activity_seats[i].location + '</td><td>' + activity_seats[i].mediaName + '</td> <td>' + activity_seats[i].parentName + '</td><td>' + activity_seats[i].secondName + '</td><td><#if (activity?exists&&activity.status?exists&&activity.status==1)><a style="cursor:pointer" class="deleteCheckBtn" data-id='+ activity_seats[i].seatId + '>删除</a></#if> <#if (activity?exists&&activity.status?exists&&activity.status==2)><a style="cursor:pointer" class="addMonitorTask" data-id='+ activity_seats[i].seatId + '>追加监测</a></#if></td></td> </tr>'
 				checkArr.push({
 					id: activity_seats[i].seatId,
 					html: str
@@ -1273,6 +1288,22 @@
 			$('.deleteCheckBtn').click(function(){
 				removeCheck($(this).data('id'))
 				getCheckboxData(true)
+			})
+			
+			$('.addMonitorTask').click(function(){
+				var seatId = $(this).data('id');
+				var startTime = $("#dts").val();
+				var endTime = $("#dt").val();
+				var activityId = $("#id").val();
+				//iframe层
+		        layer.open({
+		            type: 2,
+		            title: '追加监测任务',
+		            shadeClose: true,
+		            shade: 0.8,
+		            area: ['500px', '380px'],
+		            content: '/activity/addTask?seatId=' + seatId + '&startTime=' + startTime + '&endTime=' + endTime + '&activityId=' + activityId //iframe的url
+		        });
 			})
 		}
 	}

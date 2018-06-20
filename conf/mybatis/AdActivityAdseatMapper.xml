@@ -697,5 +697,20 @@
     </if>
   </delete>
 
+  <!-- 通过活动和广告位id集合查询出ad_activity_adseat的id集合 -->
+  <select id="selectByActivityIdAndSeatIds" resultType="java.lang.Integer" parameterType="map">
+    select
+    	id
+    from 
+    	ad_activity_adseat
+    where 1=1
+    <if test="activityId != null" >
+    	and activity_id = #{activityId,jdbcType=INTEGER}
+    </if>
+    <if test="seatIds != null" >
+    	and ad_seat_id in
+       	<foreach collection="seatIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+    </if>
+  </select>
   
 </mapper>

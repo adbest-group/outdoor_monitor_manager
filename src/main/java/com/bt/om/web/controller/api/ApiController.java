@@ -60,9 +60,11 @@ import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.AdPoint;
 import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.AdUserMessage;
 import com.bt.om.entity.AdUserPoint;
 import com.bt.om.entity.AdVersion;
 import com.bt.om.entity.City;
+import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AbandonTaskVo;
 import com.bt.om.entity.vo.ActivityMobileReportVo;
@@ -83,15 +85,18 @@ import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
 import com.bt.om.enums.UserExecuteType;
+import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
 import com.bt.om.service.IAdMediaTypeService;
 import com.bt.om.service.IAdMonitorRewardService;
 import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.service.IAdSeatService;
+import com.bt.om.service.IAdUserMessageService;
 import com.bt.om.service.IAppService;
 import com.bt.om.service.IPointService;
 import com.bt.om.service.ISendSmsService;
+import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.service.IUserPointService;
@@ -162,6 +167,12 @@ public class ApiController extends BasicController {
 	private IUserPointService userPointService;
     @Autowired
 	private IAppService appService;
+	@Autowired
+	private ISysResourcesService sysResourcesService;
+	@Autowired
+	private SysUserResMapper sysUserResMapper;
+	@Autowired
+	private IAdUserMessageService adUserMessageService;
     
     @Value("${sms.checkcode.content.template}")
     private String SMS_CHECKCODE_CONTENT_TEMPLATE;
@@ -1170,7 +1181,8 @@ public class ApiController extends BasicController {
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("提交成功");
         model = new ExtendedModelMap();
-
+        Date now = new Date();
+        SysUserExecute user = getLoginUser(request, token);
         if (token != null) {
             useSession.set(Boolean.FALSE);
             this.sessionByRedis.setToken(token);
@@ -1280,6 +1292,58 @@ public class ApiController extends BasicController {
                 feedback.setProblem(problem);
                 feedback.setProblemOther(other);
                 feedback.setStatus(1);
+                
+                
+                List<Integer> list = new ArrayList<>();
+    			AdActivity adActivity = null;
+    	        list = sysUserService.getUserId(4);//超级管理员id
+    	        Integer dep_id = sysResourcesService.getUserId(2);//部门领导id
+    	        List<AdUserMessage> message = new ArrayList<>();
+	        	AdMonitorTask adMonitorTask = adMonitorTaskService.getActivityId(taskId);
+	        	adActivity = adActivityService.getUserId(adMonitorTask.getActivityId());//通过id找到广告商id
+	        	SysUser sysUser = sysUserService.getUserNameById(adActivity.getUserId());//获得广告商名
+	        	List<Integer> reslist = sysUserResMapper.getUserId(adActivity.getUserId(),2);//获取广告商下面的组id集合
+		        Integer resId = null;
+		        for(Integer i:reslist) {
+		        	resId = sysResourcesService.getResId(i,1);//找到任务审核的组id
+		        	if(resId != null) {
+		        		break;
+		        	}
+		        }
+		        List<Integer> cuslist = sysUserResMapper.getAnotherUserId(resId, 1);//获取组下面的员工id集合
+		        
+		        List<Integer> userIdList = new ArrayList<>();
+		        for(Integer i : list) {
+		        	userIdList.add(i);
+		        }
+		        for(Integer i: cuslist) {
+		        	userIdList.add(i);
+		        }
+		        userIdList.add(dep_id);
+		        String taskType = null;
+		        if(adMonitorTask.getTaskType()==1) {
+		        	taskType = "上刊监测";
+		        }else if(adMonitorTask.getTaskType()==2) {
+		        	taskType = "投放期间监测";
+		        }else if(adMonitorTask.getTaskType()==3) {
+		        	taskType = "下刊监测";
+		        }else if(adMonitorTask.getTaskType()==5) {
+		        	taskType = "上刊任务";
+		        }else if(adMonitorTask.getTaskType()==6) {
+		        	taskType = "追加任务";
+		        }
+		        for(Integer i: userIdList) {
+	            	AdUserMessage mess = new AdUserMessage();
+	            	mess.setContent(sysUser.getRealname()+"广告商的"+adActivity.getActivityName()+taskType +"任务已被"+user.getRealname()+"执行");
+	            	mess.setTargetId(adActivity.getId());
+	            	mess.setTargetUserId(i);
+	            	mess.setIsFinish(0);
+	            	mess.setType(2);
+	            	mess.setCreateTime(now);
+	            	mess.setUpdateTime(now);
+	            	message.add(mess);
+	            }
+	            adUserMessageService.insertMessage(message);
                 try {
                     adMonitorTaskService.feedback(taskId, feedback,adSeatCode);
                 } catch (Exception e) {
@@ -1326,10 +1390,8 @@ public class ApiController extends BasicController {
             
             InputStream is1 = null;
             String filename1 = null;
-            SysUserExecute user = getLoginUser(request, token);
 
             try {
-
                 file1 = file1.replaceAll("data:image/jpeg;base64,", "");
                 is1 = new ByteArrayInputStream(org.apache.commons.codec.binary.Base64.decodeBase64(file1));
                 filename1 = UploadFileUtil.saveFile(path, "image.jpg", is1);
@@ -1354,7 +1416,46 @@ public class ApiController extends BasicController {
                 feedback.setPicUrl1("/static/upload/" + filename1);
                 feedback.setProblem(problem);
                 feedback.setProblemOther(other);
-
+                
+                List<Integer> list = new ArrayList<>();
+        		List<Integer> cuslist = new ArrayList<>();
+                list = sysUserService.getUserId(4);//超级管理员id
+                Integer dep_id = sysResourcesService.getUserId(3);//部门领导id
+                List<AdUserMessage> message = new ArrayList<>();
+				
+				AdActivity adActivity = null;
+		        AdJiucuoTask adJiucuoTask = adJiucuoTaskService.getActivityId(taskId);//通过纠错id找到activityId
+		        	adActivity = adActivityService.getUserId(adJiucuoTask.getActivityId());//通过id找到广告商id
+		        	SysUser sysUser = sysUserService.getUserNameById(adActivity.getUserId());//获得广告商名
+		        	List<Integer> reslist = sysUserResMapper.getUserId(adActivity.getUserId(),2);//获取广告商下面的组id集合
+		        	Integer resId = null;
+		            for(Integer i:reslist) {
+		            	resId = sysResourcesService.getResId(i,3);//找到审核纠错的组id
+		            	if(resId != null) {
+		            		break;
+		            	}
+		            }
+		            cuslist = sysUserResMapper.getAnotherUserId(resId, 1);//获取组下面的员工id集合
+		            List<Integer> userIdList = new ArrayList<>();
+		            for(Integer i : list) {
+		            	userIdList.add(i);
+		            }
+		            for(Integer i: cuslist) {
+		            	userIdList.add(i);
+		            }
+		            userIdList.add(dep_id);
+		            for(Integer i: userIdList) {
+		            	AdUserMessage mess = new AdUserMessage();
+		            	mess.setContent(sysUser.getRealname()+"广告商的"+adActivity.getActivityName()+"纠错任务已被"+user.getRealname()+"提交");
+		            	mess.setTargetId(adActivity.getId());
+		            	mess.setTargetUserId(i);
+		            	mess.setIsFinish(0);
+		            	mess.setType(4);
+		            	mess.setCreateTime(now);
+		            	mess.setUpdateTime(now);
+		            	message.add(mess);
+		            }
+		            adUserMessageService.insertMessage(message);
                 try {
                     adJiucuoTaskService.feedback(task, feedback);
                 } catch (Exception e) {

@@ -54,6 +54,7 @@ public class PageConst {
 	public static final String SELECT_USER_EXECUTE = "task/selectExeUser";
 	public static final String DETAILS_PAGE = "task/detailsPage";
 	public static final String ALLTASK_LIST = "task/allTaskList";
+	public static final String ADD_ZHUIJIA = "task/addZhuijia";
 
 	/*** 纠错管理 ***/
 	public static final String JIUCUO_LIST = "jiucuo/list";
@@ -112,6 +113,9 @@ public class PageConst {
 	public static final String SUPER_ADMIN_POINT_LIST = "resources/pointList";
 	public static final String SUPER_ADMIN_POINT_EDIT = "resources/pointEdit";
 	public static final String SUPER_ADMIN_USERPOINT_LIST = "resources/userpointList";
+	
+	/*** 超级管理员下的站内信管理 ***/
+	public static final String RESOURCES_MESSAGE_LIST = "resources/messageList";
 	
 	/*** 各部门领导查看自己部门的审核任务 ***/
 	public static final String RESOURCES_ACTIVITY = "resources/activity";

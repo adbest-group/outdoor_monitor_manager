@@ -619,7 +619,7 @@
     }
     
     // 查询
-    	$("#searchBtn").on("click", function () {
+    	<#-- $("#searchBtn").on("click", function () {
        	 	var strParam = "";
         	var name = $("#searchName").val();
         
@@ -628,7 +628,7 @@
         }
 
       	  window.location.href = "/jiucuo/list" + strParam;
-   		 });
+   		 }); -->
 </script>
 <!-- 特色内容 -->
 

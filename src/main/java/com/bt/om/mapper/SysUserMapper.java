@@ -88,5 +88,7 @@ public interface SysUserMapper {
 	List<SysUser> getIdNameByUserType(Integer usertype);
 
 	int updateUserPwd(SysUser u);
+
+	List<Integer> getUserId(int i);
 	 
 }

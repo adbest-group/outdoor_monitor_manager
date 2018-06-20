@@ -1249,6 +1249,19 @@
 	    where status = 7 and 
 	    monitor_date &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
     </update>
+	
+	<!-- 
+		查询出所有待激活的id集合
+	 -->
+	<select id="getWaitToActivateIds" parameterType="java.util.Date" resultType="java.lang.Integer">
+		select
+			id
+		from
+			ad_monitor_task
+		where 
+			status = 7 and 
+	    	monitor_date &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+	</select>
     
     <!-- 
     	任务回收：

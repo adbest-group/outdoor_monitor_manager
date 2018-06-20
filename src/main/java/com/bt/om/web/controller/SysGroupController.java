@@ -36,6 +36,7 @@ import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
 import com.bt.om.service.IAdMonitorTaskService;
+import com.bt.om.service.IAdUserMessageService;
 import com.bt.om.service.ISysGroupService;
 import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserService;
@@ -60,7 +61,8 @@ public class SysGroupController extends BasicController{
 	private IAdActivityService adActivityService;
 	@Autowired
     private IAdJiucuoTaskService adJiucuoTaskService;
-	
+	@Autowired
+	private IAdUserMessageService adUserMessageService;
 	/**
 	 * 部门管理员查询组列表
 	 */
@@ -811,5 +813,27 @@ public class SysGroupController extends BasicController{
         }
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
+    }
+    
+    //站内信列表
+    @RequestMapping(value = "/messageList")
+    public String messageList(Model model ,HttpServletRequest request,
+            @RequestParam(value = "id", required = false) Integer id,
+            @RequestParam(value = "type", required = false) Integer type,
+            @RequestParam(value = "isFinish", required = false) Integer isFinish)throws ParseException {
+        SearchDataVo vo = SearchUtil.getVo();
+        SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        vo.putSearchParam("targetUserId", null, user.getId());
+        if (type != null) {
+            vo.putSearchParam("type", type.toString(), type);
+        }
+        if (isFinish != null) {
+            vo.putSearchParam("isFinish", isFinish.toString(), isFinish);
+        }
+        
+        adUserMessageService.getPageData(vo);
+        SearchUtil.putToModel(model, vo);
+
+        return PageConst.RESOURCES_MESSAGE_LIST;
     }
 }

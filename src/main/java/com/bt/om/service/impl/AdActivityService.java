@@ -660,4 +660,16 @@ public class AdActivityService implements IAdActivityService {
 	public List<AdActivityAdseatVo> getActivitySeatByMemo(String memo) {
 		return adActivityAdseatMapper.selectVoByMemo(memo);
 	}
+
+	@Override
+	public AdActivity getActivityName(int id) {
+		return adActivityMapper.selectByPrimaryKey(id);
+	}
+
+	@Override
+	public AdActivity getUserId(Integer activityId) {
+		return adActivityMapper.selectByPrimaryKey(activityId);
+	}
+
+
 }

@@ -45,4 +45,8 @@ public interface SysResourcesMapper {
 	int selectCountByUserId(@Param("userId") Integer userId);
 	
 	List<Integer> selectGroupIdsByDepartmentId(@Param("parentId") Integer parentId);
+
+	int getUserId(@Param("departmentType")Integer departmentType);
+
+	Integer getResId(@Param("id")Integer id,@Param("parentId") Integer parentId);
 }

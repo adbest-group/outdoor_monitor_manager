@@ -93,6 +93,8 @@ public class AdActivity extends ID{
     
     private String downMonitorTaskTime;
     
+    private String zhuijiaMonitorTaskTime;
+    
     public String getCreateTimeStr() {
 		return createTimeStr;
 	}
@@ -349,4 +351,11 @@ public class AdActivity extends ID{
 		this.downMonitorTaskTime = downMonitorTaskTime;
 	}
     
+	public String getZhuijiaMonitorTaskTime() {
+		return zhuijiaMonitorTaskTime;
+	}
+	
+	public void setZhuijiaMonitorTaskTime(String zhuijiaMonitorTaskTime) {
+		this.zhuijiaMonitorTaskTime = zhuijiaMonitorTaskTime;
+	}
 }

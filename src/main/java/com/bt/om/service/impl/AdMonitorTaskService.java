@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.adtime.common.lang.CollectionUtil;
+import com.adtime.common.lang.StringUtil;
 import com.bt.om.common.DateUtil;
+import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.entity.AdMonitorReward;
 import com.bt.om.entity.AdMonitorTask;
@@ -35,6 +37,7 @@ import com.bt.om.enums.RewardType;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
 import com.bt.om.mapper.AdActivityAdseatMapper;
+import com.bt.om.mapper.AdActivityMapper;
 import com.bt.om.mapper.AdJiucuoTaskMapper;
 import com.bt.om.mapper.AdMonitorRewardMapper;
 import com.bt.om.mapper.AdMonitorTaskFeedbackMapper;
@@ -66,6 +69,8 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     private AdMonitorUserTaskMapper adMonitorUserTaskMapper;
     @Autowired
     private AdActivityAdseatMapper adActivityAdseatMapper;
+    @Autowired
+    private AdActivityMapper adActivityMapper;
 
     @Override
     public void getPageData(SearchDataVo vo) {
@@ -665,8 +670,19 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             tasks.add(adMonitorTask);
 		}
 		
+		//[1] 插入任务表
 		if(tasks != null && tasks.size() > 0) {
 			adMonitorTaskMapper.insertList(tasks);
 		}
+		
+		//[2] 更新活动表
+		AdActivity adActivity = adActivityMapper.selectByPrimaryKey(activityId);
+		String zhuijiaMonitorTaskTime = adActivity.getZhuijiaMonitorTaskTime();
+		if(StringUtil.isBlank(zhuijiaMonitorTaskTime)) {
+			adActivity.setZhuijiaMonitorTaskTime(reportTime);
+		} else {
+			adActivity.setZhuijiaMonitorTaskTime(zhuijiaMonitorTaskTime + "," + reportTime);
+		}
+		adActivityMapper.updateByPrimaryKeySelective(adActivity);
 	}
 }

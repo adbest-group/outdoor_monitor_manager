@@ -74,6 +74,7 @@
                             <img style="vertical-align: top;width:350px"" src="${pmTask.picUrl4!""}"></img></div>
                         </p>
                         <div style="border-bottom: 1px solid #ddd;padding-top: 20px"></div>
+                        
                     </div>
                 </div>
             </div>
@@ -131,6 +132,8 @@
                     <div class="submitdetails-wrap" style="font-size: 15px">
                         <#list list as item>
                             <#if item.status!=1>
+                            	<input type="hidden" id="selectTaskFeedBackId" value="">
+                            
                                 <p>广告活动名称：${item.activityName!""}</p>
                                 <p>提交时间：${(item.feedbackCreateTime?string('yyyy-MM-dd HH:mm'))!""}</p>
                             <#--<p>提交地区：${item.province}-${item.city}-${item.region}-${item.street}</p>-->
@@ -155,14 +158,22 @@
                                 <p>
                                     提交照片：</br>
                                 <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
-                                    <img style="vertical-align: top;width:350px" src="${item.picUrl1!""}"></img></div>
+                                     <img style="vertical-align: top;width:350px" src="${item.picUrl1!""}"></img>
+                                     <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=1&&vo.status!=7&&vo.status!=8)> <input type="button" id="changePic1" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if></#if>
+                                </div>
                                 <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
-                                    <img style="vertical-align: top;width:350px"" src="${item.picUrl2!""}"></img></div>
+                                    <img style="vertical-align: top;width:350px"" src="${item.picUrl2!""}"></img>
+                                    <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=1&&vo.status!=7&&vo.status!=8)><input type="button" id="changePic2" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if></#if>
+                                </div> 
                                 </br>
                                 <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
-                                    <img style="vertical-align: top;width:350px"" src="${item.picUrl3!""}"></img></div>
+                                    <img style="vertical-align: top;width:350px"" src="${item.picUrl3!""}"></img>
+                                    <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=1&&vo.status!=7&&vo.status!=8)><input type="button" id="changePic3" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if></#if>
+                                </div> 
                                 <div style="width: 360px;margin-bottom: 10px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
-                                    <img style="vertical-align: top;width:350px"" src="${item.picUrl4!""}"></img></div>
+                                    <img style="vertical-align: top;width:350px"" src="${item.picUrl4!""}"></img>
+                                    <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=1&&vo.status!=7&&vo.status!=8)><input type="button" id="changePic4" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if></#if>
+                                </div> 
                                 </p>
                                 <p><br/>
                                     <#setting number_format="#0.######" />
@@ -205,6 +216,11 @@
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=T8nSZc6XXTiu1vm5pCwdYu1D5AIb2F1w"></script>
 
 <script type="text/javascript">
+
+	function setFeedbackId(id){
+		$("#selectTaskFeedBackId").val(id);
+	}
+
     pass = function (id) {
         layer.confirm("确认审核通过？", {
             icon: 3,
@@ -267,6 +283,138 @@
             }
         });
     }
+
+    //更换详情图片1
+	layui.use('upload', function(){
+	  var upload = layui.upload;
+	  
+	  //执行实例
+	  var uploadInst = upload.render({
+	    elem: '#changePic1' //绑定元素
+	    ,data: {
+		  taskFeedBackId: function() {
+		  	return $('#selectTaskFeedBackId').val()
+		  },
+		  index : 1
+		}
+	    ,accept: 'images' //指定只允许上次文件
+	    ,exts: 'jpg|jpeg|png' //指定只允许上次jpg和png格式的图片
+	    ,field: 'picFile' //设置字段名
+	    ,url: '/task/changePic' //上传接口
+	    ,done: function(res){
+	   		if(res.ret.code == 100){
+	    		layer.alert('替换成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
+	    		window.location.reload();
+	    	} else if (res.ret.code == 101){
+	    		layer.alert(res.ret.resultDes, {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	} else if (res.ret.code == 105){
+	    		layer.alert('没有替换权限', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	}
+	    }
+	    ,error: function(res){
+	       layer.alert('替换失败', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    }
+	  });
+	}); 
+	
+	//更换详情图片2
+	layui.use('upload', function(){
+	  var upload = layui.upload;
+	  
+	  //执行实例
+	  var uploadInst = upload.render({
+	    elem: '#changePic2' //绑定元素
+	    ,data: {
+		  taskFeedBackId: function() {
+		  	return $('#selectTaskFeedBackId').val()
+		  },
+		  index : 2
+		}
+	    ,accept: 'images' //指定只允许上次文件
+	    ,exts: 'jpg|jpeg|png' //指定只允许上次jpg和png格式的图片
+	    ,field: 'picFile' //设置字段名
+	    ,url: '/task/changePic' //上传接口
+	    ,done: function(res){
+	    		if(res.ret.code == 100){
+	    		layer.alert('替换成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
+	    		window.location.reload();
+	    	} else if (res.ret.code == 101){
+	    		layer.alert(res.ret.resultDes, {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	} else if (res.ret.code == 105){
+	    		layer.alert('没有替换权限', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	}
+	    }
+	    ,error: function(res){
+	       layer.alert('替换失败', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    }
+	  });
+	}); 
+	
+	//更换详情图片3
+	layui.use('upload', function(){
+	  var upload = layui.upload;
+	  
+	  //执行实例
+	  var uploadInst = upload.render({
+	    elem: '#changePic3' //绑定元素
+	    ,data: {
+		  taskFeedBackId: function() {
+		  	return $('#selectTaskFeedBackId').val()
+		  },
+		  index : 3
+		}
+	    ,accept: 'images' //指定只允许上次文件
+	    ,exts: 'jpg|jpeg|png' //指定只允许上次jpg和png格式的图片
+	    ,field: 'picFile' //设置字段名
+	    ,url: '/task/changePic' //上传接口
+	    ,done: function(res){
+	    		if(res.ret.code == 100){
+	    		layer.alert('替换成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
+	    		window.location.reload();
+	    	} else if (res.ret.code == 101){
+	    		layer.alert(res.ret.resultDes, {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	} else if (res.ret.code == 105){
+	    		layer.alert('没有替换权限', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	}
+	    }
+	    ,error: function(res){
+	       layer.alert('替换失败', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    }
+	  });
+	}); 
+	
+	//更换详情图片4
+	layui.use('upload', function(){
+	  var upload = layui.upload;
+	  
+	  //执行实例
+	  var uploadInst = upload.render({
+	    elem: '#changePic4' //绑定元素
+	    ,data: {
+		  taskFeedBackId: function() {
+		  	return $('#selectTaskFeedBackId').val()
+		  },
+		  index : 4
+		}
+	    ,accept: 'images' //指定只允许上次文件
+	    ,exts: 'jpg|jpeg|png' //指定只允许上次jpg和png格式的图片
+	    ,field: 'picFile' //设置字段名
+	    ,url: '/task/changePic' //上传接口
+	    ,done: function(res){
+	    		if(res.ret.code == 100){
+	    		layer.alert('替换成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
+	    		window.location.reload();
+	    	} else if (res.ret.code == 101){
+	    		layer.alert(res.ret.resultDes, {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	} else if (res.ret.code == 105){
+	    		layer.alert('没有替换权限', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	}
+	    }
+	    ,error: function(res){
+	       layer.alert('替换失败', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    }
+	  });
+	}); 
 
     $(function () {
         $(window).resize(function () {

@@ -338,6 +338,7 @@
         <result column="lon" jdbcType="DOUBLE" property="lon"/>
         <result column="feedback_lat" jdbcType="DOUBLE" property="feedbackLat"/>
         <result column="feedback_lon" jdbcType="DOUBLE" property="feedbackLon"/>
+        <result column="feedback_id" jdbcType="INTEGER" property="feedbackId"/>
         <result column="assessorName" jdbcType="VARCHAR" property="assessorName"/>
         <result column="assignorName" jdbcType="VARCHAR" property="assignorName"/>
     </resultMap>
@@ -769,7 +770,7 @@
     
     <select id="getTaskDetails" resultMap="ExtResultMap">
 		select
-			task.id,task.parent_id,task.parent_type,task.task_type,task.monitor_date,task.monitor_last_days,
+			task.id,task.parent_id,task.parent_type,task.task_type,task.monitor_date,task.monitor_last_days,task.status,
 			activity.`activity_name`,
 			activity.`start_time`, 
 			activity.`end_time`, 
@@ -818,7 +819,8 @@
 			feedback.seat_lon as lon,
 			feedback.seat_lat as lat,
             feedback.lon as feedback_lon,
-            feedback.lat as feedback_lat
+            feedback.lat as feedback_lat,
+            feedback.id as feedback_id
 		from
 			ad_monitor_task_feedback feedback
             left join `ad_monitor_task` as task on task.id=feedback.monitor_task_id

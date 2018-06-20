@@ -53,7 +53,6 @@
                     </div>
 						<button type="button" class="btn btn-red" style="margin-left: 10px;" autocomplete="off" id="searchBtn">查询</button>
                     	<button type="button" class="btn btn-primary" style="margin-left: 10px;" autocomplete="off" id="clear">清除条件</button>
-                    	&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
                     	<button style="margin-left: 10px" type="button" class="btn" id="batchInsert" autocomplete="off">批量导入</button>
 						<button style="margin-left: 10px" type="button" class="btn" id="downloadBatch" autocomplete="off" onclick="">模板下载</button>
                     

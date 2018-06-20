@@ -603,6 +603,28 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         } else {
         	datavo.setList(new ArrayList<AdMonitorTask>());
         }
-		
+	}
+	
+	/**
+	 * 替换任务反馈中的图片
+	 */
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void updatePicUrl(Integer id, String picUrl, Integer index) {
+		Map<String, Object> searchMap = new HashMap<>();
+		searchMap.put("id", id);
+		if(index == 1) {
+			searchMap.put("picUrl1", picUrl);
+			adMonitorTaskFeedbackMapper.updatePicUrl1(searchMap);
+		} else if (index == 2) {
+			searchMap.put("picUrl2", picUrl);
+			adMonitorTaskFeedbackMapper.updatePicUrl2(searchMap);
+		} else if (index == 3) {
+			searchMap.put("picUrl3", picUrl);
+			adMonitorTaskFeedbackMapper.updatePicUrl3(searchMap);
+		} else if (index == 4) {
+			searchMap.put("picUrl4", picUrl);
+			adMonitorTaskFeedbackMapper.updatePicUrl4(searchMap);
+		}
 	}
 }

@@ -732,8 +732,9 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 		}
   }
 
-	 * 批量插入追加监测任务
-	 */
+	 /**
+	  * 批量插入追加监测任务
+	  */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void insertMonitorTask(Integer activityId, List<String> seatIds, String reportTime) {

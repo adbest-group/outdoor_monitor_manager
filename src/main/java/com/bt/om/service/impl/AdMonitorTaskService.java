@@ -79,7 +79,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     @Autowired
     private SysResourcesMapper sysResourcesMapper;
 	@Autowired
-	private SysUserResMapper sysUserResMapper
+	private SysUserResMapper sysUserResMapper;
     @Autowired
 	private AdUserMessageMapper adUserMessageMapper;
    @Autowired

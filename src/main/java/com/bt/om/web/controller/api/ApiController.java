@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
@@ -1006,6 +1005,8 @@ public class ApiController extends BasicController {
         result.setResultDes("提交成功");
         model = new ExtendedModelMap();
 
+        SysUserExecute user = getLoginUser(request, token);
+        
         if (token != null) {
             useSession.set(Boolean.FALSE);
             this.sessionByRedis.setToken(token);
@@ -1076,7 +1077,7 @@ public class ApiController extends BasicController {
                 feedback.setProblemOther(other);
                 feedback.setStatus(1);
                 try {
-                    adMonitorTaskService.feedback(taskId, feedback,adSeatCode);
+                    adMonitorTaskService.feedback(taskId, feedback,adSeatCode, user);
                 } catch (Exception e) {
                     result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
                     result.setResultDes("保存出错！");
@@ -1106,7 +1107,6 @@ public class ApiController extends BasicController {
             }
             InputStream is1 = null;
             String filename1 = null;
-            SysUserExecute user = getLoginUser(request, token);
 
             try {
                 is1 = file1.getInputStream();
@@ -1293,59 +1293,8 @@ public class ApiController extends BasicController {
                 feedback.setProblemOther(other);
                 feedback.setStatus(1);
                 
-                
-                List<Integer> list = new ArrayList<>();
-    			AdActivity adActivity = null;
-    	        list = sysUserService.getUserId(4);//超级管理员id
-    	        Integer dep_id = sysResourcesService.getUserId(2);//部门领导id
-    	        List<AdUserMessage> message = new ArrayList<>();
-	        	AdMonitorTask adMonitorTask = adMonitorTaskService.getActivityId(taskId);
-	        	adActivity = adActivityService.getUserId(adMonitorTask.getActivityId());//通过id找到广告商id
-	        	SysUser sysUser = sysUserService.getUserNameById(adActivity.getUserId());//获得广告商名
-	        	List<Integer> reslist = sysUserResMapper.getUserId(adActivity.getUserId(),2);//获取广告商下面的组id集合
-		        Integer resId = null;
-		        for(Integer i:reslist) {
-		        	resId = sysResourcesService.getResId(i,1);//找到任务审核的组id
-		        	if(resId != null) {
-		        		break;
-		        	}
-		        }
-		        List<Integer> cuslist = sysUserResMapper.getAnotherUserId(resId, 1);//获取组下面的员工id集合
-		        
-		        List<Integer> userIdList = new ArrayList<>();
-		        for(Integer i : list) {
-		        	userIdList.add(i);
-		        }
-		        for(Integer i: cuslist) {
-		        	userIdList.add(i);
-		        }
-		        userIdList.add(dep_id);
-		        String taskType = null;
-		        if(adMonitorTask.getTaskType()==1) {
-		        	taskType = "上刊监测";
-		        }else if(adMonitorTask.getTaskType()==2) {
-		        	taskType = "投放期间监测";
-		        }else if(adMonitorTask.getTaskType()==3) {
-		        	taskType = "下刊监测";
-		        }else if(adMonitorTask.getTaskType()==5) {
-		        	taskType = "上刊任务";
-		        }else if(adMonitorTask.getTaskType()==6) {
-		        	taskType = "追加任务";
-		        }
-		        for(Integer i: userIdList) {
-	            	AdUserMessage mess = new AdUserMessage();
-	            	mess.setContent(sysUser.getRealname()+"广告商的"+adActivity.getActivityName()+taskType +"任务已被"+user.getRealname()+"执行");
-	            	mess.setTargetId(adActivity.getId());
-	            	mess.setTargetUserId(i);
-	            	mess.setIsFinish(0);
-	            	mess.setType(2);
-	            	mess.setCreateTime(now);
-	            	mess.setUpdateTime(now);
-	            	message.add(mess);
-	            }
-	            adUserMessageService.insertMessage(message);
                 try {
-                    adMonitorTaskService.feedback(taskId, feedback,adSeatCode);
+                    adMonitorTaskService.feedback(taskId, feedback,adSeatCode, user);
                 } catch (Exception e) {
                     result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
                     result.setResultDes("保存出错！");
@@ -1417,45 +1366,6 @@ public class ApiController extends BasicController {
                 feedback.setProblem(problem);
                 feedback.setProblemOther(other);
                 
-                List<Integer> list = new ArrayList<>();
-        		List<Integer> cuslist = new ArrayList<>();
-                list = sysUserService.getUserId(4);//超级管理员id
-                Integer dep_id = sysResourcesService.getUserId(3);//部门领导id
-                List<AdUserMessage> message = new ArrayList<>();
-				
-				AdActivity adActivity = null;
-		        AdJiucuoTask adJiucuoTask = adJiucuoTaskService.getActivityId(taskId);//通过纠错id找到activityId
-		        	adActivity = adActivityService.getUserId(adJiucuoTask.getActivityId());//通过id找到广告商id
-		        	SysUser sysUser = sysUserService.getUserNameById(adActivity.getUserId());//获得广告商名
-		        	List<Integer> reslist = sysUserResMapper.getUserId(adActivity.getUserId(),2);//获取广告商下面的组id集合
-		        	Integer resId = null;
-		            for(Integer i:reslist) {
-		            	resId = sysResourcesService.getResId(i,3);//找到审核纠错的组id
-		            	if(resId != null) {
-		            		break;
-		            	}
-		            }
-		            cuslist = sysUserResMapper.getAnotherUserId(resId, 1);//获取组下面的员工id集合
-		            List<Integer> userIdList = new ArrayList<>();
-		            for(Integer i : list) {
-		            	userIdList.add(i);
-		            }
-		            for(Integer i: cuslist) {
-		            	userIdList.add(i);
-		            }
-		            userIdList.add(dep_id);
-		            for(Integer i: userIdList) {
-		            	AdUserMessage mess = new AdUserMessage();
-		            	mess.setContent(sysUser.getRealname()+"广告商的"+adActivity.getActivityName()+"纠错任务已被"+user.getRealname()+"提交");
-		            	mess.setTargetId(adActivity.getId());
-		            	mess.setTargetUserId(i);
-		            	mess.setIsFinish(0);
-		            	mess.setType(4);
-		            	mess.setCreateTime(now);
-		            	mess.setUpdateTime(now);
-		            	message.add(mess);
-		            }
-		            adUserMessageService.insertMessage(message);
                 try {
                     adJiucuoTaskService.feedback(task, feedback);
                 } catch (Exception e) {

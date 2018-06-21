@@ -58,7 +58,6 @@ import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.service.ISysUserRoleService;
 import com.bt.om.service.ISysUserService;
-import com.bt.om.service.impl.SysResourcesService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
@@ -731,81 +730,24 @@ public class MonitorTaskController extends BasicController {
 			param.put("extras", extras);
 			String pushResult = JPushUtils.pushAllByAlias(param);
 			System.out.println("pushResult:: " + pushResult);
-			
-			//指派成功发送站内信
-			SysUserExecute sysUserExecute = sysUserExecuteService.getById(userId);
-			List<Integer> list = new ArrayList<>();
-			AdActivity adActivity = null;
-			
-	        list = sysUserService.getUserId(4);//超级管理员id
-	        Integer dep_id = sysResourcesService.getUserId(2);//部门领导id 指派
-	        for(String id : taskIds) {
-	        	List<AdUserMessage> message = new ArrayList<>();
-	        	AdMonitorTask adMonitorTask = adMonitorTaskService.getActivityId(Integer.parseInt(id));
-	        	adActivity = adActivityService.getUserId(adMonitorTask.getActivityId());//通过id找到广告商id
-	        	SysUser sysUser = sysUserService.getUserNameById(adActivity.getUserId());//获得广告商名
-	        	List<Integer> reslist = sysUserResMapper.getUserId(adActivity.getUserId(),2);//获取广告商下面的组id集合
-		        Integer resId = null;
-		        for(Integer i:reslist) {
-		        	resId = sysResourcesService.getResId(i,2);//找到任务指派的组id
-		        	if(resId != null) {
-		        		break;
-		        	}
-		        }
-		        List<Integer> cuslist = sysUserResMapper.getAnotherUserId(resId, 1);//获取组下面的员工id集合
-		        
-		        List<Integer> userIdList = new ArrayList<>();
-		        for(Integer i : list) {
-		        	userIdList.add(i);
-		        }
-		        for(Integer i: cuslist) {
-		        	userIdList.add(i);
-		        }
-		        userIdList.add(dep_id);
-		        String taskType = null;
-		        if(adMonitorTask.getTaskType()==1) {
-		        	taskType = "上刊监测";
-		        }else if(adMonitorTask.getTaskType()==2) {
-		        	taskType = "投放期间监测";
-		        }else if(adMonitorTask.getTaskType()==3) {
-		        	taskType = "下刊监测";
-		        }else if(adMonitorTask.getTaskType()==5) {
-		        	taskType = "上刊任务";
-		        }else if(adMonitorTask.getTaskType()==6) {
-		        	taskType = "追加任务";
-		        }
-		        for(Integer i: userIdList) {
-	            	AdUserMessage mess = new AdUserMessage();
-	            	mess.setContent(sysUser.getRealname()+"广告商的"+adActivity.getActivityName()+taskType +"指派任务已被"+userObj.getUsername()+"指派给"+sysUserExecute.getRealname()+"待执行");
-	            	mess.setTargetId(adActivity.getId());
-	            	mess.setTargetUserId(i);
-	            	mess.setIsFinish(0);
-	            	mess.setType(3);
-	            	mess.setCreateTime(now);
-	            	mess.setUpdateTime(now);
-	            	message.add(mess);
-	            }
-	            adUserMessageService.insertMessage(message);
-	        }
-	        
 		} catch (Exception e) {
-//			// [5] 异常情况, 循环删除redis
-//			for (String taskId : taskIds) {
-//				String beginRedisStr = "zhipai_" + taskId + "_begin";
-//				// 异常情况, 移除Redis缓存处理并发
-//				redisTemplate.delete(beginRedisStr);
-//			}
+			// [5] 异常情况, 循环删除redis
+			for (String taskId : taskIds) {
+				String beginRedisStr = "zhipai_" + taskId + "_begin";
+				// 异常情况, 移除Redis缓存处理并发
+				redisTemplate.delete(beginRedisStr);
+			}
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("指派失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
 			return model;
 		}
-//		// [6] 处理成功, 循环放入redis
-//		for (String taskId : taskIds) {
-//			// 放入Redis缓存处理并发
-//			String finishRedisStr = "zhipai_" + taskId + "_finish";
-//			redisTemplate.opsForValue().set(finishRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
-//		}
+		// [6] 处理成功, 循环放入redis
+		for (String taskId : taskIds) {
+			// 放入Redis缓存处理并发
+			String finishRedisStr = "zhipai_" + taskId + "_finish";
+			redisTemplate.opsForValue().set(finishRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
+		}
 		model.addAttribute(SysConst.RESULT_KEY, result);
 		return model;
 	}
@@ -853,7 +795,7 @@ public class MonitorTaskController extends BasicController {
 		result.setResultDes("审核成功");
 		model = new ExtendedModelMap();
 		AdMonitorTask task = new AdMonitorTask();
-		// task.setId(taskId);
+//		 task.setId(taskId);
 		task.setStatus(status);
 		try {
 			// 获取登录的审核人(员工/部门领导/超级管理员)
@@ -865,65 +807,7 @@ public class MonitorTaskController extends BasicController {
 			} else {
 				adMonitorTaskService.reject(taskIds, reason, userObj.getId(),status);
 			}
-			//审核成功发送站内信
-//			SysUserExecute sysUserExecute = sysUserExecuteService.getById(userId);
-			List<Integer> list = new ArrayList<>();
-			AdActivity adActivity = null;
 			
-	        list = sysUserService.getUserId(4);//超级管理员id
-	        Integer dep_id = sysResourcesService.getUserId(2);//部门领导id
-	        for(String id : taskIds) {
-	        	List<AdUserMessage> message = new ArrayList<>();
- 	        	AdMonitorTask adMonitorTask = adMonitorTaskService.getActivityId(Integer.parseInt(id));
-	        	adActivity = adActivityService.getUserId(adMonitorTask.getActivityId());//通过id找到广告商id
-	        	SysUser sysUser = sysUserService.getUserNameById(adActivity.getUserId());//获得广告商名
-	        	List<Integer> reslist = sysUserResMapper.getUserId(adActivity.getUserId(),2);//获取广告商下面的组id集合
-		        Integer resId = null;
-		        for(Integer i:reslist) {
-		        	resId = sysResourcesService.getResId(i,1);//找到任务审核的组id
-		        	if(resId != null) {
-		        		break;
-		        	}
-		        }
-		        List<Integer> cuslist = sysUserResMapper.getAnotherUserId(resId, 1);//获取组下面的员工id集合
-		        
-		        List<Integer> userIdList = new ArrayList<>();
-		        for(Integer i : list) {
-		        	userIdList.add(i);
-		        }
-		        for(Integer i: cuslist) {
-		        	userIdList.add(i);
-		        }
-		        userIdList.add(dep_id);
-		        String taskType = null;
-		        if(adMonitorTask.getTaskType()==1) {
-		        	taskType = "上刊监测";
-		        }else if(adMonitorTask.getTaskType()==2) {
-		        	taskType = "投放期间监测";
-		        }else if(adMonitorTask.getTaskType()==3) {
-		        	taskType = "下刊监测";
-		        }else if(adMonitorTask.getTaskType()==5) {
-		        	taskType = "上刊任务";
-		        }else if(adMonitorTask.getTaskType()==6) {
-		        	taskType = "追加任务";
-		        }
-		        for(Integer i: userIdList) {
-	            	AdUserMessage mess = new AdUserMessage();
-	            	if(task.getStatus() == MonitorTaskStatus.VERIFIED.getId()){
-	            		mess.setContent(sysUser.getRealname()+"广告商的"+adActivity.getActivityName()+taskType +"审核任务已被"+userObj.getUsername()+"审核通过");
-	            	}else {
-	            		mess.setContent(sysUser.getRealname()+"广告商的"+adActivity.getActivityName()+taskType +"审核任务已被"+userObj.getUsername()+"审核拒绝");
-	            	}
-	            	mess.setTargetId(adActivity.getId());
-	            	mess.setTargetUserId(i);
-	            	mess.setIsFinish(1);
-	            	mess.setType(3);
-	            	mess.setCreateTime(now);
-	            	mess.setUpdateTime(now);
-	            	message.add(mess);
-	            }
-	            adUserMessageService.insertMessage(message);
-	        }
 			// [3] 循环推送
 			for (String taskId : taskIds) {
 				task = adMonitorTaskService.selectByPrimaryKey(Integer.parseInt(taskId));

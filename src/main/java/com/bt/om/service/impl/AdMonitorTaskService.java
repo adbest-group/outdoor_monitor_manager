@@ -564,12 +564,15 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void createSubTask(Integer taskId) {
+    	Integer monitorTime = ConfigUtil.getInt("monitor_time"); //允许任务执行天数
         Date now = new Date();
+        //查询父监测任务信息
         AdMonitorTask task = adMonitorTaskMapper.selectByPrimaryKey(taskId);
+        //创建子任务
         AdMonitorTask sub = new AdMonitorTask();
         sub.setTaskType(MonitorTaskType.FIX_CONFIRM.getId());
         sub.setActivityAdseatId(task.getActivityAdseatId());
-        sub.setStatus(MonitorTaskStatus.UNASSIGN.getId());
+        sub.setStatus(MonitorTaskStatus.UNASSIGN.getId()); //待指派的任务
         sub.setProblemStatus(TaskProblemStatus.UNMONITOR.getId());
         sub.setActivityId(task.getActivityId());
         sub.setParentId(task.getId());
@@ -577,7 +580,10 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         sub.setSubCreated(2);
         sub.setCreateTime(now);
         sub.setUpdateTime(now);
+        sub.setMonitorDate(now);
+        sub.setMonitorLastDays(monitorTime);
         adMonitorTaskMapper.insertSelective(sub);
+        //更新父任务
         task.setSubCreated(1);
         task.setUpdateTime(now);
         adMonitorTaskMapper.updateByPrimaryKeySelective(task);
@@ -743,13 +749,14 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 		Date now = new Date();
 		
 		if(ids != null && ids.size() > 0) {
+			List<AdUserMessage> message = new ArrayList<>();
+			
 			//查询添加站内信的用户id集合
 			userIds = sysUserMapper.getUserId(4);//超级管理员id
 			Integer dep_id = sysResourcesMapper.getUserId(2);//2：任务审核、指派部门
 			userIds.add(dep_id);
 			
 			for (Integer monitorId : ids) {
-				List<AdUserMessage> message = new ArrayList<>();
 				//员工
 				AdMonitorTask adMonitorTask = adMonitorTaskMapper.selectByPrimaryKey(monitorId);
 	        	AdActivity adActivity = adActivityMapper.selectByPrimaryKey(adMonitorTask.getActivityId());//通过id找到广告商id
@@ -802,10 +809,11 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	            	mess.setUpdateTime(now);
 	            	message.add(mess);
 	            }
-		        if(message != null && message.size() > 0) {
-		        	adUserMessageMapper.insertMessage(message);
-		        }
 			}
+			
+			if(message != null && message.size() > 0) {
+	        	adUserMessageMapper.insertMessage(message);
+	        }
 		}
 	}
 	

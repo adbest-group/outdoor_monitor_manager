@@ -243,4 +243,16 @@ public class SysUserService implements ISysUserService {
 		return sysUserMapper.updateUserPwd(u);
 	}
 
+	@Override
+	public List<Integer> getUserId(int i) {
+		return sysUserMapper.getUserId(i);
+	}
+
+	@Override
+	public SysUser getUserNameById(Integer customerId) {
+		return sysUserMapper.selectByPrimaryKey(customerId);
+	}
+
+
+	
 }

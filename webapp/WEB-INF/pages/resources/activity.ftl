@@ -94,7 +94,7 @@
                             <td>${activity.realName?if_exists}</td>
                             <td>${activity.updateTime?string('yyyy-MM-dd HH:mm:ss')}</td>
                             <td>
-                            	<#if activity.status==1><a href="javascript:queren('${activity.id}')">确认</a></#if>
+                            	<#if activity.status==1><a href="javascript:queren('${activity.id}','${activity.userId}')">确认</a></#if>
                                 <#if activity.status gt 0 ><a href="/activity/edit?id=${activity.id}">详情</a></#if>
                                 <#if activity.status==1><a href="javascript:del('${activity.id}')">删除</a></#if>
                                 <#if activity.status!=1&&activity.status!=4><a id="exportExcel" href="javascript:exportExcel('${activity.id}')">导出excel</a></#if>
@@ -343,7 +343,7 @@ function changeMediaTypeId() {
         $("#form").submit();
     });
     //活动确认
-    queren = function(activityId){
+    queren = function(activityId,userId){
         layer.confirm("确认该活动将生成对应的的监测任务", {
             icon: 3,
             btn: ['确定', '取消'] //按钮
@@ -352,7 +352,8 @@ function changeMediaTypeId() {
                 url: "/activity/confirm",
                 type: "post",
                 data: {
-                    "ids": activityId
+                    "ids": activityId,
+                    "userId" : userId
                 },
                 cache: false,
                 dataType: "json",

@@ -248,6 +248,7 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
 		
 	}
 
+
 	/**
 	 * 替换任务反馈中的图片
 	 */
@@ -270,5 +271,9 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
 			adJiucuoTaskFeedbackMapper.updatePicUrl4(searchMap);
 		}
 	}
-	
+
+	@Override
+	public AdJiucuoTask getActivityId(int id) {
+		return adJiucuoTaskMapper.selectByPrimaryKey(id);
+	}	
 }

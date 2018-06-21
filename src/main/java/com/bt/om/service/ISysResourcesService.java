@@ -29,4 +29,9 @@ public interface ISysResourcesService {
 	void updateByPrimaryKeyUserIdNull(SysResources sysResources);
 
 	List<SysResources> selectByUserId(Integer userId);
+
+	public int getUserId(Integer departmentType);
+
+	public Integer getResId(Integer id, Integer parentId);
+
 }

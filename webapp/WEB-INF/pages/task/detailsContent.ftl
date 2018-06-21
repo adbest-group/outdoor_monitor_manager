@@ -16,7 +16,7 @@
                 <#if (vo?exists) >
                     <p>广告活动名称：${vo.activityName!""}</p>
                     <p>活动投放时间：${vo.startTime?string('yyyy-MM-dd')!""} 至 ${vo.endTime?string('yyyy-MM-dd')!""}</p>
-                    <p>投放地区：${vm.getCityName(vo.province)!""} - ${vm.getCityName(vo.city!"")} - ${vm.getCityName(vo.region)!""} - ${vm.getCityName(vo.street)!""} - ${vo.location!""}</p>
+                    <p>投放地区：${vm.getCityName(vo.province)!""} - ${vm.getCityName(vo.city!"")} - ${vo.road!""} - ${vo.location!""}</p>
                     <p>投放广告位：${vo.name!""}</p>
                     <p>监测时间段：${vo.monitorsStart?string('yyyy-MM-dd')!""} 至 ${vo.monitorsEnd?string('yyyy-MM-dd')!""}</p>
                     <p>监测时间点：${vm.getMonitorTaskTypeText(vo.taskType)!""}</p>

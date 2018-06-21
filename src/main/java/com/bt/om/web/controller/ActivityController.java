@@ -3,6 +3,7 @@ package com.bt.om.web.controller;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -28,13 +29,20 @@ import com.adtime.common.lang.StringUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdActivity;
+import com.bt.om.entity.AdUserMessage;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdActivityVo;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
+import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
+
+import com.bt.om.service.IAdUserMessageService;
+
+import com.bt.om.service.IAdMonitorTaskService;
+
 import com.bt.om.service.IOperateLogService;
 import com.bt.om.service.ISysGroupService;
 import com.bt.om.service.ISysResourcesService;
@@ -69,6 +77,12 @@ public class ActivityController extends BasicController {
 	private ISysUserRoleService sysUserRoleService;
 	@Autowired
 	private IOperateLogService operateLogService;
+	@Autowired
+	private SysUserResMapper sysUserResMapper;
+  @Autowired
+	private IAdUserMessageService adUserMessageService;
+  @Autowired
+	private IAdMonitorTaskService adMonitorTaskService;
 
 	@Autowired
 	protected RedisTemplate redisTemplate;
@@ -273,12 +287,59 @@ public class ActivityController extends BasicController {
         return PageConst.ACTIVITY_EDIT;
     }
 
+    // 追加监测任务页面跳转
+    @RequestMapping(value = "/addTask")
+    public String gotoAddPage(Model model, Integer seatId, String startTime, String endTime, String activityId) {
+        model.addAttribute("monitorTime", ConfigUtil.getInt("monitor_time")); //允许任务执行天数
+        model.addAttribute("auditTime", ConfigUtil.getInt("audit_time")); //允许任务审核天数
+    	model.addAttribute("seatId", seatId);
+    	model.addAttribute("startTime", startTime);
+    	model.addAttribute("endTime", endTime);
+    	model.addAttribute("activityId", activityId);
+        return PageConst.ADD_ZHUIJIA;
+    }
+    
+    // 【已确认但未结束的活动】追加监测任务
+ 	@RequestMapping(value = "/zhuijiaTask")
+ 	@ResponseBody
+ 	public Model zhuijiaTask(Model model, HttpServletRequest request,
+ 			@RequestParam(value = "activityId", required = false) Integer activityId,
+ 			@RequestParam(value = "seatIds", required = false) String seatIds,
+ 			@RequestParam(value = "reportTime", required = false) String reportTime) {
+ 		ResultVo<String> result = new ResultVo<String>();
+ 		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+ 		result.setResultDes("确认成功");
+ 		model = new ExtendedModelMap();
+ 		
+ 		if(activityId == null || StringUtil.isBlank(reportTime) || StringUtil.isBlank(seatIds)) {
+ 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
+ 			result.setResultDes("添加失败！");
+ 			model.addAttribute(SysConst.RESULT_KEY, result);
+ 			return model;
+ 		}
+ 		
+ 		try {
+ 			String[] splitSeatIds = seatIds.split(",");
+ 			//批量插入
+			adMonitorTaskService.insertMonitorTask(activityId, Arrays.asList(splitSeatIds), reportTime);
+ 		} catch (Exception e) {
+ 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
+ 			result.setResultDes("确认失败！");
+ 			model.addAttribute(SysConst.RESULT_KEY, result);
+ 			return model;
+ 		}
+
+ 		model.addAttribute(SysConst.RESULT_KEY, result);
+ 		return model;
+ 	}
+    
 	// 确认活动
 	@RequiresRoles(value = { "activityadmin", "depactivityadmin", "superadmin" }, logical = Logical.OR)
 	@RequestMapping(value = "/confirm")
 	@ResponseBody
 	public Model confirm(Model model, HttpServletRequest request,
-			@RequestParam(value = "ids", required = false) String ids) {
+			@RequestParam(value = "ids", required = false) String ids,
+			@RequestParam(value = "userId", required = false) Integer userId) {
 		ResultVo<String> result = new ResultVo<String>();
 		// [1] ids拆分成id集合
 		String[] activityIds = ids.split(",");
@@ -313,6 +374,11 @@ public class ActivityController extends BasicController {
 		result.setResultDes("确认成功");
 		model = new ExtendedModelMap();
 		Date now = new Date();
+		
+		List<Integer> list = new ArrayList<>();
+        list = sysUserService.getUserId(4);//超级管理员id
+        Integer dep_id = sysResourcesService.getUserId(1);//部门领导id
+        
 		try {
 			// 获取登录的审核人(员工/部门领导/超级管理员)
 			SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
@@ -336,6 +402,46 @@ public class ActivityController extends BasicController {
 				String pushResult = JPushUtils.pushAllByAlias(param);
 				System.out.println("pushResult:: " + pushResult);
 			}
+			
+			
+	        for(String j : activityIds) {
+	        	List<AdUserMessage> message = new ArrayList<>();
+	        	AdActivity adActivity = adActivityService.getActivityName(Integer.parseInt(j));
+	        	SysUser	sysUser = sysUserService.getUserNameById(adActivity.getUserId());
+		        List<Integer> reslist = sysUserResMapper.getUserId(adActivity.getUserId(),2);//获取广告商下面的组id集合
+		        Integer resId = null;
+		        for(Integer i:reslist) {
+		          	resId = sysResourcesService.getResId(i,1);//找到活动确认的组id
+		           	if(resId != null) {
+		           		break;
+		           	}
+		        }
+		        List<Integer> cuslist = sysUserResMapper.getAnotherUserId(resId, 1);//获取组下面的员工id集合
+		            
+		        List<Integer> userIdList = new ArrayList<>();
+		        for(Integer i : list) {
+		          	userIdList.add(i);
+		        }
+		        for(Integer i: cuslist) {
+		           	userIdList.add(i);
+		        }
+		        userIdList.add(dep_id);
+	        	
+				for(Integer i: userIdList) {
+		          	AdUserMessage mess = new AdUserMessage();
+		          	
+		           	mess.setContent(sysUser.getRealname()+"广告商的"+adActivity.getActivityName()+"活动已被"+userObj.getUsername()+"确认！");
+		           	mess.setTargetId(Integer.parseInt(j));
+		           	mess.setTargetUserId(i);
+		           	mess.setIsFinish(1);
+		           	mess.setType(1);
+		           	mess.setCreateTime(now);
+		           	mess.setUpdateTime(now);
+		           	message.add(mess);
+		        }
+				adUserMessageService.insertMessage(message);
+			}
+	        
 		} catch (Exception e) {
 			// [5] 异常情况, 循环删除redis
 			for (String actId : activityIds) {

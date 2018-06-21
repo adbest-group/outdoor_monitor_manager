@@ -91,4 +91,9 @@ public interface IAdActivityService {
 
 	void deadLineAuditActivity(Date endDate);
 
+	public AdActivity getActivityName(int parseInt);
+
+	public AdActivity getUserId(Integer activityId);
+
+
 }

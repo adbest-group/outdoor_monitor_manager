@@ -131,4 +131,8 @@ public interface ISysUserService {
 
 	int updateByPrimaryKeySelective(SysUser u);
 
+	List<Integer> getUserId(int i);
+
+	SysUser getUserNameById(Integer customerId);
+
 }

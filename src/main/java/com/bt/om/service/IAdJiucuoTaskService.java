@@ -54,4 +54,5 @@ public interface IAdJiucuoTaskService {
 	List<AdJiucuoTask> selectInfoByLonLatTitle(Map<String, Object> searchMap);
 	List<AdJiucuoTask> selectInfoByMemo(Map<String, Object> searchMap);
 	public void getJiucuoPageData(SearchDataVo datavo);
+	public AdJiucuoTask getActivityId(int id);
 }

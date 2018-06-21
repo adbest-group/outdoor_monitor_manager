@@ -63,4 +63,7 @@ public interface SysUserResMapper {
     List<Integer> selectUserIdsByResIds(Map<String, Object> searchMap);
     int deleteByResId(Integer id);
    // SysUserRes selectTypeByResId(Integer id);
+
+    List<Integer> getUserId(@Param("userId")Integer i,@Param("type") int j);
+	List<Integer> getAnotherUserId(@Param("resId")Integer i,@Param("type") int j);
 }

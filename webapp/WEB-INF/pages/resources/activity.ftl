@@ -155,6 +155,8 @@
         var h = $(document.body).height() - 115;
         $('.main-container').css('height', h);
     });
+    
+    <#-- 
 function changeMediaTypeId() {	
 		var mediaTypeParentId = $("#mediaTypeParentId").val();
 		if(mediaTypeParentId == "" || mediaTypeParentId.length <= 0) {
@@ -185,6 +187,7 @@ function changeMediaTypeId() {
 			}
 		});
 	}
+	 -->
 	/*获取城市  */
     var $town = $('#demo3 select[name="street"]');
     var townFormat = function(info) {

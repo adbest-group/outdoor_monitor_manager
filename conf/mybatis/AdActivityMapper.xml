@@ -341,8 +341,6 @@
     	ad_activity a 
     	left join sys_user b on a.assessor_id = b.id
     	left join sys_user c on a.user_id = c.id
-    	left join ad_activity_adseat d on a.id = d.activity_id
-	    left join ad_seat_info e on e.id = d.ad_seat_id
     where 1=1
     <if test="userId != null" >
       and a.user_id = #{userId,jdbcType=INTEGER}
@@ -369,18 +367,6 @@
       and a.user_id in
         <foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
     </if>
-    <if test="mediaTypeParentId != null">
-	  and e.media_type_parent_id = #{mediaTypeParentId,jdbcType=INTEGER}
-	</if>
-	<if test="mediaTypeId != null">
-	   and e.media_type_id = #{mediaTypeId,jdbcType=INTEGER}
-	</if>
-	<if test="province != null">
-	  	and e.province = #{province,jdbcType=BIGINT}
-	</if>
-    <if test="city != null">
-   		and e.city = #{city,jdbcType=BIGINT}
-	</if>
     order by a.id desc
   </select>
 

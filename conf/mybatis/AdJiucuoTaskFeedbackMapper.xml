@@ -21,6 +21,8 @@
     <result column="lat" property="lat" jdbcType="DOUBLE" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
     <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="feedback_id" jdbcType="INTEGER" property="feedbackId"/> 
+    
   </resultMap>
   <sql id="Base_Column_List" >
     <!--
@@ -243,4 +245,13 @@
     from ad_jiucuo_task_feedback
     where jiucuo_task_id = #{id,jdbcType=INTEGER}
   </select>
+  
+    <update id="updatePicUrl1" parameterType="map">
+   	update ad_jiucuo_task_feedback
+   	set
+    	update_time = CURRENT_TIMESTAMP,
+    	pic_url1 = #{picUrl1,jdbcType=VARCHAR}
+   	where id = #{id,jdbcType=INTEGER}
+  </update>
+  
 </mapper>

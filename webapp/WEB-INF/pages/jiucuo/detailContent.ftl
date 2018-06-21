@@ -30,14 +30,17 @@
                 <div class="bd">
                     <div class="bor-box detail-demand">
                         <div class="con">
-                            <p>广告活动名称：${activity.activityName!""}</p>
+			                <p>广告活动名称：${activity.activityName!""}</p>
                             <p>提交时间：${task.submitTime?string('yyyy-MM-dd HH:mm:dd')!""}</p>
                             <p>提交人：${task.realname!""}</p>
                             <p>问题反馈：<span style="color:orangered;">${feedback.problem!""} ${feedback.problemOther!""}
                             </p>
-                            <p>执行状态：${vm.getJiucuoTaskStatusText(task.status)!""} <#if task.reason?exists><span style="color:orangered;">（审核意见：${task.reason!""}
-                                ）</span></#if></p>
-                            <p>提交照片：<img style="vertical-align: top" src="${feedback.picUrl1!""}" width="300"/></p>
+                            <p>执行状态：${vm.getJiucuoTaskStatusText(task.status)!""} <#if task.reason?exists><span style="color:orangered;">(审核意见：${task.reason!""})</span></#if></p>
+                            <p>提交照片：</br>
+                            	  <#if usertype?exists&&usertype==4><input type="button" id="changePic1" class="changePic btn btn-primary" value="　更换　"  onclick="setFeedbackId(${feedback.feedbackId!""})"/></#if>
+                            	<img style="vertical-align: top" src="${feedback.picUrl1!""}" width="300"/>
+                            	<input type="hidden" id="selectTaskFeedBackId" value="${id}">
+                            </p>
                         <@shiro.hasRole name="admin">
                             <#if task.status ==1>
                                 <br/>
@@ -68,9 +71,7 @@
                                             style="color:orangered;">${sub.problem!""} ${sub.problemOther!""}
                                     </p>
                                 </#if>
-                                <p>执行状态：${vm.getMonitorTaskStatusText(sub.status)!""} <#if sub.reason?exists>
-                                    （${sub.reason!""}
-                                    ）</#if>
+                                <p>执行状态：${vm.getMonitorTaskStatusText(sub.status)!""} <#if sub.reason?exists>(${sub.reason!""})</#if>
                                     <@shiro.hasRole name="admin">（<a href="/task/list?pid=${task.id}&ptype=2">管理监测任务</a>）</@shiro.hasRole>
                                 </p>
 
@@ -113,6 +114,41 @@
 <script type="text/javascript" src="${model.static_domain}/js/jquery-2.1.4.min.js"></script>
 
 <script type="text/javascript">
+
+	//更换详情图片1
+	layui.use('upload', function(){
+	  var upload = layui.upload;
+	  
+	  //执行实例
+	  var uploadInst = upload.render({
+	    elem: '#changePic1' //绑定元素
+	    ,data: {
+		  taskFeedBackId: function() {
+		  	return $('#selectTaskFeedBackId').val()
+		  },
+		  index : 1
+		}
+	    ,accept: 'images' //指定只允许上次文件
+	    ,exts: 'jpg|jpeg|png|gif' //指定只允许上次jpg和png等格式的图片
+	    ,field: 'picFile' //设置字段名
+	    ,url: '/jiucuo/changePic' //上传接口
+	    ,done: function(res){
+	   		if(res.ret.code == 100){
+	    		layer.alert('替换成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
+	    		window.location.reload();
+	    		window.location.href = document.referrer;
+	    	} else if (res.ret.code == 101){
+	    		layer.alert(res.ret.resultDes, {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	} else if (res.ret.code == 105){
+	    		layer.alert('没有替换权限', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	}
+	    }
+	    ,error: function(res){
+	       layer.alert('替换失败', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    }
+	  });
+	}); 
+
     $(function () {
         $(".nav-sidebar>ul>li").on("click", function () {
             $(".nav-sidebar>ul>li").removeClass("on");

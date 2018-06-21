@@ -492,10 +492,10 @@ public class SysGroupController extends BasicController{
             vo.putSearchParam("taskType", taskType.toString(), taskType);
         }
         
-        //限制不查询【上刊任务】
-  		List<Integer> notTaskTypes = new ArrayList<>();
-  		notTaskTypes.add(MonitorTaskType.UP_TASK.getId());
-  		vo.putSearchParam("notTaskTypes", null, notTaskTypes);
+//        //限制不查询【上刊任务】
+//  		List<Integer> notTaskTypes = new ArrayList<>();
+//  		notTaskTypes.add(MonitorTaskType.UP_TASK.getId());
+//  		vo.putSearchParam("notTaskTypes", null, notTaskTypes);
   		
         if (status != null) {
             vo.putSearchParam("status", status.toString(), status);

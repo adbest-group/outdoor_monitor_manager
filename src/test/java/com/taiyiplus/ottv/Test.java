@@ -23,6 +23,8 @@ import com.github.qcloudsms.SmsSingleSenderResult;
 public class Test {
 	@Autowired
 	private AdCrowdMapper adCrowdMapper;
+	@Autowired
+	private AdActivityAdseatMapper adActivityAdseatMapper;
 	
 	@org.junit.Test
 	public void test() {
@@ -36,5 +38,10 @@ public class Test {
 		vo.setAdSeatId(1);
 
 		adCrowdMapper.insertAdCrowdVoMale(vo);
+	}
+	
+	@org.junit.Test
+	public void testAdMapper() {
+		System.out.println(adActivityAdseatMapper.selectByActivityId("167"));
 	}
 }

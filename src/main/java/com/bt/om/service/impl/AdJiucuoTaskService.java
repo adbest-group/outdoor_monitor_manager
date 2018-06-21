@@ -2,6 +2,7 @@ package com.bt.om.service.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,23 +11,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.adtime.common.lang.StringUtil;
+import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.entity.AdJiucuoTaskFeedback;
 import com.bt.om.entity.AdMonitorTask;
+import com.bt.om.entity.AdUserMessage;
+import com.bt.om.entity.SysUser;
+import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AdJiucuoTaskMobileVo;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.enums.JiucuoTaskStatus;
+import com.bt.om.enums.MessageIsFinish;
+import com.bt.om.enums.MessageType;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.TaskProblemStatus;
 import com.bt.om.mapper.AdActivityAdseatMapper;
+import com.bt.om.mapper.AdActivityMapper;
 import com.bt.om.mapper.AdJiucuoTaskFeedbackMapper;
 import com.bt.om.mapper.AdJiucuoTaskMapper;
 import com.bt.om.mapper.AdMonitorRewardMapper;
 import com.bt.om.mapper.AdMonitorTaskMapper;
+import com.bt.om.mapper.AdUserMessageMapper;
+import com.bt.om.mapper.SysResourcesMapper;
 import com.bt.om.mapper.SysUserExecuteMapper;
+import com.bt.om.mapper.SysUserMapper;
+import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.service.IAdJiucuoTaskService;
 import com.bt.om.vo.web.SearchDataVo;
 
@@ -47,6 +60,16 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
     private AdActivityAdseatMapper adActivityAdseatMapper;
     @Autowired
     private AdMonitorTaskMapper adMonitorTaskMapper;
+    @Autowired
+    private SysUserMapper sysUserMapper;
+    @Autowired
+    private SysResourcesMapper sysResourcesMapper;
+    @Autowired
+    private SysUserResMapper sysUserResMapper;
+    @Autowired
+    private AdActivityMapper adActivityMapper;
+    @Autowired
+    private AdUserMessageMapper adUserMessageMapper;
 
     @Override
     public void getPageData(SearchDataVo vo) {
@@ -87,17 +110,40 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void pass(String[] jiucuoIds, Integer assessorId, Integer status) {
+    	SysUser auditPerson = sysUserMapper.selectByPrimaryKey(assessorId); //获取审核人的相关信息
+    	
     	//[4] 确认操作在业务层方法里进行循环
     	for (String jcId : jiucuoIds) {
+    		//[1] 审核通过纠错任务
     		Integer id = Integer.parseInt(jcId);
-        Date now = new Date();
-        AdJiucuoTask task= new AdJiucuoTask();
-        task.setStatus(JiucuoTaskStatus.VERIFIED.getId());
-        task.setVerifyTime(now);
-        task.setId(id);
-        task.setAssessorId(assessorId); //审核人id
-        task.setStatus(status);
-        adJiucuoTaskMapper.updateByPrimaryKeySelective(task);
+	        Date now = new Date();
+	        AdJiucuoTask task= new AdJiucuoTask();
+	        task.setStatus(JiucuoTaskStatus.VERIFIED.getId());
+	        task.setVerifyTime(now);
+	        task.setId(id);
+	        task.setAssessorId(assessorId); //审核人id
+	        task.setStatus(status);
+	        adJiucuoTaskMapper.updateByPrimaryKeySelective(task);
+	        
+	        //[2] 修改站内信
+	        Map<String, Object> searchMap = new HashMap<>();
+	        task = adJiucuoTaskMapper.selectByPrimaryKey(id);
+	        AdActivity adActivity = adActivityMapper.selectByPrimaryKey(task.getActivityId());//通过id找到广告商id
+        	SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivity.getUserId());//获得广告商名
+	        StringBuffer stringBuffer = new StringBuffer();
+            stringBuffer.append("【");
+            stringBuffer.append(sysUser.getRealname());
+            stringBuffer.append("】广告主的【");
+            stringBuffer.append(adActivity.getActivityName());
+            stringBuffer.append("】活动的纠错任务已被【");
+            stringBuffer.append(auditPerson.getRealname());
+            stringBuffer.append("】审核通过");
+            
+            searchMap.put("content", stringBuffer.toString());
+            searchMap.put("isFinish", MessageIsFinish.UNCONFIRM.getId()); //1：已处理
+            searchMap.put("targetId", id); //纠错表的id
+            searchMap.put("type", MessageType.JIUCUO_AUDIT.getId()); //4,"纠错审核"
+            adUserMessageMapper.updateUserMessage(searchMap);
         
 //        task = adJiucuoTaskMapper.selectByPrimaryKey(task.getId());
 //        SysUserExecute user = sysUserExecuteMapper.selectByPrimaryKey(task.getUserId());
@@ -113,35 +159,123 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
 //            reward.setUpdateTime(now);
 //            adMonitorRewardMapper.insert(reward);
 //        }
+    	}
     }
-    }
+    
     @Override
     public void reject(String[] jiucuoIds, String reason, Integer assessorId, Integer status) {
+    	SysUser auditPerson = sysUserMapper.selectByPrimaryKey(assessorId); //获取审核人的相关信息
+    	
     	//[4] 确认操作在业务层方法里进行循环
     	for (String taskId : jiucuoIds) {
 	    	Integer id = Integer.parseInt(taskId);
 	        Date now = new Date();
 	        AdJiucuoTask task= new AdJiucuoTask();
-	    task.setId(id);
-        task.setReason(reason);
-        task.setStatus(JiucuoTaskStatus.VERIFY_FAILURE.getId());
-        task.setVerifyTime(now);
-        task.setAssessorId(assessorId); //审核人id
-        adJiucuoTaskMapper.updateByPrimaryKeySelective(task);
+		    task.setId(id);
+	        task.setReason(reason);
+	        task.setStatus(JiucuoTaskStatus.VERIFY_FAILURE.getId());
+	        task.setVerifyTime(now);
+	        task.setAssessorId(assessorId); //审核人id
+	        adJiucuoTaskMapper.updateByPrimaryKeySelective(task);
+	        
+	        //[2] 修改站内信
+	        Map<String, Object> searchMap = new HashMap<>();
+	        task = adJiucuoTaskMapper.selectByPrimaryKey(id);
+	        AdActivity adActivity = adActivityMapper.selectByPrimaryKey(task.getActivityId());//通过id找到广告商id
+        	SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivity.getUserId());//获得广告商名
+	        StringBuffer stringBuffer = new StringBuffer();
+            stringBuffer.append("【");
+            stringBuffer.append(sysUser.getRealname());
+            stringBuffer.append("】广告主的【");
+            stringBuffer.append(adActivity.getActivityName());
+            stringBuffer.append("】活动的纠错任务已被【");
+            stringBuffer.append(auditPerson.getRealname());
+            stringBuffer.append("】审核不通过");
+            
+            searchMap.put("content", stringBuffer.toString());
+            searchMap.put("isFinish", MessageIsFinish.UNCONFIRM.getId()); //1：已处理
+            searchMap.put("targetId", id); //纠错表的id
+            searchMap.put("type", MessageType.JIUCUO_AUDIT.getId()); //4,"纠错审核"
+            adUserMessageMapper.updateUserMessage(searchMap);
+	    }
     }
-    }
+    
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void feedback(AdJiucuoTask task, AdJiucuoTaskFeedback feedback) {
+    	//[1] 插入纠错主表
         Date now = new Date();
         task.setCreateTime(now);
         task.setSubmitTime(now);
         task.setUpdateTime(now);
         adJiucuoTaskMapper.insert(task);
+        
+        //[2] 插入纠错反馈表
         feedback.setJiucuoTaskId(task.getId());
         feedback.setCreateTime(now);
         feedback.setUpdateTime(now);
         adJiucuoTaskFeedbackMapper.insert(feedback);
+        
+        List<Integer> list = new ArrayList<>();
+		List<Integer> cuslist = new ArrayList<>();
+        list = sysUserMapper.getUserId(4);//4：超级管理员
+        Integer dep_id = sysResourcesMapper.getUserId(3);//3：纠错审核部门
+        List<AdUserMessage> message = new ArrayList<>();
+		
+		AdActivity adActivity = null;
+        AdJiucuoTask adJiucuoTask = adJiucuoTaskMapper.selectByPrimaryKey(task.getId());//通过纠错id找到activityId
+    	adActivity = adActivityMapper.selectByPrimaryKey(adJiucuoTask.getActivityId());//通过id找到广告商id
+    	SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivity.getUserId());//获得广告商名
+    	List<Integer> reslist = sysUserResMapper.getUserId(adActivity.getUserId(),2);//获取广告商下面的组id集合
+    	Integer resId = null;
+        for(Integer i:reslist) {
+        	resId = sysResourcesMapper.getResId(i,3);//找到审核纠错的组id
+        	if(resId != null) {
+        		break;
+        	}
+        }
+        cuslist = sysUserResMapper.getAnotherUserId(resId, 1);//获取组下面的员工id集合
+        List<Integer> userIdList = new ArrayList<>();
+        for(Integer i : list) {
+        	userIdList.add(i);
+        }
+        for(Integer i: cuslist) {
+        	userIdList.add(i);
+        }
+        userIdList.add(dep_id);
+        
+        SysUserExecute sysUserExecute = sysUserExecuteMapper.selectByPrimaryKey(task.getUserId()); //获取app提交人员的信息
+        
+        for(Integer i: userIdList) {
+        	AdUserMessage mess = new AdUserMessage();
+        	StringBuffer stringBuffer = new StringBuffer();
+            stringBuffer.append("【");
+            stringBuffer.append(sysUser.getRealname());
+            stringBuffer.append("】广告主的【");
+            stringBuffer.append(adActivity.getActivityName());
+            stringBuffer.append("】活动的纠错任务已被【");
+            String realName = null;
+            //若app人员没有填写真实姓名, 取其登录的用户名
+            if(StringUtil.isNotBlank(sysUserExecute.getRealname())) {
+            	realName = sysUserExecute.getRealname();
+            } else {
+            	realName = sysUserExecute.getUsername();
+            }
+            stringBuffer.append(realName);
+            stringBuffer.append("】提交，待审核");
+        	
+        	mess.setContent(stringBuffer.toString());
+        	mess.setTargetId(task.getId()); //纠错任务的id
+        	mess.setTargetUserId(i);
+        	mess.setIsFinish(MessageIsFinish.CONFIRMED.getId()); //1: 未处理
+        	mess.setType(MessageType.JIUCUO_AUDIT.getId()); //4: 纠错审核
+        	mess.setCreateTime(now);
+        	mess.setUpdateTime(now);
+        	message.add(mess);
+        }
+        if(message != null && message.size() > 0) {
+        	adUserMessageMapper.insertMessage(message);
+        }
     }
 
     @Override
@@ -247,10 +381,32 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
 		
 	}
 
+
+	/**
+	 * 替换任务反馈中的图片
+	 */
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void updatePicUrl(Integer id, String picUrl, Integer index) {
+		Map<String, Object> searchMap = new HashMap<>();
+		searchMap.put("id", id);
+		if(index == 1) {
+			searchMap.put("picUrl1", picUrl);
+			adJiucuoTaskFeedbackMapper.updatePicUrl1(searchMap);
+		} else if (index == 2) {
+			searchMap.put("picUrl2", picUrl);
+			adJiucuoTaskFeedbackMapper.updatePicUrl2(searchMap);
+		} else if (index == 3) {
+			searchMap.put("picUrl3", picUrl);
+			adJiucuoTaskFeedbackMapper.updatePicUrl3(searchMap);
+		} else if (index == 4) {
+			searchMap.put("picUrl4", picUrl);
+			adJiucuoTaskFeedbackMapper.updatePicUrl4(searchMap);
+		}
+	}
+
 	@Override
 	public AdJiucuoTask getActivityId(int id) {
 		return adJiucuoTaskMapper.selectByPrimaryKey(id);
-	}
-
-	
+	}	
 }

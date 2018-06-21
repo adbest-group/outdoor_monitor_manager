@@ -37,7 +37,7 @@
                             </p>
                             <p>执行状态：${vm.getJiucuoTaskStatusText(task.status)!""} <#if task.reason?exists><span style="color:orangered;">(审核意见：${task.reason!""})</span></#if></p>
                             <p>提交照片：</br>
-                            	 <input type="button" id="changePic1" class="changePic btn btn-primary" value="　更换　"  onclick="setFeedbackId(${feedback.feedbackId!""})"/>
+                            	  <#if usertype?exists&&usertype==4><input type="button" id="changePic1" class="changePic btn btn-primary" value="　更换　"  onclick="setFeedbackId(${feedback.feedbackId!""})"/></#if>
                             	<img style="vertical-align: top" src="${feedback.picUrl1!""}" width="300"/>
                             	<input type="hidden" id="selectTaskFeedBackId" value="${id}">
                             </p>

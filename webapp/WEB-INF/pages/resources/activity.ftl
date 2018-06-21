@@ -188,6 +188,8 @@ function changeMediaTypeId() {
 		});
 	}
 	 -->
+	 
+	 <#-- 
 	/*获取城市  */
     var $town = $('#demo3 select[name="street"]');
     var townFormat = function(info) {
@@ -208,6 +210,8 @@ function changeMediaTypeId() {
             });
         }
     };
+     -->
+     <#-- 
     $('#demo3').citys({
         required:false,
         province : '${province!"所有城市"}',
@@ -219,6 +223,7 @@ function changeMediaTypeId() {
         var info = api.getInfo();
         townFormat(info);
     });
+     -->
  	// 查询
     $("#searchBtn").on("click", function () {
         var strParam = "";

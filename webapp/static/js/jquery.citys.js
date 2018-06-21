@@ -136,7 +136,7 @@
                         province:function(){
                             $province.empty();
                             if(!options.required){
-                                $province.append('<option value=""> - 请选择 - </option>');
+                                $province.append('<option value=""> - 所有省市 - </option>');
                             }
                             for(var i in province){
                                 $province.append('<option value="'+(options.valueType=='code'?i:province[i])+'" data-code="'+i+'">'+province[i]+'</option>');
@@ -154,7 +154,7 @@
                             }else{
                                 $city.css('display','');
                                 if(!options.required){
-                                    $city.append('<option value=""> - 请选择 - </option>');
+                                    $city.append('<option value=""> - 所有城市 - </option>');
                                 }
                                 if(options.nodata=='disabled'){
                                     $city.prop('disabled',$.isEmptyObject(city));

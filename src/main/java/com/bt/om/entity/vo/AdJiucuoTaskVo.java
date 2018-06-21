@@ -27,8 +27,17 @@ public class AdJiucuoTaskVo extends AdJiucuoTask {
     private Date startTime;
     private Date endTime;
     private String assessorName;
+    private Integer feedbackId;
     
-    public Integer getMediaTypeParentId() {
+    public Integer getFeedbackId() {
+		return feedbackId;
+	}
+
+	public void setFeedbackId(Integer feedbackId) {
+		this.feedbackId = feedbackId;
+	}
+
+	public Integer getMediaTypeParentId() {
 		return mediaTypeParentId;
 	}
 

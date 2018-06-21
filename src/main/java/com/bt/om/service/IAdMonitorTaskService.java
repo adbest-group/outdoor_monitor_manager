@@ -7,6 +7,7 @@ import java.util.Map;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.AdMonitorUserTask;
+import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AbandonTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
@@ -46,7 +47,7 @@ public interface IAdMonitorTaskService {
 
     public List<AdMonitorTaskMobileVo> getByUserIdForMobile(Integer userId);
 
-    public void feedback(Integer taskId, AdMonitorTaskFeedback feedback,String adSeatCode);
+    public void feedback(Integer taskId, AdMonitorTaskFeedback feedback,String adSeatCode, SysUserExecute user);
 
     /**
 	 * 根据当前任务编号生成子任务

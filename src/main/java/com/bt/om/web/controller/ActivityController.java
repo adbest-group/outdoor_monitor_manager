@@ -79,11 +79,10 @@ public class ActivityController extends BasicController {
 	private IOperateLogService operateLogService;
 	@Autowired
 	private SysUserResMapper sysUserResMapper;
-  @Autowired
+	@Autowired
 	private IAdUserMessageService adUserMessageService;
-  @Autowired
+	@Autowired
 	private IAdMonitorTaskService adMonitorTaskService;
-
 	@Autowired
 	protected RedisTemplate redisTemplate;
 
@@ -373,12 +372,7 @@ public class ActivityController extends BasicController {
 		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
 		result.setResultDes("确认成功");
 		model = new ExtendedModelMap();
-		Date now = new Date();
 		
-		List<Integer> list = new ArrayList<>();
-        list = sysUserService.getUserId(4);//超级管理员id
-        Integer dep_id = sysResourcesService.getUserId(1);//部门领导id
-        
 		try {
 			// 获取登录的审核人(员工/部门领导/超级管理员)
 			SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
@@ -402,46 +396,6 @@ public class ActivityController extends BasicController {
 				String pushResult = JPushUtils.pushAllByAlias(param);
 				System.out.println("pushResult:: " + pushResult);
 			}
-			
-			
-	        for(String j : activityIds) {
-	        	List<AdUserMessage> message = new ArrayList<>();
-	        	AdActivity adActivity = adActivityService.getActivityName(Integer.parseInt(j));
-	        	SysUser	sysUser = sysUserService.getUserNameById(adActivity.getUserId());
-		        List<Integer> reslist = sysUserResMapper.getUserId(adActivity.getUserId(),2);//获取广告商下面的组id集合
-		        Integer resId = null;
-		        for(Integer i:reslist) {
-		          	resId = sysResourcesService.getResId(i,1);//找到活动确认的组id
-		           	if(resId != null) {
-		           		break;
-		           	}
-		        }
-		        List<Integer> cuslist = sysUserResMapper.getAnotherUserId(resId, 1);//获取组下面的员工id集合
-		            
-		        List<Integer> userIdList = new ArrayList<>();
-		        for(Integer i : list) {
-		          	userIdList.add(i);
-		        }
-		        for(Integer i: cuslist) {
-		           	userIdList.add(i);
-		        }
-		        userIdList.add(dep_id);
-	        	
-				for(Integer i: userIdList) {
-		          	AdUserMessage mess = new AdUserMessage();
-		          	
-		           	mess.setContent(sysUser.getRealname()+"广告商的"+adActivity.getActivityName()+"活动已被"+userObj.getUsername()+"确认！");
-		           	mess.setTargetId(Integer.parseInt(j));
-		           	mess.setTargetUserId(i);
-		           	mess.setIsFinish(1);
-		           	mess.setType(1);
-		           	mess.setCreateTime(now);
-		           	mess.setUpdateTime(now);
-		           	message.add(mess);
-		        }
-				adUserMessageService.insertMessage(message);
-			}
-	        
 		} catch (Exception e) {
 			// [5] 异常情况, 循环删除redis
 			for (String actId : activityIds) {

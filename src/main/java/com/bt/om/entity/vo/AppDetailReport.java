@@ -1,5 +1,6 @@
 package com.bt.om.entity.vo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AppDetailReport {
@@ -10,6 +11,7 @@ public class AppDetailReport {
 	private String province; //省(直辖市)
 	private String city; //市
 	private String region; //区(县)
+	private String road; //主要路段
 	private String street; //街道(镇，乡)
 	private String location; //详细位置
 	private String uniqueKey; //唯一标识
@@ -27,6 +29,8 @@ public class AppDetailReport {
 	private List<PictureVo> upPics; //上刊监测图片集合
 	private List<PictureVo> durationPics; //投放期间监测图片集合
 	private List<PictureVo> downPics; //下刊监测图片集合
+	private List<PictureVo> upTaskPics; //上刊任务图片集合
+	private List<PictureVo> zhuijiaPics; //追加监测图片集合
 	
 	public String getSeatInfoName() {
 		return seatInfoName;
@@ -69,6 +73,12 @@ public class AppDetailReport {
 	}
 	public void setRegion(String region) {
 		this.region = region;
+	}
+	public String getRoad() {
+		return road;
+	}
+	public void setRoad(String road) {
+		this.road = road;
 	}
 	public String getStreet() {
 		return street;
@@ -171,5 +181,17 @@ public class AppDetailReport {
 	}
 	public void setDownPics(List<PictureVo> downPics) {
 		this.downPics = downPics;
+	}
+	public List<PictureVo> getUpTaskPics() {
+		return upTaskPics;
+	}
+	public void setUpTaskPics(List<PictureVo> upTaskPics) {
+		this.upTaskPics = upTaskPics;
+	}
+	public List<PictureVo> getZhuijiaPics() {
+		return zhuijiaPics;
+	}
+	public void setZhuijiaPics(List<PictureVo> zhuijiaPics) {
+		this.zhuijiaPics = zhuijiaPics;
 	}
 }

@@ -41,6 +41,7 @@ import com.bt.om.mapper.SysUserExecuteMapper;
 import com.bt.om.mapper.SysUserMapper;
 import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.service.IAdJiucuoTaskService;
+import com.bt.om.util.ConfigUtil;
 import com.bt.om.vo.web.SearchDataVo;
 
 /**
@@ -286,13 +287,16 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void createSubTask(Integer taskId) {
+    	Integer monitorTime = ConfigUtil.getInt("monitor_time"); //允许任务执行天数
         Date now = new Date();
+        //查询父纠错任务信息
         AdJiucuoTask task = adJiucuoTaskMapper.selectByPrimaryKey(taskId);
+        //创建子任务
         AdMonitorTask sub = new AdMonitorTask();
         sub.setTaskType(MonitorTaskType.FIX_CONFIRM.getId());
         //通过活动编号和广告位编号获取 活动和广告位的关联编号
         sub.setActivityAdseatId(adActivityAdseatMapper.selectByActivityAndSeatId(task.getActivityId(),task.getAdSeatId()).getId());
-        sub.setStatus(MonitorTaskStatus.UNASSIGN.getId());
+        sub.setStatus(MonitorTaskStatus.UNASSIGN.getId()); //待指派的任务
         sub.setProblemStatus(TaskProblemStatus.UNMONITOR.getId());
         sub.setActivityId(task.getActivityId());
         sub.setParentId(task.getId());
@@ -301,8 +305,9 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
         sub.setCreateTime(now);
         sub.setUpdateTime(now);
         sub.setMonitorDate(now);
-        sub.setMonitorLastDays(2); //暂定两天
+        sub.setMonitorLastDays(monitorTime);
         adMonitorTaskMapper.insertSelective(sub);
+        //更新父任务
         task.setSubCreated(1);
         adJiucuoTaskMapper.updateByPrimaryKeySelective(task);
     }

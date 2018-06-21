@@ -17,6 +17,7 @@ public class ActivateTaskTask extends AbstractTask {
 	protected boolean canProcess() {
 		return true;
 	}
+	
 
 	@Override
 	protected void process() {

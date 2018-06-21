@@ -19,9 +19,9 @@
                     <p>投放地区：${vm.getCityName(vo.province)!""} - ${vm.getCityName(vo.city!"")} - ${vo.road!""} - ${vo.location!""}</p>
                     <p>投放广告位：${vo.name!""}</p>
                     <p>监测时间段：${vo.monitorsStart?string('yyyy-MM-dd')!""} 至 ${vo.monitorsEnd?string('yyyy-MM-dd')!""}</p>
-                    <p>监测时间点：${vm.getMonitorTaskTypeText(vo.taskType)!""}</p>
+                    <p>任务类型：${vm.getMonitorTaskTypeText(vo.taskType)!""}</p>
                     <p>媒体名称：${vo.mediaName!""}</p>
-                    <p>投放品牌：${vo.brand!""}</p>
+                    <#-- <p>投放品牌：${vo.brand!""}</p> -->
                     <p>创建时间：${vo.createTime?string('yyyy-MM-dd HH:mm')!""}</p>
                     <p>
                         样例:</br><img style="vertical-align: top" src="${vo.samplePicUrl!""}"></img>

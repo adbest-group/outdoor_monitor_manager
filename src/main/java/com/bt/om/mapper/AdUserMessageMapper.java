@@ -2,6 +2,7 @@ package com.bt.om.mapper;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
@@ -62,5 +63,7 @@ public interface AdUserMessageMapper {
 	List<?> getPageData(HashMap<String, Object> searchMap, RowBounds rowBounds);
 
 	void insertMessage(@Param("messages")List<AdUserMessage> message);
+	
+	int updateUserMessage(Map<String, Object> searchMap);
 
 }

@@ -19,6 +19,7 @@ import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdActivityAdseat;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.AdUserMessage;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.ActivityMobileReportVo;
@@ -29,6 +30,8 @@ import com.bt.om.entity.vo.AdActivityVo2;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.entity.vo.AdSeatCount;
 import com.bt.om.enums.ActivityStatus;
+import com.bt.om.enums.MessageIsFinish;
+import com.bt.om.enums.MessageType;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.TaskProblemStatus;
@@ -38,7 +41,10 @@ import com.bt.om.mapper.AdActivityMapper;
 import com.bt.om.mapper.AdActivityMediaMapper;
 import com.bt.om.mapper.AdMonitorTaskMapper;
 import com.bt.om.mapper.AdSeatInfoMapper;
+import com.bt.om.mapper.AdUserMessageMapper;
+import com.bt.om.mapper.SysResourcesMapper;
 import com.bt.om.mapper.SysUserMapper;
+import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.util.ConfigUtil;
 import com.bt.om.vo.web.SearchDataVo;
@@ -64,6 +70,12 @@ public class AdActivityService implements IAdActivityService {
     SysUserMapper sysUserMapper;
     @Autowired
     AdSeatInfoMapper adSeatInfoMapper;
+    @Autowired
+    SysUserResMapper sysUserResMapper;
+    @Autowired
+    SysResourcesMapper sysResourcesMapper;
+    @Autowired
+    AdUserMessageMapper adUserMessageMapper;
 
     @Override
     public void save(AdActivity adActivity) {
@@ -75,7 +87,7 @@ public class AdActivityService implements IAdActivityService {
     public void add(AdActivityVo adActivityVo, String activeSeat) {
     	Date now = new Date();
     	
-        //保存活动
+        //[1] 保存活动
         adActivityMapper.insert((AdActivity) adActivityVo);
         
 //        if(n<1){
@@ -94,7 +106,7 @@ public class AdActivityService implements IAdActivityService {
 //            adActivityMediaMapper.insert(media);
 //        }
 
-        //保存广告活动广告位
+        //[2] 保存广告活动广告位
         List<AdActivityAdseat> adActivityAdseats = new ArrayList<>();
         
         String[] seatIds = activeSeat.split(",");
@@ -137,11 +149,54 @@ public class AdActivityService implements IAdActivityService {
         	//批量插入
         	adActivityAdseatMapper.insertBatch(adActivityAdseats);
         }
+        
+        //[3] 插入站内信
+        SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivityVo.getUserId());
+        List<Integer> list = new ArrayList<>();
+        list = sysUserMapper.getUserId(4);//4：超级管理员
+        Integer dep_id = sysResourcesMapper.getUserId(1);//1：活动审核部门
+        
+        List<Integer> reslist = sysUserResMapper.getUserId(adActivityVo.getUserId(), 2);//获取广告商下面的组id集合
+        Integer resId = null;
+        for(Integer i:reslist) {
+        	resId = sysResourcesMapper.getResId(i, 1);//1：活动审核部门
+        	if(resId != null) {
+        		break;
+        	}
+        }
+        List<Integer> cuslist = sysUserResMapper.getAnotherUserId(resId, 1);//获取组下面的员工id集合
+        
+        List<Integer> userIdList = new ArrayList<>();
+        for(Integer i : list) {
+        	userIdList.add(i);
+        }
+        for(Integer i: cuslist) {
+        	userIdList.add(i);
+        }
+        userIdList.add(dep_id);
+        
+        List<AdUserMessage> message = new ArrayList<>();
+        for(Integer i: userIdList) {
+        	AdUserMessage mess = new AdUserMessage();
+        	mess.setContent("【" + sysUser.getRealname()+"】广告主的"+ "【" + adActivityVo.getActivityName() +"】活动待确认！");
+        	mess.setTargetId(adActivityVo.getId()); //活动表的id
+        	mess.setTargetUserId(i);
+        	mess.setIsFinish(0);
+        	mess.setType(1); //1：活动确认
+        	mess.setCreateTime(now);
+        	mess.setUpdateTime(now);
+        	message.add(mess);
+        }
+        if(message != null && message.size() > 0) {
+        	adUserMessageMapper.insertMessage(message);
+        }
     }
 
     @Override
     public void modify(AdActivityVo adActivityVo, String activeSeat) {
     	Date now = new Date();
+    	
+    	SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivityVo.getUserId()); //获取活动所属广告主的信息
     	
         //保存活动
         adActivityMapper.updateByPrimaryKeySelective((AdActivity) adActivityVo);
@@ -213,6 +268,20 @@ public class AdActivityService implements IAdActivityService {
         	//批量插入
         	adActivityAdseatMapper.insertBatch(adActivityAdseats);
         }
+        
+        //修改站内信
+        Map<String, Object> map = new HashMap<>();
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("【");
+        stringBuffer.append(sysUser.getRealname());
+        stringBuffer.append("】广告主的【");
+        stringBuffer.append(adActivityVo.getActivityName());
+        stringBuffer.append("】活动待确认！");
+        searchMap.put("content", stringBuffer.toString());
+        searchMap.put("isFinish", MessageIsFinish.CONFIRMED.getId()); //0：未处理
+        searchMap.put("targetId", adActivityVo.getId()); //活动表的id
+        searchMap.put("type", MessageType.ACTIVITY_AUDIT.getId()); //1：活动确认
+        adUserMessageMapper.updateUserMessage(map);
     }
 
     @Override
@@ -251,12 +320,17 @@ public class AdActivityService implements IAdActivityService {
     public void confirm(String[] activityIds, Integer assessorId) {
     	Integer monitorTime = ConfigUtil.getInt("monitor_time"); //允许任务执行天数
         Integer auditTime = ConfigUtil.getInt("audit_time"); //允许任务审核天数
+        
+        SysUser auditPerson = sysUserMapper.selectByPrimaryKey(assessorId); //获取审核人的相关信息
     	
     	//[4] 确认操作在业务层方法里进行循环
     	for (String actId : activityIds) {
     		Integer id = Integer.parseInt(actId);
     		AdActivity adActivity = adActivityMapper.selectByPrimaryKey(id); //活动信息
     		List<AdActivityAdseatVo> seats = adActivityAdseatMapper.selectByActivityId(id); //每个活动对应的广告位信息
+    		
+    		SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivity.getUserId()); //获取活动所属广告主的信息
+    		
             List<AdMonitorTask> tasks = new ArrayList<>();
             for (AdActivityAdseatVo seat : seats) {
                 //安装人员上刊安装
@@ -376,6 +450,22 @@ public class AdActivityService implements IAdActivityService {
             activity.setStatus(ActivityStatus.CONFIRMED.getId());
             activity.setAssessorId(assessorId); //设置审核人
             adActivityMapper.updateByPrimaryKeySelective(activity); 
+            
+            //修改站内信
+            Map<String, Object> searchMap = new HashMap<>();
+            StringBuffer stringBuffer = new StringBuffer();
+            stringBuffer.append("【");
+            stringBuffer.append(sysUser.getRealname());
+            stringBuffer.append("】广告主的【");
+            stringBuffer.append(adActivity.getActivityName());
+            stringBuffer.append("】活动已被【");
+            stringBuffer.append(auditPerson.getRealname());
+            stringBuffer.append("】确认");
+            searchMap.put("content", stringBuffer.toString());
+            searchMap.put("isFinish", MessageIsFinish.UNCONFIRM.getId()); //1：已处理
+            searchMap.put("targetId", id); //活动表的id
+            searchMap.put("type", MessageType.ACTIVITY_AUDIT.getId()); //1：活动确认
+            adUserMessageMapper.updateUserMessage(searchMap);
 		}
     }
 

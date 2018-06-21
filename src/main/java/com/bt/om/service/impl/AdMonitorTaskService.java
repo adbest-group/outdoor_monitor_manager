@@ -15,27 +15,27 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.adtime.common.lang.CollectionUtil;
-
 import com.adtime.common.lang.StringUtil;
 import com.bt.om.common.DateUtil;
 import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdJiucuoTask;
-import com.bt.om.entity.AdMonitorReward;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.AdMonitorUserTask;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.AdUserMessage;
 import com.bt.om.entity.SysUser;
+import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AbandonTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.entity.vo.AllAdMonitorTaskVo;
 import com.bt.om.entity.vo.PictureVo;
+import com.bt.om.enums.MessageIsFinish;
+import com.bt.om.enums.MessageType;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.RewardTaskType;
-import com.bt.om.enums.RewardType;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
 import com.bt.om.mapper.AdActivityAdseatMapper;
@@ -48,11 +48,11 @@ import com.bt.om.mapper.AdMonitorUserTaskMapper;
 import com.bt.om.mapper.AdSeatInfoMapper;
 import com.bt.om.mapper.AdUserMessageMapper;
 import com.bt.om.mapper.SysResourcesMapper;
+import com.bt.om.mapper.SysUserExecuteMapper;
 import com.bt.om.mapper.SysUserMapper;
 import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdMonitorTaskService;
-import com.bt.om.service.IAdUserMessageService;
 import com.bt.om.util.ConfigUtil;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.util.JPushUtils;
@@ -82,11 +82,12 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	private SysUserResMapper sysUserResMapper;
     @Autowired
 	private AdUserMessageMapper adUserMessageMapper;
-   @Autowired
+    @Autowired
     private AdActivityAdseatMapper adActivityAdseatMapper;
     @Autowired
     private AdActivityMapper adActivityMapper;
-
+    @Autowired
+    private SysUserExecuteMapper sysUserExecuteMapper;
 
     @Override
     public void getPageData(SearchDataVo vo) {
@@ -102,6 +103,9 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void assign(String[] taskIds, Integer userId, Integer assignorId) {
+    	SysUser auditPerson = sysUserMapper.selectByPrimaryKey(assignorId); //获取指派人的相关信息
+    	SysUserExecute sysUserExecute = sysUserExecuteMapper.selectByPrimaryKey(userId); //app执行人员的信息
+    	
         Date now = new Date();
         //[4] 确认操作在业务层方法里进行循环
         for (String taskId : taskIds) {
@@ -152,6 +156,49 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             task.setUserId(userId);//执行人员id
             adMonitorTaskMapper.updateByPrimaryKey(task);
             adMonitorUserTaskMapper.insertSelective(userTask);
+            
+            //指派成功修改站内信
+	        String taskType = null;
+	        if(task.getTaskType()==1) {
+	        	taskType = "上刊监测";
+	        }else if(task.getTaskType()==2) {
+	        	taskType = "投放期间监测";
+	        }else if(task.getTaskType()==3) {
+	        	taskType = "下刊监测";
+	        }else if(task.getTaskType()==5) {
+	        	taskType = "上刊";
+	        }else if(task.getTaskType()==6) {
+	        	taskType = "追加监测";
+	        }
+	        
+	        Map<String, Object> searchMap = new HashMap<>();
+	        AdActivity adActivity = adActivityMapper.selectByPrimaryKey(task.getActivityId());//通过id找到广告商id
+        	SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivity.getUserId());//获得广告商名
+	        StringBuffer stringBuffer = new StringBuffer();
+            stringBuffer.append("【");
+            stringBuffer.append(sysUser.getRealname());
+            stringBuffer.append("】广告主的【");
+            stringBuffer.append(adActivity.getActivityName());
+            stringBuffer.append("】活动的【");
+            stringBuffer.append(taskType);
+            stringBuffer.append("任务】已被【");
+            stringBuffer.append(auditPerson.getRealname());
+            stringBuffer.append("】指派给【");
+            String realName = null;
+            //若app人员没有填写真实姓名, 取其登录的用户名
+            if(StringUtil.isNotBlank(sysUserExecute.getRealname())) {
+            	realName = sysUserExecute.getRealname();
+            } else {
+            	realName = sysUserExecute.getUsername();
+            }
+            stringBuffer.append(realName);
+            stringBuffer.append("】");
+            
+            searchMap.put("content", stringBuffer.toString());
+            searchMap.put("isFinish", MessageIsFinish.UNCONFIRM.getId()); //1：已处理
+            searchMap.put("targetId", id); //任务表的id
+            searchMap.put("type", MessageType.TASK_ASSIGN.getId()); //3,"任务指派"
+            adUserMessageMapper.updateUserMessage(searchMap);
         }
     }
 
@@ -164,98 +211,137 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void pass(String[] taskIds, Integer assessorId, Integer status) {
+    	SysUser auditPerson = sysUserMapper.selectByPrimaryKey(assessorId); //获取审核人的相关信息
+    	
     	//[4] 确认操作在业务层方法里进行循环
     	for (String taskId : taskIds) {
     		Integer id = Integer.parseInt(taskId);
-        Date now = new Date();
-        AdMonitorTask task= new AdMonitorTask();
-        task.setId(id);
-        task.setStatus(status);
-        task.setAssessorId(assessorId);
-        AdMonitorTaskFeedback feedback = null;
-        //如果监测反馈有问题，问题状态置为有问题，否则无问题
-        List<AdMonitorTaskFeedback> feedbacks = adMonitorTaskFeedbackMapper.selectByTaskId(task.getId(), 1);
-//        AdMonitorTaskFeedback feedback = adMonitorTaskFeedbackMapper.selectByTaskId(task.getId(), 1).get(0);
-        if(feedbacks == null || feedbacks.size() == 0) {
-        	task.setProblemStatus(TaskProblemStatus.NO_PROBLEM.getId());
-        } else {
-        	feedback = feedbacks.get(0);
-        	if (feedback.getProblem() != null || feedback.getProblemOther() != null) {
-                task.setProblemStatus(TaskProblemStatus.PROBLEM.getId());
-            } else {
-                task.setProblemStatus(TaskProblemStatus.NO_PROBLEM.getId());
-            }
-        }
-        task.setVerifyTime(now);
-        task.setUpdateTime(now);
-        adMonitorTaskMapper.updateByPrimaryKeySelective(task);
-        task = adMonitorTaskMapper.selectByPrimaryKey(task.getId());
-        //如果当前任务是子任务，如果有问题，父任务的状态恢复到有问题，如果没有问题，则关闭父任务，这里分父任务是监测或纠错
-        if(task.getParentId()!=null){
-            if(task.getParentType()==RewardTaskType.MONITOR.getId()){
-                AdMonitorTask monitor = new AdMonitorTask();
-                monitor.setId(task.getParentId());
-                if(task.getProblemStatus()==TaskProblemStatus.PROBLEM.getId()) {
-                    monitor.setProblemStatus(TaskProblemStatus.PROBLEM.getId());
-                }else{
-                    monitor.setProblemStatus(TaskProblemStatus.CLOSED.getId());
-                }
-                monitor.setUpdateTime(now);
-                adMonitorTaskMapper.updateByPrimaryKeySelective(monitor);
-            }else if(task.getParentType()==RewardTaskType.JIUCUO.getId()){
-                AdJiucuoTask jiucuo  = new AdJiucuoTask();
-                jiucuo.setId(task.getParentId());
-                if(task.getProblemStatus()==TaskProblemStatus.PROBLEM.getId()) {
-                    jiucuo.setProblemStatus(TaskProblemStatus.PROBLEM.getId());
-                }else{
-                    jiucuo.setProblemStatus(TaskProblemStatus.CLOSED.getId());
-                }
-                jiucuo.setUpdateTime(now);
-                jiucuoTaskMapper.updateByPrimaryKeySelective(jiucuo);
-            }
-        }
-        //如果是上刊安装，激活其他任务
-        //现在又没有上刊安装任务了
-//        if(task.getTaskType().equals(MonitorTaskType.SET_UP_MONITOR.getId())){
-//            adMonitorTaskMapper.activeTask(task.getActivityAdseatId());
-//        }
-        //如果是上刊安装任务，并且广告位上并未记录经纬度,就把安装人员完成任务时的经纬度记录给广告位
-        //现在又没有上刊安装任务了
-//        if(task.getTaskType().equals(MonitorTaskType.SET_UP_MONITOR.getId())){
-//            AdSeatInfo seatInfo = adSeatInfoMapper.getAdSeatInfoByAdActivitySeatId(task.getActivityAdseatId());
-//            if(seatInfo.getLon()==null||seatInfo.getLat()==null){
-//                seatInfo.setLon(feedback.getLon());
-//                seatInfo.setLat(feedback.getLat());
-//                adSeatInfoMapper.updateByPrimaryKeySelective(seatInfo);
-//            }
-//        }
-        //现在又没有上刊安装任务了
-        //审核通过时，如果广告位上并未记录经纬度,就把该任务完成时的经纬度记录给广告位
-        AdSeatInfo seatInfo = adSeatInfoMapper.getAdSeatInfoByAdActivitySeatId(task.getActivityAdseatId());
-        if(seatInfo.getLon()==null||seatInfo.getLat()==null){
-        	if(feedback != null) {
-        		seatInfo.setLon(feedback.getLon());
-                seatInfo.setLat(feedback.getLat());
-                adSeatInfoMapper.updateByPrimaryKeySelective(seatInfo);
-        	}
-        }
-
-        //奖励相关
-        AdMonitorReward reward = new AdMonitorReward();
-        reward.setMonitorTaskId(task.getId());
-        reward.setType(RewardType.ADD.getId());
-        reward.setTaskType(RewardTaskType.MONITOR.getId());
-        reward.setUserId(task.getUserId());
-        //? 奖励点数设计，这里随便写死10点
-        reward.setRewardPoints(10);
-        reward.setCreateTime(now);
-        reward.setUpdateTime(now);
-        adMonitorRewardMapper.insert(reward);
+	        Date now = new Date();
+	        AdMonitorTask task= new AdMonitorTask();
+	        task.setId(id);
+	        task.setStatus(status);
+	        task.setAssessorId(assessorId);
+	        AdMonitorTaskFeedback feedback = null;
+	        //如果监测反馈有问题，问题状态置为有问题，否则无问题
+	        List<AdMonitorTaskFeedback> feedbacks = adMonitorTaskFeedbackMapper.selectByTaskId(task.getId(), 1);
+	//        AdMonitorTaskFeedback feedback = adMonitorTaskFeedbackMapper.selectByTaskId(task.getId(), 1).get(0);
+	        if(feedbacks == null || feedbacks.size() == 0) {
+	        	task.setProblemStatus(TaskProblemStatus.NO_PROBLEM.getId());
+	        } else {
+	        	feedback = feedbacks.get(0);
+	        	if (feedback.getProblem() != null || feedback.getProblemOther() != null) {
+	                task.setProblemStatus(TaskProblemStatus.PROBLEM.getId());
+	            } else {
+	                task.setProblemStatus(TaskProblemStatus.NO_PROBLEM.getId());
+	            }
+	        }
+	        task.setVerifyTime(now);
+	        task.setUpdateTime(now);
+	        adMonitorTaskMapper.updateByPrimaryKeySelective(task);
+	        task = adMonitorTaskMapper.selectByPrimaryKey(task.getId());
+	        //如果当前任务是子任务，如果有问题，父任务的状态恢复到有问题，如果没有问题，则关闭父任务，这里分父任务是监测或纠错
+	        if(task.getParentId()!=null){
+	            if(task.getParentType()==RewardTaskType.MONITOR.getId()){
+	                AdMonitorTask monitor = new AdMonitorTask();
+	                monitor.setId(task.getParentId());
+	                if(task.getProblemStatus()==TaskProblemStatus.PROBLEM.getId()) {
+	                    monitor.setProblemStatus(TaskProblemStatus.PROBLEM.getId());
+	                }else{
+	                    monitor.setProblemStatus(TaskProblemStatus.CLOSED.getId());
+	                }
+	                monitor.setUpdateTime(now);
+	                adMonitorTaskMapper.updateByPrimaryKeySelective(monitor);
+	            }else if(task.getParentType()==RewardTaskType.JIUCUO.getId()){
+	                AdJiucuoTask jiucuo  = new AdJiucuoTask();
+	                jiucuo.setId(task.getParentId());
+	                if(task.getProblemStatus()==TaskProblemStatus.PROBLEM.getId()) {
+	                    jiucuo.setProblemStatus(TaskProblemStatus.PROBLEM.getId());
+	                }else{
+	                    jiucuo.setProblemStatus(TaskProblemStatus.CLOSED.getId());
+	                }
+	                jiucuo.setUpdateTime(now);
+	                jiucuoTaskMapper.updateByPrimaryKeySelective(jiucuo);
+	            }
+	        }
+	        //如果是上刊安装，激活其他任务
+	        //现在又没有上刊安装任务了
+	//        if(task.getTaskType().equals(MonitorTaskType.SET_UP_MONITOR.getId())){
+	//            adMonitorTaskMapper.activeTask(task.getActivityAdseatId());
+	//        }
+	        //如果是上刊安装任务，并且广告位上并未记录经纬度,就把安装人员完成任务时的经纬度记录给广告位
+	        //现在又没有上刊安装任务了
+	//        if(task.getTaskType().equals(MonitorTaskType.SET_UP_MONITOR.getId())){
+	//            AdSeatInfo seatInfo = adSeatInfoMapper.getAdSeatInfoByAdActivitySeatId(task.getActivityAdseatId());
+	//            if(seatInfo.getLon()==null||seatInfo.getLat()==null){
+	//                seatInfo.setLon(feedback.getLon());
+	//                seatInfo.setLat(feedback.getLat());
+	//                adSeatInfoMapper.updateByPrimaryKeySelective(seatInfo);
+	//            }
+	//        }
+	        //现在又没有上刊安装任务了
+	        //审核通过时，如果广告位上并未记录经纬度,就把该任务完成时的经纬度记录给广告位
+	        AdSeatInfo seatInfo = adSeatInfoMapper.getAdSeatInfoByAdActivitySeatId(task.getActivityAdseatId());
+	        if(seatInfo.getLon()==null||seatInfo.getLat()==null){
+	        	if(feedback != null) {
+	        		seatInfo.setLon(feedback.getLon());
+	                seatInfo.setLat(feedback.getLat());
+	                adSeatInfoMapper.updateByPrimaryKeySelective(seatInfo);
+	        	}
+	        }
+	
+//	        //奖励相关
+//	        AdMonitorReward reward = new AdMonitorReward();
+//	        reward.setMonitorTaskId(task.getId());
+//	        reward.setType(RewardType.ADD.getId());
+//	        reward.setTaskType(RewardTaskType.MONITOR.getId());
+//	        reward.setUserId(task.getUserId());
+//	        //? 奖励点数设计，这里随便写死10点
+//	        reward.setRewardPoints(10);
+//	        reward.setCreateTime(now);
+//	        reward.setUpdateTime(now);
+//	        adMonitorRewardMapper.insert(reward);
+	        
+	        //审核成功修改站内信
+	        String taskType = null;
+	        if(task.getTaskType()==1) {
+	        	taskType = "上刊监测";
+	        }else if(task.getTaskType()==2) {
+	        	taskType = "投放期间监测";
+	        }else if(task.getTaskType()==3) {
+	        	taskType = "下刊监测";
+	        }else if(task.getTaskType()==5) {
+	        	taskType = "上刊";
+	        }else if(task.getTaskType()==6) {
+	        	taskType = "追加监测";
+	        }
+	        
+	        Map<String, Object> searchMap = new HashMap<>();
+	        AdActivity adActivity = adActivityMapper.selectByPrimaryKey(task.getActivityId());//通过id找到广告商id
+        	SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivity.getUserId());//获得广告商名
+	        StringBuffer stringBuffer = new StringBuffer();
+            stringBuffer.append("【");
+            stringBuffer.append(sysUser.getRealname());
+            stringBuffer.append("】广告主的【");
+            stringBuffer.append(adActivity.getActivityName());
+            stringBuffer.append("】活动的【");
+            stringBuffer.append(taskType);
+            stringBuffer.append("任务】已被【");
+            stringBuffer.append(auditPerson.getRealname());
+            stringBuffer.append("】审核通过");
+            
+            searchMap.put("content", stringBuffer.toString());
+            searchMap.put("isFinish", MessageIsFinish.UNCONFIRM.getId()); //1：已处理
+            searchMap.put("targetId", id); //任务表的id
+            searchMap.put("type", MessageType.TASK_AUDIT.getId()); //2,"任务审核"
+            adUserMessageMapper.updateUserMessage(searchMap);
+	    }
     }
-    }
+    
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void reject(String[] taskIds, String reason, Integer assessorId, Integer status) {
+    	SysUser auditPerson = sysUserMapper.selectByPrimaryKey(assessorId); //获取审核人的相关信息
+    	
     	//[4] 确认操作在业务层方法里进行循环
     	for (String taskId : taskIds) {
 	    	Integer id = Integer.parseInt(taskId);
@@ -273,6 +359,41 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	            feedback.setUpdateTime(now);
 	            adMonitorTaskFeedbackMapper.updateByPrimaryKeySelective(feedback);
 	        }
+	        
+	        //审核不通过修改站内信
+	        task = adMonitorTaskMapper.selectByPrimaryKey(task.getId());
+	        String taskType = null;
+	        if(task.getTaskType()==1) {
+	        	taskType = "上刊监测";
+	        }else if(task.getTaskType()==2) {
+	        	taskType = "投放期间监测";
+	        }else if(task.getTaskType()==3) {
+	        	taskType = "下刊监测";
+	        }else if(task.getTaskType()==5) {
+	        	taskType = "上刊";
+	        }else if(task.getTaskType()==6) {
+	        	taskType = "追加监测";
+	        }
+	        
+	        Map<String, Object> searchMap = new HashMap<>();
+	        AdActivity adActivity = adActivityMapper.selectByPrimaryKey(task.getActivityId());//通过id找到广告商id
+        	SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivity.getUserId());//获得广告商名
+	        StringBuffer stringBuffer = new StringBuffer();
+            stringBuffer.append("【");
+            stringBuffer.append(sysUser.getRealname());
+            stringBuffer.append("】广告主的【");
+            stringBuffer.append(adActivity.getActivityName());
+            stringBuffer.append("】活动的【");
+            stringBuffer.append(taskType);
+            stringBuffer.append("任务】已被【");
+            stringBuffer.append(auditPerson.getRealname());
+            stringBuffer.append("】审核不通过");
+            
+            searchMap.put("content", stringBuffer.toString());
+            searchMap.put("isFinish", MessageIsFinish.UNCONFIRM.getId()); //1：已处理
+            searchMap.put("targetId", id); //任务表的id
+            searchMap.put("type", MessageType.TASK_AUDIT.getId()); //2,"任务审核"
+            adUserMessageMapper.updateUserMessage(searchMap);
     	}
     }
 
@@ -283,8 +404,10 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void feedback(Integer taskId, AdMonitorTaskFeedback feedback,String adSeatCode) {
+    public void feedback(Integer taskId, AdMonitorTaskFeedback feedback,String adSeatCode,SysUserExecute user) {
         Date now = new Date();
+        Integer auditTime = ConfigUtil.getInt("audit_time"); //允许任务审核天数
+        
         //获取监测任务
         AdMonitorTask task = adMonitorTaskMapper.selectByPrimaryKey(taskId);
         //如果检测任务当前处于"待执行"或"审核未通过"
@@ -312,11 +435,17 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 //                    task.setStatus(MonitorTaskStatus.UNVERIFY.getId());
 //                }
 //            }
-            //如果本次提交的照片不足，任务状态设置为"未完成"，否则进入待审核
-            if (feedback.getPicUrl1() == null || feedback.getPicUrl2() == null || feedback.getPicUrl3() == null || feedback.getPicUrl4() == null) {
-                task.setStatus(MonitorTaskStatus.UN_FINISHED.getId());
+            if(task.getTaskType() == 5) {
+            	//上刊任务, 不校验, 直接审核通过
+            	task.setStatus(MonitorTaskStatus.VERIFIED.getId());
             } else {
-                task.setStatus(MonitorTaskStatus.UNVERIFY.getId());
+            	//非上刊任务做校验
+            	//如果本次提交的照片不足，任务状态设置为"未完成"，否则进入待审核
+            	if (feedback.getPicUrl1() == null || feedback.getPicUrl2() == null || feedback.getPicUrl3() == null || feedback.getPicUrl4() == null) {
+                    task.setStatus(MonitorTaskStatus.UN_FINISHED.getId());
+                } else {
+                    task.setStatus(MonitorTaskStatus.UNVERIFY.getId());
+                }
             }
             task.setUpdateTime(now);
             adMonitorTaskMapper.updateByPrimaryKeySelective(task);
@@ -355,6 +484,80 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             }
             task.setUpdateTime(now);
             adMonitorTaskMapper.updateByPrimaryKeySelective(task);
+        }
+        
+        //如果任务到了待审核的状态【普通监测任务】/ 审核通过的状态【上刊任务】, 则需要插入站内信
+        if(task.getStatus() == MonitorTaskStatus.UNVERIFY.getId() || task.getStatus() == MonitorTaskStatus.VERIFIED.getId()) {
+        	List<Integer> list = new ArrayList<>();
+	        list = sysUserMapper.getUserId(4);//4：超级管理员
+	        Integer dep_id = sysResourcesMapper.getUserId(2);//2：任务审核、指派部门
+	        List<AdUserMessage> message = new ArrayList<>();
+	        
+			AdMonitorTask adMonitorTask = adMonitorTaskMapper.selectByPrimaryKey(taskId);
+        	AdActivity adActivity = adActivityMapper.selectByPrimaryKey(adMonitorTask.getActivityId());//通过id找到广告商id
+        	SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivity.getUserId());//获得广告商名
+			List<Integer> reslist = sysUserResMapper.getUserId(adActivity.getUserId(),2);//获取广告商下面的组id集合
+	        Integer resId = null;
+	        for(Integer i:reslist) {
+	        	resId = sysResourcesMapper.getResId(i,2);//找到任务审核的组id
+	        	if(resId != null) {
+	        		break;
+	        	}
+	        }
+	        List<Integer> cuslist = sysUserResMapper.getAnotherUserId(resId, 1);//获取组下面的员工id集合
+	        List<Integer> userIdList = new ArrayList<>();
+	        for(Integer i : list) {
+	        	userIdList.add(i);
+	        }
+	        for(Integer i: cuslist) {
+	        	userIdList.add(i);
+	        }
+	        userIdList.add(dep_id);
+	        String taskType = null;
+	        if(adMonitorTask.getTaskType()==1) {
+	        	taskType = "上刊监测";
+	        }else if(adMonitorTask.getTaskType()==2) {
+	        	taskType = "投放期间监测";
+	        }else if(adMonitorTask.getTaskType()==3) {
+	        	taskType = "下刊监测";
+	        }else if(adMonitorTask.getTaskType()==5) {
+	        	taskType = "上刊";
+	        }else if(adMonitorTask.getTaskType()==6) {
+	        	taskType = "追加监测";
+	        }
+	        
+	        StringBuffer stringBuffer = new StringBuffer();
+            stringBuffer.append("【");
+            stringBuffer.append(sysUser.getRealname());
+            stringBuffer.append("】广告主的【");
+            stringBuffer.append(adActivity.getActivityName());
+            stringBuffer.append("】活动的【");
+            stringBuffer.append(taskType);
+            stringBuffer.append("任务】已被【");
+            stringBuffer.append(user.getRealname());
+            stringBuffer.append("】执行");
+            if(task.getStatus() == MonitorTaskStatus.UNVERIFY.getId()) {
+            	stringBuffer.append("，待审核");
+            } else {
+            	stringBuffer.append("有");
+            	stringBuffer.append(auditTime);
+            	stringBuffer.append("天可替换图片");
+            }
+            
+	        for(Integer i: userIdList) {
+            	AdUserMessage mess = new AdUserMessage();
+            	mess.setContent(stringBuffer.toString());
+            	mess.setTargetId(taskId); //任务表的id
+            	mess.setTargetUserId(i);
+            	mess.setIsFinish(MessageIsFinish.CONFIRMED.getId()); //0：未处理
+            	mess.setType(MessageType.TASK_AUDIT.getId()); //2：任务审核
+            	mess.setCreateTime(now);
+            	mess.setUpdateTime(now);
+            	message.add(mess);
+            }
+	        if(message != null && message.size() > 0) {
+	        	adUserMessageMapper.insertMessage(message);
+	        }
         }
     }
 
@@ -532,16 +735,17 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	@Transactional(rollbackFor = Exception.class)
 	public void newActivateMonitorTask(Date nowDate) {
 		//[1] 激活任务
+		List<Integer> ids = adMonitorTaskMapper.getWaitToActivateIds(nowDate);
 		adMonitorTaskMapper.newActivateMonitorTask(nowDate);
 		
 		//[2] 添加站内信
 		List<Integer> userIds = new ArrayList<>();
 		Date now = new Date();
-		List<Integer> ids = adMonitorTaskMapper.getWaitToActivateIds(nowDate);
+		
 		if(ids != null && ids.size() > 0) {
 			//查询添加站内信的用户id集合
 			userIds = sysUserMapper.getUserId(4);//超级管理员id
-			Integer dep_id = sysResourcesMapper.getUserId(2);//部门领导id
+			Integer dep_id = sysResourcesMapper.getUserId(2);//2：任务审核、指派部门
 			userIds.add(dep_id);
 			
 			for (Integer monitorId : ids) {
@@ -554,7 +758,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 				List<Integer> reslist = sysUserResMapper.getUserId(adActivity.getUserId(),2);//获取广告商下面的组id集合
 		        Integer resId = null;
 		        for(Integer i:reslist) {
-		        	resId = sysResourcesMapper.getResId(i,1);//找到任务审核的组id
+		        	resId = sysResourcesMapper.getResId(i,2);//找到任务审核的组id
 		        	if(resId != null) {
 		        		break;
 		        	}
@@ -562,13 +766,9 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 		        List<Integer> cuslist = sysUserResMapper.getAnotherUserId(resId, 1);//获取组下面的员工id集合
 		        
 		        List<Integer> userIdList = new ArrayList<>();
-		        for(Integer i : userIds) {
-		        	userIdList.add(i);
-		        }
-		        for(Integer i: cuslist) {
-		        	userIdList.add(i);
-		        }
-		        userIdList.add(dep_id);
+		        userIdList.addAll(userIds);
+		        userIdList.addAll(cuslist);
+		        
 		        String taskType = null;
 		        if(adMonitorTask.getTaskType()==1) {
 		        	taskType = "上刊监测";
@@ -577,22 +777,34 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 		        }else if(adMonitorTask.getTaskType()==3) {
 		        	taskType = "下刊监测";
 		        }else if(adMonitorTask.getTaskType()==5) {
-		        	taskType = "上刊任务";
+		        	taskType = "上刊";
 		        }else if(adMonitorTask.getTaskType()==6) {
-		        	taskType = "追加任务";
+		        	taskType = "追加监测";
 		        }
+		        
+		        StringBuffer stringBuffer = new StringBuffer();
+	            stringBuffer.append("【");
+	            stringBuffer.append(sysUser.getRealname());
+	            stringBuffer.append("】广告主的【");
+	            stringBuffer.append(adActivity.getActivityName());
+	            stringBuffer.append("】活动的【");
+	            stringBuffer.append(taskType);
+	            stringBuffer.append("任务】待指派");
+	            
 		        for(Integer i: userIdList) {
 	            	AdUserMessage mess = new AdUserMessage();
-	            	mess.setContent(sysUser.getRealname()+"广告商的"+adActivity.getActivityName()+taskType +"指派任务已被激活");
-	            	mess.setTargetId(adActivity.getId());
+	            	mess.setContent(stringBuffer.toString());
+	            	mess.setTargetId(monitorId); //任务表的id
 	            	mess.setTargetUserId(i);
-	            	mess.setIsFinish(0);
-	            	mess.setType(3);
+	            	mess.setIsFinish(MessageIsFinish.CONFIRMED.getId()); //0：未处理
+	            	mess.setType(MessageType.TASK_ASSIGN.getId()); //3：任务指派
 	            	mess.setCreateTime(now);
 	            	mess.setUpdateTime(now);
 	            	message.add(mess);
 	            }
-		        adUserMessageMapper.insertMessage(message);
+		        if(message != null && message.size() > 0) {
+		        	adUserMessageMapper.insertMessage(message);
+		        }
 			}
 		}
 	}

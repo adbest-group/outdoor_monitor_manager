@@ -35,6 +35,10 @@ public interface IAdJiucuoTaskService {
      * 根据当前纠错编号生成子任务
      **/
     public void createSubTask(Integer taskId);
+    /**
+     * 更改纠错图片
+     **/
+	void updatePicUrl(Integer id, String picUrl, Integer index);
 
     /**
      *  查询纠错子任务执行情况，用于详情

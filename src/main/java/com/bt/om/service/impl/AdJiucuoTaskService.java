@@ -2,6 +2,7 @@ package com.bt.om.service.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -247,5 +248,27 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
 		
 	}
 
+	/**
+	 * 替换任务反馈中的图片
+	 */
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void updatePicUrl(Integer id, String picUrl, Integer index) {
+		Map<String, Object> searchMap = new HashMap<>();
+		searchMap.put("id", id);
+		if(index == 1) {
+			searchMap.put("picUrl1", picUrl);
+			adJiucuoTaskFeedbackMapper.updatePicUrl1(searchMap);
+		} else if (index == 2) {
+			searchMap.put("picUrl2", picUrl);
+			adJiucuoTaskFeedbackMapper.updatePicUrl2(searchMap);
+		} else if (index == 3) {
+			searchMap.put("picUrl3", picUrl);
+			adJiucuoTaskFeedbackMapper.updatePicUrl3(searchMap);
+		} else if (index == 4) {
+			searchMap.put("picUrl4", picUrl);
+			adJiucuoTaskFeedbackMapper.updatePicUrl4(searchMap);
+		}
+	}
 	
 }

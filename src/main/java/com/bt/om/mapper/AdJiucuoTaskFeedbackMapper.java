@@ -1,5 +1,7 @@
 package com.bt.om.mapper;
 
+import java.util.Map;
+
 import com.bt.om.entity.AdJiucuoTaskFeedback;
 
 public interface AdJiucuoTaskFeedbackMapper {
@@ -52,4 +54,11 @@ public interface AdJiucuoTaskFeedbackMapper {
     int updateByPrimaryKey(AdJiucuoTaskFeedback record);
 
     AdJiucuoTaskFeedback selectByTaskId(Integer id);
+    
+    int updatePicUrl1(Map<String, Object> searchMap);
+    int updatePicUrl2(Map<String, Object> searchMap);
+    
+    int updatePicUrl3(Map<String, Object> searchMap);
+    
+    int updatePicUrl4(Map<String, Object> searchMap);
 }

@@ -148,5 +148,11 @@ public interface AdMonitorTaskMapper {
 	
 	int changeStatusAndproblemStatus(Integer id);
 
+
+	List<AdMonitorTask> getAllTasksByActivityId(Integer activityId);
+
+	List<AdMonitorTask> newSelectLatestMonitorTaskIds(Map<String, Object> searchMap);
+
 	List<Integer> selectUpTaskIds(@Param("activityId") Integer activityId);
+
 }

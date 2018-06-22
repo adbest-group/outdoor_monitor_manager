@@ -355,9 +355,9 @@ public class ApiController extends BasicController {
         try {
         	List<AdJiucuoTask> jiucuoTasks = new ArrayList<>();
             List<AdActivityAdseatVo> list = null;
-            List<AdActivityAdseatVo> list1 = new ArrayList<>();
-            List<AdActivityAdseatVo> list2 = new ArrayList<>();
-            List<AdActivityAdseatVo> list3 = new ArrayList<>();
+            List<AdActivityAdseatVo> list1 = new ArrayList<>();//当前时间广告位的活动已开始
+            List<AdActivityAdseatVo> list2 = new ArrayList<>();//当前时间广告位的活动暂未开始
+            List<AdActivityAdseatVo> list3 = new ArrayList<>();//当前时间广告位的活动已结束
             if(StringUtil.isNotEmpty(seatCode)){
             	//[1] 扫描二维码调取接口
                 list = adActivityService.getActivitySeatBySeatCode(seatCode);
@@ -417,8 +417,8 @@ public class ApiController extends BasicController {
                 
             } else if(lon != null && lat != null && StringUtil.isNotEmpty(title)) {
             	//[2] 通过经纬度调取接口
-                list = adActivityService.selectVoByLonLatTitle(lon, lat, title);
-                if(list == null || list.size() == 0) {
+                list1 = adActivityService.selectVoByLonLatTitle(lon, lat, title);
+                if(list1 == null || list1.size() == 0) {
                 	result.setCode(ResultCode.RESULT_FAILURE.getCode());
                     result.setResultDes("没有查询到经纬度信息！");
                     model.addAttribute(SysConst.RESULT_KEY, result);
@@ -433,7 +433,7 @@ public class ApiController extends BasicController {
             	jiucuoTasks = adJiucuoTaskService.selectInfoByLonLatTitle(searchMap);
             	
             	//移除
-            	Iterator<AdActivityAdseatVo> iterator = list.iterator();
+            	Iterator<AdActivityAdseatVo> iterator = list1.iterator();
             	while (iterator.hasNext()) {
 					AdActivityAdseatVo adActivityAdseatVo = (AdActivityAdseatVo) iterator.next();
 					for (AdJiucuoTask task : jiucuoTasks) {
@@ -445,8 +445,8 @@ public class ApiController extends BasicController {
 				}
             } else if(StringUtil.isNotEmpty(memo)) {
             	//[3] 媒体方编号memo调取接口
-                list = adActivityService.getActivitySeatByMemo(memo);
-                if(list == null || list.size() == 0) {
+                list1 = adActivityService.getActivitySeatByMemo(memo);
+                if(list1 == null || list1.size() == 0) {
                 	result.setCode(ResultCode.RESULT_FAILURE.getCode());
                     result.setResultDes("没有查询到媒体方编号信息！");
                     model.addAttribute(SysConst.RESULT_KEY, result);
@@ -459,7 +459,7 @@ public class ApiController extends BasicController {
             	jiucuoTasks = adJiucuoTaskService.selectInfoByMemo(searchMap);
                 
             	//移除
-            	Iterator<AdActivityAdseatVo> iterator = list.iterator();
+            	Iterator<AdActivityAdseatVo> iterator = list1.iterator();
             	while (iterator.hasNext()) {
 					AdActivityAdseatVo adActivityAdseatVo = (AdActivityAdseatVo) iterator.next();
 					for (AdJiucuoTask task : jiucuoTasks) {

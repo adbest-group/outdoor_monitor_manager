@@ -53,7 +53,7 @@
                             <option value="">所有问题状态</option>
                         <@model.showProblemStatusList value="${bizObj.queryMap.problemStatus?if_exists}" />
                         </select>
-                    </div>
+                    </div><br/><br/>
                     <div class="select-box select-box-100 un-inp-select ll">
 	                    <select style="width: 120px;height:31px;" name="mediaTypeParentId" id="mediaTypeParentId" onchange="changeMediaTypeId();">
 	                    <option value="">所有媒体大类</option>

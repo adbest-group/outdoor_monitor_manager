@@ -1,10 +1,14 @@
 package com.bt.om.web.controller;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -47,8 +51,10 @@ import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.AdMediaInfoStatus;
 import com.bt.om.enums.ExcelImportFailEnum;
 import com.bt.om.enums.MapStandardEnum;
+import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
+import com.bt.om.enums.TaskProblemStatus;
 import com.bt.om.exception.web.ExcelException;
 import com.bt.om.mapper.AdMediaMapper;
 import com.bt.om.security.ShiroUtils;
@@ -155,19 +161,26 @@ public class ExcelController extends BasicController {
 	
 	/**
 	 * 具体活动的pdf导出
+	 * @throws ParseException 
 	 */
 	@RequiresRoles(value = {"superadmin", "activityadmin", "depactivityadmin", "admin" , "customer"}, logical = Logical.OR)
     @RequestMapping(value = "/exportAdMediaPdf")
 	@ResponseBody
 	public Model exportPdf(Model model, HttpServletRequest request, HttpServletResponse response,
-			@RequestParam(value = "activityId", required = false) Integer activityId) {
+			@RequestParam(value = "activityId", required = false) Integer activityId,
+			@RequestParam(value = "taskreport", required = false) String taskreport) throws ParseException {
 		System.setProperty("sun.jnu.encoding", "utf-8");
+		SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+		
 		//相关返回结果
 		ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("查询成功");
         model = new ExtendedModelMap();
 		Date now = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		Map<String,Object> searchMap = new HashMap<>();
+		String type = null;
 		
 		//查询媒体类型
 		List<AdMediaType> allAdMediaType = adMediaTypeService.getAll();
@@ -176,6 +189,27 @@ public class ExcelController extends BasicController {
 			mediaTypeMap.put(adMediaType.getId(), adMediaType.getName());
 		}
 		
+		if(taskreport!=null) {
+			String reportTimeStr = taskreport.substring(0, 10); //报告时间
+			Date reportTime = sdf.parse(reportTimeStr);
+			Integer taskType = null;
+			type = taskreport.substring(10,taskreport.length()-2);
+			if(type.contains("上刊任务")) {
+				taskType = 5;
+			} else if(type.contains("上刊监测")) {
+				taskType = 1;
+			} else if(type.contains("投放期间监测")) {
+				taskType = 2;
+			} else if(type.contains("下刊监测")) {
+				taskType = 3;
+			} else if(type.contains("追加监测")) {
+				taskType = 6;
+			}
+			
+			searchMap.put("activityId", activityId);
+			searchMap.put("reportTime", reportTime);
+			searchMap.put("taskType", taskType);
+		}
 		//导出文件相关
 		AdActivity adActivity = adActivityService.getById(activityId);
 //		AdCustomerType customerType = adCustomerTypeService.getById(adActivity.getCustomerTypeId()); //客户类型
@@ -199,11 +233,17 @@ public class ExcelController extends BasicController {
 			
 			//[1] 生成pdf首页
 		    BaseFont bfChinese = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
+		    
+		    //拼接title
+		    StringBuffer stringBuffer = new StringBuffer();
+		    stringBuffer.append(adActivity.getActivityName());
+		    stringBuffer.append(taskreport);
+		    
 		    //Header  
 	        float y = document.top(368); 
 			cb.beginText();  
 			cb.setFontAndSize(bfChinese, 54);  
-			cb.showTextAligned(PdfContentByte.ALIGN_CENTER, adActivity.getActivityName(), (document.right() + document.left())/2, y, 0);
+			cb.showTextAligned(PdfContentByte.ALIGN_CENTER, stringBuffer.toString(), (document.right() + document.left())/2, y, 0);
 			cb.endText();
 			
 			cb = writer.getDirectContent();
@@ -214,7 +254,8 @@ public class ExcelController extends BasicController {
 			
 			//查询活动对应的 广告位信息+监测时间+是否有问题
 			document.newPage();
-        	List<AdActivityAdseatTaskVo> vos = adActivityService.selectAdActivityAdseatTaskReport(activityId);
+//        	List<AdActivityAdseatTaskVo> vos = adActivityService.selectAdActivityAdseatTaskReport(activityId);
+			List<AdActivityAdseatTaskVo> vos = adActivityService.newSelectAdActivityAdseatTaskReport(searchMap);
         	for (AdActivityAdseatTaskVo vo : vos) {
 				List<String> list = new ArrayList<>();
 				list.add(adActivity.getActivityName()); //活动名称 0
@@ -229,17 +270,33 @@ public class ExcelController extends BasicController {
 //				list.add(vo.getInfo_uniqueKey()); //唯一标识 7
 				list.add(DateUtil.dateFormate(vo.getMonitorStart(), "yyyy-MM-dd")); //开始监测时间 7
 				list.add(DateUtil.dateFormate(vo.getMonitorEnd(), "yyyy-MM-dd")); //结束监测时间 8
-				String status = AdMediaInfoStatus.WATCHING.getText(); //当前状态 9
-				if(vo.getProblem_count() > 0) {
-					status = AdMediaInfoStatus.HAS_PROBLEM.getText();
+//				String status = AdMediaInfoStatus.WATCHING.getText(); //当前状态 9
+//				if(vo.getProblem_count() > 0) {
+//					status = AdMediaInfoStatus.HAS_PROBLEM.getText();
+//				}
+//				if(vo.getMonitorStart().getTime() > now.getTime()) {
+//					status = AdMediaInfoStatus.NOT_BEGIN.getText();
+//				}
+//				if(vo.getMonitorEnd().getTime() < now.getTime()) {
+//					status = AdMediaInfoStatus.FINISHED.getText();
+//	        	}
+				Integer prostatus = vo.getProblemStatus();
+				String problemStatus = null;
+				if(prostatus==TaskProblemStatus.CLOSED.getId()) {
+					problemStatus = TaskProblemStatus.CLOSED.getText();
+				}else if(prostatus==TaskProblemStatus.FIXED.getId()) {
+					problemStatus = TaskProblemStatus.FIXED.getText();
+				}else if(prostatus==TaskProblemStatus.NO_PROBLEM.getId()) {
+					problemStatus = TaskProblemStatus.NO_PROBLEM.getText();
 				}
-				if(vo.getMonitorStart().getTime() > now.getTime()) {
-					status = AdMediaInfoStatus.NOT_BEGIN.getText();
+				else if(prostatus==TaskProblemStatus.UNMONITOR.getId()) {
+					problemStatus = TaskProblemStatus.UNMONITOR.getText();
 				}
-				if(vo.getMonitorEnd().getTime() < now.getTime()) {
-					status = AdMediaInfoStatus.FINISHED.getText();
-	        	}
-				list.add(status);
+				else if(prostatus==TaskProblemStatus.PROBLEM.getId()) {
+					problemStatus = TaskProblemStatus.PROBLEM.getText();
+				}
+				list.add(problemStatus);
+//				list.add(status); //当前状态
 				list.add(vo.getInfo_adSize()); //尺寸 10
 				list.add(vo.getInfo_adArea()); //面积 11
 				list.add(vo.getInfo_adNum()+"");//面数12
@@ -255,6 +312,7 @@ public class ExcelController extends BasicController {
 				list.add(mediaTypeMap.get(vo.getInfo_mediaTypeParentId())); //媒体大类 18
 				list.add(mediaTypeMap.get(vo.getInfo_mediaTypeId())); //媒体小类 19
 				list.add(vo.getMediaName()); //媒体名称20
+				list.add(type);//任务类型21
 //				if(customerType != null) {
 //					list.add(customerType.getName()); //客户类型22
 //				} else {
@@ -273,10 +331,13 @@ public class ExcelController extends BasicController {
 			List<Integer> ids = new ArrayList<>();
 			List<Integer> activityAdseatIds = new ArrayList<>();
 			//查询每个广告位最新的一条监测任务
-            List<AdMonitorTask> tasks = adMonitorTaskService.selectLatestMonitorTaskIds(activityId);
+//            List<AdMonitorTask> tasks = adMonitorTaskService.selectLatestMonitorTaskIds(activityId);
+ 			List<AdMonitorTask> tasks = adMonitorTaskService.newSelectLatestMonitorTaskIds(searchMap);
             for (AdMonitorTask task : tasks) {
-            	ids.add(task.getId()); //ad_monitor_task的id
-            	activityAdseatIds.add(task.getActivityAdseatId()); //ad_activity_adseat的id
+            	if((userObj.getUsertype()==2 && task.getStatus()==4) || (userObj.getUsertype()!=2)) { //登录方是广告主且任务当前状态是已审核  或者是群邑
+            		ids.add(task.getId()); //ad_monitor_task的id
+            		activityAdseatIds.add(task.getActivityAdseatId()); //ad_activity_adseat的id
+            	}
 			}
             //查询上述监测任务有效的一条反馈
             if(ids.size() > 0) {
@@ -303,13 +364,16 @@ public class ExcelController extends BasicController {
 	
 	/**
 	 * 具体活动的广告位excel导出报表
+	 * @throws ParseException 
 	 */
 	@RequiresRoles(value = {"superadmin", "activityadmin", "depactivityadmin", "admin" , "customer"}, logical = Logical.OR)
     @RequestMapping(value = "/exportAdMediaInfo")
 	@ResponseBody
 	public Model exportAdMediaInfo(Model model, HttpServletRequest request, HttpServletResponse response,
-			@RequestParam(value = "activityId", required = false) Integer activityId) {
+			@RequestParam(value = "activityId", required = false) Integer activityId,
+			@RequestParam(value = "taskreport", required = false) String taskreport) throws ParseException {
 		System.setProperty("sun.jnu.encoding", "utf-8");
+		SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
 		
 		//相关返回结果
 		ResultVo result = new ResultVo();
@@ -317,7 +381,9 @@ public class ExcelController extends BasicController {
         result.setResultDes("查询成功");
         model = new ExtendedModelMap();
 		Date now = new Date();
-		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		Map<String,Object> searchMap = new HashMap<>();
+		String type = null;
 		//查询媒体类型
 		List<AdMediaType> allAdMediaType = adMediaTypeService.getAll();
 		Map<Integer, String> mediaTypeMap = new HashMap<>();
@@ -325,6 +391,26 @@ public class ExcelController extends BasicController {
 			mediaTypeMap.put(adMediaType.getId(), adMediaType.getName());
 		}
 		
+		if(taskreport!=null) {
+			String reportTimeStr = taskreport.substring(0, 10); //报告时间
+			Date reportTime = sdf.parse(reportTimeStr);
+			Integer taskType = null;
+			type = taskreport.substring(10,taskreport.length()-2);
+			if(type.contains("上刊任务")) {
+				taskType = 5;
+			} else if(type.contains("上刊监测")) {
+				taskType = 1;
+			} else if(type.contains("投放期间监测")) {
+				taskType = 2;
+			} else if(type.contains("下刊监测")) {
+				taskType = 3;
+			} else if(type.contains("追加监测")) {
+				taskType = 6;
+			}
+			searchMap.put("activityId", activityId);
+			searchMap.put("reportTime", reportTime);
+			searchMap.put("taskType", taskType);
+		}
 		//导出文件相关
 		AdActivity adActivity = adActivityService.getById(activityId); //活动
 //		AdCustomerType customerType = adCustomerTypeService.getById(adActivity.getCustomerTypeId()); //客户类型
@@ -333,49 +419,67 @@ public class ExcelController extends BasicController {
         List<List<String>> listString = new ArrayList<>();
         
         try {
-        	List<AdActivityAdseatTaskVo> vos = adActivityService.selectAdActivityAdseatTaskReport(activityId);
+//        	List<AdActivityAdseatTaskVo> vos = adActivityService.selectAdActivityAdseatTaskReport(activityId);
+        	List<AdActivityAdseatTaskVo> vos = adActivityService.newSelectAdActivityAdseatTaskReport(searchMap);
         	for (AdActivityAdseatTaskVo vo : vos) {
-				List<String> list = new ArrayList<>();
-				list.add(adActivity.getActivityName()); //活动名称
-//				list.add(customerType.getName()); //客户类型
-				list.add(vo.getInfo_name()); //广告位名称
-				list.add(vo.getMediaName()); //媒体名称
-				list.add(mediaTypeMap.get(vo.getInfo_mediaTypeParentId())); //媒体大类
-				list.add(mediaTypeMap.get(vo.getInfo_mediaTypeId())); //媒体小类
-				list.add(cityCache.getCityName(vo.getInfo_province())); //省
-				list.add(cityCache.getCityName(vo.getInfo_city())); //市
-//				list.add(cityCache.getCityName(vo.getInfo_region())); //区（县）
-				list.add(cityCache.getCityName(vo.getInfo_street())); // 主要路段
-				list.add(vo.getInfo_location()); //详细位置
-				list.add(vo.getInfo_memo()); //媒体方广告位编号
-//				list.add(vo.getInfo_uniqueKey()); //唯一标识
-				list.add(DateUtil.dateFormate(vo.getMonitorStart(), "yyyy-MM-dd")); //开始监测时间
-				list.add(DateUtil.dateFormate(vo.getMonitorEnd(), "yyyy-MM-dd")); //结束监测时间
-				String status = AdMediaInfoStatus.WATCHING.getText(); //当前状态
-				if(vo.getProblem_count() > 0) {
-					status = AdMediaInfoStatus.HAS_PROBLEM.getText();
+        		if((userObj.getUsertype()==2 && vo.getStatus()==4) || (userObj.getUsertype()!=2)) { //登录方是广告主且任务当前状态是已审核  或者是群邑
+					List<String> list = new ArrayList<>();
+					list.add(adActivity.getActivityName()); //活动名称 
+	//				list.add(customerType.getName()); //客户类型
+					list.add(vo.getInfo_name()); //广告位名称
+					list.add(vo.getMediaName()); //媒体名称
+					list.add(mediaTypeMap.get(vo.getInfo_mediaTypeParentId())); //媒体大类
+					list.add(mediaTypeMap.get(vo.getInfo_mediaTypeId())); //媒体小类
+					list.add(cityCache.getCityName(vo.getInfo_province())); //省
+					list.add(cityCache.getCityName(vo.getInfo_city())); //市
+	//				list.add(cityCache.getCityName(vo.getInfo_region())); //区（县）
+					list.add(cityCache.getCityName(vo.getInfo_street())); // 主要路段
+					list.add(vo.getInfo_location()); //详细位置
+					list.add(vo.getInfo_memo()); //媒体方广告位编号
+	//				list.add(vo.getInfo_uniqueKey()); //唯一标识
+					list.add(DateUtil.dateFormate(vo.getMonitorStart(), "yyyy-MM-dd")); //开始监测时间
+					list.add(DateUtil.dateFormate(vo.getMonitorEnd(), "yyyy-MM-dd")); //结束监测时间
+//					String status = AdMediaInfoStatus.WATCHING.getText(); //当前状态
+//					if(vo.getProblem_count() > 0) {
+//						status = AdMediaInfoStatus.HAS_PROBLEM.getText();
+//					}
+//					if(vo.getMonitorStart().getTime() > now.getTime()) {
+//						status = AdMediaInfoStatus.NOT_BEGIN.getText();
+//					}
+//					if(vo.getMonitorEnd().getTime() < now.getTime()) {
+//						status = AdMediaInfoStatus.FINISHED.getText();
+//		        	}
+					Integer prostatus = vo.getProblemStatus();
+					String problemStatus = null;
+					if(prostatus==TaskProblemStatus.CLOSED.getId()) {
+						problemStatus = TaskProblemStatus.CLOSED.getText();
+					}else if(prostatus==TaskProblemStatus.FIXED.getId()) {
+						problemStatus = TaskProblemStatus.FIXED.getText();
+					}else if(prostatus==TaskProblemStatus.NO_PROBLEM.getId()) {
+						problemStatus = TaskProblemStatus.NO_PROBLEM.getText();
+					}
+					else if(prostatus==TaskProblemStatus.UNMONITOR.getId()) {
+						problemStatus = TaskProblemStatus.UNMONITOR.getText();
+					}
+					else if(prostatus==TaskProblemStatus.PROBLEM.getId()) {
+						problemStatus = TaskProblemStatus.PROBLEM.getText();
+					}
+					list.add(problemStatus);
+//					list.add(status); //当前状态
+					list.add(type);//任务类型
+					list.add(vo.getInfo_adSize()); //广告位尺寸
+					list.add(vo.getInfo_adArea()); //面积
+					list.add(vo.getInfo_lon() + ""); //经度
+					list.add(vo.getInfo_lat() + ""); //纬度
+					list.add(vo.getInfo_adNum() + "");//面数
+					list.add(MapStandardEnum.getText(vo.getInfo_mapStandard())); //地图标准（如百度，谷歌，高德）
+					list.add(vo.getInfo_contactName()); //联系人姓名
+					list.add(vo.getInfo_contactCell()); //联系人电话
+					listString.add(list);
 				}
-				if(vo.getMonitorStart().getTime() > now.getTime()) {
-					status = AdMediaInfoStatus.NOT_BEGIN.getText();
-				}
-				if(vo.getMonitorEnd().getTime() < now.getTime()) {
-					status = AdMediaInfoStatus.FINISHED.getText();
-	        	}
-				list.add(status); //当前状态
-				list.add(vo.getInfo_adSize()); //广告位尺寸
-				list.add(vo.getInfo_adArea()); //面积
-				list.add(vo.getInfo_lon() + ""); //经度
-				list.add(vo.getInfo_lat() + ""); //纬度
-				list.add(vo.getInfo_adNum() + "");//面数
-				list.add(MapStandardEnum.getText(vo.getInfo_mapStandard())); //地图标准（如百度，谷歌，高德）
-				list.add(vo.getInfo_contactName()); //联系人姓名
-				list.add(vo.getInfo_contactCell()); //联系人电话
-				
-				listString.add(list);
-			}
-        	
-            String[] titleArray = {"活动名称", "广告位名称", "供应商（媒体）", "媒体大类", "媒体小类", "省", "市",  "主要路段", "详细位置", "媒体方广告位编号", 
-            		"开始监测时间", "结束监测时间", "当前状态",
+    		}
+        	String[] titleArray = {"活动名称", "广告位名称", "供应商（媒体）", "媒体大类", "媒体小类", "省", "市",  "主要路段", "详细位置", "媒体方广告位编号", 
+            		"开始监测时间", "结束监测时间", "当前状态","任务类型",
             		"广告位尺寸", "面积", "经度", "纬度", "面数","地图标准（如百度，谷歌，高德）", "联系人姓名", "联系人电话"};
             ExcelTool<List<String>> excelTool = new ExcelTool<List<String>>("importResult");
             String path = request.getSession().getServletContext().getRealPath("/");
@@ -390,7 +494,7 @@ public class ExcelController extends BasicController {
             e.printStackTrace();
 		}
         
-        model.addAttribute(SysConst.RESULT_KEY, result);
+         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
 	}
 	
@@ -1119,9 +1223,9 @@ public class ExcelController extends BasicController {
 //	    Font titleChinese = new Font(bfChinese, 20, Font.BOLD);  
 //	    Font BoldChinese = new Font(bfChinese, 20, Font.BOLD);  
 		
-		PdfPTable table = new PdfPTable(10);
+		PdfPTable table = new PdfPTable(11);
 		table.setWidthPercentage(100);
-		table.setWidths(new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1});
+		table.setWidths(new int[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1});
 
         table.addCell(new Paragraph("广告位名称", fontChinese));
 //        table.addCell(new Paragraph("客户类型", fontChinese));
@@ -1133,6 +1237,7 @@ public class ExcelController extends BasicController {
         table.addCell(new Paragraph("开始监测时间", fontChinese));
         table.addCell(new Paragraph("结束监测时间", fontChinese));
         table.addCell(new Paragraph("当前状态", subBoldFontChinese));
+        table.addCell(new Paragraph("任务类型", subBoldFontChinese));
         table.addCell(new Paragraph("媒体方广告位编号", fontChinese));
         
         for (List<String> list : listString) {
@@ -1159,6 +1264,7 @@ public class ExcelController extends BasicController {
             table.addCell(new Paragraph(list.get(7), fontChinese));//开始监测时间
             table.addCell(new Paragraph(list.get(8), fontChinese));//结束监测时间
             table.addCell(new Paragraph(list.get(9), subBoldFontChinese));//当前状态
+            table.addCell(new Paragraph(list.get(21), subBoldFontChinese));//任务类型
             table.addCell(new Paragraph(list.get(6), fontChinese));//媒体方广告位编号
 		}
 		return table;

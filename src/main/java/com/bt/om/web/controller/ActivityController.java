@@ -29,10 +29,13 @@ import com.adtime.common.lang.StringUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdActivity;
+import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdUserMessage;
 import com.bt.om.entity.SysUser;
+import com.bt.om.entity.TaskDownload;
 import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdActivityVo;
+import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.mapper.SysUserResMapper;
@@ -507,5 +510,207 @@ public class ActivityController extends BasicController {
 		// 将内存中的图片发送到客户端
 		response.setContentType("image/jpg");
 		QRcodeUtil.encode(GsonUtil.GsonString(vo), response.getOutputStream());
+	}
+	
+	//通过ActivityId查出所有任务列表
+	@RequestMapping(value="/selectTaskToExcel")
+	public String getActivity(Model model,HttpServletRequest request, HttpServletResponse response,
+			@RequestParam(value = "activityId", required = false) Integer activityId) {
+		SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+		Date now = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		
+		//查询所有任务列表
+		List<AdMonitorTask> list = adMonitorTaskService.getAllTasksByActivityId(activityId);
+		//所有投放期间监测任务列表
+		List<AdMonitorTask> durationList = new ArrayList<>();
+		//所有追加监测列表
+		List<AdMonitorTask> zhuijiaList = new ArrayList<>();
+		for(AdMonitorTask task : list) {
+			StringBuffer stringBuffer = new StringBuffer();
+			if(now.compareTo(task.getReportTime())>0) {	//当前时间大于出报告时间
+				String nowDate = sdf.format(task.getReportTime());
+				//if((userObj.getUsertype()==2 && task.getStatus()==4) || (userObj.getUsertype()!=2)) {	//登录用户是广告主且通过审核  或者登录用户是群邑
+					if(task.getTaskType()==MonitorTaskType.UP_TASK.getId()) {	//5 上刊任务
+						TaskDownload upTask = new TaskDownload();
+						stringBuffer.append(nowDate);
+						stringBuffer.append("	");
+						stringBuffer.append(MonitorTaskType.UP_TASK.getText());
+						stringBuffer.append("报告");
+						upTask.setKey(stringBuffer.toString());
+						upTask.setValue(task.getActivityId());
+						model.addAttribute("upTask_show",upTask);
+					}else if(task.getTaskType()==MonitorTaskType.UP_MONITOR.getId()) {	//1 上刊监测
+						TaskDownload upMonitor = new TaskDownload();
+						stringBuffer.append(nowDate);
+						stringBuffer.append("	");
+						stringBuffer.append(MonitorTaskType.UP_MONITOR.getText());
+						stringBuffer.append("报告");
+						upMonitor.setKey(stringBuffer.toString());
+						upMonitor.setValue(task.getActivityId());
+						model.addAttribute("upMonitor_show",upMonitor);
+					}else if(task.getTaskType()==MonitorTaskType.DOWNMONITOR.getId()) {	//3 下刊监测
+						TaskDownload downMonitor = new TaskDownload();
+						stringBuffer.append(nowDate);
+						stringBuffer.append("	");
+						stringBuffer.append(MonitorTaskType.DOWNMONITOR.getText());
+						stringBuffer.append("报告");
+						downMonitor.setKey(stringBuffer.toString());
+						downMonitor.setValue(task.getActivityId());
+						model.addAttribute("downMonitor_show",downMonitor);
+					}else if(task.getTaskType()==MonitorTaskType.DURATION_MONITOR.getId()) {  //2 投放期间监测
+						durationList.add(task);
+					}else if(task.getTaskType()==MonitorTaskType.ZHUIJIA_MONITOR.getId()) {  //6 追加监测
+						zhuijiaList.add(task);
+					}
+				//}
+			}
+		}
+		
+		//遍历投放期间监测
+		if(durationList != null && durationList.size()>0) {
+			List<TaskDownload> taskDownloadsExcel = new ArrayList<>();
+			for(AdMonitorTask task : durationList) {
+				StringBuffer stringBuffer = new StringBuffer();
+				if(now.compareTo(task.getReportTime())>0) {	//当前时间大于出报告时间
+					String nowDate = sdf.format(task.getReportTime());
+					if((userObj.getUsertype()==2 && task.getStatus()==4) || (userObj.getUsertype()!=2)) {	//登录用户是广告主且通过审核  或者登录用户是群邑
+						TaskDownload durationMonitor = new TaskDownload();
+						stringBuffer.append(nowDate);
+						stringBuffer.append("	");
+						stringBuffer.append(MonitorTaskType.DURATION_MONITOR.getText());
+						stringBuffer.append("报告");
+						durationMonitor.setKey(stringBuffer.toString());
+						durationMonitor.setValue(task.getActivityId());
+						taskDownloadsExcel.add(durationMonitor);
+					}
+				}
+			}
+			model.addAttribute("durationMonitor_show",taskDownloadsExcel);
+		}
+		
+		//遍历追加监测
+		if(zhuijiaList!= null && zhuijiaList.size()>0) {
+			List<TaskDownload> zhuijiaExcel = new ArrayList<>();
+			for(AdMonitorTask task : zhuijiaList) {
+				StringBuffer stringBuffer = new StringBuffer();
+				if(now.compareTo(task.getReportTime())>0) {	//当前时间大于出报告时间
+					String nowDate = sdf.format(task.getReportTime());
+					if((userObj.getUsertype()==2 && task.getStatus()==4) || (userObj.getUsertype()!=2)) {	//登录用户是广告主且通过审核  或者登录用户是群邑
+						TaskDownload zhuijiaMonitor = new TaskDownload();
+						stringBuffer.append(nowDate);
+						stringBuffer.append("	");
+						stringBuffer.append(MonitorTaskType.ZHUIJIA_MONITOR.getText());
+						stringBuffer.append("报告");
+						zhuijiaMonitor.setKey(stringBuffer.toString());
+						zhuijiaMonitor.setValue(task.getActivityId());
+						zhuijiaExcel.add(zhuijiaMonitor);
+					}
+				}
+			}
+			model.addAttribute("zhuijiaMonitor_show",zhuijiaExcel);
+		}
+		return PageConst.SELECT_ALL_TASKS;
+	}
+	
+	//Pdf导出任务列表报告
+	@RequestMapping(value="/selectTasksToPdf")
+	public String selectTasksToPdf(Model model,HttpServletRequest request, HttpServletResponse response,
+			@RequestParam(value = "activityId", required = false) Integer activityId) {
+		SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+		Date now = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		
+		//查询所有任务列表
+		List<AdMonitorTask> list = adMonitorTaskService.getAllTasksByActivityId(activityId);
+		//所有投放期间监测任务列表
+		List<AdMonitorTask> durationList = new ArrayList<>();
+		//所有追加监测列表
+		List<AdMonitorTask> zhuijiaList = new ArrayList<>();
+		for(AdMonitorTask task : list) {
+			StringBuffer stringBuffer = new StringBuffer();
+			if(now.compareTo(task.getReportTime())>0) {	//当前时间大于出报告时间
+				String nowDate = sdf.format(task.getReportTime());
+				if((userObj.getUsertype()==2 && task.getStatus()==4) || (userObj.getUsertype()!=2)) {	//登录用户是广告主且通过审核  或者登录用户是群邑
+					if(task.getTaskType()==MonitorTaskType.UP_TASK.getId()) {	//5 上刊任务
+						TaskDownload upTask = new TaskDownload();
+						stringBuffer.append(nowDate);
+						stringBuffer.append("	");
+						stringBuffer.append(MonitorTaskType.UP_TASK.getText());
+						stringBuffer.append("报告");
+						upTask.setKey(stringBuffer.toString());
+						upTask.setValue(task.getActivityId());
+						model.addAttribute("upTask_show",upTask);
+					}else if(task.getTaskType()==MonitorTaskType.UP_MONITOR.getId()) {	//1 上刊监测
+						TaskDownload upMonitor = new TaskDownload();
+						stringBuffer.append(nowDate);
+						stringBuffer.append("	");
+						stringBuffer.append(MonitorTaskType.UP_MONITOR.getText());
+						stringBuffer.append("报告");
+						upMonitor.setKey(stringBuffer.toString());
+						upMonitor.setValue(task.getActivityId());
+						model.addAttribute("upMonitor_show",upMonitor);
+					}else if(task.getTaskType()==MonitorTaskType.DOWNMONITOR.getId()) {	//3 下刊监测
+						TaskDownload downMonitor = new TaskDownload();
+						stringBuffer.append(nowDate);
+						stringBuffer.append("	");
+						stringBuffer.append(MonitorTaskType.DOWNMONITOR.getText());
+						stringBuffer.append("报告");
+						downMonitor.setKey(stringBuffer.toString());
+						downMonitor.setValue(task.getActivityId());
+						model.addAttribute("downMonitor_show",downMonitor);
+					}else if(task.getTaskType()==MonitorTaskType.DURATION_MONITOR.getId()) {  //2 投放期间监测
+						durationList.add(task);
+					}else if(task.getTaskType()==MonitorTaskType.ZHUIJIA_MONITOR.getId()) {  //6 追加监测
+						zhuijiaList.add(task);
+					}
+				}
+			}
+		}
+		
+		//遍历投放期间监测
+		if(durationList != null && durationList.size()>0) {
+			List<TaskDownload> taskDownloadsPdf = new ArrayList<>();
+			for(AdMonitorTask task : durationList) {
+				StringBuffer stringBuffer = new StringBuffer();
+				if(now.compareTo(task.getReportTime())>0) {	//当前时间大于出报告时间
+					String nowDate = sdf.format(task.getReportTime());
+					if((userObj.getUsertype()==2 && task.getStatus()==4) || (userObj.getUsertype()!=2)) {	//登录用户是广告主且通过审核  或者登录用户是群邑
+						TaskDownload durationMonitor = new TaskDownload();
+						stringBuffer.append(nowDate);
+						stringBuffer.append("	");
+						stringBuffer.append(MonitorTaskType.DURATION_MONITOR.getText());
+						stringBuffer.append("报告");
+						durationMonitor.setKey(stringBuffer.toString());
+						durationMonitor.setValue(task.getActivityId());
+						taskDownloadsPdf.add(durationMonitor);
+					}
+				}
+			}
+			model.addAttribute("durationMonitor_show",taskDownloadsPdf);
+		}
+		
+		//遍历追加监测
+		if(zhuijiaList!= null && zhuijiaList.size()>0) {
+			List<TaskDownload> zhuijiaPdf = new ArrayList<>();
+			for(AdMonitorTask task : zhuijiaList) {
+				StringBuffer stringBuffer = new StringBuffer();
+				if(now.compareTo(task.getReportTime())>0) {	//当前时间大于出报告时间
+					String nowDate = sdf.format(task.getReportTime());
+					if((userObj.getUsertype()==2 && task.getStatus()==4) || (userObj.getUsertype()!=2)) {	//登录用户是广告主且通过审核  或者登录用户是群邑
+						TaskDownload zhuijiaMonitor = new TaskDownload();
+						stringBuffer.append(nowDate);
+						stringBuffer.append("	");
+						stringBuffer.append(MonitorTaskType.ZHUIJIA_MONITOR.getText());
+						stringBuffer.append("报告");
+						zhuijiaMonitor.setKey(stringBuffer.toString());
+						zhuijiaMonitor.setValue(task.getActivityId());
+						zhuijiaPdf.add(zhuijiaMonitor);
+					}
+				}
+			}
+			model.addAttribute("zhuijiaMonitor_show",zhuijiaPdf);
+		}
+		return PageConst.SELECT_TASKPDF;
 	}
 }

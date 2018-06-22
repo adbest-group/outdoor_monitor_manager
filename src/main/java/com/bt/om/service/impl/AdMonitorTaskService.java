@@ -1028,4 +1028,14 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	public AdMonitorTask getActivityId(int id) {
 		return adMonitorTaskMapper.selectByPrimaryKey(id);
 	}
+
+	@Override
+	public List<AdMonitorTask> getAllTasksByActivityId(Integer activityId) {
+		return adMonitorTaskMapper.getAllTasksByActivityId(activityId);
+	}
+
+	@Override
+	public List<AdMonitorTask> newSelectLatestMonitorTaskIds(Map<String, Object> searchMap) {
+		return adMonitorTaskMapper.newSelectLatestMonitorTaskIds(searchMap);
+	}
 }

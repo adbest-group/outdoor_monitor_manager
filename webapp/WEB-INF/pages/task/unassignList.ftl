@@ -30,7 +30,7 @@
                             <option value="2" <#if (bizObj.queryMap.status?exists&&bizObj.queryMap.status=="2")>selected</#if> >待执行</option>
                             <option value="8" <#if (bizObj.queryMap.status?exists&&bizObj.queryMap.status=="8")>selected</#if> >可抢单</option>
                         </select>
-                    </div>
+                    </div><br/><br/>
                     <div class="ll inputs-date">
                         <#--<input class="ui-date-button" type="button" value="昨天" alt="-1" name="">-->
                         <#--<input class="ui-date-button" type="button" value="近7天" alt="-6" name="">-->

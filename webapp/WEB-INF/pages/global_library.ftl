@@ -296,6 +296,26 @@
 	</#if>
 </#macro>
 
+<#-- 用户站内信是否处理下拉选项  -->
+<#macro showUserMessageFinishList value="-1">
+	<#local list = vm.getAllUserMessageFinishText() />
+    <#if (list?exists && list?size > 0)>
+		<#list list as res>
+			<@showOption value="${res.id?if_exists}" title="${res.text?if_exists}" select="${value?if_exists}" />
+		</#list>
+	</#if>
+</#macro>
+
+<#-- 用户站内信类别下拉选项  -->
+<#macro showUserMessageTypeList value="-1">
+	<#local list = vm.getAllUserMessageTypeText() />
+    <#if (list?exists && list?size > 0)>
+		<#list list as res>
+			<@showOption value="${res.id?if_exists}" title="${res.text?if_exists}" select="${value?if_exists}" />
+		</#list>
+	</#if>
+</#macro>
+
 <#-- 所有活动下拉选项  -->
 <#macro showAllActivityOps value="-1">
 	<#local list = vm.getAllActivity() />
@@ -379,6 +399,16 @@
 <#-- 所有可用客户下拉选项  -->
 <#macro showAllCustomerAvailableOps value="-1">
 	<#local list = vm.getAllCustomerAvailable() />
+	<#if (list?exists && list?size > 0)>
+		<#list list as type>
+			<@showOption value="${type.id?if_exists}" title="${type.realname?if_exists}" select="${value?if_exists}" />
+		</#list>
+	</#if>
+</#macro>
+
+<#-- 所有可用客户下拉选项  -->
+<#macro showAllCustomerOps value="-1">
+	<#local list = vm.getAllCustomerByUserType() />
 	<#if (list?exists && list?size > 0)>
 		<#list list as type>
 			<@showOption value="${type.id?if_exists}" title="${type.realname?if_exists}" select="${value?if_exists}" />

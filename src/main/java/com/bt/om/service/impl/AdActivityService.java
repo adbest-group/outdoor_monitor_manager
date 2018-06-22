@@ -195,8 +195,9 @@ public class AdActivityService implements IAdActivityService {
     @Override
     public void modify(AdActivityVo adActivityVo, String activeSeat) {
     	Date now = new Date();
+    	AdActivity adActivity = adActivityMapper.selectByPrimaryKey(adActivityVo.getId());
     	
-    	SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivityVo.getUserId()); //获取活动所属广告主的信息
+    	SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivity.getUserId()); //获取活动所属广告主的信息
     	
         //保存活动
         adActivityMapper.updateByPrimaryKeySelective((AdActivity) adActivityVo);

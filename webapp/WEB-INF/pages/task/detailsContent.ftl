@@ -160,20 +160,20 @@
                                     提交照片：</br>
                                 <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
                                      <img style="vertical-align: top;width:350px" src="${item.picUrl1!""}"></img>
-                                     <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=1&&vo.status!=7&&vo.status!=8)> <input type="button" id="changePic1" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if></#if>
+                                     <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=7&&vo.status!=8)> <input type="button" id="changePic1" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if></#if>
                                 </div>
                                 <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
                                     <img style="vertical-align: top;width:350px"" src="${item.picUrl2!""}"></img>
-                                    <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=1&&vo.status!=7&&vo.status!=8)><input type="button" id="changePic2" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if></#if>
+                                    <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=7&&vo.status!=8)><input type="button" id="changePic2" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if></#if>
                                 </div> 
                                 </br>
                                 <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
                                     <img style="vertical-align: top;width:350px"" src="${item.picUrl3!""}"></img>
-                                    <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=1&&vo.status!=7&&vo.status!=8)><input type="button" id="changePic3" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if></#if>
+                                    <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=7&&vo.status!=8)><input type="button" id="changePic3" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if></#if>
                                 </div> 
                                 <div style="width: 360px;margin-bottom: 10px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
                                     <img style="vertical-align: top;width:350px"" src="${item.picUrl4!""}"></img>
-                                    <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=1&&vo.status!=7&&vo.status!=8)><input type="button" id="changePic4" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if></#if>
+                                    <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=7&&vo.status!=8)><input type="button" id="changePic4" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if></#if>
                                 </div> 
                                 </p>
                                 <p><br/>

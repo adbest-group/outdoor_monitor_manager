@@ -705,7 +705,7 @@ public class MonitorTaskController extends BasicController {
 		for (String taskId : taskIds) {
 			String beginRedisStr = "zhipai_" + taskId + "_begin";
 			// 放入Redis缓存处理并发
-			redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
+			redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 1, TimeUnit.SECONDS); // 设置1分钟超时时间（为了待执行的也可以修改指派）
 		}
 		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
 		result.setResultDes("指派成功");

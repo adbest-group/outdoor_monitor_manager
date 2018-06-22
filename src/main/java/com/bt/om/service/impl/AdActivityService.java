@@ -476,7 +476,7 @@ public class AdActivityService implements IAdActivityService {
             //【2】添加上刊任务的站内信
             List<Integer> taskIds = adMonitorTaskMapper.selectUpTaskIds(id); //通过活动id查询出对应的上刊任务id集合
             for (Integer monitorId : taskIds) {
-				List<Integer> reslist = sysUserResMapper.getUserId(sysUser.getId(), 2);//获取广告商下面的组id集合
+				    List<Integer> reslist = sysUserResMapper.getUserId(sysUser.getId(), 2);//获取广告商下面的组id集合
 		        Integer resId = null;
 		        for(Integer i:reslist) {
 		        	resId = sysResourcesMapper.getResId(i,2);//找到任务审核的组id

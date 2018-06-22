@@ -809,5 +809,9 @@ public class AdActivityService implements IAdActivityService {
 		return adActivityMapper.selectByPrimaryKey(activityId);
 	}
 
+	@Override
+	public List<AdActivityAdseatTaskVo> newSelectAdActivityAdseatTaskReport(Map<String, Object> searchMap) {
+		return adActivityAdseatMapper.newSelectAdActivityAdseatTaskReport(searchMap);
+	}
 
 }

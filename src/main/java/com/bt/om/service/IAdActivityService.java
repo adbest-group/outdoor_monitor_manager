@@ -95,5 +95,5 @@ public interface IAdActivityService {
 
 	public AdActivity getUserId(Integer activityId);
 
-
+	List<AdActivityAdseatTaskVo> newSelectAdActivityAdseatTaskReport(Map<String, Object> searchMap);
 }

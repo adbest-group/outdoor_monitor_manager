@@ -973,6 +973,25 @@ public class ExcelController extends BasicController {
 	}
 	
 	/**
+	 * 导入媒体类型模板下载
+	 */
+    @RequestMapping(value = "/downloadMediaTypeBatch")
+	@ResponseBody
+	public Model downloadMediaTypeBatch(Model model, HttpServletRequest request, HttpServletResponse response) {
+		//相关返回结果
+		ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("查询成功");
+        model = new ExtendedModelMap();
+        
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResult("/static/excel/" + "template1.zip");
+        
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+	}
+	
+	/**
 	 * 设置以媒体大类名称, 媒体小类名称为Key, AdMediaTypeVo为Value的集合
 	 * @param adMediaTypeVos
 	 * @return

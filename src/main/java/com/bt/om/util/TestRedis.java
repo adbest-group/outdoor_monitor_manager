@@ -35,5 +35,7 @@ public class TestRedis {
             System.out.println(key);
 //            jedis.del(key);
         }
+        
+        System.out.println(jedis.ttl("zhipai_262_finish"));
 	}
 }

@@ -446,6 +446,13 @@ public class CustomerActivityControl extends BasicController {
         } else {//更新
             adActivityVo.setId(new Integer(id));
             adActivityVo.setUpdateTime(now);
+//            if(customerId != null) {
+//            	//超级管理员/部门领导/活动审核部员工 帮助广告商创建的活动
+//            	adActivityVo.setUserId(customerId);
+//            } else {
+//            	//广告商自行创建的活动
+//            	adActivityVo.setUserId(user.getId());
+//            }
             adActivityService.modify(adActivityVo, activeSeat);
         }
 

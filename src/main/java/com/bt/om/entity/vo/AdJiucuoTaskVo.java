@@ -14,6 +14,8 @@ public class AdJiucuoTaskVo extends AdJiucuoTask {
     private Long city;
     private Long region;
     private Long street;
+    private String road;
+    private String location;
     private Integer activityAdseatId;
     private Integer mediaId;
     private Integer mediaTypeParentId;//媒体大类
@@ -187,5 +189,21 @@ public class AdJiucuoTaskVo extends AdJiucuoTask {
 	
 	public void setAssessorName(String assessorName) {
 		this.assessorName = assessorName;
+	}
+
+	public String getRoad() {
+		return road;
+	}
+
+	public void setRoad(String road) {
+		this.road = road;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
 	}
 }

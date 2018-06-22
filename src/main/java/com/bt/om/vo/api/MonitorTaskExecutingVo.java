@@ -37,6 +37,7 @@ public class MonitorTaskExecutingVo extends BasicVo {
     private String city;
     private Integer adCodeFlag;
     private String adCode;
+    private String road;
     
     public MonitorTaskExecutingVo(AdMonitorTaskMobileVo task){
         this.task_id = task.getId();
@@ -61,6 +62,7 @@ public class MonitorTaskExecutingVo extends BasicVo {
         this.lat = task.getLat();
         this.feedback_lat = task.getFeedbackLat();
         this.feedback_lon = task.getFeedbackLon();
+        this.road = task.getRoad();
         if(task.getStartTime() != null) {
         	this.startTime = DateUtil.dateFormate(task.getStartTime(), "yyyy-MM-dd HH:mm:ss");
         }
@@ -272,5 +274,13 @@ public class MonitorTaskExecutingVo extends BasicVo {
 	
 	public void setAdCodeFlag(Integer adCodeFlag) {
 		this.adCodeFlag = adCodeFlag;
+	}
+	
+	public String getRoad() {
+		return road;
+	}
+	
+	public void setRoad(String road) {
+		this.road = road;
 	}
 }

@@ -40,6 +40,7 @@ public class AdMonitorTaskMobileVo extends AdMonitorTask {
     private Integer adCodeFlag;
     private String adCode;
     private String memo;
+    private String road;
     
     public String getMemo() {
 		return memo;
@@ -287,5 +288,13 @@ public class AdMonitorTaskMobileVo extends AdMonitorTask {
 	
 	public void setAdCodeFlag(Integer adCodeFlag) {
 		this.adCodeFlag = adCodeFlag;
+	}
+	
+	public String getRoad() {
+		return road;
+	}
+	
+	public void setRoad(String road) {
+		this.road = road;
 	}
 }

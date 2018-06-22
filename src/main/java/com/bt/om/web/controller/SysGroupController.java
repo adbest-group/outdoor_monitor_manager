@@ -411,10 +411,15 @@ public class SysGroupController extends BasicController{
                                @RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
                                @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
                                @RequestParam(value = "province", required = false) String province,
-                               @RequestParam(value = "city", required = false) String city) throws ParseException {
+                               @RequestParam(value = "city", required = false) String city,
+                               @RequestParam(value = "userId", required = false) Integer userId) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
         SearchDataVo vo = SearchUtil.getVo();
+        
+        if(userId != null) {
+        	vo.putSearchParam("userId", userId.toString(), userId);
+        }
         
         if (activityId != null) {
             vo.putSearchParam("activityId", activityId.toString(), activityId);

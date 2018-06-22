@@ -21,13 +21,21 @@
                         <@model.showAllActivityOps value="${bizObj.queryMap.activityId?if_exists}"/>
                         </select>
                     </div> -->
+                    <div class="select-box select-box-140 un-inp-select ll">
+                        <select name="userId" class="select" id="userId">
+                            <option value="">所有广告主</option>
+                        	<@model.showAllCustomerOps value="${bizObj.queryMap.userId?if_exists}"/>
+                        </select>
+                    </div>
                     <div class="select-box select-box-100 un-inp-select ll">
                         <select class="select" name="status">
                         	<option value="">所有状态</option>
                             <@model.showActivityStatusOps value="${bizObj.queryMap.status?if_exists}" />
                         </select>
                     </div>
-                    <div class="select-box select-box-100 un-inp-select ll">
+
+                    <#-- 
+                     <div class="select-box select-box-100 un-inp-select ll">
 	                    <select style="width: 120px;height:31px;" name="mediaTypeParentId" id="mediaTypeParentId" onchange="changeMediaTypeId();">
 	                    <option value="">所有媒体大类</option>
 	                    <@model.showAllAdMediaTypeAvailableOps value="${bizObj.queryMap.mediaTypeParentId?if_exists}"/>
@@ -37,8 +45,10 @@
 	                    <select style="width: 120px;height:31px;" name="mediaTypeId" id="mediaTypeId">
 	                    	<option value="">所有媒体小类</option>
 	                    </select>
-	                </div><br/><br/>
+	                </div>
+	                 -->
 	                <#-- 城市 -->
+	                <#-- 
 					<div id="demo3" class="citys" style="float: left; font-size: 12px">
                         <p>
                                                城市： <select style="height: 30px" id="adSeatInfo-province" name="province">
@@ -47,17 +57,21 @@
     
                         </p>
                     </div>
-                    <div class="ll inputs-date">
+                     -->
+                     <#-- 
+                    <div class="ll inputs-date"> -->
                         <#--<input class="ui-date-button" type="button" value="昨天" alt="-1" name="">-->
                         <#--<input class="ui-date-button" type="button" value="近7天" alt="-6" name="">-->
                         <#--<input class="ui-date-button on" type="button" value="近30天" alt="-29" name="">-->
+                    <#-- 
                         <div class="date">
                             <input id="dts" class="Wdate" type="text" name="startDate" value="${bizObj.queryMap.startDate?if_exists}"> -
                             <input id="dt" class="Wdate" type="text" name="endDate" value="${bizObj.queryMap.endDate?if_exists}">
                         </div>
                     </div>
+                     -->
                     <button type="button" class="btn btn-red" style="margin-left:10px;" autocomplete="off" id="searchBtn">查询</button>
-                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">批量审核</button>  
+                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">批量确认</button> 
                 </form>
             </div>
         </div>
@@ -131,13 +145,17 @@
 <script type="text/javascript" src="${model.static_domain}/js/date.js"></script>
 
 <script type="text/javascript">
+
+	$('.select').searchableSelect();
+
+	<#-- 
 	changeMediaTypeId();
             $(function(){
                 $(".nav-sidebar>ul>li").on("click",function(){
                     $(".nav-sidebar>ul>li").removeClass("on");
                     $(this).addClass("on");
                 });
-            });
+            }); -->
 
     $(function(){
         $(window).resize();
@@ -147,6 +165,8 @@
         var h = $(document.body).height() - 115;
         $('.main-container').css('height', h);
     });
+    
+    <#-- 
 function changeMediaTypeId() {	
 		var mediaTypeParentId = $("#mediaTypeParentId").val();
 		if(mediaTypeParentId == "" || mediaTypeParentId.length <= 0) {
@@ -177,6 +197,9 @@ function changeMediaTypeId() {
 			}
 		});
 	}
+	 -->
+	 
+	 <#-- 
 	/*获取城市  */
     var $town = $('#demo3 select[name="street"]');
     var townFormat = function(info) {
@@ -197,6 +220,8 @@ function changeMediaTypeId() {
             });
         }
     };
+     -->
+     <#-- 
     $('#demo3').citys({
         required:false,
         province : '${province!"所有城市"}',
@@ -208,6 +233,7 @@ function changeMediaTypeId() {
         var info = api.getInfo();
         townFormat(info);
     });
+     -->
  	// 查询
     $("#searchBtn").on("click", function () {
         var strParam = "";
@@ -230,7 +256,6 @@ function changeMediaTypeId() {
             }
 
     $(function(){
-        $('.select').searchableSelect();
 
         $('.inputs-date').dateRangePicker({
             separator : ' 至 ',

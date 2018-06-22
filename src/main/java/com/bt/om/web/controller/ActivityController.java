@@ -101,7 +101,8 @@ public class ActivityController extends BasicController {
 			@RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
             @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
             @RequestParam(value = "province", required = false) String province,
-            @RequestParam(value = "city", required = false) String city) throws ParseException {
+            @RequestParam(value = "city", required = false) String city,
+            @RequestParam(value = "userId", required = false) Integer userId) throws ParseException {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
 		SearchDataVo vo = SearchUtil.getVo();
@@ -110,6 +111,10 @@ public class ActivityController extends BasicController {
 		// 获取登录的审核员工activityadmin
 		SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
 
+		if(userId != null) {
+        	vo.putSearchParam("userId", userId.toString(), userId);
+        }
+		
 		if (activityId != null) {
 			vo.putSearchParam("activityId", activityId.toString(), activityId);
 			//hhjskjskjsk

@@ -232,6 +232,20 @@ public class VMComponent {
     public String getUserMessageTypeText(int id) {	
         return MessageType.getText(id);
     }
+    
+    /**
+     * 获取用户站内信名称列表
+     **/
+    public MessageIsFinish[] getAllUserMessageFinishText() {	
+        return MessageIsFinish.values();
+    }
+    
+    /**
+     * 获取用户站内信类型的名称列表
+     **/
+    public MessageType[] getAllUserMessageTypeText() {	
+        return MessageType.values();
+    }
 
     /**
      * 获取app端用户类型列表
@@ -397,6 +411,13 @@ public class VMComponent {
      */
     public List<SysUser> getAllCustomerAvailable() {
     	return sysUserService.getAvailableByUserType(2); //2：客户账户
+    }
+    
+    /**
+     * 获取全部的客户
+     */
+    public List<SysUserVo> getAllCustomerByUserType() {
+    	return sysUserService.getAllByUserType(2); //2：客户账户
     }
     
     /***************************** 下面是工具类 ****************************************/

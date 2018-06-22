@@ -33,10 +33,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.adtime.common.lang.StringUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
-import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdMonitorTask;
-import com.bt.om.entity.AdUserMessage;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
@@ -707,7 +705,7 @@ public class MonitorTaskController extends BasicController {
 		for (String taskId : taskIds) {
 			String beginRedisStr = "zhipai_" + taskId + "_begin";
 			// 放入Redis缓存处理并发
-			redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
+			redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 1, TimeUnit.SECONDS); // 设置1分钟超时时间（为了待执行的也可以修改指派）
 		}
 		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
 		result.setResultDes("指派成功");
@@ -746,7 +744,7 @@ public class MonitorTaskController extends BasicController {
 		for (String taskId : taskIds) {
 			// 放入Redis缓存处理并发
 			String finishRedisStr = "zhipai_" + taskId + "_finish";
-			redisTemplate.opsForValue().set(finishRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
+			redisTemplate.opsForValue().set(finishRedisStr, "true", 60 * 1, TimeUnit.SECONDS); // 设置1分钟超时时间（为了待执行的也可以修改指派）
 		}
 		model.addAttribute(SysConst.RESULT_KEY, result);
 		return model;

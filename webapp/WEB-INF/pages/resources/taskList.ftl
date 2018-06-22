@@ -159,14 +159,17 @@
                             <#--<#if task.status==2><a href="javascript:assign('${task.id}')">重新指派</a></#if>-->
                                 <#if (task.status==4&&task.problemStatus?exists&&task.problemStatus==4&&(!task.subCreated?exists||task.subCreated==2))>
                                     <a href="javascript:createTask('${task.id}');">创建复查</a></#if>
+                                <#-- 
                                 <#if (task.parentId?exists&&task.parentType=1)>
-                                    <a href="/task/list?pid=${task.parentId}&ptype=1">复查配对</a></#if>
+                                    <a href="/task/list?pid=${task.parentId}&ptype=1">复查配对</a></#if> -->
                                 <#if (task.parentId?exists&&task.parentType=2)>
                                     <a href="/jiucuo/list?id=${task.parentId}">查看纠错</a></#if>
+                                <#-- 
                                 <#if (task.status==4&&task.problemStatus?exists&&task.problemStatus==4&&task.subCreated?exists&&task.subCreated==1)>
-                                    <a href="/task/list?pid=${task.id}&ptype=1">复查配对</a></#if>
+                                    <a href="/task/list?pid=${task.id}&ptype=1">复查配对</a></#if> -->
+                                <#-- 
                                 <#if (task.status==4 && task.problemStatus?exists&&task.problemStatus==4)><a
-                                        href="javascript:close('${task.id}')">关闭</a></#if>
+                                        href="javascript:close('${task.id}')">关闭</a></#if> -->
                                 <#if task.status==3><a href="javascript:pass('${task.id}')">通过</a></#if>
                                 <#if task.status==3><a href="javascript:reject('${task.id}')">拒绝</a></#if>
                                 <a href="/task/details?task_Id=${task.id}">详情</a>

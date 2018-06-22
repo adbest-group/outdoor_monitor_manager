@@ -33,6 +33,7 @@ public class MonitorTaskWaitToExecutedVo extends BasicVo{
     private Integer adCodeFlag;
     private String adCode;
     private String memo;
+    private String road;
     
     public MonitorTaskWaitToExecutedVo(AdMonitorTaskMobileVo task) {
         this.task_id = task.getId();
@@ -49,6 +50,7 @@ public class MonitorTaskWaitToExecutedVo extends BasicVo{
         this.sample_url = task.getSamplePicUrl();
         this.lon = task.getLon();
         this.lat = task.getLat();
+        this.road = task.getRoad();
         if(task.getStartTime() != null) {
         	this.startTime = DateUtil.dateFormate(task.getStartTime(), "yyyy-MM-dd HH:mm:ss");
         }
@@ -251,6 +253,14 @@ public class MonitorTaskWaitToExecutedVo extends BasicVo{
 	
 	public void setAdCodeFlag(Integer adCodeFlag) {
 		this.adCodeFlag = adCodeFlag;
+	}
+	
+	public String getRoad() {
+		return road;
+	}
+	
+	public void setRoad(String road) {
+		this.road = road;
 	}
 	
 }

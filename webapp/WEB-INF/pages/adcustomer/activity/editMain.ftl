@@ -847,6 +847,7 @@
           // 投放期间监测报告时间的校验
           $('.durationMonitor-Wdate').each(function(index){
         	  $(this).formValidator({
+        	  	   empty:true,
                    validatorGroup: '2',
                    tipID:"durationMonitorTaskTimeTip" + index,
                    onShow:"",
@@ -935,6 +936,7 @@
         	
        		$('.durationMonitor-Wdate').each(function(index){
         	  $(this).formValidator({
+        	  	   empty:true,
                    validatorGroup: '2',
                    tipID:"durationMonitorTaskTimeTip" + index,
                    onShow:"",

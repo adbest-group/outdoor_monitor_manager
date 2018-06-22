@@ -467,6 +467,7 @@
 		c.city info_city,
 		c.region info_region,
 		c.street info_street,
+		c.road info_road,
 		c.location info_location,
 		c.ad_size info_adSize,
 		c.lon info_lon,

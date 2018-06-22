@@ -207,8 +207,7 @@
                 activity_id = #{activityId,jdbcType=INTEGER},
             </if>
             <if test="activityAdseatId != null">
-                activity_adseat_id =
-                #{activityAdseatId,jdbcType=INTEGER},
+                activity_adseat_id = #{activityAdseatId,jdbcType=INTEGER},
             </if>
             <if test="taskType != null">
                 task_type = #{taskType,jdbcType=INTEGER},
@@ -253,7 +252,7 @@
                 assignor_id = #{assignorId,jdbcType=INTEGER},
             </if>
             <if test="assignorTime != null">
-            	assignor_time = #{assignorTime,jdbcType=TIMESTAMP}
+            	assignor_time = #{assignorTime,jdbcType=TIMESTAMP},
             </if>
             <if test="reportTime != null">
             	report_time = #{reportTime,jdbcType=TIMESTAMP}
@@ -371,6 +370,7 @@
         <result column="city" jdbcType="BIGINT" property="city"/>
         <result column="region" jdbcType="BIGINT" property="region"/>
         <result column="street" jdbcType="BIGINT" property="street"/>
+        <result column="road" jdbcType="VARCHAR" property="road"/>
         <result column="start_time" jdbcType="TIMESTAMP" property="startTime"/>
         <result column="end_time" jdbcType="TIMESTAMP" property="endTime"/>
         <result column="assign_type" jdbcType="INTEGER" property="assignType"/>
@@ -730,7 +730,7 @@
     		a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time,
     		b.activity_name,
     		c.sample_pic_url,c.monitor_start,c.monitor_end,c.ad_seat_id,
-    		d.`name` as ad_seat_name, d.location as ad_seat_location, d.ad_code as ad_seat_code, d.lon, d.lat, d.region, d.street, d.province, d.city, 
+    		d.`name` as ad_seat_name, d.location as ad_seat_location, d.ad_code as ad_seat_code, d.lon, d.lat, d.region, d.street, d.province, d.city, d.road,
     		d.ad_code_flag, d.memo,
     		e.reason,e.pic_url1,e.pic_url2,e.pic_url3,e.pic_url4,e.create_time as feedback_time,
     		e.problem,e.problem_other,e.lon as feedback_lon,e.lat as feedback_lat,
@@ -812,6 +812,7 @@
     <select id="getTaskDetails" resultMap="ExtResultMap">
 		select
 			task.id,task.parent_id,task.parent_type,task.task_type,task.monitor_date,task.monitor_last_days,task.status,
+			task.report_time,
 			activity.`activity_name`,
 			activity.`start_time`, 
 			activity.`end_time`, 
@@ -1340,6 +1341,7 @@
 			left join sys_user_execute c on c.id = a.user_id
 			where 
 				a.activity_id = #{activityId,jdbcType=INTEGER} and a.activity_adseat_id = #{activityAdseatId,jdbcType=INTEGER}
+				and a.status = 4
 			order by b.create_time desc
 		) as t
 		group by monitor_task_id
@@ -1362,4 +1364,13 @@
 	    	problem_status = 2
     	where id = #{id,jdbcType=INTEGER}
     </update>
+
+    <!-- 查询出某活动的所有上刊任务的id集合 -->
+    <select id="selectUpTaskIds" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+    	select
+    		id
+    	from ad_monitor_task
+    	where task_type = 5 and activity_id = #{activityId,jdbcType=INTEGER}
+    </select>
+    
 </mapper>

@@ -929,6 +929,8 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	public void updatePicUrl(Integer id, String picUrl, Integer index) {
 		Map<String, Object> searchMap = new HashMap<>();
 		searchMap.put("id", id);
+		
+		//[1] 替换反馈表中的图片
 		if(index == 1) {
 			searchMap.put("picUrl1", picUrl);
 			adMonitorTaskFeedbackMapper.updatePicUrl1(searchMap);
@@ -942,7 +944,11 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 			searchMap.put("picUrl4", picUrl);
 			adMonitorTaskFeedbackMapper.updatePicUrl4(searchMap);
 		}
-  }
+		
+		//[2] 更新主任务表的状态
+		AdMonitorTaskFeedback taskFeedback = adMonitorTaskFeedbackMapper.selectByPrimaryKey(id);
+		adMonitorTaskMapper.changeStatusAndproblemStatus(taskFeedback.getMonitorTaskId());
+	}
 
 	 /**
 	  * 批量插入追加监测任务

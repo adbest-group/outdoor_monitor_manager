@@ -1354,4 +1354,12 @@
     	where id = #{id,jdbcType=INTEGER}
     </update>
     
+    <!-- 替换图片时修改主任务表的状态为"审核通过", 问题状态为"无问题" -->
+    <update id="changeStatusAndproblemStatus" parameterType="java.lang.Integer" >
+    	update ad_monitor_task
+    		set
+	    	status = 4,
+	    	problem_status = 2
+    	where id = #{id,jdbcType=INTEGER}
+    </update>
 </mapper>

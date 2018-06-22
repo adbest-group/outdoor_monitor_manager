@@ -146,5 +146,7 @@ public interface AdMonitorTaskMapper {
 	List<Integer> getWaitToActivateIds(Date nowDate);
 
 	int cleanTask(AdMonitorTask task);
+	
+	int changeStatusAndproblemStatus(Integer id);
 
 }

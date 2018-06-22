@@ -39,7 +39,7 @@
 	                    <select style="width: 120px;height:31px;" name="mediaTypeId" id="mediaTypeId">
 	                    	<option value="">所有媒体小类</option>
 	                    </select>
-	                </div>
+	                </div><br/><br/>
 	                <#-- 城市 -->
 					<div id="demo3" class="citys" style="float: left; font-size: 12px">
                         <p>

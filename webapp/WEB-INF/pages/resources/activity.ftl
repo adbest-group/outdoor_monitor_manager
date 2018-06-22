@@ -27,7 +27,7 @@
                             <@model.showActivityStatusOps value="${bizObj.queryMap.status?if_exists}" />
                         </select>
                     </div>
-                     <div class="select-box select-box-100 un-inp-select ll">
+                    <div class="select-box select-box-100 un-inp-select ll">
 	                    <select style="width: 120px;height:31px;" name="mediaTypeParentId" id="mediaTypeParentId" onchange="changeMediaTypeId();">
 	                    <option value="">所有媒体大类</option>
 	                    <@model.showAllAdMediaTypeAvailableOps value="${bizObj.queryMap.mediaTypeParentId?if_exists}"/>
@@ -37,7 +37,7 @@
 	                    <select style="width: 120px;height:31px;" name="mediaTypeId" id="mediaTypeId">
 	                    	<option value="">所有媒体小类</option>
 	                    </select>
-	                </div>
+	                </div><br/><br/>
 	                <#-- 城市 -->
 					<div id="demo3" class="citys" style="float: left; font-size: 12px">
                         <p>
@@ -57,7 +57,7 @@
                         </div>
                     </div>
                     <button type="button" class="btn btn-red" style="margin-left:10px;" autocomplete="off" id="searchBtn">查询</button>
-                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">批量审核</button> 
+                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">批量审核</button>  
                 </form>
             </div>
         </div>
@@ -97,8 +97,11 @@
                             	<#if activity.status==1><a href="javascript:queren('${activity.id}','${activity.userId}')">确认</a></#if>
                                 <#if activity.status gt 0 ><a href="/activity/edit?id=${activity.id}">详情</a></#if>
                                 <#if activity.status==1><a href="javascript:del('${activity.id}')">删除</a></#if>
-                                <#if activity.status!=1&&activity.status!=4><a id="exportExcel" href="javascript:exportExcel('${activity.id}')">导出excel</a></#if>
-                                <#if activity.status!=1&&activity.status!=4><a id="exportPdf" href="javascript:exportPdf('${activity.id}')">导出pdf</a></#if>
+                               
+                                 <#if activity.status!=1&&activity.status!=4><a id="openActivityExcel" href="javascript:openActivityExcel('${activity.id}')">导出excel</a></#if>
+                                 <#if activity.status!=1&&activity.status!=4><a id="openActivityPdf" href="javascript:openActivityPdf('${activity.id}')">导出pdf</a></#if>
+                                 <#-- <#if activity.status!=1&&activity.status!=4><a id="exportExcel" href="javascript:exportExcel('${activity.id}')">导出excel</a></#if> -->
+                                <#-- <#if activity.status!=1&&activity.status!=4><a id="exportPdf" href="javascript:exportPdf('${activity.id}')">导出pdf</a></#if> --> 
                             </td>
                         </tr>
                         </#list>
@@ -514,6 +517,26 @@ function changeMediaTypeId() {
                     btn: ['确定'] //按钮
                 });
             }
+        });
+    }
+    
+    function openActivityExcel(activityId){
+    	layer.open({
+            type: 2,
+            title: '导出excel报表',
+            shade: 0.8,
+            area: ['600px', '420px'],
+            content: '/activity/selectTaskToExcel?activityId=' + activityId //iframe的url
+        });
+    }
+    
+    function openActivityPdf(activityId){
+    	layer.open({
+            type: 2,
+            title: '导出pdf报表',
+            shade: 0.8,
+            area: ['600px', '420px'],
+            content: '/activity/selectTasksToPdf?activityId=' + activityId //iframe的url
         });
     }
     

@@ -41,7 +41,7 @@
                         			<option value="">所有媒体</option> 
                         			<@model.showAllMediaOps value="${bizObj.queryMap.mediaId?if_exists}" />
                     			</select>
-                    </div> 
+                    </div>
                     
                     <div style="float: left; margin-left: 40px; font-size: 12px">
                     		  媒体大类: <select style="height: 30px" name="mediaTypeParentId" id="mediaTypeParentId" onchange="changeMediaTypeId();">

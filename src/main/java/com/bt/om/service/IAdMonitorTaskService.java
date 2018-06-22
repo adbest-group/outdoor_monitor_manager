@@ -104,4 +104,7 @@ public interface IAdMonitorTaskService {
 	public AdMonitorTask getActivityId(int id);
 
 	void insertMonitorTask(Integer activityId, List<String> seatIds, String reportTime);
+	//查询所有任务列表
+	public List<AdMonitorTask> getAllTasksByActivityId(Integer activityId);
+	public List<AdMonitorTask> newSelectLatestMonitorTaskIds(Map<String, Object> searchMap);
 }

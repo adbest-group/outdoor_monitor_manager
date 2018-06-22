@@ -147,4 +147,9 @@ public interface AdMonitorTaskMapper {
 
 	int cleanTask(AdMonitorTask task);
 
+	List<AdMonitorTask> getAllTasksByActivityId(Integer activityId);
+
+	List<AdMonitorTask> newSelectLatestMonitorTaskIds(Map<String, Object> searchMap);
+
+
 }

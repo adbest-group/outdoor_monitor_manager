@@ -99,4 +99,6 @@ public interface AdActivityAdseatMapper {
 	int deleteByActivityIds(Map<String, Object> searchMap);
 	
 	List<Integer> selectByActivityIdAndSeatIds(Map<String, Object> searchMap);
+	
+	List<AdActivityAdseatTaskVo> newSelectAdActivityAdseatTaskReport(Map<String, Object> searchMap);
 }

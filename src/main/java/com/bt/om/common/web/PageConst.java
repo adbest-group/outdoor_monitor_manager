@@ -55,7 +55,9 @@ public class PageConst {
 	public static final String DETAILS_PAGE = "task/detailsPage";
 	public static final String ALLTASK_LIST = "task/allTaskList";
 	public static final String ADD_ZHUIJIA = "task/addZhuijia";
-
+	public static final String SELECT_ALL_TASKS = "task/selectTaskToExcel";
+	public static final String SELECT_TASKPDF = "task/selectTaskToPdf";
+	
 	/*** 纠错管理 ***/
 	public static final String JIUCUO_LIST = "jiucuo/list";
 	public static final String JIUCUO_DETAIL = "jiucuo/detail";

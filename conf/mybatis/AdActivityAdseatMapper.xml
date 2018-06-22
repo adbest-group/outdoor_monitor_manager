@@ -530,6 +530,42 @@
 	WHERE a.activity_id = #{activityId,jdbcType=INTEGER}
   </select>
   
+  <!-- 新版本报表：后台excel导出和pdf导出查询活动的广告位信息 -->
+  <select id="newSelectAdActivityAdseatTaskReport" parameterType="map" resultType="com.bt.om.entity.vo.AdActivityAdseatTaskVo">
+	SELECT
+		a.id id,
+		a.monitor_start monitorStart,
+		a.monitor_end monitorEnd,
+		b.status,
+		b.problem_status problemStatus,
+		c.id info_seat_id,
+		c.name info_name,
+		c.province info_province,
+		c.city info_city,
+		c.region info_region,
+		c.street info_street,
+		c.location info_location,
+		c.ad_size info_adSize,
+		c.lon info_lon,
+		c.lat info_lat,
+		c.map_standard info_mapStandard,
+		c.ad_area info_adArea,
+		c.contact_name info_contactName,
+		c.contact_cell info_contactCell,
+		c.media_type_parent_id info_mediaTypeParentId,
+		c.media_type_id info_mediaTypeId,
+		c.unique_key info_uniqueKey,
+		c.memo info_memo,
+		d.media_name mediaName
+	from ad_activity_adseat a
+	LEFT JOIN ad_monitor_task b ON b.activity_adseat_id = a.id
+	LEFT JOIN ad_seat_info c ON a.ad_seat_id = c.id
+	LEFT JOIN ad_media d ON a.media_id = d.id
+	WHERE a.activity_id = #{activityId,jdbcType=INTEGER}
+		and b.task_type = #{taskType,jdbcType=INTEGER}
+		and b.report_time = DATE_FORMAT(#{reportTime,jdbcType=TIMESTAMP},'%Y-%m-%d')
+  </select>
+  
   <select id="selectAdSeatTaskReport" resultType="com.bt.om.entity.vo.AdActivityAdseatTaskVo" parameterType="java.lang.Integer">
   	SELECT
 		a.monitor_start monitorStart,

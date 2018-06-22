@@ -21,6 +21,12 @@
                         <@model.showAllActivityOps value="${bizObj.queryMap.activityId?if_exists}"/>
                         </select>
                     </div> -->
+                    <div class="select-box select-box-140 un-inp-select ll">
+                        <select name="userId" class="select" id="userId">
+                            <option value="">所有广告主</option>
+                        	<@model.showAllCustomerOps value="${bizObj.queryMap.userId?if_exists}"/>
+                        </select>
+                    </div>
                     <div class="select-box select-box-100 un-inp-select ll">
                         <select class="select" name="status">
                         	<option value="">所有状态</option>

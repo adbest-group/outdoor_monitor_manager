@@ -10,6 +10,22 @@
         <div class="title clearfix">
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <form id="form" method="get" action="/sysResources/messageList">
+                	
+                	<div class="select-box select-box-140 un-inp-select ll">
+                        <select name="isFinish" class="select" id="isFinish">
+                            <option value="">处理情况</option>
+                        	<@model.showUserMessageFinishList value="${bizObj.queryMap.isFinish?if_exists}"/>
+                        </select>
+                    </div>
+                    
+                    <div class="select-box select-box-140 un-inp-select ll">
+                        <select name="type" class="select" id="type">
+                            <option value="">所有类别</option>
+                        	<@model.showUserMessageTypeList value="${bizObj.queryMap.type?if_exists}"/>
+                        </select>
+                    </div>
+                
+                	<#-- 
                 	<div class="select-box select-box-100 un-inp-select ll">
                         <select class="select" name="isFinish">
                         	<option value="">是否已处理</option>
@@ -26,6 +42,7 @@
                         	<option value="4" <#if (type?exists&&type == '4')>selected</#if>>纠错审核</option>
                         </select>
                     </div>
+                     -->
                      <button type="button" class="btn btn-red" style="margin-left:10px;" id="searchBtn">查询</button>
                 </form>
             </div>
@@ -85,6 +102,8 @@
 <script type="text/javascript" src="${model.static_domain}/js/date.js"></script>
 
 <script type="text/javascript">
+	
+	$('.select').searchableSelect();
 	
     $(function(){
           $(".nav-sidebar>ul>li").on("click",function(){

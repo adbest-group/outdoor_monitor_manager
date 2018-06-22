@@ -121,6 +121,13 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             //任务未查到
             if(task == null){
                 continue;
+            } else {
+            	//任务状态不是待指派，不是可抢单，不是待执行
+            	if(task.getStatus() != MonitorTaskStatus.UNASSIGN.getId() 
+            			&& task.getStatus() != MonitorTaskStatus.TO_CARRY_OUT.getId()
+            			&& task.getStatus() != MonitorTaskStatus.CAN_GRAB.getId()) {
+            		continue;
+            	}
             }
             
             //【待执行】状态时 修改被指派人

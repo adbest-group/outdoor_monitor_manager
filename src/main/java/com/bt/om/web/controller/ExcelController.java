@@ -472,7 +472,7 @@ public class ExcelController extends BasicController {
 					list.add(vo.getInfo_lon() + ""); //经度
 					list.add(vo.getInfo_lat() + ""); //纬度
 					list.add(vo.getInfo_adNum() + "");//面数
-					list.add(MapStandardEnum.getText(vo.getInfo_mapStandard())); //地图标准（如百度，谷歌，高德）
+					list.add(vo.getInfo_mapStandard() != null ? MapStandardEnum.getText(vo.getInfo_mapStandard()) : null); //地图标准（如百度，谷歌，高德）
 					list.add(vo.getInfo_contactName()); //联系人姓名
 					list.add(vo.getInfo_contactCell()); //联系人电话
 					listString.add(list);

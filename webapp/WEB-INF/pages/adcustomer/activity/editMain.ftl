@@ -493,6 +493,7 @@
             mod_activity_seat = null;
 
             delDataArr = []
+            modDataArr = []
             
             layer.open({
                 type: 2,
@@ -1183,25 +1184,52 @@
 	
 	var checkArr = [];
 	var delDataArr = []
+	var modDataArr = []
 	
-	function addDelData(val) {
-		delDataArr.push(val)
-	}
-	
-	// 添加子页面中选中的checkbox
-	function addCheck(val){
+	function pushCheckArr(arr, val) {
 		var hasVal = true
-		var len = checkArr.length
+		var len = arr.length
 		for(var i = 0; i < len; i++){
-			if(parseInt(checkArr[i].id) === parseInt(val.id)){
+			if(parseInt(arr[i].id) === parseInt(val.id)){
 				hasVal = false
 				break;
 			}
 		}
 		// 如果原先中不存在则添加
 		if(hasVal){
-			checkArr.push(val)
+			arr.push(val)
 		}
+	}
+	
+	function addDelData(val) {
+		pushCheckArr(delDataArr, val)
+		removeModData(val.id)
+	}
+	
+	function setDelData(val) {
+		delDataArr = val
+	}
+	
+	function addModData(val) {
+		pushCheckArr(modDataArr, val)
+	}
+	
+	function setModData(val) {
+		modDataArr = val
+	}
+	
+	function removeModData(id) {
+		for(var i = 0; i < modDataArr.length; i++) {
+			if(parseInt(id) === parseInt(modDataArr[i].id)){
+				modDataArr.splice(i, 1)
+				break;
+			}
+		}
+	}
+	
+	// 添加子页面中选中的checkbox
+	function addCheck(val){
+		pushCheckArr(checkArr, val)
 	}
 	
 	// 获取所有选中的checkbox

@@ -140,4 +140,13 @@ public class AdMedia {
     public void setUserId(Integer userId) {
         this.userId = userId;
     }
+    private Integer operateId;
+
+	public Integer getOperateId() {
+		return operateId;
+	}
+
+	public void setOperateId(Integer operateId) {
+		this.operateId = operateId;
+	}
 }

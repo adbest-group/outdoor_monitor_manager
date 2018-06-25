@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
 import com.bt.om.entity.AdMonitorTask;
+import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.entity.vo.AllAdMonitorTaskVo;
@@ -148,6 +149,8 @@ public interface AdMonitorTaskMapper {
 	
 	int changeStatusAndproblemStatus(Integer id);
 
+
+	AdSeatInfo selectLonLatByMonitorTaskId(Integer id);
 
 	List<AdMonitorTask> getAllTasksByActivityId(Integer activityId);
 

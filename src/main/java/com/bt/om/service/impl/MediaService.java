@@ -2,6 +2,7 @@ package com.bt.om.service.impl;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -102,4 +103,5 @@ public class MediaService implements IMediaService {
     public AdMedia getById(Integer id) {
         return adMediaMapper.selectByPrimaryKey(id);
     }
+
 }

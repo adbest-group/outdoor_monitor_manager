@@ -312,4 +312,12 @@
    	where id = #{id,jdbcType=INTEGER}
   </update>
   
+  <!-- 查询主任务下存在的反馈数量 -->
+  <select id="selectCountByMonitorTaskId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+  	select 
+  		count(1)
+  	from ad_monitor_task_feedback
+  	where monitor_task_id = #{monitorTaskId,jdbcType=INTEGER}
+  </select>
+  
 </mapper>

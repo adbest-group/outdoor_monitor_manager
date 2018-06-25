@@ -47,7 +47,7 @@ img.demo {
 							<tr>
 								<td class="a-title"><font class="s-red">*</font>广告位名称：</td>
 								<td>
-									<input type="text" value="<#if (adSeatInfo?exists)>${adSeatInfo.name!""}</#if>" style="width: 130px;" id="name" name="name" autocomplete="off" class="form-control">
+									<input type="text" value="<#if (adSeatInfo?exists)>${(adSeatInfo.name)!}</#if>" style="width: 130px;" id="name" name="name" autocomplete="off" class="form-control">
                                     <span id="nameTip"></span>
 								</td>
 							</tr>
@@ -55,7 +55,7 @@ img.demo {
 							<#--<tr>-->
 								<#--<td class="a-title"><font class="s-red">*</font>广告位编号：</td>-->
 								<#--<td>-->
-									<#--<input type="text" style="width: 130px;" id="adCode" value="<#if (adSeatInfo?exists)>${adSeatInfo.adCode!""}</#if>" name="adCode" autocomplete="off" class="form-control">-->
+									<#--<input type="text" style="width: 130px;" id="adCode" value="<#if (adSeatInfo?exists)>${(adSeatInfo.adCode)!}</#if>" name="adCode" autocomplete="off" class="form-control">-->
                                     <#--<span id="adCodeTip"></span>-->
 								<#--</td>-->
 							<#--</tr>-->
@@ -64,7 +64,7 @@ img.demo {
 							<tr>
 	                            <td class="a-title"><font class="s-red">*</font>媒体大类：</td>
 	                            <td><input type="text" disabled style="width: 130px;" id="location" name="location"
-	                                       value="<#if (adSeatInfo?exists)>${adSeatInfo.parentName!""}</#if>"
+	                                       value="<#if (adSeatInfo?exists)>${(adSeatInfo.parentName)!}</#if>"
 	                                       autocomplete="off" class="form-control">
 	                                <span id="locationTip"></span>
 	                            </td>
@@ -73,7 +73,7 @@ img.demo {
 	                        <tr>
 	                            <td class="a-title"><font class="s-red">*</font>媒体小类：</td>
 	                            <td><input type="text" disabled style="width: 130px;" id="location" name="location"
-	                                       value="<#if (adSeatInfo?exists)>${adSeatInfo.secondName!""}</#if>"
+	                                       value="<#if (adSeatInfo?exists)>${(adSeatInfo.secondName)!}</#if>"
 	                                       autocomplete="off" class="form-control">
 	                                <span id="locationTip"></span>
 	                            </td>
@@ -158,9 +158,9 @@ img.demo {
 							<tr>
 								<td class="a-title"><font class="s-red">*</font>广告位尺寸：</td>
 								<td>
-									<input type="text" style="width: 60px;" value="<#if (adSeatInfo?exists)>${adSeatInfo.width!""}</#if>" id="width" name="width" autocomplete="off" class="form-control">
+									<input type="text" style="width: 60px;" value="<#if (adSeatInfo?exists)>${(adSeatInfo.width)!}</#if>" id="width" name="width" autocomplete="off" class="form-control">
 									*
-                                    <input type="text" style="width: 60px;" value="<#if (adSeatInfo?exists)>${adSeatInfo.height!""}</#if>" id="height" name="height" autocomplete="off" class="form-control">
+                                    <input type="text" style="width: 60px;" value="<#if (adSeatInfo?exists)>${(adSeatInfo.height)!}</#if>" id="height" name="height" autocomplete="off" class="form-control">
 
                                     <span id="widthTip"></span>
                                     <span id="heightTip"></span>
@@ -186,7 +186,7 @@ img.demo {
 							<tr>
 								<td class="a-title">广告位经度：</td>
 								<td>
-									<input type="text" style="width: 130px;" id="lon" value="<#if (adSeatInfo?exists)>${adSeatInfo.lon!""}</#if>" name="lon" autocomplete="off" class="form-control">
+									<input type="text" style="width: 130px;" id="lon" value="<#if (adSeatInfo?exists)>${(adSeatInfo.lon)!}</#if>" name="lon" autocomplete="off" class="form-control">
 
                                     <span id="lonTip"></span>
 								</td>
@@ -194,7 +194,7 @@ img.demo {
 							<tr>
 								<td class="a-title">广告位纬度：</td>
 								<td>
-									<input type="text" style="width: 130px;" id="lat" <#if (adSeatInfo?exists)>value="${adSeatInfo.lat!""}"</#if> name="lat" autocomplete="off" class="form-control">
+									<input type="text" style="width: 130px;" id="lat" value="<#if (adSeatInfo?exists)>${(adSeatInfo.lat)!}</#if>" name="lat" autocomplete="off" class="form-control">
 
                                     <span id="latTip"></span>
 								</td>
@@ -228,7 +228,7 @@ img.demo {
 							
 							<tr>
 								<td class="a-title">允许的活动数量：</td>
-								<td><input type="text" style="width: 130px;" id="multiNum" name="multiNum" value="<#if (adSeatInfo?exists)>${adSeatInfo.multiNum!""} <#else>1</#if>"
+								<td><input type="text" style="width: 130px;" id="multiNum" name="multiNum" value="<#if (adSeatInfo?exists)>${(adSeatInfo.multiNum)!} <#else>1</#if>"
 									autocomplete="off" class="form-control">
 	                                <span id="multiNumTip"></span>
 								</td>
@@ -236,7 +236,7 @@ img.demo {
 							
 							<tr>
 								<td class="a-title">联系人姓名：</td>
-								<td><input type="text" style="width: 130px;" id="contactName" name="contactName" value="<#if (adSeatInfo?exists)>${adSeatInfo.contactName!""}</#if>"
+								<td><input type="text" style="width: 130px;" id="contactName" name="contactName" value="<#if (adSeatInfo?exists)>${(adSeatInfo.contactName)!}</#if>"
 									autocomplete="off" class="form-control">
                                     <span id="contactNameTip"></span>
 								</td>
@@ -244,7 +244,7 @@ img.demo {
 							
 							<tr>
 								<td class="a-title">联系人电话：</td>
-								<td><input type="text" style="width: 130px;" id="contactCell" name="contactCell" value="<#if (adSeatInfo?exists)>${adSeatInfo.contactCell!""}</#if>"
+								<td><input type="text" style="width: 130px;" id="contactCell" name="contactCell" value="<#if (adSeatInfo?exists)>${(adSeatInfo.contactCell)!}</#if>"
 									autocomplete="off" class="form-control">
                                     <span id="contactCellTip"></span>
 								</td>
@@ -254,7 +254,7 @@ img.demo {
 								<td class="a-title"><font class="s-red">*</font>二维码：</td>
 								<td>
 									<#if (adSeatInfo?exists && adSeatInfo.adCodeUrl?exists)>
-										<img src="<#if (adSeatInfo?exists)>${adSeatInfo.adCodeUrl!""}</#if>" height="200" width="200" />
+										<img src="<#if (adSeatInfo?exists)>${(adSeatInfo.adCodeUrl)!}</#if>" height="200" width="200" />
 									</#if>
 								</td>
 							</tr>

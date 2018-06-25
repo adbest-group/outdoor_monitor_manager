@@ -133,7 +133,7 @@
                 <div class="bd">
                     <div class="submitdetails-wrap" style="font-size: 15px">
                         <#list list as item>
-                            <#if item.status!=1>
+                          <#if item.status!=1>
                             	<input type="hidden" id="selectTaskFeedBackId" value="">
                             
                                 <p>广告活动名称：${item.activityName!""}</p>
@@ -211,18 +211,127 @@
         </div>
     </div>
 </#if>
+
+<#if vo.status?exists && vo.status==1 || vo.status==2>
+    <div class="clearfix">
+        <div class="main-box">
+            <div class="bd new-active">
+                <div class="hd mt-10">
+                    <h3>提交详情</h3>
+                </div>
+                <div class="bd">
+                    <div class="submitdetails-wrap" style="font-size: 15px">
+                    	<input type="hidden" id="selectMonitorTaskId" value="${vo.id?if_exists}">
+                    		<p>替换的执行人员：</p> <br>
+							<div class="select-box select-box-100 un-inp-select ll">
+		                       	 <select class="select" name="selectMediaId" id="selectMediaId" onchange="changeMediaTypeId();">
+				                     <option value="">所有媒体</option>
+				                     <@model.showAllMediaOps value="" />
+				                 </select>
+		                    </div>
+		                    <div class="select-box select-box-100 un-inp-select ll">
+		                       	 <select class="select" name="selectMediaName" id="selectMediaName">
+				                     <option value="">媒体成员</option>
+				                 </select>
+		                    </div> 
+		                    <br><br>
+		                    
+		                    <p>执行人员做任务的经纬度：</p> <br>
+                            <div style="vertical-align: middle;display: table-cell;text-align: center;">
+	                            <table id="formValid">
+	                            	<tr>
+	                            		<td>经度：<input type="text" id="lontitude" name="lontitude"/></td>
+	                            		<td><span id="lonTip"></span></td>
+	                            	<tr>
+	                            	<tr>
+	                            		<td>&nbsp;</td>
+	                            		<td>&nbsp;</td>
+                            		</tr>
+	                            	<tr>
+	                            		<td>纬度：<input type="text" id="latitude" name="latitude"/></td>
+	                            		<td><span id="latTip"></span></td>
+	                            	</tr>
+	                            </table>
+                            </div>
+                            
+                            </br></br>
+                            <p>提交照片：</p>
+                            <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
+                                 <img style="vertical-align: top;width:350px" src=""></img>
+                                 <input type="button" class="changePic btn btn-primary" value="　更换　" onclick="checkVal(this);"/>
+                                 <input type="button" id="changePic11" style="visibility: hidden" class="changePic btn btn-primary" value="　更换　"/>
+                            </div>
+                            <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
+                                <img style="vertical-align: top;width:350px"" src=""></img>
+                                <input type="button" class="changePic btn btn-primary" value="　更换　" onclick="checkVal(this);"/>
+                                <input type="button" id="changePic22" style="visibility: hidden" class="changePic btn btn-primary" value="　更换　"/>
+                            </div> 
+                            </br>
+                            <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
+                                <img style="vertical-align: top;width:350px"" src=""></img>
+                                <input type="button" class="changePic btn btn-primary" value="　更换　" onclick="checkVal(this);"/>
+                                <input type="button" id="changePic33" style="visibility: hidden" class="changePic btn btn-primary" value="　更换　"/>
+                            </div> 
+                            <div style="width: 360px;margin-bottom: 10px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
+                                <img style="vertical-align: top;width:350px"" src=""></img>
+                                <input type="button" class="changePic btn btn-primary" value="　更换　" onclick="checkVal(this);"/>
+                                <input type="button" id="changePic44" style="visibility: hidden" class="changePic btn btn-primary" value="　更换　"/>
+                            </div> 
+                        
+                            <div style="border-bottom: 1px solid #ddd;padding-top: 20px"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</#if>
+
 </div>
 
 <script type="text/javascript"
         src="${model.static_domain}/js/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=T8nSZc6XXTiu1vm5pCwdYu1D5AIb2F1w"></script>
-
+<!-- formValidator -->
+<link type="text/css" rel="stylesheet" href="${model.static_domain}/js/formValidator/style/validator.css"></link>
+<script type="text/javascript" src="${model.static_domain}/js/formValidator/formValidator-4.0.1.js"></script>
 <script type="text/javascript">
 
 	function setFeedbackId(id){
 		$("#selectTaskFeedBackId").val(id);
 	}
-
+	
+	function checkVal(that){
+	   var lon = $('#lontitude').val();
+  	   var lat = $('#latitude').val();
+  	   var userId = $('#selectMediaName').val();
+  	  
+  	   if(lon == null || lon == "" || lon.length <= 0){
+  	  	layer.confirm("请填写经度", {
+  			icon: 2,
+  			btn: ['确定'] //按钮
+  		});
+  	  	return false;
+  	   }
+  	  
+  	  if(lat == null || lat == "" || lat.length <= 0){
+  	  	layer.confirm("请填写纬度", {
+  			icon: 2,
+  			btn: ['确定'] //按钮
+  		});
+  	  	return false;
+  	  }
+  	  
+  	  if(userId == null || userId == "" || userId.length <= 0){
+  	  	layer.confirm("请选择媒体执行人员", {
+  			icon: 2,
+  			btn: ['确定'] //按钮
+  		});
+  	  	return false;
+  	  }
+  	  $(that).next().click()
+	}
+	
     pass = function (id) {
         layer.confirm("确认审核通过？", {
             icon: 3,
@@ -286,17 +395,23 @@
         });
     }
 
+
     //更换详情图片1
 	layui.use('upload', function(){
 	  var upload = layui.upload;
-	  
+	  var elem = '#changePic1'
+	  if(document.getElementById('changePic1')){
+	  	elem = '#changePic11'
+	  }
 	  //执行实例
 	  var uploadInst = upload.render({
-	    elem: '#changePic1' //绑定元素
+	    elem: elem //绑定元素
 	    ,data: {
-		  taskFeedBackId: function() {
-		  	return $('#selectTaskFeedBackId').val()
-		  },
+
+	    	  taskFeedBackId: function() {
+		  	  return $('#selectTaskFeedBackId').val()
+		 	 },
+
 		  index : 1
 		}
 	    ,accept: 'images' //指定只允许上次文件
@@ -318,7 +433,7 @@
 	    }
 	  });
 	}); 
-	
+
 	//更换详情图片2
 	layui.use('upload', function(){
 	  var upload = layui.upload;
@@ -406,6 +521,7 @@
 	    		if(res.ret.code == 100){
 	    		layer.alert('替换成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
 	    		window.location.reload();
+	    		//window.location.href = document.referrer;	    		
 	    	} else if (res.ret.code == 101){
 	    		layer.alert(res.ret.resultDes, {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
 	    	} else if (res.ret.code == 105){
@@ -416,7 +532,183 @@
 	       layer.alert('替换失败', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
 	    }
 	  });
-	}); 
+	});
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	//更换详情图片1
+	layui.use('upload', function(){
+	  var upload = layui.upload;
+	  
+	  //执行实例
+	  var uploadInst = upload.render({
+	    elem: '#changePic11' //绑定元素
+	    ,data: {
+		  monitorTaskId: function() {
+		  	return $('#selectMonitorTaskId').val()
+		  },
+		  index : 1,
+		  lon: function() {
+		  	return $('#lontitude').val()
+		  },
+		  lat: function() {
+		  	return $('#latitude').val()
+		  },
+		  userId: function() {
+		  	return $('#selectMediaName').val()
+		  }
+		}
+	    ,accept: 'images' //指定只允许上次文件
+	    ,exts: 'jpg|jpeg|png' //指定只允许上次jpg和png格式的图片
+	    ,field: 'picFile' //设置字段名
+	    ,url: '/task/changePic' //上传接口
+	    ,done: function(res){
+	    		if(res.ret.code == 100){
+	    		layer.alert('替换成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
+	    		window.location.reload();
+	    		//window.location.href = document.referrer;	    		
+	    	} else if (res.ret.code == 101){
+	    		layer.alert(res.ret.resultDes, {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	} else if (res.ret.code == 105){
+	    		layer.alert('没有替换权限', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	}
+	    }
+	    ,error: function(res){
+	       layer.alert('替换失败', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    }
+	  });
+	});
+	
+	//更换详情图片2
+	layui.use('upload', function(){
+	  var upload = layui.upload;
+	  
+	  //执行实例
+	  var uploadInst = upload.render({
+	    elem: '#changePic22' //绑定元素
+	    ,data: {
+		  monitorTaskId: function() {
+		  	return $('#selectMonitorTaskId').val()
+		  },
+		  index : 2,
+		  lon: function() {
+		  	return $('#lontitude').val()
+		  },
+		  lat: function() {
+		  	return $('#latitude').val()
+		  },
+		  userId: function() {
+		  	return $('#selectMediaName').val()
+		  }
+		}
+	    ,accept: 'images' //指定只允许上次文件
+	    ,exts: 'jpg|jpeg|png' //指定只允许上次jpg和png格式的图片
+	    ,field: 'picFile' //设置字段名
+	    ,url: '/task/changePic' //上传接口
+	    ,done: function(res){
+	    		if(res.ret.code == 100){
+	    		layer.alert('替换成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
+	    		window.location.reload();
+	    		//window.location.href = document.referrer;	    		
+	    	} else if (res.ret.code == 101){
+	    		layer.alert(res.ret.resultDes, {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	} else if (res.ret.code == 105){
+	    		layer.alert('没有替换权限', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	}
+	    }
+	    ,error: function(res){
+	       layer.alert('替换失败', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    }
+	  });
+	});
+	
+	//更换详情图片3
+	layui.use('upload', function(){
+	  var upload = layui.upload;
+	  
+	  //执行实例
+	  var uploadInst = upload.render({
+	    elem: '#changePic33' //绑定元素
+	    ,data: {
+		  monitorTaskId: function() {
+		  	return $('#selectMonitorTaskId').val()
+		  },
+		  index : 3,
+		  lon: function() {
+		  	return $('#lontitude').val()
+		  },
+		  lat: function() {
+		  	return $('#latitude').val()
+		  },
+		  userId: function() {
+		  	return $('#selectMediaName').val()
+		  }
+		}
+	    ,accept: 'images' //指定只允许上次文件
+	    ,exts: 'jpg|jpeg|png' //指定只允许上次jpg和png格式的图片
+	    ,field: 'picFile' //设置字段名
+	    ,url: '/task/changePic' //上传接口
+	    ,done: function(res){
+	    		if(res.ret.code == 100){
+	    		layer.alert('替换成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
+	    		window.location.reload();
+	    		//window.location.href = document.referrer;	    		
+	    	} else if (res.ret.code == 101){
+	    		layer.alert(res.ret.resultDes, {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	} else if (res.ret.code == 105){
+	    		layer.alert('没有替换权限', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	}
+	    }
+	    ,error: function(res){
+	       layer.alert('替换失败', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    }
+	  });
+	});
+	
+	//更换详情图片4
+	layui.use('upload', function(){
+	  var upload = layui.upload;
+	  
+	  //执行实例
+	  var uploadInst = upload.render({
+	    elem: '#changePic44' //绑定元素
+	    ,data: {
+		  monitorTaskId: function() {
+		  	return $('#selectMonitorTaskId').val()
+		  },
+		  index : 4,
+		  lon: function() {
+		  	return $('#lontitude').val()
+		  },
+		  lat: function() {
+		  	return $('#latitude').val()
+		  },
+		  userId: function() {
+		  	return $('#selectMediaName').val()
+		  }
+		}
+	    ,accept: 'images' //指定只允许上次文件
+	    ,exts: 'jpg|jpeg|png' //指定只允许上次jpg和png格式的图片
+	    ,field: 'picFile' //设置字段名
+	    ,url: '/task/changePic' //上传接口
+	    ,done: function(res){
+	    		if(res.ret.code == 100){
+	    		layer.alert('替换成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
+	    		window.location.reload();
+	    		//window.location.href = document.referrer;	    		
+	    	} else if (res.ret.code == 101){
+	    		layer.alert(res.ret.resultDes, {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	} else if (res.ret.code == 105){
+	    		layer.alert('没有替换权限', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	}
+	    }
+	    ,error: function(res){
+	       layer.alert('替换失败', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    }
+	  });
+	});
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     $(function () {
         $(window).resize(function () {
@@ -456,5 +748,82 @@
             map.addOverlay(seatMarker);
         });
         $("#btnBack").click(function(){history.back();});
+        changeMediaTypeId();
+      <#--   $.formValidator.initConfig({ formID: "formValid", onError: function () { alert("校验没有通过，具体错误请看错误提示") } });
+        inputValid();--> 
+        
     });
+    
+    function inputValid(){
+    		//广告位经度
+        $("#lon").formValidator({
+            validatorGroup:"2",
+            onShow: "　",
+            onFocus: "请输入经度",
+            onCorrect: ""
+        }).functionValidator({
+			fun:function(val){
+				if($.trim(val).length<0)
+				    return false;
+				return true;
+			},
+			onError:"请输入经度"
+		}).inputValidator({
+            type:"number",
+            min:-180,
+            max:180,
+            onError:"经度支持 -180 ~ 180"
+        });
+        
+    	//广告位纬度
+        $("#lat").formValidator({
+            validatorGroup:"2",
+            onShow: "　",
+            onFocus: "请输入纬度",
+            onCorrect: ""
+        }).functionValidator({
+            fun:function(val){
+                if($.trim(val).length<0)
+                    return false;
+                return true;
+            },
+            onError:"请输入纬度"
+        }).inputValidator({
+            type:"number",
+            min:-90,
+            max:90,
+            onError:"纬度支持 -90 ~ 90"
+        });
+        
+    }
+    
+	function changeMediaTypeId() {
+		var selectMediaId = $("#selectMediaId").val();
+		if(selectMediaId == "" || selectMediaId.length <= 0) {
+			var option = '<option value="">媒体成员</option>';
+			$("#selectMediaName").html(option);
+			return;
+		}
+		$.ajax({
+			url : '/task/selectUserExecuteTask',
+			type : 'POST',
+			data : {"mediaId":selectMediaId},
+			dataType : "json",
+			traditional : true,
+			success : function(data) {
+				var result = data.ret;
+				if (result.code == 100) {
+					var adMediaTypes = result.result;
+					var htmlOption = '<option value="">媒体成员</option>';
+					for (var i=0; i < adMediaTypes.length;i++) { 
+						var type = adMediaTypes[i];
+						htmlOption = htmlOption + '<option value="' + type.id + '">' + type.realname + '</option>';
+					}
+						$("#selectMediaName").html(htmlOption);
+				} else {
+					alert('修改失败!');
+				}
+			}
+		});
+	}
 </script>

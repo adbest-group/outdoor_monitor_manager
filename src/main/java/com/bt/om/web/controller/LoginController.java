@@ -30,9 +30,13 @@ import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.SysMenu;
 import com.bt.om.entity.SysResources;
+import com.bt.om.entity.SysRole;
 import com.bt.om.entity.SysUser;
+import com.bt.om.entity.SysUserRole;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.log.SystemLogThread;
+import com.bt.om.mapper.SysRoleMapper;
+import com.bt.om.mapper.SysUserRoleMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.ISysGroupService;
 import com.bt.om.util.RequestUtil;
@@ -46,7 +50,10 @@ public class LoginController extends BasicController {
 
 	@Autowired
 	private ISysGroupService sysGroupService;
-	
+	@Autowired
+	private SysUserRoleMapper sysUserRoleMapper;
+	@Autowired
+	private SysRoleMapper sysRoleMapper;
     /**
      * 跳转到登录页
      *
@@ -93,6 +100,7 @@ public class LoginController extends BasicController {
             return PageConst.LOGIN_PAGE;
         }
 
+        
         // 密码必须验证
         if (StringUtils.isEmpty(user.getPassword())) {
             model.addAttribute(SysConst.RESULT_KEY, "请输入密码");
@@ -148,8 +156,19 @@ public class LoginController extends BasicController {
                     return PageConst.LOGIN_PAGE;
             	}
             }
-
+            
+            //已有账号但还未加入任何组的员工登录
+            SysUserRole userRole = sysUserRoleMapper.findRoleByUserId(findUser.getId());
+	        SysRole sysRole = sysRoleMapper.selectByPrimaryKey(userRole.getRoleId());
+	        if(sysRole.getRoleName().equals("admin")) {
+	              // 清除session中的用户信息
+	              ShiroUtils.removeAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+	              model.addAttribute(SysConst.RESULT_KEY, "该账户暂不属于任何部门，请联系部门领导");
+	              model.addAttribute("username", user.getUsername());
+	              return PageConst.LOGIN_PAGE;
+	         } 
             // ========记录日志===========
+            
             new Thread(new SystemLogThread("系统首页", "登录", user.getUsername(), getIp(), "", "", 1)).start();
         } catch (AuthenticationException ae) {
             model.addAttribute(SysConst.RESULT_KEY, "用户名或密码错误");

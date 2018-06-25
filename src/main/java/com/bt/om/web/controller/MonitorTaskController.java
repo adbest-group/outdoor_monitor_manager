@@ -34,13 +34,14 @@ import org.springframework.web.multipart.MultipartFile;
 import com.adtime.common.lang.StringUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
-import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdMediaType;
 import com.bt.om.entity.AdMonitorTask;
+
 import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.AdUserMessage;
+
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
@@ -335,7 +336,11 @@ public class MonitorTaskController extends BasicController {
 			@RequestParam(value = "mediaId", required = false) Integer mediaId,
 			@RequestParam(value = "status", required = false) Integer status,
 			@RequestParam(value = "endDate", required = false) String endDate,
-			@RequestParam(value = "name", required = false) String name) throws ParseException {
+			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
+            @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
+            @RequestParam(value = "province", required = false) String province,
+            @RequestParam(value = "city", required = false) String city) throws ParseException {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		SearchDataVo vo = SearchUtil.getVo();
 		AdMonitorTask task = new AdMonitorTask();
@@ -391,6 +396,22 @@ public class MonitorTaskController extends BasicController {
         if (name != null) {
         	name = "%" + name + "%";
             vo.putSearchParam("activityName", name, name);
+        }
+        //媒体大类
+        if (mediaTypeParentId != null) {
+            vo.putSearchParam("mediaTypeParentId", mediaTypeParentId.toString(), mediaTypeParentId);
+        }
+        //媒体小类
+        if (mediaTypeId != null) {
+        	vo.putSearchParam("mediaTypeId", mediaTypeId.toString(), mediaTypeId);
+        }
+        //省
+        if (province != null) {
+        	vo.putSearchParam("province", province.toString(), province);
+        }
+        //城市
+        if (city != null) {
+            vo.putSearchParam("city", city.toString(), city);
         }
 		List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId()); // 根据员工id查询所属组对应的所有广告商id集合
 		if (customerIds != null && customerIds.size() == 0) {
@@ -501,7 +522,11 @@ public class MonitorTaskController extends BasicController {
 			@RequestParam(value = "mediaId", required = false) Integer mediaId,
 			@RequestParam(value = "status", required = false) Integer status,
 			@RequestParam(value = "endDate", required = false) String endDate,
-			@RequestParam(value = "name", required = false) String name) throws ParseException {
+			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
+            @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
+            @RequestParam(value = "province", required = false) String province,
+            @RequestParam(value = "city", required = false) String city) throws ParseException {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		SearchDataVo vo = SearchUtil.getVo();
 		AdMonitorTask task = new AdMonitorTask();
@@ -556,6 +581,22 @@ public class MonitorTaskController extends BasicController {
         if (name != null) {
         	name = "%" + name + "%";
             vo.putSearchParam("activityName", name, name);
+        }
+        //媒体大类
+        if (mediaTypeParentId != null) {
+            vo.putSearchParam("mediaTypeParentId", mediaTypeParentId.toString(), mediaTypeParentId);
+        }
+        //媒体小类
+        if (mediaTypeId != null) {
+        	vo.putSearchParam("mediaTypeId", mediaTypeId.toString(), mediaTypeId);
+        }
+        //省
+        if (province != null) {
+        	vo.putSearchParam("province", province.toString(), province);
+        }
+        //城市
+        if (city != null) {
+            vo.putSearchParam("city", city.toString(), city);
         }
 		List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId()); // 根据员工id查询所属组对应的所有广告商id集合
 		if (customerIds != null && customerIds.size() == 0) {
@@ -738,7 +779,7 @@ public class MonitorTaskController extends BasicController {
 		for (String taskId : taskIds) {
 			String beginRedisStr = "zhipai_" + taskId + "_begin";
 			// 放入Redis缓存处理并发
-			redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
+			redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 1, TimeUnit.SECONDS); // 设置1分钟超时时间（为了待执行的也可以修改指派）
 		}
 		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
 		result.setResultDes("指派成功");
@@ -777,7 +818,7 @@ public class MonitorTaskController extends BasicController {
 		for (String taskId : taskIds) {
 			// 放入Redis缓存处理并发
 			String finishRedisStr = "zhipai_" + taskId + "_finish";
-			redisTemplate.opsForValue().set(finishRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
+			redisTemplate.opsForValue().set(finishRedisStr, "true", 60 * 1, TimeUnit.SECONDS); // 设置1分钟超时时间（为了待执行的也可以修改指派）
 		}
 		model.addAttribute(SysConst.RESULT_KEY, result);
 		return model;

@@ -195,8 +195,9 @@ public class AdActivityService implements IAdActivityService {
     @Override
     public void modify(AdActivityVo adActivityVo, String activeSeat) {
     	Date now = new Date();
+    	AdActivity adActivity = adActivityMapper.selectByPrimaryKey(adActivityVo.getId());
     	
-    	SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivityVo.getUserId()); //获取活动所属广告主的信息
+    	SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivity.getUserId()); //获取活动所属广告主的信息
     	
         //保存活动
         adActivityMapper.updateByPrimaryKeySelective((AdActivity) adActivityVo);
@@ -318,11 +319,20 @@ public class AdActivityService implements IAdActivityService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void confirm(String[] activityIds, Integer assessorId) {
+    	Date now = new Date();
     	Integer monitorTime = ConfigUtil.getInt("monitor_time"); //允许任务执行天数
         Integer auditTime = ConfigUtil.getInt("audit_time"); //允许任务审核天数
         
         SysUser auditPerson = sysUserMapper.selectByPrimaryKey(assessorId); //获取审核人的相关信息
     	
+        //【2】添加上刊任务的站内信
+        List<AdUserMessage> message = new ArrayList<>();
+        List<Integer> userIds = new ArrayList<>();
+        //查询添加站内信的用户id集合
+		userIds = sysUserMapper.getUserId(4);//超级管理员id
+		Integer dep_id = sysResourcesMapper.getUserId(2);//2：任务审核、指派部门
+		userIds.add(dep_id);
+        
     	//[4] 确认操作在业务层方法里进行循环
     	for (String actId : activityIds) {
     		Integer id = Integer.parseInt(actId);
@@ -434,9 +444,6 @@ public class AdActivityService implements IAdActivityService {
             if(tasks != null && tasks.size() > 0) {
             	adMonitorTaskMapper.insertList(tasks);
             }
-//            for (AdMonitorTask task : tasks) {
-//                adMonitorTaskMapper.insert(task);
-//            }
             
 //            //修改广告活动广告位的创建任务状态【暂时没用】
 //            for (AdActivityAdseatVo seat : seats) {
@@ -451,7 +458,7 @@ public class AdActivityService implements IAdActivityService {
             activity.setAssessorId(assessorId); //设置审核人
             adActivityMapper.updateByPrimaryKeySelective(activity); 
             
-            //修改站内信
+            //【1】修改活动相关的站内信
             Map<String, Object> searchMap = new HashMap<>();
             StringBuffer stringBuffer = new StringBuffer();
             stringBuffer.append("【");
@@ -466,7 +473,48 @@ public class AdActivityService implements IAdActivityService {
             searchMap.put("targetId", id); //活动表的id
             searchMap.put("type", MessageType.ACTIVITY_AUDIT.getId()); //1：活动确认
             adUserMessageMapper.updateUserMessage(searchMap);
+            
+            //【2】添加上刊任务的站内信
+            List<Integer> taskIds = adMonitorTaskMapper.selectUpTaskIds(id); //通过活动id查询出对应的上刊任务id集合
+            for (Integer monitorId : taskIds) {
+				    List<Integer> reslist = sysUserResMapper.getUserId(sysUser.getId(), 2);//获取广告商下面的组id集合
+		        Integer resId = null;
+		        for(Integer i:reslist) {
+		        	resId = sysResourcesMapper.getResId(i,2);//找到任务审核的组id
+		        	if(resId != null) {
+		        		break;
+		        	}
+		        }
+		        List<Integer> cuslist = sysUserResMapper.getAnotherUserId(resId, 1);//获取组下面的员工id集合
+		        
+		        List<Integer> userIdList = new ArrayList<>();
+		        userIdList.addAll(userIds);
+		        userIdList.addAll(cuslist);
+		        
+		        StringBuffer stringBufferTask = new StringBuffer();
+		        stringBufferTask.append("【");
+		        stringBufferTask.append(sysUser.getRealname());
+		        stringBufferTask.append("】广告主的【");
+		        stringBufferTask.append(adActivity.getActivityName());
+		        stringBufferTask.append("】活动的【上刊任务】待指派");
+	            
+		        for(Integer i: userIdList) {
+	            	AdUserMessage mess = new AdUserMessage();
+	            	mess.setContent(stringBufferTask.toString());
+	            	mess.setTargetId(monitorId); //任务表的id
+	            	mess.setTargetUserId(i);
+	            	mess.setIsFinish(MessageIsFinish.CONFIRMED.getId()); //0：未处理
+	            	mess.setType(MessageType.TASK_ASSIGN.getId()); //3：任务指派
+	            	mess.setCreateTime(now);
+	            	mess.setUpdateTime(now);
+	            	message.add(mess);
+	            }
+            }
 		}
+    	
+    	if(message != null && message.size() > 0) {
+        	adUserMessageMapper.insertMessage(message);
+        }
     }
 
     @Override
@@ -761,5 +809,9 @@ public class AdActivityService implements IAdActivityService {
 		return adActivityMapper.selectByPrimaryKey(activityId);
 	}
 
+	@Override
+	public List<AdActivityAdseatTaskVo> newSelectAdActivityAdseatTaskReport(Map<String, Object> searchMap) {
+		return adActivityAdseatMapper.newSelectAdActivityAdseatTaskReport(searchMap);
+	}
 
 }

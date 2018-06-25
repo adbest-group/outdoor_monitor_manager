@@ -205,6 +205,7 @@
     <if test="isFinish != null" >
       and a.is_finish = #{isFinish,jdbcType=INTEGER}
     </if>
+    order by a.update_time desc,a.id desc 
   </select>
   
   <insert id="insertMessage" parameterType="com.bt.om.entity.AdUserMessage">
@@ -242,6 +243,7 @@
     where 
     	target_id = #{targetId,jdbcType=INTEGER}
     	and type = #{type,jdbcType=INTEGER}
+    
   </update>
  
 </mapper>

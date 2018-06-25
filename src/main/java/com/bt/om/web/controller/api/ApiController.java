@@ -59,11 +59,9 @@ import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.AdPoint;
 import com.bt.om.entity.AdSeatInfo;
-import com.bt.om.entity.AdUserMessage;
 import com.bt.om.entity.AdUserPoint;
 import com.bt.om.entity.AdVersion;
 import com.bt.om.entity.City;
-import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AbandonTaskVo;
 import com.bt.om.entity.vo.ActivityMobileReportVo;
@@ -357,9 +355,9 @@ public class ApiController extends BasicController {
         try {
         	List<AdJiucuoTask> jiucuoTasks = new ArrayList<>();
             List<AdActivityAdseatVo> list = null;
-            List<AdActivityAdseatVo> list1 = new ArrayList<>();
-            List<AdActivityAdseatVo> list2 = new ArrayList<>();
-            List<AdActivityAdseatVo> list3 = new ArrayList<>();
+            List<AdActivityAdseatVo> list1 = new ArrayList<>();//当前时间广告位的活动已开始
+            List<AdActivityAdseatVo> list2 = new ArrayList<>();//当前时间广告位的活动暂未开始
+            List<AdActivityAdseatVo> list3 = new ArrayList<>();//当前时间广告位的活动已结束
             if(StringUtil.isNotEmpty(seatCode)){
             	//[1] 扫描二维码调取接口
                 list = adActivityService.getActivitySeatBySeatCode(seatCode);
@@ -419,8 +417,8 @@ public class ApiController extends BasicController {
                 
             } else if(lon != null && lat != null && StringUtil.isNotEmpty(title)) {
             	//[2] 通过经纬度调取接口
-                list = adActivityService.selectVoByLonLatTitle(lon, lat, title);
-                if(list == null || list.size() == 0) {
+                list1 = adActivityService.selectVoByLonLatTitle(lon, lat, title);
+                if(list1 == null || list1.size() == 0) {
                 	result.setCode(ResultCode.RESULT_FAILURE.getCode());
                     result.setResultDes("没有查询到经纬度信息！");
                     model.addAttribute(SysConst.RESULT_KEY, result);
@@ -435,7 +433,7 @@ public class ApiController extends BasicController {
             	jiucuoTasks = adJiucuoTaskService.selectInfoByLonLatTitle(searchMap);
             	
             	//移除
-            	Iterator<AdActivityAdseatVo> iterator = list.iterator();
+            	Iterator<AdActivityAdseatVo> iterator = list1.iterator();
             	while (iterator.hasNext()) {
 					AdActivityAdseatVo adActivityAdseatVo = (AdActivityAdseatVo) iterator.next();
 					for (AdJiucuoTask task : jiucuoTasks) {
@@ -447,8 +445,8 @@ public class ApiController extends BasicController {
 				}
             } else if(StringUtil.isNotEmpty(memo)) {
             	//[3] 媒体方编号memo调取接口
-                list = adActivityService.getActivitySeatByMemo(memo);
-                if(list == null || list.size() == 0) {
+                list1 = adActivityService.getActivitySeatByMemo(memo);
+                if(list1 == null || list1.size() == 0) {
                 	result.setCode(ResultCode.RESULT_FAILURE.getCode());
                     result.setResultDes("没有查询到媒体方编号信息！");
                     model.addAttribute(SysConst.RESULT_KEY, result);
@@ -461,7 +459,7 @@ public class ApiController extends BasicController {
             	jiucuoTasks = adJiucuoTaskService.selectInfoByMemo(searchMap);
                 
             	//移除
-            	Iterator<AdActivityAdseatVo> iterator = list.iterator();
+            	Iterator<AdActivityAdseatVo> iterator = list1.iterator();
             	while (iterator.hasNext()) {
 					AdActivityAdseatVo adActivityAdseatVo = (AdActivityAdseatVo) iterator.next();
 					for (AdJiucuoTask task : jiucuoTasks) {
@@ -619,17 +617,17 @@ public class ApiController extends BasicController {
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
-        //客户登录APP, 校验appSid
-        if(userExecute.getUsertype() == 2) {
-        	System.out.println(userExecute.getAppSid());
-        	System.out.println(appSid);
-        	if(!StringUtil.equals(userExecute.getAppSid(), appSid)) {
-        		result.setCode(ResultCode.RESULT_FAILURE.getCode());
-                result.setResultDes("用户名或密码有误！");
-                model.addAttribute(SysConst.RESULT_KEY, result);
-                return model;
-        	}
-        } 
+//        //客户登录APP, 校验appSid
+//        if(userExecute.getUsertype() == 2) {
+//        	System.out.println(userExecute.getAppSid());
+//        	System.out.println(appSid);
+//        	if(!StringUtil.equals(userExecute.getAppSid(), appSid)) {
+//        		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+//                result.setResultDes("用户名或密码有误！");
+//                model.addAttribute(SysConst.RESULT_KEY, result);
+//                return model;
+//        	}
+//        } 
 
         if (useSession.get()) {
             session.setAttribute(SessionKey.SESSION_LOGIN_USER.toString(), userExecute);
@@ -2836,7 +2834,7 @@ public class ApiController extends BasicController {
     	sendSmsService.sendSms(cell, buffer.toString());
     }
 
-    //广告主首页简单报表(已做分页)
+    //【1】广告主首页简单报表(即查询广告主下面的所有活动列表)
     @RequestMapping(value = "/getActivityReport")
     @ResponseBody
     public Model getCustomerActivityReport(Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -3105,7 +3103,7 @@ public class ApiController extends BasicController {
         return model;
     }
     
-    //广告主首页简单报表 点击后查看 详细报表信息
+    //【2】广告主首页简单报表 详细报表信息(即查看某个活动下所有广告位列表以及监测任务列表, 有城市、媒体大类的筛选)
     @RequestMapping(value = "/activityDetailReport")
     @ResponseBody
     public Model activityDetailReport(Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -3116,12 +3114,12 @@ public class ApiController extends BasicController {
 
         Integer page = 1;
         Integer pageSize = 5;
-        Integer activityId = null;
         String token = null;
         Date now = new Date();
+        Integer activityId = null; //活动id
         Integer cityId = null; //城市id
         Integer mediaTypeParentId = null; //媒体大类id
-        String updateTime = null;
+        String updateTime = null; //app提交的时间, 防止分页数据可能造成的重复问题
         try {
             InputStream is = request.getInputStream();
             Gson gson = new Gson();
@@ -3174,18 +3172,20 @@ public class ApiController extends BasicController {
             searchDataVo.putSearchParam("cityId", null, cityId);
             searchDataVo.putSearchParam("mediaTypeParentId", null, mediaTypeParentId);
     		searchDataVo.putSearchParam("updateTime", null, updateTime);
-    		//设置结果集
+        	
+        	adActivityService.selectAdActivityAdseatTask(searchDataVo); //查询该活动的所有广告位以及相关监测任务信息
+            int totalCount = (int) ((searchDataVo.getCount() + pageSize - 1) / pageSize); //设置总页数
+            
+            //设置结果集
     		AppDetailReports appDetailReports = new AppDetailReports(); //总结果集
             List<AppDetailReport> notStartReport = new ArrayList<>(); //未开始的广告位结果集
-        	List<AppDetailReport> monitorReport = new ArrayList<>(); //检测中的广告位结果集
+        	List<AppDetailReport> monitorReport = new ArrayList<>(); //监测中的广告位结果集
         	List<AppDetailReport> problemReport = new ArrayList<>(); //有问题的广告位结果集
-        	
-        	adActivityService.selectAdActivityAdseatTask(searchDataVo); //查询活动的广告位
-            int totalCount = (int) ((searchDataVo.getCount() + pageSize - 1) / pageSize); //设置总页数
             
             List<?> list = searchDataVo.getList();
         	for (Object object : list) {
         		AdActivityAdseatTaskVo vo = (AdActivityAdseatTaskVo) object;
+        		
 				AppDetailReport report = new AppDetailReport();
 				report.setSeatInfoName(vo.getInfo_name()); //广告位名称
 				report.setMediaName(vo.getMediaName()); //媒体名称
@@ -3194,8 +3194,9 @@ public class ApiController extends BasicController {
 				report.setMediaTypeName(mediaTypeMap.get(vo.getInfo_mediaTypeId())); //媒体小类
 				report.setProvince(cityCache.getCityName(vo.getInfo_province())); //省
 				report.setCity(cityCache.getCityName(vo.getInfo_city())); //市
-				report.setRegion(cityCache.getCityName(vo.getInfo_region())); //区（县）
-				report.setStreet(cityCache.getCityName(vo.getInfo_street())); //街道（镇，乡）
+				report.setRegion(null); //区（县）
+				report.setStreet(null); //街道（镇，乡）
+				report.setRoad(vo.getInfo_road()); //主要路段
 				report.setLocation(vo.getInfo_location()); //详细位置
 				report.setUniqueKey(vo.getInfo_uniqueKey()); //唯一标识
 				report.setMonitorStart(DateUtil.dateFormate(vo.getMonitorStart(), "yyyy-MM-dd")); //开始监测时间
@@ -3227,19 +3228,33 @@ public class ApiController extends BasicController {
 				List<PictureVo> upPics = new ArrayList<>(); //上刊监测图片集合
 				List<PictureVo> durationPics = new ArrayList<>(); //投放期间监测图片集合
 				List<PictureVo> downPics = new ArrayList<>(); //下刊监测图片集合
+				List<PictureVo> upTaskPics = new ArrayList<>(); //上刊任务图片集合
+				List<PictureVo> zhuijiaPics = new ArrayList<>(); //追加监测图片集合
+				
 				for (PictureVo pictureVo : pictureVos) {
 					if(pictureVo.getDate() != null) {
 						//代表有人做过该任务
 						pictureVo.setTime(DateUtil.dateFormate(pictureVo.getDate(), "yyyy-MM-dd HH:mm:ss"));
 						if(StringUtil.equals(pictureVo.getTaskType(), "1")) {
+							//1：上刊监测
 							pictureVo.setTaskType("上刊监测");
 							upPics.add(pictureVo);
 						} else if(StringUtil.equals(pictureVo.getTaskType(), "2")) {
+							//2：投放期间监测
 							pictureVo.setTaskType("投放期间监测");
 							durationPics.add(pictureVo);
 						} else if(StringUtil.equals(pictureVo.getTaskType(), "3")) {
+							//3：下刊监测
 							pictureVo.setTaskType("下刊监测");
 							downPics.add(pictureVo);
+						} else if(StringUtil.equals(pictureVo.getTaskType(), "5")) {
+							//5：上刊任务
+							pictureVo.setTaskType("上刊任务");
+							upTaskPics.add(pictureVo);
+						} else if(StringUtil.equals(pictureVo.getTaskType(), "6")) {
+							//6：追加监测任务
+							pictureVo.setTaskType("追加监测");
+							zhuijiaPics.add(pictureVo);
 						}
 					}
 				}
@@ -3257,6 +3272,16 @@ public class ApiController extends BasicController {
 					report.setDownPics(downPics);
 				} else {
 					report.setDownPics(null); //方便APP展示
+				}
+				if(upTaskPics.size() > 0) {
+					report.setUpTaskPics(upTaskPics);
+				} else {
+					report.setUpTaskPics(null); //方便APP展示
+				}
+				if(zhuijiaPics.size() > 0) {
+					report.setZhuijiaPics(zhuijiaPics);
+				} else {
+					report.setZhuijiaPics(null); //方便APP展示
 				}
 				
 				if(StringUtil.equals(report.getCurrentStatus(), "监测中")) {
@@ -3286,7 +3311,7 @@ public class ApiController extends BasicController {
         return model;
     }
     
-    //广告主首页简单报表 点击后查看 详细报表信息 - 查询省市以及媒体大类
+    //【2】广告主首页简单报表详细报表信息 - 查询省市以及媒体大类（获取筛选条件用）
     @RequestMapping(value = "/getActivityCityAndMediaType")
     @ResponseBody
     public Model getActivityCityAndMediaType(Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -3476,7 +3501,6 @@ public class ApiController extends BasicController {
             return (SysUserExecute) this.sessionByRedis.getAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         }
     }
-
     
     /**
      * 根据位数生成验证码

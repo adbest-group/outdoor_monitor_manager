@@ -35,7 +35,6 @@ public class AdActivityAdseatTaskVo extends AdActivityAdseat {
     private String demoPic; //活动预览图
 	private Integer info_adNum;//面数
 	private String info_road;//主要路段
-	
     
     public String getInfo_road() {
 		return info_road;

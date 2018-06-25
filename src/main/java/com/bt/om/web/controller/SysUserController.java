@@ -47,6 +47,7 @@ public class SysUserController extends BasicController{
         SearchDataVo vo = SearchUtil.getVo();
         //查询领导名称
         if (name != null) {
+        	model.addAttribute("seachName", name);
         	name = "%" + name + "%";
             vo.putSearchParam("nameOrUsername", name, name);
         }

@@ -7,13 +7,16 @@
     <div class="main-box">
         <div class="title clearfix" style="display: block;">
             <div class="search-box search-ll" style="margin: 0 0 0 20px;display: inline-block;">
-            	<button type="button" class="btn btn-red" autocomplete="off" onclick="window.location.href='/platmedia/adseat/edit'">新增广告位</button>
+            	  <div style="width:120px;display:block;float:left">
+            	  	
+            	  </div>
 	                <#--<button type="button" class="btn btn-red" autocomplete="off"-->
 	                <#--onclick="window.location.href='/adseat/edit'">新增广告位</button>-->
 					<#--<button style="margin-left: 10px" type="button" class="btn"-->
 					<#--autocomplete="off" onclick="">批量导入</button>-->
 	                <#--<div style="border-bottom: 1px solid black; margin:10px auto"></div>-->
                 <form id="form" method="get" action="/adseat/list" style="display: inline-block;">
+              		<button type="button" style="float:left;margin-right:30px" class="btn btn-red" autocomplete="off" onclick="window.location.href='/platmedia/adseat/edit'">新增广告位</button>
                 	<!--活动搜索框-->
                      <div class="inp">
                     	<input type="text" placeholder="请输入广告位名称" value="${name?if_exists}" id="searchName" name="name">
@@ -35,15 +38,18 @@
                             <select style="height: 30px" id="adSeatInfo-street" name="street"></select> -->
                         </p>
                     </div>
+                       	<button style="margin-left: 10px" type="button" class="btn" id="batchInsert" autocomplete="off">批量导入</button>
+						<button style="margin-left: 10px" type="button" class="btn" id="downloadBatch" autocomplete="off" onclick="">模板下载</button>
+                    <br/><br/>
 
-                    <div style="float: left; margin-left: 40px; font-size: 12px">
+                    <div style="float: left;  font-size: 12px">
                         	媒体: <select style="height: 30px" name="mediaId" onchange="importEnabled()" id="selectMediaId">
                         			<option value="">所有媒体</option> 
                         			<@model.showAllMediaOps value="${bizObj.queryMap.mediaId?if_exists}" />
                     			</select>
-                    </div> 
+                    </div>
                     
-                    <div style="float: left; margin-left: 40px; font-size: 12px">
+                    <div style="float: left;margin-left: 40px; font-size: 12px">
                     		  媒体大类: <select style="height: 30px" name="mediaTypeParentId" id="mediaTypeParentId" onchange="changeMediaTypeId();">
                         <option value="">请选择媒体大类</option>
 						<@model.showAllAdMediaTypeAvailableOps value="${bizObj.queryMap.mediaTypeParentId?if_exists}"/>
@@ -56,9 +62,8 @@
                     </div>
 						<button type="button" class="btn btn-red" style="margin-left: 10px;" autocomplete="off" id="searchBtn">查询</button>
                     	<button type="button" class="btn btn-primary" style="margin-left: 10px;" autocomplete="off" id="clear">清除条件</button>
-                    	<button style="margin-left: 10px" type="button" class="btn" id="batchInsert" autocomplete="off">批量导入</button>
-						<button style="margin-left: 10px" type="button" class="btn" id="downloadBatch" autocomplete="off" onclick="">模板下载</button>
-                    
+                    	
+                 
                 </form>
             </div>
         </div>
@@ -74,8 +79,10 @@
 					   <th>广告位名称</th>
 					   <th>媒体大类</th>
 					   <th>媒体小类</th>
-					    <th>媒体主</th>
-					    <th>媒体方广告位编号</th>
+					   <th>媒体主</th>
+					   <th>广告位编号</th>
+					   <th>媒体大类</th>
+					   <th>媒体小类</th> 
 					   <th>区域</th>
 					   <th>主要路段</th>
 					   <th>广告位具体位置</th>
@@ -95,6 +102,8 @@
 							<td>${adseat.secondName!""}</td>
 							<td>${adseat.mediaName!""}</td>
 							<td>${adseat.memo!""}</td>
+							<td>${adseat.parentName}</td>
+							<td>${adseat.secondName}</td> 
 							<td>${vm.getCityName(adseat.province)!""} ${vm.getCityName(adseat.city!"")}</td>
 							<td>${adseat.road!""}</td>
 							<td>${adseat.location!""}</td>

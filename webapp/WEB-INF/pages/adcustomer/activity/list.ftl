@@ -40,7 +40,7 @@
 	                    <select style="width: 120px;height:31px;" name="mediaTypeId" id="mediaTypeId">
 	                    	<option value="">所有媒体小类</option>
 	                    </select>
-	                </div>
+	                </div><br/><br/>
 	                <#-- 城市 -->
 					<div id="demo3" class="citys" style="float: left; font-size: 12px">
                         <p>
@@ -73,6 +73,9 @@
                         <th>序号</th>
                         <th>活动名称</th>
                         <th>投放周期</th>
+                        <th>媒体大类</th>
+					    <th>媒体小类</th>
+					    <th>地区</th>
                         <th>活动状态</th>
                         <th>操作</th>
                     </tr>
@@ -85,13 +88,18 @@
                             <td>
                                 <div class="data-title w200" data-title="${activity.activityName}" data-id="${activity.id}">${activity.activityName?if_exists}</div></td>
                             <td>${activity.startTime?string('yyyy-MM-dd')} 至 ${activity.endTime?string('yyyy-MM-dd')}</td>
+                            <td>${activity.parentName!""}</td>
+                            <td>${activity.secondName!""}</td>
+                            <td>${vm.getCityName(activity.province!"")!""} ${vm.getCityName(activity.city!"")}</td>
                             <td>${vm.getActivityStatusTextWithColor(activity.status)}</td>
                             <td>
                                 <#if activity.status==1><a href="/customer/activity/edit?id=${activity.id}">修改</a></#if>
                                 <#if activity.status==2||activity.status==3><a href="/customer/activity/edit?id=${activity.id}">详情</a></#if>
                                 <#if activity.status==1><a href="javascript:del('${activity.id}')">删除</a></#if>
-                                <#if activity.status!=1&&activity.status!=4><a id="exportExcel" href="javascript:exportExcel('${activity.id}')">导出excel</a></#if>
-                                <#if activity.status!=1&&activity.status!=4><a id="exportPdf" href="javascript:exportPdf('${activity.id}')">导出pdf</a></#if>
+                                <#if activity.status!=1&&activity.status!=4><a id="openActivity" href="javascript:openActivity('${activity.id}')">导出excel</a></#if>
+                                <#if activity.status!=1&&activity.status!=4><a id="openActivityPdf" href="javascript:openActivityPdf('${activity.id}')">导出pdf</a></#if>
+                                <#-- <#if activity.status!=1&&activity.status!=4><a id="exportExcel" href="javascript:exportExcel('${activity.id}')">导出excel</a></#if> 
+                                <#if activity.status!=1&&activity.status!=4><a id="exportPdf" href="javascript:exportPdf('${activity.id}')">导出pdf</a></#if>-->
                             </td>
                         </tr>
                         </#list>
@@ -137,6 +145,27 @@
         var h = $(document.body).height() - 115;
         $('.main-container').css('height', h);
     });
+    
+          function openActivityExcel(activityId){
+    	layer.open({
+            type: 2,
+            title: '导出excel报表',
+            shade: 0.8,
+            area: ['600px', '420px'],
+            content: '/activity/selectTaskToExcel?activityId=' + activityId //iframe的url
+        });
+    }
+    
+    function openActivityPdf(activityId){
+    	layer.open({
+            type: 2,
+            title: '导出pdf报表',
+            shade: 0.8,
+            area: ['600px', '420px'],
+            content: '/activity/selectTasksToPdf?activityId=' + activityId //iframe的url
+        });
+    }
+    
     function changeMediaTypeId() {	
 		var mediaTypeParentId = $("#mediaTypeParentId").val();
 		if(mediaTypeParentId == "" || mediaTypeParentId.length <= 0) {

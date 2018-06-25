@@ -113,7 +113,9 @@ public class SysGroupService implements ISysGroupService{
          userRoleVo.setUserIds(userIds);
          Date now = new Date();
          userRoleVo.setUpdateTime(now);
-         sysUserRoleMapper.updateUserRole(userRoleVo);
+         if(userIds != null && userIds.size() > 0) {
+        	 sysUserRoleMapper.updateUserRole(userRoleVo);
+         }
          sysResourcesMapper.deleteGroup(id);
          sysUserResMapper.deleteByResId(id);
   }

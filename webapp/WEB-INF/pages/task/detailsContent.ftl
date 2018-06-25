@@ -19,6 +19,8 @@
                     <p>投放地区：${vm.getCityName(vo.province)!""} - ${vm.getCityName(vo.city!"")} - ${vo.road!""} - ${vo.location!""}</p>
                     <p>投放广告位：${vo.name!""}</p>
                     <p>监测时间段：${vo.monitorsStart?string('yyyy-MM-dd')!""} 至 ${vo.monitorsEnd?string('yyyy-MM-dd')!""}</p>
+                    <p>任务类型：${vo.monitorsStart?string('yyyy-MM-dd')!""} 至 ${vo.monitorsEnd?string('yyyy-MM-dd')!""}</p>
+                    <#if vo.reportTime?exists><p>出报告时间：${vo.reportTime?string('yyyy-MM-dd')!""}</p></#if>
                     <p>任务类型：${vm.getMonitorTaskTypeText(vo.taskType)!""}</p>
                     <p>媒体名称：${vo.mediaName!""}</p>
                     <#-- <p>投放品牌：${vo.brand!""}</p> -->

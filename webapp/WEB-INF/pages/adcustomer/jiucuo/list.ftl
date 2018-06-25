@@ -46,7 +46,7 @@
 	                    <select style="width: 120px;height:31px;" name="mediaTypeId" id="mediaTypeId">
 	                    	<option value="">所有媒体小类</option>
 	                    </select>
-	                </div>
+	                </div><br/><br/>
 	                <#-- 城市 -->
 					<div id="demo3" class="citys" style="float: left; font-size: 12px">
                         <p>
@@ -82,6 +82,8 @@
                         <th>提交时间</th>
                         <th>地区</th>
                         <th>媒体</th>
+                        <th>媒体大类</th>
+					    <th>媒体小类</th>
                         <th>广告位</th>
                         <th>状态</th>
                         <th>问题状态</th>
@@ -99,6 +101,8 @@
                             <td>${task.submitTime?string('yyyy-MM-dd HH:mm:ss')}</td>
                             <td>${vm.getCityName(task.province)!""} ${vm.getCityName(task.city!"")}</td>
                             <td>${task.mediaName!""}</td>
+                            <td>${task.parentName!""}</td>
+                            <td>${task.secondName!""}</td>
                             <td>${task.adSeatName!""}</td>
                             <td>${vm.getJiucuoTaskStatusText(task.status)}</td>
                             <td>${vm.getProblemStatusText(task.problemStatus!0)}</td>

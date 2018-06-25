@@ -29,9 +29,14 @@
       This element was generated on Tue Jan 16 19:05:23 CST 2018.
     -->
     select 
-    <include refid="Base_Column_List" />
-    from sys_role
-    where id = #{id,jdbcType=INTEGER}
+    a.id,
+	a.platform,
+	a.role_name,
+	a.desc,
+	a.create_time,
+	a.update_time
+    from sys_role a
+    where a.id = #{id,jdbcType=INTEGER}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     <!--

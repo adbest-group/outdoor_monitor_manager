@@ -228,8 +228,10 @@
         <result column="activity_name" jdbcType="VARCHAR" property="activityName"/>
         <result column="province" jdbcType="BIGINT" property="province"/>
         <result column="city" jdbcType="BIGINT" property="city"/>
-        <result column="region" jdbcType="VARCHAR" property="region"/>
-        <result column="street" jdbcType="VARCHAR" property="street"/>
+        <result column="region" jdbcType="BIGINT" property="region"/>
+        <result column="street" jdbcType="BIGINT" property="street"/>
+        <result column="road" jdbcType="VARCHAR" property="road"/>
+        <result column="location" jdbcType="VARCHAR" property="location"/>
         <result column="activity_adseat_id" jdbcType="VARCHAR" property="activityAdseatId"/>
         <result column="media_id" jdbcType="VARCHAR" property="mediaId"/>
         <result column="media_name" jdbcType="VARCHAR" property="mediaName"/>
@@ -243,6 +245,8 @@
         <result column="assessorName" jdbcType="VARCHAR" property="assessorName"/>
         <result column="media_type_parent_id" jdbcType="INTEGER" property="mediaTypeParentId"/>
         <result column="media_type_id" jdbcType="INTEGER" property="mediaTypeId"/>
+        <result column="parentName" jdbcType="VARCHAR" property="parentName"/>
+		<result column="secondName" jdbcType="VARCHAR" property="secondName"/>
     </resultMap>
 
     <resultMap id="MobileResultMap" extends="BaseResultMap" type="com.bt.om.entity.vo.AdJiucuoTaskMobileVo">
@@ -265,6 +269,8 @@
         left join ad_activity_adseat d on a.activity_id = d.activity_id and a.ad_seat_id = d.ad_seat_id
         left join ad_seat_info e on d.ad_seat_id = e.id
         left join ad_media f on d.media_id = f.id
+        left join ad_media_type h on e.media_type_parent_id=h.id
+	    left join ad_media_type i on e.media_type_id=i.id
         where 1=1
         <if test="id != null">
             and a.id = #{id,jdbcType=INTEGER}
@@ -333,7 +339,9 @@
 	        a.status,a.reason,a.problem_status,a.sub_created,a.verify_time,a.create_time, a.update_time,
 	        b.pic_url1,c.activity_name, c.start_time, c.end_time,e.province,e.city,e.region,e.street,d.id as activity_adseat_id,d.media_id,a.assessor_id,
 	        f.media_name,e.`name` as ad_seat_name,
-	        g.realname as assessorName
+	        g.realname as assessorName,
+	        h.name as parentName,
+			i.name as secondName
         from ad_jiucuo_task a
 	        left join ad_jiucuo_task_feedback b on a.id = b.jiucuo_task_id
 	        left join ad_activity c on a.activity_id = c.id
@@ -341,6 +349,8 @@
 	        left join ad_seat_info e on d.ad_seat_id = e.id
 	        left join ad_media f on d.media_id = f.id
 	        left join sys_user g on a.assessor_id = g.id
+	        left join ad_media_type h on e.media_type_parent_id=h.id
+	        left join ad_media_type i on e.media_type_id=i.id
         where 1=1
         <if test="id != null">
             and a.id = #{id,jdbcType=INTEGER}
@@ -400,9 +410,11 @@
     </select>
 
     <select id="selectVoByPrimaryKey" resultMap="ExtResultMap" parameterType="java.lang.Integer">
-    select a.id, a.activity_id, a.ad_seat_id, a.submit_time, a.user_id, a.status,a.reason,a.problem_status,a.sub_created, a.verify_time, a.create_time, a.update_time,
-    b.pic_url1,b.problem,b.problem_other,b.create_time as feedback_time,c.activity_name,e.province,e.city,e.region,e.street,d.id as activity_adseat_id,d.media_id,a.assessor_id,
-    f.media_name,e.`name` as ad_seat_name,g.realname
+    select 
+	    a.id, a.activity_id, a.ad_seat_id, a.submit_time, a.user_id, a.status,a.reason,a.problem_status,a.sub_created, a.verify_time, a.create_time, a.update_time,
+	    b.pic_url1,b.problem,b.problem_other,b.create_time as feedback_time,c.activity_name,e.province,e.city,e.region,e.street,e.road,e.location,
+	    d.id as activity_adseat_id,d.media_id,a.assessor_id,
+	    f.media_name,e.`name` as ad_seat_name,g.realname
     from ad_jiucuo_task a
     left join ad_jiucuo_task_feedback b on a.id = b.jiucuo_task_id
     left join ad_activity c on a.activity_id = c.id

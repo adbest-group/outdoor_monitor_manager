@@ -143,12 +143,19 @@ public interface AdMonitorTaskMapper {
 
 	int getTaskPageCount(HashMap<String, Object> searchMap);
 
-
 	List<Integer> getWaitToActivateIds(Date nowDate);
 
 	int cleanTask(AdMonitorTask task);
 	
 	int changeStatusAndproblemStatus(Integer id);
 
+
 	AdSeatInfo selectLonLatByMonitorTaskId(Integer id);
+
+	List<AdMonitorTask> getAllTasksByActivityId(Integer activityId);
+
+	List<AdMonitorTask> newSelectLatestMonitorTaskIds(Map<String, Object> searchMap);
+
+	List<Integer> selectUpTaskIds(@Param("activityId") Integer activityId);
+
 }

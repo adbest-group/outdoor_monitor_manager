@@ -79,7 +79,7 @@
                         
                         <!-- 与活动开始时间同步, 不能改 -->
                         <tr>
-                            <td class="a-title"><font class="s-red">*</font>上刊任务出报告时间：</td>
+                            <td class="a-title"><font class="s-red">*</font>上刊报告时间：</td>
                             <td>
                                 <div class="ll inputs-date">
                                     <div class="date">
@@ -92,7 +92,7 @@
                         
                         <!-- 1、是活动开始时间的至少m+n天以后  2、在活动结束时间之前 -->
                         <tr>
-                            <td class="a-title"><font class="s-red">*</font>上刊监测任务出报告时间：</td>
+                            <td class="a-title"><font class="s-red">*</font>上刊监测报告时间：</td>
                             <td>
                                 <div class="ll inputs-date" id="upMonitorTaskTime" >
                                     <div class="date">
@@ -105,7 +105,7 @@
                         
                         <!-- 1、是活动开始时间的至少m+n天以后  1、在活动结束时间之前  2、扩展 -->
                         <tr class='last'>
-                            <td class="a-title"><font class="s-red">*</font>投放期间监测任务出报告时间：</td>
+                            <td class="a-title"><font class="s-red">*</font>投放期间监测报告时间：</td>
                             <td>
                                 <div class="ll inputs-date durationMonitorTaskTime" id="durationTime0">
                                     <div class="date">
@@ -119,7 +119,7 @@
                         
                         <!-- 与活动结束时间同步 -->
                         <tr class='down'>
-                            <td class="a-title"><font class="s-red">*</font>下刊监测任务出报告时间：</td>
+                            <td class="a-title"><font class="s-red">*</font>下刊监测报告时间：</td>
                             <td>
                                 <div class="ll inputs-date">
                                     <div class="date">
@@ -334,7 +334,7 @@
 	    //回显时添加新的 投放期间监测任务
 		for (var i = 1; i < result.length; i++) {
 		  	var index = $('.last').length;
-	    	var str = '<tr class="last"><td class="a-title"><font class="s-red">*</font>投放期间监测任务出报告时间：</td><td><div class="ll inputs-date durationMonitorTaskTime" id="durationTime'+index+'"><div class="date"><input id="durationMonitorTaskTime'+index+'" ${editMode?string("","disabled")} class="durationMonitor-Wdate Wdate" type="text"></div></div><span style="margin-left:10px;" id="durationMonitorTaskTimeTip'+index+'"></span></td></tr>'
+	    	var str = '<tr class="last"><td class="a-title"><font class="s-red">*</font>投放期间监测报告时间：</td><td><div class="ll inputs-date durationMonitorTaskTime" id="durationTime'+index+'"><div class="date"><input id="durationMonitorTaskTime'+index+'" ${editMode?string("","disabled")} class="durationMonitor-Wdate Wdate" type="text"></div></div><span style="margin-left:10px;" id="durationMonitorTaskTimeTip'+index+'"></span></td></tr>'
 	    	$('.last:last').after(str);
 		}
 		for (var i = 0; i < result.length; i++) {
@@ -493,6 +493,7 @@
             mod_activity_seat = null;
 
             delDataArr = []
+            modDataArr = []
             
             layer.open({
                 type: 2,
@@ -812,16 +813,16 @@
         	}
         })
         
-        // 上刊监测任务出报告时间的校验
+        // 上刊监测报告时间的校验
         $('.upMonitor-Wdate').formValidator({
                validatorGroup: '2',
                tipID:"upMonitorTaskTimeTip",
                onShow:"",
-               onFocus:"请选择上刊监测任务出报告时间",
+               onFocus:"请选择上刊监测报告时间",
                onCorrect:""
            }).regexValidator({
                regExp:"^\\S+$",
-               onError:"请输入上刊监测任务出报告时间"
+               onError:"请输入上刊监测报告时间"
            }).functionValidator({
 	           	fun: function(val, ele){
 	           		// 1、是活动开始时间的至少m+n天以后  2、在活动结束时间之前
@@ -844,17 +845,18 @@
 	           	}
           })
           
-          // 投放期间监测任务出报告时间的校验
+          // 投放期间监测报告时间的校验
           $('.durationMonitor-Wdate').each(function(index){
         	  $(this).formValidator({
+        	  	   empty:true,
                    validatorGroup: '2',
                    tipID:"durationMonitorTaskTimeTip" + index,
                    onShow:"",
-                   onFocus:"请选择投放期间监测任务出报告时间",
+                   onFocus:"请选择投放期间监测报告时间",
                    onCorrect:""
                }).regexValidator({
                    regExp:"^\\S+$",
-                   onError:"请输入投放期间监测任务出报告时间"
+                   onError:"请输入投放期间监测报告时间"
                }).functionValidator({
     	           	fun: function(val, ele){
     	           		// 1、是活动开始时间的至少m+n天以后  2、在活动结束时间之前
@@ -878,7 +880,7 @@
               })
        	})
        	
-       	//添加投放期间监测任务出报告时间
+       	//添加投放期间监测报告时间
         $('#addDurationMonitor').click(function(){
 			var flag = false;
 			var durationVar = $('.durationMonitor-Wdate');
@@ -892,7 +894,7 @@
         	})
         	
         	if(flag == true){
-        		layer.confirm("请先选择投放期间监测任务出报告时间再添加", {
+        		layer.confirm("请先选择投放期间监测报告时间再添加", {
                     icon: 2,
                     btn: ['确定'] //按钮
                 });	
@@ -900,7 +902,7 @@
         	}
         	
         	var index = $('.last').length;
-        	var str = '<tr class="last"><td class="a-title"><font class="s-red">*</font>投放期间监测任务出报告时间：</td><td><div class="ll inputs-date durationMonitorTaskTime" id="durationTime'+index+'"><div class="date"><input id="durationMonitorTaskTime'+index+'" ${editMode?string("","disabled")} class="durationMonitor-Wdate Wdate" type="text"></div></div><span style="margin-left:10px;" id="durationMonitorTaskTimeTip'+index+'"></span></td></tr>'
+        	var str = '<tr class="last"><td class="a-title"><font class="s-red">*</font>投放期间监测报告时间：</td><td><div class="ll inputs-date durationMonitorTaskTime" id="durationTime'+index+'"><div class="date"><input id="durationMonitorTaskTime'+index+'" ${editMode?string("","disabled")} class="durationMonitor-Wdate Wdate" type="text"></div></div><span style="margin-left:10px;" id="durationMonitorTaskTimeTip'+index+'"></span></td></tr>'
         	$('.last:last').after(str)
         	
         	$('.durationMonitor-Wdate').each(function(index){
@@ -935,14 +937,15 @@
         	
        		$('.durationMonitor-Wdate').each(function(index){
         	  $(this).formValidator({
+        	  	   empty:true,
                    validatorGroup: '2',
                    tipID:"durationMonitorTaskTimeTip" + index,
                    onShow:"",
-                   onFocus:"请选择投放期间监测任务出报告时间",
+                   onFocus:"请选择投放期间监测报告时间",
                    onCorrect:""
                }).regexValidator({
                    regExp:"^\\S+$",
-                   onError:"请输入投放期间监测任务出报告时间"
+                   onError:"请输入投放期间监测报告时间"
                }).functionValidator({
     	           	fun: function(val, ele){
     	           		// 1、是活动开始时间的至少m+n天以后  2、在活动结束时间之前
@@ -1181,25 +1184,52 @@
 	
 	var checkArr = [];
 	var delDataArr = []
+	var modDataArr = []
 	
-	function addDelData(val) {
-		delDataArr.push(val)
-	}
-	
-	// 添加子页面中选中的checkbox
-	function addCheck(val){
+	function pushCheckArr(arr, val) {
 		var hasVal = true
-		var len = checkArr.length
+		var len = arr.length
 		for(var i = 0; i < len; i++){
-			if(parseInt(checkArr[i].id) === parseInt(val.id)){
+			if(parseInt(arr[i].id) === parseInt(val.id)){
 				hasVal = false
 				break;
 			}
 		}
 		// 如果原先中不存在则添加
 		if(hasVal){
-			checkArr.push(val)
+			arr.push(val)
 		}
+	}
+	
+	function addDelData(val) {
+		pushCheckArr(delDataArr, val)
+		removeModData(val.id)
+	}
+	
+	function setDelData(val) {
+		delDataArr = val
+	}
+	
+	function addModData(val) {
+		pushCheckArr(modDataArr, val)
+	}
+	
+	function setModData(val) {
+		modDataArr = val
+	}
+	
+	function removeModData(id) {
+		for(var i = 0; i < modDataArr.length; i++) {
+			if(parseInt(id) === parseInt(modDataArr[i].id)){
+				modDataArr.splice(i, 1)
+				break;
+			}
+		}
+	}
+	
+	// 添加子页面中选中的checkbox
+	function addCheck(val){
+		pushCheckArr(checkArr, val)
 	}
 	
 	// 获取所有选中的checkbox

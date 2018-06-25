@@ -14,6 +14,8 @@ public class AdJiucuoTaskVo extends AdJiucuoTask {
     private Long city;
     private Long region;
     private Long street;
+    private String road;
+    private String location;
     private Integer activityAdseatId;
     private Integer mediaId;
     private Integer mediaTypeParentId;//媒体大类
@@ -28,8 +30,27 @@ public class AdJiucuoTaskVo extends AdJiucuoTask {
     private Date endTime;
     private String assessorName;
     private Integer feedbackId;
+	private String parentName;
+	private String secondName;
     
-    public Integer getFeedbackId() {
+	
+    public String getParentName() {
+		return parentName;
+	}
+
+	public void setParentName(String parentName) {
+		this.parentName = parentName;
+	}
+
+	public String getSecondName() {
+		return secondName;
+	}
+
+	public void setSecondName(String secondName) {
+		this.secondName = secondName;
+	}
+
+	public Integer getFeedbackId() {
 		return feedbackId;
 	}
 
@@ -187,5 +208,21 @@ public class AdJiucuoTaskVo extends AdJiucuoTask {
 	
 	public void setAssessorName(String assessorName) {
 		this.assessorName = assessorName;
+	}
+
+	public String getRoad() {
+		return road;
+	}
+
+	public void setRoad(String road) {
+		this.road = road;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
 	}
 }

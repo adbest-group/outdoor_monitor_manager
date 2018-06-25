@@ -60,8 +60,7 @@
                         <option value="">所有媒体</option> <@model.showAllMediaOps
                     value="${bizObj.queryMap.mediaId?if_exists}" />
                     </select>
-                    </div>
-	               
+                    </div><br/><br/>
 					<div class="select-box select-box-100 un-inp-select ll">
 	                    <select style="width: 120px;height:31px;" name="mediaTypeParentId" id="mediaTypeParentId" onchange="changeMediaTypeId();">
 	                    <option value="">所有媒体大类</option>
@@ -120,6 +119,8 @@
                         <th>投放周期</th>
                         <th>地区</th>
                         <th>媒体</th>
+                        <th>媒体大类</th>
+					    <th>媒体小类</th>
                         <th>广告位</th>
                         <th>执行人员</th>
                         <th>任务类型</th>
@@ -146,6 +147,8 @@
                             <td>${task.startTime?string('yyyy-MM-dd')}<br/>${task.endTime?string('yyyy-MM-dd')}</td>
                             <td>${vm.getCityName(task.province)!""} ${vm.getCityName(task.city!"")}</td>
                             <td>${task.mediaName!""}</td>
+                            <td>${task.parentName!""}</td>
+                            <td>${task.secondName!""}</td>
                             <td>${task.adSeatName!""}</td>
                             <td>${task.realname!""}</td>
                             <td>${vm.getMonitorTaskTypeText(task.taskType)!""}</td>
@@ -160,14 +163,17 @@
                             <#--<#if task.status==2><a href="javascript:assign('${task.id}')">重新指派</a></#if>-->
                                 <#if (task.status==4&&task.problemStatus?exists&&task.problemStatus==4&&(!task.subCreated?exists||task.subCreated==2))>
                                     <a href="javascript:createTask('${task.id}');">创建复查</a></#if>
+                                <#-- 
                                 <#if (task.parentId?exists&&task.parentType=1)>
-                                    <a href="/task/list?pid=${task.parentId}&ptype=1">复查配对</a></#if>
+                                    <a href="/task/list?pid=${task.parentId}&ptype=1">复查配对</a></#if> -->
                                 <#if (task.parentId?exists&&task.parentType=2)>
                                     <a href="/jiucuo/list?id=${task.parentId}">查看纠错</a></#if>
+                                <#-- 
                                 <#if (task.status==4&&task.problemStatus?exists&&task.problemStatus==4&&task.subCreated?exists&&task.subCreated==1)>
-                                    <a href="/task/list?pid=${task.id}&ptype=1">复查配对</a></#if>
+                                    <a href="/task/list?pid=${task.id}&ptype=1">复查配对</a></#if> -->
+                                <#-- 
                                 <#if (task.status==4 && task.problemStatus?exists&&task.problemStatus==4)><a
-                                        href="javascript:close('${task.id}')">关闭</a></#if>
+                                        href="javascript:close('${task.id}')">关闭</a></#if> -->
                                 <#if task.status==3><a href="javascript:pass('${task.id}')">通过</a></#if>
                                 <#if task.status==3><a href="javascript:reject('${task.id}')">拒绝</a></#if>
                                 <a href="/task/details?task_Id=${task.id}">详情</a>

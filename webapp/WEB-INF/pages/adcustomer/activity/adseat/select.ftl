@@ -138,8 +138,7 @@
 	$('#endDate').val(parent.$('#dt').val());
 	$('#seatIds').val(parent.getSeatIds());
 	var count = parseInt(${count?if_exists})
-	var curr = parseInt(${start?if_exists})
-	
+	var curr = parseInt(${start?if_exists}) / 20
 	layui.use('laypage', function(){
 		var laypage = layui.laypage;
 		laypage.render({
@@ -233,16 +232,13 @@
         townFormat(info);
     });
     
-    // 存储当前筛选状态下选中的广告位
-    var modDataArr = []
-    
     $("input[name='ck-alltask']").change(function(){
 	    if(!this.value){
 	        if($(this).is(":checked")){
 	            $("input[name='ck-task']").each(function(){
 	            	if(!$(this).is(":checked")){
 		            	$(this).prop("checked",true)
-		            	modDataArr.push({
+		            	parent.addModData({
 		            		id: $(this).val(),
 	        				html: $(this).parents('tr').html().split('</td>').slice(2).join('</td>')
 		            	})
@@ -253,7 +249,10 @@
 	            	if($(this).is(":checked")){
 
 		            	$(this).removeAttr("checked");
-		            	parent.addDelData($(this).val())
+		            	parent.addDelData({
+		            		id: $(this).val(),
+	        				html: $(this).parents('tr').html().split('</td>').slice(2).join('</td>')
+		            	})
 	            	}
 	            })
 	        }
@@ -268,6 +267,8 @@
     // 选择媒体时查询
     $('#selectMediaId').change(function(){
 		$("#form").submit();
+		parent.setModData([])
+		parent.setDelData([])
     })
     
     // 选择直辖市时查询
@@ -280,22 +281,30 @@
     	// 澳门: 820000
     	if('110000,120000,310000,500000,810000,820000'.indexOf($(this).val()) >= 0){
     		$("#form").submit();
+    		parent.setModData([])
+    		parent.setDelData([])
     	}
     })
     
     // 选择城市时查询
     $('#adSeatInfo-city').change(function(){
 		$("#form").submit();
+		parent.setModData([])
+		parent.setDelData([])
     })
     
     // 选择媒体大类时查询
     $('#mediaTypeParentId').change(function(){
 		$("#form").submit();
+		parent.setModData([])
+		parent.setDelData([])
     })
     
     // 选择媒体小类时查询
     $('#mediaTypeId').change(function(){
 		$("#form").submit();
+		parent.setModData([])
+		parent.setDelData([])
     })
 
     $("input[name='ck-task']").change(function(){
@@ -303,12 +312,15 @@
         	if($("input[name='ck-task']:checked").length === $("input[name='ck-task']").length && $("input[name='ck-task']").length != 0){
         		$("input[name='ck-alltask']").prop("checked",true)
         	}
-        	modDataArr.push({
+        	parent.addModData({
         		id: $(this).val(),
         		html: $(this).parents('tr').html().split('</td>').slice(2).join('</td>')
         	})
         }else{
-        	parent.addDelData($(this).val())
+        	parent.addDelData({
+        		id: $(this).val(),
+        		html: $(this).parents('tr').html().split('</td>').slice(2).join('</td>')
+        	})
         	$("input[name='ck-alltask']").removeAttr("checked");
         }
         console.log(parent.getCheck())
@@ -323,7 +335,23 @@
 	    for(var i = 0; i < arr.length; i++){
 	    	var $el = $("input[name='ck-task'][value='"+ arr[i].id +"']")
 	    	if($el[0]){
-		    	$el.prop("checked",true)
+		    	$el.prop("checked", true)
+	    	}
+	    }
+		
+		var modArr = parent.modDataArr
+		for(var i = 0; i < modArr.length; i++){
+	    	var $el = $("input[name='ck-task'][value='"+ modArr[i].id +"']")
+	    	if($el[0]){
+		    	$el.prop("checked", true)
+	    	}
+	    }
+		var delArr = parent.delDataArr
+
+		for(var i = 0; i < delArr.length; i++){
+	    	var $el = $("input[name='ck-task'][value='"+ delArr[i].id +"']")
+	    	if($el[0]){
+		    	$el.removeAttr("checked")
 	    	}
 	    }
 		
@@ -333,16 +361,16 @@
 	}
 	
 	$('#btnSave').click(function(){
-		var len = modDataArr.length
+		var len = parent.modDataArr.length
 		var len2 = parent.delDataArr.length
 
-		for(var i = 0; i < len2; i++) {
-			parent.removeCheck(parent.delDataArr[i])
-		}
 		for(var i = 0; i < len; i++) {
-			parent.addCheck(modDataArr[i])
+			parent.addCheck(parent.modDataArr[i])
 		}
 		
+		for(var i = 0; i < len2; i++) {
+			parent.removeCheck(parent.delDataArr[i].id)
+		}
 		
 		parent.getCheckboxData()
 		//关闭当前窗口

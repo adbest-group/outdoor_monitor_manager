@@ -28,6 +28,8 @@
 	                <button type="button" class="btn btn-red" autocomplete="off" id="searchBtn">查询</button>
 	                
 	                <button style="margin-left: 10px" type="button" class="btn" id="insertBatchId" autocomplete="off">批量导入</button>
+	                
+	                <button style="margin-left: 10px" type="button" class="btn" id="downloadBatch" autocomplete="off" onclick="">模板下载</button>
                 </form>
             </div>
         </div>
@@ -142,6 +144,20 @@
     $("#searchBtn").on("click",function() {
         $("#form").submit();
     });
+    
+    // 下载模板
+    $('#downloadBatch').click(function(){
+    	$.get('/excel/downloadMediaTypeBatch', function(data){
+    		if(data.ret.code === 100) {
+    			window.open(data.ret.result)
+    		}else{
+    			layer.confirm("下载失败", {
+                    icon: 5,
+                    btn: ['确定'] //按钮
+                });
+    		}
+    	})
+    })
     
     <#-- 
     // 查询

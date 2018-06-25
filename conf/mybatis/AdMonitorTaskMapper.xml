@@ -833,7 +833,8 @@
 			`seatinfo`.`street`,
 			`seatinfo`.`location`,
 			seatinfo.name,
-			`media`.`media_name`
+			`media`.`media_name`,
+			adseat.media_id
 		from 
 			ad_monitor_task as task 
 			left join `ad_activity` as activity on task.`activity_id`=`activity`.id

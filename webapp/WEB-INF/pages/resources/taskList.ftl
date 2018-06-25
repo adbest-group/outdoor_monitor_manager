@@ -119,6 +119,8 @@
                         <th>投放周期</th>
                         <th>地区</th>
                         <th>媒体</th>
+                        <th>媒体大类</th>
+					    <th>媒体小类</th>
                         <th>广告位</th>
                         <th>执行人员</th>
                         <th>任务类型</th>
@@ -145,6 +147,8 @@
                             <td>${task.startTime?string('yyyy-MM-dd')}<br/>${task.endTime?string('yyyy-MM-dd')}</td>
                             <td>${vm.getCityName(task.province)!""} ${vm.getCityName(task.city!"")}</td>
                             <td>${task.mediaName!""}</td>
+                            <td>${task.parentName!""}</td>
+                            <td>${task.secondName!""}</td>
                             <td>${task.adSeatName!""}</td>
                             <td>${task.realname!""}</td>
                             <td>${vm.getMonitorTaskTypeText(task.taskType)!""}</td>

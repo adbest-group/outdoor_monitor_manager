@@ -30,8 +30,27 @@ public class AdJiucuoTaskVo extends AdJiucuoTask {
     private Date endTime;
     private String assessorName;
     private Integer feedbackId;
+	private String parentName;
+	private String secondName;
     
-    public Integer getFeedbackId() {
+	
+    public String getParentName() {
+		return parentName;
+	}
+
+	public void setParentName(String parentName) {
+		this.parentName = parentName;
+	}
+
+	public String getSecondName() {
+		return secondName;
+	}
+
+	public void setSecondName(String secondName) {
+		this.secondName = secondName;
+	}
+
+	public Integer getFeedbackId() {
 		return feedbackId;
 	}
 

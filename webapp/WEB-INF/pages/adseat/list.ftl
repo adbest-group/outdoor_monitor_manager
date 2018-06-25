@@ -81,8 +81,8 @@
 					   <th>媒体小类</th>
 					   <th>媒体主</th>
 					   <th>广告位编号</th>
-					   <#-- <th>媒体大类</th>
-					   <th>媒体小类</th> -->
+					   <th>媒体大类</th>
+					   <th>媒体小类</th> 
 					   <th>区域</th>
 					   <th>主要路段</th>
 					   <th>广告位具体位置</th>
@@ -102,8 +102,8 @@
 							<td>${adseat.secondName!""}</td>
 							<td>${adseat.mediaName!""}</td>
 							<td>${adseat.memo!""}</td>
-							<#-- <td>${adseat.mediaTypeParentId}</td>
-							<td>${adseat.mediaTypeId}</td> -->
+							<td>${adseat.parentName}</td>
+							<td>${adseat.secondName}</td> 
 							<td>${vm.getCityName(adseat.province)!""} ${vm.getCityName(adseat.city!"")}</td>
 							<td>${adseat.road!""}</td>
 							<td>${adseat.location!""}</td>

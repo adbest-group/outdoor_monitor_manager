@@ -12,6 +12,25 @@ public class AdActivityVo2 extends AdActivity {
     private Integer mediaTypeId;//媒体小类
 	private Long province;// 省
 	private Long city;// 市
+	private String parentName;
+	private String secondName;
+	
+	public String getParentName() {
+		return parentName;
+	}
+
+	public void setParentName(String parentName) {
+		this.parentName = parentName;
+	}
+
+	public String getSecondName() {
+		return secondName;
+	}
+
+	public void setSecondName(String secondName) {
+		this.secondName = secondName;
+	}
+
 	public String getRealName() {
 		return realName;
 	}

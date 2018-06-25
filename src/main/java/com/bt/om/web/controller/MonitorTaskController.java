@@ -26,6 +26,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,7 +36,10 @@ import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdMedia;
+import com.bt.om.entity.AdMediaType;
 import com.bt.om.entity.AdMonitorTask;
+import com.bt.om.entity.AdMonitorTaskFeedback;
+import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.AdUserMessage;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
@@ -669,6 +673,33 @@ public class MonitorTaskController extends BasicController {
 
 		return PageConst.SELECT_USER_EXECUTE;
 	}
+	
+	  
+    /**
+     * 通过媒体id查询下属的所有媒体成员
+     */
+	@RequiresRoles(value ="superadmin")
+	@RequestMapping(value = "/selectUserExecuteTask")
+	@ResponseBody
+    public Model searchMediaName(Model model,HttpServletRequest request,@RequestParam(value = "mediaId", required = false) Integer mediaId) {
+    	ResultVo resultVo = new ResultVo();
+        try {
+        	if (mediaId != null) {
+        	
+			//AdMedia media = mediaService.getById(mediaId);
+			List<SysUserExecute> mediaExecuteName=sysUserExecuteService.selectMediaNameByUserId(mediaId);
+			
+        	resultVo.setResult(mediaExecuteName);
+        	resultVo.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        	}
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
+            resultVo.setResultDes("服务忙，请稍后再试");
+        }
+        model.addAttribute(SysConst.RESULT_KEY, resultVo);
+        return model;
+    }
 
 	/**
 	 * 指派任务
@@ -1067,20 +1098,28 @@ public class MonitorTaskController extends BasicController {
 	 */
 	@RequestMapping(value = "/changePic")
 	@ResponseBody
-	public Model changeDetailsPage(Model model, @RequestParam("taskFeedBackId") Integer id, HttpServletRequest request, HttpServletResponse response,
+	public Model changeDetailsPage(Model model, @RequestParam(value ="taskFeedBackId", required = false) Integer id, HttpServletRequest request, HttpServletResponse response,
 									@RequestParam(value = "picFile", required = false) MultipartFile file,
-									@RequestParam(value = "index", required = false) Integer index) {
+									@RequestParam(value = "index", required = false) Integer index,
+									@RequestParam(value = "monitorTaskId", required = false) Integer monitorTaskId,
+									@RequestParam(value = "lon", required = false) Double lon,
+									@RequestParam(value = "lat", required = false) Double lat,
+									@RequestParam(value = "userId", required = false) Integer userId) {
 		ResultVo<String> result = new ResultVo<String>();
 		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
 		result.setResultDes("替换成功");
 		model = new ExtendedModelMap();
+		Date now = new Date();
 		
-		if(id == null) {
+		// 获取当前登录的后台用户信息
+		SysUser sysUser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+		
+		/*if(id == null) {
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("替换失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
 			return model;
-		}
+		}*/
 		
 		String path = request.getRealPath("/");
 		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"upload"+File.separatorChar;
@@ -1104,8 +1143,37 @@ public class MonitorTaskController extends BasicController {
 			}
 			//[1] 上传图片
 			filepath = saveFile(path,imageName,is);
-			//[2] 更改数据库
-			adMonitorTaskService.updatePicUrl(id, filepath, index);
+			if(monitorTaskId == null) {
+				//[2] 已有feedback的时候替换的图片
+				adMonitorTaskService.updatePicUrl(id, filepath, index);
+			} else {
+				//[3] 没有feedback的时候新增feedback
+				AdMonitorTaskFeedback feedback = new AdMonitorTaskFeedback();
+				feedback.setCreateTime(now);
+				feedback.setUpdateTime(now);
+				feedback.setMonitorTaskId(monitorTaskId);
+				feedback.setProblem(null);
+				feedback.setProblemOther(null);
+				feedback.setStatus(1); //1：反馈信息有效
+				feedback.setLon(lon); //做任务时的经度
+				feedback.setLat(lat); //做任务时的纬度
+				if(index == 1) {
+					feedback.setPicUrl1(filepath);
+				} else if (index == 2) {
+					feedback.setPicUrl2(filepath);
+				} else if (index == 3) {
+					feedback.setPicUrl3(filepath);
+				} else if (index == 4) {
+					feedback.setPicUrl4(filepath);
+				}
+				AdSeatInfo seatInfo = adMonitorTaskService.selectLonLatByMonitorTaskId(monitorTaskId);
+				if(seatInfo != null) {
+					feedback.setSeatLon(seatInfo.getLon()); //做任务时的广告位经度
+					feedback.setSeatLat(seatInfo.getLat()); //做任务时的广告位纬度
+				}
+				//插入新的feedback
+				adMonitorTaskService.insertMonitorTaskFeedback(feedback, userId, sysUser.getId());
+			}
 		} catch (IOException e) {
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("替换失败！");
@@ -1161,4 +1229,5 @@ public class MonitorTaskController extends BasicController {
 		}
 		return false;
 	}
+
 }

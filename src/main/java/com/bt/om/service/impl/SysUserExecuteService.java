@@ -86,4 +86,9 @@ public class SysUserExecuteService implements ISysUserExecuteService {
 		return sysUserExecuteMapper.getMobile(mobile);
 	}
 
+	@Override
+	public List<SysUserExecute> selectMediaNameByUserId(Integer id) {
+		return sysUserExecuteMapper.selectMediaNameByUserId(id);
+	}
+
 }

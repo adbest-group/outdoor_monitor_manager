@@ -223,12 +223,13 @@
                     <div class="submitdetails-wrap" style="font-size: 15px">
                     	<input type="hidden" id="selectMonitorTaskId" value="${vo.id?if_exists}">
                     		<p>替换的执行人员：</p> <br>
-							<div class="select-box select-box-100 un-inp-select ll">
+                    		<input type="hidden" id="selectMediaId" value="${vo.mediaId?if_exists}">
+                    		<#--<div class="select-box select-box-100 un-inp-select ll">
 		                       	 <select class="select" name="selectMediaId" id="selectMediaId" onchange="changeMediaTypeId();">
 				                     <option value="">所有媒体</option>
 				                     <@model.showAllMediaOps value="" />
 				                 </select>
-		                    </div>
+		                    </div>  -->						
 		                    <div class="select-box select-box-100 un-inp-select ll">
 		                       	 <select class="select" name="selectMediaName" id="selectMediaName">
 				                     <option value="">媒体成员</option>
@@ -241,7 +242,7 @@
 	                            <table id="formValid">
 	                            	<tr>
 	                            		<td>经度：<input type="text" id="lontitude" name="lontitude"/></td>
-	                            		<td><span id="lonTip"></span></td>
+	                            		<td><span id="lontitudeTip"></span></td>
 	                            	<tr>
 	                            	<tr>
 	                            		<td>&nbsp;</td>
@@ -249,7 +250,7 @@
                             		</tr>
 	                            	<tr>
 	                            		<td>纬度：<input type="text" id="latitude" name="latitude"/></td>
-	                            		<td><span id="latTip"></span></td>
+	                            		<td><span id="latitudeTip"></span></td>
 	                            	</tr>
 	                            </table>
                             </div>
@@ -313,6 +314,23 @@
   		});
   	  	return false;
   	   }
+  	   
+  	   if(!isNaN(Number(lon))){
+  	   	if(Number(lon) > 180 || Number(lon) < -180){
+  	   		layer.confirm("输入的经度不规范", {
+	  			icon: 2,
+	  			btn: ['确定'] //按钮
+	  		});
+	  	  	return false;
+  	   	}
+  	   }else{
+   		layer.confirm("经度必须为数字", {
+  			icon: 2,
+  			btn: ['确定'] //按钮
+  		});
+  	  	return false;
+  	   }
+  	   
   	  
   	  if(lat == null || lat == "" || lat.length <= 0){
   	  	layer.confirm("请填写纬度", {
@@ -321,6 +339,22 @@
   		});
   	  	return false;
   	  }
+  	  
+  	  if(!isNaN(Number(lat))){
+  	   	if(Number(lat) > 90 || Number(lat) < -90){
+  	   		layer.confirm("输入的纬度不规范", {
+	  			icon: 2,
+	  			btn: ['确定'] //按钮
+	  		});
+	  	  	return false;
+  	   	}
+  	   }else{
+   		layer.confirm("纬度必须为数字", {
+  			icon: 2,
+  			btn: ['确定'] //按钮
+  		});
+  	  	return false;
+  	   }
   	  
   	  if(userId == null || userId == "" || userId.length <= 0){
   	  	layer.confirm("请选择媒体执行人员", {
@@ -754,49 +788,6 @@
         
     });
     
-    function inputValid(){
-    		//广告位经度
-        $("#lon").formValidator({
-            validatorGroup:"2",
-            onShow: "　",
-            onFocus: "请输入经度",
-            onCorrect: ""
-        }).functionValidator({
-			fun:function(val){
-				if($.trim(val).length<0)
-				    return false;
-				return true;
-			},
-			onError:"请输入经度"
-		}).inputValidator({
-            type:"number",
-            min:-180,
-            max:180,
-            onError:"经度支持 -180 ~ 180"
-        });
-        
-    	//广告位纬度
-        $("#lat").formValidator({
-            validatorGroup:"2",
-            onShow: "　",
-            onFocus: "请输入纬度",
-            onCorrect: ""
-        }).functionValidator({
-            fun:function(val){
-                if($.trim(val).length<0)
-                    return false;
-                return true;
-            },
-            onError:"请输入纬度"
-        }).inputValidator({
-            type:"number",
-            min:-90,
-            max:90,
-            onError:"纬度支持 -90 ~ 90"
-        });
-        
-    }
-    
 	function changeMediaTypeId() {
 		var selectMediaId = $("#selectMediaId").val();
 		if(selectMediaId == "" || selectMediaId.length <= 0) {
@@ -826,4 +817,6 @@
 			}
 		});
 	}
+	
+	changeMediaTypeId();
 </script>

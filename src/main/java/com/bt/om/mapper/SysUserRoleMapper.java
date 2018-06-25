@@ -53,4 +53,6 @@ public interface SysUserRoleMapper {
     int updateByPrimaryKey(SysUserRole record);
     
     int updateUserRole(UserRoleVo userRoleVo);
+
+	SysUserRole findRoleByUserId(Integer userId);
 }

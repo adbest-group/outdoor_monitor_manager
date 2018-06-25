@@ -83,7 +83,9 @@ public class SysAdminController {
       
         	Map<String, Object> searchMap = new HashMap<>();
         	searchMap.put("type", 1);
-        	searchMap.put("resIds", groupIds);
+        	if(groupIds != null && groupIds.size() > 0) {
+        		searchMap.put("resIds", groupIds);
+        	}
         	userIds = sysUserService.selectUserIdsByResIds(searchMap); //管理的所有员工id集合
 //        	vo.putSearchParam("ids", "ids", userIds);
         }

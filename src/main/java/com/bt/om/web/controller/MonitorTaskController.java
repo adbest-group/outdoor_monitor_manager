@@ -329,7 +329,11 @@ public class MonitorTaskController extends BasicController {
 			@RequestParam(value = "mediaId", required = false) Integer mediaId,
 			@RequestParam(value = "status", required = false) Integer status,
 			@RequestParam(value = "endDate", required = false) String endDate,
-			@RequestParam(value = "name", required = false) String name) throws ParseException {
+			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
+            @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
+            @RequestParam(value = "province", required = false) String province,
+            @RequestParam(value = "city", required = false) String city) throws ParseException {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		SearchDataVo vo = SearchUtil.getVo();
 		AdMonitorTask task = new AdMonitorTask();
@@ -385,6 +389,22 @@ public class MonitorTaskController extends BasicController {
         if (name != null) {
         	name = "%" + name + "%";
             vo.putSearchParam("activityName", name, name);
+        }
+        //媒体大类
+        if (mediaTypeParentId != null) {
+            vo.putSearchParam("mediaTypeParentId", mediaTypeParentId.toString(), mediaTypeParentId);
+        }
+        //媒体小类
+        if (mediaTypeId != null) {
+        	vo.putSearchParam("mediaTypeId", mediaTypeId.toString(), mediaTypeId);
+        }
+        //省
+        if (province != null) {
+        	vo.putSearchParam("province", province.toString(), province);
+        }
+        //城市
+        if (city != null) {
+            vo.putSearchParam("city", city.toString(), city);
         }
 		List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId()); // 根据员工id查询所属组对应的所有广告商id集合
 		if (customerIds != null && customerIds.size() == 0) {
@@ -495,7 +515,11 @@ public class MonitorTaskController extends BasicController {
 			@RequestParam(value = "mediaId", required = false) Integer mediaId,
 			@RequestParam(value = "status", required = false) Integer status,
 			@RequestParam(value = "endDate", required = false) String endDate,
-			@RequestParam(value = "name", required = false) String name) throws ParseException {
+			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
+            @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
+            @RequestParam(value = "province", required = false) String province,
+            @RequestParam(value = "city", required = false) String city) throws ParseException {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		SearchDataVo vo = SearchUtil.getVo();
 		AdMonitorTask task = new AdMonitorTask();
@@ -550,6 +574,22 @@ public class MonitorTaskController extends BasicController {
         if (name != null) {
         	name = "%" + name + "%";
             vo.putSearchParam("activityName", name, name);
+        }
+        //媒体大类
+        if (mediaTypeParentId != null) {
+            vo.putSearchParam("mediaTypeParentId", mediaTypeParentId.toString(), mediaTypeParentId);
+        }
+        //媒体小类
+        if (mediaTypeId != null) {
+        	vo.putSearchParam("mediaTypeId", mediaTypeId.toString(), mediaTypeId);
+        }
+        //省
+        if (province != null) {
+        	vo.putSearchParam("province", province.toString(), province);
+        }
+        //城市
+        if (city != null) {
+            vo.putSearchParam("city", city.toString(), city);
         }
 		List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId()); // 根据员工id查询所属组对应的所有广告商id集合
 		if (customerIds != null && customerIds.size() == 0) {

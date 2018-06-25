@@ -151,4 +151,10 @@
   	where user_id in 
   	<foreach collection="userIds" separator="," open="(" close=")" item="userId">#{userId,jdbcType=INTEGER}</foreach>
   </update> 
+  <select id="findRoleByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  	select 
+    <include refid="Base_Column_List" />
+    from sys_user_role
+    where user_id = #{userId,jdbcType=INTEGER}
+  </select>
 </mapper>

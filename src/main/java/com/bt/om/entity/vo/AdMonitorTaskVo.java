@@ -44,8 +44,25 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 	private Integer feedbackId;
 	private String assessorName;
 	private String assignorName;
-
+	private String parentName;
+	private String secondName;
 	
+	public String getParentName() {
+		return parentName;
+	}
+
+	public void setParentName(String parentName) {
+		this.parentName = parentName;
+	}
+
+	public String getSecondName() {
+		return secondName;
+	}
+
+	public void setSecondName(String secondName) {
+		this.secondName = secondName;
+	}
+
 	public Integer getMediaTypeParentId() {
 		return mediaTypeParentId;
 	}

@@ -90,6 +90,8 @@
                         <th>提交时间</th>
                         <th>地区</th>
                         <th>媒体</th>
+                        <th>媒体大类</th>
+					    <th>媒体小类</th>
                         <th>广告位</th>
                         <th>状态</th>
                         <th>问题状态</th>
@@ -112,6 +114,8 @@
                             <td>${task.submitTime?string('yyyy-MM-dd HH:mm:ss')}</td>
                             <td>${vm.getCityName(task.province)!""} ${vm.getCityName(task.city!"")}</td>
                             <td>${task.mediaName!""}</td>
+                            <td>${task.parentName!""}</td>
+                            <td>${task.secondName!""}</td>
                             <td>${task.adSeatName!""}</td>
                             <td>${vm.getJiucuoTaskStatusText(task.status)}</td>
                             <td>${vm.getProblemStatusText(task.problemStatus!0)}</td>

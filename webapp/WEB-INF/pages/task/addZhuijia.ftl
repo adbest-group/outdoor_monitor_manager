@@ -83,6 +83,7 @@ $(function() {
 	        var reportTime = $("#zhuiJia-Wdate").val();
 	        var seatId = $("#seatId").val();
 	        var activityId = $("#activityId").val();
+	        
             $.ajax({
                 url: "/activity/zhuijiaTask",
                 type: "post",

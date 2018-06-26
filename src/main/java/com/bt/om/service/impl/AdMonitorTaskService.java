@@ -1029,6 +1029,36 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 		return adMonitorTaskMapper.selectByPrimaryKey(id);
 	}
 
+	
+	/**
+	 * 【待执行】/【待指派】这种没有app人员做任务时的替换造假
+	 */
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public int insertMonitorTaskFeedback(AdMonitorTaskFeedback feedback, Integer userId, Integer assessorId) {
+		//[1] 更新任务主表的执行人员
+		AdMonitorTask adMonitorTask = adMonitorTaskMapper.selectByPrimaryKey(feedback.getMonitorTaskId());
+		adMonitorTask.setUserId(userId); //任务执行人ID
+		adMonitorTask.setStatus(4); //4：通过审核
+		adMonitorTask.setProblemStatus(2); //2：无问题
+		adMonitorTask.setVerifyTime(feedback.getUpdateTime()); //审核时间
+		adMonitorTask.setUpdateTime(feedback.getUpdateTime()); //更新时间
+		adMonitorTask.setAssessorId(assessorId); //审核员id
+		adMonitorTaskMapper.updateByPrimaryKeySelective(adMonitorTask);
+		//[2] 插入新的feedback
+		return adMonitorTaskFeedbackMapper.insert(feedback);
+	}
+	
+	@Override
+	public Integer selectCountByMonitorTaskId(int monitorTaskId) {
+		return adMonitorTaskFeedbackMapper.selectCountByMonitorTaskId(monitorTaskId);
+	}
+	
+	@Override
+	public AdSeatInfo selectLonLatByMonitorTaskId(int monitorTaskId) {
+		return adMonitorTaskMapper.selectLonLatByMonitorTaskId(monitorTaskId);
+	}
+
 	@Override
 	public List<AdMonitorTask> getAllTasksByActivityId(Integer activityId) {
 		return adMonitorTaskMapper.getAllTasksByActivityId(activityId);

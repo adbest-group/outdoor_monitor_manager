@@ -7,6 +7,7 @@ import java.util.Map;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.AdMonitorUserTask;
+import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AbandonTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
@@ -104,6 +105,11 @@ public interface IAdMonitorTaskService {
 	public AdMonitorTask getActivityId(int id);
 
 	void insertMonitorTask(Integer activityId, List<String> seatIds, String reportTime);
+
+	Integer selectCountByMonitorTaskId(int monitorTaskId);
+	AdSeatInfo selectLonLatByMonitorTaskId(int monitorTaskId);
+	int insertMonitorTaskFeedback(AdMonitorTaskFeedback feedback, Integer userId, Integer assessorId);
+
 	//查询所有任务列表
 	public List<AdMonitorTask> getAllTasksByActivityId(Integer activityId);
 	public List<AdMonitorTask> newSelectLatestMonitorTaskIds(Map<String, Object> searchMap);

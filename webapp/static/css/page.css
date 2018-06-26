@@ -5,3 +5,7 @@
 table tr th{
 	word-break: keep-all;
 }
+
+.select-box select{
+	color: #555;
+}

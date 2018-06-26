@@ -364,7 +364,16 @@
     where 1=1
     and a.id = #{id,jdbcType=INTEGER}
   </select>
-
+  
+	<!-- 查询媒体执行人员 -->
+  <select id="selectMediaNameByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+     a.id,a.realname
+     from sys_user_execute a
+     left join ad_media b on b.user_id = a.operate_id
+     where b.id = #{id,jdbcType=INTEGER}
+  </select>
+  
   <select id="getPageCount" parameterType="map" resultType="int">
     select
     count(1)
@@ -431,4 +440,5 @@
   	from sys_user_execute
   	where mobile = #{mobile ,jdbcType=VARCHAR}
   </select>
+  
 </mapper>

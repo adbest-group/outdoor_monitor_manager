@@ -75,4 +75,6 @@ public interface SysUserExecuteMapper {
 	SysUserExecute getMobile(@Param("mobile")String mobile);
 
 	int updateUserPwd(SysUser u);
+	
+	 List<SysUserExecute> selectMediaNameByUserId(@Param("id") Integer id);
 }

@@ -1,5 +1,9 @@
 package com.bt.om.service;
 
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.vo.SysUserVo;
 
@@ -11,4 +15,6 @@ public interface IMediaService {
     public void modify(SysUserVo user);
     public AdMedia getMediaByUserId(Integer id);
     public AdMedia getById(Integer id);
+
+    
 }

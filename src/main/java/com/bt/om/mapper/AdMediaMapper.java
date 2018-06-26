@@ -59,4 +59,6 @@ public interface AdMediaMapper {
     List<AdMedia> getAvailableAll(); 
 
     AdMedia selectByUserId(@Param("id") Integer id);
+    
+    List<AdMedia> selectNameByMediaId(@Param("id")Integer id); 
 }

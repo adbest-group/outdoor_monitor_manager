@@ -67,4 +67,6 @@ public interface AdMonitorTaskFeedbackMapper {
     int updatePicUrl3(Map<String, Object> searchMap);
     
     int updatePicUrl4(Map<String, Object> searchMap);
+    
+    int selectCountByMonitorTaskId(@Param("monitorTaskId") Integer monitorTaskId);
 }

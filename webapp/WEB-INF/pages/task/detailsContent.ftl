@@ -433,13 +433,10 @@
     //更换详情图片1
 	layui.use('upload', function(){
 	  var upload = layui.upload;
-	  var elem = '#changePic1'
-	  if(document.getElementById('changePic1')){
-	  	elem = '#changePic11'
-	  }
+
 	  //执行实例
 	  var uploadInst = upload.render({
-	    elem: elem //绑定元素
+	    elem: '#changePic1' //绑定元素
 	    ,data: {
 
 	    	  taskFeedBackId: function() {

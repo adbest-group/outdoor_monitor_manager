@@ -8,4 +8,6 @@ table tr th{
 
 .select-box select{
 	color: #555;
+	border-color: rgb(204,204,204);
+
 }

@@ -31,7 +31,6 @@
                     <div id="demo3" class="citys" style="float: left; font-size: 12px">
                         <p>
                            	 投放地区： <select style="height: 30px" id="adSeatInfo-province" name="province">
-                            			<option value=""></option>
                         			</select> 
                         	<select style="height: 30px" id="adSeatInfo-city" name="city"></select>
                             <!-- <select style="height: 30px" id="adSeatInfo-region" name="region"></select>
@@ -321,6 +320,7 @@ function changeMediaTypeId() {
     }, function(api) {
         var info = api.getInfo();
         townFormat(info);
+        $("#adSeatInfo-province option:first").prop("selected", 'selected');  
     });
     var assign_ids;
     $(function() {

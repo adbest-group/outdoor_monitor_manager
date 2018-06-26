@@ -417,6 +417,12 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         
         //获取监测任务
         AdMonitorTask task = adMonitorTaskMapper.selectByPrimaryKey(taskId);
+        if(StringUtil.isNotBlank(feedback.getProblem()) || StringUtil.isNotBlank(feedback.getProblemOther())) {
+        	task.setProblemStatus(TaskProblemStatus.PROBLEM.getId());
+        } else {
+        	task.setProblemStatus(TaskProblemStatus.NO_PROBLEM.getId());
+        }
+        
         //如果检测任务当前处于"待执行"或"审核未通过"
         if (task.getStatus() == MonitorTaskStatus.TO_CARRY_OUT.getId() || task.getStatus() == MonitorTaskStatus.VERIFY_FAILURE.getId()) {
             //获取之前提交的feedback，设置为无效，流程正常情况下只有一条

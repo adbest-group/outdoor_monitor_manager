@@ -112,8 +112,8 @@
                                         <input id="durationMonitorTaskTime0" ${editMode?string("","disabled")} class="durationMonitor-Wdate Wdate" type="text">
                                     </div>
                                 </div>
-                                <span style="margin-left:10px;" id="durationMonitorTaskTimeTip0"></span>
-                                <#if editMode><input type='button' id="addDurationMonitor" value='添加'></#if>
+                                <span style="margin-left:10px;" id="durationMonitorTaskTimeTip0"></span> &nbsp;
+                                <#if editMode><input class="btn btn-primary" type='button' id="addDurationMonitor" value='添加'></#if>
                             </td>
                         </tr>
                         

@@ -535,7 +535,14 @@
             var info = api.getInfo();
             townFormat(info);
         });
-        $("#btnBack").click(function(){location=document.referrer});
+        
+        if(!localStorage.getItem('fromUrl')){
+        	localStorage.setItem('fromUrl', document.referrer)
+        }
+        $("#btnBack").click(function(){
+        	location = localStorage.getItem('fromUrl')
+        	localStorage.removeItem('fromUrl')
+        });
     });
 
 </script>

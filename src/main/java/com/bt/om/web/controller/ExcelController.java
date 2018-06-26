@@ -478,7 +478,7 @@ public class ExcelController extends BasicController {
 					listString.add(list);
 				}
     		}
-        	String[] titleArray = {"活动名称", "广告位名称", "供应商（媒体）", "媒体大类", "媒体小类", "省", "市",  "主要路段", "详细位置", "媒体方广告位编号", 
+        	String[] titleArray = {"活动名称", "广告位名称", "媒体主", "媒体大类", "媒体小类", "省", "市",  "主要路段", "详细位置", "广告位编号", 
             		"开始监测时间", "结束监测时间", "当前状态","任务类型",
             		"广告位尺寸", "面积", "经度", "纬度", "面数","地图标准（如百度，谷歌，高德）", "联系人姓名", "联系人电话"};
             ExcelTool<List<String>> excelTool = new ExcelTool<List<String>>("importResult");
@@ -1033,7 +1033,7 @@ public class ExcelController extends BasicController {
             //导出到excel, 返回导入广告位信息结果
             List<List<String>> listString = objToString(listob);
             String[] titleArray = { "广告位名称", "媒体大类", "媒体小类", "是否允许多个活动", "允许活动数量", "省", "市",  "主要路段", "详细位置", 
-            		"媒体方广告位编号", "广告位长度", "广告位宽度", "面积", "面数","经度", "纬度",
+            		"广告位编号", "广告位长度", "广告位宽度", "面积", "面数","经度", "纬度",
             		"地图标准（如百度，谷歌，高德）", "联系人姓名", "联系人电话", "导入结果", "导入错误信息"};
             ExcelTool<List<String>> excelTool = new ExcelTool<List<String>>("importResult");
 //          excelTool.exportExcel(listString, titleArray, response);
@@ -1229,7 +1229,7 @@ public class ExcelController extends BasicController {
 
         table.addCell(new Paragraph("广告位名称", fontChinese));
 //        table.addCell(new Paragraph("客户类型", fontChinese));
-        table.addCell(new Paragraph("供应商", fontChinese));
+        table.addCell(new Paragraph("媒体主", fontChinese));
         table.addCell(new Paragraph("地理位置", fontChinese));
         table.addCell(new Paragraph("详细位置", fontChinese));
         table.addCell(new Paragraph("媒体大类", fontChinese));
@@ -1238,7 +1238,7 @@ public class ExcelController extends BasicController {
         table.addCell(new Paragraph("结束监测时间", fontChinese));
         table.addCell(new Paragraph("当前状态", subBoldFontChinese));
         table.addCell(new Paragraph("任务类型", subBoldFontChinese));
-        table.addCell(new Paragraph("媒体方广告位编号", fontChinese));
+        table.addCell(new Paragraph("广告位编号", fontChinese));
         
         for (List<String> list : listString) {
         	table.addCell(new Paragraph(list.get(1), fontChinese)); //广告位名称
@@ -1265,7 +1265,7 @@ public class ExcelController extends BasicController {
             table.addCell(new Paragraph(list.get(8), fontChinese));//结束监测时间
             table.addCell(new Paragraph(list.get(9), subBoldFontChinese));//当前状态
             table.addCell(new Paragraph(list.get(21), subBoldFontChinese));//任务类型
-            table.addCell(new Paragraph(list.get(6), fontChinese));//媒体方广告位编号
+            table.addCell(new Paragraph(list.get(6), fontChinese));//广告位编号
 		}
 		return table;
 	}

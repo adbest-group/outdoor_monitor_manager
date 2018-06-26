@@ -320,7 +320,10 @@ function changeMediaTypeId() {
     }, function(api) {
         var info = api.getInfo();
         townFormat(info);
-        $("#adSeatInfo-province option:first").prop("selected", 'selected');  
+        console.log(info)
+        if(!info.province){
+        	$("#adSeatInfo-province option:first").prop("selected", 'selected');  
+        }
     });
     var assign_ids;
     $(function() {

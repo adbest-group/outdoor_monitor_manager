@@ -55,6 +55,9 @@ public class AdMediaTypeController {
         	name = "%" + name + "%";
             vo.putSearchParam("name", name, name);
         }
+        if (mediaType == null&&searchParentMediaId == null) {
+        	mediaType =1;
+        }
         if (mediaType != null) {
         	vo.putSearchParam("mediaType", mediaType.toString(), mediaType);
         }

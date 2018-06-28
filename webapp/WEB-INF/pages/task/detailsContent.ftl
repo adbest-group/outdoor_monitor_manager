@@ -26,7 +26,7 @@
                     <#-- <p>投放品牌：${vo.brand!""}</p> -->
                     <p>创建时间：${vo.createTime?string('yyyy-MM-dd HH:mm')!""}</p>
                     <p>
-                        样例:</br><img style="vertical-align: top" src="${vo.samplePicUrl!""}"></img>
+                        广告活动画面:</br><img style="vertical-align: top" src="${vo.samplePicUrl!""}"></img>
                     </p>
                 <#else>
                     <div>没有相应结果。</div>

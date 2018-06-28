@@ -10,12 +10,13 @@
             <a href="javascript:;" class="add-new-btn ll" id="add_media"><i></i> 新建媒体类型</a>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
             	<form id="form" method="get" action="/mediaType/list">
-	                <div class="select-box select-box-100 un-inp-select ll">
+	                
+	                <!--<div class="select-box select-box-100 un-inp-select ll">
 	                    <select name="mediaType" class="select" id="mediaType">
 	                    	<option value="">全部媒体类型</option>
 	                        <@model.showMediaTypeOps value="${bizObj.queryMap.mediaType?if_exists}"/>
 	                    </select>
-	                </div>
+	                </div>  -->
 	                <div class="select-box select-box-100 un-inp-select ll">
 	                    <select name="parentId" class="select" id="parentId">
 	                    	<option value="">全部媒体大类</option>
@@ -44,7 +45,7 @@
                         <th>媒体类型名称</th>
                         <th>类型</th>
                         <#-- <th>需要唯一标识</th> -->
-                        <th>状态</th>
+                        <th>当前状态</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -72,13 +73,16 @@
                             	<!--
                                 <a href="javascript:void(0);" onclick="edit('${type.id}');">编辑</a>
                                 -->
-                                <#if type.status?exists && type.status == 1>
+                               
+                                <!--只显示可用或者不可用 <#if type.status?exists && type.status == 1>
                                 	<a href="javascript:void(0);" onclick="updateStatus('${type.id}', 2, '${type.mediaType}');">不可用</a>
                                 </#if>
                                 <#if type.status?exists && type.status == 2>
                             		<a href="javascript:void(0);" onclick="updateStatus('${type.id}', 1, '${type.mediaType}');">可用</a>
-                                </#if>
-                                
+                                </#if>  -->
+                               
+                            	<a href="javascript:void(0);" onclick="updateStatus('${type.id}', 1, '${type.mediaType}');">可用</a>&nbsp&nbsp&nbsp&nbsp
+                                <a href="javascript:void(0);" onclick="updateStatus('${type.id}', 2, '${type.mediaType}');">不可用</a>
                                 <#-- 
                                 <#if type.mediaType?exists && type.mediaType == 2 && type.uniqueKeyNeed == 2>
                                 	&nbsp;&nbsp;

@@ -1,4 +1,3 @@
-<link rel="stylesheet" type="text/css" href="${model.static_domain}/css/new_main.css">
 <meta charset="utf-8">
 <style type="text/css">
     html, body{ min-width: 100%; }

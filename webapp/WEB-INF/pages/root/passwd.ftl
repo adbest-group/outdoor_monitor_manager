@@ -1,4 +1,5 @@
 <link rel="stylesheet" type="text/css" href="${model.static_domain}/css/new_main.css">
+<link rel="stylesheet" type="text/css" href="${model.static_domain}/css/icon_fonts.css">
 	<style type="text/css">
 		html, body{ min-width: auto; }
 		.basic-info .bd .a-title{ width: 100px; }

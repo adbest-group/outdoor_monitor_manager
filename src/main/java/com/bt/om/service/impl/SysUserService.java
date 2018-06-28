@@ -253,6 +253,4 @@ public class SysUserService implements ISysUserService {
 		return sysUserMapper.selectByPrimaryKey(customerId);
 	}
 
-
-	
 }

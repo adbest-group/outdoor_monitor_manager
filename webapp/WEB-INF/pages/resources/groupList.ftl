@@ -38,7 +38,7 @@
                             <td>${type.departmentName?if_exists}</td>
                             <td>${type.createTime?string('yyyy-MM-dd HH:mm')}</td>
                             <td>
-                            	<a href="javascript:void(0);" onclick="edit('${type.id}');">编辑</a>
+                            	<a href="javascript:void(0);" onclick="edit('${type.id}', '${type.parentid}');">编辑</a>
                                 <a href="javascript:void(0);" onclick="deleteGroup('${type.id}');">删除</a>
                                 <a href="javascript:void(0);" onclick="editUser('${type.id}', '${type.parentid}');">员工</a>
                                 <a href="javascript:void(0);" onclick="editCustomer('${type.id}');">广告商</a>
@@ -76,7 +76,6 @@
         var strParam = "";
         var name = $("#searchName").val();
         var parentId = $("#parentId").val();
-        
         if (name != null && $.trim(name).length) {
             strParam = strParam + "?name=" + name;
         }
@@ -96,14 +95,14 @@
         });
     });
     
-    function edit(id) {
+    function edit(id,parentid) {
         layer.open({
             type: 2,
             title: '修改小组',
             shadeClose: true,
             shade: 0.8,
             area: ['600px', '480px'],
-            content: '/sysResources/editGroup?id=' + id //iframe的url
+            content: '/sysResources/editGroup?id=' + id + '&parentid='+parentid //iframe的url
         });
     }
     

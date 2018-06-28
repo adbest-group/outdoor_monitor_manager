@@ -2,10 +2,6 @@
 <@model.webhead />
 <!-- 头部 -->
 <@model.webMenu current="资源管理" child="App管理" />
-<link rel="stylesheet" type="text/css"
-	href="${model.static_domain}/css/new_main.css">
-<link rel="stylesheet" type="text/css"
-	href="${model.static_domain}/css/icon_fonts.css">
 <!-- 特色内容 -->
 <div class="main-container" style="height: auto;">
 	<div class="main-box">

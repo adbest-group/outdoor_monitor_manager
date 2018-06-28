@@ -36,17 +36,18 @@
                         <@model.showMediaProblemStatusList value="${bizObj.queryMap.problemStatus?if_exists}"/>
                         </select>
                     </div>
-                     <div class="select-box select-box-100 un-inp-select ll">
+                    <div class="select-box select-box-100 un-inp-select ll">
 	                    <select style="width: 120px;height:31px;" name="mediaTypeParentId" id="mediaTypeParentId" onchange="changeMediaTypeId();">
 	                    <option value="">所有媒体大类</option>
 	                    <@model.showAllAdMediaTypeAvailableOps value="${bizObj.queryMap.mediaTypeParentId?if_exists}"/>
 	                     </select>
                 	</div>
-                    <div class="select-box select-box-100 un-inp-select ll">
-	                    <select style="width: 120px;height:31px;" name="mediaTypeId" id="mediaTypeId">
+                    <div class="select-box select-box-100 un-inp-select ll" id="mediaTypeSelect">
+	                    <select style="width: 120px;height:31px;display: none" name="mediaTypeId" id="mediaTypeId">
 	                    	<option value="">所有媒体小类</option>
 	                    </select>
-	                </div><br/><br/><br/>
+	                </div>
+	                <br/><br/><br/>
 	                <#-- 城市 -->
 					<div id="demo3" class="citys" style="float: left; font-size: 12px">
                         <p>
@@ -183,10 +184,24 @@
 <script type="text/javascript" src="${model.static_domain}/js/date.js"></script>
 
 <script type="text/javascript">
-	changeMediaTypeId();
-	function changeMediaTypeId() {	
-		var mediaTypeParentId = $("#mediaTypeParentId").val();
-		if(mediaTypeParentId == "" || mediaTypeParentId.length <= 0) {
+	$('#mediaTypeParentId').searchableSelect({
+		afterSelectItem: function(){
+			console.log(this.holder.data("value"), this.holder.text())
+			if(this.holder.data("value")){
+				
+				changeMediaTypeId(this.holder.data("value"))
+				$('#mediaTypeId').css('display', 'inline-block')
+			}else{
+				$('#mediaTypeId').parent().html('<select style="width: 120px;height:31px;display:none" name="mediaTypeId" id="mediaTypeId"><option value="">请选择媒体小类</option></select>')
+			}
+		}
+	})
+	
+	$('#mediaTypeParentId').next().find('.searchable-select-input').css('display', 'block')
+
+	function changeMediaTypeId(mediaTypeParentId) {	
+		// var mediaTypeParentId = $("#mediaTypeParentId").val();
+		if(!mediaTypeParentId) {
 			var option = '<option value="">请选择媒体小类</option>';
 			$("#mediaTypeId").html(option);
 			return ;
@@ -198,22 +213,32 @@
 			dataType : "json",
 			traditional : true,
 			success : function(data) {
+				var mediaTypeIdSelect = ""
+				<#if mediaTypeId?exists && mediaTypeId != ""> mediaTypeIdSelect = ${mediaTypeId!""} </#if>
+				var isSelect = false;
 				var result = data.ret;
 				if (result.code == 100) {
 					var adMediaTypes = result.result;
-					var htmlOption = '<option value="">请选择媒体小类</option>';
+					var htmlOption = '<select style="width: 120px;height:31px;" name="mediaTypeId" id="mediaTypeId"><option value="">请选择媒体小类</option>';
 					for (var i=0; i < adMediaTypes.length;i++) { 
 						var type = adMediaTypes[i];
 						htmlOption = htmlOption + '<option value="' + type.id + '">' + type.name + '</option>';
+						if(mediaTypeIdSelect === type.id){
+							isSelect = true
+						}
 					}
-					$("#mediaTypeId").html(htmlOption);
-					$("#mediaTypeId").val(${mediaTypeId?if_exists});
+					htmlOption += '</select>'
+					$("#mediaTypeSelect").html(htmlOption);
+					$("#mediaTypeId").val(isSelect ? mediaTypeIdSelect : "");
+					$("#mediaTypeId").searchableSelect()
+					$('#mediaTypeId').next().find('.searchable-select-input').css('display', 'block')
 				} else {
 					alert('修改失败!');
 				}
 			}
 		});
 	}
+	
 	/*获取城市  */
     var $town = $('#demo3 select[name="street"]');
     var townFormat = function(info) {

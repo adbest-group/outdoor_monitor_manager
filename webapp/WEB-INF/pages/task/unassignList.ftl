@@ -37,8 +37,8 @@
 	                    <@model.showAllAdMediaTypeAvailableOps value="${bizObj.queryMap.mediaTypeParentId?if_exists}"/>
 	                     </select>
                 	</div>
-                    <div class="select-box select-box-100 un-inp-select ll">
-	                    <select style="width: 120px;height:31px;" name="mediaTypeId" id="mediaTypeId">
+                    <div class="select-box select-box-100 un-inp-select ll" id="mediaTypeSelect">
+	                    <select style="width: 120px;height:31px;display: none" name="mediaTypeId" id="mediaTypeId">
 	                    	<option value="">所有媒体小类</option>
 	                    </select>
 	                </div>
@@ -163,6 +163,61 @@
 <script type="text/javascript" src="${model.static_domain}/js/date.js"></script>
 
 <script type="text/javascript">
+	$('#mediaTypeParentId').searchableSelect({
+		afterSelectItem: function(){
+			console.log(this.holder.data("value"), this.holder.text())
+			if(this.holder.data("value")){
+				
+				changeMediaTypeId(this.holder.data("value"))
+				$('#mediaTypeId').css('display', 'inline-block')
+			}else{
+				$('#mediaTypeId').parent().html('<select style="width: 120px;height:31px;display:none" name="mediaTypeId" id="mediaTypeId"><option value="">请选择媒体小类</option></select>')
+			}
+		}
+	})
+	
+	$('#mediaTypeParentId').next().find('.searchable-select-input').css('display', 'block')
+	
+	function changeMediaTypeId(mediaTypeParentId) {	
+		// var mediaTypeParentId = $("#mediaTypeParentId").val();
+		if(!mediaTypeParentId) {
+			var option = '<option value="">请选择媒体小类</option>';
+			$("#mediaTypeId").html(option);
+			return ;
+		}
+		$.ajax({
+			url : '/platmedia/adseat/searchMediaType',
+			type : 'POST',
+			data : {"parentId":mediaTypeParentId},
+			dataType : "json",
+			traditional : true,
+			success : function(data) {
+				var mediaTypeIdSelect = ""
+				<#if mediaTypeId?exists && mediaTypeId != ""> mediaTypeIdSelect = ${mediaTypeId!""} </#if>
+				var isSelect = false;
+				var result = data.ret;
+				if (result.code == 100) {
+					var adMediaTypes = result.result;
+					var htmlOption = '<select style="width: 120px;height:31px;" name="mediaTypeId" id="mediaTypeId"><option value="">请选择媒体小类</option>';
+					for (var i=0; i < adMediaTypes.length;i++) { 
+						var type = adMediaTypes[i];
+						htmlOption = htmlOption + '<option value="' + type.id + '">' + type.name + '</option>';
+						if(mediaTypeIdSelect === type.id){
+							isSelect = true
+						}
+					}
+					htmlOption += '</select>'
+					$("#mediaTypeSelect").html(htmlOption);
+					$("#mediaTypeId").val(isSelect ? mediaTypeIdSelect : "");
+					$("#mediaTypeId").searchableSelect()
+					$('#mediaTypeId').next().find('.searchable-select-input').css('display', 'block')
+				} else {
+					alert('修改失败!');
+				}
+			}
+		});
+	}
+
 	var assign_ids;
     $(function(){
         $(".nav-sidebar>ul>li").on("click",function(){

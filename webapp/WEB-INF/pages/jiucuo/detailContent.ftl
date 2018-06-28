@@ -21,7 +21,7 @@
                                 至 ${seat.monitorEnd?string('yyyy-MM-dd')!""}</p>
                             <p>监测次数：${seat.monitorCount!""}</p>
                             <p>创建时间：${seat.createTime?string('yyyy-MM-dd HH:mm:ss')!""}</p>
-                            <p>广告样例：<img style="vertical-align: top" src="${seat.samplePicUrl!""}" width="300"/></p>
+                            <p>广告活动画面：<img style="vertical-align: top" src="${seat.samplePicUrl!""}" width="300"/></p>
                         </div>
                     </div>
                 </div>

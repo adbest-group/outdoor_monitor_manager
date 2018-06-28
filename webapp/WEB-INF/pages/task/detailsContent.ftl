@@ -1,7 +1,5 @@
 
 <!-- 特色内容 -->
-<link rel="stylesheet" type="text/css" href="${model.static_domain}/css/new_main.css">
-<link rel="stylesheet" type="text/css" href="${model.static_domain}/css/icon_fonts.css">
 <div class="main-container">
     <div class="clearfix">
         <div class="main-box">

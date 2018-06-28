@@ -42,8 +42,8 @@
 	                    <@model.showAllAdMediaTypeAvailableOps value="${bizObj.queryMap.mediaTypeParentId?if_exists}"/>
 	                     </select>
                 	</div>
-                    <div class="select-box select-box-100 un-inp-select ll">
-	                    <select style="width: 120px;height:31px;" name="mediaTypeId" id="mediaTypeId">
+                    <div class="select-box select-box-100 un-inp-select ll" id="mediaTypeSelect">
+	                    <select style="width: 120px;height:31px;display: none" name="mediaTypeId" id="mediaTypeId">
 	                    	<option value="">所有媒体小类</option>
 	                    </select>
 	                </div><br/><br/>
@@ -137,7 +137,20 @@
 <script type="text/javascript" src="${model.static_domain}/js/date.js"></script>
 
 <script type="text/javascript">
-changeMediaTypeId();
+$('#mediaTypeParentId').searchableSelect({
+		afterSelectItem: function(){
+			if(this.holder.data("value")){
+				
+				changeMediaTypeId(this.holder.data("value"))
+				$('#mediaTypeId').css('display', 'inline-block')
+			}else{
+				$('#mediaTypeId').parent().html('<select style="width: 120px;height:31px;display:none" name="mediaTypeId" id="mediaTypeId"><option value="">请选择媒体小类</option></select>')
+			}
+		}
+	})
+	
+	$('#mediaTypeParentId').next().find('.searchable-select-input').css('display', 'block')
+
             $(function(){
                 $(".nav-sidebar>ul>li").on("click",function(){
                     $(".nav-sidebar>ul>li").removeClass("on");
@@ -154,9 +167,9 @@ changeMediaTypeId();
         $('.main-container').css('height', h);
     });
     
-    function changeMediaTypeId() {	
-		var mediaTypeParentId = $("#mediaTypeParentId").val();
-		if(mediaTypeParentId == "" || mediaTypeParentId.length <= 0) {
+    function changeMediaTypeId(mediaTypeParentId) {	
+		// var mediaTypeParentId = $("#mediaTypeParentId").val();
+		if(!mediaTypeParentId) {
 			var option = '<option value="">请选择媒体小类</option>';
 			$("#mediaTypeId").html(option);
 			return ;
@@ -168,16 +181,25 @@ changeMediaTypeId();
 			dataType : "json",
 			traditional : true,
 			success : function(data) {
+				var mediaTypeIdSelect = ""
+				<#if mediaTypeId?exists && mediaTypeId != ""> mediaTypeIdSelect = ${mediaTypeId!""} </#if>
+				var isSelect = false;
 				var result = data.ret;
 				if (result.code == 100) {
 					var adMediaTypes = result.result;
-					var htmlOption = '<option value="">请选择媒体小类</option>';
+					var htmlOption = '<select style="width: 120px;height:31px;" name="mediaTypeId" id="mediaTypeId"><option value="">请选择媒体小类</option>';
 					for (var i=0; i < adMediaTypes.length;i++) { 
 						var type = adMediaTypes[i];
 						htmlOption = htmlOption + '<option value="' + type.id + '">' + type.name + '</option>';
+						if(mediaTypeIdSelect === type.id){
+							isSelect = true
+						}
 					}
-					$("#mediaTypeId").html(htmlOption);
-					$("#mediaTypeId").val(${mediaTypeId?if_exists});
+					htmlOption += '</select>'
+					$("#mediaTypeSelect").html(htmlOption);
+					$("#mediaTypeId").val(isSelect ? mediaTypeIdSelect : "");
+					$("#mediaTypeId").searchableSelect()
+					$('#mediaTypeId').next().find('.searchable-select-input').css('display', 'block')
 				} else {
 					alert('修改失败!');
 				}
@@ -204,16 +226,38 @@ changeMediaTypeId();
             });
         }
     };
+    var currentCity = ""
+	<#if city?exists && city != ""> currentCity = ${city!""} </#if>
+	var currentProvince = ""
+	<#if province?exists && province != ""> currentProvince = ${province!""} </#if>
     $('#demo3').citys({
         required:false,
         province : '${province!"所有城市"}',
         city : '${city!""}',
         onChange : function(info) {
             townFormat(info);
+            var str = '110000,120000,310000,500000,810000,820000'
+            if(str.indexOf(info.code) === -1){
+            	$('#adSeatInfo-city').val(currentCity)
+	            $('#adSeatInfo-city').searchableSelect()
+	            $('#adSeatInfo-city').next().css('width', '130px')
+            }
         }
     }, function(api) {
         var info = api.getInfo();
         townFormat(info);
+        $('#adSeatInfo-province').val(currentProvince)
+        $('#adSeatInfo-province').searchableSelect({
+			afterSelectItem: function(){
+				
+				$('#adSeatInfo-city').next().remove()
+				if(this.holder.data("value")){
+					$('#adSeatInfo-province').val(this.holder.data("value")).trigger("change");
+					currentCity = ""
+				}
+			}
+		})
+        $('#adSeatInfo-province').next().css('width', '130px')
     });
 
 	// 查询

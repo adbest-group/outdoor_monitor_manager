@@ -384,6 +384,12 @@
     <if test="city != null">
    		and e.city = #{city,jdbcType=BIGINT}
 	</if>
+	 <if test="mediaTypeParentId != null">
+	  and e.media_type_parent_id = #{mediaTypeParentId,jdbcType=INTEGER}
+	</if>
+	<if test="mediaTypeId != null">
+	   and e.media_type_id = #{mediaTypeId,jdbcType=INTEGER}
+	</if>
     order by a.id desc
   </select>
 

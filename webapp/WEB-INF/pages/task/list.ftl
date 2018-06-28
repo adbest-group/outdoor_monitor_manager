@@ -293,16 +293,38 @@
             });
         }
     };
+   var currentCity = ""
+	<#if city?exists && city != ""> currentCity = ${city!""} </#if>
+	var currentProvince = ""
+	<#if province?exists && province != ""> currentProvince = ${province!""} </#if>
     $('#demo3').citys({
         required:false,
         province : '${province!"所有城市"}',
         city : '${city!""}',
         onChange : function(info) {
             townFormat(info);
+            var str = '110000,120000,310000,500000,810000,820000'
+            if(str.indexOf(info.code) === -1){
+            	$('#adSeatInfo-city').val(currentCity)
+	            $('#adSeatInfo-city').searchableSelect()
+	            $('#adSeatInfo-city').next().css('width', '130px')
+            }
         }
     }, function(api) {
         var info = api.getInfo();
         townFormat(info);
+        $('#adSeatInfo-province').val(currentProvince)
+        $('#adSeatInfo-province').searchableSelect({
+			afterSelectItem: function(){
+				
+				$('#adSeatInfo-city').next().remove()
+				if(this.holder.data("value")){
+					$('#adSeatInfo-province').val(this.holder.data("value")).trigger("change");
+					currentCity = ""
+				}
+			}
+		})
+        $('#adSeatInfo-province').next().css('width', '130px')
     });
     	<#-- 
         // 查询

@@ -1137,6 +1137,7 @@ public class MonitorTaskController extends BasicController {
 	/**
 	 * 任务图片更替
 	 */
+	@RequiresRoles("superadmin")
 	@RequestMapping(value = "/changePic")
 	@ResponseBody
 	public Model changeDetailsPage(Model model, @RequestParam(value ="taskFeedBackId", required = false) Integer id, HttpServletRequest request, HttpServletResponse response,

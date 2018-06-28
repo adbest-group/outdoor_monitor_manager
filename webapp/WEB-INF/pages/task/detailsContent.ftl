@@ -210,6 +210,7 @@
     </div>
 </#if>
 
+<#if usertype?exists&&usertype==4>
 <#if vo.status?exists && vo.status==1 || vo.status==2>
     <div class="clearfix">
         <div class="main-box">
@@ -283,7 +284,7 @@
             </div>
         </div>
     </div>
-
+</#if>
 </#if>
 
 </div>

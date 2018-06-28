@@ -21,6 +21,7 @@ import com.bt.om.entity.AdCustomerType;
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdMediaType;
 import com.bt.om.entity.AdSeatType;
+import com.bt.om.entity.SysResources;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.SysMenuVo;
 import com.bt.om.entity.vo.SysUserVo;
@@ -41,6 +42,7 @@ import com.bt.om.service.IAdCustomerTypeService;
 import com.bt.om.service.IAdMediaTypeService;
 import com.bt.om.service.IAppService;
 import com.bt.om.service.IResourceService;
+import com.bt.om.service.ISysGroupService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.util.CityUtil;
 import com.bt.om.util.ConfigUtil;
@@ -81,6 +83,9 @@ public class VMComponent {
 
 	@Autowired
 	IAppService adAppService;
+	
+	@Autowired
+	private ISysGroupService sysGroupService;
     public String getCityName(Long code) {
         return code == null ? "" : cityCache.getCityName(code);
     }
@@ -350,6 +355,13 @@ public class VMComponent {
      */
     public List<SysUserVo> getAllDepartmentLeader() {
     	return sysUserService.getAllByUserType(5);
+    }
+    
+    /**
+     * 获取所有部门名称  type=1
+     * */
+    public List<SysResources> getAllDepartment() {
+    	return sysGroupService.getAllDepartment(1);
     }
     
     /**

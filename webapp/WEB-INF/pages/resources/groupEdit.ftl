@@ -12,6 +12,20 @@
 		<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter">
 			<tbody>
 			    <input type="hidden" name="id" id="id" value="${(obj.id)?if_exists}"/>
+			    <#if (usertype?exists && usertype==4)>
+			    <tr>
+			    	<td class="a-title">部门名称：</td>
+			    	<td  style="padding-bottom:20px;" id="allDepartment">
+				    	<div class="select-box select-box-140 un-inp-select ll">
+	                        <select name="parentid" class="select" id="parentid">
+	                            <option value="">所有部门</option>
+	                        	<@model.showAllDepartmentOps value="${obj.parentid?if_exists}"/>
+	                        </select>
+	                    </div>
+	                    <span id="allDepartmentTip" class="onError" style="display:none">请选择部门名称</span>
+                    </td>
+			    </tr>
+			    </#if>
 				<tr>
 					<td class="a-title">组名称：</td>
 					<td>
@@ -41,10 +55,18 @@
 <script src="${model.static_domain}/js/select/jquery.searchableSelect.js"></script>
 <script>
 $(function() {
-	$('.select').searchableSelect();
+	$('.select').searchableSelect({
+		afterSelectItem: function(){
+			if(this.holder.data("value")){
+				$('#allDepartmentTip').css('display', 'none')
+			}else{
+				$('#allDepartmentTip').css('display', 'inline-block')
+			}
+		}
+	});
 
-	<#if !((obj.id)?exists)>
-	   $("")
+	<#if ((obj.id)?exists)>
+	 	$("#allDepartment").html("<div id='allDepartmentSelect' data-id='"+$('#parentid option:selected').val()+"'>"+ $('#parentid option:selected').text()+" </div>")
 	</#if>
 
 	var id = $("#id").val();
@@ -58,45 +80,56 @@ $(function() {
 		validatorGroup:"2",
         submitButtonID: "groupSubmit",
         debug: false,
-        submitOnce: true,
+        submitOnce: false,
         errorFocus: false,
         onSuccess: function(){
 	        var groupName = $("#groupName").val();
             var groupLeaderId = $("#groupLeaderId").val();
-            $.ajax({
-                url: "/sysResources/saveGroup",
-                type: "post",
-                data: {
-                	"id": id,
-                    "name": groupName
-                },
-                cache: false,
-                dataType: "json",
-                success: function(datas) {
-                    var resultRet = datas.ret;
-                    if (resultRet.code == 101) {
-                    	layer.confirm(resultRet.resultDes, {
-							icon: 2,
+            var parentid = $("#parentid").val();
+            <#if ((obj.id)?exists)>
+            	parentid = $('#allDepartmentSelect').data('id')
+            </#if>
+			if(!parentid){
+				$('#allDepartmentTip').css('display', 'inline-block');
+				return false
+			}else{
+				$.ajax({
+	                url: "/sysResources/saveGroup",
+	                type: "post",
+	                data: {
+	                	"id": id,
+	                    "name": groupName,
+	                    "parentid" : parentid
+	                },
+	                cache: false,
+	                dataType: "json",
+	                success: function(datas) {
+	                    var resultRet = datas.ret;
+	                    if (resultRet.code == 101) {
+	                    	layer.confirm(resultRet.resultDes, {
+								icon: 2,
+								btn: ['确定'] //按钮
+							});
+	                    } else {
+	                    	var msg = "保存成功";
+	                    	layer.confirm(msg, {
+								icon: 1,
+								closeBtn: 0,
+								btn: ['确定'] //按钮
+							}, function(){
+								window.parent.location.reload();
+							});
+	                    }
+	                },
+	                error: function(e) { 
+	                	layer.confirm("服务忙，请稍后再试", {
+							icon: 5,
 							btn: ['确定'] //按钮
 						});
-                    } else {
-                    	var msg = "保存成功";
-                    	layer.confirm(msg, {
-							icon: 1,
-							closeBtn: 0,
-							btn: ['确定'] //按钮
-						}, function(){
-							window.parent.location.reload();
-						});
-                    }
-                },
-                error: function(e) { 
-                	layer.confirm("服务忙，请稍后再试", {
-						icon: 5,
-						btn: ['确定'] //按钮
-					});
-                }
-            });
+	                }
+	            });
+			}
+            
         },
         submitAfterAjaxPrompt: '有数据正在异步验证，请稍等...'
     });
@@ -116,7 +149,6 @@ $(function() {
 		onError:"组名称不能为空，请输入"
 	});
 	
-
 });
             
 </script>

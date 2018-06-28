@@ -115,7 +115,10 @@ public class AppController {
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
-        
+        if(adapp.getAppPictureUrl()!=null && adapp.getAppPictureUrl()!="") {
+        	String picUrl = adapp.getAppPictureUrl().substring(adapp.getAppPictureUrl().indexOf("/static"), adapp.getAppPictureUrl().length());
+        	adapp.setAppPictureUrl(picUrl);
+        }
         try {
             if (adapp.getId() != null) {
             	adapp.setUpdateTime(now);

@@ -49,4 +49,6 @@ public interface SysResourcesMapper {
 	int getUserId(@Param("departmentType")Integer departmentType);
 
 	Integer getResId(@Param("id")Integer id,@Param("parentId") Integer parentId);
+
+	List<SysResources> getAllDepartment(int type);
 }

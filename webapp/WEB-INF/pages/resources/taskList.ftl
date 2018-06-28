@@ -4,7 +4,6 @@
 <@model.webhead />
 <!-- 头部 -->
 <@model.webMenu current="任务管理" child="监测任务管理" />
-
 <!-- 特色内容 -->
 <div class="main-container" style="height: auto;">
     <div class="main-box">

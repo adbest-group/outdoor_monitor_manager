@@ -396,6 +396,16 @@
 	</#if>
 </#macro>
 
+<#-- 所有部门下拉选项  -->
+<#macro showAllDepartmentOps value="-1">
+	<#local list = vm.getAllDepartment() />
+	<#if (list?exists && list?size > 0)>
+		<#list list as type>
+			<@showOption value="${type.id?if_exists}" title="${type.name?if_exists}" select="${value?if_exists}" />
+		</#list>
+	</#if>
+</#macro>
+
 <#-- 所有可用客户下拉选项  -->
 <#macro showAllCustomerAvailableOps value="-1">
 	<#local list = vm.getAllCustomerAvailable() />

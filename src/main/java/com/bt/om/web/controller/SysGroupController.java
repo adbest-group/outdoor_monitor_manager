@@ -99,7 +99,18 @@ public class SysGroupController extends BasicController{
      */
     @RequestMapping(value = "/addGroup")
     public String gotoAddPage(Model model) {
-    	
+    	SysUser sysUser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+    	model.addAttribute("usertype", sysUser.getUsertype());
+    	model.addAttribute("obj", new SysResources());
+//        SearchDataVo vo = SearchUtil.getVo();
+//    	if(sysUser.getUsertype() == 4) {
+//    		//超级管理员登录，展示所有部门信息
+//    		Integer type = 1;	//type=1的所有部门信息
+//    		vo.putSearchParam("type", type.toString(), type);
+//    		sysGroupService.getPageData(vo);
+//        	
+//    	}
+//    	SearchUtil.putToModel(model, vo);
         return PageConst.DEPARMENT_ADMIN_GROUP_EDIT;
     }
     
@@ -127,11 +138,16 @@ public class SysGroupController extends BasicController{
             	//获取当前登录的后台用户id
                 SysUser sysUser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
                 if(sysUser.getUsertype() == 5) {
-                	//部门领导登录, 查询部门领导账号一对一管理的部门信息
-                	SysResources department = sysGroupService.getByUserId(sysUser.getId());
-                	sysResources.setParentid(department.getId());
+                	if(sysResources.getParentid()==null) {
+	                	//部门领导登录, 查询部门领导账号一对一管理的部门信息
+	                	SysResources department = sysGroupService.getByUserId(sysUser.getId());
+	                	sysResources.setParentid(department.getId());
+	                	sysGroupService.insert(sysResources);
+                	}
+                }else if(sysUser.getUsertype() == 4 && sysResources.getParentid() != null) {
+                	//超级管理员登录
+                	sysGroupService.insert(sysResources);
                 }
-            	sysGroupService.insert(sysResources);
             } 
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -150,12 +166,23 @@ public class SysGroupController extends BasicController{
     @RequiresRoles(value = {"departmentadmin", "depactivityadmin", "deptaskadmin", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/editGroup")
     public String gotoEditPage(Model model, HttpServletRequest request,
-                         @RequestParam(value = "id", required = false) Integer id) {
+                         @RequestParam(value = "id", required = false) Integer id,
+                         @RequestParam(value = "parentid" ,required = false) Integer parentid) {
+     	SysUser sysUser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+     	model.addAttribute("usertype", sysUser.getUsertype());
+//    	SearchDataVo vo = SearchUtil.getVo();
         if (id != null) {
             SysResources sysResources = sysGroupService.getById(id);
             model.addAttribute("obj", sysResources);
+//            if(sysUser.getUsertype() == 4) {
+//        		//超级管理员登录，展示当前部门信息
+//        		vo.putSearchParam("id", parentid.toString(), parentid);
+//        	}
         }
-        return PageConst.DEPARMENT_ADMIN_GROUP_EDIT ;
+        
+//    	sysGroupService.getPageData(vo);
+//    	SearchUtil.putToModel(model, vo);
+        return PageConst.DEPARMENT_ADMIN_GROUP_EDIT;
     }
     
     /**
@@ -799,7 +826,7 @@ public class SysGroupController extends BasicController{
     /**
      * 【活动审核部门】【任务审核部门】【纠错审核部门】领导 删除组
      */
-    @RequiresRoles(value = {"departmentadmin", "depactivityadmin", "deptaskadmin", "depjiucuoadmin"}, logical = Logical.OR)
+    @RequiresRoles(value = {"departmentadmin", "depactivityadmin", "deptaskadmin", "depjiucuoadmin","superadmin"}, logical = Logical.OR)
     @ResponseBody
     @RequestMapping(value = "/deleteGroup")
     public Model deleteGroup(Model model ,HttpServletRequest request,

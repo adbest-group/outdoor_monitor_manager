@@ -311,7 +311,7 @@ $(function() {
     			onFocus:"请输入姓名",
     			onCorrect:"　"
     		}).regexValidator({
-    			regExp:"^\\S{0,10}$",
+    			regExp:"^\\S{0,20}$",
     			onError:"姓名不能太长，请输入"
     		});
     		

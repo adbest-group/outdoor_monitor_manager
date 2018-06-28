@@ -4,8 +4,7 @@
 <@model.webhead />
     <!-- 头部 -->
     <@model.webMenu current="任务管理" child="上刊任务指派" />
-
-	<!-- 特色内容 -->
+<!-- 特色内容 -->
 <div class="main-container" style="height: auto;">
     <div class="main-box">
         <div class="title clearfix" style="display:block;">
@@ -430,4 +429,4 @@
 </script>
 <!-- 特色内容 -->
 
-<@model.webend />
+<@model.webend />	

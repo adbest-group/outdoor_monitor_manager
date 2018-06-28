@@ -73,7 +73,7 @@
                                        autocomplete="off" class="form-control">
                                 <span id="locationTip"></span>
                             </td>
-                        </tr>
+                        </tr>var samplePicUrl = $("#img-demo-bak").val();var samplePicUrl = appPictureUrl;
                          -->
                         <tr>
                             <td></td>
@@ -148,7 +148,7 @@
     	
     	var pic = $('#pic').val();
        	$("#img-demo-img").attr("src",pic);//样例图片地址
-      
+
         $.formValidator.initConfig({
             validatorGroup:"2",
             submitButtonID: "submit",
@@ -159,8 +159,8 @@
             	var id = $('#id').val();
             	var appName = $("#appName").val();
                 var appTitle = $("#appTitle").val();
-				var samplePicUrl = $("#img-demo-bak").val();
-            
+            	
+            	var samplePicUrl = $("#img-demo-img")[0].src;
 				$.ajax({
 					url : '/app/save',
 					type : 'POST',

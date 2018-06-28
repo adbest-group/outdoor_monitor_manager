@@ -201,6 +201,9 @@
     from
     sys_resources
     where 1=1
+    <if test="id != null" >
+      and id = #{id,jdbcType=INTEGER}
+    </if>
     <if test="name != null" >
       and name like #{name,jdbcType=VARCHAR}
     </if>
@@ -237,6 +240,9 @@
     left join sys_user b on a.user_id = b.id
     left join sys_resources c on a.parentId = c.id
     where 1=1
+    <if test="id != null" >
+      and a.id = #{id,jdbcType=INTEGER}
+    </if>
     <if test="name != null" >
       and a.name like #{name,jdbcType=VARCHAR}
     </if>
@@ -313,5 +319,12 @@
   	from sys_resources
   	where parentId=#{parentId,jdbcType=INTEGER}
   	and id=#{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="getAllDepartment" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  	select 
+  	<include refid="Base_Column_List" />
+    from sys_resources
+    where type = #{type,jdbcType=INTEGER}
   </select>
 </mapper>

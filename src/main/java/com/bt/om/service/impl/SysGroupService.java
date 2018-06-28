@@ -124,4 +124,9 @@ public class SysGroupService implements ISysGroupService{
 	public int deleteGroupById(Integer id) {
 		return sysResourcesMapper.deleteByPrimaryKey(id);
 	}
+
+	@Override
+	public List<SysResources> getAllDepartment(int i) {
+		return sysResourcesMapper.getAllDepartment(i);
+	}
 }

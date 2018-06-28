@@ -26,4 +26,6 @@ public interface ISysGroupService {
 	public List<Integer> selectGroupIdsByDepartmentId(Integer parentId);
 	public void deleteGroup(Integer id);
 	public int deleteGroupById(Integer id);
+
+	public List<SysResources> getAllDepartment(int i);
 }

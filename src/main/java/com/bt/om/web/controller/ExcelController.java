@@ -250,8 +250,8 @@ public class ExcelController extends BasicController {
 			
 			//[1] 生成pdf首页
 		    BaseFont bfChinese = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
-		    BaseFont secfont = BaseFont.createFont("/static/font/SIMKAI.TTF", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
-		    BaseFont thifont = BaseFont.createFont("/static/font/SIMFANG.TTF", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+		    BaseFont secfont = BaseFont.createFont(request.getSession().getServletContext().getRealPath("/") + "/static/font/SIMKAI.TTF", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+		    BaseFont thifont = BaseFont.createFont(request.getSession().getServletContext().getRealPath("/") + "/static/font/SIMFANG.TTF", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
 		    Font font = new Font(bfChinese,12, Font.BOLD);
 		    
 		    //拼接title

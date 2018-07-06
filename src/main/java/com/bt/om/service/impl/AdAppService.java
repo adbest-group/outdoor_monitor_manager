@@ -69,4 +69,5 @@ public class AdAppService implements IAppService {
 		return adAppMapper.getAppPicUrlAndTitleBySid(sid);
 	}
 
+
 }

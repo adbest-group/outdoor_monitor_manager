@@ -52,6 +52,5 @@ public interface AdAppMapper {
 	List<AdApp> getAllAppType();
 	
 	AdApp getAppPicUrlAndTitleBySid(String sid);
-	
 
 }

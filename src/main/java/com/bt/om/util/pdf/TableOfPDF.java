@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
@@ -32,6 +33,7 @@ public class TableOfPDF {
 	public void createPDF(String filename) throws IOException {
 		// step 1
 		Document document = new Document(PageSize.LEDGER);
+		document.setMargins(200f, 200f, 1200f, 200f);
 		// step 2
 		try {
 			PdfWriter.getInstance(document, new FileOutputStream(filename));
@@ -43,6 +45,7 @@ public class TableOfPDF {
 
 			// step 3
 			document.open();
+			
 			// step 4
 			PdfPTable table = createTable1();
 			document.add(table);
@@ -137,9 +140,8 @@ public class TableOfPDF {
 	    Font subBoldFontChinese = new Font(bfChinese, 20, Font.BOLD); 
 		
 		PdfPTable table = new PdfPTable(7);
-		table.setWidthPercentage(100);
 		table.setWidths(new int[] { 1, 1, 1, 1, 1, 1, 1 });
-
+		
         table.addCell(new Paragraph("广告位名称", fontChinese));
         table.addCell(new Paragraph("地理位置", fontChinese));
         table.addCell(new Paragraph("详细位置", fontChinese));

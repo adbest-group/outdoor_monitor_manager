@@ -32,6 +32,8 @@
 						</#list>
 					</#if>
 					<#if downMonitor_show?exists><a href="javascript:downMonitorShow(${downMonitor_show.value},'${downMonitor_show.key}')">${downMonitor_show.key?if_exists}</a> <br/></#if>				
+					<#if upTask_show?? || upMonitor_show?? || durationMonitor_show?? || zhuijiaMonitor_show?? || downMonitor_show??>
+					<#else>当前时间暂无报告</#if>
 				</tbody>
 			</table>
             </form>

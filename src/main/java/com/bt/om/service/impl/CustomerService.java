@@ -73,6 +73,7 @@ public class CustomerService implements ICustomerService {
         sysUserRoleMapper.insertSelective(userRole);
         //创建app端账号
         SysUserExecute userExe = new SysUserExecute();
+        AdApp adapp = adAppMapper.selectByPrimaryKey(user.getAppTypeId()); //通过appTypeId找到app_sid
         userExe.setUsername(user.getUsername());
         userExe.setPassword(user.getPassword());
         userExe.setUsertype(2);
@@ -80,7 +81,7 @@ public class CustomerService implements ICustomerService {
         userExe.setStatus(1);
         userExe.setRealname(user.getRealname());
         userExe.setMobile(user.getTelephone());
-        userExe.setAppSid(user.getAppSid());
+        userExe.setAppSid(adapp.getAppSid());
         userExe.setCreateTime(now);
         userExe.setUpdateTime(now);
         sysUserExecuteMapper.insertSelective(userExe);

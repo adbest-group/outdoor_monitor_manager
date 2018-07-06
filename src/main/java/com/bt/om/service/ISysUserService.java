@@ -135,4 +135,6 @@ public interface ISysUserService {
 
 	SysUser getUserNameById(Integer customerId);
 
+	SysUser getUserAppType(Integer userId);
+
 }

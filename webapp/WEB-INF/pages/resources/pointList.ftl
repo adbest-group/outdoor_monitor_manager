@@ -13,8 +13,8 @@
                     <input type="text" placeholder="请输入积分名称" value="${searchName?if_exists}" id="searchName" name="name">
                 </div>
                 <button type="button" class="btn btn-red" autocomplete="off" id="searchBtn">查询</button>
-                <button type="button" class="btn btn-red" autocomplete="off"
-					onclick="window.location.href='/sysResources/pointEdit'">新增</button>
+               <!--  <button type="button" class="btn btn-red" autocomplete="off"
+					onclick="window.location.href='/sysResources/pointEdit'">新增</button> -->
             </div>
 		</div>
 

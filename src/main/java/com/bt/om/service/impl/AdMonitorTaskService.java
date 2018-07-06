@@ -22,6 +22,7 @@ import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.AdMonitorUserTask;
+import com.bt.om.entity.AdPoint;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.AdUserMessage;
 import com.bt.om.entity.AdUserPoint;
@@ -46,8 +47,10 @@ import com.bt.om.mapper.AdMonitorRewardMapper;
 import com.bt.om.mapper.AdMonitorTaskFeedbackMapper;
 import com.bt.om.mapper.AdMonitorTaskMapper;
 import com.bt.om.mapper.AdMonitorUserTaskMapper;
+import com.bt.om.mapper.AdPointMapper;
 import com.bt.om.mapper.AdSeatInfoMapper;
 import com.bt.om.mapper.AdUserMessageMapper;
+import com.bt.om.mapper.AdUserPointMapper;
 import com.bt.om.mapper.SysResourcesMapper;
 import com.bt.om.mapper.SysUserExecuteMapper;
 import com.bt.om.mapper.SysUserMapper;
@@ -89,7 +92,10 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     private AdActivityMapper adActivityMapper;
     @Autowired
     private SysUserExecuteMapper sysUserExecuteMapper;
-
+	@Autowired
+	private AdUserPointMapper adUserPointMapper;
+	@Autowired
+	private AdPointMapper adPointMapper;
     @Override
     public void getPageData(SearchDataVo vo) {
         int count = adMonitorTaskMapper.getPageCount(vo.getSearchMap());
@@ -221,14 +227,44 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     public void pass(String[] taskIds, Integer assessorId, Integer status) {
     	SysUser auditPerson = sysUserMapper.selectByPrimaryKey(assessorId); //获取审核人的相关信息
     	
+    	AdPoint point4= adPointMapper.selectByPointType(4);//上刊任务的1次积分数
+    	AdPoint point5= adPointMapper.selectByPointType(5);//上刊监测
+    	AdPoint point6= adPointMapper.selectByPointType(6);//期间监测
+    	AdPoint point7= adPointMapper.selectByPointType(7);//下刊监测
+    	AdPoint point8= adPointMapper.selectByPointType(8);//追加监测
     	//[4] 确认操作在业务层方法里进行循环
     	for (String taskId : taskIds) {
     		Integer id = Integer.parseInt(taskId);
+    		adMonitorTaskMapper.selectByPrimaryKey(id);
 	        Date now = new Date();
 	        AdMonitorTask task= new AdMonitorTask();
 	        task.setId(id);
 	        task.setStatus(status);
 	        task.setAssessorId(assessorId);
+	       //完成任务且审核通过给用户添加积分
+	        AdUserPoint adUserPoint = new AdUserPoint();
+	        AdMonitorTask task1=adMonitorTaskMapper.selectByPrimaryKey(id);
+	        adUserPoint.setUserId(task1.getUserId());
+	        adUserPoint.setCreateTime(now);
+	        adUserPoint.setUpdateTime(now);
+	        if(task1.getTaskType()==5) {
+	        	adUserPoint.setPoint(point4.getPoint()); 
+	        	adUserPoint.setResult("恭喜您完成上刊任务，获得"+point4.getPoint()+"积分");
+	        }else if(task1.getTaskType()==1){
+	        	adUserPoint.setPoint(point5.getPoint()); 
+	        	adUserPoint.setResult("恭喜您完成上刊监测，获得"+point5.getPoint()+"积分");
+	        }else if(task1.getTaskType()==2){
+	        	adUserPoint.setPoint(point6.getPoint()); 
+	        	adUserPoint.setResult("恭喜您完成投放期间监测，获得"+point6.getPoint()+"积分");
+	        }else if(task1.getTaskType()==3){
+	        	adUserPoint.setPoint(point7.getPoint()); 
+	        	adUserPoint.setResult("恭喜您完成下刊监测，获得"+point7.getPoint()+"积分");
+	        }else if(task1.getTaskType()==6){
+	        	adUserPoint.setPoint(point8.getPoint());  
+	        	adUserPoint.setResult("恭喜您完成追加监测，获得"+point8.getPoint()+"积分");
+	        }
+	        adUserPointMapper.insertSelective(adUserPoint);
+
 	        AdMonitorTaskFeedback feedback = null;
 	        //如果监测反馈有问题，问题状态置为有问题，否则无问题
 	        List<AdMonitorTaskFeedback> feedbacks = adMonitorTaskFeedbackMapper.selectByTaskId(task.getId(), 1);
@@ -247,6 +283,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	        task.setUpdateTime(now);
 	        adMonitorTaskMapper.updateByPrimaryKeySelective(task);
 	        task = adMonitorTaskMapper.selectByPrimaryKey(task.getId());
+
 	        //如果当前任务是子任务，如果有问题，父任务的状态恢复到有问题，如果没有问题，则关闭父任务，这里分父任务是监测或纠错
 	        if(task.getParentId()!=null){
 	            if(task.getParentType()==RewardTaskType.MONITOR.getId()){

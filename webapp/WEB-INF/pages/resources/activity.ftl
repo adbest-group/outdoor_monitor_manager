@@ -256,7 +256,7 @@ function changeMediaTypeId() {
             }
 
     $(function(){
-
+/* 
         $('.inputs-date').dateRangePicker({
             separator : ' 至 ',
             showShortcuts:false,
@@ -281,7 +281,7 @@ function changeMediaTypeId() {
                 })
 
             }
-        });
+        }); */
 
 //        var newDate=new Date().Format("yyyy-MM-dd");
 //        $('.inputs-date').data('dateRangePicker').setDateRange(newDate,newDate, true);
@@ -339,8 +339,9 @@ function changeMediaTypeId() {
 			                });
 			            }
 			        });
-            }
-        });
+            	}
+       	})
+   	);
         $("input[name='ck-alltask']").change(function(){
             if($(this).is(":checked")){
                 $("input[name='ck-task']").prop("checked",true)

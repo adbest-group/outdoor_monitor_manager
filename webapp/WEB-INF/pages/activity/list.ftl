@@ -210,7 +210,7 @@ function changeMediaTypeId() {
         $(window).resize();
         $('.select').searchableSelect();
 
-        $('.inputs-date').dateRangePicker({
+        /* $('.inputs-date').dateRangePicker({
             separator : ' 至 ',
             showShortcuts:false,
             getValue: function()
@@ -234,7 +234,7 @@ function changeMediaTypeId() {
                 })
 
             }
-        });
+        }); */
         
         // 如果列表中有未确认的状态就显示表头的多选框
         $("input[name='ck-task']").each(function() {

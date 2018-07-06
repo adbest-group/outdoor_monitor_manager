@@ -24,6 +24,7 @@ import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.AdMonitorUserTask;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.AdUserMessage;
+import com.bt.om.entity.AdUserPoint;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AbandonTaskVo;

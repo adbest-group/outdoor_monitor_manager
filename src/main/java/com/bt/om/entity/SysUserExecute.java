@@ -177,8 +177,28 @@ public class SysUserExecute extends ID {
      *
      * @mbggenerated Tue Jan 23 17:12:28 CST 2018
      */
-    
-    private String appSid;
+    //手机型号和系统版本号
+    private String deviceId;
+	private String systemVersion;
+ 
+
+    public String getDeviceId() {
+		return deviceId;
+	}
+
+	public void setDeviceId(String deviceId) {
+		this.deviceId = deviceId;
+	}
+
+	public String getSystemVersion() {
+		return systemVersion;
+	}
+
+	public void setSystemVersion(String systemVersion) {
+		this.systemVersion = systemVersion;
+	}
+
+	private String appSid;
     
     public String getMac() {
 		return mac;

@@ -1,13 +1,11 @@
 package com.bt.om.service;
 
-import com.bt.om.entity.SysUser;
-import com.bt.om.entity.SysUserExecute;
-import com.bt.om.entity.vo.SysUserExecuteVo;
-import com.bt.om.entity.vo.SysUserVo;
-import com.bt.om.vo.web.SearchDataVo;
-
 import java.util.List;
 import java.util.Map;
+
+import com.bt.om.entity.SysUserExecute;
+import com.bt.om.entity.vo.SysUserExecuteVo;
+import com.bt.om.vo.web.SearchDataVo;
 
 /**
  * Created by caiting on 2018/1/23.
@@ -32,4 +30,6 @@ public interface ISysUserExecuteService {
 	public SysUserExecute getMobile(String vcode);
 	
 	List<SysUserExecute> selectMediaNameByUserId(Integer id);
+	
+	public int updatePhoneModel(SysUserExecute sysUserExecute);
 }

@@ -7,6 +7,7 @@ import java.util.Map;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.SysUser;
@@ -89,6 +90,12 @@ public class SysUserExecuteService implements ISysUserExecuteService {
 	@Override
 	public List<SysUserExecute> selectMediaNameByUserId(Integer id) {
 		return sysUserExecuteMapper.selectMediaNameByUserId(id);
+	}
+
+	@Override
+	@Transactional
+	public int updatePhoneModel(SysUserExecute sysUserExecute) {
+		return sysUserExecuteMapper.updatePhoneModel(sysUserExecute);
 	}
 
 }

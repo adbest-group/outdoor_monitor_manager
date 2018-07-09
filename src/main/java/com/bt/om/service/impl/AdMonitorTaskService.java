@@ -225,46 +225,22 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void pass(String[] taskIds, Integer assessorId, Integer status) {
+    	Date now = new Date();
     	SysUser auditPerson = sysUserMapper.selectByPrimaryKey(assessorId); //获取审核人的相关信息
     	
-    	AdPoint point4= adPointMapper.selectByPointType(4);//上刊任务的1次积分数
     	AdPoint point5= adPointMapper.selectByPointType(5);//上刊监测
     	AdPoint point6= adPointMapper.selectByPointType(6);//期间监测
     	AdPoint point7= adPointMapper.selectByPointType(7);//下刊监测
     	AdPoint point8= adPointMapper.selectByPointType(8);//追加监测
+    	
     	//[4] 确认操作在业务层方法里进行循环
     	for (String taskId : taskIds) {
     		Integer id = Integer.parseInt(taskId);
-    		adMonitorTaskMapper.selectByPrimaryKey(id);
-	        Date now = new Date();
-	        AdMonitorTask task= new AdMonitorTask();
+	        AdMonitorTask task = new AdMonitorTask();
 	        task.setId(id);
 	        task.setStatus(status);
 	        task.setAssessorId(assessorId);
-	       //完成任务且审核通过给用户添加积分
-	        AdUserPoint adUserPoint = new AdUserPoint();
-	        AdMonitorTask task1=adMonitorTaskMapper.selectByPrimaryKey(id);
-	        adUserPoint.setUserId(task1.getUserId());
-	        adUserPoint.setCreateTime(now);
-	        adUserPoint.setUpdateTime(now);
-	        if(task1.getTaskType()==5) {
-	        	adUserPoint.setPoint(point4.getPoint()); 
-	        	adUserPoint.setResult("恭喜您完成上刊任务，获得"+point4.getPoint()+"积分");
-	        }else if(task1.getTaskType()==1){
-	        	adUserPoint.setPoint(point5.getPoint()); 
-	        	adUserPoint.setResult("恭喜您完成上刊监测，获得"+point5.getPoint()+"积分");
-	        }else if(task1.getTaskType()==2){
-	        	adUserPoint.setPoint(point6.getPoint()); 
-	        	adUserPoint.setResult("恭喜您完成投放期间监测，获得"+point6.getPoint()+"积分");
-	        }else if(task1.getTaskType()==3){
-	        	adUserPoint.setPoint(point7.getPoint()); 
-	        	adUserPoint.setResult("恭喜您完成下刊监测，获得"+point7.getPoint()+"积分");
-	        }else if(task1.getTaskType()==6){
-	        	adUserPoint.setPoint(point8.getPoint());  
-	        	adUserPoint.setResult("恭喜您完成追加监测，获得"+point8.getPoint()+"积分");
-	        }
-	        adUserPointMapper.insertSelective(adUserPoint);
-
+	        
 	        AdMonitorTaskFeedback feedback = null;
 	        //如果监测反馈有问题，问题状态置为有问题，否则无问题
 	        List<AdMonitorTaskFeedback> feedbacks = adMonitorTaskFeedbackMapper.selectByTaskId(task.getId(), 1);
@@ -283,6 +259,26 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	        task.setUpdateTime(now);
 	        adMonitorTaskMapper.updateByPrimaryKeySelective(task);
 	        task = adMonitorTaskMapper.selectByPrimaryKey(task.getId());
+	        
+	        //完成任务且审核通过给用户添加积分
+	        AdUserPoint adUserPoint = new AdUserPoint();
+	        adUserPoint.setUserId(task.getUserId());
+	        adUserPoint.setCreateTime(now);
+	        adUserPoint.setUpdateTime(now);
+	        if(task.getTaskType()==1){
+	        	adUserPoint.setPoint(point5.getPoint()); 
+	        	adUserPoint.setResult("恭喜您完成上刊监测任务，获得"+point5.getPoint()+"积分");
+	        }else if(task.getTaskType()==2){
+	        	adUserPoint.setPoint(point6.getPoint()); 
+	        	adUserPoint.setResult("恭喜您完成投放期间监测任务，获得"+point6.getPoint()+"积分");
+	        }else if(task.getTaskType()==3){
+	        	adUserPoint.setPoint(point7.getPoint()); 
+	        	adUserPoint.setResult("恭喜您完成下刊监测任务，获得"+point7.getPoint()+"积分");
+	        }else if(task.getTaskType()==6){
+	        	adUserPoint.setPoint(point8.getPoint());  
+	        	adUserPoint.setResult("恭喜您完成追加监测任务，获得"+point8.getPoint()+"积分");
+	        }
+	        adUserPointMapper.insertSelective(adUserPoint);
 
 	        //如果当前任务是子任务，如果有问题，父任务的状态恢复到有问题，如果没有问题，则关闭父任务，这里分父任务是监测或纠错
 	        if(task.getParentId()!=null){
@@ -455,6 +451,19 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         
         //获取监测任务
         AdMonitorTask task = adMonitorTaskMapper.selectByPrimaryKey(taskId);
+        
+        //上刊任务添加用户积分
+        if(task.getTaskType() == 5) {
+        	AdPoint adPoint = adPointMapper.selectByPointType(4);//上刊任务
+        	AdUserPoint userPoint = new AdUserPoint();
+        	userPoint.setPoint(adPoint.getPoint()); 
+        	userPoint.setResult("恭喜您完成上刊任务，获得" + adPoint.getPoint() + "积分");
+        	userPoint.setUserId(task.getUserId());
+        	userPoint.setUpdateTime(now);
+        	userPoint.setCreateTime(now);
+        	adUserPointMapper.insert(userPoint);
+        }
+        
         if(StringUtil.isNotBlank(feedback.getProblem()) || StringUtil.isNotBlank(feedback.getProblemOther())) {
         	task.setProblemStatus(TaskProblemStatus.PROBLEM.getId());
         } else {

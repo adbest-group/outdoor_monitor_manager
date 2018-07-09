@@ -340,8 +340,8 @@ function changeMediaTypeId() {
 			            }
 			        });
             	}
-       	})
-   	);
+       	});
+ 
         $("input[name='ck-alltask']").change(function(){
             if($(this).is(":checked")){
                 $("input[name='ck-task']").prop("checked",true)

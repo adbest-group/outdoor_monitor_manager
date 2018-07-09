@@ -27,6 +27,7 @@ import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.sound.midi.SysexMessage;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -515,6 +516,8 @@ public class ApiController extends BasicController {
         String vcode = null;
         String token = null;
         String appSid = null;
+        String deviceId=null;
+        String systemVersion=null;
         try {
             InputStream is = request.getInputStream();
             Gson gson = new Gson();
@@ -524,7 +527,8 @@ public class ApiController extends BasicController {
             vcode = obj.get("vcode") == null ? null : obj.get("vcode").getAsString();
             token = obj.get("token") == null ? null : obj.get("token").getAsString();
             appSid = obj.get("appSid") == null ? null : obj.get("appSid").getAsString();
-            
+            deviceId = obj.get("deviceId") == null ? null : obj.get("deviceId").getAsString();
+            systemVersion = obj.get("systemVersion") == null ? null : obj.get("systemVersion").getAsString();
             if (token != null) {
                 useSession.set(Boolean.FALSE);
                 this.sessionByRedis.setToken(token);
@@ -603,7 +607,7 @@ public class ApiController extends BasicController {
 ////            model.addAttribute("username", user.getUsername());
 ////            return PageConst.LOGIN_PAGE;
 //        }
-
+       
         SysUserExecute userExecute = sysUserExecuteService.getByUsername(username);
         if (userExecute == null || !md5Pwd.equals(userExecute.getPassword())) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -617,6 +621,15 @@ public class ApiController extends BasicController {
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
+        
+        if(StringUtil.isNotBlank(deviceId) && StringUtil.isNotBlank(systemVersion)) {
+        	SysUserExecute sysUserExecute = new SysUserExecute();
+        	sysUserExecute.setId(userExecute.getId());
+        	sysUserExecute.setDeviceId(deviceId);
+        	sysUserExecute.setSystemVersion(systemVersion);
+        	sysUserExecuteService.updatePhoneModel(sysUserExecute);
+        }
+        
 //        //客户登录APP, 校验appSid
 //        if(userExecute.getUsertype() == 2) {
 //        	System.out.println(userExecute.getAppSid());

@@ -29,6 +29,8 @@
     <result column="default_page" jdbcType="VARCHAR" property="defaultPage" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="device_id" jdbcType="VARCHAR" property="deviceId" />
+    <result column="system_version" jdbcType="VARCHAR" property="systemVersion" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--
@@ -38,7 +40,7 @@
     -->
     id, username, password, realname, mobile,mac, company, head_img_url, usertype, operate_id,status,
     province, city, region, street, remark, login_ip, login_time, default_page, app_sid, create_time, 
-    update_time
+    update_time,device_id,system_version
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     <!--
@@ -72,14 +74,14 @@
       province, city, region, 
       street, remark, login_ip, 
       login_time, default_page, create_time, 
-      update_time)
+      update_time,device_id,system_version)
     values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
       #{realname,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR}, #{mac,jdbcType=VARCHAR}, #{company,jdbcType=VARCHAR}, 
       #{headImgUrl,jdbcType=VARCHAR}, #{usertype,jdbcType=INTEGER}, #{operateId,jdbcType=INTEGER}, #{status,jdbcType=INTEGER},
       #{province,jdbcType=BIGINT}, #{city,jdbcType=BIGINT}, #{region,jdbcType=BIGINT},
       #{street,jdbcType=BIGINT}, #{remark,jdbcType=VARCHAR}, #{loginIp,jdbcType=VARCHAR},
       #{loginTime,jdbcType=TIMESTAMP}, #{defaultPage,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
-      #{updateTime,jdbcType=TIMESTAMP})
+      #{updateTime,jdbcType=TIMESTAMP},#{deviceId,jdbcType=VARCHAR},#{systemVersion,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.bt.om.entity.SysUserExecute" useGeneratedKeys="true" keyProperty="id">
     <!--
@@ -155,6 +157,12 @@
       <if test="updateTime != null">
         update_time,
       </if>
+      <if test="deviceId != null">
+        device_id,
+      </if>
+      <if test="systemVersion != null">
+        system_version,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -222,6 +230,11 @@
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+       <if test="deviceId != null">
+        #{deviceId,jdbcType=VARCHAR},
+      </if> <if test="systemVersion != null">
+        #{systemVersion,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -296,6 +309,12 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=TIMESTAMP},
       </if>
+       <if test="deviceId != null">
+    	  device_id = #{deviceId,jdbcType=VARCHAR},
+      </if> 
+      <if test="systemVersion != null">
+        system_version= #{systemVersion,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -325,7 +344,9 @@
       login_time = #{loginTime,jdbcType=TIMESTAMP},
       default_page = #{defaultPage,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
-      update_time = #{updateTime,jdbcType=TIMESTAMP}
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      device_id = #{deviceId,jdbcType=VARCHAR},
+      system_version= #{systemVersion,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 
@@ -357,7 +378,7 @@
     select
 	    a.id, a.username, a.password, a.realname, a.mobile, a.company, a.head_img_url, a.usertype, a.operate_id, a.status,
 	    a.province, a.city, a.region, a.street, a.remark, a.login_ip, a.login_time, a.default_page, a.create_time, a.update_time,
-    	b.media_name
+    	b.media_name,a.device_id,a.system_version
     from sys_user_execute a
     left join sys_user c on a.operate_id = c.id
     left join ad_media b on b.user_id = c.id
@@ -399,7 +420,7 @@
     select
 	    a.id, a.username, a.password, a.realname, a.mobile, a.company, a.head_img_url, a.usertype, a.operate_id, a.status,
 	    a.province, a.city, a.region, a.street, a.remark, a.login_ip, a.login_time, a.default_page, a.create_time, a.update_time,
-    	b.media_name
+    	b.media_name,a.device_id,a.system_version
     from sys_user_execute a
     left join sys_user c on a.operate_id = c.id
     left join ad_media b on b.user_id = c.id
@@ -441,4 +462,12 @@
   	where mobile = #{mobile ,jdbcType=VARCHAR}
   </select>
   
+  <update id="updatePhoneModel" parameterType="com.bt.om.entity.SysUserExecute"> 
+	update 
+		sys_user_execute
+    set 
+	    device_id = #{deviceId,jdbcType=VARCHAR},
+	    system_version= #{systemVersion,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
 </mapper>

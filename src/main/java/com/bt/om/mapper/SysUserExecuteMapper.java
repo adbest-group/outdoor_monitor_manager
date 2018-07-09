@@ -9,7 +9,6 @@ import org.apache.ibatis.session.RowBounds;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.SysUserExecuteVo;
-import com.bt.om.entity.vo.SysUserVo;
 
 public interface SysUserExecuteMapper {
     /**
@@ -76,5 +75,7 @@ public interface SysUserExecuteMapper {
 
 	int updateUserPwd(SysUser u);
 	
-	 List<SysUserExecute> selectMediaNameByUserId(@Param("id") Integer id);
+	List<SysUserExecute> selectMediaNameByUserId(@Param("id") Integer id);
+
+	int updatePhoneModel(SysUserExecute sysUserExecute);
 }

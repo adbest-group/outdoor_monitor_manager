@@ -2577,6 +2577,8 @@ public class ApiController extends BasicController {
         String username = null;
         String vcode = null;
         String token = null;
+        String deviceId=null;
+        String systemVersion=null;
         
         try {
             InputStream is = request.getInputStream();
@@ -2585,6 +2587,8 @@ public class ApiController extends BasicController {
             username = obj.get("username") == null ? null : obj.get("username").getAsString();
             vcode = obj.get("vcode") == null ? null : obj.get("vcode").getAsString();
             token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            deviceId = obj.get("deviceId") == null ? null : obj.get("deviceId").getAsString();
+            systemVersion = obj.get("systemVersion") == null ? null : obj.get("systemVersion").getAsString();
             if (token != null) {
                 useSession.set(Boolean.FALSE);
                 this.sessionByRedis.setToken(token);
@@ -2658,6 +2662,14 @@ public class ApiController extends BasicController {
             result.setResultDes("账号已被停用！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
+        }
+        
+        if(StringUtil.isNotBlank(deviceId) && StringUtil.isNotBlank(systemVersion)) {
+        	SysUserExecute sysUserExecute = new SysUserExecute();
+        	sysUserExecute.setId(userExecute.getId());
+        	sysUserExecute.setDeviceId(deviceId);
+        	sysUserExecute.setSystemVersion(systemVersion);
+        	sysUserExecuteService.updatePhoneModel(sysUserExecute);
         }
 
         if (useSession.get()) {

@@ -289,10 +289,6 @@
     ad_activity a 
     	left join sys_user b on a.assessor_id = b.id
     	left join sys_user c on a.user_id = c.id
-    	left join ad_activity_adseat d on a.id = d.activity_id
-	    left join ad_seat_info e on e.id = d.ad_seat_id
-    	left join ad_media_type f on e.media_type_parent_id=f.id
-	    left join ad_media_type g on e.media_type_id=g.id
     where 1=1
     <if test="userId != null" >
       and a.user_id = #{userId,jdbcType=INTEGER}

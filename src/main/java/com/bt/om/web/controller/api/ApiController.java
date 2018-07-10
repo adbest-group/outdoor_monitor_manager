@@ -2388,6 +2388,8 @@ public class ApiController extends BasicController {
         String token = null;
         String mac = null;
         String inviteAcc = null;
+        
+        Date now = new Date();
         try {
             InputStream is = request.getInputStream();
             Gson gson = new Gson();
@@ -2461,7 +2463,6 @@ public class ApiController extends BasicController {
         
         //邀请码验证
         if(!StringUtils.isEmpty(inviteAcc)) {
-        	Date now = new Date();
         	//有邀请码的情况
         	SysUserExecute sysUserExecute = sysUserExecuteService.getMobile(inviteAcc);
         	if(sysUserExecute!=null) {
@@ -2524,6 +2525,8 @@ public class ApiController extends BasicController {
 	        userExecute.setStatus(1);
 	        userExecute.setMobile(username);
 	        userExecute.setMac(mac);
+	        userExecute.setCreateTime(now);
+            userExecute.setUpdateTime(now);
 	        try{
 	            sysUserExecuteService.add(userExecute);
 	        }catch (Exception e){

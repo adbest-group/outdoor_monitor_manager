@@ -77,6 +77,16 @@
 
 
 <script type="text/javascript">
+
+$(function(){
+    $(window).resize();
+});
+
+$(window).resize(function() {
+    var h = $(document.body).height() - 115;
+    $('.main-container').css('height', h);
+});
+
 var deleteAppSid = function(id){
         layer.confirm("确认删除？", {
             icon: 3,

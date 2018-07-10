@@ -79,6 +79,15 @@
 <script src="${model.static_domain}/js/select/jquery.searchableSelect.js"></script>
 
 <script type="text/javascript">
+$(function(){
+    $(window).resize();
+});
+
+$(window).resize(function() {
+    var h = $(document.body).height() - 115;
+    $('.main-container').css('height', h);
+});
+
 	$('.select').searchableSelect();
 
     $("#add_media").on("click", function () {

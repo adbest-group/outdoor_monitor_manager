@@ -2388,6 +2388,10 @@ public class ApiController extends BasicController {
         String token = null;
         String mac = null;
         String inviteAcc = null;
+        String deviceId = null;
+        String systemVersion = null;
+        
+        Date now = new Date();
         try {
             InputStream is = request.getInputStream();
             Gson gson = new Gson();
@@ -2398,6 +2402,8 @@ public class ApiController extends BasicController {
             token = obj.get("token") == null ? null : obj.get("token").getAsString();
             mac = obj.get("mac") == null ? null : obj.get("mac").getAsString();
             inviteAcc = obj.get("inviteAcc") == null ? null : obj.get("inviteAcc").getAsString();
+            deviceId = obj.get("deviceId") == null ? null : obj.get("deviceId").getAsString();
+            systemVersion = obj.get("systemVersion") == null ? null : obj.get("systemVersion").getAsString();
             if (token != null) {
                 useSession.set(Boolean.FALSE);
                 this.sessionByRedis.setToken(token);
@@ -2461,7 +2467,6 @@ public class ApiController extends BasicController {
         
         //邀请码验证
         if(!StringUtils.isEmpty(inviteAcc)) {
-        	Date now = new Date();
         	//有邀请码的情况
         	SysUserExecute sysUserExecute = sysUserExecuteService.getMobile(inviteAcc);
         	if(sysUserExecute!=null) {
@@ -2481,6 +2486,8 @@ public class ApiController extends BasicController {
                 userExecute.setMac(mac);
                 userExecute.setCreateTime(now);
                 userExecute.setUpdateTime(now);
+                userExecute.setDeviceId(deviceId);
+                userExecute.setSystemVersion(systemVersion);
                 try{
                 	sysUserExecuteService.add(userExecute);
             		AdUserPoint adUserPoint = new AdUserPoint();
@@ -2524,6 +2531,10 @@ public class ApiController extends BasicController {
 	        userExecute.setStatus(1);
 	        userExecute.setMobile(username);
 	        userExecute.setMac(mac);
+	        userExecute.setCreateTime(now);
+            userExecute.setUpdateTime(now);
+            userExecute.setDeviceId(deviceId);
+            userExecute.setSystemVersion(systemVersion);
 	        try{
 	            sysUserExecuteService.add(userExecute);
 	        }catch (Exception e){

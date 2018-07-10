@@ -70,6 +70,15 @@
 
 <script type="text/javascript" src="/static/js/jquery.citys.js"></script>
 <script type="text/javascript">
+$(function(){
+    $(window).resize();
+});
+
+$(window).resize(function() {
+    var h = $(document.body).height() - 115;
+    $('.main-container').css('height', h);
+});
+
  	// 查询
     $("#searchBtn").on("click", function () {
         var strParam = "";

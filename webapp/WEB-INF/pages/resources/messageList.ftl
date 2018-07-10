@@ -121,26 +121,17 @@
         $('.main-container').css('height', h);
     });
 
-        $("input[name='ck-alltask']").change(function(){
-            if($(this).is(":checked")){
-                $("input[name='ck-task']").prop("checked",true)
-            }else{
-                $("input[name='ck-task']").removeAttr("checked");
-            }
-        });
-    
-     $(window).resize(function () {
-        var h = $(document.body).height() - 115;
-        $('.main-container').css('height', h);
+    $("input[name='ck-alltask']").change(function(){
+        if($(this).is(":checked")){
+            $("input[name='ck-task']").prop("checked",true)
+        }else{
+            $("input[name='ck-task']").removeAttr("checked");
+        }
     });
-
-
+    
     $("#searchBtn").on("click", function () {
         $("#form").submit();
     });
-    
-
-
 
 </script>
 <!-- 特色内容 -->

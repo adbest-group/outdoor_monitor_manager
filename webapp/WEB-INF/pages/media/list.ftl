@@ -61,6 +61,15 @@
 </div>
 </div>
 <script type="text/javascript">
+$(function(){
+    $(window).resize();
+});
+
+$(window).resize(function() {
+    var h = $(document.body).height() - 115;
+    $('.main-container').css('height', h);
+});
+
     $("#add_media").on("click", function () {
         //iframe层
         layer.open({

@@ -470,6 +470,14 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         	task.setProblemStatus(TaskProblemStatus.NO_PROBLEM.getId());
         }
         
+        //获取任务对应的广告位
+        AdSeatInfo seatInfo = adSeatInfoMapper.getAdSeatInfoByAdActivitySeatId(task.getActivityAdseatId());
+        if(seatInfo.getLon() == null || seatInfo.getLat() == null) {
+        	seatInfo.setLon(feedback.getLon());
+        	seatInfo.setLat(feedback.getLat());
+        	adSeatInfoMapper.updateByPrimaryKeySelective(seatInfo);
+        }
+        
         //如果检测任务当前处于"待执行"或"审核未通过"
         if (task.getStatus() == MonitorTaskStatus.TO_CARRY_OUT.getId() || task.getStatus() == MonitorTaskStatus.VERIFY_FAILURE.getId()) {
             //获取之前提交的feedback，设置为无效，流程正常情况下只有一条

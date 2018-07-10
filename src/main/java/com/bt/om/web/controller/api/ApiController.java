@@ -2461,6 +2461,7 @@ public class ApiController extends BasicController {
         
         //邀请码验证
         if(!StringUtils.isEmpty(inviteAcc)) {
+        	Date now = new Date();
         	//有邀请码的情况
         	SysUserExecute sysUserExecute = sysUserExecuteService.getMobile(inviteAcc);
         	if(sysUserExecute!=null) {
@@ -2478,9 +2479,10 @@ public class ApiController extends BasicController {
                 userExecute.setStatus(1);
                 userExecute.setMobile(username);
                 userExecute.setMac(mac);
+                userExecute.setCreateTime(now);
+                userExecute.setUpdateTime(now);
                 try{
                 	sysUserExecuteService.add(userExecute);
-                    Date now = new Date();
             		AdUserPoint adUserPoint = new AdUserPoint();
             		SysUserExecute sysUser = sysUserExecuteService.getByUsername(username);
                     //被邀请人积分增加

@@ -25,8 +25,9 @@
 						<tr>
 							<th width="30">序号</th>
 							<th>用户名</th>
-                        	<th>积分值</th>
+							<th>用户总积分</th>
                         	<th>积分明细</th>
+                        	<th>积分值</th>
                         	<th>创建时间</th>
                         	<th>更新时间</th>
 						</tr>
@@ -37,8 +38,9 @@
 						<tr>
 							<td>${(bizObj.page.currentPage-1)*20+type_index+1}</td>
 							<td>${type.username!""}</td>
-							<td>${type.point!""}</td>
+							<td>${type.sum!""}</td> 
 							<td>${type.result!""}</td>
+							<td>${type.point!""}</td>
 							<td>${type.createTime?string('yyyy-MM-dd HH:mm:ss')}</td>
 							<td>${type.updateTime?string('yyyy-MM-dd HH:mm:ss')}</td> 
 						</tr>

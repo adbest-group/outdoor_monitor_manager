@@ -267,16 +267,16 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	        adUserPoint.setUpdateTime(now);
 	        if(task.getTaskType()==1){
 	        	adUserPoint.setPoint(point5.getPoint()); 
-	        	adUserPoint.setResult("恭喜您完成上刊监测任务，获得"+point5.getPoint()+"积分");
+	        	adUserPoint.setResult("恭喜您完成上刊监测任务！");
 	        }else if(task.getTaskType()==2){
 	        	adUserPoint.setPoint(point6.getPoint()); 
-	        	adUserPoint.setResult("恭喜您完成投放期间监测任务，获得"+point6.getPoint()+"积分");
+	        	adUserPoint.setResult("恭喜您完成投放期间监测任务！");
 	        }else if(task.getTaskType()==3){
 	        	adUserPoint.setPoint(point7.getPoint()); 
-	        	adUserPoint.setResult("恭喜您完成下刊监测任务，获得"+point7.getPoint()+"积分");
+	        	adUserPoint.setResult("恭喜您完成下刊监测任务！");
 	        }else if(task.getTaskType()==6){
 	        	adUserPoint.setPoint(point8.getPoint());  
-	        	adUserPoint.setResult("恭喜您完成追加监测任务，获得"+point8.getPoint()+"积分");
+	        	adUserPoint.setResult("恭喜您完成追加监测任务！");
 	        }
 	        adUserPointMapper.insertSelective(adUserPoint);
 
@@ -457,7 +457,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         	AdPoint adPoint = adPointMapper.selectByPointType(4);//上刊任务
         	AdUserPoint userPoint = new AdUserPoint();
         	userPoint.setPoint(adPoint.getPoint()); 
-        	userPoint.setResult("恭喜您完成上刊任务，获得" + adPoint.getPoint() + "积分");
+        	userPoint.setResult("恭喜您完成上刊任务！");
         	userPoint.setUserId(task.getUserId());
         	userPoint.setUpdateTime(now);
         	userPoint.setCreateTime(now);

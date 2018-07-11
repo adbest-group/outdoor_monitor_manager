@@ -878,6 +878,7 @@
 		    left join ad_seat_info as seatinfo on adseat.ad_seat_id=seatinfo.id
 		where
 			task.id=#{taskId,jdbcType=INTEGER}
+			and feedback.status = 1
 	</select>
 
     <select id="selectVoByParent" resultMap="ExtResultMap">

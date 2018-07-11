@@ -755,7 +755,7 @@
             var seatMarker;
             var feedbackMarker;
             console.log(location)
-            var feedbackPoint = new BMap.Point(location.feedbackLon, location.feedbackLat);
+            var feedbackPoint = new BMap.Point(location.feedbackLon, location.feedbackLat); //监测人员做任务时的经纬度
             feedbackMarker = new BMap.Marker(feedbackPoint)
             if(location.lon&&location.lat) {
                 var seatPoint = new BMap.Point(location.lon, location.lat);

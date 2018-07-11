@@ -56,8 +56,18 @@
 					<td style="padding-bottom:20px;">
 					<#if (obj?exists&&obj.id?exists)>
 					   <#if (obj.usertype?exists&&obj.usertype==2)>客户人员</#if>
-					   <#if (obj.usertype?exists&&obj.usertype==3)>媒体人员</#if>
-					   <#if (obj.usertype?exists&&obj.usertype==4)>社会人员</#if>
+					   <#if (obj.usertype?exists&&obj.usertype==3 || obj.usertype?exists&&obj.usertype==4)>
+					   <div class="select-box select-box-100 un-inp-select ll">
+                            <select class="select" name="usertype" id="usertype">
+                            	<#-- <@model.showUserExecuteTypeList value="${(obj.usertype)?if_exists}" /> -->
+                            	<#-- <option value="2" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==2)>selected</#if> >客户人员</option> -->
+                            	<option value="3" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==3)>selected</#if> >媒体人员</option>
+                            	<option value="4" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==4)>selected</#if> >社会人员</option>
+                            </select>
+                        </div>
+                        </#if>
+					   <#-- <#if (obj.usertype?exists&&obj.usertype==3)>媒体人员</#if>
+					   <#if (obj.usertype?exists&&obj.usertype==4)>社会人员</#if> -->
 					   <input type="hidden" id="usertype" name="usertype" value="${(obj.usertype)?if_exists}"/>
 					<#else>
 					   <div class="select-box select-box-100 un-inp-select ll">
@@ -87,10 +97,7 @@
 										
 					<td class="a-title">所属媒体：</td>
 					<td style="padding-bottom:20px;">
-						<#if (obj?exists&&obj.id?exists)>
-							<#if (obj?exists&&obj.mediaName?exists)>${(obj.mediaName)?if_exists}</#if>
-							<input type="hidden" id="mediaId" name="mediaId" value="${(obj.mediaId)?if_exists}"/>
-						<#else>
+						
 							<div class="select-box select-box-100 un-inp-select ll">
 	                            <select class="select" name="mediaId" id="mediaId">
 								<@model.showAllMediaOps value="${mediaId?if_exists}" />
@@ -98,7 +105,7 @@
 	                        </div>
 							<br/>
 							<span id="mediaIdTip">&nbsp;</span>
-						</#if>
+						
 					</td>
 				</tr>
 				

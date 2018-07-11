@@ -113,6 +113,7 @@ public class AdSeatService implements IAdSeatService {
     public void modifyInfo(AdSeatInfo adSeatInfo) {
         Date now = new Date();
         adSeatInfo.setUpdateTime(now);
+        
         adSeatInfoMapper.updateByPrimaryKeySelective(adSeatInfo);
     }
     
@@ -198,6 +199,11 @@ public class AdSeatService implements IAdSeatService {
 	@Override
 	public int selectByLocation(Map<String, Object> searchMap) {
 		return adSeatInfoMapper.selectByLocation(searchMap);
+	}
+
+	@Override
+	public AdSeatInfo searchLocation(Map<String, Object> searchMap) {
+		return adSeatInfoMapper.searchLocation(searchMap);
 	}
 
 }

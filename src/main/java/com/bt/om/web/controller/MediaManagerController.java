@@ -459,19 +459,47 @@ public class MediaManagerController {
         	//校验地址唯一性
         	Long province = adSeatInfo.getProvince();
         	Long city = adSeatInfo.getCity();
-        	Long region = adSeatInfo.getRegion();
-        	Long street = adSeatInfo.getStreet();
+//        	Long region = adSeatInfo.getRegion();
+//        	Long street = adSeatInfo.getStreet();
+        	String road = adSeatInfo.getRoad();
         	String location = adSeatInfo.getLocation();
         	Map<String, Object> searchMap = new HashMap<>();
-        	searchMap.put("province", province);
-        	searchMap.put("city", city);
+        	if(province!=null && province !=0) {
+        		searchMap.put("province", province);
+        	}
+        	if(city!=null && city!=0) {
+        		searchMap.put("city", city);
+        	}
+        	
+        	if(adSeatInfo.getLon() != null && adSeatInfo.getLat() == null) {
+        		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("经纬度填写不完整！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+        	}
+        	
+        	if(adSeatInfo.getLat() != null && adSeatInfo.getLon() == null) {
+        		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("经纬度填写不完整！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+        	}
+        	
 //        	searchMap.put("region", region);
 //        	searchMap.put("street", street);
-        	searchMap.put("location", location);
-        	int count = adSeatService.selectByLocation(searchMap);
-        	if(count > 0) {
+        	if(road !=null && !road.equals("")) {
+        		searchMap.put("road", road);
+        	}else {
         		result.setCode(ResultCode.RESULT_FAILURE.getCode());
-                result.setResultDes("广告位位置重复！");
+                result.setResultDes("广告位主要路段不能为空！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+        	}
+        	if(location!=null && !location.equals("")) {
+        		searchMap.put("location", location);
+        	}else {
+        		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("广告位详细位置不能为空！");
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
         	}
@@ -483,9 +511,37 @@ public class MediaManagerController {
         		adSeatInfo.setMultiNum(1); //0代表不允许同时有多个活动, 设置活动数量为1
         	}
             if (adSeatInfo.getId() != null) {
+            	//修改时检验广告位位置唯一，忽略自身，先查后校验
+            	//【芙蓉不改就遭天谴】
+            	//【芙蓉不改就遭天谴】
+            	//【芙蓉不改就遭天谴】
+            	AdSeatInfo adSeatInfo2 = adSeatService.searchLocation(searchMap);
+            	if(adSeatInfo2!=null) {
+            		if(!adSeatInfo.getId().equals(adSeatInfo2.getId())) {
+            			result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                        result.setResultDes("广告位位置重复！");
+                        model.addAttribute(SysConst.RESULT_KEY, result);
+                        return model;
+            		}
+            	}
+//            	int count = adSeatService.selectByLocation(searchMap);
+//            	if(count > 0) {
+//            		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+//                    result.setResultDes("广告位位置重复！");
+//                    model.addAttribute(SysConst.RESULT_KEY, result);
+//                    return model;
+//            	}
             	//修改
                 adSeatService.modify(adSeatInfo);
             } else {
+            	int count = adSeatService.selectByLocation(searchMap);
+            	if(count > 0) {
+            		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                    result.setResultDes("广告位位置重复！");
+                    model.addAttribute(SysConst.RESULT_KEY, result);
+                    return model;
+            	}
+            	
             	if(adSeatInfo.getMediaTypeParentId() == null || adSeatInfo.getMediaTypeId() == null) {
             		result.setCode(ResultCode.RESULT_FAILURE.getCode());
                     result.setResultDes("媒体类型不能为空！");
@@ -518,7 +574,6 @@ public class MediaManagerController {
         		adSeatInfo.setAdCodeUrl("/static/qrcode/" + adCodeInfo + ".jpg");
         		//默认贴上二维码
         		adSeatInfo.setCodeFlag(1);
-
         		adSeatService.save(adSeatInfo, user.getId());
             }
         } catch (Exception e) {

@@ -225,8 +225,20 @@ public class SysResourcesController extends BasicController {
      
         try {
             if (adpoint.getId() != null) {
-            	adpoint.setUpdateTime(now);
-            	pointService.modify(adpoint);
+            	if(adpoint.getName()==null || adpoint.getName().equals("")) {
+            		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                    result.setResultDes("积分名称不能为空！");
+                    model.addAttribute(SysConst.RESULT_KEY, result);
+                    return model;
+            	}else if(adpoint.getPoint()==null || adpoint.getPoint()==0){
+            		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                    result.setResultDes("积分值不能为空！");
+                    model.addAttribute(SysConst.RESULT_KEY, result);
+                    return model;
+            	}else {
+            		adpoint.setUpdateTime(now);
+                	pointService.modify(adpoint);
+            	}
             } else {
             	adpoint.setCreateTime(now);
             	adpoint.setUpdateTime(now);

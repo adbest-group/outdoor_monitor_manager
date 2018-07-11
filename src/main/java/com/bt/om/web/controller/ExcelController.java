@@ -292,7 +292,7 @@ public class ExcelController extends BasicController {
 			
 			Image image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
 			image3.setAlignment(Image.ALIGN_CENTER);
-			image3.scaleAbsolute(100,55);//控制图片大小
+			image3.scaleAbsolute(70,55);//控制图片大小
 			image3.setAbsolutePosition(200,80);//控制图片位置
 			document.add(image3);
 			
@@ -413,7 +413,7 @@ public class ExcelController extends BasicController {
 			
 			image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
 			image3.setAlignment(Image.ALIGN_CENTER);
-			image3.scaleAbsolute(100,55);//控制图片大小
+			image3.scaleAbsolute(70,55);//控制图片大小
 			image3.setAbsolutePosition(200,80);//控制图片位置
 			document.add(image3);
         	            
@@ -469,7 +469,7 @@ public class ExcelController extends BasicController {
     				document.add(image2);
     				image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
     				image3.setAlignment(Image.ALIGN_CENTER);
-    				image3.scaleAbsolute(100,55);//控制图片大小
+    				image3.scaleAbsolute(70,55);//控制图片大小
     				image3.setAbsolutePosition(200,80);//控制图片位置
     				document.add(image3);
 				}
@@ -502,7 +502,7 @@ public class ExcelController extends BasicController {
 			
 			image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
 			image3.setAlignment(Image.ALIGN_CENTER);
-			image3.scaleAbsolute(100,55);//控制图片大小
+			image3.scaleAbsolute(70,55);//控制图片大小
 			image3.setAbsolutePosition(450,450);//控制图片位置
 			document.add(image3);
 			
@@ -1477,7 +1477,6 @@ public class ExcelController extends BasicController {
 //        table.addCell(new Paragraph("当前状态", subBoldFontChinese));
 //        table.addCell(new Paragraph("任务类型", subBoldFontChinese));
 //        table.addCell(new Paragraph("广告位编号", fontChinese));
-//        
 
         	table.addCell(new Paragraph("媒体主", fontChinese));
         	table.addCell(new Paragraph(list.get(20), fontChinese));//媒体主

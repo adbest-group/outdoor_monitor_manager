@@ -2465,13 +2465,15 @@ public class ApiController extends BasicController {
             return model;
         }
         
-        //邀请码验证
+        //邀请码验证(注册的人添加的积分是"正常注册"+"邀请码注册", 邀请方添加的积分是"邀请码注册")
         if(!StringUtils.isEmpty(inviteAcc)) {
         	//有邀请码的情况
         	SysUserExecute sysUserExecute = sysUserExecuteService.getMobile(inviteAcc);
         	if(sysUserExecute!=null) {
-        		//邀请码输入正确   ,获得注册默认积分
+        		//邀请码输入正确   ,获得邀请注册默认积分
         		AdPoint adpoint = pointService.findPointValue(1);
+        		//正常注册，获得默认注册积分
+        		AdPoint adpointreg = pointService.findPointValue(9);
         		
         		//正常注册
             	String md5Pwd = new Md5Hash(password, username).toString();
@@ -2495,14 +2497,21 @@ public class ApiController extends BasicController {
                     //被邀请人积分增加
                     adUserPoint.setUserId(sysUser.getId());
                     adUserPoint.setPoint(adpoint.getPoint());
-                    adUserPoint.setResult("恭喜您注册成功！获得"+adpoint.getPoint()+"积分");
+                    adUserPoint.setResult("恭喜邀请注册成功！");
+                    adUserPoint.setCreateTime(now);
+                    adUserPoint.setUpdateTime(now);
+                    userPointService.addUserPoint(adUserPoint);
+                    
+                    adUserPoint.setUserId(sysUser.getId());
+                    adUserPoint.setPoint(adpointreg.getPoint());
+                    adUserPoint.setResult("恭喜注册成功！");
                     adUserPoint.setCreateTime(now);
                     adUserPoint.setUpdateTime(now);
                     userPointService.addUserPoint(adUserPoint);
                     //邀请人积分增加
             		adUserPoint.setUserId(sysUserExecute.getId());
             		adUserPoint.setPoint(adpoint.getPoint());
-            		adUserPoint.setResult("邀请用户"+username+"成功！获得"+adpoint.getPoint()+"积分");
+            		adUserPoint.setResult("邀请用户"+username+"成功！");
             		adUserPoint.setCreateTime(now);
             		adUserPoint.setUpdateTime(now);
             		userPointService.addUserPoint(adUserPoint);
@@ -2520,7 +2529,8 @@ public class ApiController extends BasicController {
                 return model;
         	}
         }else {
-	        //正常注册
+	        //正常注册(注册的人添加的积分是"正常注册")
+        	AdPoint adpointreg = pointService.findPointValue(9); //正常注册
 	    	String md5Pwd = new Md5Hash(password, username).toString();
 	
 	        userExecute = new SysUserExecute();
@@ -2535,8 +2545,18 @@ public class ApiController extends BasicController {
             userExecute.setUpdateTime(now);
             userExecute.setDeviceId(deviceId);
             userExecute.setSystemVersion(systemVersion);
+            
 	        try{
-	            sysUserExecuteService.add(userExecute);
+	        	sysUserExecuteService.add(userExecute);
+	        	AdUserPoint adUserPoint = new AdUserPoint();
+	        	SysUserExecute sysUser = sysUserExecuteService.getByUsername(username);
+                //正常注册积分增加
+                adUserPoint.setUserId(sysUser.getId());
+                adUserPoint.setPoint(adpointreg.getPoint());
+                adUserPoint.setResult("恭喜注册成功！");
+                adUserPoint.setCreateTime(now);
+                adUserPoint.setUpdateTime(now);
+                userPointService.addUserPoint(adUserPoint);
 	        }catch (Exception e){
 	            result.setCode(ResultCode.RESULT_FAILURE.getCode());
 	            result.setResultDes("注册失败！");

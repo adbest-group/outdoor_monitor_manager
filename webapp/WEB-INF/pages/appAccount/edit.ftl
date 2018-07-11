@@ -31,7 +31,6 @@
 						  <input type="password" name="password" value="">
 						</div><input type="password" id="password" name="password" value="<#if (obj.id)?exists>******</#if>" autocomplete="off" class="form-control"> <br><span id="passwordTip"></span></td>
 				</tr>
-				
 				<#-- <@model.showUserExecuteTypeList value="${(obj.usertype)?if_exists}" /> -->
             	<#-- <option value="2" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==2)>selected</#if> >客户人员</option> -->
             	<#-- 
@@ -97,7 +96,10 @@
 										
 					<td class="a-title">所属媒体：</td>
 					<td style="padding-bottom:20px;">
-						
+						<#-- <#if (obj?exists&&obj.id?exists)>
+							<#if (obj?exists&&obj.mediaName?exists)>${(obj.mediaName)?if_exists}</#if>
+							<input type="hidden" id="mediaId" name="mediaId" value="${(obj.mediaId)?if_exists}"/>
+						<#else>
 							<div class="select-box select-box-100 un-inp-select ll">
 	                            <select class="select" name="mediaId" id="mediaId">
 								<@model.showAllMediaOps value="${mediaId?if_exists}" />
@@ -105,7 +107,14 @@
 	                        </div>
 							<br/>
 							<span id="mediaIdTip">&nbsp;</span>
-						
+						</#if> -->
+						<div class="select-box select-box-100 un-inp-select ll">
+	                        <select class="select" name="mediaId" id="mediaId">
+								<@model.showAllMediaOps value="${mediaId?if_exists}" />
+	                        </select>
+	                    </div>
+						<br/>
+						<span id="mediaIdTip">&nbsp;</span>
 					</td>
 				</tr>
 				

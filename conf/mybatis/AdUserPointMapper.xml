@@ -171,7 +171,8 @@
     	a.result result,
     	a.create_time createTime, 
     	a.update_time updateTime,
-    	b.username username
+    	b.username username,
+       (select sum(c.point) from ad_user_point c where c.user_id = a.user_id) sum
     from ad_user_point a
     left join sys_user_execute b on a.user_id=b.id
     where 1=1

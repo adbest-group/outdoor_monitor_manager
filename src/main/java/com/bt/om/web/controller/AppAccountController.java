@@ -164,6 +164,12 @@ public class AppAccountController extends BasicController {
                 user.setRealname(name);
                 user.setMobile(username);
                 user.setUsertype(usertype);
+                if(usertype==3){
+                    AdMedia media = mediaService.getById(mediaId);
+                    user.setOperateId(media.getUserId());
+                }else if(usertype==4) {
+                	user.setOperateId(null);
+                }
 //                if(usertype==3){
 //                    AdMedia media = mediaService.getById(mediaId);
 //                    user.setOperateId(media.getUserId());

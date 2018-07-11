@@ -795,15 +795,18 @@
 	    <if test="city != null" >
 	      and city = #{city,jdbcType=BIGINT}
 	    </if>
-	    <if test="region != null" >
+	    <!-- <if test="region != null" >
 	      and region = #{region,jdbcType=BIGINT}
 	    </if>
 	    <if test="street != null" >
 	      and street = #{street,jdbcType=BIGINT}
-	    </if>
+	    </if>-->
+	    <if test="road != null" >
+	      and road = #{road,jdbcType=VARCHAR}
+	    </if> 
 	    <if test="location != null" >
 	      and location = #{location,jdbcType=VARCHAR}
-	    </if>
+	    </if> 
 	</select>
 	
 	<!-- 通过id集合查询出相关的广告位信息 -->
@@ -819,4 +822,23 @@
 	    </if>
 	</select>
 	
+	<!-- 查询广告位详细位置是否重复  排除自身-->
+	<select id="searchLocation" resultMap="BaseResultMap" parameterType="map">
+		select 
+		<include refid="Base_Column_List" />
+		from ad_seat_info
+		where 1=1
+		<if test="province != null" >
+	      and province = #{province,jdbcType=BIGINT}
+	    </if>
+	    <if test="city != null" >
+	      and city = #{city,jdbcType=BIGINT}
+	    </if>
+	    <if test="road != null" >
+	      and road = #{road,jdbcType=VARCHAR}
+	    </if> 
+	    <if test="location != null" >
+	      and location = #{location,jdbcType=VARCHAR}
+	    </if> 
+	</select>
 </mapper>

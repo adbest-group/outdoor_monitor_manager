@@ -59,19 +59,19 @@ img.demo {
 							<#if (adSeatInfo?exists&&adSeatInfo.id?exists)>
 							<tr>
 	                            <td class="a-title"><font class="s-red">*</font>媒体大类：</td>
-	                            <td><input type="text" disabled style="width: 130px;" id="location" name="location"
+	                            <td><input type="text" disabled style="width: 130px;" id="mediaTypeParentId" name="mediaTypeParentId"
 	                                       value="<#if (adSeatInfo?exists)>${(adSeatInfo.parentName)!}</#if>"
 	                                       autocomplete="off" class="form-control">
-	                                <span id="locationTip"></span>
+	                                <span id="mediaTypeParentIdIdTip"></span>
 	                            </td>
 	                        </tr>
 	                        
 	                        <tr>
 	                            <td class="a-title"><font class="s-red">*</font>媒体小类：</td>
-	                            <td><input type="text" disabled style="width: 130px;" id="location" name="location"
+	                            <td><input type="text" disabled style="width: 130px;" id="mediaTypeId" name="mediaTypeId"
 	                                       value="<#if (adSeatInfo?exists)>${(adSeatInfo.secondName)!}</#if>"
 	                                       autocomplete="off" class="form-control">
-	                                <span id="locationTip"></span>
+	                                <span id="mediaTypeIdIdTip"></span>
 	                            </td>
 	                        </tr>
 
@@ -101,13 +101,6 @@ img.demo {
 							</tr>
 							
 	                        </#if>
-							<tr>
-								<td class="a-title">广告位编号：</td>
-								<td><input type="text" style="width: 130px;" id="memo" name="memo" value="<#if (adSeatInfo?exists)>${adSeatInfo.memo!""}</#if>"
-									autocomplete="off" class="form-control">
-                                    <span id="memoTip"></span>
-								</td>
-							</tr>
 							<#--
 							<tr>
 								<td class="a-title"><font class="s-red">*</font>广告位类型：</td>
@@ -137,7 +130,7 @@ img.demo {
 							
 							<tr>
 								<td class="a-title"><font class="s-red">*</font>主要路段：</td>
-								<td><input type="text" style="width: 130px;" id="road" name="road" value="<#if (adSeatInfo?exists)>${adSeatInfo.road!""}</#if>"
+								<td><input type="text" style="width: 130px;" id="road" name="road" value="<#if (adSeatInfo?exists)>${adSeatInfo.road!}</#if>"
 									autocomplete="off" class="form-control">
                                     <span id="roadTip"></span>
 								</td>
@@ -145,7 +138,7 @@ img.demo {
 							
 							<tr>
 								<td class="a-title"><font class="s-red">*</font>广告位详细位置：</td>
-								<td><input type="text" style="width: 130px;" id="location" name="location" value="<#if (adSeatInfo?exists)>${adSeatInfo.location!""}</#if>"
+								<td><input type="text" style="width: 130px;" id="location" name="location" value="<#if (adSeatInfo?exists)>${adSeatInfo.location!}</#if>"
 									autocomplete="off" class="form-control">
                                     <span id="locationTip"></span>
 								</td>
@@ -209,7 +202,13 @@ img.demo {
                                     <span id="mapStandardTip"></span>
 								</td>
 							</tr>
-							
+							<tr>
+								<td class="a-title">广告位编号：</td>
+								<td><input type="text" style="width: 130px;" id="memo" name="memo" value="<#if (adSeatInfo?exists)>${adSeatInfo.memo!""}</#if>"
+									autocomplete="off" class="form-control">
+                                    <span id="memoTip"></span>
+								</td>
+							</tr>
 							<tr>
 								<td class="a-title">是否允许同时有多个活动：</td>
 								<td>
@@ -464,19 +463,29 @@ img.demo {
 //            onWait: "正在对编号进行校验，请稍候..."
 //        }).defaultPassed();
 
-		<#-- 
-		//广告位位置
-        $("#location").formValidator({
+		//主要路段
+        $("#road").formValidator({
             validatorGroup:"2",
             onShow: "　",
-            onFocus: "请输入广告位位置，30字以内",
+            onFocus: "请输入主要路段名称",
             onCorrect: ""
         }).inputValidator({
             min:1,
-            max:30,
-            onError:"请输入广告位位置，30字以内"
+            max:60,
+            onError:"请输入主要路段名称"
         });
-		-->
+        
+        //详细位置
+        $("#location").formValidator({
+            validatorGroup:"2",
+            onShow: "　",
+            onFocus: "请输入详细位置名称",
+            onCorrect: ""
+        }).inputValidator({
+            min:1,
+            max:60,
+            onError:"请输入详细位置名称"
+        });
         
       //广告位宽度
         $("#width").formValidator({
@@ -523,7 +532,7 @@ img.demo {
     		regExp:"^1([358][0-9]|4[579]|66|7[0135678]|9[89])[0-9]{8}$",
     		onError:"联系人电话为手机号码格式不正确"
     	});
-    	 //联系人姓名
+    	//联系人姓名
 	    $("#contactName").formValidator({
 	    	empty:true,
 			validatorGroup:"2",

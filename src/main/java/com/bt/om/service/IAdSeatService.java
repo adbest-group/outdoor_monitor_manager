@@ -38,4 +38,5 @@ public interface IAdSeatService {
 	List<AdSeatInfo> getAllLonLat(HeatMapVo heatMapVo, Integer userId);
 	int updateFlag(Integer codeFlag,Integer id);
 	int selectByLocation(Map<String, Object> searchMap);
+	public AdSeatInfo searchLocation(Map<String, Object> searchMap);
 }

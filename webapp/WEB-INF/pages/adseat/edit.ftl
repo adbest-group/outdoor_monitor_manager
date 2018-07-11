@@ -108,29 +108,21 @@
 						</tr>	
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>媒体大类：</td>
-                            <td><input type="text" disabled style="width: 130px;" id="location" name="location"
+                            <td><input type="text" disabled style="width: 130px;" id="mediaTypeParentId" name="mediaTypeParentId"
                                        value="<#if (adSeatInfo?exists)>${adSeatInfo.parentName!""}</#if>"
                                        autocomplete="off" class="form-control">
-                                <span id="locationTip"></span>
+                                <span id="mediaTypeParentIdIdTip"></span>
                             </td>
                         </tr>
                         
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>媒体小类：</td>
-                            <td><input type="text" disabled style="width: 130px;" id="location" name="location"
+                            <td><input type="text" disabled style="width: 130px;" id="mediaTypeId" name="mediaTypeId"
                                        value="<#if (adSeatInfo?exists)>${adSeatInfo.secondName!""}</#if>"
                                        autocomplete="off" class="form-control">
-                                <span id="locationTip"></span>
+                                <span id="mediaTypeIdIdTip"></span>
                             </td>
                         </tr>
-                        <tr>
-							<td class="a-title">广告位编号：</td>
-							<td><input type="text" style="width: 130px;" id="memo" name="memo" value="<#if (adSeatInfo?exists)>${adSeatInfo.memo!""}</#if>"
-								autocomplete="off" class="form-control">
-                                  <span id="memoTip"></span>
-							</td>
-						</tr>
-                       
                         <tr>
                             <td class="a-title">广告位尺寸：</td>
                             <td>
@@ -197,7 +189,13 @@
                                 <span id="mapStandardTip"></span>
 							</td>
 						</tr>
-						
+						<tr>
+							<td class="a-title">广告位编号：</td>
+							<td><input type="text" style="width: 130px;" id="memo" name="memo" value="<#if (adSeatInfo?exists)>${adSeatInfo.memo!""}</#if>"
+								autocomplete="off" class="form-control">
+                                  <span id="memoTip"></span>
+							</td>
+						</tr>
 						<tr>
 							<td class="a-title">是否允许同时有多个活动：</td>
 							<td>
@@ -220,10 +218,10 @@
 						
 						<tr>
 							<td class="a-title">联系人姓名：</td>
-							<td><input type="text" style="width: 130px;" id="contactName" name="contactName" value="<#if (adSeatInfo?exists)>${adSeatInfo.contactName!""}</#if>"
-								autocomplete="off" class="form-control">
-                                <span id="contactNameTip"></span>
-							</td>
+								<td><input type="text" style="width: 130px;" id="contactName" name="contactName" value="<#if (adSeatInfo?exists)>${(adSeatInfo.contactName)!}</#if>"
+									autocomplete="off" class="form-control">
+                                    <span id="contactNameTip"></span>
+								</td>
 						</tr>
 						
 						<tr>
@@ -423,7 +421,7 @@
                 }
                 **/
                 $.ajax({
-                    url: '/adseat/save',
+                    url: '/platmedia/adseat/save',
                     type: 'POST',
                     data: $('#form').serializeObject(),
                     dataType: "json",
@@ -469,7 +467,7 @@
         });
         
         //广告位名称
-        /*$("#name").formValidator({
+        $("#name").formValidator({
             validatorGroup: "2",
             onShow: "　",
             onFocus: "请输入广告位名称，30字以内",
@@ -511,8 +509,7 @@
 //            onError: "已存在该编号，请修改",
 //            onWait: "正在对编号进行校验，请稍候..."
 //        }).defaultPassed();
-        //广告位位置
-        $("#location").formValidator({
+       <#-- $("#location").formValidator({
             validatorGroup: "2",
             onShow: "　",
             onFocus: "请输入广告位位置，30字以内",
@@ -521,7 +518,7 @@
             min: 1,
             max: 30,
             onError: "请输入广告位位置，30字以内"
-        });
+        });-->
         //广告位宽度
         $("#width").formValidator({
             validatorGroup: "2",
@@ -534,7 +531,7 @@
             max: 10000,
             onError: "宽度支持1-10000(cm)"
         });
-        //广告位宽度
+        //广告位高度
         $("#height").formValidator({
             validatorGroup: "2",
             onShow: "　",
@@ -546,44 +543,101 @@
             max: 10000,
             onError: "高度支持1-10000(cm)"
         });
-        //广告位经度
+        //主要路段
+        $("#road").formValidator({
+            validatorGroup:"2",
+            onShow: "　",
+            onFocus: "请输入主要路段名称",
+            onCorrect: ""
+        }).inputValidator({
+            min:1,
+            max:60,
+            onError:"请输入主要路段名称"
+        });
+        
+        //详细位置
+        $("#location").formValidator({
+            validatorGroup:"2",
+            onShow: "　",
+            onFocus: "请输入详细位置名称",
+            onCorrect: ""
+        }).inputValidator({
+            min:1,
+            max:60,
+            onError:"请输入详细位置名称"
+        });
+       //广告位经度
         $("#lon").formValidator({
-            validatorGroup: "2",
+            validatorGroup:"2",
             onShow: "　",
             onFocus: "请输入经度",
             onCorrect: ""
         }).functionValidator({
-            fun: function (val) {
-                if ($.trim(val).length < 1)
-                    return false;
-                return true;
-            },
-            onError: "请输入经度"
-        }).inputValidator({
-            type: "number",
-            min: -180,
-            max: 180,
-            onError: "经度支持 -180 ~ 180"
+			fun:function(val){
+				if($.trim(val).length<0)
+				    return false;
+				return true;
+			},
+			onError:"请输入经度"
+		}).inputValidator({
+            type:"number",
+            min:-180,
+            max:180,
+            onError:"经度支持 -180 ~ 180"
         });
-        //广告位纬度
+        
+    	//广告位纬度
         $("#lat").formValidator({
-            validatorGroup: "2",
+            validatorGroup:"2",
             onShow: "　",
             onFocus: "请输入纬度",
             onCorrect: ""
         }).functionValidator({
-            fun: function (val) {
-                if ($.trim(val).length < 1)
+            fun:function(val){
+                if($.trim(val).length<0)
                     return false;
                 return true;
             },
-            onError: "请输入经度"
+            onError:"请输入纬度"
         }).inputValidator({
-            type: "number",
-            min: -90,
-            max: 90,
-            onError: "纬度支持 -90 ~ 90"
-        });*/
+            type:"number",
+            min:-90,
+            max:90,
+            onError:"纬度支持 -90 ~ 90"
+        });
+        //广告位面积
+        $("#adArea").formValidator({
+            validatorGroup:"2",
+            onShow: "　",
+            onFocus: "请输入面积(㎡)",
+            onCorrect: ""
+       }).inputValidator({
+            type:"number",
+            onError:"请输入数字格式(㎡)"
+        });      
+        //联系人电话
+	    $("#contactCell").formValidator({
+	    	empty:true,
+			validatorGroup:"2",
+	        onShow: "　",
+	        onFocus: "请输入联系人电话",
+	        onCorrect: ""
+	    }).regexValidator({
+    		regExp:"^1([358][0-9]|4[579]|66|7[0135678]|9[89])[0-9]{8}$",
+    		onError:"联系人电话为手机号码格式不正确"
+    	});
+    	 //联系人姓名
+	    $("#contactName").formValidator({
+	    	empty:true,
+			validatorGroup:"2",
+	        onShow: "　",
+	        onFocus: "请输入联系人姓名",
+	        onCorrect: ""
+	    }).regexValidator({
+    		regExp:"^[\u4E00-\u9FA5\uf900-\ufa2d·s]{2,20}$",
+    		onError:"联系人姓名格式不正确"
+    	});
+        
         
 /**
         //广告位日均pv

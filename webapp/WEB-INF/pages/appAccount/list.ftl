@@ -58,6 +58,9 @@
                             </td>
                             <td>
                                 <a href="javascript:void(0);" onclick="edit('${user.id}');">编辑</a>
+                                <#if user.usertype==3 || user.usertype==4>
+                                	<a href="javascript:void(0);" onclick="details('${user.id}');">详情</a>
+                                </#if>
                                 <#--<a href="javascript:void(0);" onclick="deleteAccount('${partnerUser.id}');">删除</a>-->
                             </td>
                         </tr>
@@ -113,6 +116,17 @@ $(window).resize(function() {
         });
     }
 
+	function details(id) {
+        layer.open({
+            type: 2,
+            title: '账户详情',
+            shadeClose: true,
+            shade: 0.8,
+            area: ['890px', '480px'],
+            content: '/appAccount/details?id=' + id //iframe的url
+        });
+    }
+    
     $("#searchBtn").on("click", function () {
         $("#form").submit();
     });

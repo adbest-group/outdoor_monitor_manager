@@ -1,6 +1,7 @@
 package com.bt.om.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -12,9 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
+import com.bt.om.entity.SysUserHistory;
 import com.bt.om.entity.vo.SysUserExecuteVo;
 import com.bt.om.entity.vo.SysUserVo;
+import com.bt.om.enums.SessionKey;
 import com.bt.om.mapper.SysUserExecuteMapper;
+import com.bt.om.mapper.SysUserHistoryMapper;
+import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.vo.web.SearchDataVo;
 
@@ -25,6 +30,8 @@ import com.bt.om.vo.web.SearchDataVo;
 public class SysUserExecuteService implements ISysUserExecuteService {
     @Autowired
     private SysUserExecuteMapper sysUserExecuteMapper;
+    @Autowired
+    private SysUserHistoryMapper sysUserHistoryMapper;
 
     @Override
     public SysUserExecute getByUsername(String username) {
@@ -70,6 +77,13 @@ public class SysUserExecuteService implements ISysUserExecuteService {
     @Override
     public void add(SysUserExecute userExecute) {
         sysUserExecuteMapper.insertSelective(userExecute);
+        SysUserHistory userHistory = new SysUserHistory(); //新增用户信息
+        userHistory.setUserId(userExecute.getId());
+        userHistory.setUsertypeNew(userExecute.getUsertype());
+        userHistory.setOperateIdNew(userExecute.getOperateId());
+        userHistory.setCreateTime(new Date());
+        userHistory.setUpdateTime(new Date());
+        sysUserHistoryMapper.insertSelective(userHistory);
     }
 
     @Override
@@ -98,4 +112,14 @@ public class SysUserExecuteService implements ISysUserExecuteService {
 		return sysUserExecuteMapper.updatePhoneModel(sysUserExecute);
 	}
 
+	@Override
+	@Transactional
+	public void modifyUser(SysUserExecute userExecute, SysUserHistory userHistory) {
+		sysUserExecuteMapper.updateByPrimaryKey(userExecute);
+		if(userHistory.getUsertypeOld().equals(userHistory.getUsertypeNew()) &&
+				userHistory.getOperateIdOld().equals(userHistory.getOperateIdNew())) {
+		} else {
+			sysUserHistoryMapper.insertSelective(userHistory);
+		}
+	}
 }

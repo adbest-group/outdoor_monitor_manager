@@ -33,15 +33,14 @@
                         </div>
                     </td>
                 </tr>
-
-					<tr>
-						<td class="a-title">&nbsp;</td>
-						<td>
-							<button type="button" class="btn btn-red" autocomplete="off" id="btnSave">确定</button>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+				<tr>
+					<td class="a-title">&nbsp;</td>
+					<td>
+						<button type="button" class="btn btn-red" autocomplete="off" id="btnSave">确定</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
             </form>
 		</div>
 	</div>
@@ -55,13 +54,12 @@
 	<link type="text/css" rel="stylesheet" href="${model.static_domain}/js/formValidator/style/validator.css"></link>
 	
 	<script>
-	     
 		$(function(){
-		
 			// 下拉
 			$('.select').searchableSelect();
+			$('#user').next().find('.searchable-select-input').css('display', 'block')
             $("form").submit(function(){return false;});
-		})
+		}) 
 
 		//演示用
         $(function(){

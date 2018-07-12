@@ -112,8 +112,7 @@
                                         <input id="durationMonitorTaskTime0" ${editMode?string("","disabled")} class="durationMonitor-Wdate Wdate" type="text">
                                     </div>
                                 </div>
-                                <span style="margin-left:10px;" id="durationMonitorTaskTimeTip0"></span> &nbsp;
-                                <#if editMode><input class="btn btn-primary" type='button' id="addDurationMonitor" value='添加'></#if>
+                                <span style="margin-left:10px;" id="durationMonitorTaskTimeTip0"></span> &nbsp;&nbsp;<#if editMode><input class="btn btn-primary" type='button' id="addDurationMonitor" value='添加'></#if>
                             </td>
                         </tr>
                         
@@ -909,24 +908,28 @@
         	}
         	
         	var index = $('.last').length;
-        	var str = '<tr class="last"><td class="a-title"><font class="s-red">*</font>投放期间监测报告时间：</td><td><div class="ll inputs-date durationMonitorTaskTime" id="durationTime'+index+'"><div class="date"><input id="durationMonitorTaskTime'+index+'" ${editMode?string("","disabled")} class="durationMonitor-Wdate Wdate" type="text"></div></div><span style="margin-left:10px;" id="durationMonitorTaskTimeTip'+index+'"></span></td></tr>'
+        	var str = '<tr class="last"><td class="a-title"><font class="s-red">*</font>投放期间监测报告时间：</td><td><div class="ll inputs-date durationMonitorTaskTime" id="durationTime'+index+'"><div class="date"><input id="durationMonitorTaskTime'+index+'" ${editMode?string("","disabled")} class="durationMonitor-Wdate Wdate" type="text"></div></div><span style="margin-left:10px;" id="durationMonitorTaskTimeTip'+index+'"></span>&nbsp;&nbsp;<input class="btn btn-red delDurationMonitor" type="button" value="删除"></td></tr>'
         	$('.last:last').after(str)
-        	
-        	$('.durationMonitor-Wdate').each(function(index){
-        		var topId = "durationTime" + index;
-        		var lastId = "durationMonitorTaskTime" + index;
-        		$('#' + topId).dateRangePicker({
-                	   singleDate: true,
-                	   showShortcuts: false,
-                       getValue: function () {
-                           return $(this).find('#' + lastId).val()
-                       },
-                       setValue: function (s) {
-                          $(this).find('#' + lastId).val(s)
-       					  $(this).find('#' + lastId).blur()
-                       }
-                 });
+        	// 先解绑删除按钮事件  避免每次点击添加时重复绑定之前已经绑定事件的删除按钮
+        	$('.delDurationMonitor').unbind()
+        	$('.delDurationMonitor').click(function(){
+        		var index = $(this).parents('.last').index();
+        		$('#subForm tr').eq(index).remove()
         	})
+        	
+       		var topId = "durationTime" + index;
+       		var lastId = "durationMonitorTaskTime" + index;
+       		$('#' + topId).dateRangePicker({
+           	   singleDate: true,
+           	   showShortcuts: false,
+                  getValue: function () {
+                      return $(this).find('#' + lastId).val()
+                  },
+                  setValue: function (s) {
+                     $(this).find('#' + lastId).val(s)
+  					  $(this).find('#' + lastId).blur()
+                  }
+            });
         	
         	<#--
         	$('.durationMonitorTaskTime').dateRangePicker({

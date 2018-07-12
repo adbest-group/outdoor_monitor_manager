@@ -3,7 +3,7 @@
 	<style type="text/css">
 		html, body{ min-width: auto; }
 		.basic-info .bd .a-title{ width: 100px; }
-		.basic-info .bd td .form-control{ width: 220px; }
+		.basic-info .bd td .form-control{ width: 200px; }
 		.role-nav-authority li{ float: left; overflow: hidden; margin-bottom: 5px; height: 25px;}
 		.role-nav-authority li label input[type=checkbox]{ width: 15px; height: 15px; margin: 2px 3px 0 0; vertical-align: text-top;}
 	</style>

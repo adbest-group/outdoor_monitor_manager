@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.bt.om.entity.SysUserExecute;
+import com.bt.om.entity.SysUserHistory;
 import com.bt.om.entity.vo.SysUserExecuteVo;
 import com.bt.om.vo.web.SearchDataVo;
 
@@ -32,4 +33,5 @@ public interface ISysUserExecuteService {
 	List<SysUserExecute> selectMediaNameByUserId(Integer id);
 	
 	public int updatePhoneModel(SysUserExecute sysUserExecute);
+	public void modifyUser(SysUserExecute user, SysUserHistory userHistory);
 }

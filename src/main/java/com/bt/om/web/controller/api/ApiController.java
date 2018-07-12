@@ -2492,29 +2492,9 @@ public class ApiController extends BasicController {
                 userExecute.setSystemVersion(systemVersion);
                 try{
                 	sysUserExecuteService.add(userExecute);
-            		AdUserPoint adUserPoint = new AdUserPoint();
             		SysUserExecute sysUser = sysUserExecuteService.getByUsername(username);
-                    //被邀请人积分增加
-                    adUserPoint.setUserId(sysUser.getId());
-                    adUserPoint.setPoint(adpoint.getPoint());
-                    adUserPoint.setResult("恭喜邀请注册成功！");
-                    adUserPoint.setCreateTime(now);
-                    adUserPoint.setUpdateTime(now);
-                    userPointService.addUserPoint(adUserPoint);
-                    
-                    adUserPoint.setUserId(sysUser.getId());
-                    adUserPoint.setPoint(adpointreg.getPoint());
-                    adUserPoint.setResult("恭喜注册成功！");
-                    adUserPoint.setCreateTime(now);
-                    adUserPoint.setUpdateTime(now);
-                    userPointService.addUserPoint(adUserPoint);
-                    //邀请人积分增加
-            		adUserPoint.setUserId(sysUserExecute.getId());
-            		adUserPoint.setPoint(adpoint.getPoint());
-            		adUserPoint.setResult("邀请用户"+username+"成功！");
-            		adUserPoint.setCreateTime(now);
-            		adUserPoint.setUpdateTime(now);
-            		userPointService.addUserPoint(adUserPoint);
+            		//注册人积分增加（正常注册+邀请码积分） 邀请方积分增加
+            		userPointService.addByInvite(sysUser,adpoint,adpointreg,username,sysUserExecute);
                 }catch (Exception e){
                     result.setCode(ResultCode.RESULT_FAILURE.getCode());
                     result.setResultDes("注册失败！");
@@ -2545,18 +2525,11 @@ public class ApiController extends BasicController {
             userExecute.setUpdateTime(now);
             userExecute.setDeviceId(deviceId);
             userExecute.setSystemVersion(systemVersion);
-            
 	        try{
 	        	sysUserExecuteService.add(userExecute);
-	        	AdUserPoint adUserPoint = new AdUserPoint();
 	        	SysUserExecute sysUser = sysUserExecuteService.getByUsername(username);
-                //正常注册积分增加
-                adUserPoint.setUserId(sysUser.getId());
-                adUserPoint.setPoint(adpointreg.getPoint());
-                adUserPoint.setResult("恭喜注册成功！");
-                adUserPoint.setCreateTime(now);
-                adUserPoint.setUpdateTime(now);
-                userPointService.addUserPoint(adUserPoint);
+	        	//正常注册积分增加
+	        	userPointService.addByReg(sysUser,adpointreg);
 	        }catch (Exception e){
 	            result.setCode(ResultCode.RESULT_FAILURE.getCode());
 	            result.setResultDes("注册失败！");

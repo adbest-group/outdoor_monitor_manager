@@ -140,7 +140,7 @@ $(function() {
 	$("#password").formValidator({
 		validatorGroup:"2",
 		onShow:"　",
-		onFocus:"请输入6-16位密码，字母和数字组合",
+		onFocus:"请输入6-16位密码,字母和数字组合",
 		onCorrect:"　"
 	}).inputValidator({
 		min:6,
@@ -148,8 +148,8 @@ $(function() {
 		empty:{leftEmpty:false,rightEmpty:false,emptyError:"密码两边不能有空符号"},
 		onError:"密码输入不正确，请重新输入"
 	}).regexValidator({
-			regExp:"^[^\u4e00-\u9fa5]+$",
-			onError:"密码不能是中文，请重新输入"
+		regExp:"^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,16}$",
+		onError:"密码格式不对，请重新输入"
 	});
 	
 	if(id != null && id != ""){

@@ -3,7 +3,7 @@
 	<style type="text/css">
 		html, body{ min-width: auto; }
 		.basic-info .bd .a-title{ width: 100px; }
-		.basic-info .bd td .form-control{ width: 220px; }
+		.basic-info .bd td .form-control{ width: 200px; }
 		.role-nav-authority li{ float: left; overflow: hidden; margin-bottom: 5px; height: 25px;}
 		.role-nav-authority li label input[type=checkbox]{ width: 15px; height: 15px; margin: 2px 3px 0 0; vertical-align: text-top;}
 	</style>
@@ -40,17 +40,31 @@
 <script>
 		$(function(){
 			$.formValidator.initConfig({errorFocus: false,submitButtonID:"platUser_submit_ok"});
-	        $("#platUser_passWord").formValidator({
-	        	onShow:"",onFocus:"密码不能小于6位",onCorrect:""}).inputValidator({
-	        	min:6,empty:{leftEmpty:false,rightEmpty:false,emptyError:"密码两边不能有空符号"},onError:"输入有误,请重新输入！"});
+	        $("#platUser_passWord").formValidator({	        
+	        	onShow:"",
+	        	onFocus:"请输入6-16位密码，字母和数字组合",
+	        	onCorrect:""
+	        	}).inputValidator({
+	        	min:6,
+	        	max:16,
+	        	empty:{leftEmpty:false,rightEmpty:false,emptyError:"密码两边不能有空符号"},
+	        	onError:"输入有误,请重新输入！"
+	        	}).regexValidator({
+	        		regExp:"^\\*{6}|(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,16}$",
+					onError:"密码格式不对，请重新输入"
+			});
 			$("#platUser_passWord1").formValidator({
-				onShow:"",onFocus:"密码不能小于6位",onCorrect:""}).inputValidator({
-				min:6,empty:{leftEmpty:false,rightEmpty:false,emptyError:"密码两边不能有空符号"},onError:"输入有误,请重新输入！"});
+				onShow:"",onFocus:"请输入6-16位密码，字母和数字组合",onCorrect:""}).inputValidator({
+				min:6,max:16,empty:{leftEmpty:false,rightEmpty:false,emptyError:"密码两边不能有空符号"},onError:"输入有误,请重新输入！"}).regexValidator({
+					regExp:"^\\*{6}|(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,16}$",
+					onError:"密码格式不对，请重新输入"
+			});
 			$("#platUser_passWord2").formValidator({
-				onShow:"",onFocus:"密码不能小于6位",onCorrect:""}).inputValidator({
-				min:6,empty:{leftEmpty:false,rightEmpty:false,emptyError:"重复密码两边不能有空符号"},onError:"输入有误,请重新输入！"}).compareValidator({
+				onShow:"",onFocus:"请输入6-16位密码，字母和数字组合",onCorrect:""}).inputValidator({
+				min:6,max:16,empty:{leftEmpty:false,rightEmpty:false,emptyError:"确认密码两边不能有空符号"},onError:"输入有误,请重新输入！"}).compareValidator({
 				desID:"platUser_passWord1",operateor:"=",onError:"两次密码不一致"});
 				
+			
 			$("#platUser_submit_ok").on("click",function(){
 				var passWordTip = $("#platUser_passWordTip").css("display");
 				var passWord1Tip = $("#platUser_passWord1Tip").css("display");

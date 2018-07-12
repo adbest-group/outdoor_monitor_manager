@@ -112,8 +112,7 @@
                                         <input id="durationMonitorTaskTime0" ${editMode?string("","disabled")} class="durationMonitor-Wdate Wdate" type="text">
                                     </div>
                                 </div>
-                                <span style="margin-left:10px;" id="durationMonitorTaskTimeTip0"></span> &nbsp;
-                                <#if editMode><input class="btn btn-primary" type='button' id="addDurationMonitor" value='添加'></#if>
+                                <span style="margin-left:10px;" id="durationMonitorTaskTimeTip0"></span> &nbsp;&nbsp;<#if editMode><input class="btn btn-primary" type='button' id="addDurationMonitor" value='添加'></#if>
                             </td>
                         </tr>
                         
@@ -909,7 +908,7 @@
         	}
         	
         	var index = $('.last').length;
-        	var str = '<tr class="last"><td class="a-title"><font class="s-red">*</font>投放期间监测报告时间：</td><td><div class="ll inputs-date durationMonitorTaskTime" id="durationTime'+index+'"><div class="date"><input id="durationMonitorTaskTime'+index+'" ${editMode?string("","disabled")} class="durationMonitor-Wdate Wdate" type="text"></div></div><span style="margin-left:10px;" id="durationMonitorTaskTimeTip'+index+'"></span></td></tr>'
+        	var str = '<tr class="last"><td class="a-title"><font class="s-red">*</font>投放期间监测报告时间：</td><td><div class="ll inputs-date durationMonitorTaskTime" id="durationTime'+index+'"><div class="date"><input id="durationMonitorTaskTime'+index+'" ${editMode?string("","disabled")} class="durationMonitor-Wdate Wdate" type="text"></div></div><span style="margin-left:10px;" id="durationMonitorTaskTimeTip'+index+'"></span>&nbsp;&nbsp;<input class="btn btn-red delDurationMonitor" type="button" value="删除"></td></tr>'
         	$('.last:last').after(str)
         	
         	$('.durationMonitor-Wdate').each(function(index){
@@ -926,6 +925,12 @@
        					  $(this).find('#' + lastId).blur()
                        }
                  });
+        	})
+        	
+        	$('.delDurationMonitor').click(function(){
+        		var index = $(this).parents('.last').index();
+        		console.log($('#subForm tr').eq(index))
+        		$('#subForm tr').eq(index).remove()
         	})
         	
         	<#--

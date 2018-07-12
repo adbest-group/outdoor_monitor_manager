@@ -1,5 +1,6 @@
 package com.bt.om.web.controller;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +21,7 @@ import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
+import com.bt.om.entity.SysUserHistory;
 import com.bt.om.entity.vo.SysUserExecuteVo;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
@@ -27,6 +29,7 @@ import com.bt.om.enums.UserExecuteType;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IMediaService;
 import com.bt.om.service.ISysUserExecuteService;
+import com.bt.om.service.ISysUserHistoryService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
@@ -42,7 +45,8 @@ public class AppAccountController extends BasicController {
     private ISysUserExecuteService sysUserExecuteService;
     @Autowired
     private IMediaService mediaService;
-
+    @Autowired
+    private ISysUserHistoryService sysUserHistoryService;
     /**
      * 媒体安装人员管理列表
      **/
@@ -94,7 +98,21 @@ public class AppAccountController extends BasicController {
 
         return PageConst.APP_ACCOUNT_EDIT;
     }
+    
+    @RequiresRoles("superadmin")
+    @RequestMapping(value = "/details")
+    public String showDetailsWorker(Model model ,HttpServletRequest request,
+    		 		@RequestParam(value = "id", required = false) Integer id) {
+    	SearchDataVo vo = SearchUtil.getVo();
+    	if (id!=null) {
+        	vo.putSearchParam("userId", id+"", id);
+        }
+        
+        sysUserHistoryService.getPageData(vo);
 
+        SearchUtil.putToModel(model, vo);
+		return PageConst.APP_ACCOUNT_DETAILS;
+    }
     /**
      * 检查媒体工人账号是否重名
      **/
@@ -154,8 +172,18 @@ public class AppAccountController extends BasicController {
                     user.setOperateId(loginuser.getId());
                 }
                 sysUserExecuteService.add(user);
+             
             } else {//修改
                 SysUserExecute user = sysUserExecuteService.getById(id);
+                SysUserHistory userHistory = new SysUserHistory(); //获取未修改前用户的信息
+                userHistory.setUserId(user.getId());
+                userHistory.setUsertypeOld(user.getUsertype());
+                userHistory.setOperateIdOld(user.getOperateId());
+                userHistory.setUsertypeNew(usertype);
+                userHistory.setLoginId(loginuser.getId());
+                userHistory.setCreateTime(new Date());
+                userHistory.setUpdateTime(new Date());
+                
 //                user.setId(id);
 //                user.setUsername(username);
                 if (!"******".equals(password)) {
@@ -167,8 +195,10 @@ public class AppAccountController extends BasicController {
                 if(usertype==3){
                     AdMedia media = mediaService.getById(mediaId);
                     user.setOperateId(media.getUserId());
+                    userHistory.setOperateIdNew(media.getUserId());
                 }else if(usertype==4) {
                 	user.setOperateId(null);
+                	userHistory.setOperateIdNew(null);
                 }
 //                if(usertype==3){
 //                    AdMedia media = mediaService.getById(mediaId);
@@ -176,7 +206,8 @@ public class AppAccountController extends BasicController {
 //                }else if(usertype!=4){
 //                    user.setOperateId(loginuser.getId());
 //                }
-                sysUserExecuteService.modify(user);
+                
+                sysUserExecuteService.modifyUser(user,userHistory);
             }
         } catch (Exception ex) {
             ex.printStackTrace();

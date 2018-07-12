@@ -469,7 +469,7 @@ public class ExcelController extends BasicController {
     				document.add(image2);
     				image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
     				image3.setAlignment(Image.ALIGN_CENTER);
-    				image3.scaleAbsolute(70,55);//控制图片大小
+    				image3.scaleAbsolute(60,50);//控制图片大小
     				image3.setAbsolutePosition(200,80);//控制图片位置
     				document.add(image3);
 				}
@@ -506,19 +506,25 @@ public class ExcelController extends BasicController {
 			image3.setAbsolutePosition(450,450);//控制图片位置
 			document.add(image3);
 			
-			cb = writer.getDirectContent();
-			cb.beginText();  
-			cb.setFontAndSize(secfont, 30);  
-			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "群邑上海广告有限公司 ", 1300, 410, 0);
-			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "玖凤监测广告有限公司 ", 1300, 360, 0);
-			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, sysUser.getRealname(), 450, 390, 0);
-			cb.endText();
+//			cb = writer.getDirectContent();
+//			cb.beginText();  
+//			cb.setFontAndSize(secfont, 30);  
+//			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "群邑上海广告有限公司 ", 1300, 410, 0);
+//			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "玖凤监测广告有限公司 ", 1300, 360, 0);
+//			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, sysUser.getRealname(), 450, 390, 0);
+//			cb.endText();
 			
-			Image image4 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/gongzhang.png");
+			Image image4 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/gongsi.png");
 			image4.setAlignment(Image.ALIGN_CENTER);
-			image4.scaleAbsolute(250,250);//控制图片大小
-			image4.setAbsolutePosition(1300,350);//控制图片位置
+			image4.scaleAbsolute(360,150);//控制图片大小
+			image4.setAbsolutePosition(1260,300);//控制图片位置
 			document.add(image4);
+			
+			Image image5 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/gongzhang.png");
+			image5.setAlignment(Image.ALIGN_CENTER);
+			image5.scaleAbsolute(250,250);//控制图片大小
+			image5.setAbsolutePosition(1300,350);//控制图片位置
+			document.add(image5);
 		} catch (Exception e) {
 			logger.error(MessageFormat.format("批量导出pdf失败", new Object[] {}));
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());

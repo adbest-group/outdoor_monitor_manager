@@ -25,7 +25,7 @@ import com.bt.om.util.ConfigUtil;
  */
 @Controller
 public class UploadController extends BasicController {
-
+ 
 	private String ip = ConfigUtil.getString("sys.uploadAdd.domain");
 
 	private String path = ConfigUtil.getString("sys.uploadAdd.display.domain");

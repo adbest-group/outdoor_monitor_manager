@@ -4,7 +4,7 @@ package com.bt.om.enums;
  * Created by caiting on 2018/1/19.
  */
 public enum MessageType {
-    ACTIVITY_AUDIT(1,"活动确认"),TASK_AUDIT(2,"任务审核"),TASK_ASSIGN(3,"任务指派"),JIUCUO_AUDIT(4,"纠错审核");
+    ACTIVITY_AUDIT(1,"活动管理"),TASK_AUDIT(2,"任务审核"),TASK_ASSIGN(3,"任务指派"),JIUCUO_AUDIT(4,"纠错审核");
 
     private Integer id;
     private String text;

@@ -1277,14 +1277,17 @@
 	<!-- 
 		查询出所有待激活的id集合
 	 -->
-	<select id="getWaitToActivateIds" parameterType="java.util.Date" resultType="java.lang.Integer">
-		select
-			id
-		from
-			ad_monitor_task
-		where 
-			status = 7 and 
-	    	monitor_date &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+	<select id="getWaitToActivateIds" parameterType="java.util.Date" resultType="com.bt.om.entity.vo.TaskAdSeat">
+		SELECT
+			a.id,
+			c.`name` as adSeatName
+		FROM
+			ad_monitor_task a
+		LEFT JOIN ad_activity_adseat b ON a.activity_adseat_id = b.id
+		LEFT JOIN ad_seat_info c ON b.ad_seat_id = c.id
+		WHERE
+			a.STATUS = 7
+	    	a.monitor_date &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
 	</select>
     
     <!-- 
@@ -1320,6 +1323,7 @@
     	where status = 8
     	and monitor_date &lt;= date_add(date_add(now(),interval (2 - monitor_last_days) day),interval -#{duration,jdbcType=INTEGER} hour)
     </update>
+    
     <select id="getAllByStatusUnCheck" parameterType="map" resultMap="BaseResultMap">
   		select
     	<include refid="Base_Column_List" />
@@ -1330,6 +1334,7 @@
         	<foreach collection="customerIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
     	</if> 
   </select>
+  
     <select id="getAllByStatusUnZhipai" parameterType="map" resultMap="BaseResultMap">
   		select
     	<include refid="Base_Column_List" />
@@ -1408,13 +1413,17 @@
     	where a.id = #{id,jdbcType=INTEGER}
     </select>
     
-
-
     <!-- 查询出某活动的所有上刊任务的id集合 -->
-    <select id="selectUpTaskIds" parameterType="java.lang.Integer" resultType="java.lang.Integer">
-    	select
-    		id
-    	from ad_monitor_task
-    	where task_type = 5 and activity_id = #{activityId,jdbcType=INTEGER}
+    <select id="selectUpTaskIds" parameterType="java.lang.Integer" resultType="com.bt.om.entity.vo.TaskAdSeat">
+    	SELECT
+			a.id,
+			c.`name` as adSeatName
+		FROM
+			ad_monitor_task a
+		LEFT JOIN ad_activity_adseat b ON a.activity_adseat_id = b.id
+		LEFT JOIN ad_seat_info c ON b.ad_seat_id = c.id
+		WHERE
+			a.task_type = 5
+		AND a.activity_id = #{activityId,jdbcType=INTEGER}
     </select>
 </mapper>

@@ -484,9 +484,12 @@ public class ActivityController extends BasicController {
 		model = new ExtendedModelMap();
 		Date now = new Date();
 
+		// 获取登录的审核人(员工/部门领导/超级管理员)
+		SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+		
 		try {
 			// 删除活动
-			adActivityService.delete(id);
+			adActivityService.delete(id, userObj.getId());
 		} catch (Exception e) {
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("删除失败！");

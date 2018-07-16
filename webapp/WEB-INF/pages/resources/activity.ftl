@@ -147,7 +147,7 @@
 <script type="text/javascript">
 
 	$('.select').searchableSelect();
-
+	$('#userId').next().find('.searchable-select-input').css('display', 'block');
 	<#-- 
 	changeMediaTypeId();
             $(function(){

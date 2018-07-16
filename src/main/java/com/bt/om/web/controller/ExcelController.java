@@ -281,19 +281,19 @@ public class ExcelController extends BasicController {
 			Image image = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/grouplogo.png");
 			image.setAlignment(Image.ALIGN_CENTER);
 			image.scaleAbsolute(140,50);//控制图片大小
-			image.setAbsolutePosition(1350,80);//控制图片位置
+			image.setAbsolutePosition(1620,80);//控制图片位置
 			document.add(image);
 			
 			Image image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
 			image2.setAlignment(Image.ALIGN_CENTER);
-			image2.scaleAbsolute(250,55);//控制图片大小
-			image2.setAbsolutePosition(1500,80);//控制图片位置
+			image2.scaleAbsolute(50,50);//控制图片大小
+			image2.setAbsolutePosition(200,80);//控制图片位置
 			document.add(image2);
 			
 			Image image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
 			image3.setAlignment(Image.ALIGN_CENTER);
-			image3.scaleAbsolute(70,55);//控制图片大小
-			image3.setAbsolutePosition(200,80);//控制图片位置
+			image3.scaleAbsolute(75,60);//控制图片大小
+			image3.setAbsolutePosition(1650,950);//控制图片位置
 			document.add(image3);
 			
 //        	List<AdActivityAdseatTaskVo> vos = adActivityService.selectAdActivityAdseatTaskReport(activityId);
@@ -402,19 +402,19 @@ public class ExcelController extends BasicController {
 			image = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/grouplogo.png");
 			image.setAlignment(Image.ALIGN_CENTER);
 			image.scaleAbsolute(140,50);//控制图片大小
-			image.setAbsolutePosition(1350,80);//控制图片位置
+			image.setAbsolutePosition(1620,80);//控制图片位置
 			document.add(image);
 			
 			image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
 			image2.setAlignment(Image.ALIGN_CENTER);
-			image2.scaleAbsolute(250,55);//控制图片大小
-			image2.setAbsolutePosition(1500,80);//控制图片位置
+			image2.scaleAbsolute(50,50);//控制图片大小
+			image2.setAbsolutePosition(200,80);//控制图片位置
 			document.add(image2);
 			
 			image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
 			image3.setAlignment(Image.ALIGN_CENTER);
-			image3.scaleAbsolute(70,55);//控制图片大小
-			image3.setAbsolutePosition(200,80);//控制图片位置
+			image3.scaleAbsolute(75,60);//控制图片大小
+			image3.setAbsolutePosition(1650,950);//控制图片位置
 			document.add(image3);
         	            
 			//生成pdf图片页
@@ -457,21 +457,22 @@ public class ExcelController extends BasicController {
     				}
         			
         			image = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/grouplogo.png");
-    				image.setAlignment(Image.ALIGN_CENTER);
-    				image.scaleAbsolute(140,50);//控制图片大小
-    				image.setAbsolutePosition(1350,80);//控制图片位置
-    				document.add(image);
-    				
-    				image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
-    				image2.setAlignment(Image.ALIGN_CENTER);
-    				image2.scaleAbsolute(250,55);//控制图片大小
-    				image2.setAbsolutePosition(1500,80);//控制图片位置
-    				document.add(image2);
-    				image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
-    				image3.setAlignment(Image.ALIGN_CENTER);
-    				image3.scaleAbsolute(60,50);//控制图片大小
-    				image3.setAbsolutePosition(200,80);//控制图片位置
-    				document.add(image3);
+        			image.setAlignment(Image.ALIGN_CENTER);
+        			image.scaleAbsolute(140,50);//控制图片大小
+        			image.setAbsolutePosition(1620,80);//控制图片位置
+        			document.add(image);
+        			
+        			image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
+        			image2.setAlignment(Image.ALIGN_CENTER);
+        			image2.scaleAbsolute(50,50);//控制图片大小
+        			image2.setAbsolutePosition(200,80);//控制图片位置
+        			document.add(image2);
+        			
+        			image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
+        			image3.setAlignment(Image.ALIGN_CENTER);
+        			image3.scaleAbsolute(75,60);//控制图片大小
+        			image3.setAbsolutePosition(1650,950);//控制图片位置
+        			document.add(image3);
 				}
             }
             
@@ -488,23 +489,23 @@ public class ExcelController extends BasicController {
 			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "乙方： ", 1100, 560, 0);
 			cb.endText(); 
             
-			image = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/grouplogo.png");
-			image.setAlignment(Image.ALIGN_CENTER);
-			image.scaleAbsolute(140,50);//控制图片大小
-			image.setAbsolutePosition(1250,470);//控制图片位置
-			document.add(image);
-			
-			image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
-			image2.setAlignment(Image.ALIGN_CENTER);
-			image2.scaleAbsolute(250,55);//控制图片大小
-			image2.setAbsolutePosition(1430,470);//控制图片位置
-			document.add(image2);
-			
-			image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
-			image3.setAlignment(Image.ALIGN_CENTER);
-			image3.scaleAbsolute(70,55);//控制图片大小
-			image3.setAbsolutePosition(450,450);//控制图片位置
-			document.add(image3);
+//			image = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/grouplogo.png");
+//			image.setAlignment(Image.ALIGN_CENTER);
+//			image.scaleAbsolute(140,50);//控制图片大小
+//			image.setAbsolutePosition(1250,470);//控制图片位置
+//			document.add(image);
+//			
+//			image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
+//			image2.setAlignment(Image.ALIGN_CENTER);
+//			image2.scaleAbsolute(250,55);//控制图片大小
+//			image2.setAbsolutePosition(1430,470);//控制图片位置
+//			document.add(image2);
+//			
+//			image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
+//			image3.setAlignment(Image.ALIGN_CENTER);
+//			image3.scaleAbsolute(70,55);//控制图片大小
+//			image3.setAbsolutePosition(450,450);//控制图片位置
+//			document.add(image3);
 			
 //			cb = writer.getDirectContent();
 //			cb.beginText();  
@@ -514,11 +515,11 @@ public class ExcelController extends BasicController {
 //			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, sysUser.getRealname(), 450, 390, 0);
 //			cb.endText();
 			
-			Image image4 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/gongsi.png");
-			image4.setAlignment(Image.ALIGN_CENTER);
-			image4.scaleAbsolute(360,150);//控制图片大小
-			image4.setAbsolutePosition(1260,300);//控制图片位置
-			document.add(image4);
+//			Image image4 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/gongsi.png");
+//			image4.setAlignment(Image.ALIGN_CENTER);
+//			image4.scaleAbsolute(360,150);//控制图片大小
+//			image4.setAbsolutePosition(1260,300);//控制图片位置
+//			document.add(image4);
 			
 			Image image5 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/gongzhang.png");
 			image5.setAlignment(Image.ALIGN_CENTER);

@@ -323,6 +323,7 @@
     var assign_ids;
     $(function(){
         $('.select').searchableSelect();
+        $('#selectMediaId').next().find('.searchable-select-input').css('display', 'block');
 
        <#--  $('.inputs-date').dateRangePicker({
             separator : ' 至 ',

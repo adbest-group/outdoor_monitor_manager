@@ -14,6 +14,7 @@ import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.entity.vo.AllAdMonitorTaskVo;
 import com.bt.om.entity.vo.PictureVo;
+import com.bt.om.entity.vo.TaskAdSeat;
 
 public interface AdMonitorTaskMapper {
 	/**
@@ -143,7 +144,7 @@ public interface AdMonitorTaskMapper {
 
 	int getTaskPageCount(HashMap<String, Object> searchMap);
 
-	List<Integer> getWaitToActivateIds(Date nowDate);
+	List<TaskAdSeat> getWaitToActivateIds(Date nowDate);
 
 	int cleanTask(AdMonitorTask task);
 	
@@ -156,6 +157,6 @@ public interface AdMonitorTaskMapper {
 
 	List<AdMonitorTask> newSelectLatestMonitorTaskIds(Map<String, Object> searchMap);
 
-	List<Integer> selectUpTaskIds(@Param("activityId") Integer activityId);
+	List<TaskAdSeat> selectUpTaskIds(@Param("activityId") Integer activityId);
 
 }

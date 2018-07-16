@@ -30,11 +30,12 @@ img.demo {
 								<tr>
 									<td class="a-title"><font class="s-red">*</font>媒体主：</td>
 									<td>
-										<select style="width: 156px;" name="mediaId" id="mediaId" class="form-control">
+										<div class="select-box select-box-140 un-inp-select ll">
+										<select style="width: 156px;" name="mediaId" id="mediaId" class="form-control select">
 											<option value="">请选择媒体主</option>
 											<@model.showAllAvailableMediaOps value="<#if (adSeatInfo?exists&&adSeatInfo.mediaId?exists)>adSeatInfo.mediaId</#if>"/>
 					                    </select>
-										
+										</div>
 	                                    <span id="mediaIdTip"></span>
 									</td>
 								</tr>
@@ -352,6 +353,8 @@ img.demo {
 
 	$(function() {
         $('.select').searchableSelect();
+        $('#mediaId').next().find('.searchable-select-input').css('display', 'block');
+        
 		$('#form').submit(function() {
 			return false;
 		})

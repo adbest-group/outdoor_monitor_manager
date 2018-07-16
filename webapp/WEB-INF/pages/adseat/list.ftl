@@ -143,7 +143,7 @@
 	           			&nbsp;
 	           		</div>
 	           		<div class="layui-col-md7">
-	           			<span style="margin-left: 40px;">媒体:</span><select style="margin-top: 20px;height: 30px" name="mediaId" onchange="importEnabled()" id="importMediaId">
+	           			<span class="layui-col-md3" style="margin-top: 20px;height:30px;line-height:30px;">媒体:</span><select class="layui-col-md7" style="margin-top: 20px;height: 30px" name="mediaId" onchange="importEnabled()" id="importMediaId">
 	           			<#-- <option value="">所有媒体</option>  -->
 	           			<@model.showAllMediaOps value="${bizObj.queryMap.mediaId?if_exists}" />
 	       			</select>
@@ -342,7 +342,7 @@ function changeMediaTypeId() {
                  closeBtn: false,
                  shift: 2,
                  shade: 0.8,
-                 area: ['320px', '150px'], 
+                 area: ['320px', '180px'], 
                  shadeClose: false,
                  content: $("#mediaSelCV")
         	 });

@@ -123,6 +123,7 @@
     });
 
 	$('.select').searchableSelect();
+	$('#parentId').next().find('.searchable-select-input').css('display', 'block');
 	$("#parentId").siblings().hide();
 	var type = $('#mediaType').val();
 	if(type == "") {

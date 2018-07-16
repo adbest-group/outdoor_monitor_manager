@@ -31,11 +31,12 @@
 							<tr>
 								<td class="a-title"><font class="s-red">*</font>广告主：</td>
 								<td>
-									<select style="width: 156px;" name="customerId" id="customerId" class="form-control">
+									<div class="select-box select-box-140 un-inp-select ll">
+									<select style="width: 250px;" name="customerId" id="customerId" class="form-control select">
 										<option value="">请选择广告主</option>
 										<@model.showAllCustomerAvailableOps value="<#if (activity?exists&&activity.userId?exists)>activity.userId</#if>"/>
 				                    </select>
-									
+									</div>
                                     <span id="customerIdTip"></span>
 								</td>
 							</tr>
@@ -419,6 +420,7 @@
 
         // 下拉
         $('.select').searchableSelect();
+        $('#customerId').next().find('.searchable-select-input').css('display', 'block');
 
         if(editMode) {
             //日期

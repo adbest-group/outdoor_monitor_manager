@@ -35,7 +35,7 @@ public interface IAdActivityService {
 
     public void confirm(String[] activityIds, Integer assessorId);
 
-    public void delete(Integer id);
+    public void delete(Integer id, Integer assessorId);
 
     public List<AdActivity> getAll();
 
@@ -96,4 +96,5 @@ public interface IAdActivityService {
 	public AdActivity getUserId(Integer activityId);
 
 	List<AdActivityAdseatTaskVo> newSelectAdActivityAdseatTaskReport(Map<String, Object> searchMap);
+
 }

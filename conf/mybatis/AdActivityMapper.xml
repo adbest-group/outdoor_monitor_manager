@@ -549,11 +549,19 @@
      and start_time &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
   </update>
   
+  <!-- 查询已结束的活动 -->
+  <select id="getEndActivity" parameterType="java.util.Date" resultType="java.lang.Integer">
+  	 select id from ad_activity
+     where status = 2
+     and end_time &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+  </select>
+  
   <!-- 设置已经结束的活动 -->
   <update id="updateStatusByEndTime" parameterType="java.util.Date">
   	 update ad_activity
      set status = 3
-     where end_time &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+     where status = 2 
+     and end_time &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
   </update>
   
   <!-- 获取所有当前日期已经结束状态的活动创建者列表 -->

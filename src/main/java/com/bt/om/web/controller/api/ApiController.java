@@ -100,6 +100,7 @@ import com.bt.om.service.ISysUserService;
 import com.bt.om.service.IUserPointService;
 import com.bt.om.util.CityUtil;
 import com.bt.om.util.GeoUtil;
+import com.bt.om.util.MarkLogoUtil;
 import com.bt.om.util.QRcodeUtil;
 import com.bt.om.vo.api.ActivityReportVo;
 import com.bt.om.vo.api.AdActivitySeatInfoInQRVO;
@@ -1256,6 +1257,7 @@ public class ApiController extends BasicController {
                     file1 = file1.replaceAll("data:image/jpeg;base64,", "");
 //                    is1 = new ByteArrayInputStream(Base64.getDecoder().decode(file1));
                     is1 = new ByteArrayInputStream(org.apache.commons.codec.binary.Base64.decodeBase64(file1));
+                    
                     filename1 = UploadFileUtil.saveFile(path, "image.jpg", is1);
                 }
                 if (file2 != null) {
@@ -1289,15 +1291,23 @@ public class ApiController extends BasicController {
                 feedback.setLat(lat);
                 feedback.setLon(lon);
                 if (filename1 != null) {
-                    feedback.setPicUrl1("/static/upload/" + filename1);
+                	int index = filename1.indexOf('.');
+                    MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename1, path, filename1.substring(0, index), "jpg", null);
+                    feedback.setPicUrl1("/static/upload/" + filename1);    
                 }
                 if (filename2 != null) {
+                	int index = filename2.indexOf('.');
+                    MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename2, path, filename2.substring(0, index), "jpg", null);
                     feedback.setPicUrl2("/static/upload/" + filename2);
                 }
                 if (file3 != null) {
+                	int index = filename3.indexOf('.');
+                    MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename3, path, filename3.substring(0, index), "jpg", null);
                     feedback.setPicUrl3("/static/upload/" + filename3);
                 }
                 if (file4 != null) {
+                	int index = filename4.indexOf('.');
+                    MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename4, path, filename4.substring(0, index), "jpg", null);
                     feedback.setPicUrl4("/static/upload/" + filename4);
                 }
                 feedback.setProblem(problem);

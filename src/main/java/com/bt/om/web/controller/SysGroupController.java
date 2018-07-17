@@ -852,7 +852,9 @@ public class SysGroupController extends BasicController{
     public String messageList(Model model ,HttpServletRequest request,
             @RequestParam(value = "id", required = false) Integer id,
             @RequestParam(value = "type", required = false) Integer type,
-            @RequestParam(value = "isFinish", required = false) Integer isFinish)throws ParseException {
+            @RequestParam(value = "isFinish", required = false) Integer isFinish,
+            @RequestParam(value = "searchContent", required = false) String content
+            )throws ParseException {
         SearchDataVo vo = SearchUtil.getVo();
         SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         vo.putSearchParam("targetUserId", null, user.getId());
@@ -861,6 +863,11 @@ public class SysGroupController extends BasicController{
         }
         if (isFinish != null) {
             vo.putSearchParam("isFinish", isFinish.toString(), isFinish);
+        }
+        if(StringUtil.isNotBlank(content)) {
+        	model.addAttribute("searchContent", content);
+        	content = "%" + content + "%";
+        	vo.putSearchParam("content", content, content);
         }
         
         adUserMessageService.getPageData(vo);

@@ -137,28 +137,26 @@
         </div>
         
         <div id="mediaSelCV" style="display:none">
-        
-	        	<div class="layui-row">
-	           		<div class="layui-col-md2">
-	           			&nbsp;
-	           		</div>
-	           		<div class="layui-col-md7">
-	           			<span class="layui-col-md3" style="margin-top: 20px;height:30px;line-height:30px;">媒体:</span><select class="layui-col-md7" style="margin-top: 20px;height: 30px" name="mediaId" onchange="importEnabled()" id="importMediaId">
-	           			<#-- <option value="">所有媒体</option>  -->
-	           			<@model.showAllMediaOps value="${bizObj.queryMap.mediaId?if_exists}" />
-	       			</select>
-	           		</div>
-	           	</div>
-	           	<div class="layui-row" style="margin-top:20px">
-	           		<div class="layui-col-md7">&nbsp;</div>
-	           		<div class="layui-col-md4">
-	           			<button style="float:left" type="button" class="layui-btn layui-btn-primary layui-btn-xs" id="insertBatchId" autocomplete="off">批量导入</button>
-	           		<div>
-	           		<div class="layui-col-md4">
-					<button style="margin-left: 8px;width: 60px;" type="button" class="layui-btn layui-btn-primary layui-btn-xs" id="batchCancel" autocomplete="off">&nbsp;&nbsp;&nbsp;取消&nbsp;&nbsp;&nbsp;</button>
-					</div>
-	           	</div>     	
-			  
+        	<div class="layui-row">
+           		<div class="layui-col-md2">
+           			&nbsp;
+           		</div>
+           		<div class="layui-col-md7">
+           			<span class="layui-col-md3" style="margin-top: 20px;height:30px;line-height:30px;">媒体:</span><select class="layui-col-md7" style="margin-top: 20px;height: 30px" name="mediaId" onchange="importEnabled()" id="importMediaId">
+           			<#-- <option value="">所有媒体</option>  -->
+           			<@model.showAllMediaOps value="${bizObj.queryMap.mediaId?if_exists}" />
+       			</select>
+           		</div>
+           	</div>
+           	<div class="layui-row" style="margin-top:20px">
+           		<div class="layui-col-md7">&nbsp;</div>
+           		<div class="layui-col-md4">
+           			<button style="float:left" type="button" class="layui-btn layui-btn-primary layui-btn-xs" id="insertBatchId" autocomplete="off">批量导入</button>
+           		<div>
+           		<div class="layui-col-md4">
+				<button style="margin-left: 8px;width: 60px;" type="button" class="layui-btn layui-btn-primary layui-btn-xs" id="batchCancel" autocomplete="off">&nbsp;&nbsp;&nbsp;取消&nbsp;&nbsp;&nbsp;</button>
+				</div>
+           	</div>     	
         </div>
     </div>
 </div>
@@ -346,7 +344,6 @@ function changeMediaTypeId() {
                  shadeClose: false,
                  content: $("#mediaSelCV")
         	 });
-        	
         });
         
         $('#batchCancel').on('click',function(){
@@ -371,11 +368,6 @@ function changeMediaTypeId() {
    
     
     
-    
-    
-    
-    
-    
     //批量导入
 	layui.use('upload', function(){
 	  var upload = layui.upload;
@@ -392,7 +384,19 @@ function changeMediaTypeId() {
 	    ,exts: 'xlsx|xls' //指定只允许上次xlsx和xls格式的excel文件
 	    ,field: 'excelFile' //设置字段名
 	    ,url: '/excel/insertBatch' //上传接口
+	    ,before: function() {
+	    	layer.msg('正在努力上传中...', {
+	    		icon: 16,
+	    		shade: [0.5, '#f5f5f5'],
+	    		scrollbar: false,
+	    		time: 300000,
+	    		end: function(){
+	    			layer.alert('上传超时', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    		}
+	    	})
+	    }
 	    ,done: function(res){
+	    	layer.closeAll('msg')
 	    	if(res.ret.code == 100){
 	    		layer.alert('导入成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
 	    		window.open(res.ret.result);
@@ -404,10 +408,12 @@ function changeMediaTypeId() {
 	    	}
 	    }
 	    ,error: function(res){
+	       layer.closeAll('msg')
 	       layer.alert('导入失败', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
 	    }
 	  });
 	}); 
+    
 	// 更新二维码状态
     function updateStatus(id, codeFlag) {
         if (codeFlag == 0) {

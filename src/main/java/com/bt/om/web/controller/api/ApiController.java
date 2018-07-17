@@ -63,6 +63,7 @@ import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.AdUserPoint;
 import com.bt.om.entity.AdVersion;
 import com.bt.om.entity.City;
+import com.bt.om.entity.LoginLog;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AbandonTaskVo;
 import com.bt.om.entity.vo.ActivityMobileReportVo;
@@ -92,6 +93,7 @@ import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.service.IAdSeatService;
 import com.bt.om.service.IAdUserMessageService;
 import com.bt.om.service.IAppService;
+import com.bt.om.service.ILoginLogService;
 import com.bt.om.service.IPointService;
 import com.bt.om.service.ISendSmsService;
 import com.bt.om.service.ISysResourcesService;
@@ -172,6 +174,8 @@ public class ApiController extends BasicController {
 	private SysUserResMapper sysUserResMapper;
 	@Autowired
 	private IAdUserMessageService adUserMessageService;
+	@Autowired
+	private ILoginLogService loginLogService;
     
     @Value("${sms.checkcode.content.template}")
     private String SMS_CHECKCODE_CONTENT_TEMPLATE;
@@ -630,6 +634,15 @@ public class ApiController extends BasicController {
         	sysUserExecute.setSystemVersion(systemVersion);
         	sysUserExecuteService.updatePhoneModel(sysUserExecute);
         }
+        //登录日志
+        Date now = new Date();	           
+        LoginLog loginlog=new LoginLog();   
+        loginlog.setUserId(userExecute.getId());
+        loginlog.setType(1);
+        loginlog.setIp(getIp());
+        loginlog.setLocation("aaa");
+        loginlog.setCreateTime(now);
+		loginLogService.save(loginlog);   
         
 //        //客户登录APP, 校验appSid
 //        if(userExecute.getUsertype() == 2) {

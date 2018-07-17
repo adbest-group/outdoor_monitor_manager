@@ -180,7 +180,7 @@
       and type = #{type,jdbcType=INTEGER}
     </if>
     <if test="content != null" >
-      and content = #{content,jdbcType=VARCHAR}
+      and content like #{content,jdbcType=VARCHAR}
     </if>
     <if test="isFinish != null" >
       and is_finish = #{isFinish,jdbcType=INTEGER}
@@ -201,7 +201,7 @@
       and a.type = #{type,jdbcType=INTEGER}
     </if>
     <if test="content != null" >
-      and a.content = #{content,jdbcType=VARCHAR}
+      and a.content like #{content,jdbcType=VARCHAR}
     </if>
     <if test="isFinish != null" >
       and a.is_finish = #{isFinish,jdbcType=INTEGER}

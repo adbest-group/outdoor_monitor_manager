@@ -68,6 +68,7 @@ public class AdUserMessageService implements IAdUserMessageService{
 		adUserMessageMapper.insertMessage(message);
 	}
 	
+	
 	/**
 	 * 批量导入媒体监测人员
 	 */

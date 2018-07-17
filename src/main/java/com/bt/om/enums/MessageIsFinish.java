@@ -4,7 +4,7 @@ package com.bt.om.enums;
  * Created by caiting on 2018/1/19.
  */
 public enum MessageIsFinish {
-    UNCONFIRM(1,"已处理"),CONFIRMED(0,"未处理");
+    CONFIRMED(0,"未处理"),UNCONFIRM(1,"已处理");
 
     private Integer id;
     private String text;

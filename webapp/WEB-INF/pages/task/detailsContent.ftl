@@ -305,6 +305,7 @@
 	   var lon = $('#lontitude').val();
   	   var lat = $('#latitude').val();
   	   var userId = $('#selectMediaName').val();
+  	   
   	  
   	   if(lon == null || lon == "" || lon.length <= 0){
   	  	layer.confirm("请填写经度", {

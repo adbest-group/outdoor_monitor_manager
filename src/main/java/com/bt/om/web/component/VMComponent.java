@@ -23,6 +23,7 @@ import com.bt.om.entity.AdMediaType;
 import com.bt.om.entity.AdSeatType;
 import com.bt.om.entity.SysResources;
 import com.bt.om.entity.SysUser;
+import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.SysMenuVo;
 import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.ActivityStatus;
@@ -43,6 +44,7 @@ import com.bt.om.service.IAdMediaTypeService;
 import com.bt.om.service.IAppService;
 import com.bt.om.service.IResourceService;
 import com.bt.om.service.ISysGroupService;
+import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.util.CityUtil;
 import com.bt.om.util.ConfigUtil;
@@ -83,6 +85,9 @@ public class VMComponent {
 
 	@Autowired
 	IAppService adAppService;
+	
+	@Autowired
+	ISysUserExecuteService sysUserExecuteService;
 	
 	@Autowired
 	private ISysGroupService sysGroupService;
@@ -430,6 +435,13 @@ public class VMComponent {
      */
     public List<SysUserVo> getAllCustomerByUserType() {
     	return sysUserService.getAllByUserType(2); //2：客户账户
+    }
+    
+    /**
+     * 获取该媒体下的所有APP执行人员
+     */
+    public List<SysUserExecute> showUserExecuteByMedia(String mediaId) {
+    	return sysUserExecuteService.selectMediaNameByUserId(Integer.parseInt(mediaId));
     }
     
     /***************************** 下面是工具类 ****************************************/

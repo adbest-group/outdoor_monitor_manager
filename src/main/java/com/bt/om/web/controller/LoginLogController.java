@@ -30,14 +30,22 @@ public class LoginLogController {
     @RequiresRoles("superadmin")
     @RequestMapping(value = "/loginLog" )
     public String resourceDetailPage(Model model, HttpServletRequest request,
-    		@RequestParam(value = "createTime", required = false) String createTime,
+    		@RequestParam(value = "begin", required = false) String begin,
+    		@RequestParam(value = "end", required = false) String end,
     		@RequestParam(value = "type", required = false) String type,
     		@RequestParam(value = "realname", required = false) String realname,
     		@RequestParam(value = "username", required = false) String username){
 	   //	SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         SearchDataVo vo = SearchUtil.getVo();
-        if (createTime != null) {
-            vo.putSearchParam("createTime", createTime.toString(), createTime);
+        if (begin != null) {
+        	String beginTime = begin + " 00:00:00";
+        	model.addAttribute("beginTime", begin);
+            vo.putSearchParam("begin", beginTime, beginTime);
+        }
+        if (end != null) {
+        	String endTime = end + " 23:59:59";
+        	model.addAttribute("endTime", end);
+            vo.putSearchParam("end", endTime, endTime);
         }
         if (type != null) {
             vo.putSearchParam("type", type.toString(), type);

@@ -232,6 +232,7 @@
 		                    <div class="select-box select-box-100 un-inp-select ll">
 		                       	 <select class="select" name="selectMediaName" id="selectMediaName">
 				                     <option value="">媒体成员</option>
+				                     <@model.showUserExecuteByMedia mediaId="${vo.mediaId?if_exists}"/>
 				                 </select>
 		                    </div> 
 		                    <br><br>
@@ -295,7 +296,13 @@
 <!-- formValidator -->
 <link type="text/css" rel="stylesheet" href="${model.static_domain}/js/formValidator/style/validator.css"></link>
 <script type="text/javascript" src="${model.static_domain}/js/formValidator/formValidator-4.0.1.js"></script>
+<!-- 下拉 -->
+<link href="${model.static_domain}/js/select/jquery.searchableSelect.css" rel="stylesheet">
+<script src="${model.static_domain}/js/select/jquery.searchableSelect.js"></script>
 <script type="text/javascript">
+
+	$('.select').searchableSelect();
+	$('#selectMediaName').next().find('.searchable-select-input').css('display', 'block');
 
 	function setFeedbackId(id){
 		$("#selectTaskFeedBackId").val(id);

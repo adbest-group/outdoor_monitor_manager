@@ -412,7 +412,7 @@
         <foreach collection="activityIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
     </if>
     <if test="updateTime != null">
-      and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i:%s')
+      and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
     </if>
   	order by create_time desc
   </select>
@@ -437,7 +437,7 @@
         <foreach collection="activityIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
     </if>
     <if test="updateTime != null">
-      and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i:%s')
+      and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
     </if>
   </select>
   

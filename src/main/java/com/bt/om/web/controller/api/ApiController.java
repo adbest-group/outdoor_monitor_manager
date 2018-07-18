@@ -27,7 +27,6 @@ import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.sound.midi.SysexMessage;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -54,6 +53,7 @@ import com.bt.om.entity.AdActivityAdseat;
 import com.bt.om.entity.AdApp;
 import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.entity.AdJiucuoTaskFeedback;
+import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdMediaType;
 import com.bt.om.entity.AdMonitorReward;
 import com.bt.om.entity.AdMonitorTask;
@@ -63,6 +63,7 @@ import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.AdUserPoint;
 import com.bt.om.entity.AdVersion;
 import com.bt.om.entity.City;
+import com.bt.om.entity.LoginLog;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AbandonTaskVo;
 import com.bt.om.entity.vo.ActivityMobileReportVo;
@@ -92,6 +93,8 @@ import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.service.IAdSeatService;
 import com.bt.om.service.IAdUserMessageService;
 import com.bt.om.service.IAppService;
+import com.bt.om.service.IMediaService;
+import com.bt.om.service.ILoginLogService;
 import com.bt.om.service.IPointService;
 import com.bt.om.service.ISendSmsService;
 import com.bt.om.service.ISysResourcesService;
@@ -172,6 +175,10 @@ public class ApiController extends BasicController {
 	private SysUserResMapper sysUserResMapper;
 	@Autowired
 	private IAdUserMessageService adUserMessageService;
+	@Autowired
+	private IMediaService mediaService;
+  @Autowired
+	private ILoginLogService loginLogService;
     
     @Value("${sms.checkcode.content.template}")
     private String SMS_CHECKCODE_CONTENT_TEMPLATE;
@@ -630,6 +637,15 @@ public class ApiController extends BasicController {
         	sysUserExecute.setSystemVersion(systemVersion);
         	sysUserExecuteService.updatePhoneModel(sysUserExecute);
         }
+        //登录日志
+        Date now = new Date();	           
+        LoginLog loginlog=new LoginLog();   
+        loginlog.setUserId(userExecute.getId());
+        loginlog.setType(1);
+        loginlog.setIp(getIp());
+        loginlog.setLocation("aaa");
+        loginlog.setCreateTime(now);
+		loginLogService.save(loginlog);   
         
 //        //客户登录APP, 校验appSid
 //        if(userExecute.getUsertype() == 2) {
@@ -2065,16 +2081,42 @@ public class ApiController extends BasicController {
                 return model;
             }
         }
+        
+        List<MonitorTaskArroundVo> list = Lists.newArrayList();
         SearchDataVo vo = new SearchDataVo(null,null,(page-1)*pageSize,pageSize);
         vo.putSearchParam("lon",null,lon);
         vo.putSearchParam("lat",null,lat);
         vo.putSearchParam("metre",null,metre);
         vo.putSearchParam("metreDegree",null, GeoUtil.getDegreeFromDistance(metre));
         vo.putSearchParam("updateTime", null, updateTime);
+        vo.putSearchParam("nowDate", null, new Date());
+        
+        //获取登录用户, 判断用户类型
+        SysUserExecute user = getLoginUser(request, token);
+        if(user == null) {
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        
+        Integer status = null;
+        if(user.getUsertype().equals(4)) {
+        	//[1] 社会人员抢单
+        	status = 8; //8：可抢单
+        	vo.putSearchParam("status", null, status);
+        } else if(user.getUsertype().equals(3)) {
+        	//[2] 媒体监测人员抢单(自己媒体公司下的任务)
+        	Integer mediaSysUserId = user.getOperateId();
+        	AdMedia adMedia = mediaService.getMediaByUserId(mediaSysUserId);
+        	vo.putSearchParam("mediaId", null, adMedia.getId());
+        	
+        	status = 1; //1：待指派
+        	vo.putSearchParam("status", null, status);
+        }
         
         adMonitorTaskService.getByPointAroundPageData(vo);
-        List<MonitorTaskArroundVo> list = Lists.newArrayList();
-
+        
         for(Object obj : vo.getList()){
         	AdMonitorTaskMobileVo task = (AdMonitorTaskMobileVo) obj;
         	MonitorTaskArroundVo arroundVo = new MonitorTaskArroundVo(task);
@@ -2182,12 +2224,39 @@ public class ApiController extends BasicController {
                 return model;
             }
         }
+        
         SearchDataVo vo = new SearchDataVo(null,null,(page-1)*pageSize,pageSize);
         vo.putSearchParam("lon",null,lon);
         vo.putSearchParam("lat",null,lat);
         vo.putSearchParam("province",null,provinceId);
         vo.putSearchParam("city",null,cityId);
         vo.putSearchParam("updateTime", null, updateTime);
+        vo.putSearchParam("nowDate", null, new Date());
+        
+        //获取登录用户, 判断用户类型
+        SysUserExecute user = getLoginUser(request, token);
+        if(user == null) {
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        
+        Integer status = null;
+        if(user.getUsertype().equals(4)) {
+        	//[1] 社会人员抢单
+        	status = 8; //8：可抢单
+        	vo.putSearchParam("status", null, status);
+        } else if(user.getUsertype().equals(3)) {
+        	//[2] 媒体监测人员抢单(自己媒体公司下的任务)
+        	Integer mediaSysUserId = user.getOperateId();
+        	AdMedia adMedia = mediaService.getMediaByUserId(mediaSysUserId);
+        	vo.putSearchParam("mediaId", null, adMedia.getId());
+        	
+        	status = 1; //1：待指派
+        	vo.putSearchParam("status", null, status);
+        }
+        
         adMonitorTaskService.getByCurCityPageData(vo);
         List<MonitorTaskArroundVo> list = Lists.newArrayList();
 
@@ -2797,7 +2866,7 @@ public class ApiController extends BasicController {
         return model;
     }
 
-    //社会人员抢单
+    //社会人员/媒体监测人员 抢单
     @RequestMapping(value = "/grabTask")
     @ResponseBody
     public Model grabTask(Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -3062,7 +3131,7 @@ public class ApiController extends BasicController {
         return model;
     }
     
-    //社会人员抢单放弃任务
+    //社会人员/媒体监测人员 抢单放弃任务
     @RequestMapping(value = "/abandonMonitorTask")
     @ResponseBody
     public Model abandonMonitorTask(Model model, HttpServletRequest request, HttpServletResponse response) {
@@ -3112,31 +3181,47 @@ public class ApiController extends BasicController {
             return model;
         }
         
+        //获取登录用户, 判断用户类型
+        SysUserExecute user = getLoginUser(request, token);
+        if(user == null) {
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        
         //[1] 获取该条任务信息
         AdMonitorTask adMonitorTask = adMonitorTaskService.selectByPrimaryKey(monitorTaskId);
-        if(adMonitorTask.getStatus() == 2 || adMonitorTask.getStatus() == 6) {
-        	//[2] 判断24+12小时的逻辑, 将状态改成 1：待指派 或 8：可抢单
-            /**
-             * monitor_date + monitor_last_days - 2天 + 12小时 < now
-             * 可推出当 monitor_date < now - monitor_last_days + 2天 - 12小时 时改为1：可指派，否则为8：可抢单
-             */
-            AbandonTaskVo vo = new AbandonTaskVo();
-            vo.setId(monitorTaskId);
-            vo.setAbandonTime(now);
-            vo.setUpdateTime(now);
-            vo.setUserTaskStatus(2); //1.正常 2.主动放弃 3.超时回收
-            
-            Date monitorDate = adMonitorTask.getMonitorDate();
-            Integer monitorLastDays = adMonitorTask.getMonitorLastDays();
-            if(monitorDate.getTime() <= now.getTime() - monitorLastDays*24*60*60*1000 + 2*24*60*60*1000 - 12*60*60*1000) {
-            	vo.setTaskStatus(1); //1：可指派
-            } else {
-            	vo.setTaskStatus(8); //8：可抢单
+        
+        AbandonTaskVo vo = new AbandonTaskVo();
+        vo.setId(monitorTaskId);
+        vo.setAbandonTime(now);
+        vo.setUpdateTime(now);
+        vo.setUserTaskStatus(2); //1.正常 2.主动放弃 3.超时回收
+        
+        if(user.getUsertype().equals(4)) {
+        	//[1] 社会人员抢单 放弃任务
+        	if(adMonitorTask.getStatus() == 2 || adMonitorTask.getStatus() == 6) {
+            	//[2] 判断24+12小时的逻辑, 将状态改成 1：待指派 或 8：可抢单
+                /**
+                 * monitor_date + monitor_last_days - 2天 + 12小时 < now
+                 * 可推出当 monitor_date < now - monitor_last_days + 2天 - 12小时 时改为1：可指派，否则为8：可抢单
+                 */
+                Date monitorDate = adMonitorTask.getMonitorDate();
+                Integer monitorLastDays = adMonitorTask.getMonitorLastDays();
+                if(monitorDate.getTime() <= now.getTime() - monitorLastDays*24*60*60*1000 + 2*24*60*60*1000 - 12*60*60*1000) {
+                	vo.setTaskStatus(1); //1：待指派
+                } else {
+                	vo.setTaskStatus(8); //8：可抢单
+                }
             }
-            
-            //[3] 联表更新
-            adMonitorTaskService.abandonUserTask(vo);
+        } else if(user.getUsertype().equals(3)) {
+        	//[1] 媒体监测人员抢单(自己媒体公司下的任务) 放弃任务直接改回待指派
+        	vo.setTaskStatus(1); //1：待指派
         }
+        
+        //[3] 联表更新
+        adMonitorTaskService.abandonUserTask(vo);
         
         model.addAttribute(SysConst.RESULT_KEY, result);
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
@@ -3569,4 +3654,5 @@ public class ApiController extends BasicController {
         System.out.println(new Md5Hash("admin123", "superadmin").toString());
 //        System.out.println("【浙江百泰】您的验证码为${code}".replaceAll("\\$\\{code\\}","122321"));
     }
+    
 }

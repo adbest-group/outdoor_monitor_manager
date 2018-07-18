@@ -45,6 +45,7 @@ import com.bt.om.enums.TaskProblemStatus;
 import com.bt.om.mapper.AdActivityAdseatMapper;
 import com.bt.om.mapper.AdActivityMapper;
 import com.bt.om.mapper.AdJiucuoTaskMapper;
+import com.bt.om.mapper.AdMediaMapper;
 import com.bt.om.mapper.AdMonitorTaskFeedbackMapper;
 import com.bt.om.mapper.AdMonitorTaskMapper;
 import com.bt.om.mapper.AdMonitorUserTaskMapper;
@@ -93,6 +94,8 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     private SysUserExecuteMapper sysUserExecuteMapper;
 	@Autowired
 	private AdUserPointMapper adUserPointMapper;
+	@Autowired
+	private AdMediaMapper adMediaMapper;
 	@Autowired
 	private AdPointMapper adPointMapper;
     
@@ -749,25 +752,38 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         }
     }
 
+    /**
+     * 社会人员/媒体监测人员 抢单
+     */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean grabTask(Integer userId, Integer id) {
         Date now = new Date();
         boolean ret = false;
         //先查询该任务
         AdMonitorTask task = adMonitorTaskMapper.selectByPrimaryKey(id);
-        //任务未查到或任务执行人已指派，抢任务失败
+        //任务未查到 或 任务执行人已指派，抢任务失败
         if(task==null||task.getUserId()!=null&&task.getStatus()!=1){
             return ret;
         }
         int count = adMonitorTaskMapper.grabTask(userId,id,task.getUpdateTime());
         if(count>0){
+        	//查询用户类型
+        	SysUserExecute sysUserExecute = sysUserExecuteMapper.selectByPrimaryKey(userId);
+        	
             //添加用户和任务关联关系
             AdMonitorUserTask userTask = new AdMonitorUserTask();
-            userTask.setUserId(userId);
-            userTask.setMonitorTaskId(id);
-            userTask.setStartTime(now);
-            userTask.setEndTime(Date.from(now.toInstant().atZone(ZoneId.systemDefault()).plusHours(12).toInstant()));
-            userTask.setAssignType(2);
+            userTask.setUserId(userId); //任务执行人id
+            userTask.setMonitorTaskId(id); //任务主表id
+            userTask.setStartTime(now); //任务开始时间
+            userTask.setEndTime(Date.from(now.toInstant().atZone(ZoneId.systemDefault()).plusHours(12).toInstant())); //任务结束时间 = 任务开始时间 + 12小时
+            if(sysUserExecute.getUsertype().equals(4)) {
+            	//[1] 社会人员抢单
+            	userTask.setAssignType(2); //2.自助抢单（社会人员）
+            } else if(sysUserExecute.getUsertype().equals(3)) {
+            	//[2] 媒体监测人员抢单
+            	userTask.setAssignType(3); //3.自助接取（媒体监测人员）
+            }
             userTask.setStatus(1);
             userTask.setCreateTime(now);
             userTask.setUpdateTime(now);
@@ -1178,4 +1194,5 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	public List<AdMonitorTask> newSelectLatestMonitorTaskIds(Map<String, Object> searchMap) {
 		return adMonitorTaskMapper.newSelectLatestMonitorTaskIds(searchMap);
 	}
+	
 }

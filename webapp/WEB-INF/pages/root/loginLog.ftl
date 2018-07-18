@@ -43,7 +43,7 @@
 							<th>用户名</th>
 							<th>真实名字</th>
                         	<th>IP</th>
-                        	<th>位置</th>
+                        	<!-- <th>位置</th> -->
                         	<th>创建时间</th>
                         	
 						</tr>
@@ -56,7 +56,7 @@
 							<td>${type.username!""}</td>
 							<td>${type.realname!""}</td> 
 							<td>${type.ip!""}</td>
-							<td>${type.location!""}</td>
+							<!-- <td>${type.location!""}</td> -->
 							<td>${type.createTime?string('yyyy-MM-dd HH:mm:ss')}</td>
 							
 						</tr>

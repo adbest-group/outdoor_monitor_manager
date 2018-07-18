@@ -149,6 +149,8 @@
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="username" jdbcType="VARCHAR" property="username" />
     <result column="realname" jdbcType="VARCHAR" property="realname" />
+    <result column="begin" jdbcType="TIMESTAMP" property="begin" />
+    <result column="end" jdbcType="TIMESTAMP" property="end" />
   </resultMap>
   
   <select id="getPageCountSysUserExecute" parameterType="map" resultType="java.lang.Integer">
@@ -172,6 +174,12 @@
   	</if>
     <if test="createTime != null" >
         and a.create_time = #{createTime,jdbcType=TIMESTAMP}
+    </if>
+   	<if test="begin != null" >
+       	and a.create_time >= DATE_FORMAT(#{begin,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+    </if>
+    <if test="end != null" >
+     	and a.create_time &lt;= DATE_FORMAT(#{end,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
     </if>
     <if test="username != null">
       	and b.username like #{username,jdbcType=VARCHAR}
@@ -202,6 +210,12 @@
   	</if>
     <if test="createTime != null" >
         and a.create_time = #{createTime,jdbcType=TIMESTAMP}
+    </if>
+    <if test="begin != null" >
+       	and a.create_time >= DATE_FORMAT(#{begin,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+    </if>
+    <if test="end != null" >
+     	and a.create_time &lt;= DATE_FORMAT(#{end,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
     </if>
     <if test="username != null">
       	and b.username like #{username,jdbcType=VARCHAR}
@@ -234,6 +248,12 @@
     <if test="createTime != null" >
         and a.create_time = #{createTime,jdbcType=TIMESTAMP}
     </if>
+    <if test="begin != null" >
+       	and a.create_time >= DATE_FORMAT(#{begin,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+    </if>
+    <if test="end != null" >
+     	and a.create_time &lt;= DATE_FORMAT(#{end,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+    </if>
     <if test="username != null">
       	and b.username like #{username,jdbcType=VARCHAR}
     </if>
@@ -265,6 +285,12 @@
   	</if>
     <if test="createTime != null" >
         and a.create_time = #{createTime,jdbcType=TIMESTAMP}
+    </if>
+   <if test="begin != null" >
+       	and a.create_time >= DATE_FORMAT(#{begin,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+    </if>
+     <if test="end != null" >
+     	and a.create_time &lt;= DATE_FORMAT(#{end,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
     </if>
     <if test="username != null">
       	and b.username like #{username,jdbcType=VARCHAR}

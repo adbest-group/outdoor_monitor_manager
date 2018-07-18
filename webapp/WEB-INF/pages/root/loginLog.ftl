@@ -10,10 +10,10 @@
 			<div class="search-box search-ll" style="margin: 0 0 0 20px">
 			
                 <div class="inp">
-                    <input type="text" placeholder="请输入用户名" value="${searchName?if_exists}" id="username" name="username">
+                    <input type="text" placeholder="请输入用户名" value="${username?if_exists}" id="username" name="username">
                 </div>
                 <div class="inp">
-                    <input type="text" placeholder="请输入真实姓名" value="${searchName?if_exists}" id="realname" name="realname">
+                    <input type="text" placeholder="请输入真实姓名" value="${realname?if_exists}" id="realname" name="realname">
                 </div>
  				<div class="select-box select-box-140 un-inp-select ll">
                         <select id="type" name="type" class="select">
@@ -24,7 +24,8 @@
                  </div>
                  <div class="ll inputs-date" id="createTimeLog">
                       <div class="date">
-                          <input id="createTime" class="Wdate" type="text">
+                          <input id="createTimeBegin" value="${beginTime?if_exists}" class="Wdate" type="text" >
+                          <input id="createTimeEnd" value="${endTime?if_exists}" class="Wdate" type="text" >
                       </div>
                   </div>
                   <span style="margin-left:10px;" id="createTimeTip"></span>
@@ -94,16 +95,18 @@
 <script type="text/javascript">
 $(function(){
     $(window).resize();
-    $('#type').searchableSelect()
+    $('#type').searchableSelect();
     $('#createTimeLog').dateRangePicker({
-  	   singleDate: true,
-  	   showShortcuts: false,
-         getValue: function () {
-             return $(this).find('#createTime').val()
-         },
-         setValue: function (s) {
-            $(this).find('#createTime').val(s)
-         }
+        separator: '-',
+        showShortcuts: false,
+        getValue: function () {
+        	return '';
+        },
+        setValue: function (s1, s2, s3) {
+        	console.log(s1, s2, s3)
+            $('#createTimeBegin').val(s2);
+            $('#createTimeEnd').val(s3);	
+        }
     });
 });
 
@@ -114,28 +117,35 @@ $(window).resize(function() {
 
  	// 查询
     $("#searchBtn").on("click", function () {
-        var strParam = "";
+        var strParam = {};
         var username = $("#username").val();
         var realname = $("#realname").val();
         var type = $("#type").val();
-        var createTime = $("#createTime").val();
-        
+         var begin = $('#createTimeBegin').val();
+         var end = $('#createTimeEnd').val()
         if (username != null && $.trim(username).length) {
-            strParam = strParam + "?username=" + username;
+            strParam.username = username
         }
         
         if (realname != null && $.trim(realname).length) {
-            strParam = strParam + "?realname=" + realname;
+            strParam.realname = realname
         }
         
         if (type != null && $.trim(type).length) {
-            strParam = strParam + "?type=" + type;
+            strParam.type = type
         }
-        if (createTime != null && $.trim(createTime).length) {
-            strParam ="?createTime=" + createTime;
+        if (begin != null && $.trim(begin).length) {
+            strParam.begin = begin
         }
-
-        window.location.href = "/root/loginLog" + strParam;
+        if (end != null && $.trim(end).length) {
+            strParam.end = end
+        }
+        var param = '?';
+        for(var key in strParam){
+        	param = param + key + '=' + strParam[key] + '&'
+        }
+        param = param.substr(0, param.length - 1)
+        window.location.href = "/root/loginLog" + param;
     });
 </script>
 <!-- 特色内容 -->

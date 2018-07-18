@@ -450,7 +450,7 @@
       and c.media_type_parent_id = #{mediaTypeParentId,jdbcType=INTEGER}
     </if>
     <if test="updateTime != null">
-      and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i:%s')
+      and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
     </if>
   </select>
   
@@ -495,7 +495,7 @@
       and c.media_type_parent_id = #{mediaTypeParentId,jdbcType=INTEGER}
     </if>
     <if test="updateTime != null">
-      and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i:%s')
+      and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
     </if>
   </select>
   

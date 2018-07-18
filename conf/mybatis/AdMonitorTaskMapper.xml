@@ -916,6 +916,7 @@
         and a.status = 7
     </update>
 
+	<!-- 社会人员/媒体监测人员 附近任务 -->
     <select id="getByPointAroundPageCount" parameterType="map" resultType="int">
         select count(1) from (
         select st_distance(point(lon,lat),point(#{lon,jdbcType=DOUBLE},#{lat,jdbcType=DOUBLE}))*111195 as distance
@@ -926,15 +927,28 @@
         left join ad_activity_adseat c on a.activity_adseat_id = c.id
         left join ad_seat_info d on c.ad_seat_id = d.id
 
-        where a.status = 8
+        where 1=1
         and d.lon between (#{lon,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lon,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
         and d.lat between (#{lat,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lat,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
+        <if test="status != null">
+            and a.status = #{status,jdbcType=INTEGER}
+        </if>
         <if test="updateTime != null">
-      		and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i:%s')
+      		and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+    	</if>
+    	<if test="mediaId != null">
+            and d.media_id = #{mediaId,jdbcType=INTEGER}
+        </if>
+        <if test="nowDate != null">
+      		and a.monitor_date &lt;= DATE_FORMAT(#{nowDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+    	</if>
+    	<if test="nowDate != null">
+      		and date_add(a.monitor_date, interval (a.monitor_last_days) day) > DATE_FORMAT(#{nowDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
     	</if>
         ) t ) t2 where t2.distance &lt;= #{metre,jdbcType=DOUBLE}
     </select>
 
+	<!-- 社会人员/媒体监测人员 附近任务 -->
     <select id="getByPointAroundPageData"  resultMap="MobileResultMap">
         select
         t.*,
@@ -951,17 +965,30 @@
         left join ad_activity_adseat c on a.activity_adseat_id = c.id
         left join ad_seat_info d on c.ad_seat_id = d.id
 
-        where a.status = 8
+        where 1=1
         and d.lon between (#{lon,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lon,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
         and d.lat between (#{lat,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lat,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
+        <if test="status != null">
+            and a.status = #{status,jdbcType=INTEGER}
+        </if>
         <if test="updateTime != null">
-      		and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i:%s')
+      		and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+    	</if>
+    	<if test="mediaId != null">
+            and d.media_id = #{mediaId,jdbcType=INTEGER}
+        </if>
+        <if test="nowDate != null">
+      		and a.monitor_date &lt;= DATE_FORMAT(#{nowDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+    	</if>
+    	<if test="nowDate != null">
+      		and date_add(a.monitor_date, interval (a.monitor_last_days) day) > DATE_FORMAT(#{nowDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
     	</if>
         ) t
         having distance &lt;= #{metre,jdbcType=DOUBLE}
         order by distance,update_time desc
     </select>
 
+	<!-- 社会人员/媒体监测人员 本市任务 -->
     <select id="getByCurCityPageCount" parameterType="map" resultType="int">
         select
         count(a.id)
@@ -969,7 +996,10 @@
         left join ad_activity b on a.activity_id = b.id
         left join ad_activity_adseat c on a.activity_adseat_id = c.id
         left join ad_seat_info d on c.ad_seat_id = d.id
-        where a.status = 8
+        where 1=1
+        <if test="status != null">
+            and a.status = #{status,jdbcType=INTEGER}
+        </if>
         <if test="province!=null">
             and d.province = #{province,jdbcType=BIGINT}
         </if>
@@ -977,10 +1007,20 @@
             and d.city = #{city,jdbcType=BIGINT}
         </if>
         <if test="updateTime != null">
-      	  and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i:%s')
+      	  	and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+    	</if>
+    	<if test="mediaId != null">
+            and d.media_id = #{mediaId,jdbcType=INTEGER}
+        </if>
+        <if test="nowDate != null">
+      		and a.monitor_date &lt;= DATE_FORMAT(#{nowDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+    	</if>
+    	<if test="nowDate != null">
+      		and date_add(a.monitor_date, interval (a.monitor_last_days) day) > DATE_FORMAT(#{nowDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
     	</if>
     </select>
 
+	<!-- 社会人员/媒体监测人员 本市任务 -->
     <select id="getByCurCityPageData" resultMap="MobileResultMap">
         select t.*
         <if test="lon!=null and lat!=null">
@@ -998,7 +1038,10 @@
         left join ad_activity_adseat c on a.activity_adseat_id = c.id
         left join ad_seat_info d on c.ad_seat_id = d.id
 
-        where a.status = 8
+        where 1=1
+        <if test="status != null">
+            and a.status = #{status,jdbcType=INTEGER}
+        </if>
         <if test="province!=null">
           and d.province = #{province,jdbcType=BIGINT}
         </if>
@@ -1006,7 +1049,16 @@
           and d.city = #{city,jdbcType=BIGINT}
         </if>
         <if test="updateTime != null">
-      	  and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'Y%-%m-%d %H:%i:%s')
+      	  and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+    	</if>
+    	<if test="mediaId != null">
+          and d.media_id = #{mediaId,jdbcType=INTEGER}
+        </if>
+        <if test="nowDate != null">
+      		and a.monitor_date &lt;= DATE_FORMAT(#{nowDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+    	</if>
+    	<if test="nowDate != null">
+      		and date_add(a.monitor_date, interval (a.monitor_last_days) day) > DATE_FORMAT(#{nowDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
     	</if>
         ) t
 
@@ -1017,6 +1069,7 @@
         update_time desc
     </select>
     
+    <!-- APP用户获取任务 -->
     <update id="grabTask">
         update ad_monitor_task set
         user_id = #{userId,jdbcType=INTEGER}
@@ -1426,4 +1479,5 @@
 			a.task_type = 5
 		AND a.activity_id = #{activityId,jdbcType=INTEGER}
     </select>
+    
 </mapper>

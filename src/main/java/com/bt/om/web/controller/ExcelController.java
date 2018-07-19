@@ -286,7 +286,7 @@ public class ExcelController extends BasicController {
 			
 			Image image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
 			image2.setAlignment(Image.ALIGN_CENTER);
-			image2.scaleAbsolute(50,50);//控制图片大小
+			image2.scaleAbsolute(200,50);//控制图片大小
 			image2.setAbsolutePosition(200,80);//控制图片位置
 			document.add(image2);
 			
@@ -407,7 +407,7 @@ public class ExcelController extends BasicController {
 			
 			image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
 			image2.setAlignment(Image.ALIGN_CENTER);
-			image2.scaleAbsolute(50,50);//控制图片大小
+			image2.scaleAbsolute(200,50);//控制图片大小
 			image2.setAbsolutePosition(200,80);//控制图片位置
 			document.add(image2);
 			
@@ -464,7 +464,7 @@ public class ExcelController extends BasicController {
         			
         			image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
         			image2.setAlignment(Image.ALIGN_CENTER);
-        			image2.scaleAbsolute(50,50);//控制图片大小
+        			image2.scaleAbsolute(200,50);//控制图片大小
         			image2.setAbsolutePosition(200,80);//控制图片位置
         			document.add(image2);
         			
@@ -512,7 +512,7 @@ public class ExcelController extends BasicController {
 //			cb.setFontAndSize(secfont, 30);  
 //			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "群邑上海广告有限公司 ", 1300, 410, 0);
 //			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "玖凤监测广告有限公司 ", 1300, 360, 0);
-//			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, sysUser.getRealname(), 450, 390, 0);
+			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, sysUser.getRealname(), 450, 420, 0);
 //			cb.endText();
 			
 //			Image image4 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/gongsi.png");

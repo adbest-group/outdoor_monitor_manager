@@ -112,4 +112,5 @@ public interface IAdMonitorTaskService {
 	//查询所有任务列表
 	public List<AdMonitorTask> getAllTasksByActivityId(Integer activityId);
 	public List<AdMonitorTask> newSelectLatestMonitorTaskIds(Map<String, Object> searchMap);
+	List<String> selectUserNameByTaskIdBatch(Map<String, Object> searchMap);
 }

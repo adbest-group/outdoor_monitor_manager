@@ -158,5 +158,7 @@ public interface AdMonitorTaskMapper {
 	List<AdMonitorTask> newSelectLatestMonitorTaskIds(Map<String, Object> searchMap);
 
 	List<TaskAdSeat> selectUpTaskIds(@Param("activityId") Integer activityId);
-
+	
+	List<String> selectUserNameByTaskIdBatch(Map<String, Object> searchMap);
+	
 }

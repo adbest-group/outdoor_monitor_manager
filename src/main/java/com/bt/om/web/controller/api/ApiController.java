@@ -177,7 +177,7 @@ public class ApiController extends BasicController {
 	private IAdUserMessageService adUserMessageService;
 	@Autowired
 	private IMediaService mediaService;
-  @Autowired
+	@Autowired
 	private ILoginLogService loginLogService;
     
     @Value("${sms.checkcode.content.template}")
@@ -2100,7 +2100,7 @@ public class ApiController extends BasicController {
             return model;
         }
         
-        Integer status = null;
+        Integer status = 8;
         if(user.getUsertype().equals(4)) {
         	//[1] 社会人员抢单
         	status = 8; //8：可抢单
@@ -2122,8 +2122,8 @@ public class ApiController extends BasicController {
         	MonitorTaskArroundVo arroundVo = new MonitorTaskArroundVo(task);
         	arroundVo.setProvince(cityCache.getCityName(task.getProvince()));
         	arroundVo.setCity(cityCache.getCityName(task.getCity()));
-        	arroundVo.setRegion(cityCache.getCityName(task.getRegion()));
-        	arroundVo.setStreet(cityCache.getCityName(task.getStreet()));
+//        	arroundVo.setRegion(cityCache.getCityName(task.getRegion()));
+//        	arroundVo.setStreet(cityCache.getCityName(task.getStreet()));
         	arroundVo.setStartTime(DateUtil.dateFormate(task.getMonitorDate(), "yyyy-MM-dd"));
         	Long timestamp = task.getMonitorDate().getTime() + (task.getMonitorLastDays() - 1)*24*60*60*1000;
         	arroundVo.setEndTime(DateUtil.dateFormate(new Date(timestamp), "yyyy-MM-dd"));

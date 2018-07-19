@@ -1195,4 +1195,12 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 		return adMonitorTaskMapper.newSelectLatestMonitorTaskIds(searchMap);
 	}
 	
+	/**
+	 * 通过任务id集合去查询所有的APP执行人员手机号
+	 */
+	@Override
+	public List<String> selectUserNameByTaskIdBatch(Map<String, Object> searchMap) {
+		return adMonitorTaskMapper.selectUserNameByTaskIdBatch(searchMap);
+	}
+	
 }

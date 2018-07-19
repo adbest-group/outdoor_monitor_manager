@@ -286,6 +286,8 @@ function changeMediaTypeId() {
 	
       	  window.location.href = "/activity/list" + strParam;
    		 }); -->
+   		 
+   		var isLoading = true;  
         //批量确认活动
         $("#assignBtn").click(function(){
         	var id_sel;
@@ -295,11 +297,23 @@ function changeMediaTypeId() {
                     btn: ['确定'] //按钮
                 });
             }else{
+            	isLoading = true;
                 var ids = [];
                 $("input[name='ck-task']:checked").each(function(i,ck){
                     if(ck.value) ids.push(ck.value);
                 });
                 id_sel = ids.join(",");
+                
+                layer.msg('正在操作中...', {
+		    		icon: 16,
+		    		shade: [0.5, '#f5f5f5'],
+		    		scrollbar: false,
+		    		time: 150000
+		    	}, function(){
+		    		if(isLoading){
+		    			layer.alert('操作超时', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+		    		}
+		    	})
 	             $.ajax({
 			            url: "/activity/confirm",
 			            type: "post",
@@ -309,6 +323,8 @@ function changeMediaTypeId() {
 			            cache: false,
 			            dataType: "json",
 			            success: function(datas) {
+			            	isLoading = false;
+                			layer.closeAll('msg');
 			                var resultRet = datas.ret;
 			                if (resultRet.code == 101) {
 			                    layer.confirm(resultRet.resultDes, {
@@ -327,6 +343,8 @@ function changeMediaTypeId() {
 			                }
 			            },
 			            error: function(e) {
+			            	isLoading = false;
+                			layer.closeAll('msg');
 			                layer.confirm("服务忙，请稍后再试", {
 			                    icon: 5,
 			                    btn: ['确定'] //按钮
@@ -370,8 +388,6 @@ function changeMediaTypeId() {
         $("#form").submit();
     });
     
-    var isLoading = true;
-
     //活动确认
     queren = function(activityId){
 	    layer.confirm("确认该活动将生成对应的的监测任务", {

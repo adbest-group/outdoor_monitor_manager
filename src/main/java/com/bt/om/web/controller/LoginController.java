@@ -190,7 +190,7 @@ public class LoginController extends BasicController {
              loginlog.setUserId(findUser.getId());
              loginlog.setType(0);
 	         loginlog.setIp(getIp());
-	         loginlog.setLocation("DFDSF");
+	         loginlog.setLocation(null);
 	         loginlog.setCreateTime(now);
     		 loginLogService.save(loginlog);                	
             

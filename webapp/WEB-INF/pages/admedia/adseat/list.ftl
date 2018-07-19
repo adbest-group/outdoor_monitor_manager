@@ -258,6 +258,8 @@
 		$('.select').searchableSelect();
 	});
 	
+	var isLoading = true;
+	
 	//批量导入
 	layui.use('upload', function(){
 	  var upload = layui.upload;
@@ -274,18 +276,21 @@
 	    ,exts: 'xlsx|xls' //指定只允许上次xlsx和xls格式的excel文件
 	    ,field: 'excelFile' //设置字段名
 	    ,url: '/excel/insertBatch' //上传接口
-	    ,before: function() {
+    	,before: function() {
+	    	isLoading = true;
 	    	layer.msg('正在努力上传中...', {
 	    		icon: 16,
 	    		shade: [0.5, '#f5f5f5'],
 	    		scrollbar: false,
-	    		time: 300000,
-	    		end: function(){
+	    		time: 300000
+	    	}, function(){
+	    		if(isLoading){
 	    			layer.alert('上传超时', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
 	    		}
-	    	})
+    		})
 	    }
 	    ,done: function(res){
+	    	isLoading = false;
 	    	layer.closeAll('msg')
 	    	if(res.ret.code == 100){
 	    		layer.alert('导入成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
@@ -298,7 +303,8 @@
 	    	}
 	    }
 	    ,error: function(res){
-	       layer.closeAll('msg')
+	    	isLoading = false;
+	    	layer.closeAll('msg')
 	       layer.alert('导入失败', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
 	    }
 	  });

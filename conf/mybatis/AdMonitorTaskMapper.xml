@@ -1480,4 +1480,18 @@
 		AND a.activity_id = #{activityId,jdbcType=INTEGER}
     </select>
     
+    <!-- 通过任务id集合去查询所有的APP执行人员手机号 -->
+    <select id="selectUserNameByTaskIdBatch" parameterType="map" resultType="java.lang.String">
+    	select
+    		distinct b.username
+    	from 
+    		ad_monitor_task a
+    	LEFT JOIN sys_user_execute b ON a.user_id = b.id
+    	where 1=1
+    	<if test="taskIds != null">
+     		 and a.id in
+        	<foreach collection="taskIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+    	</if>
+    </select>
+    
 </mapper>

@@ -369,6 +369,8 @@ function changeMediaTypeId() {
     $("#searchBtn").on("click",function() {
         $("#form").submit();
     });
+    
+    var isLoading = true;
 
     //活动确认
     queren = function(activityId){
@@ -376,15 +378,18 @@ function changeMediaTypeId() {
 	        icon: 3,
 	        btn: ['确定', '取消'] //按钮
 	    }, function(){
-	    	layer.msg('正在操作中...', {
+	    	isLoading = true;
+        	layer.msg('正在操作中...', {
 	    		icon: 16,
 	    		shade: [0.5, '#f5f5f5'],
 	    		scrollbar: false,
-	    		time: 300000,
-	    		end: function(){
+	    		time: 150000
+	    	}, function(){
+	    		if(isLoading){
 	    			layer.alert('操作超时', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
 	    		}
-	    	})
+    		}))
+    		
 	        $.ajax({
 	            url: "/activity/confirm",
 	            type: "post",
@@ -394,6 +399,7 @@ function changeMediaTypeId() {
 	            cache: false,
 	            dataType: "json",
 	            success: function(datas) {
+	            	isLoading = false;
 	            	layer.closeAll('msg');
 	                var resultRet = datas.ret;
 	                if (resultRet.code == 101) {
@@ -413,6 +419,7 @@ function changeMediaTypeId() {
 	                }
 	            },
 	            error: function(e) {
+	            	isLoading = false;
 	            	layer.closeAll('msg');
 	                layer.confirm("服务忙，请稍后再试", {
 	                    icon: 5,

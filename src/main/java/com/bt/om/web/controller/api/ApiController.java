@@ -643,7 +643,7 @@ public class ApiController extends BasicController {
         loginlog.setUserId(userExecute.getId());
         loginlog.setType(1);
         loginlog.setIp(getIp());
-        loginlog.setLocation("aaa");
+        loginlog.setLocation(null);
         loginlog.setCreateTime(now);
 		loginLogService.save(loginlog);   
         

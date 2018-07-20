@@ -258,4 +258,9 @@ public class SysUserService implements ISysUserService {
 		return sysUserMapper.selectByPrimaryKey(userId);
 	}
 
+	@Override
+	public void changeAppType(Integer id) {
+		sysUserMapper.changeAppTypeById(id);
+	}
+
 }

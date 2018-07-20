@@ -1381,7 +1381,7 @@
 	</select>
     
     <!-- 
-    	任务回收：
+    	社会人员任务回收：
     	monitor_date + monitor_last_days - 2天 + 12小时 < now 
     	可推出 monitor_date < now - monitor_last_days + 2天 - 12小时 时改为1：可指派，否则为8：可抢单
     -->
@@ -1394,6 +1394,19 @@
 	    	case when monitor_date &lt;= date_add(date_add(now(),interval (2 - monitor_last_days) day),interval -#{duration,jdbcType=INTEGER} hour) then 1
 	    	else 8
 	    	end
+    	where id in 
+    	<foreach collection="monitorTaskIds" separator="," open="(" close=")" item="s">#{s,jdbcType=INTEGER}
+        </foreach>
+        and status in (2, 6)
+    </update>
+    
+    <!-- 媒体监测人员任务回收 -->
+    <update id="recycleMediaTask" parameterType="map">
+    	update ad_monitor_task
+    	set
+	    	user_id = null,
+	    	update_time = #{updateTime,jdbcType=TIMESTAMP},
+	    	status = #{status,jdbcType=INTEGER}
     	where id in 
     	<foreach collection="monitorTaskIds" separator="," open="(" close=")" item="s">#{s,jdbcType=INTEGER}
         </foreach>

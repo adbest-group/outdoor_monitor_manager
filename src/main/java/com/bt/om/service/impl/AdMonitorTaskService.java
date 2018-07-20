@@ -23,7 +23,6 @@ import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.AdMonitorUserTask;
-import com.bt.om.entity.AdPoint;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.AdUserMessage;
 import com.bt.om.entity.AdUserMoney;
@@ -988,26 +987,68 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 		adMonitorTaskMapper.activateMonitorTask(nowDate);
 	}
 
+	/**
+	 * 社会人员抢单的任务进行回收操作
+	 */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void recycleMonitorTask() {
 		Date now = new Date();
+		
 		//[1] 查询ad_monitor_user_task待回收的任务id集合
-		List<Integer> monitorTaskIds = adMonitorUserTaskMapper.selectRecycleTaskIds(now);
+		Map<String, Object> searchMap = new HashMap<>();
+		searchMap.put("nowDate", now);
+		searchMap.put("assignType", 2); //2.自主抢单（社会人员）
+		List<Integer> monitorTaskIds = adMonitorUserTaskMapper.selectRecycleTaskIds(searchMap);
+		
 		//[2] 修改ad_monitor_user_task表中待回收的状态及回收时间
 		if(CollectionUtil.isNotEmpty(monitorTaskIds)) {
 			AdMonitorUserTask task = new AdMonitorUserTask();
 			task.setAbandonTime(now);
 			task.setUpdateTime(now);
-			task.setStatus(3);
+			task.setStatus(3); //3.超时回收
+			task.setAssignType(2); //2.自主抢单（社会人员）
 			adMonitorUserTaskMapper.recycleUserTask(task);
+			
 			//[3] 修改ad_monitor_task表中回收的任务的状态为 1：待指派 或 8：可抢单
 			adMonitorTaskMapper.recycleTask(monitorTaskIds, 12);
 		}
 	}
 	
 	/**
-	 * 获取即将结束的任务(2小时之前)
+	 * 媒体监测人员抢单的任务进行回收操作
+	 */
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void recycleMediaMonitorTask() {
+		Date now = new Date();
+		
+		//[1] 查询ad_monitor_user_task待回收的任务id集合
+		Map<String, Object> searchMap = new HashMap<>();
+		searchMap.put("nowDate", now);
+		searchMap.put("assignType", 3); //3.自主接取（媒体监测人员）
+		List<Integer> monitorTaskIds = adMonitorUserTaskMapper.selectRecycleTaskIds(searchMap);
+		
+		//[2] 修改ad_monitor_user_task表中待回收的状态及回收时间
+		if(CollectionUtil.isNotEmpty(monitorTaskIds)) {
+			AdMonitorUserTask task = new AdMonitorUserTask();
+			task.setAbandonTime(now);
+			task.setUpdateTime(now);
+			task.setStatus(3); //3.超时回收
+			task.setAssignType(3); //3.自主接取（媒体监测人员）
+			adMonitorUserTaskMapper.recycleUserTask(task);
+			
+			//[3] 修改ad_monitor_task表中回收的任务的状态为 1：待指派
+			searchMap.clear();
+			searchMap.put("updateTime", now);
+			searchMap.put("status", 1); //1：待指派
+			searchMap.put("monitorTaskIds", monitorTaskIds);
+			adMonitorTaskMapper.recycleMediaTask(searchMap);
+		}
+	}
+	
+	/**
+	 * 获取即将结束的任务(2小时之前)进行极光消息推送
 	 */
 	@Override
 	public String getTaskWillEnd(Integer duration) {
@@ -1023,7 +1064,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         Map<String, Object> param = new HashMap<>();
         Map<String, String> extras = new HashMap<>();
         extras.put("type", "task_will_end_push");
-        param.put("msg", "您的任务有的即将结束，请尽快办理！");
+        param.put("msg", "您有任务即将结束，请尽快执行！");
         param.put("title", "玖凤平台");
         param.put("alias", aliases);  //根据别名选择推送用户（这里userId用作推送时的用户别名）
         param.put("extras", extras);

@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -47,6 +48,7 @@ import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.ILoginLogService;
 import com.bt.om.service.ISysGroupService;
 import com.bt.om.service.impl.LoginLogService;
+import com.bt.om.util.AddressUtils;
 import com.bt.om.util.RequestUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -98,11 +100,12 @@ public class LoginController extends BasicController {
      *
      * @param model
      * @return
+     * @throws UnsupportedEncodingException 
      */
     @SuppressWarnings("unchecked")
     @RequestMapping(value = "/doLogin", method = {RequestMethod.POST, RequestMethod.GET})
     public String doLogin(Model model, SysUser user, HttpServletRequest request, HttpServletResponse response,
-    		@RequestParam(value = "username", required = false) String username) {
+    		@RequestParam(value = "username", required = false) String username) throws UnsupportedEncodingException {
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");
         // 获取页面输入验证码
@@ -184,13 +187,14 @@ public class LoginController extends BasicController {
             // ========记录日志===========
             
             new Thread(new SystemLogThread("系统首页", "登录", user.getUsername(), getIp(), "", "", 1)).start();
-           
+	        AddressUtils addressUtils = new AddressUtils();
+	        String  address = addressUtils.getAddresses( getIp(), "utf-8");
              Date now = new Date();	           
              LoginLog loginlog=new LoginLog();   
              loginlog.setUserId(findUser.getId());
              loginlog.setType(0);
 	         loginlog.setIp(getIp());
-	         loginlog.setLocation(null);
+	         loginlog.setLocation(address);
 	         loginlog.setCreateTime(now);
     		 loginLogService.save(loginlog);                	
             

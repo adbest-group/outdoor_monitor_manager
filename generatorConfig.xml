@@ -255,8 +255,13 @@
                enableDeleteByExample="false" enableSelectByExample="false"
                enableUpdateByExample="false">
         </table> --> 
-        <table schema="outdoor-monitor" tableName="sys_user_history"
+       <!--  <table schema="outdoor-monitor" tableName="sys_user_history"
                domainObjectName="SysUserHistory" enableCountByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false"
+               enableUpdateByExample="false">
+        </table>  -->
+         <table schema="outdoor-monitor" tableName="login_log"
+               domainObjectName="LoginLog" enableCountByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false"
                enableUpdateByExample="false">
         </table> 

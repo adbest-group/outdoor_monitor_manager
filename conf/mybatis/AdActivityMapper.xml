@@ -23,6 +23,24 @@
     <result column="duration_monitor_task_time" property="durationMonitorTaskTime" jdbcType="VARCHAR" />
     <result column="down_monitor_task_time" property="downMonitorTaskTime" jdbcType="VARCHAR" />
     <result column="zhuijia_monitor_task_time" property="zhuijiaMonitorTaskTime" jdbcType="VARCHAR" />
+    <result column="up_task_point" property="upTaskPoint" jdbcType="INTEGER" />
+    <result column="up_monitor_task_point" property="upMonitorTaskPoint" jdbcType="INTEGER" />
+    <result column="duration_monitor_task_point" property="durationMonitorTaskPoint" jdbcType="INTEGER" />
+    <result column="down_monitor_task_point" property="downMonitorTaskPoint" jdbcType="INTEGER" />
+    <result column="zhuijia_monitor_task_point" property="zhuijiaMonitorTaskPoint" jdbcType="INTEGER" />
+    <result column="up_task_money" property="upTaskMoney" jdbcType="DOUBLE" />
+    <result column="up_monitor_task_money" property="upMonitorTaskMoney" jdbcType="DOUBLE" />
+    <result column="duration_monitor_task_money" property="durationMonitorTaskMoney" jdbcType="DOUBLE" />
+    <result column="down_monitor_task_money" property="downMonitorTaskMoney" jdbcType="DOUBLE" />
+    <result column="zhuijia_monitor_task_money" property="zhuijiaMonitorTaskMoney" jdbcType="DOUBLE" />
+    <result column="qualified_pic_url" property="qualifiedPicUrl" jdbcType="VARCHAR" />
+    <result column="no_qualified_pic_url1" property="noQualifiedPicUrl1" jdbcType="VARCHAR" />
+    <result column="no_qualified_pic_url2" property="noQualifiedPicUrl2" jdbcType="VARCHAR" />
+    <result column="no_qualified_pic_url3" property="noQualifiedPicUrl3" jdbcType="VARCHAR" />
+    <result column="no_qualified_text1" property="noQualifiedText1" jdbcType="VARCHAR" />
+    <result column="no_qualified_text2" property="noQualifiedText2" jdbcType="VARCHAR" />
+    <result column="no_qualified_text3" property="noQualifiedText3" jdbcType="VARCHAR" />
+    <result column="notification" property="notification" jdbcType="VARCHAR"/>
   </resultMap>
   <sql id="Base_Column_List" >
     <!--
@@ -31,7 +49,10 @@
       This element was generated on Thu Jan 18 14:25:00 CST 2018.
     -->
     id, activity_name, start_time, end_time, status, user_id, customer_type_id, create_time, update_time, assessor_id, sample_pic_url,
-    up_task_time, up_monitor_task_time, duration_monitor_task_time, down_monitor_task_time, zhuijia_monitor_task_time
+    up_task_time, up_monitor_task_time, duration_monitor_task_time, down_monitor_task_time, zhuijia_monitor_task_time,up_task_point,
+    up_monitor_task_point,duration_monitor_task_point,down_monitor_task_point,zhuijia_monitor_task_point,up_task_money,up_monitor_task_money,duration_monitor_task_money,
+    down_monitor_task_money,zhuijia_monitor_task_money,qualified_pic_url,no_qualified_pic_url1,no_qualified_pic_url2,no_qualified_pic_url3,no_qualified_text1,no_qualified_text2,
+    no_qualified_text3,notification
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     <!--
@@ -62,12 +83,20 @@
     insert into ad_activity (id, activity_name, start_time, 
       end_time, status, user_id, customer_type_id,
       create_time, update_time, assessor_id,sample_pic_url,
-      up_task_time, up_monitor_task_time, duration_monitor_task_time, down_monitor_task_time, zhuijia_monitor_task_time)
+      up_task_time, up_monitor_task_time, duration_monitor_task_time, down_monitor_task_time, zhuijia_monitor_task_time,
+      up_task_point,up_monitor_task_point,duration_monitor_task_point,down_monitor_task_point,zhuijia_monitor_task_point,up_task_money,
+      up_monitor_task_money,duration_monitor_task_money,down_monitor_task_money,zhuijia_monitor_task_money,qualified_pic_url,
+      no_qualified_pic_url1,no_qualified_pic_url2,no_qualified_pic_url3,no_qualified_text1,no_qualified_text2,no_qualified_text3,notification
+      )
     values (#{id,jdbcType=INTEGER}, #{activityName,jdbcType=VARCHAR}, #{startTime,jdbcType=TIMESTAMP}, 
       #{endTime,jdbcType=TIMESTAMP}, #{status,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{customerTypeId,jdbcType=INTEGER},
       #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{assessorId,jdbcType=INTEGER}, #{samplePicUrl,jdbcType=VARCHAR},
       #{upTaskTime,jdbcType=VARCHAR}, #{upMonitorTaskTime,jdbcType=VARCHAR}, #{durationMonitorTaskTime,jdbcType=VARCHAR}, #{downMonitorTaskTime,jdbcType=VARCHAR}, 
-      #{zhuijiaMonitorTaskTime,jdbcType=VARCHAR})
+      #{zhuijiaMonitorTaskTime,jdbcType=VARCHAR}, #{upTaskPoint,jdbcType=INTEGER}, #{upMonitorTaskPoint,jdbcType=INTEGER},#{durationMonitorTaskPoint,jdbcType=INTEGER}, 
+      #{downMonitorTaskPoint,jdbcType=INTEGER},#{zhuijiaMonitorTaskPoint,jdbcType=INTEGER},#{upTaskMoney,jdbcType=INTEGER}, #{upMonitorTaskMoney,jdbcType=INTEGER},
+      #{durationMonitorTaskMoney,jdbcType=INTEGER}, #{downMonitorTaskMoney,jdbcType=INTEGER} , #{zhuijiaMonitorTaskMoney,jdbcType=DOUBLE} , #{qualifiedPicUrl,jdbcType=VARCHAR},
+      #{noQualifiedPicUrl1,jdbcType=VARCHAR},#{noQualifiedPicUrl2,jdbcType=VARCHAR},#{noQualifiedPicUrl3,jdbcType=VARCHAR},#{noQualifiedText1,jdbcType=VARCHAR},#{noQualifiedText2,jdbcType=VARCHAR},
+      #{noQualifiedText3,jdbcType=VARCHAR},#{notification,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.bt.om.entity.AdActivity" useGeneratedKeys="true" keyProperty="id" >
     <!--
@@ -125,6 +154,60 @@
       <if test="zhuijiaMonitorTaskTime != null" >
         zhuijia_monitor_task_time,
       </if>
+      <if test="upTaskPoint != null" >
+        up_task_point,
+      </if>     
+      <if test="upMonitorTaskPoint != null" >
+        up_monitor_task_point,
+      </if>
+      <if test="durationMonitorTaskPoint != null" >
+        duration_monitor_task_point,
+      </if>
+      <if test="downMonitorTaskPoint != null" >
+        down_monitor_task_point,
+      </if>
+      <if test="zhuijiaMonitorTaskPoint != null" >
+        zhuijia_monitor_task_point,
+      </if>
+      <if test="upTaskMoney != null" >
+        up_task_money,
+      </if>     
+      <if test="upMonitorTaskMoney != null" >
+        up_monitor_task_money,
+      </if>
+      <if test="durationMonitorTaskMoney != null" >
+        duration_monitor_task_money,
+      </if>
+      <if test="downMonitorTaskMoney != null" >
+        down_monitor_task_money,
+      </if>
+       <if test="zhuijiaMonitorTaskMoney != null" >
+        zhuijia_monitor_task_money,
+      </if>
+      <if test="qualifiedPicUrl != null">
+      	qualified_pic_url,
+      </if>
+      <if test="noQualifiedPicUrl1 != null">
+      	no_qualified_pic_url1,
+      </if>
+      <if test="noQualifiedPicUrl2 != null">
+      	no_qualified_pic_url2,
+      </if>
+      <if test="noQualifiedPicUrl3 != null">
+      	no_qualified_pic_url3,
+      </if>
+      <if test="noQualifiedText1 != null">
+      	no_qualified_text1,
+      </if>
+      <if test="noQualifiedText2 != null">
+      	no_qualified_text2,
+      </if>
+      <if test="noQualifiedText3 != null">
+      	no_qualified_text3,
+      </if>
+      <if test="notification != null">
+      	notification
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -174,6 +257,60 @@
       </if>
       <if test="zhuijiaMonitorTaskTime != null" >
         #{zhuijiaMonitorTaskTime,jdbcType=VARCHAR},
+      </if>
+      <if test="upTaskPoint != null" >
+        #{upTaskPoint,jdbcType=INTEGER},
+      </if>
+      <if test="upMonitorTaskPoint != null" >
+        #{upMonitorTaskPoint,jdbcType=INTEGER},
+      </if>
+      <if test="durationMonitorTaskPoint != null" >
+        #{durationMonitorTaskPoint,jdbcType=INTEGER},
+      </if>
+      <if test="downMonitorTaskPoint != null" >
+        #{downMonitorTaskPoint,jdbcType=INTEGER},
+      </if>
+       <if test="zhuijiaMonitorTaskPoint != null" >
+        #{zhuijiaMonitorTaskPoint,jdbcType=INTEGER},
+      </if>
+      <if test="upTaskMoney != null" >
+        #{upTaskMoney,jdbcType=DOUBLE},
+      </if>
+      <if test="upMonitorTaskMoney != null" >
+        #{upMonitorTaskMoney,jdbcType=DOUBLE},
+      </if>
+      <if test="durationMonitorTaskMoney != null" >
+        #{durationMonitorTaskMoney,jdbcType=DOUBLE},
+      </if>
+      <if test="downMonitorTaskMoney != null" >
+        #{downMonitorTaskMoney,jdbcType=DOUBLE},
+      </if>
+      <if test="zhuijiaMonitorTaskMoney != null" >
+        #{zhuijiaMonitorTaskMoney,jdbcType=DOUBLE},
+      </if>
+      <if test="qualifiedPicUrl != null" >
+        #{qualifiedPicUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="noQualifiedPicUrl1 != null" >
+        #{noQualifiedPicUrl1,jdbcType=VARCHAR},
+      </if>
+      <if test="noQualifiedPicUrl2 != null" >
+        #{noQualifiedPicUrl2,jdbcType=VARCHAR},
+      </if>
+      <if test="noQualifiedPicUrl3 != null" >
+        #{noQualifiedPicUrl3,jdbcType=VARCHAR},
+      </if>
+         <if test="noQualifiedText1 != null" >
+        #{noQualifiedText1,jdbcType=VARCHAR},
+      </if>
+      <if test="noQualifiedText2 != null" >
+        #{noQualifiedText2,jdbcType=VARCHAR},
+      </if>
+      <if test="noQualifiedText3 != null" >
+        #{noQualifiedText3,jdbcType=VARCHAR},
+      </if>
+       <if test="notification != null" >
+        #{notification,jdbcType=VARCHAR}
       </if>
     </trim>
   </insert>
@@ -230,6 +367,60 @@
       <if test="zhuijiaMonitorTaskTime != null" >
         zhuijia_monitor_task_time = #{zhuijiaMonitorTaskTime,jdbcType=VARCHAR},
       </if>
+      <if test="upTaskPoint != null" >
+        up_task_point = #{upTaskPoint,jdbcType=INTEGER},
+      </if>
+      <if test="upMonitorTaskPoint != null" >
+        up_monitor_task_point = #{upMonitorTaskPoint,jdbcType=INTEGER},
+      </if>
+      <if test="durationMonitorTaskPoint != null" >
+        duration_monitor_task_point = #{durationMonitorTaskPoint,jdbcType=INTEGER},
+      </if>
+      <if test="downMonitorTaskPoint != null" >
+        down_monitor_task_point = #{downMonitorTaskPoint,jdbcType=INTEGER},
+      </if>
+      <if test="zhuijiaMonitorTaskPoint != null" >
+        zhuijia_monitor_task_point = #{zhuijiaMonitorTaskPoint,jdbcType=INTEGER},
+      </if>
+      <if test="upTaskMoney != null" >
+        up_task_money = #{upTaskMoney,jdbcType=DOUBLE},
+      </if>
+      <if test="upMonitorTaskMoney != null" >
+        up_monitor_task_money = #{upMonitorTaskMoney,jdbcType=DOUBLE},
+      </if>
+      <if test="durationMonitorTaskMoney != null" >
+        duration_monitor_task_money = #{durationMonitorTaskMoney,jdbcType=DOUBLE},
+      </if>
+      <if test="downMonitorTaskMoney != null" >
+        down_monitor_task_money = #{downMonitorTaskMoney,jdbcType=DOUBLE},
+      </if>
+      <if test="zhuijiaMonitorTaskMoney != null" >
+        zhuijia_monitor_task_money = #{zhuikjiaMonitorTaskMoney,jdbcType=DOUBLE}
+      </if>
+       <if test="qualifiedPicUrl != null" >
+        qualified_pic_url = #{qualifiedPicUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="noQualifiedPicUrl1 != null" >
+        no_qualified_pic_url1 = #{noQualifiedPicUrl1,jdbcType=VARCHAR},
+      </if>
+      <if test="noQualifiedPicUrl2 != null" >
+        no_qualified_pic_url2 = #{noQualifiedPicUrl2,jdbcType=VARCHAR},
+      </if>
+      <if test="noQualifiedPicUrl3 != null" >
+        no_qualified_pic_url3 = #{noQualifiedPicUrl3,jdbcType=VARCHAR},
+      </if>
+      <if test="noQualifiedText1 != null" >
+        no_qualified_text1 = #{noQualifiedText1,jdbcType=VARCHAR},
+      </if>
+      <if test="noQualifiedText2 != null" >
+        no_qualified_text2 = #{noQualifiedText2,jdbcType=VARCHAR},
+      </if>
+      <if test="noQualifiedText3 != null" >
+        no_qualified_text3 = #{noQualifiedText3,jdbcType=VARCHAR},
+      </if>
+        <if test="notification != null" >
+        notification = #{notification,jdbcType=VARCHAR}
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -258,7 +449,25 @@
       up_monitor_task_time = #{upMonitorTaskTime,jdbcType=VARCHAR},
       duration_monitor_task_time = #{durationMonitorTaskTime,jdbcType=VARCHAR},
       down_monitor_task_time = #{downMonitorTaskTime,jdbcType=VARCHAR},
-      zhuijia_monitor_task_time = #{zhuijiaMonitorTaskTime,jdbcType=VARCHAR}
+      zhuijia_monitor_task_time = #{zhuijiaMonitorTaskTime,jdbcType=VARCHAR},
+      up_task_point = #{upTaskPoint,jdbcType=INTEGER},
+      up_monitor_task_point = #{upMonitorTaskPoint,jdbcType=INTEGER},
+      duration_monitor_task_point = #{durationMonitorTaskPoint,jdbcType=INTEGER},
+      down_monitor_task_point = #{downMonitorTaskPoint,jdbcType=INTEGER},
+      zhuijia_monitor_task_point = #{zhuijiaMonitorTaskPoint,jdbcType=INTEGER},
+      up_task_money = #{upTaskMoney,jdbcType=DOUBLE},
+      up_monitor_task_money = #{upMonitorTaskMoney,jdbcType=DOUBLE},
+      duration_monitor_task_money = #{durationMonitorTaskMoney,jdbcType=DOUBLE},
+      down_monitor_task_money = #{downMonitorTaskMoney,jdbcType=DOUBLE},
+      zhuijia_monitor_task_money = #{zhuijiaMonitorTaskMoney,jdbcType=DOUBLE},
+      qualified_pic_url = #{qualifiedPicUrl,jdbcType=VARCHAR},
+      no_qualified_pic_url1 = #{noQualifiedPicUrl1,jdbcType=VARCHAR},
+      no_qualified_pic_url2 = #{noQualifiedPicUrl2,jdbcType=VARCHAR},
+      no_qualified_pic_url3 = #{noQualifiedPicUrl3,jdbcType=VARCHAR},
+      no_qualified_text1 = #{noQualifiedText1,jdbcType=VARCHAR},
+      no_qualified_text2 = #{noQualifiedText2,jdbcType=VARCHAR},
+      no_qualified_text3 = #{noQualifiedText3,jdbcType=VARCHAR},
+      notification = #{notification,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 

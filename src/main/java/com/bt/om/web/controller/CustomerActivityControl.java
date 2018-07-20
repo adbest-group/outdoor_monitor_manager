@@ -194,7 +194,7 @@ public class CustomerActivityControl extends BasicController {
         return PageConst.CUSTOMER_ACTIVITY_ADSEAT_EDIT;
     }
     
-    /**
+	/**
      * 选择活动的广告位二级页面跳转
      */
     @RequestMapping(value = "/activity/adseat/toSelect")
@@ -325,7 +325,23 @@ public class CustomerActivityControl extends BasicController {
                       @RequestParam(value = "upTaskTime", required = false) String upTaskTime,
                       @RequestParam(value = "upMonitorTaskTime", required = false) String upMonitorTaskTime,
                       @RequestParam(value = "durationMonitorTaskTime", required = false) String durationMonitorTaskTime,
-                      @RequestParam(value = "downMonitorTaskTime", required = false) String downMonitorTaskTime) {
+                      @RequestParam(value = "downMonitorTaskTime", required = false) String downMonitorTaskTime,
+                      @RequestParam(value = "upTaskPoint", required = false) Integer upTaskPoint,
+                      @RequestParam(value = "upMonitorTaskPoint", required = false) Integer upMonitorTaskPoint,
+                      @RequestParam(value = "durationMonitorTaskPoint", required = false) Integer durationMonitorTaskPoint,
+                      @RequestParam(value = "downMonitorTaskPoint", required = false) Integer downMonitorTaskPoint,
+                      @RequestParam(value = "upTaskMoney", required = false) double upTaskMoney,
+                      @RequestParam(value = "upMonitorTaskMoney", required = false) double upMonitorTaskMoney,
+                      @RequestParam(value = "durationMonitorTaskMoney", required = false) double durationMonitorTaskMoney,
+                      @RequestParam(value = "downMonitorTaskMoney", required = false) double downMonitorTaskMoney,
+                      @RequestParam(value = "qualifiedPicUrl", required = false) String qualifiedPicUrl,
+                      @RequestParam(value = "noQualifiedPicUrl1", required = false) String noQualifiedPicUrl1,
+                      @RequestParam(value = "noQualifiedPicUrl2", required = false) String noQualifiedPicUrl2,
+                      @RequestParam(value = "noQualifiedPicUrl3", required = false) String noQualifiedPicUrl3,
+                      @RequestParam(value = "noQualifiedText1", required = false) String noQualifiedText1,
+                      @RequestParam(value = "noQualifiedText2", required = false) String noQualifiedText2,
+                      @RequestParam(value = "noQualifiedText3", required = false) String noQualifiedText3,
+                      @RequestParam(value = "notification", required = false) String notification) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date now = new Date();
         ResultVo<String> result = new ResultVo<String>();
@@ -338,7 +354,14 @@ public class CustomerActivityControl extends BasicController {
         AdActivityVo adActivityVo = new AdActivityVo();
         adActivityVo.setActivityName(activityName);
         adActivityVo.setSamplePicUrl(samplePicUrl);    
-        
+        adActivityVo.setQualifiedPicUrl(qualifiedPicUrl);
+        adActivityVo.setNoQualifiedPicUrl1(noQualifiedPicUrl1);
+        adActivityVo.setNoQualifiedPicUrl2(noQualifiedPicUrl2);
+        adActivityVo.setNoQualifiedPicUrl3(noQualifiedPicUrl3);
+        adActivityVo.setNoQualifiedText1(noQualifiedText1);
+        adActivityVo.setNoQualifiedText2(noQualifiedText2);
+        adActivityVo.setNoQualifiedText3(noQualifiedText3);
+        adActivityVo.setNotification(notification);
 //        String[] str = media.split(",");
 //        for(String i : str) {
 //        	AdActivityMedia aam = new AdActivityMedia();
@@ -458,6 +481,16 @@ public class CustomerActivityControl extends BasicController {
         adActivityVo.setUpMonitorTaskTime(upMonitorTaskTime); //上刊监测任务出报告时间
         adActivityVo.setDurationMonitorTaskTime(durationMonitorTaskTime); //投放期间监测任务出报告时间
         adActivityVo.setDownMonitorTaskTime(downMonitorTaskTime); //下刊监测任务出报告时间
+        
+        adActivityVo.setUpTaskPoint(upTaskPoint);//上刊任务积分
+        adActivityVo.setUpMonitorTaskPoint(upMonitorTaskPoint);//上刊监测任务积分
+        adActivityVo.setDurationMonitorTaskPoint(durationMonitorTaskPoint);//投放期间监测积分
+        adActivityVo.setDownMonitorTaskPoint(downMonitorTaskPoint);//下刊监测积分
+        
+        adActivityVo.setUpTaskMoney(upTaskMoney);//上刊任务金额
+        adActivityVo.setUpMonitorTaskMoney(upMonitorTaskMoney);//上刊监测任务金额
+        adActivityVo.setDurationMonitorTaskMoney(durationMonitorTaskMoney);//投放期间监测任务金额
+        adActivityVo.setDownMonitorTaskMoney(downMonitorTaskMoney);//下刊监测任务金额
         
         //新增
         if (StringUtil.isEmpty(id)) {

@@ -137,4 +137,6 @@ public interface ISysUserService {
 
 	SysUser getUserAppType(Integer userId);
 
+	void changeAppType(Integer id);
+
 }

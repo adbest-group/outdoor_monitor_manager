@@ -76,6 +76,8 @@ public class AdMonitorTask extends ID{
      *
      * @mbggenerated Sat Jan 20 10:48:02 CST 2018
      */
+    
+    
     public Integer getId() {
         return id;
     }
@@ -271,8 +273,17 @@ public class AdMonitorTask extends ID{
     private Integer assignorId;
     private Date assignorTime;
     private Date reportTime;
-    
-    public Date getAssignorTime() {
+    private Integer taskPoint;
+    private Double taskMoney;
+    public Double getTaskMoney() {
+		return taskMoney;
+	}
+
+	public void setTaskMoney(Double taskMoney) {
+		this.taskMoney = taskMoney;
+	}
+
+	public Date getAssignorTime() {
 		return assignorTime;
 	}
 
@@ -359,4 +370,14 @@ public class AdMonitorTask extends ID{
     public void setReportTime(Date reportTime) {
 		this.reportTime = reportTime;
 	}
+
+	public Integer getTaskPoint() {
+		return taskPoint;
+	}
+
+	public void setTaskPoint(Integer taskPoint) {
+		this.taskPoint = taskPoint;
+	}
+    
+    
 }

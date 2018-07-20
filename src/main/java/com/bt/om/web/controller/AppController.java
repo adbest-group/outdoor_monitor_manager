@@ -28,6 +28,7 @@ import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAppService;
+import com.bt.om.service.ISysUserService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.util.SearchUtil;
@@ -38,6 +39,8 @@ public class AppController {
 
 	@Autowired
 	private IAppService appService;
+	@Autowired
+	private ISysUserService sysUserService;
 	
 	@RequiresRoles("superadmin")
 	@RequestMapping(value = "/list")
@@ -148,7 +151,7 @@ public class AppController {
 	public Model appDelete(Model model, HttpServletRequest request, @RequestParam(value = "id", required = false) Integer id) {
 		ResultVo<String> result = new ResultVo<String>();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
-        result.setResultDes("保存成功");
+        result.setResultDes("删除成功");
         model = new ExtendedModelMap();
         Date now = new Date();
         
@@ -159,6 +162,9 @@ public class AppController {
                 result.setResultDes("该app账号不能删除！");
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
+            }else {
+            	//删除成功 将sys_user 的app_type_id置为null
+            	sysUserService.changeAppType(id);
             }
         } catch (Exception e) {
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());

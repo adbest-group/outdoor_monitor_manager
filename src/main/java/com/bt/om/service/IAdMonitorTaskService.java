@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
+import com.bt.om.entity.AdMonitorUserTask;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AbandonTaskVo;
@@ -103,7 +104,7 @@ public interface IAdMonitorTaskService {
 
 	public AdMonitorTask getActivityId(int id);
 
-	void insertMonitorTask(Integer activityId, List<String> seatIds, String reportTime);
+	void insertMonitorTask(Integer activityId, List<String> seatIds, String reportTime, Integer zhuijiaMonitorTaskPoint, double zhuijiaMonitorTaskMoney);
 
 	Integer selectCountByMonitorTaskId(int monitorTaskId);
 	AdSeatInfo selectLonLatByMonitorTaskId(int monitorTaskId);
@@ -113,4 +114,5 @@ public interface IAdMonitorTaskService {
 	public List<AdMonitorTask> getAllTasksByActivityId(Integer activityId);
 	public List<AdMonitorTask> newSelectLatestMonitorTaskIds(Map<String, Object> searchMap);
 	List<String> selectUserNameByTaskIdBatch(Map<String, Object> searchMap);
+	void recycleMediaMonitorTask();
 }

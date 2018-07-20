@@ -161,4 +161,5 @@ public interface AdMonitorTaskMapper {
 	
 	List<String> selectUserNameByTaskIdBatch(Map<String, Object> searchMap);
 	
+	int recycleMediaTask(Map<String, Object> searchMap);
 }

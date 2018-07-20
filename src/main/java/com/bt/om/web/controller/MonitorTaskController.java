@@ -61,6 +61,7 @@ import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.service.ISysUserRoleService;
 import com.bt.om.service.ISysUserService;
+import com.bt.om.util.MarkLogoUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
@@ -942,47 +943,6 @@ public class MonitorTaskController extends BasicController {
 		return model;
 	}
 
-	// 撤消审核任务
-	@RequiresRoles("taskadmin")
-	@RequestMapping(value = "/cancel")
-	@ResponseBody
-	public Model cancel(Model model, HttpServletRequest request,
-			@RequestParam(value = "id", required = false) Integer id,
-			@RequestParam(value = "userId", required = false) Integer userId,
-			@RequestParam(value = "reason", required = false) String reason) {
-		ResultVo<String> result = new ResultVo<String>();
-		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
-		result.setResultDes("撤消成功");
-		model = new ExtendedModelMap();
-		AdMonitorTask task = new AdMonitorTask();
-
-		try {
-			// 获取当前登录的后台用户信息
-			SysUser sysUser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-			Map<String, Object> searchMap = new HashMap<>();
-			searchMap.put("userId", sysUser.getId());
-			Integer groupId = sysUserRoleService.selectGroupIdByUserId(searchMap);
-			// 获取该组所有员工
-			List<SysUser> sysUsers = sysGroupService.selectUserName(groupId);
-
-			if (sysUsers.size() > 1) {// 待审核
-				adMonitorTaskService.offAdMonitorTaskByAssessorId(id);
-			} else if (sysUsers.size() <= 1) {
-				result.setCode(ResultCode.RESULT_FAILURE.getCode());
-				result.setResultDes("只剩一人不能撤销！");
-				model.addAttribute(SysConst.RESULT_KEY, result);
-				return model;
-			}
-		} catch (Exception e) {
-			result.setCode(ResultCode.RESULT_FAILURE.getCode());
-			result.setResultDes("撤消失败！");
-			model.addAttribute(SysConst.RESULT_KEY, result);
-			return model;
-		}
-		model.addAttribute(SysConst.RESULT_KEY, result);
-		return model;
-	}
-
 	// 撤消指派任务
 	@RequiresRoles("taskadmin")
 	@RequestMapping(value = "/cancelZhipai")
@@ -1209,7 +1169,12 @@ public class MonitorTaskController extends BasicController {
 			}
 			//[1] 上传图片
 			filepath = saveFile(path,imageName,is);
+			int picindex = filepath.lastIndexOf('/')+1;
+			String filename = filepath.substring(picindex);
+			int nameindex = filename.indexOf('.');
 			if(monitorTaskId == null) {
+                MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
+                
 				//[2] 已有feedback的时候替换的图片
 				adMonitorTaskService.updatePicUrl(id, filepath, index);
 			} else {
@@ -1224,12 +1189,16 @@ public class MonitorTaskController extends BasicController {
 				feedback.setLon(lon); //做任务时的经度
 				feedback.setLat(lat); //做任务时的纬度
 				if(index == 1) {
+					MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
 					feedback.setPicUrl1(filepath);
 				} else if (index == 2) {
+					MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
 					feedback.setPicUrl2(filepath);
 				} else if (index == 3) {
+					MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
 					feedback.setPicUrl3(filepath);
 				} else if (index == 4) {
+					MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
 					feedback.setPicUrl4(filepath);
 				}
 				AdSeatInfo seatInfo = adMonitorTaskService.selectLonLatByMonitorTaskId(monitorTaskId);

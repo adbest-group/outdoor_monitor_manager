@@ -470,4 +470,69 @@
 	    system_version= #{systemVersion,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  
+  <!-- 查询所有的手机号 -->	
+  <select id="getAllMobile" resultType="java.lang.String">
+  	select 
+  		username
+  	from sys_user_execute
+  </select>
+  
+  <!-- 批量导入媒体监测人员 -->
+  <insert id="insertBatch" parameterType="com.bt.om.entity.SysUserExecute">
+  	insert into sys_user_execute(
+        	username,
+        	password, 
+        	realname, 
+        	mobile,
+        	mac,
+        	company,
+        	head_img_url,
+        	usertype,
+        	operate_id,
+        	status,
+        	province,
+        	city,
+        	region,
+        	street,
+        	remark,
+        	login_ip,
+        	login_time,
+        	default_page,
+        	app_sid,
+        	create_time,
+        	update_time,
+        	device_id,
+        	system_version
+        )
+        values
+        <foreach collection="sysUserExecutes" item="sysUserExecute" separator=",">
+        (
+	         #{sysUserExecute.username,jdbcType=VARCHAR},
+	         #{sysUserExecute.password,jdbcType=VARCHAR},
+	         #{sysUserExecute.realname,jdbcType=VARCHAR}, 
+	         #{sysUserExecute.mobile,jdbcType=VARCHAR},
+	         #{sysUserExecute.mac,jdbcType=VARCHAR},
+	         #{sysUserExecute.company,jdbcType=VARCHAR}, 
+	         #{sysUserExecute.headImgUrl,jdbcType=VARCHAR},
+	         #{sysUserExecute.usertype,jdbcType=INTEGER},
+	         #{sysUserExecute.operateId,jdbcType=INTEGER},
+	         #{sysUserExecute.status,jdbcType=INTEGER},
+	         #{sysUserExecute.province,jdbcType=BIGINT},
+	         #{sysUserExecute.city,jdbcType=BIGINT},
+	         #{sysUserExecute.region,jdbcType=BIGINT},
+	         #{sysUserExecute.street,jdbcType=BIGINT},
+	         #{sysUserExecute.remark,jdbcType=VARCHAR},
+	         #{sysUserExecute.loginIp,jdbcType=VARCHAR},
+	         #{sysUserExecute.loginTime,jdbcType=TIMESTAMP},
+	         #{sysUserExecute.defaultPage,jdbcType=VARCHAR},
+	         #{sysUserExecute.appSid,jdbcType=VARCHAR},
+	         #{sysUserExecute.createTime,jdbcType=TIMESTAMP},
+	         #{sysUserExecute.updateTime,jdbcType=TIMESTAMP},
+	         #{sysUserExecute.deviceId,jdbcType=VARCHAR},
+	         #{sysUserExecute.systemVersion,jdbcType=VARCHAR}
+        )
+        </foreach>
+  </insert>
+  
 </mapper>

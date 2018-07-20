@@ -16,6 +16,10 @@ public class AdSeatInfoVo extends AdSeatInfo {
 	private String parentName;
 	
 	private String secondName;
+	
+	private String provinceName;
+	
+	private String cityName;
 
 	public Integer getMediaId() {
 		return mediaId;
@@ -71,5 +75,21 @@ public class AdSeatInfoVo extends AdSeatInfo {
 	
 	public void setSecondName(String secondName) {
 		this.secondName = secondName;
+	}
+
+	public String getProvinceName() {
+		return provinceName;
+	}
+
+	public void setProvinceName(String provinceName) {
+		this.provinceName = provinceName;
+	}
+
+	public String getCityName() {
+		return cityName;
+	}
+
+	public void setCityName(String cityName) {
+		this.cityName = cityName;
 	}
 }

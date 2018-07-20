@@ -293,53 +293,71 @@ function changeMediaTypeId() {
         		return false;
         	}
         })
-		//批量审核
+
+		var isLoading = true;        
+	   //批量审核
        $("#assignBtn").click(function(){
-            if($("input[name='ck-task']:checked").length<1){
-                layer.confirm('请选择需要审核的活动', {
-                    icon: 0,
-                    btn: ['确定'] //按钮
-                });
-            }else{
-           		var ids = [];
-                $("input[name='ck-task']:checked").each(function(i,ck){
-                    if(ck.value) ids.push(ck.value);
-                });
-                id_sel = ids.join(",");
-	             $.ajax({
-			            url: "/activity/confirm",
-			            type: "post",
-			            data: {
-			                "ids": id_sel
-			            },
-			            cache: false,
-			            dataType: "json",
-			            success: function(datas) {
-			                var resultRet = datas.ret;
-			                if (resultRet.code == 101) {
-			                    layer.confirm(resultRet.resultDes, {
-			                        icon: 2,
-			                        btn: ['确定'] //按钮
-			                    }, function(){
-			                        window.location.reload();
-			                    });
-			                } else {
-			                    layer.confirm("确认成功", {
-			                        icon: 1,
-			                        btn: ['确定'] //按钮
-			                    },function () {
-			                        window.location.reload();
-			                    });
-			                }
-			            },
-			            error: function(e) {
-			                layer.confirm("服务忙，请稍后再试", {
-			                    icon: 5,
-			                    btn: ['确定'] //按钮
-			                });
-			            }
-			        });
-            	}
+        if($("input[name='ck-task']:checked").length<1){
+            layer.confirm('请选择需要审核的活动', {
+                icon: 0,
+                btn: ['确定'] //按钮
+            });
+        }else{
+        	isLoading = true;
+       		var ids = [];
+            $("input[name='ck-task']:checked").each(function(i,ck){
+                if(ck.value) ids.push(ck.value);
+            });
+            id_sel = ids.join(",");
+            
+            layer.msg('正在操作中...', {
+	    		icon: 16,
+	    		shade: [0.5, '#f5f5f5'],
+	    		scrollbar: false,
+	    		time: 150000
+	    	}, function(){
+	    		if(isLoading){
+	    			layer.alert('操作超时', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    		}
+	    	})
+             $.ajax({
+		            url: "/activity/confirm",
+		            type: "post",
+		            data: {
+		                "ids": id_sel
+		            },
+		            cache: false,
+		            dataType: "json",
+		            success: function(datas) {
+		            	isLoading = false;
+                		layer.closeAll('msg');
+		                var resultRet = datas.ret;
+		                if (resultRet.code == 101) {
+		                    layer.confirm(resultRet.resultDes, {
+		                        icon: 2,
+		                        btn: ['确定'] //按钮
+		                    }, function(){
+		                        window.location.reload();
+		                    });
+		                } else {
+		                    layer.confirm("确认成功", {
+		                        icon: 1,
+		                        btn: ['确定'] //按钮
+		                    },function () {
+		                        window.location.reload();
+		                    });
+		                }
+		            },
+		            error: function(e) {
+		            	isLoading = false;
+                		layer.closeAll('msg');
+		                layer.confirm("服务忙，请稍后再试", {
+		                    icon: 5,
+		                    btn: ['确定'] //按钮
+		                });
+		            }
+		        });
+        	}
        	});
  
         $("input[name='ck-alltask']").change(function(){
@@ -371,12 +389,24 @@ function changeMediaTypeId() {
     $("#searchBtn").on("click", function () {
         $("#form").submit();
     });
+    
     //活动确认
     queren = function(activityId,userId){
+    	isLoading = true;
         layer.confirm("确认该活动将生成对应的的监测任务", {
             icon: 3,
             btn: ['确定', '取消'] //按钮
         }, function(){
+        	layer.msg('正在操作中...', {
+	    		icon: 16,
+	    		shade: [0.5, '#f5f5f5'],
+	    		scrollbar: false,
+	    		time: 150000
+	    	}, function(){
+	    		if(isLoading){
+	    			layer.alert('操作超时', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    		}
+	    	})
             $.ajax({
                 url: "/activity/confirm",
                 type: "post",
@@ -387,6 +417,8 @@ function changeMediaTypeId() {
                 cache: false,
                 dataType: "json",
                 success: function(datas) {
+                	isLoading = false;
+                	layer.closeAll('msg');
                     var resultRet = datas.ret;
                     if (resultRet.code == 101) {
                         layer.confirm(resultRet.resultDes, {
@@ -405,6 +437,8 @@ function changeMediaTypeId() {
                     }
                 },
                 error: function(e) {
+                	isLoading = false;
+                	layer.closeAll('msg');
                     layer.confirm("服务忙，请稍后再试", {
                         icon: 5,
                         btn: ['确定'] //按钮

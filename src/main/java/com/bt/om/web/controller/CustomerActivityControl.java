@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.bt.om.cache.CityCache;
 import com.bt.om.common.DateUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
@@ -85,6 +86,8 @@ public class CustomerActivityControl extends BasicController {
     private ISysUserService sysUserService;
 	@Autowired
 	private SysUserResMapper sysUserResMapper;
+	@Autowired
+	private CityCache cityCache;
 	/**
      * 查询活动列表
      */
@@ -194,9 +197,18 @@ public class CustomerActivityControl extends BasicController {
 	/**
      * 选择活动的广告位二级页面跳转
      */
+    @RequestMapping(value = "/activity/adseat/toSelect")
+    public String selectAdSeatPage(Model model, HttpServletRequest request) {
+        return PageConst.CUSTOMER_ACTIVITY_ADSEAT_SELE;
+    }
+    
+	/**
+     * 选择活动的广告位的接口
+     */
     @RequiresRoles(value = {"superadmin", "customer","depactivityadmin","activityadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/activity/adseat/select")
-    public String adSeatSelect(Model model, HttpServletRequest request,
+    @ResponseBody
+    public Model adSeatSelect(Model model, HttpServletRequest request,
             @RequestParam(value = "province", required = false) Long province,
             @RequestParam(value = "city", required = false) Long city,
             @RequestParam(value = "region", required = false) Long region,
@@ -207,6 +219,11 @@ public class CustomerActivityControl extends BasicController {
             @RequestParam(value = "startDate", required = false) String startDate,
             @RequestParam(value = "endDate", required = false) String endDate,
             @RequestParam(value = "seatIds", required = false) String seatIds) {
+    	ResultVo<String> result = new ResultVo<String>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResult("查询成功");
+        model = new ExtendedModelMap();
+    	
     	SearchDataVo vo = SearchUtil.getVo();
         if (street != null) {
             vo.putSearchParam("street", street.toString(), street);
@@ -262,7 +279,18 @@ public class CustomerActivityControl extends BasicController {
         	vo.putSearchParam("adseatInfoIds", null, adseatInfoIds);
         }
         
+        //装换结果集, 将province和city直接转换
+        List<AdSeatInfoVo> adSeatInfoVos = new ArrayList<>();
         adSeatService.getPageData(vo);
+        List<?> list = vo.getList();
+        for (Object object : list) {
+        	AdSeatInfoVo adSeatInfoVo = (AdSeatInfoVo) object;
+        	adSeatInfoVo.setProvinceName(cityCache.getCityName(adSeatInfoVo.getProvince()));
+        	adSeatInfoVo.setCityName(cityCache.getCityName(adSeatInfoVo.getCity()));
+        	adSeatInfoVos.add(adSeatInfoVo);
+		}
+        vo.setList(adSeatInfoVos);
+        
         SearchUtil.putToModel(model, vo);
     	
         model.addAttribute("count", vo.getCount()); //总条数
@@ -270,7 +298,8 @@ public class CustomerActivityControl extends BasicController {
         model.addAttribute("totalPageCount", totalPageCount); //总页数
         model.addAttribute("start", vo.getStart()); //当前页
         
-        return PageConst.CUSTOMER_ACTIVITY_ADSEAT_SELE;
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
     }
     
     /**

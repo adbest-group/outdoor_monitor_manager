@@ -700,7 +700,7 @@
                 title: '新增广告位监测',
                 shade: 0.8,
                 area: ['1020px', '600px'],
-                content: '/customer/activity/adseat/select?startDate=' + $('#dts').val() + '&endDate=' + $('#dt').val() + '&seatIds=' + getSeatIds() //iframe的url
+                content: '/customer/activity/adseat/toSelect'
             });
         });
 
@@ -1615,6 +1615,7 @@
 	
 	function addModData(val) {
 		pushCheckArr(modDataArr, val)
+		removeDelData(val.id)
 	}
 	
 	function setModData(val) {
@@ -1625,6 +1626,15 @@
 		for(var i = 0; i < modDataArr.length; i++) {
 			if(parseInt(id) === parseInt(modDataArr[i].id)){
 				modDataArr.splice(i, 1)
+				break;
+			}
+		}
+	}
+	
+	function removeDelData(id) {
+		for(var i = 0; i < delDataArr.length; i++) {
+			if(parseInt(id) === parseInt(delDataArr[i].id)){
+				delDataArr.splice(i, 1)
 				break;
 			}
 		}

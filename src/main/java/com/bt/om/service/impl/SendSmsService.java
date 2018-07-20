@@ -25,9 +25,15 @@ public class SendSmsService implements ISendSmsService {
 	protected Logger logger = LoggerFactory.getLogger(getClass());
 	private Integer appId;
 	private String appKey;
+	
 	@Autowired
 	private AdSmsMapper	adSmsMapper;
 	
+	/**
+	 * 按内容发送短信
+	 * cell：手机号
+	 * smsContent：内容
+	 */
 	@Override
 	public String sendSms(String cell, String smsContent) {
 		SmsSingleSenderResult result = new SmsSingleSenderResult();
@@ -53,7 +59,7 @@ public class SendSmsService implements ISendSmsService {
 			}
 		} catch (Exception e) {
 			logger.error(MessageFormat.format("短信发送异常, result: ", new Object[] {result}));
-			throw new SmsException("短信发送异常, result: " + result.toString());
+			//throw new SmsException("短信发送异常, result: " + result.toString());
 		}
 		return result.toString();
 	}

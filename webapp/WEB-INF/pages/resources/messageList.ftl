@@ -10,7 +10,6 @@
         <div class="title clearfix">
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <form id="form" method="get" action="/sysResources/messageList">
-                	
                 	<div class="select-box select-box-140 un-inp-select ll">
                         <select name="isFinish" class="select" id="isFinish">
                             <option value="">处理情况</option>
@@ -24,6 +23,10 @@
                         	<@model.showUserMessageTypeList value="${bizObj.queryMap.type?if_exists}"/>
                         </select>
                     </div>
+                    
+                    <div class="inp">
+                    	<input type="text" placeholder="请输入内容" value="${searchContent?if_exists}" id="searchContent" name="searchContent">
+                	</div>
                 
                 	<#-- 
                 	<div class="select-box select-box-100 un-inp-select ll">

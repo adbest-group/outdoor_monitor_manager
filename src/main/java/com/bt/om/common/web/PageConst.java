@@ -15,6 +15,9 @@ public class PageConst {
 	// ***************************root**********************************
 	/** 登录页 ***/
 	public static final String LOGIN_PAGE = "root/login";
+	
+	/** 登录日志 ***/
+	public static final String LOGIN_LOG_PAGE = "root/loginLog";
 
 	/** 首页 ***/
 	public static final String INDEX_PAGE = "root/index";

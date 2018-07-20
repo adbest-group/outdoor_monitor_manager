@@ -318,6 +318,7 @@
     });
 
 	$('.select').searchableSelect();
+	$('#selectMediaId').next().find('.searchable-select-input').css('display', 'block');
 
     $(function () {
         $(".nav-sidebar>ul>li").on("click", function () {

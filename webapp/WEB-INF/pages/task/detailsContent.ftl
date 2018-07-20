@@ -17,7 +17,7 @@
                     <p>投放地区：${vm.getCityName(vo.province)!""} - ${vm.getCityName(vo.city!"")} - ${vo.road!""} - ${vo.location!""}</p>
                     <p>投放广告位：${vo.name!""}</p>
                     <p>监测时间段：${vo.monitorsStart?string('yyyy-MM-dd')!""} 至 ${vo.monitorsEnd?string('yyyy-MM-dd')!""}</p>
-                    <p>任务类型：${vo.monitorsStart?string('yyyy-MM-dd')!""} 至 ${vo.monitorsEnd?string('yyyy-MM-dd')!""}</p>
+                    <#-- <p>任务类型：${vo.monitorsStart?string('yyyy-MM-dd')!""} 至 ${vo.monitorsEnd?string('yyyy-MM-dd')!""}</p> -->
                     <#if vo.reportTime?exists><p>出报告时间：${vo.reportTime?string('yyyy-MM-dd')!""}</p></#if>
                     <p>任务类型：${vm.getMonitorTaskTypeText(vo.taskType)!""}</p>
                     <p>媒体名称：${vo.mediaName!""}</p>
@@ -232,6 +232,7 @@
 		                    <div class="select-box select-box-100 un-inp-select ll">
 		                       	 <select class="select" name="selectMediaName" id="selectMediaName">
 				                     <option value="">媒体成员</option>
+				                     <@model.showUserExecuteByMedia mediaId="${vo.mediaId?if_exists}"/>
 				                 </select>
 		                    </div> 
 		                    <br><br>
@@ -287,15 +288,21 @@
 </#if>
 </#if>
 
-</div>
-
+</div
 <script type="text/javascript"
         src="${model.static_domain}/js/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=T8nSZc6XXTiu1vm5pCwdYu1D5AIb2F1w"></script>
 <!-- formValidator -->
 <link type="text/css" rel="stylesheet" href="${model.static_domain}/js/formValidator/style/validator.css"></link>
 <script type="text/javascript" src="${model.static_domain}/js/formValidator/formValidator-4.0.1.js"></script>
+
+<!-- 下拉 -->
+<link href="${model.static_domain}/js/select/jquery.searchableSelect.css" rel="stylesheet">
+<script src="${model.static_domain}/js/select/jquery.searchableSelect.js"></script>
 <script type="text/javascript">
+
+	$('.select').searchableSelect();
+	$('#selectMediaName').next().find('.searchable-select-input').css('display', 'block');
 
 	function setFeedbackId(id){
 		$("#selectTaskFeedBackId").val(id);
@@ -305,6 +312,7 @@
 	   var lon = $('#lontitude').val();
   	   var lat = $('#latitude').val();
   	   var userId = $('#selectMediaName').val();
+  	   
   	  
   	   if(lon == null || lon == "" || lon.length <= 0){
   	  	layer.confirm("请填写经度", {
@@ -784,6 +792,7 @@
         
     });
     
+
 	function changeMediaTypeId() {
 		var selectMediaId = $("#selectMediaId").val();
 		if(selectMediaId == "" || selectMediaId.length <= 0) {
@@ -791,6 +800,7 @@
 			$("#selectMediaName").html(option);
 			return;
 		}
+		
 		$.ajax({
 			url : '/task/selectUserExecuteTask',
 			type : 'POST',
@@ -807,6 +817,10 @@
 						htmlOption = htmlOption + '<option value="' + type.id + '">' + type.realname + '</option>';
 					}
 						$("#selectMediaName").html(htmlOption);
+						
+						$('#selectMediaName').next().remove()
+						$('#selectMediaName').searchableSelect();
+						$('#selectMediaName').next().find('.searchable-select-input').css('display', 'block');
 				} else {
 					alert('修改失败!');
 				}

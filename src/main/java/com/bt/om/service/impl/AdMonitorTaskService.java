@@ -18,13 +18,14 @@ import com.adtime.common.lang.CollectionUtil;
 import com.adtime.common.lang.StringUtil;
 import com.bt.om.common.DateUtil;
 import com.bt.om.entity.AdActivity;
+import com.bt.om.entity.AdActivityAdseat;
 import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.AdMonitorUserTask;
-import com.bt.om.entity.AdPoint;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.AdUserMessage;
+import com.bt.om.entity.AdUserMoney;
 import com.bt.om.entity.AdUserPoint;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
@@ -33,6 +34,7 @@ import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.entity.vo.AllAdMonitorTaskVo;
 import com.bt.om.entity.vo.PictureVo;
+import com.bt.om.entity.vo.TaskAdSeat;
 import com.bt.om.enums.MessageIsFinish;
 import com.bt.om.enums.MessageType;
 import com.bt.om.enums.MonitorTaskStatus;
@@ -43,13 +45,14 @@ import com.bt.om.enums.TaskProblemStatus;
 import com.bt.om.mapper.AdActivityAdseatMapper;
 import com.bt.om.mapper.AdActivityMapper;
 import com.bt.om.mapper.AdJiucuoTaskMapper;
-import com.bt.om.mapper.AdMonitorRewardMapper;
+import com.bt.om.mapper.AdMediaMapper;
 import com.bt.om.mapper.AdMonitorTaskFeedbackMapper;
 import com.bt.om.mapper.AdMonitorTaskMapper;
 import com.bt.om.mapper.AdMonitorUserTaskMapper;
 import com.bt.om.mapper.AdPointMapper;
 import com.bt.om.mapper.AdSeatInfoMapper;
 import com.bt.om.mapper.AdUserMessageMapper;
+import com.bt.om.mapper.AdUserMoneyMapper;
 import com.bt.om.mapper.AdUserPointMapper;
 import com.bt.om.mapper.SysResourcesMapper;
 import com.bt.om.mapper.SysUserExecuteMapper;
@@ -70,8 +73,6 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     private AdMonitorTaskMapper adMonitorTaskMapper;
     @Autowired
     private AdMonitorTaskFeedbackMapper adMonitorTaskFeedbackMapper;
-    @Autowired
-    private AdMonitorRewardMapper adMonitorRewardMapper;
     @Autowired
     private AdJiucuoTaskMapper jiucuoTaskMapper;
     @Autowired
@@ -95,8 +96,13 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	@Autowired
 	private AdUserPointMapper adUserPointMapper;
 	@Autowired
+	private AdMediaMapper adMediaMapper;
+	@Autowired
 	private AdPointMapper adPointMapper;
-    @Override
+	@Autowired
+	private AdUserMoneyMapper adUserMoneyMapper;
+    
+	@Override
     public void getPageData(SearchDataVo vo) {
         int count = adMonitorTaskMapper.getPageCount(vo.getSearchMap());
         vo.setCount(count);
@@ -107,6 +113,9 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         }
     }
 
+	/**
+	 * 任务指派给APP人员
+	 */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void assign(String[] taskIds, Integer userId, Integer assignorId) {
@@ -135,6 +144,13 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             			&& task.getStatus() != MonitorTaskStatus.CAN_GRAB.getId()) {
             		continue;
             	}
+            }
+            
+            //查询当前任务对应的广告位信息
+            AdActivityAdseat adActivityAdseat = adActivityAdseatMapper.selectByPrimaryKey(task.getActivityAdseatId());
+            AdSeatInfo adSeatInfo = null;
+            if(adActivityAdseat != null) {
+            	adSeatInfo = adSeatInfoMapper.selectByPrimaryKey(adActivityAdseat.getAdSeatId());
             }
             
             //【待执行】状态时 修改被指派人
@@ -194,6 +210,10 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             stringBuffer.append("】广告主的【");
             stringBuffer.append(adActivity.getActivityName());
             stringBuffer.append("】活动的【");
+            if(adSeatInfo != null) {
+            	stringBuffer.append(adSeatInfo.getName());
+                stringBuffer.append("】广告位的【");
+            }
             stringBuffer.append(taskType);
             stringBuffer.append("任务】已被【");
             stringBuffer.append(auditPerson.getRealname());
@@ -212,6 +232,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             searchMap.put("isFinish", MessageIsFinish.UNCONFIRM.getId()); //1：已处理
             searchMap.put("targetId", id); //任务表的id
             searchMap.put("type", MessageType.TASK_ASSIGN.getId()); //3,"任务指派"
+            searchMap.put("updateTime", now); //修改时间
             adUserMessageMapper.updateUserMessage(searchMap);
         }
     }
@@ -222,16 +243,19 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         adMonitorTaskMapper.updateByPrimaryKeySelective(task);
     }
 
+    /**
+     * 任务审核通过
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void pass(String[] taskIds, Integer assessorId, Integer status) {
     	Date now = new Date();
     	SysUser auditPerson = sysUserMapper.selectByPrimaryKey(assessorId); //获取审核人的相关信息
     	
-    	AdPoint point5= adPointMapper.selectByPointType(5);//上刊监测
-    	AdPoint point6= adPointMapper.selectByPointType(6);//期间监测
-    	AdPoint point7= adPointMapper.selectByPointType(7);//下刊监测
-    	AdPoint point8= adPointMapper.selectByPointType(8);//追加监测
+//    	AdPoint point5= adPointMapper.selectByPointType(5);//上刊监测
+//    	AdPoint point6= adPointMapper.selectByPointType(6);//期间监测
+//    	AdPoint point7= adPointMapper.selectByPointType(7);//下刊监测
+//    	AdPoint point8= adPointMapper.selectByPointType(8);//追加监测
     	
     	//[4] 确认操作在业务层方法里进行循环
     	for (String taskId : taskIds) {
@@ -265,21 +289,35 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	        adUserPoint.setUserId(task.getUserId());
 	        adUserPoint.setCreateTime(now);
 	        adUserPoint.setUpdateTime(now);
+	        
+	        //完成任务且审核通过给用户添加金额
+	        AdUserMoney adUserMoney  = new AdUserMoney();
+	        adUserMoney.setUserId(task.getUserId());
+	        adUserMoney.setCreateTime(now);
+	        adUserMoney.setUpdateTime(now);
 	        if(task.getTaskType()==1){
-	        	adUserPoint.setPoint(point5.getPoint()); 
+	        	adUserPoint.setPoint(task.getTaskPoint()); 
 	        	adUserPoint.setResult("恭喜您完成上刊监测任务！");
+	        	adUserMoney.setMoney(task.getTaskMoney());
+	        	adUserMoney.setResult("恭喜您完成上刊监测任务！");
 	        }else if(task.getTaskType()==2){
-	        	adUserPoint.setPoint(point6.getPoint()); 
+	        	adUserPoint.setPoint(task.getTaskPoint()); 
 	        	adUserPoint.setResult("恭喜您完成投放期间监测任务！");
+	        	adUserMoney.setMoney(task.getTaskMoney());
+	        	adUserMoney.setResult("恭喜您完成投放期间监测任务！");
 	        }else if(task.getTaskType()==3){
-	        	adUserPoint.setPoint(point7.getPoint()); 
+	        	adUserPoint.setPoint(task.getTaskPoint()); 
 	        	adUserPoint.setResult("恭喜您完成下刊监测任务！");
+	        	adUserMoney.setMoney(task.getTaskMoney());
+	        	adUserMoney.setResult("恭喜您完成下刊监测任务！");
 	        }else if(task.getTaskType()==6){
-	        	adUserPoint.setPoint(point8.getPoint());  
+	        	adUserPoint.setPoint(task.getTaskPoint());  
 	        	adUserPoint.setResult("恭喜您完成追加监测任务！");
+	        	adUserMoney.setMoney(task.getTaskMoney());
+	        	adUserMoney.setResult("恭喜您完成追加监测任务！");
 	        }
 	        adUserPointMapper.insertSelective(adUserPoint);
-
+	        adUserMoneyMapper.insertSelective(adUserMoney);
 	        //如果当前任务是子任务，如果有问题，父任务的状态恢复到有问题，如果没有问题，则关闭父任务，这里分父任务是监测或纠错
 	        if(task.getParentId()!=null){
 	            if(task.getParentType()==RewardTaskType.MONITOR.getId()){
@@ -359,12 +397,23 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	        Map<String, Object> searchMap = new HashMap<>();
 	        AdActivity adActivity = adActivityMapper.selectByPrimaryKey(task.getActivityId());//通过id找到广告商id
         	SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivity.getUserId());//获得广告商名
+        	//查询当前任务对应的广告位信息
+            AdActivityAdseat adActivityAdseat = adActivityAdseatMapper.selectByPrimaryKey(task.getActivityAdseatId());
+            AdSeatInfo adSeatInfo = null;
+            if(adActivityAdseat != null) {
+            	adSeatInfo = adSeatInfoMapper.selectByPrimaryKey(adActivityAdseat.getAdSeatId());
+            }
+            
 	        StringBuffer stringBuffer = new StringBuffer();
             stringBuffer.append("【");
             stringBuffer.append(sysUser.getRealname());
             stringBuffer.append("】广告主的【");
             stringBuffer.append(adActivity.getActivityName());
             stringBuffer.append("】活动的【");
+            if(adSeatInfo != null) {
+            	stringBuffer.append(adSeatInfo.getName());
+                stringBuffer.append("】广告位的【");
+            }
             stringBuffer.append(taskType);
             stringBuffer.append("任务】已被【");
             stringBuffer.append(auditPerson.getRealname());
@@ -374,10 +423,14 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             searchMap.put("isFinish", MessageIsFinish.UNCONFIRM.getId()); //1：已处理
             searchMap.put("targetId", id); //任务表的id
             searchMap.put("type", MessageType.TASK_AUDIT.getId()); //2,"任务审核"
+            searchMap.put("updateTime", now); //修改时间
             adUserMessageMapper.updateUserMessage(searchMap);
 	    }
     }
     
+    /**
+     * 任务审核不通过
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void reject(String[] taskIds, String reason, Integer assessorId, Integer status) {
@@ -419,12 +472,23 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	        Map<String, Object> searchMap = new HashMap<>();
 	        AdActivity adActivity = adActivityMapper.selectByPrimaryKey(task.getActivityId());//通过id找到广告商id
         	SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivity.getUserId());//获得广告商名
+        	//查询当前任务对应的广告位信息
+            AdActivityAdseat adActivityAdseat = adActivityAdseatMapper.selectByPrimaryKey(task.getActivityAdseatId());
+            AdSeatInfo adSeatInfo = null;
+            if(adActivityAdseat != null) {
+            	adSeatInfo = adSeatInfoMapper.selectByPrimaryKey(adActivityAdseat.getAdSeatId());
+            }
+            
 	        StringBuffer stringBuffer = new StringBuffer();
             stringBuffer.append("【");
             stringBuffer.append(sysUser.getRealname());
             stringBuffer.append("】广告主的【");
             stringBuffer.append(adActivity.getActivityName());
             stringBuffer.append("】活动的【");
+            if(adSeatInfo != null) {
+            	stringBuffer.append(adSeatInfo.getName());
+                stringBuffer.append("】广告位的【");
+            }
             stringBuffer.append(taskType);
             stringBuffer.append("任务】已被【");
             stringBuffer.append(auditPerson.getRealname());
@@ -434,6 +498,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             searchMap.put("isFinish", MessageIsFinish.UNCONFIRM.getId()); //1：已处理
             searchMap.put("targetId", id); //任务表的id
             searchMap.put("type", MessageType.TASK_AUDIT.getId()); //2,"任务审核"
+            searchMap.put("updateTime", now); //修改时间
             adUserMessageMapper.updateUserMessage(searchMap);
     	}
     }
@@ -443,6 +508,9 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         return adMonitorTaskMapper.selectByUserId(userId);
     }
 
+    /**
+     * APP人员执行了任务
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void feedback(Integer taskId, AdMonitorTaskFeedback feedback,String adSeatCode,SysUserExecute user) {
@@ -454,14 +522,21 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         
         //上刊任务添加用户积分
         if(task.getTaskType() == 5) {
-        	AdPoint adPoint = adPointMapper.selectByPointType(4);//上刊任务
+//        	AdPoint adPoint = adPointMapper.selectByPointType(4);//上刊任务
         	AdUserPoint userPoint = new AdUserPoint();
-        	userPoint.setPoint(adPoint.getPoint()); 
+        	AdUserMoney userMoney = new AdUserMoney();
+        	userPoint.setPoint(task.getTaskPoint()); 
         	userPoint.setResult("恭喜您完成上刊任务！");
         	userPoint.setUserId(task.getUserId());
         	userPoint.setUpdateTime(now);
         	userPoint.setCreateTime(now);
+        	userMoney.setMoney(task.getTaskMoney());
+        	userMoney.setResult("恭喜您完成上刊任务！");
+        	userMoney.setUserId(task.getUserId());
+        	userMoney.setCreateTime(now);
+        	userMoney.setUpdateTime(now);
         	adUserPointMapper.insert(userPoint);
+        	adUserMoneyMapper.insert(userMoney);
         }
         
         if(StringUtil.isNotBlank(feedback.getProblem()) || StringUtil.isNotBlank(feedback.getProblemOther())) {
@@ -600,6 +675,10 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             stringBuffer.append("】广告主的【");
             stringBuffer.append(adActivity.getActivityName());
             stringBuffer.append("】活动的【");
+            if(seatInfo != null) {
+            	stringBuffer.append(seatInfo.getName());
+                stringBuffer.append("】广告位的【");
+            }
             stringBuffer.append(taskType);
             stringBuffer.append("任务】已被【");
             stringBuffer.append(user.getRealname());
@@ -607,7 +686,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             if(task.getStatus() == MonitorTaskStatus.UNVERIFY.getId()) {
             	stringBuffer.append("，待审核");
             } else {
-            	stringBuffer.append("有");
+            	stringBuffer.append("，有");
             	stringBuffer.append(auditTime);
             	stringBuffer.append("天可替换图片");
             }
@@ -697,25 +776,38 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         }
     }
 
+    /**
+     * 社会人员/媒体监测人员 抢单
+     */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean grabTask(Integer userId, Integer id) {
         Date now = new Date();
         boolean ret = false;
         //先查询该任务
         AdMonitorTask task = adMonitorTaskMapper.selectByPrimaryKey(id);
-        //任务未查到或任务执行人已指派，抢任务失败
+        //任务未查到 或 任务执行人已指派，抢任务失败
         if(task==null||task.getUserId()!=null&&task.getStatus()!=1){
             return ret;
         }
         int count = adMonitorTaskMapper.grabTask(userId,id,task.getUpdateTime());
         if(count>0){
+        	//查询用户类型
+        	SysUserExecute sysUserExecute = sysUserExecuteMapper.selectByPrimaryKey(userId);
+        	
             //添加用户和任务关联关系
             AdMonitorUserTask userTask = new AdMonitorUserTask();
-            userTask.setUserId(userId);
-            userTask.setMonitorTaskId(id);
-            userTask.setStartTime(now);
-            userTask.setEndTime(Date.from(now.toInstant().atZone(ZoneId.systemDefault()).plusHours(12).toInstant()));
-            userTask.setAssignType(2);
+            userTask.setUserId(userId); //任务执行人id
+            userTask.setMonitorTaskId(id); //任务主表id
+            userTask.setStartTime(now); //任务开始时间
+            userTask.setEndTime(Date.from(now.toInstant().atZone(ZoneId.systemDefault()).plusHours(12).toInstant())); //任务结束时间 = 任务开始时间 + 12小时
+            if(sysUserExecute.getUsertype().equals(4)) {
+            	//[1] 社会人员抢单
+            	userTask.setAssignType(2); //2.自助抢单（社会人员）
+            } else if(sysUserExecute.getUsertype().equals(3)) {
+            	//[2] 媒体监测人员抢单
+            	userTask.setAssignType(3); //3.自助接取（媒体监测人员）
+            }
             userTask.setStatus(1);
             userTask.setCreateTime(now);
             userTask.setUpdateTime(now);
@@ -728,7 +820,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     }
 
 	@Override
-  @Transactional(rollbackFor = Exception.class)
+	@Transactional(rollbackFor = Exception.class)
 	public List<AdMonitorTask> selectAllTask() {
 		List<AdMonitorTask> taskList = adMonitorTaskMapper.findAllTask();		
 		return taskList;
@@ -792,7 +884,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 		return taskVos;
 	}
 
-  @Override
+	@Override
 	public List<AdMonitorTask> selectLatestMonitorTaskIds(Integer activityId) {
 		return adMonitorTaskMapper.selectLatestMonitorTaskIds(activityId);
 	}
@@ -809,14 +901,14 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	@Transactional(rollbackFor = Exception.class)
 	public void newActivateMonitorTask(Date nowDate) {
 		//[1] 激活任务
-		List<Integer> ids = adMonitorTaskMapper.getWaitToActivateIds(nowDate);
+		List<TaskAdSeat> taskAdSeats = adMonitorTaskMapper.getWaitToActivateIds(nowDate);
 		adMonitorTaskMapper.newActivateMonitorTask(nowDate);
 		
 		//[2] 添加站内信
 		List<Integer> userIds = new ArrayList<>();
 		Date now = new Date();
 		
-		if(ids != null && ids.size() > 0) {
+		if(taskAdSeats != null && taskAdSeats.size() > 0) {
 			List<AdUserMessage> message = new ArrayList<>();
 			
 			//查询添加站内信的用户id集合
@@ -824,9 +916,9 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 			Integer dep_id = sysResourcesMapper.getUserId(2);//2：任务审核、指派部门
 			userIds.add(dep_id);
 			
-			for (Integer monitorId : ids) {
+			for (TaskAdSeat taskAdSeat : taskAdSeats) {
 				//员工
-				AdMonitorTask adMonitorTask = adMonitorTaskMapper.selectByPrimaryKey(monitorId);
+				AdMonitorTask adMonitorTask = adMonitorTaskMapper.selectByPrimaryKey(taskAdSeat.getId());
 	        	AdActivity adActivity = adActivityMapper.selectByPrimaryKey(adMonitorTask.getActivityId());//通过id找到广告商id
 	        	SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivity.getUserId());//获得广告商名
 				
@@ -863,13 +955,14 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	            stringBuffer.append("】广告主的【");
 	            stringBuffer.append(adActivity.getActivityName());
 	            stringBuffer.append("】活动的【");
+	            stringBuffer.append(taskAdSeat.getAdSeatName() + "】广告位的【");
 	            stringBuffer.append(taskType);
 	            stringBuffer.append("任务】待指派");
 	            
 		        for(Integer i: userIdList) {
 	            	AdUserMessage mess = new AdUserMessage();
 	            	mess.setContent(stringBuffer.toString());
-	            	mess.setTargetId(monitorId); //任务表的id
+	            	mess.setTargetId(taskAdSeat.getId()); //任务表的id
 	            	mess.setTargetUserId(i);
 	            	mess.setIsFinish(MessageIsFinish.CONFIRMED.getId()); //0：未处理
 	            	mess.setType(MessageType.TASK_ASSIGN.getId()); //3：任务指派
@@ -877,9 +970,6 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	            	mess.setUpdateTime(now);
 	            	message.add(mess);
 	            }
-		        if(message != null && message.size() > 0) {
-		        	adUserMessageMapper.insertMessage(message);
-		        }
 			}
 			
 			if(message != null && message.size() > 0) {
@@ -897,26 +987,68 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 		adMonitorTaskMapper.activateMonitorTask(nowDate);
 	}
 
+	/**
+	 * 社会人员抢单的任务进行回收操作
+	 */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void recycleMonitorTask() {
 		Date now = new Date();
+		
 		//[1] 查询ad_monitor_user_task待回收的任务id集合
-		List<Integer> monitorTaskIds = adMonitorUserTaskMapper.selectRecycleTaskIds(now);
+		Map<String, Object> searchMap = new HashMap<>();
+		searchMap.put("nowDate", now);
+		searchMap.put("assignType", 2); //2.自主抢单（社会人员）
+		List<Integer> monitorTaskIds = adMonitorUserTaskMapper.selectRecycleTaskIds(searchMap);
+		
 		//[2] 修改ad_monitor_user_task表中待回收的状态及回收时间
 		if(CollectionUtil.isNotEmpty(monitorTaskIds)) {
 			AdMonitorUserTask task = new AdMonitorUserTask();
 			task.setAbandonTime(now);
 			task.setUpdateTime(now);
-			task.setStatus(3);
+			task.setStatus(3); //3.超时回收
+			task.setAssignType(2); //2.自主抢单（社会人员）
 			adMonitorUserTaskMapper.recycleUserTask(task);
+			
 			//[3] 修改ad_monitor_task表中回收的任务的状态为 1：待指派 或 8：可抢单
 			adMonitorTaskMapper.recycleTask(monitorTaskIds, 12);
 		}
 	}
 	
 	/**
-	 * 获取即将结束的任务(2小时之前)
+	 * 媒体监测人员抢单的任务进行回收操作
+	 */
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void recycleMediaMonitorTask() {
+		Date now = new Date();
+		
+		//[1] 查询ad_monitor_user_task待回收的任务id集合
+		Map<String, Object> searchMap = new HashMap<>();
+		searchMap.put("nowDate", now);
+		searchMap.put("assignType", 3); //3.自主接取（媒体监测人员）
+		List<Integer> monitorTaskIds = adMonitorUserTaskMapper.selectRecycleTaskIds(searchMap);
+		
+		//[2] 修改ad_monitor_user_task表中待回收的状态及回收时间
+		if(CollectionUtil.isNotEmpty(monitorTaskIds)) {
+			AdMonitorUserTask task = new AdMonitorUserTask();
+			task.setAbandonTime(now);
+			task.setUpdateTime(now);
+			task.setStatus(3); //3.超时回收
+			task.setAssignType(3); //3.自主接取（媒体监测人员）
+			adMonitorUserTaskMapper.recycleUserTask(task);
+			
+			//[3] 修改ad_monitor_task表中回收的任务的状态为 1：待指派
+			searchMap.clear();
+			searchMap.put("updateTime", now);
+			searchMap.put("status", 1); //1：待指派
+			searchMap.put("monitorTaskIds", monitorTaskIds);
+			adMonitorTaskMapper.recycleMediaTask(searchMap);
+		}
+	}
+	
+	/**
+	 * 获取即将结束的任务(2小时之前)进行极光消息推送
 	 */
 	@Override
 	public String getTaskWillEnd(Integer duration) {
@@ -932,7 +1064,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         Map<String, Object> param = new HashMap<>();
         Map<String, String> extras = new HashMap<>();
         extras.put("type", "task_will_end_push");
-        param.put("msg", "您的任务有的即将结束，请尽快办理！");
+        param.put("msg", "您有任务即将结束，请尽快执行！");
         param.put("title", "玖凤平台");
         param.put("alias", aliases);  //根据别名选择推送用户（这里userId用作推送时的用户别名）
         param.put("extras", extras);
@@ -1034,7 +1166,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	  */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public void insertMonitorTask(Integer activityId, List<String> seatIds, String reportTime) {
+	public void insertMonitorTask(Integer activityId, List<String> seatIds, String reportTime, Integer zhuijiaMonitorTaskPoint, double zhuijiaMonitorTaskMoney) {
 		Integer monitorTime = ConfigUtil.getInt("monitor_time"); //允许任务执行天数
         Integer auditTime = ConfigUtil.getInt("audit_time"); //允许任务审核天数
 		
@@ -1054,6 +1186,8 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
  			adMonitorTask.setActivityAdseatId(seatId);
  			adMonitorTask.setStatus(MonitorTaskStatus.UN_ACTIVE.getId());
  			adMonitorTask.setProblemStatus(TaskProblemStatus.UNMONITOR.getId());
+ 			adMonitorTask.setTaskPoint(zhuijiaMonitorTaskPoint);
+ 			adMonitorTask.setTaskMoney(zhuijiaMonitorTaskMoney);
  			adMonitorTask.setCreateTime(now);
  			adMonitorTask.setUpdateTime(now);
  			
@@ -1090,7 +1224,6 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 		return adMonitorTaskMapper.selectByPrimaryKey(id);
 	}
 
-	
 	/**
 	 * 【待执行】/【待指派】这种没有app人员做任务时的替换造假
 	 */
@@ -1129,4 +1262,13 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	public List<AdMonitorTask> newSelectLatestMonitorTaskIds(Map<String, Object> searchMap) {
 		return adMonitorTaskMapper.newSelectLatestMonitorTaskIds(searchMap);
 	}
+	
+	/**
+	 * 通过任务id集合去查询所有的APP执行人员手机号
+	 */
+	@Override
+	public List<String> selectUserNameByTaskIdBatch(Map<String, Object> searchMap) {
+		return adMonitorTaskMapper.selectUserNameByTaskIdBatch(searchMap);
+	}
+	
 }

@@ -19,13 +19,28 @@ public class RecycleTaskTask extends AbstractTask {
 
 	@Override
 	protected void process() {
+		//操作不放在同一个事务中是因为本身就是独立的操作
+		
 		/**
 		 * 指派的任务不进行回收操作
-		 * 抢单的任务进行回收操作
+		 * 社会人员抢单的任务进行回收操作(由于暂时没用社会人员抢单, 所以功能注释掉)
 		 * 判断任务结束时间, 由2：待执行 → 8：可抢单或1：待指派（12小时+24小时的限制条件）
 		 */
-		adMonitorTaskService.recycleMonitorTask();
+		//adMonitorTaskService.recycleMonitorTask();
 		
+		/**
+		 * 媒体监测人员抢单的任务进行回收操作
+		 */
+		adMonitorTaskService.recycleMediaMonitorTask();
+		
+		/**
+		 * 任务主表超时 将状态改成"已超时"
+		 */
+		
+		
+		/**
+		 * 即将结束的任务推送通知
+		 */
 		adMonitorTaskService.getTaskWillEnd(2);
 	}
 }

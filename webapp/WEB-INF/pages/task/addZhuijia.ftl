@@ -30,6 +30,20 @@
 					</td>
 				</tr>
 				<tr>
+					<td>
+                    	<div>
+                    		积分：
+                        	<input type="text" id="zhuijiaMonitorTaskPoint"  name="zhuijiaMonitorTaskPoint" style="width: 100px;" value="0" autocomplete="off" class="form-control point"> 
+            				<span id="zhuijiaMonitorTaskPointTip"></span>
+                    	</div>
+                    	<div>
+                    		金额：
+                    		<input type="text" id="zhuijiaMonitorTaskMoney" name="zhuijiaMonitorTaskMoney" value="0.00" style="width: 100px;" autocomplete="off" class="form-control money"> 
+                    		<span id="zhuijiaMonitorTaskMoneyTip"></span>
+                    	</div>
+                    </td>
+				</tr>
+				<tr>
 					<td class="a-title">&nbsp;</td>
 					<td>
 						<button type="button" class="btn btn-red" autocomplete="off" id="zhuiJiaSubmit">提　交</button>
@@ -72,7 +86,54 @@ $(function() {
 		   $(this).find('.zhuiJia-Wdate').blur()
         }
     });
-	
+	//追加监测任务积分值
+    $("#zhuijiaTaskPoint").formValidator({
+        validatorGroup:"2",
+        tipID:"zhuijiaMonitorTaskPointTip",
+        onShow: "　",
+        onFocus: "请输入追加监测任务积分",
+        onCorrect: ""
+    }).regexValidator({
+    	regExp:"^[0-9]*$",
+    	onError:"积分数值输入有误"
+    }).inputValidator({
+        min: 1,
+        max: 60,
+        onError: "积分数值不能为空，请输入"
+    });
+    //追加监测任务金额值
+    $("#zhuijiaMonitorTaskMoney").formValidator({
+        validatorGroup:"2",
+        tipID:"zhuijiaMonitorTaskMoneyTip",
+        onShow: "　",
+        onFocus: "请输入追加监测任务金额",
+        onCorrect: ""
+    }).regexValidator({
+    	regExp:"^[1-9]{1}\\d\*(\\.\\d{1,2})?$",
+    	onError:"金额数值输入有误"
+    }).inputValidator({
+        min: 1,
+        max: 60,
+        onError: "金额数值不能为空，请输入"
+    });
+    
+    $(".point").focus(function(){
+    	$(this).val('')
+    })
+    $(".money").focus(function(){
+    	$(this).val('')
+    })
+    
+    $(".point").blur(function(){
+    	if($(this).val() === '') {
+    		$(this).val('0')
+    	}
+    })
+    $(".money").blur(function(){
+    	if($(this).val() === '') {
+    		$(this).val('0.00')
+    	}
+    })
 	// 新建账户处理
 	$.formValidator.initConfig({
 		validatorGroup:"2",
@@ -84,14 +145,17 @@ $(function() {
 	        var reportTime = $("#zhuiJia-Wdate").val();
 	        var seatId = $("#seatId").val();
 	        var activityId = $("#activityId").val();
-	        
+	        var zhuijiaMonitorTaskPoint = $("#zhuijiaMonitorTaskPoint").val();
+	        var zhuijiaMonitorTaskMoney = $("#zhuijiaMonitorTaskMoney").val();
             $.ajax({
                 url: "/activity/zhuijiaTask",
                 type: "post",
                 data: {
                 	"reportTime": reportTime,
                     "seatIds": seatId,
-                    "activityId": activityId
+                    "activityId": activityId,
+                    "zhuijiaMonitorTaskPoint" :zhuijiaMonitorTaskPoint,
+                    "zhuijiaMonitorTaskMoney" :zhuijiaMonitorTaskMoney
                 },
                 cache: false,
                 dataType: "json",

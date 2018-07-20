@@ -90,4 +90,6 @@ public interface AdActivityMapper {
 	List<Integer> getEndActivityList(Date nowDate);
 	
 	List<Integer> getDeadLineAuditActivity(Date endDate);
+	
+	List<Integer> getEndActivity(Date endDate);
 }

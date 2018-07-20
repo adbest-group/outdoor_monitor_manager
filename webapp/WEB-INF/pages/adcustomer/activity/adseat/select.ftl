@@ -17,13 +17,13 @@
     <div class="main-box">
         <div class="title clearfix" style="display: block;">
             <div class="search-box search-ll" style="margin: 0 0 0 20px;display: inline-block;">
-                <form id="form" method="get" action="/customer/activity/adseat/select" style="display: inline-block;">			
+                <form id="form" style="display: inline-block;">			
                 	<input type="hidden" id="startDate" value="" name="startDate">
                 	<input type="hidden" id="endDate" value="" name="endDate">
                 	<input type="hidden" id="seatIds" value="" name="seatIds">
                 	<input type="hidden" id="start" value="" name="start">
                 	<input type="hidden" id="size" value="" name="size">
-                	<input type="hidden" id="mediaTypeIdHidden" value="${bizObj.queryMap.mediaTypeId?if_exists}">
+                	<input type="hidden" id="mediaTypeIdHidden" <#-- value="${bizObj.queryMap.mediaTypeId?if_exists}" -->>
                 
                     <div id="demo3" class="citys" style="float: left; font-size: 12px">
                         <p>
@@ -37,14 +37,14 @@
                     <div style="float: left; margin-left: 40px; font-size: 12px">
                         媒体主: <select style="height: 30px" name="mediaId" id="selectMediaId">
                         <option value="">所有媒体</option>
-                        <@model.showAllMediaOps value="${bizObj.queryMap.mediaId?if_exists}" />
+                        <@model.showAllMediaOps <#-- value="${bizObj.queryMap.mediaId?if_exists}" --> />
                     </select>
                     </div>
                     
                     <div style="float: left; margin-left: 40px; font-size: 12px">
                         媒体大类: <select style="height: 30px" name="mediaTypeParentId" id="mediaTypeParentId" onchange="changeMediaTypeId();">
                         <option value="">请选择媒体大类</option>
-						<@model.showAllAdMediaTypeAvailableOps value="${bizObj.queryMap.mediaTypeParentId?if_exists}"/>
+						<@model.showAllAdMediaTypeAvailableOps <#-- value="${bizObj.queryMap.mediaTypeParentId?if_exists}" -->/>
                     </select>
                     </div>
                     
@@ -56,7 +56,6 @@
                 </form>
             </div>
         </div>
-        
 
 	        <!-- 数据报表 -->
         <div class="data-report">
@@ -76,7 +75,8 @@
 						<th>媒体小类</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="tbody">
+                    <#if bizObj?exists>
 					<#if (bizObj.list?exists && bizObj.list?size>0) > 
 						<#list bizObj.list as adseat>
 	                    <tr>
@@ -100,6 +100,7 @@
                     <!-- 翻页 
 					<@model.showPage url=vm.getUrlByRemoveKey(thisUrl+'', ["start",
 					"size"]) p=bizObj.page parEnd="" colsnum=9 />-->
+					</#if>
                 </table>
                 
 					<tr><div id="selectPage" style='text-align: right;'></div></tr>
@@ -133,39 +134,84 @@
 	<link type="text/css" rel="stylesheet" href="/static/js/layer/layui.css"></link>
 	<script type="text/javascript" src="/static/js/layer/layui.js"></script>
 	<script type="text/javascript">
+	var dts = parent.$('#dts').val();
+	var dt = parent.$('#dt').val();
+	var seatIds = parent.getSeatIds();
+	var params = {
+		startDate: dts,
+		endDate: dt	
+	};
+	getData()
+	function getData(){
+		params.seatIds = parent.getSeatIds();
+		$.post('/customer/activity/adseat/select', params, function(res){
+			console.log(res);
+			var curr = res.bizObj.page.currentPage
+			renderTableData(res.bizObj.list, curr)
+			layui.use('laypage', function(){
+				var laypage = layui.laypage;
+				laypage.render({
+				    elem: 'selectPage'
+				    ,count: res.bizObj.count
+				    ,limit: 20
+				    ,curr: curr
+				    ,layout: ['page', 'count']
+				    ,jump: function(obj, first){
+				    	if(!first){
+				    		
+					        //obj包含了当前分页的所有参数，比如：
+					        // $('#start').val((obj.curr - 1) * obj.limit);
+					        // $('#size').val(obj.limit);
+					        params.start = (obj.curr - 1) * obj.limit;
+					        params.size = obj.limit;
+				    		getData();
+					        // $("#form").submit();
+			    	    }
+				        
+				      }
+				  });
+			})
+		})
+	}
 	
-	$('#startDate').val(parent.$('#dts').val());
-	$('#endDate').val(parent.$('#dt').val());
-	$('#seatIds').val(parent.getSeatIds());
-	var count = parseInt(${count?if_exists})
-	var curr = parseInt(${start?if_exists}) / 20
-	layui.use('laypage', function(){
-		var laypage = layui.laypage;
-		laypage.render({
-		    elem: 'selectPage'
-		    ,count: count
-		    ,limit: 20
-		    ,curr: curr + 1
-		    ,layout: ['page', 'count']
-		    ,jump: function(obj, first){
-		    	if(!first){
+	
+	// 渲染表格数据
+	function renderTableData(data, currentPage){
+		var len = data.length;
+		var html = '';
+		if(len === 0){
+			html += '<tr><td colspan="20">没有相应结果。</td></tr>'
+		}else{
+			for(var i = 0; i < len; i++){
+				html += '<tr><td width="30"><input  type="checkbox"  name="ck-task" value="'+ data[i].id +'"/></td><td>'+((currentPage-1)*20 + i + 1)+'</td><td>'+(data[i].name?data[i].name:"")+'</td><td>'+(data[i].provinceName?data[i].provinceName:"") + (data[i].cityName?data[i].cityName:"")+'</td><td>'+(data[i].road?data[i].road:"")+'</td><td>'+(data[i].location?data[i].location:"")+'</td><td>'+(data[i].mediaName?data[i].mediaName:"")+'</td><td>'+(data[i].parentName?data[i].parentName:"")+'</td><td>'+(data[i].secondName?data[i].secondName:"")+'</td></tr>';
+			}
+		}
+		$('#tbody').html(html);
 
-			        //obj包含了当前分页的所有参数，比如：
-			        $('#start').val((obj.curr - 1) * obj.limit)
-			        $('#size').val(obj.limit)
-			        
-			        $("#form").submit();
-	    	    }
-		        
-		      }
-		  });
-	})
+		$("input[name='ck-alltask']").removeAttr("checked");
+		$("input[name='ck-task']").change(function(){
+	        if($(this).is(":checked")){
+	        	if($("input[name='ck-task']:checked").length === $("input[name='ck-task']").length && $("input[name='ck-task']").length != 0){
+	        		$("input[name='ck-alltask']").prop("checked",true)
+	        	}
+	        	parent.addModData({
+	        		id: $(this).val(),
+	        		html: $(this).parents('tr').html().split('</td>').slice(2).join('</td>')
+	        	})
+	        }else{
+	        	parent.addDelData({
+	        		id: $(this).val(),
+	        		html: $(this).parents('tr').html().split('</td>').slice(2).join('</td>')
+	        	})
+	        	$("input[name='ck-alltask']").removeAttr("checked");
+	        }
+	        console.log(parent.getCheck())
+		});
+		setCheckData();
+	}
 	
-	
-	
-	changeMediaTypeId();
-
 	function changeMediaTypeId() {
+		params.mediaTypeId = ''
 		var mediaTypeParentId = $("#mediaTypeParentId").val();
 		if(mediaTypeParentId == "" || mediaTypeParentId.length <= 0) {
 			var option = '<option value="">请选择媒体小类</option>';
@@ -266,7 +312,10 @@
     
     // 选择媒体时查询
     $('#selectMediaId').change(function(){
-		$("#form").submit();
+		// $("#form").submit();
+		params.start = 0;
+		params.mediaId = $('#selectMediaId').val();
+		getData();
 		parent.setModData([])
 		parent.setDelData([])
     })
@@ -280,7 +329,10 @@
     	// 香港: 810000
     	// 澳门: 820000
     	if('110000,120000,310000,500000,810000,820000'.indexOf($(this).val()) >= 0){
-    		$("#form").submit();
+    		// $("#form").submit();
+			params.start = 0;
+    		params.province = $('#adSeatInfo-province').val();
+			getData();
     		parent.setModData([])
     		parent.setDelData([])
     	}
@@ -288,43 +340,36 @@
     
     // 选择城市时查询
     $('#adSeatInfo-city').change(function(){
-		$("#form").submit();
+		// $("#form").submit();
+		params.start = 0;
+		params.city = $('#adSeatInfo-city').val();
+		getData();
 		parent.setModData([])
 		parent.setDelData([])
     })
     
     // 选择媒体大类时查询
     $('#mediaTypeParentId').change(function(){
-		$("#form").submit();
+		// $("#form").submit();
+		params.start = 0;
+		console.log(params)
+		params.mediaTypeParentId = $('#mediaTypeParentId').val();
+		getData();
 		parent.setModData([])
 		parent.setDelData([])
     })
     
     // 选择媒体小类时查询
     $('#mediaTypeId').change(function(){
-		$("#form").submit();
+		// $("#form").submit();
+		params.start = 0;
+		params.mediaTypeId = $('#mediaTypeId').val();
+		getData();
 		parent.setModData([])
 		parent.setDelData([])
     })
 
-    $("input[name='ck-task']").change(function(){
-        if($(this).is(":checked")){
-        	if($("input[name='ck-task']:checked").length === $("input[name='ck-task']").length && $("input[name='ck-task']").length != 0){
-        		$("input[name='ck-alltask']").prop("checked",true)
-        	}
-        	parent.addModData({
-        		id: $(this).val(),
-        		html: $(this).parents('tr').html().split('</td>').slice(2).join('</td>')
-        	})
-        }else{
-        	parent.addDelData({
-        		id: $(this).val(),
-        		html: $(this).parents('tr').html().split('</td>').slice(2).join('</td>')
-        	})
-        	$("input[name='ck-alltask']").removeAttr("checked");
-        }
-        console.log(parent.getCheck())
-	});
+    
 	
 	
     setCheckData()

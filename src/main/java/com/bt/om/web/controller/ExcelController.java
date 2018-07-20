@@ -8,7 +8,6 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -58,10 +58,10 @@ import com.bt.om.exception.web.ExcelException;
 import com.bt.om.mapper.AdMediaMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
-import com.bt.om.service.IAdCustomerTypeService;
 import com.bt.om.service.IAdMediaTypeService;
 import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.service.IAdSeatService;
+import com.bt.om.service.IAdUserMessageService;
 import com.bt.om.service.IAppService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.util.ExcelTool;
@@ -86,7 +86,6 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfPTableEvent;
 import com.itextpdf.text.pdf.PdfWriter;
-
 
 /**
  * Created by jiayong.mao on 2018/4/4.
@@ -119,10 +118,85 @@ public class ExcelController extends BasicController {
 	private IAdMonitorTaskService adMonitorTaskService;
 	
 	@Autowired
-	private IAdCustomerTypeService adCustomerTypeService;
+	private IAppService adappService;
 	
 	@Autowired
-	private IAppService adappService;
+	private IAdUserMessageService adUserMessageService;
+	
+	/**
+	 * 批量导入媒体监测人员
+	 */
+	@RequiresRoles(value = {"superadmin"}, logical = Logical.OR)
+    @RequestMapping(value = "/insertMediaAppUserByExcel")
+	@ResponseBody
+	public Model insertMediaAppUserByExcel(Model model, HttpServletRequest request, HttpServletResponse response,
+            @RequestParam(value = "excelFile", required = false) MultipartFile file,
+            @RequestParam(value = "mediaId", required = false) Integer mediaId,
+            @RequestParam(value = "password", required = false) String password) {
+		//相关返回结果
+		ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("操作成功");
+        model = new ExtendedModelMap();
+        
+  		try {
+  			if (file.isEmpty()) {
+				logger.error(MessageFormat.format("批量导入文件不能为空, 导入失败", new Object[] {}));
+        		throw new ExcelException("批量导入文件不能为空, 导入失败");
+			}
+  			
+  			if(mediaId == null) {
+  				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("媒体不能为空！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+  			}
+  			
+  			if(StringUtil.isBlank(password)) {
+  				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("密码不能为空！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+  			}
+  			
+  			if(Pattern.matches(":\"^\\\\*{6}|(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,16}$\"", password)) {
+  				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("密码格式得是字母和数字组合！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+  			}
+  			
+  			InputStream in = file.getInputStream();
+	        List<List<Object>> listob = new ArrayList<List<Object>>();
+	       
+	        //导出文件相关
+	 		final String fileName = "导入结果-" + System.currentTimeMillis() + ".xls"; //导出文件名
+	        
+            //excel上传支持
+            listob = new ImportExcelUtil().getBankListByExcel(in, file.getOriginalFilename());
+
+            //业务层操作
+            adUserMessageService.insertBatchByExcel(listob, mediaId, password);
+            
+            //导出到excel, 返回导入媒体监测人员信息结果
+            List<List<String>> listString = objToString(listob);
+            String[] titleArray = { "手机号", "真实姓名", "导入结果", "导入错误信息"};
+            ExcelTool<List<String>> excelTool = new ExcelTool<List<String>>("importResult");
+            String path = request.getSession().getServletContext().getRealPath("/");
+    		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"excel"+File.separatorChar+fileName;
+    		excelTool.generateExcel(listString, titleArray, path);
+            result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+            result.setResult("/static/excel/" + fileName);
+  		} catch (Exception e) {
+        	logger.error(MessageFormat.format("批量导入文件有误, 导入失败", new Object[] {}));
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+        	result.setResultDes("导入失败");
+            e.printStackTrace();
+        }
+		
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+	}
 	
 	/**
 	 * 批量导入媒体类型(包括媒体大类媒体小类)
@@ -281,19 +355,19 @@ public class ExcelController extends BasicController {
 			Image image = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/grouplogo.png");
 			image.setAlignment(Image.ALIGN_CENTER);
 			image.scaleAbsolute(140,50);//控制图片大小
-			image.setAbsolutePosition(1350,80);//控制图片位置
+			image.setAbsolutePosition(1620,80);//控制图片位置
 			document.add(image);
 			
 			Image image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
 			image2.setAlignment(Image.ALIGN_CENTER);
-			image2.scaleAbsolute(250,55);//控制图片大小
-			image2.setAbsolutePosition(1500,80);//控制图片位置
+			image2.scaleAbsolute(200,50);//控制图片大小
+			image2.setAbsolutePosition(200,80);//控制图片位置
 			document.add(image2);
 			
 			Image image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
 			image3.setAlignment(Image.ALIGN_CENTER);
-			image3.scaleAbsolute(70,55);//控制图片大小
-			image3.setAbsolutePosition(200,80);//控制图片位置
+			image3.scaleAbsolute(75,60);//控制图片大小
+			image3.setAbsolutePosition(1650,950);//控制图片位置
 			document.add(image3);
 			
 //        	List<AdActivityAdseatTaskVo> vos = adActivityService.selectAdActivityAdseatTaskReport(activityId);
@@ -402,19 +476,19 @@ public class ExcelController extends BasicController {
 			image = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/grouplogo.png");
 			image.setAlignment(Image.ALIGN_CENTER);
 			image.scaleAbsolute(140,50);//控制图片大小
-			image.setAbsolutePosition(1350,80);//控制图片位置
+			image.setAbsolutePosition(1620,80);//控制图片位置
 			document.add(image);
 			
 			image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
 			image2.setAlignment(Image.ALIGN_CENTER);
-			image2.scaleAbsolute(250,55);//控制图片大小
-			image2.setAbsolutePosition(1500,80);//控制图片位置
+			image2.scaleAbsolute(200,50);//控制图片大小
+			image2.setAbsolutePosition(200,80);//控制图片位置
 			document.add(image2);
 			
 			image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
 			image3.setAlignment(Image.ALIGN_CENTER);
-			image3.scaleAbsolute(70,55);//控制图片大小
-			image3.setAbsolutePosition(200,80);//控制图片位置
+			image3.scaleAbsolute(75,60);//控制图片大小
+			image3.setAbsolutePosition(1650,950);//控制图片位置
 			document.add(image3);
         	            
 			//生成pdf图片页
@@ -457,21 +531,22 @@ public class ExcelController extends BasicController {
     				}
         			
         			image = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/grouplogo.png");
-    				image.setAlignment(Image.ALIGN_CENTER);
-    				image.scaleAbsolute(140,50);//控制图片大小
-    				image.setAbsolutePosition(1350,80);//控制图片位置
-    				document.add(image);
-    				
-    				image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
-    				image2.setAlignment(Image.ALIGN_CENTER);
-    				image2.scaleAbsolute(250,55);//控制图片大小
-    				image2.setAbsolutePosition(1500,80);//控制图片位置
-    				document.add(image2);
-    				image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
-    				image3.setAlignment(Image.ALIGN_CENTER);
-    				image3.scaleAbsolute(60,50);//控制图片大小
-    				image3.setAbsolutePosition(200,80);//控制图片位置
-    				document.add(image3);
+        			image.setAlignment(Image.ALIGN_CENTER);
+        			image.scaleAbsolute(140,50);//控制图片大小
+        			image.setAbsolutePosition(1620,80);//控制图片位置
+        			document.add(image);
+        			
+        			image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
+        			image2.setAlignment(Image.ALIGN_CENTER);
+        			image2.scaleAbsolute(200,50);//控制图片大小
+        			image2.setAbsolutePosition(200,80);//控制图片位置
+        			document.add(image2);
+        			
+        			image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
+        			image3.setAlignment(Image.ALIGN_CENTER);
+        			image3.scaleAbsolute(75,60);//控制图片大小
+        			image3.setAbsolutePosition(1650,950);//控制图片位置
+        			document.add(image3);
 				}
             }
             
@@ -488,37 +563,37 @@ public class ExcelController extends BasicController {
 			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "乙方： ", 1100, 560, 0);
 			cb.endText(); 
             
-			image = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/grouplogo.png");
-			image.setAlignment(Image.ALIGN_CENTER);
-			image.scaleAbsolute(140,50);//控制图片大小
-			image.setAbsolutePosition(1250,470);//控制图片位置
-			document.add(image);
-			
-			image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
-			image2.setAlignment(Image.ALIGN_CENTER);
-			image2.scaleAbsolute(250,55);//控制图片大小
-			image2.setAbsolutePosition(1430,470);//控制图片位置
-			document.add(image2);
-			
-			image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
-			image3.setAlignment(Image.ALIGN_CENTER);
-			image3.scaleAbsolute(70,55);//控制图片大小
-			image3.setAbsolutePosition(450,450);//控制图片位置
-			document.add(image3);
+//			image = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/grouplogo.png");
+//			image.setAlignment(Image.ALIGN_CENTER);
+//			image.scaleAbsolute(140,50);//控制图片大小
+//			image.setAbsolutePosition(1250,470);//控制图片位置
+//			document.add(image);
+//			
+//			image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
+//			image2.setAlignment(Image.ALIGN_CENTER);
+//			image2.scaleAbsolute(250,55);//控制图片大小
+//			image2.setAbsolutePosition(1430,470);//控制图片位置
+//			document.add(image2);
+//			
+//			image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
+//			image3.setAlignment(Image.ALIGN_CENTER);
+//			image3.scaleAbsolute(70,55);//控制图片大小
+//			image3.setAbsolutePosition(450,450);//控制图片位置
+//			document.add(image3);
 			
 //			cb = writer.getDirectContent();
 //			cb.beginText();  
 //			cb.setFontAndSize(secfont, 30);  
 //			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "群邑上海广告有限公司 ", 1300, 410, 0);
 //			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "玖凤监测广告有限公司 ", 1300, 360, 0);
-//			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, sysUser.getRealname(), 450, 390, 0);
+			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, sysUser.getRealname(), 450, 420, 0);
 //			cb.endText();
 			
-			Image image4 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/gongsi.png");
-			image4.setAlignment(Image.ALIGN_CENTER);
-			image4.scaleAbsolute(360,150);//控制图片大小
-			image4.setAbsolutePosition(1260,300);//控制图片位置
-			document.add(image4);
+//			Image image4 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/gongsi.png");
+//			image4.setAlignment(Image.ALIGN_CENTER);
+//			image4.scaleAbsolute(360,150);//控制图片大小
+//			image4.setAbsolutePosition(1260,300);//控制图片位置
+//			document.add(image4);
 			
 			Image image5 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/gongzhang.png");
 			image5.setAlignment(Image.ALIGN_CENTER);
@@ -1332,6 +1407,25 @@ public class ExcelController extends BasicController {
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
 	}
+    
+    /**
+	 * 导入媒体监测人员模板下载
+	 */
+    @RequestMapping(value = "/downloadMediaAppUserBatch")
+	@ResponseBody
+	public Model downloadMediaAppUserBatch(Model model, HttpServletRequest request, HttpServletResponse response) {
+		//相关返回结果
+		ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("查询成功");
+        model = new ExtendedModelMap();
+        
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResult("/static/excel/" + "template2.zip");
+        
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+	}
 	
 	/**
 	 * 设置以媒体大类名称, 媒体小类名称为Key, AdMediaTypeVo为Value的集合
@@ -1589,5 +1683,4 @@ public class ExcelController extends BasicController {
 		return table;
 	}
 	
-
 }

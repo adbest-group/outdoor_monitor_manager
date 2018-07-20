@@ -7,6 +7,30 @@
     img.demo {
         width: 50px;
     }
+    #activityName{
+    	width: 180px;
+    }
+    .bd tr td:nth-child(2) span{
+    	display: block;
+    	float: left;
+    	margin-left: 0px !important;
+    }
+    
+    td.clearfix div{
+    	float: left;
+    }
+    td.clearfix div span {
+    	display: block;
+    	margin-left: 50px;
+    }
+    td.clearfix div:nth-child(2){
+    	margin-left: 20px;
+    }
+    .uploadContainer{
+    	display: inline-block;
+    	width: 280px;
+		text-align: center;
+    }
 </style>
 <#assign editMode=false/>
 <#-- <@shiro.hasRole name="customer"> -->
@@ -30,12 +54,13 @@
 						<#if usertype?exists && usertype != 2 && !activity?exists>
 							<tr>
 								<td class="a-title"><font class="s-red">*</font>广告主：</td>
-								<td>
-									<select style="width: 156px;" name="customerId" id="customerId" class="form-control">
+								<td colspan="2">
+									<div class="select-box select-box-140 un-inp-select ll">
+									<select style="width: 250px;" name="customerId" id="customerId" class="form-control select">
 										<option value="">请选择广告主</option>
 										<@model.showAllCustomerAvailableOps value="<#if (activity?exists&&activity.userId?exists)>activity.userId</#if>"/>
 				                    </select>
-									
+									</div>
                                     <span id="customerIdTip"></span>
 								</td>
 							</tr>
@@ -43,8 +68,8 @@
 
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>广告活动名称：</td>
-                            <td>
-                                <input type="text" id="activityName" ${editMode?string("","disabled")} name="activityName" value="" autocomplete="off" class="form-control">
+                            <td colspan="2">
+                                <input type="text" id="activityName" ${editMode?string("","disabled")} name="activityName" value="" autocomplete="off" class="form-control" style="float:left">
                                 <span id="activityNameTip"></span>
                                 <#-- <input type="button" id="btnDemo" class="btn btn-green" value="演示专用"/> -->
                             </td>
@@ -66,7 +91,7 @@
 						<!-- 活动开始时间是今天的至少m+n+1天以后 -->
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>活动时间：</td>
-                            <td>
+                            <td colspan="2">
                                 <div class="ll inputs-date" id="activityTime">
                                     <div class="date">
                                         <input id="dts" ${editMode?string("","disabled")} class="activityTime-Wdate Wdate" type="text"> -
@@ -80,7 +105,7 @@
                         <!-- 与活动开始时间同步, 不能改 -->
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>上刊报告时间：</td>
-                            <td>
+                            <td style="width:200px">
                                 <div class="ll inputs-date">
                                     <div class="date">
                                         <input id="upTaskTime" disabled class="Wdate" type="text">
@@ -88,12 +113,24 @@
                                 </div>
                                 <span style="margin-left:10px;" id="upTaskTimeTip"></span>
                             </td>
+	                        <td class='clearfix'>
+	                        	<div>
+	                        		<font class="s-red">*</font>积分：
+	                        		<input type="text" id="upTaskPoint" ${editMode?string("","disabled")} name="upTaskPoint" value="0" style="width: 100px;" autocomplete="off" class="form-control point"> 
+	                        		<span id="upTaskPointTip"></span>
+	                        	</div>
+	                        	<div>
+	                        		<font class="s-red">*</font>金额：
+	        						<input type="text" id="upTaskMoney" ${editMode?string("","disabled")} name="upTaskMoney" value="0.00" style="width: 100px;" autocomplete="off" class="form-control money"> 
+	                        		<span id="upTaskMoneyTip"></span>
+	                        	</div>
+	        				</td>
                         </tr>
                         
                         <!-- 1、是活动开始时间的至少m+n天以后  2、在活动结束时间之前 -->
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>上刊监测报告时间：</td>
-                            <td>
+                            <td  style="width:200px">
                                 <div class="ll inputs-date" id="upMonitorTaskTime" >
                                     <div class="date">
                                         <input id="upMonitor-Wdate" ${editMode?string("","disabled")} class="upMonitor-Wdate Wdate" type="text">
@@ -101,31 +138,68 @@
                                 </div>
                                 <span style="margin-left:10px;" id="upMonitorTaskTimeTip"></span>
                             </td>
+                            <td class='clearfix'>
+                            	<div>
+                            		<font class="s-red">*</font>积分：
+                            		<input type="text" id="upMonitorTaskPoint" ${editMode?string("","disabled")} name="upMonitorTaskPoint" value="0" style="width: 100px;" autocomplete="off" class="form-control point"> 
+                            		<span id="upMonitorTaskPointTip"></span>
+                            	</div>
+                            	<div>
+									<font class="s-red">*</font>金额：
+                            		<input type="text" id="upMonitorTaskMoney" ${editMode?string("","disabled")} name="upMonitorTaskMoney" value="0.00" style="width: 100px;" autocomplete="off" class="form-control money"> 
+                            		<span id="upMonitorTaskMoneyTip"></span>
+                            	</div>
+                            </td>
                         </tr>
                         
                         <!-- 1、是活动开始时间的至少m+n天以后  1、在活动结束时间之前  2、扩展 -->
                         <tr class='last'>
                             <td class="a-title"><font class="s-red">*</font>投放期间监测报告时间：</td>
-                            <td>
+                            <td  style="width:200px">
                                 <div class="ll inputs-date durationMonitorTaskTime" id="durationTime0">
                                     <div class="date">
                                         <input id="durationMonitorTaskTime0" ${editMode?string("","disabled")} class="durationMonitor-Wdate Wdate" type="text">
                                     </div>
                                 </div>
                                 <span style="margin-left:10px;" id="durationMonitorTaskTimeTip0"></span> &nbsp;&nbsp;<#if editMode><input class="btn btn-primary" type='button' id="addDurationMonitor" value='添加'></#if>
+
                             </td>
+                           	<td class='clearfix'>
+                           		<div>
+                           			<font class="s-red">*</font>积分：
+	                           		<input type="text" id="durationMonitorTaskPoint" ${editMode?string("","disabled")} name="durationMonitorTaskPoint" value="0" style="width: 100px;" autocomplete="off" class="form-control point"> 
+	                           		<span id="durationMonitorTaskPointTip"></span>
+                           		</div>
+                           		<div>
+                           			<font class="s-red">*</font>金额：
+                           			<input type="text" id="durationMonitorTaskMoney" ${editMode?string("","disabled")} name="durationMonitorTaskMoney" value="0.00" style="width: 100px;" autocomplete="off" class="form-control money"> 
+                           			<span id="durationMonitorTaskMoneyTip"></span>
+                           		</div>
+                           	</td>
                         </tr>
                         
                         <!-- 与活动结束时间同步 -->
                         <tr class='down'>
                             <td class="a-title"><font class="s-red">*</font>下刊监测报告时间：</td>
-                            <td>
+                            <td  style="width:200px">
                                 <div class="ll inputs-date">
                                     <div class="date">
                                         <input id="downMonitorTaskTime" disabled class="Wdate" type="text">
                                     </div>
                                 </div>
                                 <span style="margin-left:10px;" id="downMonitorTaskTimeTip"></span>
+                            </td>
+                            <td class='clearfix'>
+                            	<div>
+                            		<font class="s-red">*</font>积分：
+	                            	<input type="text" id="downMonitorTaskPoint" ${editMode?string("","disabled")} name="downMonitorTaskPoint" style="width: 100px;" value="0" autocomplete="off" class="form-control point"> 
+	                				<span id="downMonitorTaskPointTip"></span>
+                            	</div>
+                            	<div>
+                            		<font class="s-red">*</font>金额：
+                            		<input type="text" id="downMonitorTaskMoney" ${editMode?string("","disabled")} name="downMonitorTaskMoney" value="0.00" style="width: 100px;" autocomplete="off" class="form-control money"> 
+                            		<span id="downMonitorTaskMoneyTip"></span>
+                            	</div>
                             </td>
                         </tr>
 
@@ -198,7 +272,7 @@
                         </tr> -->
 						<tr>
 							<td class="a-title"><font class="s-red">*</font>广告投放画面：</td>
-							<td>
+							<td colspan="2">
 								<#if (editMode && activity.status==1)!true>
 									<input type="hidden" id="img-demo-bak"/>
                        					<div class="btn-file addBtn" id="resource_sel" style="width:74px;height:28px;top:0px;cursor:pointer;line-height:28px;padding:0px;color:#fff">
@@ -210,14 +284,14 @@
 						</tr>
 						<tr>
                     		<td class="a-title">&nbsp;</td>
-                    		<td>
+                    		<td colspan="2">
                     			<img src="" id="img-demo-img" width="280" alt="请上传图片"/>
                     		</td>
                 		</tr>
 
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>广告位监测：</td>
-                            <td>
+                            <td colspan="2">
                                 <#if editMode>
                                     <a class="addBtn" href="javascript:;" id="add-adseat">选择广告位</a>
                                 </#if>
@@ -225,7 +299,7 @@
                         </tr>
 
                         <tr>
-                            <td colspan="2" >
+                            <td colspan="3" >
                                 <div class="data-report" style="margin: 0px;">
                                     <div id="as-container" class="bd" style="padding:0px;">
                                     <#--<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan">-->
@@ -264,10 +338,99 @@
 
                             </td>
                         </tr>
-
+                        
+                        <#-- 上传合格示例图片, 可不填 -->
+						<tr>
+							<td class="a-title">合格示例：</td>
+							<td colspan="2">
+								<#if (editMode && activity.status==1)!true>
+									<input type="hidden" id="img-qualified-bak"/>
+                       					<div class="btn-file addBtn" id="resource_sel" style="width:74px;height:28px;top:0px;cursor:pointer;line-height:28px;padding:0px;color:#fff">
+										上传
+										<input type="file" id="img-qualified" name="file" unselectable="on" onchange="uploadPic('img-qualified')">
+									</div> <span id="img-demo-qualifiedTip"></span>
+								</#if>
+                   			</td>
+						</tr>
+						<tr>
+							<td class="a-title"></td>
+                    		<td colspan="2">
+                    			<img src="" id="img-qualified-img" width="280" alt="请上传图片"/>
+                    		</td>
+                		</tr>
+                		
+                		<#-- 上传不合格示例图片, 可不填 -->
+                		<tr>
+                			<td class="a-title">不合格示例：</td>
+							<td colspan="2">
+								<div class="uploadContainer">
+									<input type="text" id="noQualifiedText1" ${editMode?string("","disabled")} placeholder="不合格原因" name="noQualified1" style="width:100px" value="" autocomplete="off" class="form-control">
+								</div>
+								<div class="uploadContainer">
+									<input type="text" id="noQualifiedText2" ${editMode?string("","disabled")} placeholder="不合格原因" name="noQualified2" style="width:100px" value="" autocomplete="off" class="form-control">
+								</div>
+								<div class="uploadContainer">
+									<input type="text" id="noQualifiedText3" ${editMode?string("","disabled")} placeholder="不合格原因" name="noQualified3" style="width:100px" value="" autocomplete="off" class="form-control">
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="a-title"></td>
+							<td colspan="2">
+								<#if (editMode && activity.status==1)!true>
+									<div class="uploadContainer">
+										<input type="hidden" id="img-noQualified1-bak"/>
+	                       					<div class="btn-file addBtn" id="resource_sel" style="width:74px;height:28px;top:0px;cursor:pointer;line-height:28px;padding:0px;color:#fff">
+											上传
+											<input type="file" id="img-noQualified1" name="file" unselectable="on" onchange="uploadPic('img-noQualified1')">
+										</div> <span id="img-demoTip"></span>
+									</div>
+								</#if>
+								<#if (editMode && activity.status==1)!true>
+									<div class="uploadContainer">
+										<input type="hidden" id="img-noQualified2-bak"/>
+	                       					<div class="btn-file addBtn" id="resource_sel" style="width:74px;height:28px;top:0px;cursor:pointer;line-height:28px;padding:0px;color:#fff">
+											上传
+											<input type="file" id="img-noQualified2" name="file" unselectable="on" onchange="uploadPic('img-noQualified2')">
+										</div> <span id="img-demoTip"></span>
+									</div>
+								</#if>
+								<#if (editMode && activity.status==1)!true>
+									<div class="uploadContainer">
+										<input type="hidden" id="img-noQualified3-bak"/>
+	                       					<div class="btn-file addBtn" id="resource_sel" style="width:74px;height:28px;top:0px;cursor:pointer;line-height:28px;padding:0px;color:#fff">
+											上传
+											<input type="file" id="img-noQualified3" name="file" unselectable="on" onchange="uploadPic('img-noQualified3')">
+										</div> <span id="img-demoTip"></span>
+									</div>
+								</#if>
+                   			</td>
+						</tr>
+						<tr>
+							<td class="a-title"></td>
+                    		<td colspan="2">
+                    			<div class="uploadContainer" id="img-noQualified1-tip">请上传图片</div>
+                    			<img style="display: none" src="" id="img-noQualified1-img" width="280" alt="请上传图片"/>
+                    			
+                    			<div class="uploadContainer" id="img-noQualified2-tip">请上传图片</div>
+                    			<img style="display: none" src="" id="img-noQualified2-img" width="280" alt="请上传图片"/>
+                    			
+                    			<div class="uploadContainer" id="img-noQualified3-tip">请上传图片</div>
+                    			<img style="display: none" src="" id="img-noQualified3-img" width="280" alt="请上传图片"/>
+                    		</td>
+                		</tr>
+                		<#-- 注意事项 -->
+                		<tr>
+                			<td class="a-title">注意事项：</td>
+                			<td colspan="2">
+                				<textarea id="notification" class="layui-textarea" style="width: 840px;"></textarea>
+                			</td>
+                		</tr>
+                		
+                		<#-- 保存与返回按钮 -->
                         <tr>
                             <td class="a-title">&nbsp;</td>
-                            <td>
+                            <td colspan="2">
                                 <#if editMode>
                                     <input type="button" id="btnSave" class="btn btn-red" value="　保 存　"/>
                                 </#if>
@@ -319,11 +482,48 @@
 	        "upMonitorTaskTime": '${activity.upMonitorTaskTime!""}',
 	        "durationMonitorTaskTime": '${activity.durationMonitorTaskTime!""}',
 	        "downMonitorTaskTime": '${activity.downMonitorTaskTime!""}',
-	        "zhuijiaMonitorTaskTime": '${activity.zhuijiaMonitorTaskTime!""}'
+	        "zhuijiaMonitorTaskTime": '${activity.zhuijiaMonitorTaskTime!""}',
+	        "upTaskPoint" : '${activity.upTaskPoint!""}',
+	        "upMonitorTaskPoint" : '${activity.upMonitorTaskPoint!""}',
+	        "durationMonitorTaskPoint" : '${activity.durationMonitorTaskPoint!""}',
+	        "downMonitorTaskPoint" : '${activity.downMonitorTaskPoint!""}',
+	        "upTaskMoney" : '${activity.upTaskMoney!""}',
+	        "upMonitorTaskMoney" : '${activity.upMonitorTaskMoney!""}',
+	        "durationMonitorTaskMoney" : '${activity.durationMonitorTaskMoney!""}',
+	        "downMonitorTaskMoney" : '${activity.downMonitorTaskMoney!""}',
+	        "qualifiedPicUrl" : '${activity.qualifiedPicUrl!""}',
+	        "noQualifiedPicUrl1" : '${activity.noQualifiedPicUrl1!""}',
+	        "noQualifiedPicUrl2" : '${activity.noQualifiedPicUrl2!""}',
+	        "noQualifiedPicUrl3" : '${activity.noQualifiedPicUrl3!""}',
+	        "noQualifiedText1" : '${activity.noQualifiedText1!""}',
+	        "noQualifiedText2" : '${activity.noQualifiedText2!""}',
+	        "noQualifiedText3" : '${activity.noQualifiedText3!""}',
+	        "notification" : '${activity.notification!""}'
 	    }
 	    $("#img-demo-img").attr("src",activity.samplePicUrl);//广告投放画面图片地址
 	    $("#img-demo-bak").attr("src",activity.samplePicUrl);//广告投放画面图片地址
-	    
+	
+		$("#img-qualified-img").attr("src",activity.qualifiedPicUrl);//合格样例画面图片地址
+		$("#img-qualified-bak").attr("src",activity.qualifiedPicUrl);//合格样例画面图片地址
+		if(activity.noQualifiedPicUrl1){
+			$("#img-noQualified1-img").attr({src: activity.noQualifiedPicUrl1, style: {display: 'block'}});//不合格样例画面图片地址
+			$("#img-noQualified1-bak").attr("src",activity.noQualifiedPicUrl1);//不合格样例画面图片地址
+			$("#img-noQualified1-tip").hide();
+		}
+		
+		if(activity.noQualifiedPicUrl2){
+			$("#img-noQualified2-img").attr({src: activity.noQualifiedPicUrl2, style: {display: 'block'}});//不合格样例画面图片地址
+			$("#img-noQualified2-bak").attr("src",activity.noQualifiedPicUrl2);//不合格样例画面图片地址
+			$("#img-noQualified2-tip").hide();
+		}
+		
+		if(activity.noQualifiedPicUrl3){
+			$("#img-noQualified3-img").attr({src: activity.noQualifiedPicUrl3, style: {display: 'block'}});//不合格样例画面图片地址
+			$("#img-noQualified3-bak").attr("src",activity.noQualifiedPicUrl3);//不合格样例画面图片地址
+			$("#img-noQualified3-tip").hide();
+		}
+		
+		
 	    $("#upTaskTime").val(activity.upTaskTime); //上刊任务时间
 	    $("#upMonitor-Wdate").val(activity.upMonitorTaskTime); //上刊监测任务时间
 	    $("#downMonitorTaskTime").val(activity.downMonitorTaskTime); //下刊监测任务时间
@@ -419,6 +619,7 @@
 
         // 下拉
         $('.select').searchableSelect();
+        $('#customerId').next().find('.searchable-select-input').css('display', 'block');
 
         if(editMode) {
             //日期
@@ -499,7 +700,7 @@
                 title: '新增广告位监测',
                 shade: 0.8,
                 area: ['1020px', '600px'],
-                content: '/customer/activity/adseat/select?startDate=' + $('#dts').val() + '&endDate=' + $('#dt').val() + '&seatIds=' + getSeatIds() //iframe的url
+                content: '/customer/activity/adseat/toSelect'
             });
         });
 
@@ -543,7 +744,8 @@
         	localStorage.removeItem('fromUrl')
         });
     });
-
+	
+	
 </script>
 
 <script type="text/javascript">
@@ -674,6 +876,26 @@
                     if(ck.value) durationTimeArray.push(ck.value);
                 });
                 var durationTimes = durationTimeArray.join(",");
+                
+				var upTaskPoint = $("#upTaskPoint").val();//上刊任务积分
+				var upMonitorTaskPoint = $("#upMonitorTaskPoint").val();//上刊监测任务积分
+				var durationMonitorTaskPoint = $("#durationMonitorTaskPoint").val();//投放期间监测任务积分
+				var downMonitorTaskPoint = $("#downMonitorTaskPoint").val();//下刊监测任务积分
+				
+				var upTaskMoney = $("#upTaskMoney").val();//上刊任务金额
+				var upMonitorTaskMoney = $("#upMonitorTaskMoney").val();//上刊监测任务金额
+				var durationMonitorTaskMoney = $("#durationMonitorTaskMoney").val();//投放期间监测任务金额
+				var downMonitorTaskMoney = $("#downMonitorTaskMoney").val();//下刊监测任务金额
+				
+				var qualifiedPicUrl= $("#img-qualified-img").attr('src')//合格样例画面图片地址
+				var noQualifiedPicUrl1= $("#img-noQualified1-img").attr('src')//不合格样例画面图片地址
+				var noQualifiedPicUrl2= $("#img-noQualified2-img").attr('src')//不合格样例画面图片地址
+				var noQualifiedPicUrl3= $("#img-noQualified3-img").attr('src')//不合格样例画面图片地址
+				
+				var noQualifiedText1 = $("#noQualifiedText1").val();//不合格原因1
+				var noQualifiedText2 = $("#noQualifiedText2").val();//不合格原因2
+				var noQualifiedText3 = $("#noQualifiedText3").val();//不合格原因3
+				var notification = $("#notification").val();//注意事项
 				
                 $.ajax({
                     url: "/customer/activity/save",
@@ -704,7 +926,23 @@
                         "upTaskTime": upTaskTime,
                         "upMonitorTaskTime": upMonitorTaskTime,
                         "durationMonitorTaskTime": durationTimes,
-                        "downMonitorTaskTime": downMonitorTaskTime
+                        "downMonitorTaskTime": downMonitorTaskTime,
+                        "upTaskPoint" : upTaskPoint,
+                        "upMonitorTaskPoint" : upMonitorTaskPoint,
+                        "durationMonitorTaskPoint" : durationMonitorTaskPoint,
+                        "downMonitorTaskPoint" : downMonitorTaskPoint,
+                        "upTaskMoney" : upTaskMoney,
+                        "upMonitorTaskMoney" : upMonitorTaskMoney,
+                        "durationMonitorTaskMoney" : durationMonitorTaskMoney,
+                        "downMonitorTaskMoney" : downMonitorTaskMoney,
+                        "qualifiedPicUrl" : qualifiedPicUrl,
+                        "noQualifiedPicUrl1" : noQualifiedPicUrl1,
+                        "noQualifiedPicUrl2" : noQualifiedPicUrl2,
+                        "noQualifiedPicUrl3" : noQualifiedPicUrl3,
+                        "noQualifiedText1" : noQualifiedText1,
+                        "noQualifiedText2" : noQualifiedText2,
+                        "noQualifiedText3" : noQualifiedText3,
+                        "notification" : notification
                     },
                     cache: false,
                     dataType: "json",
@@ -980,6 +1218,158 @@
        		})
         })
         
+
+        
+        //上刊任务积分值
+	    $("#upTaskPoint").formValidator({
+	        validatorGroup:"2",
+	        tipID:"upTaskPointTip",
+	        onShow: "　",
+	        onFocus: "请输入上刊任务积分",
+	        onCorrect: ""
+	    }).regexValidator({
+	    	regExp:"^[0-9]*$",
+	    	onError:"积分数值输入有误"
+	    }).inputValidator({
+	        min: 1,
+	        max: 60,
+	        onError: "积分数值不能为空，请输入"
+	    });
+	    
+	    //上刊监测任务积分值
+	    $("#upMonitorTaskPoint").formValidator({
+	        validatorGroup:"2",
+	        tipID:"upMonitorTaskPointTip",
+	        onShow: "　",
+	        onFocus: "请输入上刊监测任务积分",
+	        onCorrect: ""
+	    }).regexValidator({
+	    	regExp:"^[0-9]*$",
+	    	onError:"积分数值输入有误"
+	    }).inputValidator({
+	        min: 1,
+	        max: 60,
+	        onError: "积分数值不能为空，请输入"
+	    });
+	    
+	    //投放期间监测任务积分值
+	    $("#durationMonitorTaskPoint").formValidator({
+	        validatorGroup:"2",
+	        tipID:"durationMonitorTaskPointTip",
+	        onShow: "　",
+	        onFocus: "请输入投放期间监测任务积分",
+	        onCorrect: ""
+	    }).regexValidator({
+	    	regExp:"^[0-9]*$",
+	    	onError:"积分数值输入有误"
+	    }).inputValidator({
+	        min: 1,
+	        max: 60,
+	        onError: "积分数值不能为空，请输入"
+	    });
+	    
+	    //下刊任务积分值
+	    $("#downMonitorTaskPoint").formValidator({
+	        validatorGroup:"2",
+	        tipID:"downMonitorTaskPointTip",
+	        onShow: "　",
+	        onFocus: "请输入下刊任务积分",
+	        onCorrect: ""
+	    }).regexValidator({
+	    	regExp:"^[0-9]*$",
+	    	onError:"积分数值输入有误"
+	    }).inputValidator({
+	        min: 1,
+	        max: 60,
+	        onError: "积分数值不能为空，请输入"
+	    });
+	    
+	     //上刊任务金额值
+	    $("#upTaskMoney").formValidator({
+	        validatorGroup:"2",
+	        tipID:"upTaskMoneyTip",
+	        onShow: "　",
+	        onFocus: "请输入上刊任务金额",
+	        onCorrect: ""
+	    }).regexValidator({
+	    	regExp:"^[0-9]{1}\\d*(\\.\\d{1,2})?$",
+	    	onError:"金额数值输入有误"
+	    }).inputValidator({
+	        min: 1,
+	        max: 60,
+	        onError: "金额数值不能为空，请输入"
+	    });
+	    
+	    //上刊监测任务金额值
+	    $("#upMonitorTaskMoney").formValidator({
+	        validatorGroup:"2",
+	        tipID:"upMonitorTaskMoneyTip",
+	        onShow: "　",
+	        onFocus: "请输入上刊监测任务金额",
+	        onCorrect: ""
+	    }).regexValidator({
+	    	regExp:"^[0-9]{1}\\d*(\\.\\d{1,2})?$",
+	    	onError:"金额数值输入有误"
+	    }).inputValidator({
+	        min: 1,
+	        max: 60,
+	        onError: "金额数值不能为空，请输入"
+	    });
+	    
+	    //投放期间监测任务金额值
+	    $("#durationMonitorTaskMoney").formValidator({
+	        validatorGroup:"2",
+	        tipID:"durationMonitorTaskMoneyTip",
+	        onShow: "　",
+	        onFocus: "请输入投放期间监测任务金额",
+	        onCorrect: ""
+	    }).regexValidator({
+	    	regExp:"^[0-9]{1}\\d*(\\.\\d{1,2})?$",
+	    	onError:"金额数值输入有误"
+	    }).inputValidator({
+	        min: 1,
+	        max: 60,
+	        onError: "金额数值不能为空，请输入"
+	    });
+	  /*  $(".point").focus(function(){
+	    	if(Number($(this).val()) === 0){
+	    		$(this).val('')
+	    	}
+	    })
+	    $(".money").focus(function(){
+	    	if(Number($(this).val()) === 0){
+	    		$(this).val('')
+	    	}
+	    })
+	    */
+	    /*$(".point").blur(function(){
+	    	if($(this).val() === '') {
+	    		$(this).val('0')
+	    	}
+	    })
+	    $(".money").blur(function(){
+	    	if($(this).val() === '') {
+	    		$(this).val('0.00')
+	    	}
+	    })*/
+	    //下刊任务积分值
+	    $("#downMonitorTaskMoney").formValidator({
+	        validatorGroup:"2",
+	        tipID:"downMonitorTaskMoneyTip",
+	        onShow: "　",
+	        onFocus: "请输入下刊任务金额",
+	        onCorrect: ""
+	    }).regexValidator({
+	    	regExp:"^[0-9]{1}\\d*(\\.\\d{1,2})?$",
+	    	onError:"金额数值输入有误"
+	    }).inputValidator({
+	        min: 1,
+	        max: 60,
+	        onError: "金额数值不能为空，请输入"
+	    });
+	    
+	    
+        
         function getDate(date) {
         	var month = (date.getMonth() + 1).toString().length < 2 ? '0' + (date.getMonth() + 1).toString() : (date.getMonth() + 1).toString()
        		var day = date.getDate().toString().length < 2 ? '0' + date.getDate().toString() : date.getDate().toString()
@@ -1179,8 +1569,9 @@
 				} else {
 					var arr=data.split('"');
 					var dataNew=arr[1];
-					$("#"+id+"-bak").val(dataNew);
-					$("#"+id+"-img").attr('src',dataNew);
+					$("#"+id+"-bak").val(dataNew); 
+					$("#"+id+"-img").attr({src: dataNew, style:{display: 'none'}});
+					$("#"+id+"-tip").hide();
 				}
 			},
 			error: function (data, status, e) {
@@ -1191,6 +1582,8 @@
 			}
 		});
 	}
+	
+	
 	
 	var checkArr = [];
 	var delDataArr = []
@@ -1222,6 +1615,7 @@
 	
 	function addModData(val) {
 		pushCheckArr(modDataArr, val)
+		removeDelData(val.id)
 	}
 	
 	function setModData(val) {
@@ -1232,6 +1626,15 @@
 		for(var i = 0; i < modDataArr.length; i++) {
 			if(parseInt(id) === parseInt(modDataArr[i].id)){
 				modDataArr.splice(i, 1)
+				break;
+			}
+		}
+	}
+	
+	function removeDelData(id) {
+		for(var i = 0; i < delDataArr.length; i++) {
+			if(parseInt(id) === parseInt(delDataArr[i].id)){
+				delDataArr.splice(i, 1)
 				break;
 			}
 		}

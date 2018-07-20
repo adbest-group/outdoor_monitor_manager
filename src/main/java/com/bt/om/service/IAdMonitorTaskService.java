@@ -104,7 +104,7 @@ public interface IAdMonitorTaskService {
 
 	public AdMonitorTask getActivityId(int id);
 
-	void insertMonitorTask(Integer activityId, List<String> seatIds, String reportTime);
+	void insertMonitorTask(Integer activityId, List<String> seatIds, String reportTime, Integer zhuijiaMonitorTaskPoint, double zhuijiaMonitorTaskMoney);
 
 	Integer selectCountByMonitorTaskId(int monitorTaskId);
 	AdSeatInfo selectLonLatByMonitorTaskId(int monitorTaskId);
@@ -113,4 +113,6 @@ public interface IAdMonitorTaskService {
 	//查询所有任务列表
 	public List<AdMonitorTask> getAllTasksByActivityId(Integer activityId);
 	public List<AdMonitorTask> newSelectLatestMonitorTaskIds(Map<String, Object> searchMap);
+	List<String> selectUserNameByTaskIdBatch(Map<String, Object> searchMap);
+	void recycleMediaMonitorTask();
 }

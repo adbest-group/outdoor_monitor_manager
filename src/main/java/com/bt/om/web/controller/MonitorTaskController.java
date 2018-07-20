@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -21,12 +22,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,13 +36,9 @@ import com.adtime.common.lang.StringUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdMedia;
-import com.bt.om.entity.AdMediaType;
 import com.bt.om.entity.AdMonitorTask;
-
 import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.AdSeatInfo;
-import com.bt.om.entity.AdUserMessage;
-
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
@@ -58,11 +55,13 @@ import com.bt.om.service.IAdJiucuoTaskService;
 import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.service.IAdUserMessageService;
 import com.bt.om.service.IMediaService;
+import com.bt.om.service.ISendSmsService;
 import com.bt.om.service.ISysGroupService;
 import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.service.ISysUserRoleService;
 import com.bt.om.service.ISysUserService;
+import com.bt.om.util.MarkLogoUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
@@ -100,6 +99,13 @@ public class MonitorTaskController extends BasicController {
 	private IAdActivityService adActivityService;
 	@Autowired
 	private IAdUserMessageService adUserMessageService;
+	@Autowired
+	private ISendSmsService sendSmsService;
+	
+	@Value("${sms.reject.content.template}")
+	private String SMS_REJECT_CONTENT_TEMPLATE;
+	@Value("${sms.zhipai.content.template}")
+    private String SMS_ZHIPAI_CONTENT_TEMPLATE;
 
 	/**
 	 * 监测任务管理（任务审核指派部员工登录）
@@ -715,7 +721,6 @@ public class MonitorTaskController extends BasicController {
 		return PageConst.SELECT_USER_EXECUTE;
 	}
 	
-	  
     /**
      * 通过媒体id查询下属的所有媒体成员
      */
@@ -743,7 +748,7 @@ public class MonitorTaskController extends BasicController {
     }
 
 	/**
-	 * 指派任务
+	 * 指派任务, 发送短信
 	 **/
 	@RequiresRoles(value = { "taskadmin", "media", "deptaskadmin", "superadmin" }, logical = Logical.OR)
 	@RequestMapping(value = "/assign")
@@ -790,18 +795,23 @@ public class MonitorTaskController extends BasicController {
 			SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
 
 			adMonitorTaskService.assign(taskIds, userId, userObj.getId());
+			
+			//发送短信
+			SysUserExecute sysUserExecute = sysUserExecuteService.getById(userId);
+	        sendSmsService.sendSms(sysUserExecute.getUsername(), SMS_ZHIPAI_CONTENT_TEMPLATE);
+			
 			// ==========web端指派成功之后根据userId进行app消息推送==============
-			Map<String, Object> param = new HashMap<>();
-			Map<String, String> extras = new HashMap<>();
-			List<String> alias = new ArrayList<>(); // 别名用户List
-			alias.add(String.valueOf(userId));
-			extras.put("type", "new_assign_push");
-			param.put("msg", "您被指派一条新的任务！");
-			param.put("title", "玖凤平台");
-			param.put("alias", alias); // 根据别名选择推送用户（这里userId用作推送时的用户别名）
-			param.put("extras", extras);
-			String pushResult = JPushUtils.pushAllByAlias(param);
-			System.out.println("pushResult:: " + pushResult);
+//			Map<String, Object> param = new HashMap<>();
+//			Map<String, String> extras = new HashMap<>();
+//			List<String> alias = new ArrayList<>(); // 别名用户List
+//			alias.add(String.valueOf(userId));
+//			extras.put("type", "new_assign_push");
+//			param.put("msg", "您被指派一条新的任务！");
+//			param.put("title", "玖凤平台");
+//			param.put("alias", alias); // 根据别名选择推送用户（这里userId用作推送时的用户别名）
+//			param.put("extras", extras);
+//			String pushResult = JPushUtils.pushAllByAlias(param);
+//			System.out.println("pushResult:: " + pushResult);
 		} catch (Exception e) {
 			// [5] 异常情况, 循环删除redis
 			for (String taskId : taskIds) {
@@ -820,12 +830,13 @@ public class MonitorTaskController extends BasicController {
 			String finishRedisStr = "zhipai_" + taskId + "_finish";
 			redisTemplate.opsForValue().set(finishRedisStr, "true", 60 * 1, TimeUnit.SECONDS); // 设置1分钟超时时间（为了待执行的也可以修改指派）
 		}
+		
 		model.addAttribute(SysConst.RESULT_KEY, result);
 		return model;
 	}
 
 	/**
-	 * 审核任务
+	 * 审核任务, 驳回发送短信
 	 **/
 	@RequiresRoles(value = { "taskadmin", "deptaskadmin", "superadmin" }, logical = Logical.OR)
 	@RequestMapping(value = "/verify")
@@ -858,7 +869,7 @@ public class MonitorTaskController extends BasicController {
 			}
 		}
 		// [3] 循环放入redis中
-		for (String taskId : taskIds) { 
+		for (String taskId : taskIds) {
 			String beginRedisStr = "monitorTask_" + taskId + "_begin";
 			// 放入Redis缓存处理并发
 			redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
@@ -880,22 +891,36 @@ public class MonitorTaskController extends BasicController {
 				adMonitorTaskService.reject(taskIds, reason, userObj.getId(),status);
 			}
 			
-			// [3] 循环推送
-			for (String taskId : taskIds) {
-				task = adMonitorTaskService.selectByPrimaryKey(Integer.parseInt(taskId));
-				// ==========web端任务审核之后根据userId进行app消息推送==============
-				Map<String, Object> param = new HashMap<>();
-				Map<String, String> extras = new HashMap<>();
-				List<String> alias = new ArrayList<>(); // 别名用户List
-				alias.add(String.valueOf(task.getUserId())); // 任务执行者
-				extras.put("type", "task_audit_push");
-				param.put("msg", "您的任务有一条新的后台审核通知！");
-				param.put("title", "玖凤平台");
-				param.put("alias", alias); // 根据别名选择推送用户（这里userId用作推送时的用户别名）
-				param.put("extras", extras);
-				String pushResult = JPushUtils.pushAllByAlias(param);
-				System.out.println("pushResult:: " + pushResult);
+			//驳回发送短信
+			if(task.getStatus() == MonitorTaskStatus.VERIFY_FAILURE.getId()) {
+				if(taskIds != null && taskIds.length > 0) {
+					Map<String, Object> searchMap = new HashMap<>();
+					searchMap.put("taskIds", Arrays.asList(taskIds));
+					List<String> usernames = adMonitorTaskService.selectUserNameByTaskIdBatch(searchMap);
+					for (String username : usernames) {
+						if(StringUtil.isNotBlank(username)) {
+							sendSmsService.sendSms(username, SMS_REJECT_CONTENT_TEMPLATE);
+						}
+					}
+				}
 			}
+			
+//			// [3] 循环推送
+//			for (String taskId : taskIds) {
+//				task = adMonitorTaskService.selectByPrimaryKey(Integer.parseInt(taskId));
+//				// ==========web端任务审核之后根据userId进行app消息推送==============
+//				Map<String, Object> param = new HashMap<>();
+//				Map<String, String> extras = new HashMap<>();
+//				List<String> alias = new ArrayList<>(); // 别名用户List
+//				alias.add(String.valueOf(task.getUserId())); // 任务执行者
+//				extras.put("type", "task_audit_push");
+//				param.put("msg", "您的任务有一条新的后台审核通知！");
+//				param.put("title", "玖凤平台");
+//				param.put("alias", alias); // 根据别名选择推送用户（这里userId用作推送时的用户别名）
+//				param.put("extras", extras);
+//				String pushResult = JPushUtils.pushAllByAlias(param);
+//				System.out.println("pushResult:: " + pushResult);
+//			}
 		} catch (Exception e) {
 			// [5] 异常情况, 循环删除redis
 			for (String taskId : taskIds) {
@@ -913,47 +938,6 @@ public class MonitorTaskController extends BasicController {
 			// 放入Redis缓存处理并发
 			String finishRedisStr = "monitorTask_" + taskId + "_finish";
 			redisTemplate.opsForValue().set(finishRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
-		}
-		model.addAttribute(SysConst.RESULT_KEY, result);
-		return model;
-	}
-
-	// 撤消审核任务
-	@RequiresRoles("taskadmin")
-	@RequestMapping(value = "/cancel")
-	@ResponseBody
-	public Model cancel(Model model, HttpServletRequest request,
-			@RequestParam(value = "id", required = false) Integer id,
-			@RequestParam(value = "userId", required = false) Integer userId,
-			@RequestParam(value = "reason", required = false) String reason) {
-		ResultVo<String> result = new ResultVo<String>();
-		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
-		result.setResultDes("撤消成功");
-		model = new ExtendedModelMap();
-		AdMonitorTask task = new AdMonitorTask();
-
-		try {
-			// 获取当前登录的后台用户信息
-			SysUser sysUser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-			Map<String, Object> searchMap = new HashMap<>();
-			searchMap.put("userId", sysUser.getId());
-			Integer groupId = sysUserRoleService.selectGroupIdByUserId(searchMap);
-			// 获取该组所有员工
-			List<SysUser> sysUsers = sysGroupService.selectUserName(groupId);
-
-			if (sysUsers.size() > 1) {// 待审核
-				adMonitorTaskService.offAdMonitorTaskByAssessorId(id);
-			} else if (sysUsers.size() <= 1) {
-				result.setCode(ResultCode.RESULT_FAILURE.getCode());
-				result.setResultDes("只剩一人不能撤销！");
-				model.addAttribute(SysConst.RESULT_KEY, result);
-				return model;
-			}
-		} catch (Exception e) {
-			result.setCode(ResultCode.RESULT_FAILURE.getCode());
-			result.setResultDes("撤消失败！");
-			model.addAttribute(SysConst.RESULT_KEY, result);
-			return model;
 		}
 		model.addAttribute(SysConst.RESULT_KEY, result);
 		return model;
@@ -1185,7 +1169,12 @@ public class MonitorTaskController extends BasicController {
 			}
 			//[1] 上传图片
 			filepath = saveFile(path,imageName,is);
+			int picindex = filepath.lastIndexOf('/')+1;
+			String filename = filepath.substring(picindex);
+			int nameindex = filename.indexOf('.');
 			if(monitorTaskId == null) {
+                MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
+                
 				//[2] 已有feedback的时候替换的图片
 				adMonitorTaskService.updatePicUrl(id, filepath, index);
 			} else {
@@ -1200,12 +1189,16 @@ public class MonitorTaskController extends BasicController {
 				feedback.setLon(lon); //做任务时的经度
 				feedback.setLat(lat); //做任务时的纬度
 				if(index == 1) {
+					MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
 					feedback.setPicUrl1(filepath);
 				} else if (index == 2) {
+					MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
 					feedback.setPicUrl2(filepath);
 				} else if (index == 3) {
+					MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
 					feedback.setPicUrl3(filepath);
 				} else if (index == 4) {
+					MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
 					feedback.setPicUrl4(filepath);
 				}
 				AdSeatInfo seatInfo = adMonitorTaskService.selectLonLatByMonitorTaskId(monitorTaskId);

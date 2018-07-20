@@ -29,6 +29,7 @@ import com.bt.om.entity.vo.AdActivityVo;
 import com.bt.om.entity.vo.AdActivityVo2;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.entity.vo.AdSeatCount;
+import com.bt.om.entity.vo.TaskAdSeat;
 import com.bt.om.enums.ActivityStatus;
 import com.bt.om.enums.MessageIsFinish;
 import com.bt.om.enums.MessageType;
@@ -82,6 +83,9 @@ public class AdActivityService implements IAdActivityService {
         adActivityMapper.insert(adActivity);
     }
 
+    /**
+     * 后台人员创建活动
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void add(AdActivityVo adActivityVo, String activeSeat) {
@@ -278,10 +282,11 @@ public class AdActivityService implements IAdActivityService {
         stringBuffer.append("】广告主的【");
         stringBuffer.append(adActivityVo.getActivityName());
         stringBuffer.append("】活动待确认！");
-        searchMap.put("content", stringBuffer.toString());
-        searchMap.put("isFinish", MessageIsFinish.CONFIRMED.getId()); //0：未处理
-        searchMap.put("targetId", adActivityVo.getId()); //活动表的id
-        searchMap.put("type", MessageType.ACTIVITY_AUDIT.getId()); //1：活动确认
+        map.put("content", stringBuffer.toString());
+        map.put("isFinish", MessageIsFinish.CONFIRMED.getId()); //0：未处理
+        map.put("targetId", adActivityVo.getId()); //活动表的id
+        map.put("type", MessageType.ACTIVITY_AUDIT.getId()); //1：活动确认
+        map.put("updateTime", now); //修改时间
         adUserMessageMapper.updateUserMessage(map);
     }
 
@@ -362,6 +367,8 @@ public class AdActivityService implements IAdActivityService {
             		int betweenDays = DateUtil.getBetweenDays(upTask.getMonitorDate(), beforeDays);
             		upTask.setMonitorLastDays(betweenDays);
             		upTask.setReportTime(upTaskTime);
+            		upTask.setTaskPoint(adActivity.getUpTaskPoint());
+            		upTask.setTaskMoney(adActivity.getUpTaskMoney());
                     tasks.add(upTask);
             	}
             	
@@ -381,6 +388,8 @@ public class AdActivityService implements IAdActivityService {
                         task.setMonitorDate(monitorDate);
                 		task.setMonitorLastDays(betweenDays);
                 		task.setReportTime(upMonitorTask);
+                		task.setTaskPoint(adActivity.getUpMonitorTaskPoint());
+                		task.setTaskMoney(adActivity.getUpMonitorTaskMoney());
                         tasks.add(task);
                 	}
                 }
@@ -400,6 +409,8 @@ public class AdActivityService implements IAdActivityService {
                         task.setMonitorDate(monitorDate);
                 		task.setMonitorLastDays(betweenDays);
                 		task.setReportTime(downMonitorTask);
+                		task.setTaskPoint(adActivity.getDownMonitorTaskPoint());
+                		task.setTaskMoney(adActivity.getDownMonitorTaskMoney());
                         tasks.add(task);
                 	}
                 }
@@ -434,6 +445,8 @@ public class AdActivityService implements IAdActivityService {
                             task.setMonitorDate(monitorDate);
                     		task.setMonitorLastDays(betweenDays);
                     		task.setReportTime(durationMonitorTask);
+                    		task.setTaskPoint(adActivity.getDurationMonitorTaskPoint());
+                    		task.setTaskMoney(adActivity.getDurationMonitorTaskMoney());
                             tasks.add(task);
 						}
                 	}
@@ -472,12 +485,13 @@ public class AdActivityService implements IAdActivityService {
             searchMap.put("isFinish", MessageIsFinish.UNCONFIRM.getId()); //1：已处理
             searchMap.put("targetId", id); //活动表的id
             searchMap.put("type", MessageType.ACTIVITY_AUDIT.getId()); //1：活动确认
+            searchMap.put("updateTime", now); //修改时间
             adUserMessageMapper.updateUserMessage(searchMap);
             
             //【2】添加上刊任务的站内信
-            List<Integer> taskIds = adMonitorTaskMapper.selectUpTaskIds(id); //通过活动id查询出对应的上刊任务id集合
-            for (Integer monitorId : taskIds) {
-				    List<Integer> reslist = sysUserResMapper.getUserId(sysUser.getId(), 2);//获取广告商下面的组id集合
+            List<TaskAdSeat> taskAdSeats = adMonitorTaskMapper.selectUpTaskIds(id); //通过活动id查询出对应的上刊任务id集合
+            for (TaskAdSeat taskAdSeat : taskAdSeats) {
+				List<Integer> reslist = sysUserResMapper.getUserId(sysUser.getId(), 2);//获取广告商下面的组id集合
 		        Integer resId = null;
 		        for(Integer i:reslist) {
 		        	resId = sysResourcesMapper.getResId(i,2);//找到任务审核的组id
@@ -496,12 +510,14 @@ public class AdActivityService implements IAdActivityService {
 		        stringBufferTask.append(sysUser.getRealname());
 		        stringBufferTask.append("】广告主的【");
 		        stringBufferTask.append(adActivity.getActivityName());
-		        stringBufferTask.append("】活动的【上刊任务】待指派");
-	            
+		        stringBufferTask.append("】活动的【");
+		        stringBufferTask.append(taskAdSeat.getAdSeatName() + "】广告位的");
+		        stringBufferTask.append("【上刊任务】待指派");
+		        
 		        for(Integer i: userIdList) {
 	            	AdUserMessage mess = new AdUserMessage();
 	            	mess.setContent(stringBufferTask.toString());
-	            	mess.setTargetId(monitorId); //任务表的id
+	            	mess.setTargetId(taskAdSeat.getId()); //任务表的id
 	            	mess.setTargetUserId(i);
 	            	mess.setIsFinish(MessageIsFinish.CONFIRMED.getId()); //0：未处理
 	            	mess.setType(MessageType.TASK_ASSIGN.getId()); //3：任务指派
@@ -517,14 +533,43 @@ public class AdActivityService implements IAdActivityService {
         }
     }
 
+    /**
+     * 删除活动
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void delete(Integer id) {
+    public void delete(Integer id, Integer assessorId) {
+    	Date now = new Date();
+    	AdActivity adActivity = adActivityMapper.selectByPrimaryKey(id); //查询活动信息
+    	SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivity.getUserId()); //查询所属广告主信息
+    	SysUser auditPerson = sysUserMapper.selectByPrimaryKey(assessorId); //获取审核人的相关信息
+    	
         adMonitorTaskMapper.deleteByActivityId(id);
         adActivityAreaMapper.deleteByActivityId(id);
         adActivityMediaMapper.deleteByActivityId(id);
         adActivityAdseatMapper.deleteByActivityId(id);
         adActivityMapper.deleteByPrimaryKey(id);
+        
+        //【1】修改活动相关的站内信
+        Map<String, Object> searchMap = new HashMap<>();
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("【");
+        stringBuffer.append(sysUser.getRealname());
+        stringBuffer.append("】广告主的【");
+        stringBuffer.append(adActivity.getActivityName());
+        stringBuffer.append("】活动已被【");
+        if(StringUtil.isNotBlank(auditPerson.getRealname())) {
+        	stringBuffer.append(auditPerson.getRealname());
+        } else {
+        	stringBuffer.append(auditPerson.getUsername());
+        }
+        stringBuffer.append("】删除");
+        searchMap.put("content", stringBuffer.toString());
+        searchMap.put("isFinish", MessageIsFinish.UNCONFIRM.getId()); //1：已处理
+        searchMap.put("targetId", id); //活动表的id
+        searchMap.put("type", MessageType.ACTIVITY_AUDIT.getId()); //1：活动管理
+        searchMap.put("updateTime", now); //修改时间
+        adUserMessageMapper.updateUserMessage(searchMap);
     }
 
     @Override
@@ -641,24 +686,82 @@ public class AdActivityService implements IAdActivityService {
 		return adActivityAdseatMapper.selectAdSeatTaskReport(activityId);
 	}
 	
+	/**
+	 * 活动结束
+	 */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void updateStatusByEndTime(Date nowDate) {
-		adActivityMapper.updateStatusByEndTime(nowDate);
+		Date now = new Date();
+		//[1] 获取已结束的活动id集合
+		List<Integer> activityIds = adActivityMapper.getEndActivity(nowDate);
+		
+		if(activityIds != null && activityIds.size() > 0) {
+			//[2] 更新已结束的活动
+			adActivityMapper.updateStatusByEndTime(nowDate);
+			
+			for (Integer id : activityIds) {
+				AdActivity adActivity = adActivityMapper.selectByPrimaryKey(id);
+				SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivity.getUserId());
+				
+				//[3] 修改站内信
+				Map<String, Object> map = new HashMap<>();
+		        StringBuffer stringBuffer = new StringBuffer();
+		        stringBuffer.append("【");
+		        stringBuffer.append(sysUser.getRealname());
+		        stringBuffer.append("】广告主的【");
+		        stringBuffer.append(adActivity.getActivityName());
+		        stringBuffer.append("】活动已结束");
+		        
+		        map.put("content", stringBuffer.toString());
+		        map.put("isFinish", MessageIsFinish.UNCONFIRM.getId()); //1：已处理
+		        map.put("targetId", id); //活动表的id
+		        map.put("type", MessageType.ACTIVITY_AUDIT.getId()); //1：活动管理
+		        map.put("updateTime", now); //修改时间
+		        adUserMessageMapper.updateUserMessage(map);
+			}
+		}
 	}
 	
+	/**
+	 * 超时未确认
+	 */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void deadLineAuditActivity(Date endDate) {
+		Date now = new Date();
 		//[1] 获取超时未确认的活动id集合
 		List<Integer> activityIds = adActivityMapper.getDeadLineAuditActivity(endDate);
+		
 		if(activityIds != null && activityIds.size() > 0) {
 			//[2] 更新超时未确认的活动
 			adActivityMapper.deadLineAuditActivity(endDate);
+			
 			//[3] 删除超时未确认的活动的广告位占用信息
 			Map<String, Object> searchMap = new HashMap<>();
 			searchMap.put("activityIds", activityIds);
 			adActivityAdseatMapper.deleteByActivityIds(searchMap);
+			
+			for (Integer id : activityIds) {
+				AdActivity adActivity = adActivityMapper.selectByPrimaryKey(id);
+				SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivity.getUserId());
+				
+				//[4] 修改站内信
+				Map<String, Object> map = new HashMap<>();
+		        StringBuffer stringBuffer = new StringBuffer();
+		        stringBuffer.append("【");
+		        stringBuffer.append(sysUser.getRealname());
+		        stringBuffer.append("】广告主的【");
+		        stringBuffer.append(adActivity.getActivityName());
+		        stringBuffer.append("】活动超时未确认");
+		        
+		        map.put("content", stringBuffer.toString());
+		        map.put("isFinish", MessageIsFinish.UNCONFIRM.getId()); //1：已处理
+		        map.put("targetId", id); //活动表的id
+		        map.put("type", MessageType.ACTIVITY_AUDIT.getId()); //1：活动管理
+		        map.put("updateTime", now); //修改时间
+		        adUserMessageMapper.updateUserMessage(map);
+			}
 		}
 	}
 	

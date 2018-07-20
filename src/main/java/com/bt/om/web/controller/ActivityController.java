@@ -312,7 +312,9 @@ public class ActivityController extends BasicController {
  	public Model zhuijiaTask(Model model, HttpServletRequest request,
  			@RequestParam(value = "activityId", required = false) Integer activityId,
  			@RequestParam(value = "seatIds", required = false) String seatIds,
- 			@RequestParam(value = "reportTime", required = false) String reportTime) {
+ 			@RequestParam(value = "reportTime", required = false) String reportTime,
+ 			@RequestParam(value = "zhuijiaMonitorTaskPoint", required = false) Integer zhuijiaMonitorTaskPoint,
+ 			@RequestParam(value = "zhuijiaMonitorTaskMoney", required = false) double zhuijiaMonitorTaskMoney) {
  		ResultVo<String> result = new ResultVo<String>();
  		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
  		result.setResultDes("确认成功");
@@ -328,7 +330,7 @@ public class ActivityController extends BasicController {
  		try {
  			String[] splitSeatIds = seatIds.split(",");
  			//批量插入
-			adMonitorTaskService.insertMonitorTask(activityId, Arrays.asList(splitSeatIds), reportTime);
+			adMonitorTaskService.insertMonitorTask(activityId, Arrays.asList(splitSeatIds), reportTime ,zhuijiaMonitorTaskPoint,zhuijiaMonitorTaskMoney);
  		} catch (Exception e) {
  			result.setCode(ResultCode.RESULT_FAILURE.getCode());
  			result.setResultDes("确认失败！");
@@ -484,9 +486,12 @@ public class ActivityController extends BasicController {
 		model = new ExtendedModelMap();
 		Date now = new Date();
 
+		// 获取登录的审核人(员工/部门领导/超级管理员)
+		SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+		
 		try {
 			// 删除活动
-			adActivityService.delete(id);
+			adActivityService.delete(id, userObj.getId());
 		} catch (Exception e) {
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("删除失败！");

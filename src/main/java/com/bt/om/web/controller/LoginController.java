@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -18,29 +19,39 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
+import com.bt.om.entity.LoginLog;
 import com.bt.om.entity.SysMenu;
 import com.bt.om.entity.SysResources;
 import com.bt.om.entity.SysRole;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserRole;
+import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.log.SystemLogThread;
 import com.bt.om.mapper.SysRoleMapper;
 import com.bt.om.mapper.SysUserRoleMapper;
 import com.bt.om.security.ShiroUtils;
+import com.bt.om.service.ILoginLogService;
 import com.bt.om.service.ISysGroupService;
+import com.bt.om.service.impl.LoginLogService;
 import com.bt.om.util.RequestUtil;
+import com.bt.om.vo.web.ResultVo;
+import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
+import com.bt.om.web.util.SearchUtil;
 
 /**
  * 用户登录Controller
@@ -54,6 +65,8 @@ public class LoginController extends BasicController {
 	private SysUserRoleMapper sysUserRoleMapper;
 	@Autowired
 	private SysRoleMapper sysRoleMapper;
+	@Autowired
+	private ILoginLogService loginLogService;
     /**
      * 跳转到登录页
      *
@@ -88,7 +101,8 @@ public class LoginController extends BasicController {
      */
     @SuppressWarnings("unchecked")
     @RequestMapping(value = "/doLogin", method = {RequestMethod.POST, RequestMethod.GET})
-    public String doLogin(Model model, SysUser user, HttpServletRequest request, HttpServletResponse response) {
+    public String doLogin(Model model, SysUser user, HttpServletRequest request, HttpServletResponse response,
+    		@RequestParam(value = "username", required = false) String username) {
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");
         // 获取页面输入验证码
@@ -170,6 +184,16 @@ public class LoginController extends BasicController {
             // ========记录日志===========
             
             new Thread(new SystemLogThread("系统首页", "登录", user.getUsername(), getIp(), "", "", 1)).start();
+           
+             Date now = new Date();	           
+             LoginLog loginlog=new LoginLog();   
+             loginlog.setUserId(findUser.getId());
+             loginlog.setType(0);
+	         loginlog.setIp(getIp());
+	         loginlog.setLocation(null);
+	         loginlog.setCreateTime(now);
+    		 loginLogService.save(loginlog);                	
+            
         } catch (AuthenticationException ae) {
             model.addAttribute(SysConst.RESULT_KEY, "用户名或密码错误");
             model.addAttribute("username", user.getUsername());
@@ -267,4 +291,5 @@ public class LoginController extends BasicController {
 
         return retNum;
     }
+
 }

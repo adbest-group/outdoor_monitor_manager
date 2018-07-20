@@ -78,4 +78,8 @@ public interface SysUserExecuteMapper {
 	List<SysUserExecute> selectMediaNameByUserId(@Param("id") Integer id);
 
 	int updatePhoneModel(SysUserExecute sysUserExecute);
+	
+	List<String> getAllMobile();
+	
+	void insertBatch(@Param("sysUserExecutes") List<SysUserExecute> sysUserExecutes);
 }

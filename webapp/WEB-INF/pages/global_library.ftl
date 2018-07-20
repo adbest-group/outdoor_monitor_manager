@@ -1,7 +1,7 @@
 <#if vm.getEvnVariable() == "on">
 <#assign static_domain = "http://ottstatic2.taiyiplus.com">
 <#else>
-<#assign static_domain = "http://ottvstatic2.taiyiplus.com">
+<#assign static_domain = "http://ottvstatic2.taiyiplus.com/Operation_NEW">
 </#if>
 <#assign static_version = "2015">
 
@@ -442,6 +442,16 @@
 	<#if (list?exists && list?size > 0)>
 		<#list list as type>
 			<@showOption value="${type.id?if_exists}" title="${type.appName?if_exists}" select="${value?if_exists}" />
+		</#list>
+	</#if>
+</#macro>
+
+<#-- 通过媒体id查询所属APP用户下拉选项 -->
+<#macro showUserExecuteByMedia mediaId value="-1">
+<#local list = vm.showUserExecuteByMedia("${mediaId?if_exists}") />
+	<#if (list?exists && list?size > 0)>
+		<#list list as type>
+			<@showOption value="${type.id?if_exists}" title="${type.realname?if_exists}" select="${value?if_exists}" />
 		</#list>
 	</#if>
 </#macro>

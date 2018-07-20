@@ -16,6 +16,7 @@ import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.entity.AdJiucuoTaskFeedback;
 import com.bt.om.entity.AdMonitorTask;
+import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.AdUserMessage;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
@@ -35,6 +36,7 @@ import com.bt.om.mapper.AdJiucuoTaskFeedbackMapper;
 import com.bt.om.mapper.AdJiucuoTaskMapper;
 import com.bt.om.mapper.AdMonitorRewardMapper;
 import com.bt.om.mapper.AdMonitorTaskMapper;
+import com.bt.om.mapper.AdSeatInfoMapper;
 import com.bt.om.mapper.AdUserMessageMapper;
 import com.bt.om.mapper.SysResourcesMapper;
 import com.bt.om.mapper.SysUserExecuteMapper;
@@ -71,6 +73,8 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
     private AdActivityMapper adActivityMapper;
     @Autowired
     private AdUserMessageMapper adUserMessageMapper;
+    @Autowired
+    private AdSeatInfoMapper adSeatInfoMapper;
 
     @Override
     public void getPageData(SearchDataVo vo) {
@@ -108,6 +112,9 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
         adJiucuoTaskMapper.updateByPrimaryKeySelective(task);
     }
 
+    /**
+     * 纠错任务被审核通过
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void pass(String[] jiucuoIds, Integer assessorId, Integer status) {
@@ -131,12 +138,19 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
 	        task = adJiucuoTaskMapper.selectByPrimaryKey(id);
 	        AdActivity adActivity = adActivityMapper.selectByPrimaryKey(task.getActivityId());//通过id找到广告商id
         	SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivity.getUserId());//获得广告商名
+        	AdSeatInfo adSeatInfo = adSeatInfoMapper.selectByPrimaryKey(task.getAdSeatId()); //获得对应广告位信息
+        	
 	        StringBuffer stringBuffer = new StringBuffer();
             stringBuffer.append("【");
             stringBuffer.append(sysUser.getRealname());
             stringBuffer.append("】广告主的【");
             stringBuffer.append(adActivity.getActivityName());
-            stringBuffer.append("】活动的纠错任务已被【");
+            stringBuffer.append("】活动的【");
+            if(adSeatInfo != null) {
+            	stringBuffer.append(adSeatInfo.getName());
+                stringBuffer.append("】广告位的【");
+            }
+            stringBuffer.append("纠错任务】已被【");
             stringBuffer.append(auditPerson.getRealname());
             stringBuffer.append("】审核通过");
             
@@ -144,6 +158,7 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
             searchMap.put("isFinish", MessageIsFinish.UNCONFIRM.getId()); //1：已处理
             searchMap.put("targetId", id); //纠错表的id
             searchMap.put("type", MessageType.JIUCUO_AUDIT.getId()); //4,"纠错审核"
+            searchMap.put("updateTime", now); //修改时间
             adUserMessageMapper.updateUserMessage(searchMap);
         
 //        task = adJiucuoTaskMapper.selectByPrimaryKey(task.getId());
@@ -163,6 +178,9 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
     	}
     }
     
+    /**
+     * 纠错任务被审核不通过
+     */
     @Override
     public void reject(String[] jiucuoIds, String reason, Integer assessorId, Integer status) {
     	SysUser auditPerson = sysUserMapper.selectByPrimaryKey(assessorId); //获取审核人的相关信息
@@ -184,12 +202,19 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
 	        task = adJiucuoTaskMapper.selectByPrimaryKey(id);
 	        AdActivity adActivity = adActivityMapper.selectByPrimaryKey(task.getActivityId());//通过id找到广告商id
         	SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivity.getUserId());//获得广告商名
+        	AdSeatInfo adSeatInfo = adSeatInfoMapper.selectByPrimaryKey(task.getAdSeatId()); //获得对应广告位信息
+        	
 	        StringBuffer stringBuffer = new StringBuffer();
             stringBuffer.append("【");
             stringBuffer.append(sysUser.getRealname());
             stringBuffer.append("】广告主的【");
             stringBuffer.append(adActivity.getActivityName());
-            stringBuffer.append("】活动的纠错任务已被【");
+            stringBuffer.append("】活动的【");
+            if(adSeatInfo != null) {
+            	stringBuffer.append(adSeatInfo.getName());
+                stringBuffer.append("】广告位的【");
+            }
+            stringBuffer.append("纠错任务】已被【");
             stringBuffer.append(auditPerson.getRealname());
             stringBuffer.append("】审核不通过");
             
@@ -197,10 +222,14 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
             searchMap.put("isFinish", MessageIsFinish.UNCONFIRM.getId()); //1：已处理
             searchMap.put("targetId", id); //纠错表的id
             searchMap.put("type", MessageType.JIUCUO_AUDIT.getId()); //4,"纠错审核"
+            searchMap.put("updateTime", now); //修改时间
             adUserMessageMapper.updateUserMessage(searchMap);
 	    }
     }
     
+    /**
+     * APP人员提交纠错任务
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void feedback(AdJiucuoTask task, AdJiucuoTaskFeedback feedback) {
@@ -227,6 +256,8 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
         AdJiucuoTask adJiucuoTask = adJiucuoTaskMapper.selectByPrimaryKey(task.getId());//通过纠错id找到activityId
     	adActivity = adActivityMapper.selectByPrimaryKey(adJiucuoTask.getActivityId());//通过id找到广告商id
     	SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivity.getUserId());//获得广告商名
+    	AdSeatInfo adSeatInfo = adSeatInfoMapper.selectByPrimaryKey(task.getAdSeatId()); //获得对应广告位信息
+    	
     	List<Integer> reslist = sysUserResMapper.getUserId(adActivity.getUserId(),2);//获取广告商下面的组id集合
     	Integer resId = null;
         for(Integer i:reslist) {
@@ -254,7 +285,12 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
             stringBuffer.append(sysUser.getRealname());
             stringBuffer.append("】广告主的【");
             stringBuffer.append(adActivity.getActivityName());
-            stringBuffer.append("】活动的纠错任务已被【");
+            stringBuffer.append("】活动的【");
+            if(adSeatInfo != null) {
+            	stringBuffer.append(adSeatInfo.getName());
+                stringBuffer.append("】广告位的【");
+            }
+            stringBuffer.append("纠错任务】已被【");
             String realName = null;
             //若app人员没有填写真实姓名, 取其登录的用户名
             if(StringUtil.isNotBlank(sysUserExecute.getRealname())) {

@@ -1,7 +1,7 @@
 package com.bt.om.mapper;
 
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 
@@ -57,7 +57,7 @@ public interface AdMonitorUserTaskMapper {
      */
     int updateByPrimaryKey(AdMonitorUserTask record);
     
-    List<Integer> selectRecycleTaskIds(Date nowDate);
+    List<Integer> selectRecycleTaskIds(Map<String, Object> searchMap);
     int recycleUserTask(AdMonitorUserTask task);
     int abandonUserTask(AbandonTaskVo vo);
     /**

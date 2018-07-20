@@ -202,15 +202,21 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
   
-  <select id="selectRecycleTaskIds" resultType="java.lang.Integer" parameterType="java.util.Date">
-  	select monitor_task_id
-  	from ad_monitor_user_task a
-  	left join ad_monitor_task b on a.monitor_task_id = b.id
-  	where a.status = 1 and a.end_time &lt;= DATE_FORMAT(#{nowDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
-  	and a.assign_type = 2
+  <!-- 社会人员/媒体监测人员(通过assign_type区分) 抢单 获取需要回收的任务主表id-->
+  <select id="selectRecycleTaskIds" resultType="java.lang.Integer" parameterType="map">
+  	select 
+  		distinct monitor_task_id
+  	from 
+  		ad_monitor_user_task a
+  		left join ad_monitor_task b on a.monitor_task_id = b.id
+  	where 1=1
+  	and a.status = 1
+  	and a.assign_type = #{assignType,jdbcType=INTEGER}
+  	and a.end_time &lt;= DATE_FORMAT(#{nowDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
   	and b.status in (2, 6)
   </select>
   
+  <!-- 社会人员/媒体监测人员(通过assign_type区分) 抢单 任务回收, 连表更新 -->
   <update id="recycleUserTask" parameterType="com.bt.om.entity.AdMonitorUserTask">
 	update 
 		ad_monitor_user_task a, ad_monitor_task b
@@ -218,13 +224,15 @@
 		a.status = #{status,jdbcType=INTEGER},
 		a.abandon_time = #{abandonTime,jdbcType=TIMESTAMP},
 		a.update_time = #{updateTime,jdbcType=TIMESTAMP}
-	where
-		a.monitor_task_id = b.id
-		and a.status = 1 and a.end_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'%Y-%m-%d')
-		and a.assign_type = 2
+	where 1=1
+		and a.monitor_task_id = b.id
+		and a.status = 1
+		and a.assign_type = #{assignType,jdbcType=INTEGER}
+		and a.end_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
 		and b.status in (2, 6)
   </update>
   
+  <!-- APP放弃任务 -->
   <update id="abandonUserTask" parameterType="com.bt.om.entity.vo.AbandonTaskVo">
   	update 
 		ad_monitor_user_task a, ad_monitor_task b

@@ -114,4 +114,5 @@ public interface IAdMonitorTaskService {
 	public List<AdMonitorTask> getAllTasksByActivityId(Integer activityId);
 	public List<AdMonitorTask> newSelectLatestMonitorTaskIds(Map<String, Object> searchMap);
 	List<String> selectUserNameByTaskIdBatch(Map<String, Object> searchMap);
+	void recycleMediaMonitorTask();
 }

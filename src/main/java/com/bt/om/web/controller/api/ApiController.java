@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
@@ -101,6 +102,7 @@ import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.service.IUserPointService;
+import com.bt.om.util.AddressUtils;
 import com.bt.om.util.CityUtil;
 import com.bt.om.util.GeoUtil;
 import com.bt.om.util.MarkLogoUtil;
@@ -514,7 +516,7 @@ public class ApiController extends BasicController {
     //登录
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     @ResponseBody
-    public Model login(Model model, HttpServletRequest request, HttpServletResponse response) {
+    public Model login(Model model, HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
         ResultVo<SysUserExecuteVo> result = new ResultVo<>();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("登录成功");
@@ -638,12 +640,14 @@ public class ApiController extends BasicController {
         	sysUserExecuteService.updatePhoneModel(sysUserExecute);
         }
         //登录日志
+        AddressUtils addressUtils = new AddressUtils();
+        String  address = addressUtils.getAddresses( getIp(), "utf-8");
         Date now = new Date();	           
         LoginLog loginlog=new LoginLog();   
         loginlog.setUserId(userExecute.getId());
         loginlog.setType(1);
         loginlog.setIp(getIp());
-        loginlog.setLocation(null);
+        loginlog.setLocation(address);
         loginlog.setCreateTime(now);
 		loginLogService.save(loginlog);   
         

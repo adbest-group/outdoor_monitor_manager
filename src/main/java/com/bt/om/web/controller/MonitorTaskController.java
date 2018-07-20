@@ -63,6 +63,7 @@ import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.service.ISysUserRoleService;
 import com.bt.om.service.ISysUserService;
+import com.bt.om.util.MarkLogoUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
@@ -1185,7 +1186,12 @@ public class MonitorTaskController extends BasicController {
 			}
 			//[1] 上传图片
 			filepath = saveFile(path,imageName,is);
+			int picindex = filepath.lastIndexOf('/')+1;
+			String filename = filepath.substring(picindex);
+			int nameindex = filename.indexOf('.');
 			if(monitorTaskId == null) {
+                MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
+                
 				//[2] 已有feedback的时候替换的图片
 				adMonitorTaskService.updatePicUrl(id, filepath, index);
 			} else {
@@ -1200,12 +1206,16 @@ public class MonitorTaskController extends BasicController {
 				feedback.setLon(lon); //做任务时的经度
 				feedback.setLat(lat); //做任务时的纬度
 				if(index == 1) {
+					MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
 					feedback.setPicUrl1(filepath);
 				} else if (index == 2) {
+					MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
 					feedback.setPicUrl2(filepath);
 				} else if (index == 3) {
+					MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
 					feedback.setPicUrl3(filepath);
 				} else if (index == 4) {
+					MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
 					feedback.setPicUrl4(filepath);
 				}
 				AdSeatInfo seatInfo = adMonitorTaskService.selectLonLatByMonitorTaskId(monitorTaskId);

@@ -104,7 +104,7 @@ public interface IAdMonitorTaskService {
 
 	public AdMonitorTask getActivityId(int id);
 
-	void insertMonitorTask(Integer activityId, List<String> seatIds, String reportTime);
+	void insertMonitorTask(Integer activityId, List<String> seatIds, String reportTime, Integer zhuijiaMonitorTaskPoint, double zhuijiaMonitorTaskMoney);
 
 	Integer selectCountByMonitorTaskId(int monitorTaskId);
 	AdSeatInfo selectLonLatByMonitorTaskId(int monitorTaskId);

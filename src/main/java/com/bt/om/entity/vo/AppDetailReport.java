@@ -31,7 +31,7 @@ public class AppDetailReport {
 	private List<PictureVo> downPics; //下刊监测图片集合
 	private List<PictureVo> upTaskPics; //上刊任务图片集合
 	private List<PictureVo> zhuijiaPics; //追加监测图片集合
-	
+    
 	public String getSeatInfoName() {
 		return seatInfoName;
 	}

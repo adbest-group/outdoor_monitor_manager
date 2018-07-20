@@ -54,7 +54,7 @@
                             <td>${user.realname?if_exists}</td>
                             <td>${user.mobile?if_exists}</td>
                             <td><span onclick="updStatus('${user.id}', '${user.status}');"
-                                      class="switch<#if user.status?exists && user.status == 1> current</#if>"><s></s><b></b></span>
+                                   class="switch<#if user.status?exists && user.status == 1> current</#if>"><s></s><b></b></span>
                             </td>
                             <td>
                                 <a href="javascript:void(0);" onclick="edit('${user.id}');">编辑</a>

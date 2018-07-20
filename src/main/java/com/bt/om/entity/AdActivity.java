@@ -95,7 +95,172 @@ public class AdActivity extends ID{
     
     private String zhuijiaMonitorTaskTime;
     
-    public String getCreateTimeStr() {
+    private Integer upTaskPoint;
+    private Integer upMonitorTaskPoint;
+    private Integer durationMonitorTaskPoint;
+    private Integer downMonitorTaskPoint;
+    private Integer zhuijiaMonitorTaskPoint;
+    
+    private Double upTaskMoney;
+    private Double upMonitorTaskMoney;
+    private Double durationMonitorTaskMoney;
+    private Double downMonitorTaskMoney;
+    private Double zhuijiaMonitorTaskMoney;
+    
+    private String qualifiedPicUrl;
+    private String noQualifiedPicUrl1;
+    private String noQualifiedPicUrl2;
+    private String noQualifiedPicUrl3;
+    private String noQualifiedText1;
+    private String noQualifiedText2;
+    private String noQualifiedText3;
+    private String notification;
+    
+	public String getNoQualifiedText1() {
+		return noQualifiedText1;
+	}
+
+	public void setNoQualifiedText1(String noQualifiedText1) {
+		this.noQualifiedText1 = noQualifiedText1;
+	}
+
+	public String getNoQualifiedText2() {
+		return noQualifiedText2;
+	}
+
+	public void setNoQualifiedText2(String noQualifiedText2) {
+		this.noQualifiedText2 = noQualifiedText2;
+	}
+
+	public String getNoQualifiedText3() {
+		return noQualifiedText3;
+	}
+
+	public void setNoQualifiedText3(String noQualifiedText3) {
+		this.noQualifiedText3 = noQualifiedText3;
+	}
+
+	public String getNotification() {
+		return notification;
+	}
+
+	public void setNotification(String notification) {
+		this.notification = notification;
+	}
+
+	public String getQualifiedPicUrl() {
+		return qualifiedPicUrl;
+	}
+
+	public void setQualifiedPicUrl(String qualifiedPicUrl) {
+		this.qualifiedPicUrl = qualifiedPicUrl;
+	}
+
+	public String getNoQualifiedPicUrl1() {
+		return noQualifiedPicUrl1;
+	}
+
+	public void setNoQualifiedPicUrl1(String noQualifiedPicUrl1) {
+		this.noQualifiedPicUrl1 = noQualifiedPicUrl1;
+	}
+
+	public String getNoQualifiedPicUrl2() {
+		return noQualifiedPicUrl2;
+	}
+
+	public void setNoQualifiedPicUrl2(String noQualifiedPicUrl2) {
+		this.noQualifiedPicUrl2 = noQualifiedPicUrl2;
+	}
+
+	public String getNoQualifiedPicUrl3() {
+		return noQualifiedPicUrl3;
+	}
+
+	public void setNoQualifiedPicUrl3(String noQualifiedPicUrl3) {
+		this.noQualifiedPicUrl3 = noQualifiedPicUrl3;
+	}
+
+	public Double getUpTaskMoney() {
+		return upTaskMoney;
+	}
+
+	public void setUpTaskMoney(Double upTaskMoney) {
+		this.upTaskMoney = upTaskMoney;
+	}
+
+	public Double getUpMonitorTaskMoney() {
+		return upMonitorTaskMoney;
+	}
+
+	public void setUpMonitorTaskMoney(Double upMonitorTaskMoney) {
+		this.upMonitorTaskMoney = upMonitorTaskMoney;
+	}
+
+	public Double getDurationMonitorTaskMoney() {
+		return durationMonitorTaskMoney;
+	}
+
+	public void setDurationMonitorTaskMoney(Double durationMonitorTaskMoney) {
+		this.durationMonitorTaskMoney = durationMonitorTaskMoney;
+	}
+
+	public Double getDownMonitorTaskMoney() {
+		return downMonitorTaskMoney;
+	}
+
+	public void setDownMonitorTaskMoney(Double downMonitorTaskMoney) {
+		this.downMonitorTaskMoney = downMonitorTaskMoney;
+	}
+
+	public Double getZhuijiaMonitorTaskMoney() {
+		return zhuijiaMonitorTaskMoney;
+	}
+
+	public void setZhuijiaMonitorTaskMoney(Double zhuijiaMonitorTaskMoney) {
+		this.zhuijiaMonitorTaskMoney = zhuijiaMonitorTaskMoney;
+	}
+
+	public Integer getUpTaskPoint() {
+		return upTaskPoint;
+	}
+
+	public void setUpTaskPoint(Integer upTaskPoint) {
+		this.upTaskPoint = upTaskPoint;
+	}
+
+	public Integer getUpMonitorTaskPoint() {
+		return upMonitorTaskPoint;
+	}
+
+	public void setUpMonitorTaskPoint(Integer upMonitorTaskPoint) {
+		this.upMonitorTaskPoint = upMonitorTaskPoint;
+	}
+
+	public Integer getDurationMonitorTaskPoint() {
+		return durationMonitorTaskPoint;
+	}
+
+	public void setDurationMonitorTaskPoint(Integer durationMonitorTaskPoint) {
+		this.durationMonitorTaskPoint = durationMonitorTaskPoint;
+	}
+
+	public Integer getDownMonitorTaskPoint() {
+		return downMonitorTaskPoint;
+	}
+
+	public void setDownMonitorTaskPoint(Integer downMonitorTaskPoint) {
+		this.downMonitorTaskPoint = downMonitorTaskPoint;
+	}
+	
+	public Integer getZhuijiaMonitorTaskPoint() {
+		return zhuijiaMonitorTaskPoint;
+	}
+
+	public void setZhuijiaMonitorTaskPoint(Integer zhuijiaMonitorTaskPoint) {
+		this.zhuijiaMonitorTaskPoint = zhuijiaMonitorTaskPoint;
+	}
+
+	public String getCreateTimeStr() {
 		return createTimeStr;
 	}
 

@@ -61,6 +61,7 @@ import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.service.ISysUserRoleService;
 import com.bt.om.service.ISysUserService;
+import com.bt.om.util.MarkLogoUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
@@ -942,24 +943,6 @@ public class MonitorTaskController extends BasicController {
 		return model;
 	}
 
-			if (sysUsers.size() > 1) {// 待审核
-				adMonitorTaskService.offAdMonitorTaskByAssessorId(id);
-			} else if (sysUsers.size() <= 1) {
-				result.setCode(ResultCode.RESULT_FAILURE.getCode());
-				result.setResultDes("只剩一人不能撤销！");
-				model.addAttribute(SysConst.RESULT_KEY, result);
-				return model;
-			}
-		} catch (Exception e) {
-			result.setCode(ResultCode.RESULT_FAILURE.getCode());
-			result.setResultDes("撤消失败！");
-			model.addAttribute(SysConst.RESULT_KEY, result);
-			return model;
-		}
-		model.addAttribute(SysConst.RESULT_KEY, result);
-		return model;
-	}
-
 	// 撤消指派任务
 	@RequiresRoles("taskadmin")
 	@RequestMapping(value = "/cancelZhipai")
@@ -1248,20 +1231,6 @@ public class MonitorTaskController extends BasicController {
 			byte[] buff = new byte[1024];
 			while((len=is.read(buff))>0){
 				fos.write(buff);
-			}
-			return "/static/upload/"+filename;
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}finally {
-			if(fos!=null){
-				try {
-					fos.flush();
-					fos.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
 			}
 			return "/static/upload/"+filename;
 		} catch (FileNotFoundException e) {

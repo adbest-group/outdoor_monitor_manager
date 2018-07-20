@@ -2131,6 +2131,16 @@ public class ApiController extends BasicController {
         	arroundVo.setStartTime(DateUtil.dateFormate(task.getMonitorDate(), "yyyy-MM-dd"));
         	Long timestamp = task.getMonitorDate().getTime() + (task.getMonitorLastDays() - 1)*24*60*60*1000;
         	arroundVo.setEndTime(DateUtil.dateFormate(new Date(timestamp), "yyyy-MM-dd"));
+        	arroundVo.setTask_point(task.getTaskPoint());
+        	arroundVo.setTask_money(task.getTaskMoney());
+        	arroundVo.setQualifiedPicUrl(task.getQualifiedPicUrl());
+        	arroundVo.setNoQualifiedPicUrl1(task.getNoQualifiedPicUrl1());
+        	arroundVo.setNoQualifiedPicUrl2(task.getNoQualifiedPicUrl2());
+        	arroundVo.setNoQualifiedPicUrl3(task.getNoQualifiedPicUrl2());
+        	arroundVo.setNoQualifiedText1(task.getNoQualifiedText1());
+        	arroundVo.setNoQualifiedText2(task.getNoQualifiedText2());
+        	arroundVo.setNoQualifiedText3(task.getNoQualifiedText3());
+        	arroundVo.setNotification(task.getNotification());
         	list.add(arroundVo);
         }
 
@@ -2274,6 +2284,16 @@ public class ApiController extends BasicController {
         	arroundVo.setStartTime(DateUtil.dateFormate(task.getMonitorDate(), "yyyy-MM-dd"));
         	Long timestamp = task.getMonitorDate().getTime() + (task.getMonitorLastDays() - 1)*24*60*60*1000;
         	arroundVo.setEndTime(DateUtil.dateFormate(new Date(timestamp), "yyyy-MM-dd"));
+        	arroundVo.setTask_point(task.getTaskPoint());
+        	arroundVo.setTask_money(task.getTaskMoney());
+         	arroundVo.setQualifiedPicUrl(task.getQualifiedPicUrl());
+        	arroundVo.setNoQualifiedPicUrl1(task.getNoQualifiedPicUrl1());
+        	arroundVo.setNoQualifiedPicUrl2(task.getNoQualifiedPicUrl2());
+        	arroundVo.setNoQualifiedPicUrl3(task.getNoQualifiedPicUrl2());
+        	arroundVo.setNoQualifiedText1(task.getNoQualifiedText1());
+        	arroundVo.setNoQualifiedText2(task.getNoQualifiedText2());
+        	arroundVo.setNoQualifiedText3(task.getNoQualifiedText3());
+        	arroundVo.setNotification(task.getNotification());
         	list.add(arroundVo);
         }
 

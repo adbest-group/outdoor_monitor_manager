@@ -29,7 +29,17 @@ public class MonitorTaskArroundVo extends BasicVo {
     private String city;
     private String startTime;
     private String endTime;
-
+    private Integer task_point;
+    private Double task_money;
+    private String qualifiedPicUrl;
+    private String noQualifiedPicUrl1;
+    private String noQualifiedPicUrl2;
+    private String noQualifiedPicUrl3;
+    private String noQualifiedText1;
+    private String noQualifiedText2;
+    private String noQualifiedText3;
+    private String notification;
+    
     public MonitorTaskArroundVo(AdMonitorTaskMobileVo task){
         this.task_id = task.getId();
         this.task_type = task.getTaskType();
@@ -46,9 +56,44 @@ public class MonitorTaskArroundVo extends BasicVo {
         this.lon = task.getLon();
         this.lat = task.getLat();
         this.distance = task.getDistance();
+        this.task_point = task.getTaskPoint();
+        this.task_money = task.getTaskMoney();
+        this.qualifiedPicUrl = task.getQualifiedPicUrl();
+		this.noQualifiedPicUrl1 = task.getNoQualifiedPicUrl1();
+		this.noQualifiedPicUrl2 = task.getNoQualifiedPicUrl2();
+		this.noQualifiedPicUrl3 = task.getNoQualifiedPicUrl3();
+		this.noQualifiedText1 = task.getNoQualifiedText1();
+		this.noQualifiedText2 = task.getNoQualifiedText2();
+		this.noQualifiedText3 = task.getNoQualifiedText3();
+		this.notification = task.getNotification();
     }
 
-    public String getAd_seat_code() {
+    
+	public Integer getTask_point() {
+		return task_point;
+	}
+
+
+
+	public void setTask_point(Integer task_point) {
+		this.task_point = task_point;
+	}
+
+
+
+	public Double getTask_money() {
+		return task_money;
+	}
+
+
+
+	public void setTask_money(Double task_money) {
+		this.task_money = task_money;
+	}
+
+
+
+	public String getAd_seat_code() {
         return ad_seat_code;
     }
 
@@ -223,5 +268,67 @@ public class MonitorTaskArroundVo extends BasicVo {
 	public void setEndTime(String endTime) {
 		this.endTime = endTime;
 	}
-    
+	 public String getQualifiedPicUrl() {
+			return qualifiedPicUrl;
+		}
+
+		public void setQualifiedPicUrl(String qualifiedPicUrl) {
+			this.qualifiedPicUrl = qualifiedPicUrl;
+		}
+
+		public String getNoQualifiedPicUrl1() {
+			return noQualifiedPicUrl1;
+		}
+
+		public void setNoQualifiedPicUrl1(String noQualifiedPicUrl1) {
+			this.noQualifiedPicUrl1 = noQualifiedPicUrl1;
+		}
+
+		public String getNoQualifiedPicUrl2() {
+			return noQualifiedPicUrl2;
+		}
+
+		public void setNoQualifiedPicUrl2(String noQualifiedPicUrl2) {
+			this.noQualifiedPicUrl2 = noQualifiedPicUrl2;
+		}
+
+		public String getNoQualifiedPicUrl3() {
+			return noQualifiedPicUrl3;
+		}
+
+		public void setNoQualifiedPicUrl3(String noQualifiedPicUrl3) {
+			this.noQualifiedPicUrl3 = noQualifiedPicUrl3;
+		}
+
+		public String getNoQualifiedText1() {
+			return noQualifiedText1;
+		}
+
+		public void setNoQualifiedText1(String noQualifiedText1) {
+			this.noQualifiedText1 = noQualifiedText1;
+		}
+
+		public String getNoQualifiedText2() {
+			return noQualifiedText2;
+		}
+
+		public void setNoQualifiedText2(String noQualifiedText2) {
+			this.noQualifiedText2 = noQualifiedText2;
+		}
+
+		public String getNoQualifiedText3() {
+			return noQualifiedText3;
+		}
+
+		public void setNoQualifiedText3(String noQualifiedText3) {
+			this.noQualifiedText3 = noQualifiedText3;
+		}
+
+		public String getNotification() {
+			return notification;
+		}
+
+		public void setNotification(String notification) {
+			this.notification = notification;
+		}
 }

@@ -499,5 +499,13 @@
   	from sys_user
   	where usertype = 4
   </select>
-
+  <update id="changeAppTypeById" parameterType="java.lang.Integer">
+  	update sys_user 
+  	<set>
+  		<if test="appTypeId != null">
+  			app_type_id = null
+  		</if>
+  	</set>
+  	where app_type_id = #{appTypeId,jdbcType=INTEGER}
+  </update>
 </mapper>

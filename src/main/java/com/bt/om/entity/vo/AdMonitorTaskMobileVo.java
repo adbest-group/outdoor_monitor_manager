@@ -42,7 +42,81 @@ public class AdMonitorTaskMobileVo extends AdMonitorTask {
     private String memo;
     private String road;
     
-    public String getMemo() {
+    private String qualifiedPicUrl;
+    private String noQualifiedPicUrl1;
+    private String noQualifiedPicUrl2;
+    private String noQualifiedPicUrl3;
+    private String noQualifiedText1;
+    private String noQualifiedText2;
+    private String noQualifiedText3;
+    private String notification;
+    
+    
+    public String getQualifiedPicUrl() {
+		return qualifiedPicUrl;
+	}
+
+	public void setQualifiedPicUrl(String qualifiedPicUrl) {
+		this.qualifiedPicUrl = qualifiedPicUrl;
+	}
+
+	public String getNoQualifiedPicUrl1() {
+		return noQualifiedPicUrl1;
+	}
+
+	public void setNoQualifiedPicUrl1(String noQualifiedPicUrl1) {
+		this.noQualifiedPicUrl1 = noQualifiedPicUrl1;
+	}
+
+	public String getNoQualifiedPicUrl2() {
+		return noQualifiedPicUrl2;
+	}
+
+	public void setNoQualifiedPicUrl2(String noQualifiedPicUrl2) {
+		this.noQualifiedPicUrl2 = noQualifiedPicUrl2;
+	}
+
+	public String getNoQualifiedPicUrl3() {
+		return noQualifiedPicUrl3;
+	}
+
+	public void setNoQualifiedPicUrl3(String noQualifiedPicUrl3) {
+		this.noQualifiedPicUrl3 = noQualifiedPicUrl3;
+	}
+
+	public String getNoQualifiedText1() {
+		return noQualifiedText1;
+	}
+
+	public void setNoQualifiedText1(String noQualifiedText1) {
+		this.noQualifiedText1 = noQualifiedText1;
+	}
+
+	public String getNoQualifiedText2() {
+		return noQualifiedText2;
+	}
+
+	public void setNoQualifiedText2(String noQualifiedText2) {
+		this.noQualifiedText2 = noQualifiedText2;
+	}
+
+	public String getNoQualifiedText3() {
+		return noQualifiedText3;
+	}
+
+	public void setNoQualifiedText3(String noQualifiedText3) {
+		this.noQualifiedText3 = noQualifiedText3;
+	}
+
+	public String getNotification() {
+		return notification;
+	}
+
+	public void setNotification(String notification) {
+		this.notification = notification;
+	}
+
+	public String getMemo() {
 		return memo;
 	}
 

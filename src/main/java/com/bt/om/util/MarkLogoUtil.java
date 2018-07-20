@@ -15,6 +15,12 @@ import javax.swing.ImageIcon;
 public class MarkLogoUtil {
 
 	public static String markImageBySingleIcon(String icon,String source,String output,String imageName,String imageType,Integer degree) {
+		//icon 水印路径
+		//source 源图片路径
+		//output  目标地址
+		//imageName 生成的图片名称
+		//imageType  图片类型jpg,jpeg,png,gif
+		//degree  水印旋转角度，null表示不旋转
 	    String result = "添加图片水印出错";
 	    try {
 		    File file = new File(source);

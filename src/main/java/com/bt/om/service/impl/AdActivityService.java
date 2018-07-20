@@ -367,6 +367,8 @@ public class AdActivityService implements IAdActivityService {
             		int betweenDays = DateUtil.getBetweenDays(upTask.getMonitorDate(), beforeDays);
             		upTask.setMonitorLastDays(betweenDays);
             		upTask.setReportTime(upTaskTime);
+            		upTask.setTaskPoint(adActivity.getUpTaskPoint());
+            		upTask.setTaskMoney(adActivity.getUpTaskMoney());
                     tasks.add(upTask);
             	}
             	
@@ -386,6 +388,8 @@ public class AdActivityService implements IAdActivityService {
                         task.setMonitorDate(monitorDate);
                 		task.setMonitorLastDays(betweenDays);
                 		task.setReportTime(upMonitorTask);
+                		task.setTaskPoint(adActivity.getUpMonitorTaskPoint());
+                		task.setTaskMoney(adActivity.getUpMonitorTaskMoney());
                         tasks.add(task);
                 	}
                 }
@@ -405,6 +409,8 @@ public class AdActivityService implements IAdActivityService {
                         task.setMonitorDate(monitorDate);
                 		task.setMonitorLastDays(betweenDays);
                 		task.setReportTime(downMonitorTask);
+                		task.setTaskPoint(adActivity.getDownMonitorTaskPoint());
+                		task.setTaskMoney(adActivity.getDownMonitorTaskMoney());
                         tasks.add(task);
                 	}
                 }
@@ -439,6 +445,8 @@ public class AdActivityService implements IAdActivityService {
                             task.setMonitorDate(monitorDate);
                     		task.setMonitorLastDays(betweenDays);
                     		task.setReportTime(durationMonitorTask);
+                    		task.setTaskPoint(adActivity.getDurationMonitorTaskPoint());
+                    		task.setTaskMoney(adActivity.getDurationMonitorTaskMoney());
                             tasks.add(task);
 						}
                 	}

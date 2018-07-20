@@ -312,7 +312,9 @@ public class ActivityController extends BasicController {
  	public Model zhuijiaTask(Model model, HttpServletRequest request,
  			@RequestParam(value = "activityId", required = false) Integer activityId,
  			@RequestParam(value = "seatIds", required = false) String seatIds,
- 			@RequestParam(value = "reportTime", required = false) String reportTime) {
+ 			@RequestParam(value = "reportTime", required = false) String reportTime,
+ 			@RequestParam(value = "zhuijiaMonitorTaskPoint", required = false) Integer zhuijiaMonitorTaskPoint,
+ 			@RequestParam(value = "zhuijiaMonitorTaskMoney", required = false) double zhuijiaMonitorTaskMoney) {
  		ResultVo<String> result = new ResultVo<String>();
  		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
  		result.setResultDes("确认成功");
@@ -328,7 +330,7 @@ public class ActivityController extends BasicController {
  		try {
  			String[] splitSeatIds = seatIds.split(",");
  			//批量插入
-			adMonitorTaskService.insertMonitorTask(activityId, Arrays.asList(splitSeatIds), reportTime);
+			adMonitorTaskService.insertMonitorTask(activityId, Arrays.asList(splitSeatIds), reportTime ,zhuijiaMonitorTaskPoint,zhuijiaMonitorTaskMoney);
  		} catch (Exception e) {
  			result.setCode(ResultCode.RESULT_FAILURE.getCode());
  			result.setResultDes("确认失败！");

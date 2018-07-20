@@ -152,7 +152,7 @@
 <script>
 $(function() {
     $('.select').searchableSelect();
-
+	$('#mediaId').next().find('.searchable-select-input').css('display', 'block');
 	//$("#mediaTr").show();
 
     $("#usertype").siblings().find(".searchable-select-item").click(function(){

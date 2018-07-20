@@ -993,7 +993,8 @@
         from (
         select 
         	a.id, a.activity_id, a.activity_adseat_id, a.task_type,a.monitor_date,a.monitor_last_days, 
-        	a.user_id, a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time, a.assessor_id,a.assignor_id,
+        	a.user_id, a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time, a.assessor_id,a.assignor_id,a.task_point,a.task_money,
+        	b.qualified_pic_url,b.no_qualified_pic_url1,b.no_qualified_pic_url2,b.no_qualified_pic_url3,b.no_qualified_text1,b.no_qualified_text2,b.no_qualified_text3,b.notification,
         	b.activity_name,
         	c.sample_pic_url,c.monitor_start,c.monitor_end,c.ad_seat_id,
         	d.`name` as ad_seat_name,d.location as ad_seat_location,d.ad_code as ad_seat_code, d.lon, d.lat, d.region, d.street, d.province, d.city
@@ -1001,7 +1002,6 @@
         left join ad_activity b on a.activity_id = b.id
         left join ad_activity_adseat c on a.activity_adseat_id = c.id
         left join ad_seat_info d on c.ad_seat_id = d.id
-
         where 1=1
         and d.lon between (#{lon,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lon,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
         and d.lat between (#{lat,jdbcType=DOUBLE}-#{metreDegree,jdbcType=DOUBLE}) and (#{lat,jdbcType=DOUBLE}+#{metreDegree,jdbcType=DOUBLE})
@@ -1066,7 +1066,7 @@
         from (
         select 
         	a.id, a.activity_id, a.activity_adseat_id, a.task_type,a.monitor_date,a.monitor_last_days, 
-        	a.user_id, a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time, a.assessor_id,a.assignor_id,a.assignor_time,
+        	a.user_id, a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type, a.verify_time, a.create_time, a.update_time, a.assessor_id,a.assignor_id,a.assignor_time,a.task_point,a.task_money,
        		b.activity_name,
        		c.sample_pic_url,c.monitor_start,c.monitor_end,c.ad_seat_id,
        		d.`name` as ad_seat_name,d.location as ad_seat_location,d.ad_code as ad_seat_code, d.lon, d.lat, d.region, d.street, d.province, d.city

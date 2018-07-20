@@ -192,7 +192,7 @@ public class AddressUtils {
 	}
 
 	// 测试
-	public static void main(String[] args) {
+/*	public static void main(String[] args) {
 		AddressUtils addressUtils = new AddressUtils();
 		// 测试ip 219.136.134.157 中国=华南=广东省=广州市=越秀区=电信
 		String ip = "183.129.220.186";
@@ -205,5 +205,5 @@ public class AddressUtils {
 		}
 		System.out.println(address);
 		// 输出结果为：广东省,广州市,越秀区
-	}
+	}*/
 }

@@ -1549,7 +1549,7 @@
     	update 
 			ad_monitor_task a
 		SET 
-			a.status=9
+			a.status=10
 		WHERE 
 		a.status in (1,2,6,8)
 		and DATE_FORMAT(date_add(a.monitor_date,interval (a.monitor_last_days) day),'%Y-%m-%d %H:%i:%s') &lt;= DATE_FORMAT(#{nowDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')

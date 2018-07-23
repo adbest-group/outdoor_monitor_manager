@@ -563,7 +563,7 @@
 		c.road info_road,
 		d.media_name mediaName,
 		e.realname realname,
-		h.realname exe_realname,		
+		h.realname exe_realname		
 	from ad_activity_adseat a
 	LEFT JOIN ad_monitor_task b ON b.activity_adseat_id = a.id
 	LEFT JOIN ad_seat_info c ON a.ad_seat_id = c.id

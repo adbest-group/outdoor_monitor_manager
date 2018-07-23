@@ -70,4 +70,9 @@ public interface AdMonitorUserTaskMapper {
     int updateIsPush(@Param("ids") List<Integer> ids);
     
     int cleanTask(AdMonitorUserTask task);
+
+	List<Integer> selectOverTimeTaskIds(Map<String, Object> searchMap);
+
+	void recycleOverTimeUserTask(AdMonitorUserTask task);
+
 }

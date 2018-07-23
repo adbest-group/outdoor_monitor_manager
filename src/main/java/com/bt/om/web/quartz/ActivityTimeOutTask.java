@@ -5,6 +5,7 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.bt.om.service.IAdActivityService;
+import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.util.ConfigUtil;
 
 /**
@@ -15,6 +16,8 @@ public class ActivityTimeOutTask extends AbstractTask {
 	@Autowired
 	private IAdActivityService adActivityService;
 	
+	@Autowired
+	private IAdMonitorTaskService adMonitorTaskService;
 	@Override
 	protected boolean canProcess() {
 		return true;
@@ -29,5 +32,10 @@ public class ActivityTimeOutTask extends AbstractTask {
 		
 		//更新活动开始时间晚于deadLineTime的活动状态为"超时未确认"
 		adActivityService.deadLineAuditActivity(deadLineTime);
+		
+		/**
+		 * 任务主表超时 将状态改成"已超时"
+		 */
+		adMonitorTaskService.changeStatus();
 	}
 }

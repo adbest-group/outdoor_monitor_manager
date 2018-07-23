@@ -6,6 +6,7 @@
         .basic-info .bd td{ padding: 0 10px;}
 		.role-nav-authority li{ float: left; overflow: hidden; margin-bottom: 5px; height: 25px;}
 		.role-nav-authority li label input[type=checkbox]{ width: 15px; height: 15px; margin: 2px 3px 0 0; vertical-align: text-top;}
+		.basic-info tr .a-title{padding:10px;}
 	</style>
 
 <div class="basic-info">
@@ -30,14 +31,20 @@
 					</td>
 				</tr>
 				<tr>
+					<td class="a-title">积分：</td>
 					<td>
-                    	<div>
-                    		积分：
+					    <div>
                         	<input type="text" id="zhuijiaMonitorTaskPoint"  name="zhuijiaMonitorTaskPoint" style="width: 100px;" value="0" autocomplete="off" class="form-control point"> 
             				<span id="zhuijiaMonitorTaskPointTip"></span>
                     	</div>
+					</td>
+				</tr>
+				<tr>
+					<td  class="a-title">
+                    	金额：
+                    </td>
+					<td>
                     	<div>
-                    		金额：
                     		<input type="text" id="zhuijiaMonitorTaskMoney" name="zhuijiaMonitorTaskMoney" value="0.00" style="width: 100px;" autocomplete="off" class="form-control money"> 
                     		<span id="zhuijiaMonitorTaskMoneyTip"></span>
                     	</div>
@@ -75,65 +82,8 @@ $(function() {
    		return date.getFullYear()+ '-' + month + '-' + day
     }
 	
-	$('#zhuiJiaTaskTime').dateRangePicker({
- 	   singleDate: true,
- 	   showShortcuts: false,
-        getValue: function () {
-            return $(this).find('.zhuiJia-Wdate').val()
-        },
-        setValue: function (s) {
-           $(this).find('.zhuiJia-Wdate').val(s)
-		   $(this).find('.zhuiJia-Wdate').blur()
-        }
-    });
-	//追加监测任务积分值
-    $("#zhuijiaTaskPoint").formValidator({
-        validatorGroup:"2",
-        tipID:"zhuijiaMonitorTaskPointTip",
-        onShow: "　",
-        onFocus: "请输入追加监测任务积分",
-        onCorrect: ""
-    }).regexValidator({
-    	regExp:"^[0-9]*$",
-    	onError:"积分数值输入有误"
-    }).inputValidator({
-        min: 1,
-        max: 60,
-        onError: "积分数值不能为空，请输入"
-    });
-    //追加监测任务金额值
-    $("#zhuijiaMonitorTaskMoney").formValidator({
-        validatorGroup:"2",
-        tipID:"zhuijiaMonitorTaskMoneyTip",
-        onShow: "　",
-        onFocus: "请输入追加监测任务金额",
-        onCorrect: ""
-    }).regexValidator({
-    	regExp:"^[1-9]{1}\\d\*(\\.\\d{1,2})?$",
-    	onError:"金额数值输入有误"
-    }).inputValidator({
-        min: 1,
-        max: 60,
-        onError: "金额数值不能为空，请输入"
-    });
-    
-    $(".point").focus(function(){
-    	$(this).val('')
-    })
-    $(".money").focus(function(){
-    	$(this).val('')
-    })
-    
-    $(".point").blur(function(){
-    	if($(this).val() === '') {
-    		$(this).val('0')
-    	}
-    })
-    $(".money").blur(function(){
-    	if($(this).val() === '') {
-    		$(this).val('0.00')
-    	}
-    })
+	
+
 	// 新建账户处理
 	$.formValidator.initConfig({
 		validatorGroup:"2",
@@ -147,6 +97,7 @@ $(function() {
 	        var activityId = $("#activityId").val();
 	        var zhuijiaMonitorTaskPoint = $("#zhuijiaMonitorTaskPoint").val();
 	        var zhuijiaMonitorTaskMoney = $("#zhuijiaMonitorTaskMoney").val();
+	        console.log(222, reportTime, seatId)
             $.ajax({
                 url: "/activity/zhuijiaTask",
                 type: "post",
@@ -187,7 +138,6 @@ $(function() {
         },
         submitAfterAjaxPrompt: '有数据正在异步验证，请稍等...'
     });
-	
 	// 追加监测任务出报告时间的校验
     $('#zhuiJia-Wdate').formValidator({
            validatorGroup: '2',
@@ -207,15 +157,61 @@ $(function() {
            		var after = m + n
            		var afterDay = new Date(startDate.getTime() + 24 * 60 * 60 * 1000 * after)
            		var afterDate = getDate(afterDay)
+           		console.log(1111, $('#endTime').val(), val, afterDate)
            		if($('#endTime').val() < val) {
            			return '出报告时间是在活动结束时间之前'
            		}else if (val < afterDate){
-           			return '出报告时间是活动开始时间的至少' + after + '天以后'
+           			return '出报告时间是活动开始时间的至少' + after + '天以后' ;
            		}else{
-           			return true
+           			return true;
            		}
            	}
-      })
+      });
+      
+    $('#zhuiJiaTaskTime').dateRangePicker({
+ 	   singleDate: true,
+ 	   showShortcuts: false,
+        getValue: function () {
+            return $(this).find('.zhuiJia-Wdate').val()
+        },
+        setValue: function (s) {
+           $(this).find('.zhuiJia-Wdate').val(s)
+		   $(this).find('.zhuiJia-Wdate').blur()
+        }
+    });
+    
+	//追加监测任务积分值
+    $("#zhuijiaMonitorTaskPoint").formValidator({
+        validatorGroup:"2",
+        tipID:"zhuijiaMonitorTaskPointTip",
+        onShow: "　",
+        onFocus: "请输入追加监测任务积分",
+        onCorrect: ""
+    }).regexValidator({
+    	regExp:"^[0-9]*$",
+    	onError:"积分数值输入有误"
+    }).inputValidator({
+        min: 1,
+        max: 60,
+        onError: "积分数值不能为空，请输入"
+    });
+    
+    
+    //追加监测任务金额值
+    $("#zhuijiaMonitorTaskMoney").formValidator({
+        validatorGroup:"2",
+        tipID:"zhuijiaMonitorTaskMoneyTip",
+        onShow: "　",
+        onFocus: "请输入追加监测任务金额",
+        onCorrect: ""
+    }).regexValidator({
+    	regExp:"^[0-9]{1}\\d\*(\\.\\d{1,2})?$",
+    	onError:"金额数值输入有误"
+    }).inputValidator({
+        min: 1,
+        max: 60,
+        onError: "金额数值不能为空，请输入"
+    });
 });
             
 </script>

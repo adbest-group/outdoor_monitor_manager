@@ -446,6 +446,9 @@
     <if test="cityId != null" >
       and c.city = #{cityId,jdbcType=INTEGER}
     </if>
+    <if test="provinceId != null" >
+      and c.province = #{provinceId,jdbcType=INTEGER}
+    </if>
     <if test="mediaTypeParentId != null" >
       and c.media_type_parent_id = #{mediaTypeParentId,jdbcType=INTEGER}
     </if>
@@ -490,6 +493,9 @@
     </if>
     <if test="cityId != null" >
       and c.city = #{cityId,jdbcType=INTEGER}
+    </if>
+    <if test="provinceId != null" >
+      and c.province = #{provinceId,jdbcType=INTEGER}
     </if>
     <if test="mediaTypeParentId != null" >
       and c.media_type_parent_id = #{mediaTypeParentId,jdbcType=INTEGER}

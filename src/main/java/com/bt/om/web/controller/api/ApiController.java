@@ -94,8 +94,8 @@ import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.service.IAdSeatService;
 import com.bt.om.service.IAdUserMessageService;
 import com.bt.om.service.IAppService;
-import com.bt.om.service.IMediaService;
 import com.bt.om.service.ILoginLogService;
+import com.bt.om.service.IMediaService;
 import com.bt.om.service.IPointService;
 import com.bt.om.service.ISendSmsService;
 import com.bt.om.service.ISysResourcesService;
@@ -3267,6 +3267,7 @@ public class ApiController extends BasicController {
         String token = null;
         Date now = new Date();
         Integer activityId = null; //活动id
+        Integer provinceId = null; //省份id
         Integer cityId = null; //城市id
         Integer mediaTypeParentId = null; //媒体大类id
         String updateTime = null; //app提交的时间, 防止分页数据可能造成的重复问题
@@ -3277,6 +3278,7 @@ public class ApiController extends BasicController {
             activityId = obj.get("activityId").getAsInt();
             token = obj.get("token") == null ? null : obj.get("token").getAsString();
             cityId = obj.get("cityId") == null ? null : obj.get("cityId").getAsInt();
+            provinceId = obj.get("provinceId") == null ? null : obj.get("provinceId").getAsInt();
             mediaTypeParentId = obj.get("mediaTypeParentId") == null ? null : obj.get("mediaTypeParentId").getAsInt();
             updateTime = obj.get("updateTime") == null ? null : obj.get("updateTime").getAsString();
             if(obj.get("page") != null){
@@ -3320,6 +3322,7 @@ public class ApiController extends BasicController {
             SearchDataVo searchDataVo = new SearchDataVo(null, null, (page-1)*pageSize, pageSize);
             searchDataVo.putSearchParam("activityId", null, activityId);
             searchDataVo.putSearchParam("cityId", null, cityId);
+            searchDataVo.putSearchParam("provinceId", null, provinceId);
             searchDataVo.putSearchParam("mediaTypeParentId", null, mediaTypeParentId);
     		searchDataVo.putSearchParam("updateTime", null, updateTime);
         	

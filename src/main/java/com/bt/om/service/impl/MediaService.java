@@ -104,4 +104,9 @@ public class MediaService implements IMediaService {
         return adMediaMapper.selectByPrimaryKey(id);
     }
 
+	@Override
+	public List<AdMedia> selectAllMedia() {
+		return adMediaMapper.selectAllMedia();
+	}
+
 }

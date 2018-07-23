@@ -44,6 +44,8 @@
                         <th>序号</th>
                         <th>媒体类型名称</th>
                         <th>类型</th>
+                        <th>是否允许同时有多个活动</th>
+                        <th>允许的活动数量</th>
                         <#-- <th>需要唯一标识</th> -->
                         <th>当前状态</th>
                         <th>操作</th>
@@ -66,13 +68,20 @@
                             </td>
                              -->
                             <td>
+                            	<#if type.mediaType?exists && type.mediaType == 2>
+	                            	<#if type.allowMulti?exists && type.allowMulti == 1>是</#if>
+	                            	<#if type.allowMulti?exists && type.allowMulti == 0>否</#if>
+                            	</#if>
+                            </td>
+                            <td>
+                            	<#if type.mediaType?exists && type.mediaType == 2>${type.multiNum?if_exists}</#if>
+                            </td>
+                            <td>
                             	<#if type.status?exists && type.status == 1>可用</#if>
                             	<#if type.status?exists && type.status == 2>不可用</#if>
                             </td>
                             <td>
-                            	<!--
-                                <a href="javascript:void(0);" onclick="edit('${type.id}');">编辑</a>
-                                -->
+                                <a href="javascript:void(0);" onclick="edit('${type.id}');">编辑</a>&nbsp&nbsp&nbsp&nbsp
                                
                                 <!--只显示可用或者不可用 <#if type.status?exists && type.status == 1>
                                 	<a href="javascript:void(0);" onclick="updateStatus('${type.id}', 2, '${type.mediaType}');">不可用</a>

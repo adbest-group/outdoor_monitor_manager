@@ -14,7 +14,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -47,7 +46,6 @@ import com.bt.om.entity.City;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
 import com.bt.om.entity.vo.AdMediaTypeVo;
-import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.ExcelImportFailEnum;
 import com.bt.om.enums.MapStandardEnum;
 import com.bt.om.enums.MonitorTaskStatus;
@@ -63,10 +61,10 @@ import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.service.IAdSeatService;
 import com.bt.om.service.IAdUserMessageService;
 import com.bt.om.service.IAppService;
+import com.bt.om.service.IMediaService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.util.ExcelTool;
 import com.bt.om.util.ImportExcelUtil;
-import com.bt.om.util.QRcodeUtil;
 import com.bt.om.util.pdf.AlternatingBackground;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.web.BasicController;
@@ -119,6 +117,9 @@ public class ExcelController extends BasicController {
 	
 	@Autowired
 	private IAppService adappService;
+	
+	@Autowired
+	private IMediaService mediaService;
 	
 	@Autowired
 	private IAdUserMessageService adUserMessageService;
@@ -812,14 +813,14 @@ public class ExcelController extends BasicController {
 	}
 	
 	/**
-	 * 批量插入广告位
+	 * 【群邑方】 批量插入广告位 (增加 广告位所属媒体主)
+	 * 需要插入临时表
 	 */
 	@RequiresRoles(value = {"superadmin" , "media"}, logical = Logical.OR)
     @RequestMapping(value = "/insertBatch")
 	@ResponseBody
 	public Model insertBatchByExcel(Model model, HttpServletRequest request, HttpServletResponse response,
-                                     @RequestParam(value = "excelFile", required = false) MultipartFile file,
-                                     @RequestParam(value = "mediaId", required = false) Integer mediaId) {
+                                     @RequestParam(value = "excelFile", required = false) MultipartFile file) {
 		//相关返回结果
 		ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
@@ -827,31 +828,22 @@ public class ExcelController extends BasicController {
         model = new ExtendedModelMap();
         
         //导出文件相关
- 		final String fileName = "导入结果-" + System.currentTimeMillis() + ".xls"; //导出文件名
+ 		final String fileName = "导入广告位结果-" + System.currentTimeMillis() + ".xls"; //导出文件名
 		List<City> provinces = cityCache.getAllProvince(); //获取全部省份
 		Map<String, Long> provinceMap = citiesToMap(provinces);
 		
 		//获取登录用户信息
 		Date now = new Date();
-    	SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-    	user = sysUserService.findUserinfoById(user.getId());
-    	AdMedia media = new AdMedia();
-    	SysUserVo mediaUser = new SysUserVo();
-		Integer usertype = user.getUsertype();
-		if(usertype == 4 || usertype == 5 || usertype == 1) {
-			//后台管理人员帮助媒体导入
-			media = adMediaMapper.selectByPrimaryKey(mediaId);
-			mediaUser = sysUserService.findUserinfoById(media.getUserId());
-		} else if (usertype == 3) {
-			//媒体人员自行导入
-			media = adMediaMapper.selectByUserId(user.getId());
-			mediaUser = sysUserService.findUserinfoById(media.getUserId());
-		}
+
+    	//获取全部的媒体主信息
+    	List<AdMedia> allMedias = mediaService.selectAllMedia();
 		
-		//获取需要插入广告位信息的媒体已经存在的广告位信息
-		List<AdSeatInfo> adSeatsByMediaId = adSeatService.getAdSeatByMediaId(media.getId());
+//		//获取需要插入广告位信息的媒体已经存在的广告位信息
+//		List<AdSeatInfo> adSeatsByMediaId = adSeatService.getAdSeatByMediaId(media.getId());
+		//获取全部广告位(检验唯一性)
+		List<AdSeatInfo> adSeats = adSeatService.selectAllSeats();
 		List<String> databaseAdSeats = new ArrayList<>();
-		for (AdSeatInfo adSeatInfo : adSeatsByMediaId) {
+		for (AdSeatInfo adSeatInfo : adSeats) {
 			StringBuffer buffer = new StringBuffer();
 			if(adSeatInfo.getProvince() != null) {
 				buffer.append(cityCache.getCityName(adSeatInfo.getProvince())); //省
@@ -859,21 +851,19 @@ public class ExcelController extends BasicController {
 			if(adSeatInfo.getCity() != null) {
 				buffer.append(cityCache.getCityName(adSeatInfo.getCity())); //市
 			}
-//			if(adSeatInfo.getRegion() != null) {
-//				buffer.append(cityCache.getCityName(adSeatInfo.getRegion())); //区
-//			}
-//			if(adSeatInfo.getStreet() != null) {
-//				buffer.append(cityCache.getCityName(adSeatInfo.getStreet())); //街道 
-//			}
-			buffer.append(adSeatInfo.getRoad());//主要路段
+			if(adSeatInfo.getRoad() != null) {
+				buffer.append(adSeatInfo.getRoad());//主要路段
+			}
 			buffer.append(adSeatInfo.getLocation()); //详细位置
 			databaseAdSeats.add(buffer.toString());
 		}
 		Set<String> keySet = new HashSet<>(databaseAdSeats);
+		adSeats.clear();
 		
 		//获取媒体类型
 		List<AdMediaTypeVo> adMediaTypeVos = adMediaTypeService.selectParentAndSecond();
 		Table<String, String, AdMediaTypeVo> table = getTable(adMediaTypeVos);
+		adMediaTypeVos.clear();
 		
 		try {
 			if (file.isEmpty()) {
@@ -891,13 +881,12 @@ public class ExcelController extends BasicController {
             //excel列表
             for (int i = 1; i < listob.size(); i++) {
                 List<Object> lo = listob.get(i);
-                //广告位名称, 媒体大类, 媒体小类, 是否允许多个活动（是或否）, 允许活动数量, 省（直辖市）, 市,  主要路段, 
-                //详细位置, , 媒体方广告位编号， 广告位长度, 广告位宽度, 面积, 经度, 纬度,面数， 地图标准（如百度，谷歌，高德）, 联系人姓名, 联系人电话, 导入结果, 导入错误信息
-                if(lo.size() <= 21){
+                //广告位名称, 所属媒体主, 媒体大类, 媒体小类, 省（直辖市）, 市,  主要路段, 
+                //详细位置, 媒体方广告位编号, 广告位长度, 广告位宽度, 面积, 经度, 纬度,面数, 地图标准（如百度，谷歌，高德）, 联系人姓名, 联系人电话, 导入结果, 导入错误信息
+                if(lo.size() <= 20){
                 	AdSeatInfo info = new AdSeatInfo();
                 	Long provinceId = 0L;
                 	Long cityId = 0L;
-                	Long regionId = 0L;
                 	Boolean zhiXiaShiFlag = false;
                 	Boolean hasProblem = false;
                 	StringBuffer buffer = new StringBuffer();
@@ -905,93 +894,75 @@ public class ExcelController extends BasicController {
                 	
                 	//设置广告位名称
                 	if(lo.get(0) == null) {
-                		/*logger.error(MessageFormat.format("批量导入文件广告位名称不能为空, 导入失败", new Object[] {}));
-                		throw new ExcelException("批量导入文件广告位名称不能为空, 导入失败");*/
-                		lo.set(19, importFail);
-                		lo.set(20, ExcelImportFailEnum.ADNAME_NULL.getText());
+                		lo.set(18, importFail);
+                		lo.set(19, ExcelImportFailEnum.ADNAME_NULL.getText());
                 		hasProblem = true;
                 	} else {
                 		info.setName(String.valueOf(lo.get(0)).trim()); //广告位名称
                 	}
                 	
-                	//设置媒体大类
+                	//设置媒体主
                 	if(hasProblem == false) {
                 		if(lo.get(1) == null) {
-                    		lo.set(19, importFail);
-                    		lo.set(20, ExcelImportFailEnum.PARENT_NULL.getText());
+                    		lo.set(18, importFail);
+                    		lo.set(19, ExcelImportFailEnum.MEDIA_NULL.getText());
+                    		hasProblem = true;
+                    	} else {
+                    		for (AdMedia adMedia : allMedias) {
+                    			if(StringUtil.equals(adMedia.getMediaName(), String.valueOf(lo.get(1)).trim())) {
+                    				info.setMediaId(adMedia.getId());
+                    				break;
+                    			}
+                    		}
+                    		if(info.getMediaId() == null) {
+                    			lo.set(18, importFail);
+                        		lo.set(19, ExcelImportFailEnum.MEDIA_INVAILD.getText());
+                        		hasProblem = true;
+                    		}
+                    	}
+                	}
+                	
+                	//设置媒体大类
+                	if(hasProblem == false) {
+                		if(lo.get(2) == null) {
+                    		lo.set(18, importFail);
+                    		lo.set(19, ExcelImportFailEnum.PARENT_NULL.getText());
                     		hasProblem = true;
                     	}
                 	}
                 	
                 	//设置媒体小类
                 	if(hasProblem == false) {
-                		if(lo.get(2) == null) {
-                    		lo.set(19, importFail);
-                    		lo.set(20, ExcelImportFailEnum.SECOND_NULL.getText());
+                		if(lo.get(3) == null) {
+                    		lo.set(18, importFail);
+                    		lo.set(19, ExcelImportFailEnum.SECOND_NULL.getText());
                     		hasProblem = true;
                     	} else {
-                    		String parentName = String.valueOf(lo.get(1)).trim();
-                    		String secondName = String.valueOf(lo.get(2)).trim();
+                    		String parentName = String.valueOf(lo.get(2)).trim();
+                    		String secondName = String.valueOf(lo.get(3)).trim();
                     		adMediaTypeVo = table.get(parentName, secondName);
                     		if(adMediaTypeVo != null) {
                     			info.setMediaTypeParentId(adMediaTypeVo.getParentId());
                     			info.setMediaTypeId(adMediaTypeVo.getId());
+                    			//通过媒体类型来确认广告位是否支持多个活动
+                    			info.setAllowMulti(adMediaTypeVo.getAllowMulti());
+                    			info.setMultiNum(adMediaTypeVo.getMultiNum());
                     		} else {
-                    			lo.set(19, importFail);
-                        		lo.set(20, ExcelImportFailEnum.MEDIA_TYPE_INVALID.getText());
+                    			lo.set(18, importFail);
+                        		lo.set(19, ExcelImportFailEnum.MEDIA_TYPE_INVALID.getText());
                         		hasProblem = true;
                     		}
     					}
                 	}
                 	
-                	//设置是否允许多个活动（是或否）不填写则默认为否
-                	if(hasProblem == false) {
-                		if(lo.get(3) == null) {
-                			info.setAllowMulti(0); //不填写则默认为否
-                		} else {
-                			String allowMulti = String.valueOf(lo.get(3)).trim();
-                			if(StringUtil.equals(allowMulti, "是")) {
-                				info.setAllowMulti(1); //1：是
-                			} else if(StringUtil.equals(allowMulti, "否")) {
-                				info.setAllowMulti(0); //0：否
-                			} else {
-                				info.setAllowMulti(0); //0：否
-                			}
-                		}
-                	}
-                	
-                	//设置允许活动数量, 不填写默认为1
-                	if(hasProblem == false) {
-                		if(lo.get(4) == null) {
-                			info.setMultiNum(1); //不填写默认为1
-                		} else {
-                			if(info.getAllowMulti() == 0) {
-                				info.setMultiNum(1); //allowMulti为0代表不允许多个活动, 设置活动数量为1
-                			} else {
-                				String multiNumStr = String.valueOf(lo.get(4)).trim();
-                				try {
-                					Double multiNumDou = new Double(multiNumStr);
-                					Integer multiNum = multiNumDou.intValue();
-                					info.setMultiNum(multiNum);
-								} catch (Exception e) {
-									lo.set(19, importFail);
-	                        		lo.set(20, ExcelImportFailEnum.NUM_INVALID.getText());
-	                        		hasProblem = true;
-								}
-                			}
-                		}
-                	}
-                	
                 	//设置广告位所在省份(包括直辖市)
                 	if(hasProblem == false) {
-                		if(lo.get(5) == null) {
-                    		/*logger.error(MessageFormat.format("批量导入文件省份不能为空, 导入失败", new Object[] {}));
-                    		throw new ExcelException("批量导入文件省份不能为空, 导入失败");*/
-                    		lo.set(19, importFail);
-                    		lo.set(20, ExcelImportFailEnum.PROVINCE_NULL.getText());
+                		if(lo.get(4) == null) {
+                    		lo.set(18, importFail);
+                    		lo.set(19, ExcelImportFailEnum.PROVINCE_NULL.getText());
                     		hasProblem = true;
                     	} else {
-                    		String provinceName = String.valueOf(lo.get(5)).trim(); //省
+                    		String provinceName = String.valueOf(lo.get(4)).trim(); //省
                     		//判断是否是直辖市
                     		if(provinceName.contains("北京") || provinceName.contains("上海") || provinceName.contains("天津")
                     				|| provinceName.contains("重庆")) {
@@ -1022,8 +993,8 @@ public class ExcelController extends BasicController {
                     		}
                     		provinceId = provinceMap.get(provinceName);
                     		if(provinceId == null) {
-                    			lo.set(19, importFail);
-                        		lo.set(20, ExcelImportFailEnum.PROVINCE_INVALID.getText());
+                    			lo.set(18, importFail);
+                        		lo.set(19, ExcelImportFailEnum.PROVINCE_INVALID.getText());
                         		hasProblem = true;
                     		}
                     		info.setProvince(provinceId);
@@ -1033,19 +1004,476 @@ public class ExcelController extends BasicController {
                 	
                 	//设置广告位所在市
                 	if(hasProblem == false) {
-                		if(lo.get(6) == null) {
+                		if(lo.get(5) == null) {
                     		if(zhiXiaShiFlag == false) {
-                    			/*logger.error(MessageFormat.format("批量导入文件市不能为空, 导入失败", new Object[] {}));
-                        		throw new ExcelException("批量导入文件市不能为空, 导入失败");*/
-                    			lo.set(19, importFail);
-                        		lo.set(20, ExcelImportFailEnum.CITY_NULL.getText());
+                    			lo.set(18, importFail);
+                        		lo.set(19, ExcelImportFailEnum.CITY_NULL.getText());
                         		hasProblem = true;
                     		}
                     	} else {
                     		if(zhiXiaShiFlag == true) {
                     			//直辖市的city字段不存库
                     		} else {
-                    			String cityName = String.valueOf(lo.get(6)).trim(); //市
+                    			String cityName = String.valueOf(lo.get(5)).trim(); //市
+                        		if(zhiXiaShiFlag == true) {
+                        			info.setCity(info.getProvince());
+                        			cityId = provinceId;
+                        		} else {
+                        			List<City> cities = cityCache.getCity(provinceId);
+                            		Map<String, Long> cityMap = citiesToMap(cities);
+                            		Set<String> cityNames = cityMap.keySet();
+                            		for (String name : cityNames) {
+        								if(name.contains(cityName)) {
+        									cityName = name;
+        									break;
+        								}
+        							}
+                            		cityId = cityMap.get(cityName);
+                            		if(cityId == null) {
+                            			lo.set(18, importFail);
+                                		lo.set(19, ExcelImportFailEnum.CITY_INVALID.getText());
+                                		hasProblem = true;
+                            		}
+                            		info.setCity(cityId);
+                            		buffer.append(cityName);
+                        		}
+                    		}
+    					}
+                	}
+                	
+                	//设置广告位所在主要路段
+                	if(hasProblem == false) {
+                		if(lo.get(6) == null) {
+                    		lo.set(18, importFail);
+                    		lo.set(19, ExcelImportFailEnum.STREET_NULL.getText());
+                    		hasProblem = true;
+                    	} else {
+                    		String road = String.valueOf(lo.get(6)).trim(); //主要路段
+                    		info.setRoad(road);
+                    		buffer.append(road);
+                    	}
+                	}
+                	
+                	//设置广告位详细地址
+                	if(hasProblem == false) {
+                		if(lo.get(7) == null) {
+                    		lo.set(18, importFail);
+                    		lo.set(19, ExcelImportFailEnum.LOCATION_NULL.getText());
+                    		hasProblem = true;
+                    	} else {
+                    		info.setLocation(String.valueOf(lo.get(7)).trim()); //详细位置
+                    		buffer.append(String.valueOf(lo.get(7)).trim());
+                    	}
+                	}
+                	
+                	//设置媒体方广告位编号信息
+                	if(hasProblem == false) {
+                		if(lo.get(8) != null) {
+                			info.setMemo(String.valueOf(lo.get(8)).trim());
+                		}
+                	}
+                	
+                	//设置广告位尺寸
+                	if(hasProblem == false) {
+                		if(lo.get(9) != null && lo.get(10) != null) {
+//                    		DecimalFormat df = new DecimalFormat("0"); // 格式化number String字符
+                    		String length = String.valueOf(lo.get(9)).trim();
+                    		String width = String.valueOf(lo.get(10)).trim();
+                    		info.setAdSize(length + "*" + width); //广告位长度*广告位宽度
+                    		lo.set(9, length);
+                    		lo.set(10, width);
+                    	} else if (lo.get(9) != null && lo.get(10) == null) {
+                    		lo.set(18, importFail);
+                    		lo.set(19, ExcelImportFailEnum.SIZE_ONLYONE.getText());
+                    		hasProblem = true;
+    					} else if (lo.get(9) == null && lo.get(10) != null) {
+                    		lo.set(18, importFail);
+                    		lo.set(19, ExcelImportFailEnum.SIZE_ONLYONE.getText());
+                    		hasProblem = true;
+    					} else {
+    					}
+                	}
+                	
+                	//设置面积
+                	if(hasProblem == false) {
+                		if(lo.get(11) != null) {
+                    		info.setAdArea(String.valueOf(lo.get(11)).trim());
+                    	}
+                	}
+                	
+                	//设置面数
+                	if(hasProblem == false) {
+                		if(lo.get(12) != null) {
+                			Double b = Double.parseDouble(String.valueOf(lo.get(12)).trim());
+                    		info.setAdNum((new Double(b)).intValue());
+                    	}
+                	}
+                	
+                	//设置经纬度
+                	if(hasProblem == false) {
+                		if(lo.get(13) != null && lo.get(14) == null) {
+                    		lo.set(18, importFail);
+                    		lo.set(19, ExcelImportFailEnum.LOC_ONLYONE.getText());
+                    		hasProblem = true;
+                    	} else if (lo.get(13) == null && lo.get(14) != null) {
+                    		lo.set(18, importFail);
+                    		lo.set(19, ExcelImportFailEnum.LOC_ONLYONE.getText());
+                    		hasProblem = true;
+    					} else if (lo.get(13) == null && lo.get(14) == null) {
+    					} else {
+    						//判断经度在-180-180之间
+    						double lon = Double.parseDouble(String.valueOf(lo.get(13)).trim());
+    						if(lon < -180 || lon > 180) {
+    							lo.set(18, importFail);
+    	                		lo.set(19, ExcelImportFailEnum.LON_OVERFLOW.getText());
+    	                		hasProblem = true;
+    						}
+    						//判断纬度在-90-90之间
+    						double lat = Double.parseDouble(String.valueOf(lo.get(14)).trim());
+    						if(lat < -90 || lat > 90) {
+    	                		lo.set(18, importFail);
+    	                		lo.set(19, ExcelImportFailEnum.LAT_OVERFLOW.getText());
+    	                		hasProblem = true;
+    						}
+    						info.setLon(lon); //经度
+    	                	info.setLat(lat); //纬度
+    	                	
+    	                	//地图标准
+    	                	if(hasProblem == false) {
+    	                		if(lo.get(15) != null) {
+    	                			if(String.valueOf(lo.get(15)).trim().contains("百度")) {
+    	                				info.setMapStandard(MapStandardEnum.getId("百度"));
+    	                			} else if(String.valueOf(lo.get(15)).trim().contains("高德")) {
+    	                				info.setMapStandard(MapStandardEnum.getId("高德"));
+    	                			} else if(String.valueOf(lo.get(15)).trim().contains("谷歌")) {
+    	                				info.setMapStandard(MapStandardEnum.getId("谷歌"));
+    	                			}
+        	                	} else {
+        	                		lo.set(18, importFail);
+        	                		lo.set(19, ExcelImportFailEnum.NONE_MAP.getText());
+        	                		hasProblem = true;
+        						}
+    	                	}
+    					}
+                	}
+                	
+                	//设置联系人信息
+                	if(hasProblem == false) {
+                		if(lo.get(16) != null) {
+                    		info.setContactName(String.valueOf(lo.get(16)).trim());
+                    	}
+                	}
+                	
+                	//联系人电话
+                	if(hasProblem == false) {
+                		if(lo.get(17) != null) {
+                    		info.setContactCell(String.valueOf(lo.get(17)).trim());
+                    	}
+                	}
+                	
+                	info.setCreateTime(now);
+                	info.setUpdateTime(now);
+                	
+                	//检查是否重复
+                	if(hasProblem == false) {
+                		if(keySet.contains(buffer.toString())) {
+                    		lo.set(18, importFail);
+                    		lo.set(19, ExcelImportFailEnum.LOC_DUP.getText());
+                    		hasProblem = true;
+                    	} else {
+                    		keySet.add(buffer.toString());
+                    	}
+                	}
+                	
+                	if(!(StringUtils.equals(String.valueOf(lo.get(18)), importFail))) {
+                		//导入成功
+                		lo.set(19, importSucc);
+                		//默认没有贴上二维码
+                		info.setCodeFlag(0);
+                		
+//                		//生成广告位对应的二维码
+//                		String adCodeInfo = mediaUser.getPrefix() + UUID.randomUUID(); //二维码存的值（媒体前缀比如media3- 加上UUID随机数）
+//                		String path = request.getSession().getServletContext().getRealPath("/");
+//                		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"qrcode"+File.separatorChar+adCodeInfo + ".jpg";
+//                		QRcodeUtil.encode(adCodeInfo, path);
+//                		info.setAdCode(adCodeInfo);
+//                		info.setAdCodeUrl("/static/qrcode/" + adCodeInfo + ".jpg");
+                		
+                		insertAdSeatInfos.add(info);
+                	}
+                } else {
+                	logger.error(MessageFormat.format("批量导入文件有误, 导入失败", new Object[] {}));
+                	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                	result.setResultDes("批量导入文件有误, 导入失败");
+                    throw new ExcelException("批量导入文件有误, 导入失败");
+                }
+            }
+            
+            //正常数据插入到数据库中
+            if(insertAdSeatInfos != null && insertAdSeatInfos.size()>0){
+            	adSeatService.insertBatchByExcel(insertAdSeatInfos);
+            	insertAdSeatInfos.clear();
+            	table.clear();
+            	keySet.clear();
+            }
+            
+            //导出到excel, 返回导入广告位信息结果
+            List<List<String>> listString = objToString(listob);
+            listob.clear();
+            String[] titleArray = { "广告位名称", "所属媒体主", "媒体大类", "媒体小类", "省(直辖市)", "市", "主要路段", "详细位置", 
+            		"广告位编号", "广告位长度", "广告位宽度", "面积", "面数","经度", "纬度",
+            		"地图标准（如百度，谷歌，高德）", "联系人姓名", "联系人电话", "导入结果", "导入错误信息"};
+            ExcelTool<List<String>> excelTool = new ExcelTool<List<String>>("importResult");
+            String path = request.getSession().getServletContext().getRealPath("/");
+    		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"excel"+File.separatorChar+fileName;
+    		excelTool.generateExcel(listString, titleArray, path);
+            
+            result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+            result.setResult("/static/excel/" + fileName);
+            listString.clear();
+        } catch (Exception e) {
+        	logger.error(MessageFormat.format("批量导入文件有误, 导入失败", new Object[] {}));
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+        	result.setResultDes("导入失败");
+            e.printStackTrace();
+        }
+		
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+	}
+	
+	/**
+	 * 【媒体方】 批量插入广告位
+	 */
+	@RequiresRoles(value = {"superadmin" , "media"}, logical = Logical.OR)
+    @RequestMapping(value = "/insertBatchMedia")
+	@ResponseBody
+	public Model insertBatchMediaByExcel(Model model, HttpServletRequest request, HttpServletResponse response,
+                                     @RequestParam(value = "excelFile", required = false) MultipartFile file,
+                                     @RequestParam(value = "mediaId", required = false) Integer mediaId) {
+		//相关返回结果
+		ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("查询成功");
+        model = new ExtendedModelMap();
+        
+        //导出文件相关
+ 		final String fileName = "导入结果-" + System.currentTimeMillis() + ".xls"; //导出文件名
+		List<City> provinces = cityCache.getAllProvince(); //获取全部省份
+		Map<String, Long> provinceMap = citiesToMap(provinces);
+		
+		//获取登录用户信息
+		Date now = new Date();
+    	SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+    	user = sysUserService.findUserinfoById(user.getId());
+    	AdMedia media = new AdMedia();
+//    	SysUserVo mediaUser = new SysUserVo();
+		Integer usertype = user.getUsertype();
+		if(usertype == 4 || usertype == 5 || usertype == 1) {
+			//后台管理人员帮助媒体导入
+			media = adMediaMapper.selectByPrimaryKey(mediaId);
+//			mediaUser = sysUserService.findUserinfoById(media.getUserId());
+		} else if (usertype == 3) {
+			//媒体人员自行导入
+			media = adMediaMapper.selectByUserId(user.getId());
+//			mediaUser = sysUserService.findUserinfoById(media.getUserId());
+		}
+		
+//		//获取需要插入广告位信息的媒体已经存在的广告位信息
+//		List<AdSeatInfo> adSeatsByMediaId = adSeatService.getAdSeatByMediaId(media.getId());
+		//获取全部广告位(检验唯一性)
+		List<AdSeatInfo> adSeats = adSeatService.selectAllSeats();
+		List<String> databaseAdSeats = new ArrayList<>();
+		for (AdSeatInfo adSeatInfo : adSeats) {
+			StringBuffer buffer = new StringBuffer();
+			if(adSeatInfo.getProvince() != null) {
+				buffer.append(cityCache.getCityName(adSeatInfo.getProvince())); //省
+			}
+			if(adSeatInfo.getCity() != null) {
+				buffer.append(cityCache.getCityName(adSeatInfo.getCity())); //市
+			}
+			buffer.append(adSeatInfo.getRoad());//主要路段
+			buffer.append(adSeatInfo.getLocation()); //详细位置
+			databaseAdSeats.add(buffer.toString());
+		}
+		Set<String> keySet = new HashSet<>(databaseAdSeats);
+		adSeats.clear();
+		
+		//获取媒体类型
+		List<AdMediaTypeVo> adMediaTypeVos = adMediaTypeService.selectParentAndSecond();
+		Table<String, String, AdMediaTypeVo> table = getTable(adMediaTypeVos);
+		adMediaTypeVos.clear();
+		
+		try {
+			if (file.isEmpty()) {
+				logger.error(MessageFormat.format("批量导入文件不能为空, 导入失败", new Object[] {}));
+        		throw new ExcelException("批量导入文件不能为空, 导入失败");
+			}
+			
+	        InputStream in = file.getInputStream();
+	        List<List<Object>> listob = new ArrayList<List<Object>>();
+	       
+            //excel上传支持
+            listob = new ImportExcelUtil().getBankListByExcel(in, file.getOriginalFilename());
+            List<AdSeatInfo> insertAdSeatInfos = new ArrayList<AdSeatInfo>(); //需要导入到数据库中的广告位信息
+            
+            //excel列表
+            for (int i = 1; i < listob.size(); i++) {
+                List<Object> lo = listob.get(i);
+                //广告位名称, 媒体大类, 媒体小类, 省（直辖市）, 市, 主要路段, 
+                //详细位置, 广告位编号， 广告位长度, 广告位宽度, 面积, 面数, 经度, 纬度, 地图标准（如百度，谷歌，高德）, 联系人姓名, 联系人电话, 导入结果, 导入错误信息
+                if(lo.size() <= 19){
+                	AdSeatInfo info = new AdSeatInfo();
+                	Long provinceId = 0L;
+                	Long cityId = 0L;
+                	Boolean zhiXiaShiFlag = false;
+                	Boolean hasProblem = false;
+                	StringBuffer buffer = new StringBuffer();
+                	AdMediaTypeVo adMediaTypeVo = null;
+                	
+                	//设置广告位名称
+                	if(lo.get(0) == null) {
+                		lo.set(17, importFail);
+                		lo.set(18, ExcelImportFailEnum.ADNAME_NULL.getText());
+                		hasProblem = true;
+                	} else {
+                		info.setName(String.valueOf(lo.get(0)).trim()); //广告位名称
+                	}
+                	
+                	//设置媒体主
+    				info.setMediaId(media.getId());
+                	
+                	//设置媒体大类
+                	if(hasProblem == false) {
+                		if(lo.get(1) == null) {
+                    		lo.set(17, importFail);
+                    		lo.set(18, ExcelImportFailEnum.PARENT_NULL.getText());
+                    		hasProblem = true;
+                    	}
+                	}
+                	
+                	//设置媒体小类
+                	if(hasProblem == false) {
+                		if(lo.get(2) == null) {
+                    		lo.set(17, importFail);
+                    		lo.set(18, ExcelImportFailEnum.SECOND_NULL.getText());
+                    		hasProblem = true;
+                    	} else {
+                    		String parentName = String.valueOf(lo.get(1)).trim();
+                    		String secondName = String.valueOf(lo.get(2)).trim();
+                    		adMediaTypeVo = table.get(parentName, secondName);
+                    		if(adMediaTypeVo != null) {
+                    			info.setMediaTypeParentId(adMediaTypeVo.getParentId());
+                    			info.setMediaTypeId(adMediaTypeVo.getId());
+                    			//通过媒体类型来确认广告位是否支持多个活动
+                    			info.setAllowMulti(adMediaTypeVo.getAllowMulti());
+                    			info.setMultiNum(adMediaTypeVo.getMultiNum());
+                    		} else {
+                    			lo.set(17, importFail);
+                        		lo.set(18, ExcelImportFailEnum.MEDIA_TYPE_INVALID.getText());
+                        		hasProblem = true;
+                    		}
+    					}
+                	}
+                	
+//                	//设置是否允许多个活动（是或否）不填写则默认为否
+//                	if(hasProblem == false) {
+//                		if(lo.get(3) == null) {
+//                			info.setAllowMulti(0); //不填写则默认为否
+//                		} else {
+//                			String allowMulti = String.valueOf(lo.get(3)).trim();
+//                			if(StringUtil.equals(allowMulti, "是")) {
+//                				info.setAllowMulti(1); //1：是
+//                			} else if(StringUtil.equals(allowMulti, "否")) {
+//                				info.setAllowMulti(0); //0：否
+//                			} else {
+//                				info.setAllowMulti(0); //0：否
+//                			}
+//                		}
+//                	}
+//                	
+//                	//设置允许活动数量, 不填写默认为1
+//                	if(hasProblem == false) {
+//                		if(lo.get(4) == null) {
+//                			info.setMultiNum(1); //不填写默认为1
+//                		} else {
+//                			if(info.getAllowMulti() == 0) {
+//                				info.setMultiNum(1); //allowMulti为0代表不允许多个活动, 设置活动数量为1
+//                			} else {
+//                				String multiNumStr = String.valueOf(lo.get(4)).trim();
+//                				try {
+//                					Double multiNumDou = new Double(multiNumStr);
+//                					Integer multiNum = multiNumDou.intValue();
+//                					info.setMultiNum(multiNum);
+//								} catch (Exception e) {
+//									lo.set(17, importFail);
+//	                        		lo.set(18, ExcelImportFailEnum.NUM_INVALID.getText());
+//	                        		hasProblem = true;
+//								}
+//                			}
+//                		}
+//                	}
+                	
+                	//设置广告位所在省份(包括直辖市)
+                	if(hasProblem == false) {
+                		if(lo.get(3) == null) {
+                    		lo.set(17, importFail);
+                    		lo.set(18, ExcelImportFailEnum.PROVINCE_NULL.getText());
+                    		hasProblem = true;
+                    	} else {
+                    		String provinceName = String.valueOf(lo.get(3)).trim(); //省
+                    		//判断是否是直辖市
+                    		if(provinceName.contains("北京") || provinceName.contains("上海") || provinceName.contains("天津")
+                    				|| provinceName.contains("重庆")) {
+                    			zhiXiaShiFlag = true;
+                    			if(!provinceName.endsWith("市")) {
+                        			provinceName = provinceName + "市";
+                        		}
+                    		} else {
+                    			if(provinceName.contains("内蒙")) {
+                    				provinceName = "内蒙古自治区";
+                    			} else if (provinceName.contains("广西")) {
+                    				provinceName = "广西壮族自治区";
+    							} else if (provinceName.contains("西藏")) {
+    								provinceName = "西藏自治区";
+    							} else if (provinceName.contains("宁夏")) {
+    								provinceName = "宁夏回族自治区";
+    							} else if (provinceName.contains("新疆")) {
+    								provinceName = "新疆维吾尔自治区";
+    							} else if (provinceName.contains("香港")) {
+    								provinceName = "香港特别行政区";
+    							} else if (provinceName.contains("澳门")) {
+    								provinceName = "澳门特别行政区";
+    							} else {
+    								if(!provinceName.endsWith("省")) {
+    	                    			provinceName = provinceName + "省";
+    	                    		}
+    							}
+                    		}
+                    		provinceId = provinceMap.get(provinceName);
+                    		if(provinceId == null) {
+                    			lo.set(17, importFail);
+                        		lo.set(18, ExcelImportFailEnum.PROVINCE_INVALID.getText());
+                        		hasProblem = true;
+                    		}
+                    		info.setProvince(provinceId);
+                    		buffer.append(provinceName);
+    					}
+                	}
+                	
+                	//设置广告位所在市
+                	if(hasProblem == false) {
+                		if(lo.get(4) == null) {
+                    		if(zhiXiaShiFlag == false) {
+                    			lo.set(17, importFail);
+                        		lo.set(18, ExcelImportFailEnum.CITY_NULL.getText());
+                        		hasProblem = true;
+                    		}
+                    	} else {
+                    		if(zhiXiaShiFlag == true) {
+                    			//直辖市的city字段不存库
+                    		} else {
+                    			String cityName = String.valueOf(lo.get(4)).trim(); //市
                         		/*if(!cityName.endsWith("市")) {
                         			cityName = cityName + "市";
                         		}*/
@@ -1064,8 +1492,8 @@ public class ExcelController extends BasicController {
         							}
                             		cityId = cityMap.get(cityName);
                             		if(cityId == null) {
-                            			lo.set(19, importFail);
-                                		lo.set(20, ExcelImportFailEnum.CITY_INVALID.getText());
+                            			lo.set(17, importFail);
+                                		lo.set(18, ExcelImportFailEnum.CITY_INVALID.getText());
                                 		hasProblem = true;
                             		}
                             		info.setCity(cityId);
@@ -1077,14 +1505,12 @@ public class ExcelController extends BasicController {
                 	
                 	//设置广告位所在区(县)
 //                	if(hasProblem == false) {
-//                		if(lo.get(7) == null) {
-//                    		/*logger.error(MessageFormat.format("批量导入文件区不能为空, 导入失败", new Object[] {}));
-//                    		throw new ExcelException("批量导入文件区不能为空, 导入失败");*/
-//                    		lo.set(20, importFail);
-//                    		lo.set(21, ExcelImportFailEnum.REGION_NULL.getText());
+//                		if(lo.get(5) == null) {
+//                    		lo.set(17, importFail);
+//                    		lo.set(18, ExcelImportFailEnum.REGION_NULL.getText());
 //                    		hasProblem = true;
 //                    	} else {
-//                    		String regionName = String.valueOf(lo.get(7)).trim(); //区
+//                    		String regionName = String.valueOf(lo.get(5)).trim(); //区
 //                    		/*if(!regionName.endsWith("区")) {
 //                    			regionName = regionName + "区";
 //                    		}*/
@@ -1100,8 +1526,8 @@ public class ExcelController extends BasicController {
 //    							}
 //                        		regionId = regionMap.get(regionName);
 //                        		if(regionId == null) {
-//                        			lo.set(20, importFail);
-//                            		lo.set(21, ExcelImportFailEnum.REGION_INVALID.getText());
+//                        			lo.set(17, importFail);
+//                            		lo.set(18, ExcelImportFailEnum.REGION_INVALID.getText());
 //                            		hasProblem = true;
 //                        		}
 //                        		info.setRegion(regionId);
@@ -1118,8 +1544,8 @@ public class ExcelController extends BasicController {
 //    							}
 //                        		regionId = regionMap.get(regionName);
 //                        		if(regionId == null) {
-//                        			lo.set(20, importFail);
-//                            		lo.set(21, ExcelImportFailEnum.REGION_INVALID.getText());
+//                        			lo.set(17, importFail);
+//                            		lo.set(18, ExcelImportFailEnum.REGION_INVALID.getText());
 //                            		hasProblem = true;
 //                        		}
 //                        		info.setRegion(regionId);
@@ -1130,14 +1556,12 @@ public class ExcelController extends BasicController {
 //                	
                 	//设置广告位所在主要路段
                 	if(hasProblem == false) {
-                		if(lo.get(7) == null) {
-                    		/*logger.error(MessageFormat.format("批量导入文件主要路段不能为空, 导入失败", new Object[] {}));
-                    		throw new ExcelException("批量导入文件主要路段不能为空, 导入失败");*/
-                    		lo.set(19, importFail);
-                    		lo.set(20, ExcelImportFailEnum.STREET_NULL.getText());
+                		if(lo.get(5) == null) {
+                    		lo.set(17, importFail);
+                    		lo.set(18, ExcelImportFailEnum.STREET_NULL.getText());
                     		hasProblem = true;
                     	} else {
-                    		String road = String.valueOf(lo.get(7)).trim(); //主要路段
+                    		String road = String.valueOf(lo.get(5)).trim(); //主要路段
                     		info.setRoad(road);
                     		buffer.append(road);
                     	}
@@ -1145,26 +1569,24 @@ public class ExcelController extends BasicController {
                 	
                 	//设置广告位详细地址
                 	if(hasProblem == false) {
-                		if(lo.get(8) == null) {
-                    		/*logger.error(MessageFormat.format("批量导入文件详细地址不能为空, 导入失败", new Object[] {}));
-                    		throw new ExcelException("批量导入文件详细地址不能为空, 导入失败");*/
-                    		lo.set(19, importFail);
-                    		lo.set(20, ExcelImportFailEnum.LOCATION_NULL.getText());
+                		if(lo.get(6) == null) {
+                    		lo.set(17, importFail);
+                    		lo.set(18, ExcelImportFailEnum.LOCATION_NULL.getText());
                     		hasProblem = true;
                     	} else {
-                    		info.setLocation(String.valueOf(lo.get(8)).trim()); //详细位置
-                    		buffer.append(String.valueOf(lo.get(8)).trim());
+                    		info.setLocation(String.valueOf(lo.get(6)).trim()); //详细位置
+                    		buffer.append(String.valueOf(lo.get(6)).trim());
                     	}
                 	}
                 	
                 	//设置媒体方广告位编号信息
                 	if(hasProblem == false) {
-                		if(lo.get(9) != null) {
-                			info.setMemo(String.valueOf(lo.get(9)).trim());
+                		if(lo.get(7) != null) {
+                			info.setMemo(String.valueOf(lo.get(7)).trim());
                 		}
 //                		else {
-//                			lo.set(19, importFail);
-//                    		lo.set(20, ExcelImportFailEnum.MEDIA_NUM_INVAILD.getText());
+//                			lo.set(17, importFail);
+//                    		lo.set(18, ExcelImportFailEnum.MEDIA_NUM_INVAILD.getText());
 //                    		hasProblem = true;
 //                		}
                 	}
@@ -1175,8 +1597,8 @@ public class ExcelController extends BasicController {
 //                		if(lo.get(10) == null) {
 //                			if(uniqueKeyNeed == 1) {
 //                				//需要唯一标识
-//                    			lo.set(20, importFail);
-//                        		lo.set(21, ExcelImportFailEnum.UNIQUE_KEY_NULL.getText());
+//                    			lo.set(17, importFail);
+//                        		lo.set(18, ExcelImportFailEnum.UNIQUE_KEY_NULL.getText());
 //                        		hasProblem = true;
 //                			}
 //                		} else {
@@ -1186,24 +1608,20 @@ public class ExcelController extends BasicController {
                 	
                 	//设置广告位尺寸
                 	if(hasProblem == false) {
-                		if(lo.get(10) != null && lo.get(11) != null) {
+                		if(lo.get(8) != null && lo.get(9) != null) {
 //                    		DecimalFormat df = new DecimalFormat("0"); // 格式化number String字符
-                    		String length = String.valueOf(lo.get(10)).trim();
-                    		String width = String.valueOf(lo.get(11)).trim();
+                    		String length = String.valueOf(lo.get(8)).trim();
+                    		String width = String.valueOf(lo.get(9)).trim();
                     		info.setAdSize(length + "*" + width); //广告位长度*广告位宽度
-                    		lo.set(10, length);
-                    		lo.set(11, width);
-                    	} else if (lo.get(10) != null && lo.get(11) == null) {
-                    		/*logger.error(MessageFormat.format("批量导入文件尺寸有误, 导入失败", new Object[] {}));
-                    		throw new ExcelException("批量导入文件尺寸有误, 导入失败");*/
-                    		lo.set(19, importFail);
-                    		lo.set(20, ExcelImportFailEnum.SIZE_ONLYONE.getText());
+                    		lo.set(8, length);
+                    		lo.set(9, width);
+                    	} else if (lo.get(8) != null && lo.get(9) == null) {
+                    		lo.set(17, importFail);
+                    		lo.set(18, ExcelImportFailEnum.SIZE_ONLYONE.getText());
                     		hasProblem = true;
-    					} else if (lo.get(10) == null && lo.get(11) != null) {
-    						/*logger.error(MessageFormat.format("批量导入文件尺寸有误, 导入失败", new Object[] {}));
-                    		throw new ExcelException("批量导入文件尺寸有误, 导入失败");*/
-                    		lo.set(19, importFail);
-                    		lo.set(20, ExcelImportFailEnum.SIZE_ONLYONE.getText());
+    					} else if (lo.get(8) == null && lo.get(9) != null) {
+                    		lo.set(17, importFail);
+                    		lo.set(18, ExcelImportFailEnum.SIZE_ONLYONE.getText());
                     		hasProblem = true;
     					} else {
     					}
@@ -1211,51 +1629,43 @@ public class ExcelController extends BasicController {
                 	
                 	//设置面积
                 	if(hasProblem == false) {
-                		if(lo.get(12) != null) {
-                    		info.setAdArea(String.valueOf(lo.get(12)).trim());
+                		if(lo.get(10) != null) {
+                    		info.setAdArea(String.valueOf(lo.get(10)).trim());
                     	}
                 	}
                 	
                 	//设置面数
                 	if(hasProblem == false) {
-                		if(lo.get(13) != null) {
-                			Double b = Double.parseDouble(String.valueOf(lo.get(13)).trim());
+                		if(lo.get(11) != null) {
+                			Double b = Double.parseDouble(String.valueOf(lo.get(11)).trim());
                     		info.setAdNum((new Double(b)).intValue());
                     	}
                 	}
                 	
                 	//设置经纬度
                 	if(hasProblem == false) {
-                		if(lo.get(14) != null && lo.get(15) == null) {
-                    		/*logger.error(MessageFormat.format("批量导入文件经纬度有误, 导入失败", new Object[] {}));
-                    		throw new ExcelException("批量导入文件经纬度有误, 导入失败");*/
-                    		lo.set(19, importFail);
-                    		lo.set(20, ExcelImportFailEnum.LOC_ONLYONE.getText());
+                		if(lo.get(12) != null && lo.get(13) == null) {
+                    		lo.set(17, importFail);
+                    		lo.set(18, ExcelImportFailEnum.LOC_ONLYONE.getText());
                     		hasProblem = true;
-                    	} else if (lo.get(14) == null && lo.get(15) != null) {
-                    		/*logger.error(MessageFormat.format("批量导入文件经纬度有误, 导入失败", new Object[] {}));
-                    		throw new ExcelException("批量导入文件经纬度有误, 导入失败");*/
-                    		lo.set(19, importFail);
-                    		lo.set(20, ExcelImportFailEnum.LOC_ONLYONE.getText());
+                    	} else if (lo.get(12) == null && lo.get(13) != null) {
+                    		lo.set(17, importFail);
+                    		lo.set(18, ExcelImportFailEnum.LOC_ONLYONE.getText());
                     		hasProblem = true;
-    					} else if (lo.get(14) == null && lo.get(15) == null) {
+    					} else if (lo.get(12) == null && lo.get(13) == null) {
     					} else {
     						//判断经度在-180-180之间
-    						double lon = Double.parseDouble(String.valueOf(lo.get(14)).trim());
+    						double lon = Double.parseDouble(String.valueOf(lo.get(12)).trim());
     						if(lon < -180 || lon > 180) {
-    							/*logger.error(MessageFormat.format("批量导入文件有经度不在-180到180之间, 导入失败", new Object[] {}));
-    	                		throw new ExcelException("批量导入文件有经度不在-180到180之间, 导入失败");*/
-    							lo.set(19, importFail);
-    	                		lo.set(20, ExcelImportFailEnum.LON_OVERFLOW.getText());
+    							lo.set(17, importFail);
+    	                		lo.set(18, ExcelImportFailEnum.LON_OVERFLOW.getText());
     	                		hasProblem = true;
     						}
     						//判断纬度在-90-90之间
-    						double lat = Double.parseDouble(String.valueOf(lo.get(15)).trim());
+    						double lat = Double.parseDouble(String.valueOf(lo.get(13)).trim());
     						if(lat < -90 || lat > 90) {
-    							/*logger.error(MessageFormat.format("批量导入文件有纬度不在-90到90之间, 导入失败", new Object[] {}));
-    	                		throw new ExcelException("批量导入文件有纬度不在-90到90之间, 导入失败");*/
-    	                		lo.set(19, importFail);
-    	                		lo.set(20, ExcelImportFailEnum.LAT_OVERFLOW.getText());
+    	                		lo.set(17, importFail);
+    	                		lo.set(18, ExcelImportFailEnum.LAT_OVERFLOW.getText());
     	                		hasProblem = true;
     						}
     						info.setLon(lon); //经度
@@ -1263,71 +1673,65 @@ public class ExcelController extends BasicController {
     	                	
     	                	//地图标准
     	                	if(hasProblem == false) {
-    	                		if(lo.get(16) != null) {
-    	                			if(String.valueOf(lo.get(16)).trim().contains("百度")) {
+    	                		if(lo.get(14) != null) {
+    	                			if(String.valueOf(lo.get(14)).trim().contains("百度")) {
     	                				info.setMapStandard(MapStandardEnum.getId("百度"));
-    	                			} else if(String.valueOf(lo.get(16)).trim().contains("高德")) {
+    	                			} else if(String.valueOf(lo.get(14)).trim().contains("高德")) {
     	                				info.setMapStandard(MapStandardEnum.getId("高德"));
-    	                			} else if(String.valueOf(lo.get(16)).trim().contains("谷歌")) {
+    	                			} else if(String.valueOf(lo.get(14)).trim().contains("谷歌")) {
     	                				info.setMapStandard(MapStandardEnum.getId("谷歌"));
     	                			}
         	                	} else {
-        	                		/*logger.error(MessageFormat.format("批量导入文件有经纬度没有地图标准, 导入失败", new Object[] {}));
-        	                		throw new ExcelException("批量导入文件有经纬度没有地图标准, 导入失败");*/
-        	                		lo.set(19, importFail);
-        	                		lo.set(20, ExcelImportFailEnum.NONE_MAP.getText());
+        	                		lo.set(17, importFail);
+        	                		lo.set(18, ExcelImportFailEnum.NONE_MAP.getText());
         	                		hasProblem = true;
         						}
     	                	}
     					}
                 	}
                 	
-                	
-                	
                 	//设置联系人信息
                 	if(hasProblem == false) {
-                		if(lo.get(17) != null) {
-                    		info.setContactName(String.valueOf(lo.get(17)).trim());
+                		if(lo.get(15) != null) {
+                    		info.setContactName(String.valueOf(lo.get(15)).trim());
                     	}
                 	}
                 	
                 	//联系人电话
                 	if(hasProblem == false) {
-                		if(lo.get(18) != null) {
-                    		info.setContactCell(String.valueOf(lo.get(18)).trim());
+                		if(lo.get(16) != null) {
+                    		info.setContactCell(String.valueOf(lo.get(16)).trim());
                     	}
                 	}
                 	
-                	
-                	//设置媒体信息
-                	info.setMediaId(media.getId());
                 	info.setCreateTime(now);
                 	info.setUpdateTime(now);
-                	info.setCodeFlag(1);
                 	
                 	//检查是否重复
                 	if(hasProblem == false) {
                 		if(keySet.contains(buffer.toString())) {
-                    		lo.set(19, importFail);
-                    		lo.set(20, ExcelImportFailEnum.LOC_DUP.getText());
+                    		lo.set(17, importFail);
+                    		lo.set(18, ExcelImportFailEnum.LOC_DUP.getText());
                     		hasProblem = true;
                     	} else {
                     		keySet.add(buffer.toString());
                     	}
                 	}
                 	
-                	if(!(StringUtils.equals(String.valueOf(lo.get(19)), importFail))) {
+                	if(!(StringUtils.equals(String.valueOf(lo.get(17)), importFail))) {
                 		//导入成功
-                		lo.set(19, importSucc);
-                		//生成广告位对应的二维码
-                		String adCodeInfo = mediaUser.getPrefix() + UUID.randomUUID(); //二维码存的值（媒体前缀比如media3- 加上UUID随机数）
-                		String path = request.getSession().getServletContext().getRealPath("/");
-                		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"qrcode"+File.separatorChar+adCodeInfo + ".jpg";
-                		QRcodeUtil.encode(adCodeInfo, path);
-                		info.setAdCode(adCodeInfo);
-                		info.setAdCodeUrl("/static/qrcode/" + adCodeInfo + ".jpg");
-                		//默认贴上二维码
-                		info.setCodeFlag(1);
+                		lo.set(17, importSucc);
+                		//默认没有贴上二维码
+                		info.setCodeFlag(0);
+                		
+//                		//生成广告位对应的二维码
+//                		String adCodeInfo = mediaUser.getPrefix() + UUID.randomUUID(); //二维码存的值（媒体前缀比如media3- 加上UUID随机数）
+//                		String path = request.getSession().getServletContext().getRealPath("/");
+//                		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"qrcode"+File.separatorChar+adCodeInfo + ".jpg";
+//                		QRcodeUtil.encode(adCodeInfo, path);
+//                		info.setAdCode(adCodeInfo);
+//                		info.setAdCodeUrl("/static/qrcode/" + adCodeInfo + ".jpg");
+                		
                 		insertAdSeatInfos.add(info);
                 	}
                 } else {
@@ -1339,13 +1743,17 @@ public class ExcelController extends BasicController {
             }
             
             //正常数据插入到数据库中
-            if(insertAdSeatInfos != null && insertAdSeatInfos.size()>0){
+            if(insertAdSeatInfos != null && insertAdSeatInfos.size() > 0){
             	adSeatService.insertBatchByExcel(insertAdSeatInfos);
+            	insertAdSeatInfos.clear();
+            	table.clear();
+            	keySet.clear();
             }
             
             //导出到excel, 返回导入广告位信息结果
             List<List<String>> listString = objToString(listob);
-            String[] titleArray = { "广告位名称", "媒体大类", "媒体小类", "是否允许多个活动", "允许活动数量", "省", "市",  "主要路段", "详细位置", 
+            listob.clear();
+            String[] titleArray = { "广告位名称", "媒体大类", "媒体小类", "省（直辖市）", "市",  "主要路段", "详细位置", 
             		"广告位编号", "广告位长度", "广告位宽度", "面积", "面数","经度", "纬度",
             		"地图标准（如百度，谷歌，高德）", "联系人姓名", "联系人电话", "导入结果", "导入错误信息"};
             ExcelTool<List<String>> excelTool = new ExcelTool<List<String>>("importResult");
@@ -1358,6 +1766,7 @@ public class ExcelController extends BasicController {
             
             result.setCode(ResultCode.RESULT_SUCCESS.getCode());
             result.setResult("/static/excel/" + fileName);
+            listString.clear();
         } catch (Exception e) {
         	logger.error(MessageFormat.format("批量导入文件有误, 导入失败", new Object[] {}));
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -1370,7 +1779,7 @@ public class ExcelController extends BasicController {
 	}
 	
 	/**
-	 * 导入广告位模板下载
+	 * 【群邑方】 导入广告位模板下载
 	 */
 	@RequiresRoles(value = {"superadmin" , "media"}, logical = Logical.OR)
     @RequestMapping(value = "/downloadBatch")
@@ -1384,6 +1793,26 @@ public class ExcelController extends BasicController {
         
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResult("/static/excel/" + "template.zip");
+        
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+	}
+	
+	/**
+	 * 【媒体方】 导入广告位模板下载
+	 */
+	@RequiresRoles(value = {"superadmin" , "media"}, logical = Logical.OR)
+    @RequestMapping(value = "/downloadBatchMedia")
+	@ResponseBody
+	public Model downloadBatchMedia(Model model, HttpServletRequest request, HttpServletResponse response) {
+		//相关返回结果
+		ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("查询成功");
+        model = new ExtendedModelMap();
+        
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResult("/static/excel/" + "template4.zip");
         
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;

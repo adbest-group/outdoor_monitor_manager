@@ -170,7 +170,7 @@
     
     // 下载模板
     $('#downloadBatch').click(function(){
-    	$.get('/excel/downloadBatch', function(data){
+    	$.get('/excel/downloadBatchMedia', function(data){
     		if(data.ret.code === 100) {
     			window.open(data.ret.result)
     		}else{
@@ -275,7 +275,7 @@
 	    ,accept: 'file' //指定只允许上次文件
 	    ,exts: 'xlsx|xls' //指定只允许上次xlsx和xls格式的excel文件
 	    ,field: 'excelFile' //设置字段名
-	    ,url: '/excel/insertBatch' //上传接口
+	    ,url: '/excel/insertBatchMedia' //上传接口
     	,before: function() {
 	    	isLoading = true;
 	    	layer.msg('正在努力上传中...', {

@@ -841,4 +841,12 @@
 	      and location = #{location,jdbcType=VARCHAR}
 	    </if> 
 	</select>
+	
+	<!-- 查询所有的广告位 -->
+	<select id="selectAllSeats" resultMap="BaseResultMap">
+		select 
+		<include refid="Base_Column_List" />
+		from ad_seat_info
+	</select>
+	
 </mapper>

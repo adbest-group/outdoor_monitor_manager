@@ -21,7 +21,6 @@ import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdMediaType;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.service.IAdMediaTypeService;
-import com.bt.om.service.IOperateLogService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.util.SearchUtil;
@@ -35,9 +34,6 @@ public class AdMediaTypeController {
 
 	@Autowired
 	private IAdMediaTypeService adMediaTypeService;
-	
-	@Autowired
-	private IOperateLogService operateLogService;
 	
 	/**
      * 媒体大类, 媒体小类展示
@@ -80,7 +76,7 @@ public class AdMediaTypeController {
     }
     
     /**
-     * 新增媒体大类或媒体小类
+     * 新增媒体大类或媒体小类（暂时没用）
      */
     @RequiresRoles("superadmin")
     @RequestMapping(value = "/addMediaType")
@@ -143,12 +139,30 @@ public class AdMediaTypeController {
         result.setResultDes("保存成功");
         model = new ExtendedModelMap();
         Date now = new Date();
-        adMediaType.setStatus(1); //可用
-        if(adMediaType.getMediaType() == 1) {
-        	adMediaType.setParentId(null);
-        }
+//        adMediaType.setStatus(1); //可用
+//        if(adMediaType.getMediaType() == 1) {
+//        	adMediaType.setParentId(null);
+//        }
         if(adMediaType.getUniqueKeyNeed() == null) {
         	adMediaType.setUniqueKeyNeed(2);
+        }
+        
+        if(adMediaType.getMultiNum() == null) {
+        	//默认不支持多个活动, 并且活动数量为1
+        	adMediaType.setAllowMulti(0);
+        	adMediaType.setMultiNum(1);
+        } else {
+        	if(adMediaType.getMultiNum().equals(1)) {
+        		//活动数量等于1, 设置不允许同时支持多个活动
+        		adMediaType.setAllowMulti(0);
+        	} else if(adMediaType.getMultiNum() > 1) {
+        		//活动数量大于1, 设置允许同时支持多个活动
+        		adMediaType.setAllowMulti(1);
+        	} else {
+        		//活动数量小于1, 设置默认不支持多个活动, 并且活动数量为1
+            	adMediaType.setAllowMulti(0);
+            	adMediaType.setMultiNum(1);
+        	}
         }
         
         try {

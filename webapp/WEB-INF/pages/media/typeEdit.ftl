@@ -6,6 +6,7 @@
         .basic-info .bd td{ padding: 0 10px;}
 		.role-nav-authority li{ float: left; overflow: hidden; margin-bottom: 5px; height: 25px;}
 		.role-nav-authority li label input[type=checkbox]{ width: 15px; height: 15px; margin: 2px 3px 0 0; vertical-align: text-top;}
+		.bd tr .a-title{padding: 10px;}
 	</style>
 
 <div class="basic-info">
@@ -27,17 +28,23 @@
 				<tr>
 					<td class="a-title">类型：</td>
 					<td>
-						<div class="select-box select-box-100 un-inp-select ll">
-							<select name="addMediaType" class="select form-control" id="addMediaType">
-		            			<option value="1" <#if (obj?exists&&obj.mediaType?exists&&obj.mediaType == 1)>selected</#if>>媒体大类</option>
-		                        <option value="2" <#if (obj?exists&&obj.mediaType?exists&&obj.mediaType == 2)>selected</#if>>媒体小类</option>
-		                    </select>
-		                    <br>
-							<span id="addMediaTypeTip"></span>
-							<br>
-						</div>
+						<#if (obj.id)?exists>
+						   <#if (obj?exists&&obj.mediaType?exists&&obj.mediaType == 1)>媒体大类</#if>
+						   <#if (obj?exists&&obj.mediaType?exists&&obj.mediaType == 2)>媒体小类</#if>
+						<#else>
+							<div class="select-box select-box-100 un-inp-select ll">
+								<select name="addMediaType" class="select form-control" id="addMediaType">
+			            			<option value="1" <#if (obj?exists&&obj.mediaType?exists&&obj.mediaType == 1)>selected</#if>>媒体大类</option>
+			                        <option value="2" <#if (obj?exists&&obj.mediaType?exists&&obj.mediaType == 2)>selected</#if>>媒体小类</option>
+			                    </select>
+			                    <br>
+								<span id="addMediaTypeTip"></span>
+								<br>
+							</div>
+						</#if>
 					</td>
 				</tr>
+				
 				<tr id="selectParentMedia" style="display: none">
 					<td class="a-title">所属媒体大类：</td>
 					<td>
@@ -51,6 +58,15 @@
 		                </div>
 					</td>
 				</tr>
+				
+				<tr id="multiNumPanel" style="display: none">
+                     <td class="a-title">允许的活动数量：</td>
+                     <td>
+                     	<input type="text" id="multiNum" name="allowMulti" <#if (obj?exists&&obj.multiNum?exists)>value="${(obj.multiNum)?if_exists}"<#else>value="1"</#if> autocomplete="off" class="form-control"> 
+	                     <br>
+	                     <span id="multiNumTip"></span>
+                     </td>
+                 </tr>
 				
 				<#-- 
 				<tr id="selectUniqueKeyNeed" style="display: none">
@@ -95,9 +111,11 @@ $(function() {
 	var type = $('#addMediaType').val();
 	if(type == 1) {
 		$("#selectParentMedia").hide();
+		$("#multiNumPanel").hide();
 		//$("#selectUniqueKeyNeed").hide();
 	} else {
 		$("#selectParentMedia").show();
+		$("#multiNumPanel").show();
 		//$("#selectUniqueKeyNeed").show();
 	}
 
@@ -105,9 +123,11 @@ $(function() {
         var type = $('#addMediaType').val();
 		if(type == 1) {
 			$("#selectParentMedia").hide();
+			$("#multiNumPanel").hide();
 			//$("#selectUniqueKeyNeed").hide();
 		} else {
 			$("#selectParentMedia").show();
+			$("#multiNumPanel").show();
 			//$("#selectUniqueKeyNeed").show();
 		}
     });
@@ -122,13 +142,23 @@ $(function() {
 		validatorGroup:"2",
         submitButtonID: "mediaTypeSubmit",
         debug: false,
-        submitOnce: true,
+        submitOnce: false,
         errorFocus: false,
         onSuccess: function(){
 	        var mediaName = $("#mediaName").val();
             var addMediaType = $("#addMediaType").val();
             var parentId = $("#parentId").val();
-            var uniqueKeyNeed = $("#uniqueKeyNeed").val();
+            //var uniqueKeyNeed = $("#uniqueKeyNeed").val();
+            var multiNum = $("#multiNum").val(); //正整数且大于等于1
+            
+            if(!/^[1-9]\d*$/.test(multiNum)){
+            	layer.confirm("请填写正确的允许活动数量", {
+					icon: 5,
+					btn: ['确定'] //按钮
+				});
+				return false;
+            }
+            
             $.ajax({
                 url: "/mediaType/save",
                 type: "post",
@@ -137,7 +167,8 @@ $(function() {
                     "name": mediaName,
                     "parentId": parentId,
                     "mediaType": addMediaType,
-                    "uniqueKeyNeed": uniqueKeyNeed
+                    //"uniqueKeyNeed": uniqueKeyNeed,
+                    "multiNum": multiNum
                 },
                 cache: false,
                 dataType: "json",

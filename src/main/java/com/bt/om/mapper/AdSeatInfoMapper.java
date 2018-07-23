@@ -84,4 +84,6 @@ public interface AdSeatInfoMapper {
 	List<AdSeatInfo> selectInfoByIds(Map<String, Object> searchMap);
 
 	AdSeatInfo searchLocation(Map<String, Object> searchMap);
+	
+	List<AdSeatInfo> selectAllSeats();
 }

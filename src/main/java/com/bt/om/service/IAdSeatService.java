@@ -1,14 +1,13 @@
 package com.bt.om.service;
 
+import java.util.List;
+import java.util.Map;
+
 import com.bt.om.entity.AdCrowd;
 import com.bt.om.entity.AdSeatInfo;
-import com.bt.om.entity.vo.AdSeatInfoVo;
 import com.bt.om.entity.vo.CountGroupByCityVo;
 import com.bt.om.entity.vo.HeatMapVo;
 import com.bt.om.vo.web.SearchDataVo;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by caiting on 2018/3/5.
@@ -39,4 +38,5 @@ public interface IAdSeatService {
 	int updateFlag(Integer codeFlag,Integer id);
 	int selectByLocation(Map<String, Object> searchMap);
 	public AdSeatInfo searchLocation(Map<String, Object> searchMap);
+	List<AdSeatInfo> selectAllSeats();
 }

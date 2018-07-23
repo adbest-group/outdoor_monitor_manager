@@ -1270,5 +1270,18 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	public List<String> selectUserNameByTaskIdBatch(Map<String, Object> searchMap) {
 		return adMonitorTaskMapper.selectUserNameByTaskIdBatch(searchMap);
 	}
+
+	/**
+	 * 任务主表超时 将状态改成"已超时"
+	 * */
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public void changeStatus() {
+		Date now = new Date();
+		
+		// 将所有ad_monitor_task超时的任务状态设为9 "已超时
+		adMonitorTaskMapper.updateTaskStatus(now);
+		
 	
+	}
 }

@@ -1530,7 +1530,7 @@
 		AND a.activity_id = #{activityId,jdbcType=INTEGER}
     </select>
     
-    <!-- 通过任务id集合去查询所有的APP执行人员手机号 -->
+    <!-- 通过任务id集合去查询所有的APP执行人员手机号selectTaskIds -->
     <select id="selectUserNameByTaskIdBatch" parameterType="map" resultType="java.lang.String">
     	select
     		distinct b.username
@@ -1543,5 +1543,16 @@
         	<foreach collection="taskIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
     	</if>
     </select>
+    
+    <!-- 将主表中所有超时任务状态设为“已超时” -->
+    <update id="updateTaskStatus" parameterType="java.util.Date">
+    	update 
+			ad_monitor_task a
+		SET 
+			a.status=10
+		WHERE 
+		a.status in (1,2,6,8)
+		and DATE_FORMAT(date_add(a.monitor_date,interval (a.monitor_last_days) day),'%Y-%m-%d %H:%i:%s') &lt;= DATE_FORMAT(#{nowDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+    </update>
     
 </mapper>

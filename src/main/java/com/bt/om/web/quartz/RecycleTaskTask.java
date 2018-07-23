@@ -33,10 +33,6 @@ public class RecycleTaskTask extends AbstractTask {
 		 */
 		adMonitorTaskService.recycleMediaMonitorTask();
 		
-		/**
-		 * 任务主表超时 将状态改成"已超时"
-		 */
-		
 		
 		/**
 		 * 即将结束的任务推送通知

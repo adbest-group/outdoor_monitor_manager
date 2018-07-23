@@ -108,7 +108,7 @@
                             <td style="width:200px">
                                 <div class="ll inputs-date">
                                     <div class="date">
-                                        <input id="upTaskTime" disabled class="Wdate" type="text">
+                                        <input id="upTaskTime" ${editMode?string("","disabled")} class="upTask-Wdate Wdate" type="text">
                                     </div>
                                 </div>
                                 <span style="margin-left:10px;" id="upTaskTimeTip"></span>
@@ -184,7 +184,7 @@
                             <td  style="width:200px">
                                 <div class="ll inputs-date">
                                     <div class="date">
-                                        <input id="downMonitorTaskTime" disabled class="Wdate" type="text">
+                                        <input id="downMonitorTaskTime" ${editMode?string("","disabled")} class="downMonitor-Wdate Wdate" type="text">
                                     </div>
                                 </div>
                                 <span style="margin-left:10px;" id="downMonitorTaskTimeTip"></span>
@@ -364,13 +364,13 @@
                 			<td class="a-title">不合格示例：</td>
 							<td colspan="2">
 								<div class="uploadContainer">
-									<input type="text" id="noQualifiedText1" ${editMode?string("","disabled")} placeholder="不合格原因" name="noQualified1" style="width:100px" value="" autocomplete="off" class="form-control">
+									<input type="text" id="noQualifiedText1" ${editMode?string("","disabled")}  name="noQualified1" style="width:100px" value="未拍正面照" autocomplete="off" class="form-control">
 								</div>
 								<div class="uploadContainer">
-									<input type="text" id="noQualifiedText2" ${editMode?string("","disabled")} placeholder="不合格原因" name="noQualified2" style="width:100px" value="" autocomplete="off" class="form-control">
+									<input type="text" id="noQualifiedText2" ${editMode?string("","disabled")}  name="noQualified2" style="width:100px" value="有遮挡" autocomplete="off" class="form-control">
 								</div>
 								<div class="uploadContainer">
-									<input type="text" id="noQualifiedText3" ${editMode?string("","disabled")} placeholder="不合格原因" name="noQualified3" style="width:100px" value="" autocomplete="off" class="form-control">
+									<input type="text" id="noQualifiedText3" ${editMode?string("","disabled")}  name="noQualified3" style="width:100px" value="图片模糊" autocomplete="off" class="form-control">
 								</div>
 							</td>
 						</tr>
@@ -592,6 +592,21 @@
 	    var activity = null;
 	    var activity_seats = [];
 	    var activity_meias = [];
+	    
+	    $("#img-qualified-img").attr("src","/static/images/jflogo.png");//合格样例画面图片地址
+		$("#img-qualified-bak").attr("src","/static/images/jflogo.png");//合格样例画面图片地址
+		
+	    $("#img-noQualified1-img").attr({src: "/static/images/jflogo.png", style: {display: 'block'}});//不合格样例画面图片地址
+		$("#img-noQualified1-bak").attr("src","/static/images/jflogo.png");//不合格样例画面图片地址
+		$("#img-noQualified1-tip").hide();
+		
+		$("#img-noQualified2-img").attr({src: "/static/images/jflogo.png", style: {display: 'block'}});//不合格样例画面图片地址
+		$("#img-noQualified2-bak").attr("src","/static/images/jflogo.png");//不合格样例画面图片地址
+		$("#img-noQualified2-tip").hide();
+		
+		$("#img-noQualified3-img").attr({src: "/static/images/jflogo.png", style: {display: 'block'}});//不合格样例画面图片地址
+		$("#img-noQualified3-bak").attr("src","/static/images/jflogo.png");//不合格样例画面图片地址
+		$("#img-noQualified3-tip").hide();
     </#if>
     $(function () {
         $(".nav-sidebar>ul>li").on("click", function () {
@@ -616,7 +631,7 @@
         window.$street = $("#street");
         window.$dts = $("#dts");
         window.$dt = $("#dt");
-
+	
         // 下拉
         $('.select').searchableSelect();
         $('#customerId').next().find('.searchable-select-input').css('display', 'block');
@@ -641,6 +656,18 @@
                 }
             });
             
+            $('#upTaskTime').dateRangePicker({
+            	   singleDate: true,
+            	   showShortcuts: false,
+                   getValue: function () {
+                       return $(this).find('.upTask-Wdate').val()
+                   },
+                   setValue: function (s) {
+                      $('#upTaskTime').val(s);
+   					  $('#upTaskTime').blur()
+                   }
+            });
+              
             $('#upMonitorTaskTime').dateRangePicker({
             	   singleDate: true,
             	   showShortcuts: false,
@@ -681,7 +708,19 @@
 	   					  $(this).find('#' + lastId).blur()
 	                   }
 	             });
-	    	})
+	    	});
+	    	
+	    	$('#downMonitorTaskTime').dateRangePicker({
+            	   singleDate: true,
+            	   showShortcuts: false,
+                   getValue: function () {
+                       return $(this).find('.downMonitor-Wdate').val()
+                   },
+                   setValue: function (s) {
+                      $('#downMonitorTaskTime').val(s);
+   					  $('#downMonitorTaskTime').blur()
+                   }
+            });
         }
 
         $("#add-adseat").click(function () {
@@ -1057,6 +1096,30 @@
         	}
         })
         
+        // 上刊任务报告时间的校验
+        $('.upTask-Wdate').formValidator({
+        	   empty:true,
+               validatorGroup: '2',
+               tipID:"upTaskTimeTip",
+               onShow:"",
+               onFocus:"请选择上刊报告时间",
+               onCorrect:""
+           }).regexValidator({
+               regExp:"^\\S+$",
+               onError:"请输入上刊报告时间"
+           }).functionValidator({
+	           	fun: function(val, ele){
+	           		// 必须是活动开始时间
+	           		if(!$('#dts').val() || !$('#dt').val()){
+	           			return '请先选择活动时间'
+	           		}else if($('#dts').val() != val) {
+	           			return '出报告时间必须是活动开始时间'
+	           		}else{
+	           			return true
+	           		}
+	           	}
+          })
+        
         // 上刊监测报告时间的校验
         $('.upMonitor-Wdate').formValidator({
                validatorGroup: '2',
@@ -1218,7 +1281,29 @@
        		})
         })
         
-
+		// 下刊任务报告时间的校验
+        $('.downMonitor-Wdate').formValidator({
+         	   empty:true,
+               validatorGroup: '2',
+               tipID:"downMonitorTaskTimeTip",
+               onShow:"",
+               onFocus:"请选择下刊报告时间",
+               onCorrect:""
+           }).regexValidator({
+               regExp:"^\\S+$",
+               onError:"请输入下刊报告时间"
+           }).functionValidator({
+	           	fun: function(val, ele){
+	           		// 必须是活动开始时间
+	           		if(!$('#dts').val() || !$('#dt').val()){
+	           			return '请先选择活动时间'
+	           		}else if($('#dt').val() != val) {
+	           			return '出报告时间必须是活动结束时间'
+	           		}else{
+	           			return true
+	           		}
+	           	}
+          })
         
         //上刊任务积分值
 	    $("#upTaskPoint").formValidator({

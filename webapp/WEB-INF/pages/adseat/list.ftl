@@ -80,8 +80,6 @@
 					   <th>媒体小类</th>
 					   <th>媒体主</th>
 					   <th>广告位编号</th>
-					   <th>媒体大类</th>
-					   <th>媒体小类</th> 
 					   <th>区域</th>
 					   <th>主要路段</th>
 					   <th>广告位具体位置</th>
@@ -101,8 +99,6 @@
 							<td>${adseat.secondName!""}</td>
 							<td>${adseat.mediaName!""}</td>
 							<td>${adseat.memo!""}</td>
-							<td>${adseat.parentName}</td>
-							<td>${adseat.secondName}</td> 
 							<td>${vm.getCityName(adseat.province)!""} ${vm.getCityName(adseat.city!"")}</td>
 							<td>${adseat.road!""}</td>
 							<td>${adseat.location!""}</td>
@@ -136,6 +132,7 @@
             </div>
         </div>
         
+        <#-- 
         <div id="mediaSelCV" style="display:none">
         	<div class="layui-row">
            		<div class="layui-col-md2">
@@ -143,7 +140,6 @@
            		</div>
            		<div class="layui-col-md7">
            			<span class="layui-col-md3" style="margin-top: 20px;height:30px;line-height:30px;">媒体:</span><select class="layui-col-md7" style="margin-top: 20px;height: 30px" name="mediaId" onchange="importEnabled()" id="importMediaId">
-           			<#-- <option value="">所有媒体</option>  -->
            			<@model.showAllMediaOps value="${bizObj.queryMap.mediaId?if_exists}" />
        			</select>
            		</div>
@@ -158,6 +154,8 @@
 				</div>
            	</div>     	
         </div>
+         -->
+         
     </div>
 </div>
 </div>
@@ -332,6 +330,7 @@ function changeMediaTypeId() {
         $(window).resize();
         $('.select').searchableSelect();
         
+        <#-- 
         //批量导入打开媒体界面
         $('#batchInsert').on('click',function(){
         	 var layMediaSel=layer.open({
@@ -345,6 +344,7 @@ function changeMediaTypeId() {
                  content: $("#mediaSelCV")
         	 });
         });
+         -->
         
         $('#batchCancel').on('click',function(){
         	layer.closeAll();
@@ -365,8 +365,8 @@ function changeMediaTypeId() {
     		$('#insertBatchId').attr("disabled","disabled");
     	} */
     }
-   var isLoading = true;
     
+   var isLoading = true;
     
     //批量导入
 	layui.use('upload', function(){
@@ -374,11 +374,8 @@ function changeMediaTypeId() {
 	  
 	  //执行实例
 	  var uploadInst = upload.render({
-	    elem: '#insertBatchId' //绑定元素 
+	    elem: '#batchInsert' //绑定元素 
 	    ,data: {
-		  mediaId: function() {
-		  	return $('#importMediaId').val()
-		  }
 		}
 	    ,accept: 'file' //指定只允许上次文件
 	    ,exts: 'xlsx|xls' //指定只允许上次xlsx和xls格式的excel文件

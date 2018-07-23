@@ -27,7 +27,9 @@ public enum ExcelImportFailEnum {
 	CITY_INVALID(21, "城市有误"),
 	REGION_INVALID(22, "区/县有误"),
 	STREET_INVALID(23, "主要路段有误"),
-	MEDIA_NUM_INVAILD(24,"媒体方广告位编号不能为空");
+	MEDIA_NUM_INVAILD(24,"媒体方广告位编号不能为空"),
+	MEDIA_NULL(25,"媒体主不能为空"),
+	MEDIA_INVAILD(26,"媒体主名称无效");
     private Integer id;
     private String text;
 

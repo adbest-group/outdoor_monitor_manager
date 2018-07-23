@@ -572,8 +572,8 @@ public class MediaManagerController {
         		QRcodeUtil.encode(adCodeInfo, path);
         		adSeatInfo.setAdCode(adCodeInfo);
         		adSeatInfo.setAdCodeUrl("/static/qrcode/" + adCodeInfo + ".jpg");
-        		//默认贴上二维码
-        		adSeatInfo.setCodeFlag(1);
+        		//默认没有贴上二维码
+        		adSeatInfo.setCodeFlag(0);
         		adSeatService.save(adSeatInfo, user.getId());
             }
         } catch (Exception e) {
@@ -846,7 +846,7 @@ public class MediaManagerController {
         try {
         	AdSeatInfoVo seatInfo = new AdSeatInfoVo();
         	seatInfo.setId(id);
-        	seatInfo.setCodeFlag(1);
+        	//seatInfo.setCodeFlag(1);
         	adSeatService.updateFlag(codeFlag.getCodeFlag(),id);
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -856,7 +856,7 @@ public class MediaManagerController {
         }
 
         model.addAttribute(SysConst.RESULT_KEY, result);
-	return model;
+        return model;
     }
   
     /**

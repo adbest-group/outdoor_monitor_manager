@@ -142,11 +142,22 @@ public class AdSeatService implements IAdSeatService {
         return adSeatInfoMapper.getAdSeatByPointAround(lon,lat,metre, GeoUtil.getDegreeFromDistance(metre));
     }
 
+    /**
+     * 查询出这家媒体下的所有广告位
+     */
 	@Override
 	public List<AdSeatInfo> getAdSeatByMediaId(Integer mediaId) {
 		return adSeatInfoMapper.getAdSeatByMediaId(mediaId);
 	}
 
+	/**
+	 * 查询所有的广告位
+	 */
+	@Override
+	public List<AdSeatInfo> selectAllSeats() {
+		return adSeatInfoMapper.selectAllSeats();
+	}
+	
 	@Override
 	public List<CountGroupByCityVo> getCountGroupByCity(HeatMapVo heatMapVo, Integer userId) {
 		Map<String, Object> searchMap = new HashMap<>();

@@ -46,6 +46,7 @@
                         	<option value="2" <#if (status?exists&&status == '2')>selected</#if>>待执行</option>
                         	<option value="6" <#if (status?exists&&status == '6')>selected</#if>>未完成</option>
                         	<option value="7" <#if (status?exists&&status == '7')>selected</#if>>待激活</option>
+                        	<option value="10" <#if (status?exists&&status == '10')>selected</#if>>已超时</option>
                         </select>
                     </div>
                     <div class="select-box select-box-100 un-inp-select ll">

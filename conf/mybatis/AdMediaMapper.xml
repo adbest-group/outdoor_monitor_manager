@@ -150,5 +150,11 @@
     from ad_media
     where user_id = #{id,jdbcType=INTEGER}
   </select>
+  
+  <select id="selectAllMedia" resultMap="BaseResultMap">
+  	select
+    <include refid="Base_Column_List" />
+    from ad_media
+  </select>
 
 </mapper>

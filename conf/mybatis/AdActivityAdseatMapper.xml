@@ -446,6 +446,9 @@
     <if test="cityId != null" >
       and c.city = #{cityId,jdbcType=INTEGER}
     </if>
+    <if test="provinceId != null" >
+      and c.province = #{provinceId,jdbcType=INTEGER}
+    </if>
     <if test="mediaTypeParentId != null" >
       and c.media_type_parent_id = #{mediaTypeParentId,jdbcType=INTEGER}
     </if>
@@ -490,6 +493,9 @@
     </if>
     <if test="cityId != null" >
       and c.city = #{cityId,jdbcType=INTEGER}
+    </if>
+    <if test="provinceId != null" >
+      and c.province = #{provinceId,jdbcType=INTEGER}
     </if>
     <if test="mediaTypeParentId != null" >
       and c.media_type_parent_id = #{mediaTypeParentId,jdbcType=INTEGER}
@@ -563,7 +569,7 @@
 		c.road info_road,
 		d.media_name mediaName,
 		e.realname realname,
-		h.realname exe_realname,		
+		h.realname exe_realname		
 	from ad_activity_adseat a
 	LEFT JOIN ad_monitor_task b ON b.activity_adseat_id = a.id
 	LEFT JOIN ad_seat_info c ON a.ad_seat_id = c.id

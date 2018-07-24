@@ -849,4 +849,39 @@
 		from ad_seat_info
 	</select>
 	
+	<!-- 获取刚刚批量插入的广告位id集合 -->
+	<select id="selectNewSeatIds" resultType="java.lang.Integer" parameterType="java.util.Date">
+		select 
+			id
+		from ad_seat_info
+		where create_time = DATE_FORMAT(#{createTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+	</select>
+	
+	<!-- 查询指定id集合的广告位 -->
+	<select id="selectSeatByIds" resultMap="ExtResultMap" parameterType="map">
+		select
+			a.id, a.name, a.province, a.city, a.region, a.street, a.media_id, a.ad_seat_type, a.ad_seat_type_text,
+			a.media_type_parent_id, a.media_type_id, a.unique_key,
+			a.ad_code, a.ad_code_url, a.location,
+			a.ad_size, a.ad_area, a.pv, a.private_car_pv, a.bus_pv, a.lon, a.lat, a.map_standard,
+			a.contact_name, a.contact_cell,
+			a.create_time, a.update_time, a.memo, a.allow_multi, a.multi_num,a.ad_num,a.road,
+			b.media_name,
+			c.name as parentName,
+			d.name as secondName,
+			a.ad_code_flag
+		from
+			ad_seat_info as a
+		left join ad_media as b on a.media_id=b.id
+		left join ad_media_type c on a.media_type_parent_id=c.id
+		left join ad_media_type d on a.media_type_id=d.id
+		where 1=1
+		<if test="adseatInfoIds != null" >
+			and a.id in
+		    <foreach collection="adseatInfoIds" item="id" index="index" open="(" close=")" separator=",">
+		    	#{id}
+		    </foreach>
+		</if>
+	</select>
+	
 </mapper>

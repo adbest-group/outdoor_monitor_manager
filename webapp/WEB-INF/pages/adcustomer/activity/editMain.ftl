@@ -31,6 +31,11 @@
     	width: 280px;
 		text-align: center;
     }
+    
+    .data-report{
+    	max-height: 500px;
+    	overflow-y: auto;
+    }
 </style>
 <#assign editMode=false/>
 <#-- <@shiro.hasRole name="customer"> -->
@@ -294,7 +299,19 @@
                             <td colspan="2">
                                 <#if editMode>
                                     <a class="addBtn" href="javascript:;" id="add-adseat">选择广告位</a>
+                                    <a class="btn btn-orange" href="javascript:;" id="import-adseat">最近一次导入</a>
+                                    <a class="btn btn-red" href="javascript:;" id="clear-adseat" style="display: none;">清空已占用</a>
                                 </#if>
+                            </td>
+                        </tr>
+                        <tr id="problem-table" style="display: none;">
+                            <td colspan="3" >
+                                <div class="data-report" style="margin: 0px;">
+                                    <div id="as-container-question" class="bd" style="padding:0px;">
+                                    
+                                    </div>
+                                </div>
+
                             </td>
                         </tr>
 
@@ -742,6 +759,35 @@
                 content: '/customer/activity/adseat/toSelect'
             });
         });
+        
+        // 导入最近一次导入广告位
+        $("#import-adseat").click(function () {
+            <#-- if($("#dts").val().length<1||$("#province").val().length<1||$("input:checkbox:checked").length<1){ -->
+            if($("#dts").val().length<1){
+                layer.alert("请先确认活动时间");
+                return;
+            }else{
+            	var startDate = $("#dts").val(); //投放开始时间
+                var endDate = $("#dt").val(); //投放结束时间
+                var activityId = $("#id").val();
+            	
+            	$.ajax({
+            		url: "/customer/activity/adseat/selectTmp",
+                    type: "post",
+                    data: {
+                        "startDate": startDate,
+                        "endDate": endDate,
+                        "activityId": activityId
+                    },
+                    dataType: 'json',
+                    success: function (res) {
+                        console.log(res)
+                        ImportLastData(res);
+                    }
+                });
+            }
+            
+        });
 
         /*获取城市  */
         var $town = $('#demo3 select[name="street"]');
@@ -1122,6 +1168,7 @@
         
         // 上刊监测报告时间的校验
         $('.upMonitor-Wdate').formValidator({
+        	   empty:true,
                validatorGroup: '2',
                tipID:"upMonitorTaskTimeTip",
                onShow:"",
@@ -1761,6 +1808,7 @@
 		}
 	}
 	
+	// 新建活动时广告位数据  列表渲染
 	function getCheckboxData(isEdit) {
 		var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>操作</th> </tr></thead><tbody>'
 		console.log('save', checkArr)
@@ -1799,6 +1847,64 @@
 	
 	ModCheckboxData()
 	
+	$('#clear-adseat').click(function(){
+		$('#as-container-question').html('')
+		$('#clear-adseat').hide();
+       	$('#problem-table').hide();
+	})
+	
+	// 导入最近一次广告位数据 列表渲染
+	function ImportLastData(data){
+        var adSeatInfoVos = data.adSeatInfoVos;
+        var problemAdSeatInfos = data.problemAdSeatInfos;
+        
+        var len = adSeatInfoVos.length;
+        var problemLen = problemAdSeatInfos.length;
+        if(problemLen > 0){
+        	
+        	// 显示清除按钮和表格
+        	$('#clear-adseat').show();
+        	$('#problem-table').show();
+        	
+        	var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>状态</th><th>操作</th> </tr></thead><tbody>'
+   			for(var i = 0; i < problemLen; i++){
+   				var str = '<tr class="problemTr"><td>' + problemAdSeatInfos[i].name + '</td><td>' + problemAdSeatInfos[i].provinceName + (problemAdSeatInfos[i].cityName ? problemAdSeatInfos[i].cityName : "") + '</td><td>' + problemAdSeatInfos[i].road + '</td><td>' + problemAdSeatInfos[i].location + '</td><td>' + problemAdSeatInfos[i].mediaName + '</td> <td>' + problemAdSeatInfos[i].parentName + '</td><td>' + problemAdSeatInfos[i].secondName + '</td><td style="color:red">已占用</td><td><a style="cursor:pointer" class="deleteQuesBtn" data-id='+ problemAdSeatInfos[i].id + '>删除</a></td></td> </tr>'
+   				html += str
+   			}
+   			html += '</thbody>'
+   			$('#as-container-question').html(html)
+   			$('.deleteQuesBtn').unbind()
+   			$('.deleteQuesBtn').click(function(){
+   				$(this).parents('tr.problemTr').remove()
+   				if($('#as-container-question tr.problemTr').length <= 0){
+   					$('#clear-adseat').hide();
+   		        	$('#problem-table').hide();
+   				}
+   			})
+        }
+        
+        if(len >0){
+        	var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>操作</th> </tr></thead><tbody>'
+   			for(var i = 0; i < len; i++){
+   				var str = '<tr><td>' + adSeatInfoVos[i].name + '</td><td>' + adSeatInfoVos[i].provinceName + (adSeatInfoVos[i].cityName ? adSeatInfoVos[i].cityName : "") + '</td><td>' + adSeatInfoVos[i].road + '</td><td>' + adSeatInfoVos[i].location + '</td><td>' + adSeatInfoVos[i].mediaName + '</td> <td>' + adSeatInfoVos[i].parentName + '</td><td>' + adSeatInfoVos[i].secondName + '</td><td><a style="cursor:pointer" class="deleteCheckBtn" data-id='+ adSeatInfoVos[i].id + '>删除</a></td></td> </tr>'
+   				addCheck({
+   					id: adSeatInfoVos[i].id,
+   					html: str
+   				})
+   				html += str
+   			}
+   			html += '</thbody>'
+   			getCheckboxData(false)
+   			/*$('.deleteCheckBtn').unbind()
+   			$('.deleteCheckBtn').click(function(){
+   				removeCheck($(this).data('id'))
+   				getCheckboxData(true)
+   			})*/
+        }
+	
+	}
+	
+	// 编辑状态下广告位数据 列表渲染
 	function ModCheckboxData() {
 		var len = activity_seats.length
 		if(len > 0){

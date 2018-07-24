@@ -642,6 +642,13 @@
     <if test="endDate != null" >
       and e.monitor_end >= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
     </if>
+    <if test="seatIds != null" >
+    	and e.ad_seat_id in
+       	<foreach collection="seatIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+    </if>
+    <if test="removeActivityId != null" >
+      and e.activity_id != #{removeActivityId,jdbcType=INTEGER}
+    </if>
 	group by e.ad_seat_id
   </select>
   
@@ -657,6 +664,13 @@
     </if>
 	<if test="endDate != null" >
       and e.monitor_end &lt; DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+    </if>
+    <if test="seatIds != null" >
+    	and e.ad_seat_id in
+       	<foreach collection="seatIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+    </if>
+    <if test="removeActivityId != null" >
+      and e.activity_id != #{removeActivityId,jdbcType=INTEGER}
     </if>
 	group by e.ad_seat_id
   </select>
@@ -677,6 +691,13 @@
 	<if test="endDate != null" >
       and e.monitor_end > DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
     </if>
+    <if test="seatIds != null" >
+    	and e.ad_seat_id in
+       	<foreach collection="seatIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+    </if>
+    <if test="removeActivityId != null" >
+      and e.activity_id != #{removeActivityId,jdbcType=INTEGER}
+    </if>
 	group by e.ad_seat_id
   </select>
   
@@ -695,6 +716,13 @@
     </if>
 	<if test="endDate != null" >
       and e.monitor_end &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+    </if>
+    <if test="seatIds != null" >
+    	and e.ad_seat_id in
+       	<foreach collection="seatIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
+    </if>
+    <if test="removeActivityId != null" >
+      and e.activity_id != #{removeActivityId,jdbcType=INTEGER}
     </if>
 	group by e.ad_seat_id
   </select>

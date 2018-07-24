@@ -833,7 +833,10 @@ public class ExcelController extends BasicController {
 		Map<String, Long> provinceMap = citiesToMap(provinces);
 		
 		//获取登录用户信息
-		Date now = new Date();
+		Date nowDate = new Date();
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    	String formatDateStr = format.format(nowDate);
+    	Date now = DateUtil.parseStrDate(formatDateStr, "yyyy-MM-dd HH:mm:ss");
 
     	//获取全部的媒体主信息
     	List<AdMedia> allMedias = mediaService.selectAllMedia();
@@ -842,7 +845,7 @@ public class ExcelController extends BasicController {
 //		List<AdSeatInfo> adSeatsByMediaId = adSeatService.getAdSeatByMediaId(media.getId());
 		//获取全部广告位(检验唯一性)
 		List<AdSeatInfo> adSeats = adSeatService.selectAllSeats();
-		List<String> databaseAdSeats = new ArrayList<>();
+		Map<String, Integer> databaseAdseatMap = new HashMap<>();
 		for (AdSeatInfo adSeatInfo : adSeats) {
 			StringBuffer buffer = new StringBuffer();
 			if(adSeatInfo.getProvince() != null) {
@@ -855,15 +858,18 @@ public class ExcelController extends BasicController {
 				buffer.append(adSeatInfo.getRoad());//主要路段
 			}
 			buffer.append(adSeatInfo.getLocation()); //详细位置
-			databaseAdSeats.add(buffer.toString());
+			databaseAdseatMap.put(buffer.toString(), adSeatInfo.getId());
 		}
-		Set<String> keySet = new HashSet<>(databaseAdSeats);
+		Set<String> keySet = new HashSet<>(databaseAdseatMap.keySet());
 		adSeats.clear();
 		
 		//获取媒体类型
 		List<AdMediaTypeVo> adMediaTypeVos = adMediaTypeService.selectParentAndSecond();
 		Table<String, String, AdMediaTypeVo> table = getTable(adMediaTypeVos);
 		adMediaTypeVos.clear();
+		
+		//需要插入临时表中的广告位id集合
+		List<Integer> tmpSeatIds = new ArrayList<>();
 		
 		try {
 			if (file.isEmpty()) {
@@ -1180,6 +1186,8 @@ public class ExcelController extends BasicController {
                     		lo.set(18, importFail);
                     		lo.set(19, ExcelImportFailEnum.LOC_DUP.getText());
                     		hasProblem = true;
+                    		//重复的广告位放入临时表id集合中
+                    		tmpSeatIds.add(databaseAdseatMap.get(buffer.toString()));
                     	} else {
                     		keySet.add(buffer.toString());
                     	}
@@ -1210,12 +1218,12 @@ public class ExcelController extends BasicController {
             }
             
             //正常数据插入到数据库中
-            if(insertAdSeatInfos != null && insertAdSeatInfos.size()>0){
-            	adSeatService.insertBatchByExcel(insertAdSeatInfos);
-            	insertAdSeatInfos.clear();
-            	table.clear();
-            	keySet.clear();
-            }
+        	adSeatService.insertBatchByExcel(insertAdSeatInfos, tmpSeatIds, now);
+        	insertAdSeatInfos.clear();
+        	table.clear();
+        	keySet.clear();
+        	databaseAdseatMap.clear();
+        	tmpSeatIds.clear();
             
             //导出到excel, 返回导入广告位信息结果
             List<List<String>> listString = objToString(listob);
@@ -1744,7 +1752,7 @@ public class ExcelController extends BasicController {
             
             //正常数据插入到数据库中
             if(insertAdSeatInfos != null && insertAdSeatInfos.size() > 0){
-            	adSeatService.insertBatchByExcel(insertAdSeatInfos);
+            	adSeatService.insertBatchByExcel(insertAdSeatInfos, null, null);
             	insertAdSeatInfos.clear();
             	table.clear();
             	keySet.clear();

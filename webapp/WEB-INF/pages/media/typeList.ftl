@@ -81,7 +81,9 @@
                             	<#if type.status?exists && type.status == 2>不可用</#if>
                             </td>
                             <td>
+                            	<#if type.mediaType?exists && type.mediaType == 2>
                                 <a href="javascript:void(0);" onclick="edit('${type.id}');">编辑</a>&nbsp&nbsp&nbsp&nbsp
+                               	</#if>
                                
                                 <!--只显示可用或者不可用 <#if type.status?exists && type.status == 1>
                                 	<a href="javascript:void(0);" onclick="updateStatus('${type.id}', 2, '${type.mediaType}');">不可用</a>

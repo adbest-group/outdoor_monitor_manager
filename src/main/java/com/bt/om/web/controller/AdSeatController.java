@@ -1,11 +1,13 @@
 package com.bt.om.web.controller;
 
+import java.io.File;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -34,13 +36,17 @@ import com.bt.om.entity.vo.AdSeatInfoVo;
 import com.bt.om.entity.vo.CountGroupByCityVo;
 import com.bt.om.entity.vo.HeatMapVo;
 import com.bt.om.entity.vo.ResourceVo;
+import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdSeatService;
+import com.bt.om.service.IMediaService;
 import com.bt.om.service.IOperateLogService;
 import com.bt.om.service.IResourceService;
+import com.bt.om.service.ISysUserService;
+import com.bt.om.util.QRcodeUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
@@ -59,6 +65,10 @@ public class AdSeatController extends BasicController {
     private IAdActivityService adActivityService;
     @Autowired
 	private IOperateLogService operateLogService;
+    @Autowired
+    private IMediaService mediaService;
+    @Autowired
+    private ISysUserService sysUserService;
 
     /**
      * 新增广告位跳转
@@ -506,4 +516,41 @@ public class AdSeatController extends BasicController {
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }
+    
+    /**
+     * 生成广告位的二维码
+     */
+    @RequestMapping(value = "/generateAdCode")
+    @ResponseBody
+    public Model generateAdCode(Model model, HttpServletRequest request, Integer adSeatId) {
+    	ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("操作成功");
+        model = new ExtendedModelMap();
+        
+        try {
+        	AdSeatInfo adSeatInfo = adSeatService.getById(adSeatId);
+        	AdMedia adMedia = mediaService.getById(adSeatInfo.getMediaId());
+        	SysUserVo mediaUser = sysUserService.findUserinfoById(adMedia.getUserId());
+        	//生成广告位对应的二维码
+    		String adCodeInfo = mediaUser.getPrefix() + UUID.randomUUID(); //二维码存的值（媒体前缀比如media3- 加上UUID随机数）
+    		String path = request.getSession().getServletContext().getRealPath("/");
+    		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"qrcode"+File.separatorChar+adCodeInfo + ".jpg";
+    		QRcodeUtil.encode(adCodeInfo, path);
+    		adSeatInfo.setAdCode(adCodeInfo);
+    		adSeatInfo.setAdCodeUrl("/static/qrcode/" + adCodeInfo + ".jpg");
+    		
+    		//更新
+    		adSeatService.modify(adSeatInfo);
+		} catch (Exception e) {
+			logger.error(MessageFormat.format("生成广告位二维码失败", new Object[] {}));
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+        	result.setResultDes("生成广告位二维码失败");
+        	return model;
+		}
+        
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+    }
+    
 }

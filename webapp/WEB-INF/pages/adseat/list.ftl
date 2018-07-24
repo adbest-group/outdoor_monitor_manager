@@ -113,15 +113,14 @@
 	                            <a href="/adseat/edit?id=${adseat.id}" style="margin-right: 5px">编辑</a>
 	                            <a href="javascript:deleteSeat('${adseat.id}');" style="margin-right: 5px">删除</a>
 	                            <#if adseat.adCodeUrl?exists && adseat.adCode?exists>
-	                            	
+	                            	<#if adseat.codeFlag?exists && adseat.codeFlag == 1>
+			                             <a href="javascript:void(0);" onclick="updateStatus('${adseat.id}', 0);">未贴</a>
+			                        </#if>
+			                        <#if adseat.codeFlag?exists && adseat.codeFlag == 0>
+			                            <a href="javascript:void(0);" onclick="updateStatus('${adseat.id}', 1);">已贴</a>
+			                        </#if>
 		                        <#else>
 		                        	<a href="javascript:void(0);" onclick="generateAdCode('${adseat.id}');">生成二维码</a>
-		                        </#if>
-	                            <#if adseat.codeFlag?exists && adseat.codeFlag == 1>
-		                             <a href="javascript:void(0);" onclick="updateStatus('${adseat.id}', 0);">未贴</a>
-		                        </#if>
-		                        <#if adseat.codeFlag?exists && adseat.codeFlag == 0>
-		                            <a href="javascript:void(0);" onclick="updateStatus('${adseat.id}', 1);">已贴</a>
 		                        </#if>
 	                    </tr>
 					</#list> <#else>

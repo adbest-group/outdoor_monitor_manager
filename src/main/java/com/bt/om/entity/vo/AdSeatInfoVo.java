@@ -20,7 +20,7 @@ public class AdSeatInfoVo extends AdSeatInfo {
 	private String provinceName;
 	
 	private String cityName;
-
+	
 	public Integer getMediaId() {
 		return mediaId;
 	}

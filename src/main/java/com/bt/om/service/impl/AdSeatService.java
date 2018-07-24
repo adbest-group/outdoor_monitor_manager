@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bt.om.entity.AdCrowd;
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.AdSeatInfoTmp;
 import com.bt.om.entity.vo.AdSeatInfoVo;
 import com.bt.om.entity.vo.CountGroupByCityVo;
 import com.bt.om.entity.vo.HeatMapVo;
@@ -21,6 +22,7 @@ import com.bt.om.mapper.AdActivityAdseatMapper;
 import com.bt.om.mapper.AdCrowdMapper;
 import com.bt.om.mapper.AdMediaMapper;
 import com.bt.om.mapper.AdSeatInfoMapper;
+import com.bt.om.mapper.AdSeatInfoTmpMapper;
 import com.bt.om.service.IAdSeatService;
 import com.bt.om.util.GeoUtil;
 import com.bt.om.vo.web.SearchDataVo;
@@ -38,6 +40,8 @@ public class AdSeatService implements IAdSeatService {
     private AdCrowdMapper adCrowdMapper;
     @Autowired
     private AdActivityAdseatMapper adActivityAdseatMapper;
+    @Autowired
+    private AdSeatInfoTmpMapper adSeatInfoTmpMapper;
 
     @Override
     public int getPageCount(SearchDataVo vo) {
@@ -127,14 +131,41 @@ public class AdSeatService implements IAdSeatService {
         return adCrowdMapper.getAgePartListByAdSeatId(adSeatId);
     }
     
+    /**
+     * 批量插入广告位
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int insertBatchByExcel(List<AdSeatInfo> adSeatInfos) {
+    public int insertBatchByExcel(List<AdSeatInfo> adSeatInfos, List<Integer> tmpSeatIds, Date nowDate) {
+    	int count = 0;
+    	//批量插入广告位, 可能不需要插入新的广告位
     	if(adSeatInfos != null && adSeatInfos.size() > 0) {
-    		int count = adSeatInfoMapper.insertBatchByExcel(adSeatInfos);
-    		return count;
+    		count = adSeatInfoMapper.insertBatchByExcel(adSeatInfos);
+    		adSeatInfos.clear();
     	}
-    	return 0;
+    	//【群邑方】导入还要插入临时表(先清空后插入)
+    	if(tmpSeatIds != null && nowDate != null) {
+    		// [1] 先获取刚刚新插入的广告位id集合
+    		List<Integer> seatIds = adSeatInfoMapper.selectNewSeatIds(nowDate);
+    		tmpSeatIds.addAll(seatIds);
+    		// [2] 清空临时表
+    		adSeatInfoTmpMapper.deleteAll();
+    		// [3] 批量插入临时表
+    		List<AdSeatInfoTmp> adSeatInfoTmps = new ArrayList<>();
+    		for (Integer seatInfoId : tmpSeatIds) {
+    			AdSeatInfoTmp adSeatInfoTmp = new AdSeatInfoTmp();
+    			adSeatInfoTmp.setSeatInfoId(seatInfoId);
+    			adSeatInfoTmp.setCreateTime(nowDate);
+    			adSeatInfoTmp.setUpdateTime(nowDate);
+    			adSeatInfoTmps.add(adSeatInfoTmp);
+			}
+    		if(adSeatInfoTmps.size() > 0) {
+    			adSeatInfoTmpMapper.insertBatch(adSeatInfoTmps);
+    			adSeatInfoTmps.clear();
+    			tmpSeatIds.clear();
+    		}
+    	}
+    	return count;
     }
 
     @Override
@@ -215,6 +246,16 @@ public class AdSeatService implements IAdSeatService {
 	@Override
 	public AdSeatInfo searchLocation(Map<String, Object> searchMap) {
 		return adSeatInfoMapper.searchLocation(searchMap);
+	}
+	
+	@Override
+	public List<Integer> selectSeatIds(){
+		return adSeatInfoTmpMapper.selectSeatIds();
+	}
+	
+	@Override
+	public List<AdSeatInfoVo> selectSeatByIds(Map<String, Object> searchMap){
+		return adSeatInfoMapper.selectSeatByIds(searchMap);
 	}
 
 }

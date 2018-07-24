@@ -3,13 +3,10 @@ package com.bt.om.web.controller;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,18 +29,13 @@ import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdActivityAdseat;
-import com.bt.om.entity.AdActivityArea;
-import com.bt.om.entity.AdActivityMedia;
 import com.bt.om.entity.AdJiucuoTaskFeedback;
-import com.bt.om.entity.AdSeatInfo;
-import com.bt.om.entity.AdUserMessage;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AdActivityVo;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.entity.vo.AdSeatCount;
 import com.bt.om.entity.vo.AdSeatInfoVo;
-import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.ActivityStatus;
 import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.ResultCode;
@@ -57,13 +49,11 @@ import com.bt.om.service.IAdUserMessageService;
 import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.util.ConfigUtil;
-import com.bt.om.util.GsonUtil;
 import com.bt.om.util.StringUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
 import com.bt.om.web.util.SearchUtil;
-import com.google.gson.JsonObject;
 
 /**
  * Created by caiting on 2018/1/17.
@@ -88,6 +78,7 @@ public class CustomerActivityControl extends BasicController {
 	private SysUserResMapper sysUserResMapper;
 	@Autowired
 	private CityCache cityCache;
+	
 	/**
      * 查询活动列表
      */
@@ -299,6 +290,92 @@ public class CustomerActivityControl extends BasicController {
         model.addAttribute("start", vo.getStart()); //当前页
         
         model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+    }
+    
+    /**
+     * 选择导入临时表中的广告位
+     */
+    @RequestMapping(value = "/activity/adseat/selectTmp")
+    @ResponseBody
+    public Model getAdSeatTmps(Model model, HttpServletRequest request,
+            @RequestParam(value = "startDate", required = false) String startDate,
+            @RequestParam(value = "endDate", required = false) String endDate,
+            @RequestParam(value = "activityId", required = false) Integer activityId) {
+    	ResultVo<String> result = new ResultVo<String>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResult("查询成功");
+        model = new ExtendedModelMap();
+    	
+        if(StringUtil.isEmpty(startDate) || StringUtil.isEmpty(endDate)) {
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("请先选择活动时间！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        
+        //[1] 查询临时表中的id集合
+        List<Integer> tmpSeatIds = adSeatService.selectSeatIds();
+        
+    	//[2] 查询上述id集合在传递的时间段内正在参与活动的广告位id及参与活动数量
+        Map<String, Object> searchMap = new HashMap<>();
+        searchMap.put("startDate", DateUtil.parseStrDate(startDate, "yyyy-MM-dd"));
+        searchMap.put("endDate", DateUtil.parseStrDate(endDate, "yyyy-MM-dd"));
+        if(tmpSeatIds != null && tmpSeatIds.size() > 0) {
+        	searchMap.put("seatIds", tmpSeatIds);
+        }
+        // 编辑活动页面点击的"最近一次导入", 排除掉这个活动
+        if(activityId != null) {
+        	searchMap.put("removeActivityId", activityId);
+        }
+        List<AdSeatCount> adSeatCounts = adActivityService.selectActiveActivityCount(searchMap);
+        
+        List<Integer> problemInfoIds = new ArrayList<Integer>(); //已有足够的活动占用的广告位id集合
+        for (AdSeatCount adSeatCount : adSeatCounts) {
+			if(adSeatCount != null) {
+				//判断是否要移除
+				if(adSeatCount.getAllowMulti() == 0 && adSeatCount.getCount() >= 1) {
+					//否：不允许同时有多个活动; 当前广告位正在参与活动的数量 大于等于 1
+					problemInfoIds.add(adSeatCount.getAdseatId());
+				}
+				if(adSeatCount.getAllowMulti() == 1 && adSeatCount.getCount() >= adSeatCount.getMultiNum()) {
+					//是: 允许同时有多个活动; 当前广告位正在参与活动的数量 大于等于 最大允许数量
+					problemInfoIds.add(adSeatCount.getAdseatId());
+				}
+			}
+		}
+        
+        //[3] 查询出有问题广告位
+        searchMap.clear();
+        searchMap.put("adseatInfoIds", problemInfoIds);
+        List<AdSeatInfoVo> problemAdSeatInfos = new ArrayList<>();
+        if(problemInfoIds.size() > 0) {
+        	 problemAdSeatInfos = adSeatService.selectSeatByIds(searchMap);
+        	 for (AdSeatInfoVo adSeatInfoVo : problemAdSeatInfos) {
+             	adSeatInfoVo.setProvinceName(cityCache.getCityName(adSeatInfoVo.getProvince()));
+             	adSeatInfoVo.setCityName(cityCache.getCityName(adSeatInfoVo.getCity()));
+     		}
+        }
+        model.addAttribute("problemAdSeatInfos", problemAdSeatInfos);
+        
+        //[4] 查询出正常的广告位
+        searchMap.clear();
+        tmpSeatIds.removeAll(problemInfoIds);
+        searchMap.put("adseatInfoIds", tmpSeatIds);
+        List<AdSeatInfoVo> adSeatInfoVos = new ArrayList<>();
+        if(tmpSeatIds.size() > 0) {
+        	adSeatInfoVos = adSeatService.selectSeatByIds(searchMap);
+            for (AdSeatInfoVo adSeatInfoVo : adSeatInfoVos) {
+            	adSeatInfoVo.setProvinceName(cityCache.getCityName(adSeatInfoVo.getProvince()));
+            	adSeatInfoVo.setCityName(cityCache.getCityName(adSeatInfoVo.getCity()));
+    		}
+        }
+        model.addAttribute("adSeatInfoVos", adSeatInfoVos);
+        
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        
+        problemInfoIds.clear();
+        tmpSeatIds.clear();
         return model;
     }
     

@@ -830,7 +830,7 @@ public class AdActivityService implements IAdActivityService {
 		for (AdSeatCount adSeatCount : adSeatCounts1) {
 			boolean isExist = false; //是否在返回结果中存在
 			for (AdSeatCount returnCount : adSeatCounts) { //遍历返回结果
-				if(returnCount.getAdseatId() == adSeatCount.getAdseatId()) {
+				if(returnCount.getAdseatId().equals(adSeatCount.getAdseatId())) {
 					returnCount.setCount(returnCount.getCount() + adSeatCount.getCount());
 					isExist = true;
 					break;
@@ -844,7 +844,7 @@ public class AdActivityService implements IAdActivityService {
 		for (AdSeatCount adSeatCount : adSeatCounts2) {
 			boolean isExist = false; //是否在返回结果中存在
 			for (AdSeatCount returnCount : adSeatCounts) { //遍历返回结果
-				if(returnCount.getAdseatId() == adSeatCount.getAdseatId()) {
+				if(returnCount.getAdseatId().equals(adSeatCount.getAdseatId())) {
 					returnCount.setCount(returnCount.getCount() + adSeatCount.getCount());
 					isExist = true;
 					break;
@@ -858,7 +858,7 @@ public class AdActivityService implements IAdActivityService {
 		for (AdSeatCount adSeatCount : adSeatCounts3) {
 			boolean isExist = false; //是否在返回结果中存在
 			for (AdSeatCount returnCount : adSeatCounts) { //遍历返回结果
-				if(returnCount.getAdseatId() == adSeatCount.getAdseatId()) {
+				if(returnCount.getAdseatId().equals(adSeatCount.getAdseatId())) {
 					returnCount.setCount(returnCount.getCount() + adSeatCount.getCount());
 					isExist = true;
 					break;
@@ -872,7 +872,7 @@ public class AdActivityService implements IAdActivityService {
 		for (AdSeatCount adSeatCount : adSeatCounts4) {
 			boolean isExist = false; //是否在返回结果中存在
 			for (AdSeatCount returnCount : adSeatCounts) { //遍历返回结果
-				if(returnCount.getAdseatId() == adSeatCount.getAdseatId()) {
+				if(returnCount.getAdseatId().equals(adSeatCount.getAdseatId())) {
 					returnCount.setCount(returnCount.getCount() + adSeatCount.getCount());
 					isExist = true;
 					break;

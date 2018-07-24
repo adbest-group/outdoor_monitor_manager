@@ -1,10 +1,12 @@
 package com.bt.om.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import com.bt.om.entity.AdCrowd;
 import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.vo.AdSeatInfoVo;
 import com.bt.om.entity.vo.CountGroupByCityVo;
 import com.bt.om.entity.vo.HeatMapVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -24,7 +26,6 @@ public interface IAdSeatService {
     public void modify(AdSeatInfo adSeatInfo, List<AdCrowd> crowds);
     public void delete(Integer id);
     public List<AdCrowd> getCrowdsBySeatId(Integer adSeatId);
-	public int insertBatchByExcel(List<AdSeatInfo> adSeatInfos);
 	
 	/**
      * 查询给定坐标点，半径metre范围内（单位：米）所有的目前有活动的广告位
@@ -39,4 +40,7 @@ public interface IAdSeatService {
 	int selectByLocation(Map<String, Object> searchMap);
 	public AdSeatInfo searchLocation(Map<String, Object> searchMap);
 	List<AdSeatInfo> selectAllSeats();
+	int insertBatchByExcel(List<AdSeatInfo> adSeatInfos, List<Integer> tmpSeatIds, Date nowDate);
+	List<Integer> selectSeatIds();
+	List<AdSeatInfoVo> selectSeatByIds(Map<String, Object> searchMap);
 }

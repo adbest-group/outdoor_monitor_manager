@@ -1279,7 +1279,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	public void changeStatus() {
 		Date now = new Date();
 		
-		// 将所有ad_monitor_task超时的任务状态设为9 "已超时
+		// 将所有ad_monitor_task超时的任务状态设为10 "已超时
 		adMonitorTaskMapper.updateTaskStatus(now);
 		
 	

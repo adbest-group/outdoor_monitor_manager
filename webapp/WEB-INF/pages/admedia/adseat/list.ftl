@@ -83,6 +83,11 @@
 								<#--<a href="#" style="margin-right: 5px">数据上传</a> -->
 								<a href="/platmedia/adseat/edit?id=${adseat.id}" style="margin-right: 5px">编辑</a>
                                 <a href="javascript:deleteSeat('${adseat.id}');" style="margin-right: 5px">删除</a>
+                                <#if adseat.adCodeUrl?exists && adseat.adCode?exists>
+	                            	
+		                        <#else>
+		                        	<a href="javascript:void(0);" onclick="generateAdCode('${adseat.id}');">生成二维码</a>
+		                        </#if>
                                 <#if adseat.codeFlag?exists && adseat.codeFlag == 1>
 	                                	<a href="javascript:void(0);" onclick="updateStatus('${adseat.id}', 0);">未贴</a>
 	                        	</#if>
@@ -309,6 +314,46 @@
 	    }
 	  });
 	}); 
+	
+	// 生成二维码图片
+	function generateAdCode(adSeatId){
+		layer.confirm("确认生成二维码？", {
+            icon: 3,
+            btn: ['确定', '取消'] //按钮
+        }, function(){
+            $.ajax({
+                url: "/adseat/generateAdCode",
+                type: "post",
+                data: {
+                    "adSeatId": adSeatId,
+                },
+                cache: false,
+                dataType: "json",
+                success: function(datas) {
+                    var resultRet = datas.ret;
+                    if (resultRet.code == 101) {
+                        layer.confirm(resultRet.resultDes, {
+                            icon: 2,
+                            btn: ['确定'] //按钮
+                        });
+                    } else {
+                        layer.confirm("操作成功", {
+                            icon: 1,
+                            btn: ['确定'] //按钮
+                        }, function () {
+                            window.location.reload();
+                        });
+                    }
+                },
+                error: function(e) {
+                    layer.confirm("服务忙，请稍后再试", {
+                        icon: 5,
+                        btn: ['确定'] //按钮
+                    });
+                }
+            });
+        });
+	}
 
 	// 更新二维码状态
     function updateStatus(id, codeFlag) {

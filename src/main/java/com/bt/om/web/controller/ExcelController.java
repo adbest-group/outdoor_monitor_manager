@@ -598,7 +598,7 @@ public class ExcelController extends BasicController {
 			
 			Image image5 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/gongzhang.png");
 			image5.setAlignment(Image.ALIGN_CENTER);
-			image5.scaleAbsolute(250,250);//控制图片大小
+			image5.scaleAbsolute(250,180);//控制图片大小
 			image5.setAbsolutePosition(1300,350);//控制图片位置
 			document.add(image5);
 		} catch (Exception e) {

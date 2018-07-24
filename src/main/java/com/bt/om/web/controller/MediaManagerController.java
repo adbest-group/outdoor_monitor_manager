@@ -513,8 +513,6 @@ public class MediaManagerController {
             if (adSeatInfo.getId() != null) {
             	//修改时检验广告位位置唯一，忽略自身，先查后校验
             	//【芙蓉不改就遭天谴】
-            	//【芙蓉不改就遭天谴】
-            	//【芙蓉不改就遭天谴】
             	AdSeatInfo adSeatInfo2 = adSeatService.searchLocation(searchMap);
             	if(adSeatInfo2!=null) {
             		if(!adSeatInfo.getId().equals(adSeatInfo2.getId())) {
@@ -565,13 +563,13 @@ public class MediaManagerController {
         			mediaUser = sysUserService.findUserinfoById(media.getUserId()); //通过媒体的后台用户id查询媒体信息(比如二维码前缀)
         		}
         		
-        		//生成广告位对应的二维码
-        		String adCodeInfo = mediaUser.getPrefix() + UUID.randomUUID(); //二维码存的值（媒体前缀比如media3- 加上UUID随机数）
-        		String path = request.getSession().getServletContext().getRealPath("/");
-        		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"qrcode"+File.separatorChar+adCodeInfo + ".jpg";
-        		QRcodeUtil.encode(adCodeInfo, path);
-        		adSeatInfo.setAdCode(adCodeInfo);
-        		adSeatInfo.setAdCodeUrl("/static/qrcode/" + adCodeInfo + ".jpg");
+//        		//生成广告位对应的二维码
+//        		String adCodeInfo = mediaUser.getPrefix() + UUID.randomUUID(); //二维码存的值（媒体前缀比如media3- 加上UUID随机数）
+//        		String path = request.getSession().getServletContext().getRealPath("/");
+//        		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"qrcode"+File.separatorChar+adCodeInfo + ".jpg";
+//        		QRcodeUtil.encode(adCodeInfo, path);
+//        		adSeatInfo.setAdCode(adCodeInfo);
+//        		adSeatInfo.setAdCodeUrl("/static/qrcode/" + adCodeInfo + ".jpg");
         		//默认没有贴上二维码
         		adSeatInfo.setCodeFlag(0);
         		adSeatService.save(adSeatInfo, user.getId());

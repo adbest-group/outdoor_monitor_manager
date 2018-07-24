@@ -317,64 +317,67 @@ public class CustomerActivityControl extends BasicController {
         //[1] 查询临时表中的id集合
         List<Integer> tmpSeatIds = adSeatService.selectSeatIds();
         
-    	//[2] 查询上述id集合在传递的时间段内正在参与活动的广告位id及参与活动数量
-        Map<String, Object> searchMap = new HashMap<>();
-        searchMap.put("startDate", DateUtil.parseStrDate(startDate, "yyyy-MM-dd"));
-        searchMap.put("endDate", DateUtil.parseStrDate(endDate, "yyyy-MM-dd"));
-        if(tmpSeatIds != null && tmpSeatIds.size() > 0) {
-        	searchMap.put("seatIds", tmpSeatIds);
-        }
-        // 编辑活动页面点击的"最近一次导入", 排除掉这个活动
-        if(activityId != null) {
-        	searchMap.put("removeActivityId", activityId);
-        }
-        List<AdSeatCount> adSeatCounts = adActivityService.selectActiveActivityCount(searchMap);
-        
-        List<Integer> problemInfoIds = new ArrayList<Integer>(); //已有足够的活动占用的广告位id集合
-        for (AdSeatCount adSeatCount : adSeatCounts) {
-			if(adSeatCount != null) {
-				//判断是否要移除
-				if(adSeatCount.getAllowMulti() == 0 && adSeatCount.getCount() >= 1) {
-					//否：不允许同时有多个活动; 当前广告位正在参与活动的数量 大于等于 1
-					problemInfoIds.add(adSeatCount.getAdseatId());
-				}
-				if(adSeatCount.getAllowMulti() == 1 && adSeatCount.getCount() >= adSeatCount.getMultiNum()) {
-					//是: 允许同时有多个活动; 当前广告位正在参与活动的数量 大于等于 最大允许数量
-					problemInfoIds.add(adSeatCount.getAdseatId());
-				}
-			}
-		}
-        
-        //[3] 查询出有问题广告位
-        searchMap.clear();
-        searchMap.put("adseatInfoIds", problemInfoIds);
         List<AdSeatInfoVo> problemAdSeatInfos = new ArrayList<>();
-        if(problemInfoIds.size() > 0) {
-        	 problemAdSeatInfos = adSeatService.selectSeatByIds(searchMap);
-        	 for (AdSeatInfoVo adSeatInfoVo : problemAdSeatInfos) {
-             	adSeatInfoVo.setProvinceName(cityCache.getCityName(adSeatInfoVo.getProvince()));
-             	adSeatInfoVo.setCityName(cityCache.getCityName(adSeatInfoVo.getCity()));
-     		}
-        }
-        model.addAttribute("problemAdSeatInfos", problemAdSeatInfos);
-        
-        //[4] 查询出正常的广告位
-        searchMap.clear();
-        tmpSeatIds.removeAll(problemInfoIds);
-        searchMap.put("adseatInfoIds", tmpSeatIds);
         List<AdSeatInfoVo> adSeatInfoVos = new ArrayList<>();
-        if(tmpSeatIds.size() > 0) {
-        	adSeatInfoVos = adSeatService.selectSeatByIds(searchMap);
-            for (AdSeatInfoVo adSeatInfoVo : adSeatInfoVos) {
-            	adSeatInfoVo.setProvinceName(cityCache.getCityName(adSeatInfoVo.getProvince()));
-            	adSeatInfoVo.setCityName(cityCache.getCityName(adSeatInfoVo.getCity()));
-    		}
-        }
-        model.addAttribute("adSeatInfoVos", adSeatInfoVos);
         
+        if(tmpSeatIds != null && tmpSeatIds.size() > 0) {
+        	//[2] 查询上述id集合在传递的时间段内正在参与活动的广告位id及参与活动数量
+            Map<String, Object> searchMap = new HashMap<>();
+            searchMap.put("startDate", DateUtil.parseStrDate(startDate, "yyyy-MM-dd"));
+            searchMap.put("endDate", DateUtil.parseStrDate(endDate, "yyyy-MM-dd"));
+            if(tmpSeatIds != null && tmpSeatIds.size() > 0) {
+            	searchMap.put("seatIds", tmpSeatIds);
+            }
+            // 编辑活动页面点击的"最近一次导入", 排除掉这个活动
+            if(activityId != null) {
+            	searchMap.put("removeActivityId", activityId);
+            }
+            List<AdSeatCount> adSeatCounts = adActivityService.selectActiveActivityCount(searchMap);
+            
+            List<Integer> problemInfoIds = new ArrayList<Integer>(); //已有足够的活动占用的广告位id集合
+            for (AdSeatCount adSeatCount : adSeatCounts) {
+    			if(adSeatCount != null) {
+    				//判断是否要移除
+    				if(adSeatCount.getAllowMulti() == 0 && adSeatCount.getCount() >= 1) {
+    					//否：不允许同时有多个活动; 当前广告位正在参与活动的数量 大于等于 1
+    					problemInfoIds.add(adSeatCount.getAdseatId());
+    				}
+    				if(adSeatCount.getAllowMulti() == 1 && adSeatCount.getCount() >= adSeatCount.getMultiNum()) {
+    					//是: 允许同时有多个活动; 当前广告位正在参与活动的数量 大于等于 最大允许数量
+    					problemInfoIds.add(adSeatCount.getAdseatId());
+    				}
+    			}
+    		}
+            
+            //[3] 查询出有问题广告位
+            searchMap.clear();
+            searchMap.put("adseatInfoIds", problemInfoIds);
+            if(problemInfoIds.size() > 0) {
+            	 problemAdSeatInfos = adSeatService.selectSeatByIds(searchMap);
+            	 for (AdSeatInfoVo adSeatInfoVo : problemAdSeatInfos) {
+                 	adSeatInfoVo.setProvinceName(cityCache.getCityName(adSeatInfoVo.getProvince()));
+                 	adSeatInfoVo.setCityName(cityCache.getCityName(adSeatInfoVo.getCity()));
+         		}
+            }
+            
+            //[4] 查询出正常的广告位
+            searchMap.clear();
+            tmpSeatIds.removeAll(problemInfoIds);
+            searchMap.put("adseatInfoIds", tmpSeatIds);
+            if(tmpSeatIds.size() > 0) {
+            	adSeatInfoVos = adSeatService.selectSeatByIds(searchMap);
+                for (AdSeatInfoVo adSeatInfoVo : adSeatInfoVos) {
+                	adSeatInfoVo.setProvinceName(cityCache.getCityName(adSeatInfoVo.getProvince()));
+                	adSeatInfoVo.setCityName(cityCache.getCityName(adSeatInfoVo.getCity()));
+        		}
+            }
+            problemInfoIds.clear();
+        }
+        
+        model.addAttribute("problemAdSeatInfos", problemAdSeatInfos);
+        model.addAttribute("adSeatInfoVos", adSeatInfoVos);
         model.addAttribute(SysConst.RESULT_KEY, result);
         
-        problemInfoIds.clear();
         tmpSeatIds.clear();
         return model;
     }

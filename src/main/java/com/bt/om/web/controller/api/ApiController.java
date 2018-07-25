@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -104,6 +105,7 @@ import com.bt.om.service.ISysUserService;
 import com.bt.om.service.IUserPointService;
 import com.bt.om.util.AddressUtils;
 import com.bt.om.util.CityUtil;
+import com.bt.om.util.ConfigUtil;
 import com.bt.om.util.GeoUtil;
 import com.bt.om.util.MarkLogoUtil;
 import com.bt.om.util.QRcodeUtil;
@@ -186,6 +188,10 @@ public class ApiController extends BasicController {
     private String SMS_CHECKCODE_CONTENT_TEMPLATE;
     @Value("${mobile.number.regex}")
     private String MOBILE_NUMBER_REGEX;
+    
+    private String file_upload_path = ConfigUtil.getString("file.upload.path");
+	
+	private String file_upload_ip = ConfigUtil.getString("file.upload.ip");
 
     private static ThreadLocal<Boolean> useSession = new ThreadLocal<>();
 
@@ -1239,9 +1245,16 @@ public class ApiController extends BasicController {
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
-        String path = request.getRealPath("/");
-        path = path + (path.endsWith(File.separator) ? "" : File.separatorChar) + "static" + File.separatorChar + "upload" + File.separatorChar;
+        
+        String path = file_upload_path;
+        Calendar date = Calendar.getInstance();
+        String timePath = date.get(Calendar.YEAR)+ File.separator + (date.get(Calendar.MONTH)+1) + File.separator+ date.get(Calendar.DAY_OF_MONTH) + File.separator;
+        path = path + (path.endsWith(File.separator) ? "" : File.separatorChar) + "activity" + File.separatorChar;
         if (type == 1) {
+        	AdMonitorTask adMonitorTask = adMonitorTaskService.selectByPrimaryKey(taskId);
+        	path = path + adMonitorTask.getActivityId() + File.separatorChar + "monitor" + File.separator + timePath;
+        	String servicePath = path.substring(path.indexOf(":")+1, path.length()).replaceAll("\\\\", "/");
+        	servicePath = servicePath.replaceFirst("/opt/", "/");
             //参数不对
             if (type == null || taskId == null || (file1 == null && file2 == null && file3 == null && file4 == null)) {
                 result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
@@ -1310,25 +1323,26 @@ public class ApiController extends BasicController {
                 feedback.setSeatLon(seatLon);
                 feedback.setLat(lat);
                 feedback.setLon(lon);
+                path = path.substring(path.indexOf(":")+1, path.length()).replaceAll("\\\\", "/");
                 if (filename1 != null) {
                 	int index = filename1.indexOf('.');
                     MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename1, path, filename1.substring(0, index), "jpg", null);
-                    feedback.setPicUrl1("/static/upload/" + filename1);    
+                    feedback.setPicUrl1(file_upload_ip + servicePath + filename1);    
                 }
                 if (filename2 != null) {
                 	int index = filename2.indexOf('.');
                     MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename2, path, filename2.substring(0, index), "jpg", null);
-                    feedback.setPicUrl2("/static/upload/" + filename2);
+                    feedback.setPicUrl2(file_upload_ip + servicePath + filename2);
                 }
                 if (file3 != null) {
                 	int index = filename3.indexOf('.');
                     MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename3, path, filename3.substring(0, index), "jpg", null);
-                    feedback.setPicUrl3("/static/upload/" + filename3);
+                    feedback.setPicUrl3(file_upload_ip + servicePath + filename3);
                 }
                 if (file4 != null) {
                 	int index = filename4.indexOf('.');
                     MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename4, path, filename4.substring(0, index), "jpg", null);
-                    feedback.setPicUrl4("/static/upload/" + filename4);
+                    feedback.setPicUrl4(file_upload_ip + servicePath + filename4);
                 }
                 feedback.setProblem(problem);
                 feedback.setProblemOther(other);
@@ -1364,7 +1378,10 @@ public class ApiController extends BasicController {
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
             }
-            
+            path = path + seat.getActivityId() + File.separator + "jiucuo" + File.separator + timePath;
+        	String servicePath = path.substring(path.indexOf(":")+1, path.length()).replaceAll("\\\\", "/");
+        	servicePath = servicePath.replaceFirst("/opt/", "/");
+        	
             //查询是否有人正在做这个广告位这个活动的纠错任务(即待审核的纠错任务)
             Map<String, Object> searchMap = new HashMap<>();
             searchMap.put("activityId", seat.getActivityId()); //活动id
@@ -1403,7 +1420,7 @@ public class ApiController extends BasicController {
                 feedback.setSeatLon(seatLon);
                 feedback.setLat(lat);
                 feedback.setLon(lon);
-                feedback.setPicUrl1("/static/upload/" + filename1);
+                feedback.setPicUrl1(file_upload_ip + servicePath + filename1);
                 feedback.setProblem(problem);
                 feedback.setProblemOther(other);
                 

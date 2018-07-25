@@ -1288,4 +1288,11 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 		
 	
 	}
+
+	@Override
+	public AdMonitorTask geAdMonitorTaskByFeedbackId(Integer adMonitorTaskFeedbackId) {
+		AdMonitorTaskFeedback taskFeedback = adMonitorTaskFeedbackMapper.selectByPrimaryKey(adMonitorTaskFeedbackId);
+		AdMonitorTask adMonitorTask = adMonitorTaskMapper.selectByPrimaryKey(taskFeedback.getMonitorTaskId());
+		return adMonitorTask;
+	}
 }

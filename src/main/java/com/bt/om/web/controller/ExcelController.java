@@ -91,8 +91,8 @@ import com.itextpdf.text.pdf.PdfWriter;
 @Controller
 @RequestMapping(value = "/excel")
 public class ExcelController extends BasicController {
-	private static final String importSucc = "导入成功";
-	private static final String importFail = "导入失败";
+	private static final String IMPORT_SUCC = "导入成功";
+	private static final String IMPORT_FAIL = "导入失败";
 	
 	@Autowired
     private IAdSeatService adSeatService;
@@ -846,7 +846,9 @@ public class ExcelController extends BasicController {
 		//获取全部广告位(检验唯一性)
 		List<AdSeatInfo> adSeats = adSeatService.selectAllSeats();
 		Map<String, Integer> databaseAdseatMap = new HashMap<>();
+		Set<String> memoSet = new HashSet<>();
 		for (AdSeatInfo adSeatInfo : adSeats) {
+			// 拼接详细描述 保证唯一性
 			StringBuffer buffer = new StringBuffer();
 			if(adSeatInfo.getProvince() != null) {
 				buffer.append(cityCache.getCityName(adSeatInfo.getProvince())); //省
@@ -859,6 +861,11 @@ public class ExcelController extends BasicController {
 			}
 			buffer.append(adSeatInfo.getLocation()); //详细位置
 			databaseAdseatMap.put(buffer.toString(), adSeatInfo.getId());
+			
+			// 记录广告位编号 保证唯一性
+			if(StringUtil.isNotBlank(adSeatInfo.getMemo())) {
+				memoSet.add(adSeatInfo.getMemo());
+			}
 		}
 		Set<String> keySet = new HashSet<>(databaseAdseatMap.keySet());
 		adSeats.clear();
@@ -900,7 +907,7 @@ public class ExcelController extends BasicController {
                 	
                 	//设置广告位名称
                 	if(lo.get(0) == null) {
-                		lo.set(18, importFail);
+                		lo.set(18, IMPORT_FAIL);
                 		lo.set(19, ExcelImportFailEnum.ADNAME_NULL.getText());
                 		hasProblem = true;
                 	} else {
@@ -910,7 +917,7 @@ public class ExcelController extends BasicController {
                 	//设置媒体主
                 	if(hasProblem == false) {
                 		if(lo.get(1) == null) {
-                    		lo.set(18, importFail);
+                    		lo.set(18, IMPORT_FAIL);
                     		lo.set(19, ExcelImportFailEnum.MEDIA_NULL.getText());
                     		hasProblem = true;
                     	} else {
@@ -921,7 +928,7 @@ public class ExcelController extends BasicController {
                     			}
                     		}
                     		if(info.getMediaId() == null) {
-                    			lo.set(18, importFail);
+                    			lo.set(18, IMPORT_FAIL);
                         		lo.set(19, ExcelImportFailEnum.MEDIA_INVAILD.getText());
                         		hasProblem = true;
                     		}
@@ -931,7 +938,7 @@ public class ExcelController extends BasicController {
                 	//设置媒体大类
                 	if(hasProblem == false) {
                 		if(lo.get(2) == null) {
-                    		lo.set(18, importFail);
+                    		lo.set(18, IMPORT_FAIL);
                     		lo.set(19, ExcelImportFailEnum.PARENT_NULL.getText());
                     		hasProblem = true;
                     	}
@@ -940,7 +947,7 @@ public class ExcelController extends BasicController {
                 	//设置媒体小类
                 	if(hasProblem == false) {
                 		if(lo.get(3) == null) {
-                    		lo.set(18, importFail);
+                    		lo.set(18, IMPORT_FAIL);
                     		lo.set(19, ExcelImportFailEnum.SECOND_NULL.getText());
                     		hasProblem = true;
                     	} else {
@@ -954,7 +961,7 @@ public class ExcelController extends BasicController {
                     			info.setAllowMulti(adMediaTypeVo.getAllowMulti());
                     			info.setMultiNum(adMediaTypeVo.getMultiNum());
                     		} else {
-                    			lo.set(18, importFail);
+                    			lo.set(18, IMPORT_FAIL);
                         		lo.set(19, ExcelImportFailEnum.MEDIA_TYPE_INVALID.getText());
                         		hasProblem = true;
                     		}
@@ -964,7 +971,7 @@ public class ExcelController extends BasicController {
                 	//设置广告位所在省份(包括直辖市)
                 	if(hasProblem == false) {
                 		if(lo.get(4) == null) {
-                    		lo.set(18, importFail);
+                    		lo.set(18, IMPORT_FAIL);
                     		lo.set(19, ExcelImportFailEnum.PROVINCE_NULL.getText());
                     		hasProblem = true;
                     	} else {
@@ -999,7 +1006,7 @@ public class ExcelController extends BasicController {
                     		}
                     		provinceId = provinceMap.get(provinceName);
                     		if(provinceId == null) {
-                    			lo.set(18, importFail);
+                    			lo.set(18, IMPORT_FAIL);
                         		lo.set(19, ExcelImportFailEnum.PROVINCE_INVALID.getText());
                         		hasProblem = true;
                     		}
@@ -1012,7 +1019,7 @@ public class ExcelController extends BasicController {
                 	if(hasProblem == false) {
                 		if(lo.get(5) == null) {
                     		if(zhiXiaShiFlag == false) {
-                    			lo.set(18, importFail);
+                    			lo.set(18, IMPORT_FAIL);
                         		lo.set(19, ExcelImportFailEnum.CITY_NULL.getText());
                         		hasProblem = true;
                     		}
@@ -1036,7 +1043,7 @@ public class ExcelController extends BasicController {
         							}
                             		cityId = cityMap.get(cityName);
                             		if(cityId == null) {
-                            			lo.set(18, importFail);
+                            			lo.set(18, IMPORT_FAIL);
                                 		lo.set(19, ExcelImportFailEnum.CITY_INVALID.getText());
                                 		hasProblem = true;
                             		}
@@ -1050,7 +1057,7 @@ public class ExcelController extends BasicController {
                 	//设置广告位所在主要路段
                 	if(hasProblem == false) {
                 		if(lo.get(6) == null) {
-                    		lo.set(18, importFail);
+                    		lo.set(18, IMPORT_FAIL);
                     		lo.set(19, ExcelImportFailEnum.STREET_NULL.getText());
                     		hasProblem = true;
                     	} else {
@@ -1063,7 +1070,7 @@ public class ExcelController extends BasicController {
                 	//设置广告位详细地址
                 	if(hasProblem == false) {
                 		if(lo.get(7) == null) {
-                    		lo.set(18, importFail);
+                    		lo.set(18, IMPORT_FAIL);
                     		lo.set(19, ExcelImportFailEnum.LOCATION_NULL.getText());
                     		hasProblem = true;
                     	} else {
@@ -1075,7 +1082,15 @@ public class ExcelController extends BasicController {
                 	//设置媒体方广告位编号信息
                 	if(hasProblem == false) {
                 		if(lo.get(8) != null) {
-                			info.setMemo(String.valueOf(lo.get(8)).trim());
+                			String memo = String.valueOf(lo.get(8)).trim();
+                			if(memoSet.contains(memo) == true) {
+                				lo.set(18, IMPORT_FAIL);
+                        		lo.set(19, ExcelImportFailEnum.MEMO_DUP.getText());
+                        		hasProblem = true;
+                			} else {
+                				info.setMemo(memo);
+                				memoSet.add(memo);
+                			}
                 		}
                 	}
                 	
@@ -1089,11 +1104,11 @@ public class ExcelController extends BasicController {
                     		lo.set(9, length);
                     		lo.set(10, width);
                     	} else if (lo.get(9) != null && lo.get(10) == null) {
-                    		lo.set(18, importFail);
+                    		lo.set(18, IMPORT_FAIL);
                     		lo.set(19, ExcelImportFailEnum.SIZE_ONLYONE.getText());
                     		hasProblem = true;
     					} else if (lo.get(9) == null && lo.get(10) != null) {
-                    		lo.set(18, importFail);
+                    		lo.set(18, IMPORT_FAIL);
                     		lo.set(19, ExcelImportFailEnum.SIZE_ONLYONE.getText());
                     		hasProblem = true;
     					} else {
@@ -1118,11 +1133,11 @@ public class ExcelController extends BasicController {
                 	//设置经纬度
                 	if(hasProblem == false) {
                 		if(lo.get(13) != null && lo.get(14) == null) {
-                    		lo.set(18, importFail);
+                    		lo.set(18, IMPORT_FAIL);
                     		lo.set(19, ExcelImportFailEnum.LOC_ONLYONE.getText());
                     		hasProblem = true;
                     	} else if (lo.get(13) == null && lo.get(14) != null) {
-                    		lo.set(18, importFail);
+                    		lo.set(18, IMPORT_FAIL);
                     		lo.set(19, ExcelImportFailEnum.LOC_ONLYONE.getText());
                     		hasProblem = true;
     					} else if (lo.get(13) == null && lo.get(14) == null) {
@@ -1130,14 +1145,14 @@ public class ExcelController extends BasicController {
     						//判断经度在-180-180之间
     						double lon = Double.parseDouble(String.valueOf(lo.get(13)).trim());
     						if(lon < -180 || lon > 180) {
-    							lo.set(18, importFail);
+    							lo.set(18, IMPORT_FAIL);
     	                		lo.set(19, ExcelImportFailEnum.LON_OVERFLOW.getText());
     	                		hasProblem = true;
     						}
     						//判断纬度在-90-90之间
     						double lat = Double.parseDouble(String.valueOf(lo.get(14)).trim());
     						if(lat < -90 || lat > 90) {
-    	                		lo.set(18, importFail);
+    	                		lo.set(18, IMPORT_FAIL);
     	                		lo.set(19, ExcelImportFailEnum.LAT_OVERFLOW.getText());
     	                		hasProblem = true;
     						}
@@ -1155,7 +1170,7 @@ public class ExcelController extends BasicController {
     	                				info.setMapStandard(MapStandardEnum.getId("谷歌"));
     	                			}
         	                	} else {
-        	                		lo.set(18, importFail);
+        	                		lo.set(18, IMPORT_FAIL);
         	                		lo.set(19, ExcelImportFailEnum.NONE_MAP.getText());
         	                		hasProblem = true;
         						}
@@ -1183,7 +1198,7 @@ public class ExcelController extends BasicController {
                 	//检查是否重复
                 	if(hasProblem == false) {
                 		if(keySet.contains(buffer.toString())) {
-                    		lo.set(18, importFail);
+                    		lo.set(18, IMPORT_FAIL);
                     		lo.set(19, ExcelImportFailEnum.LOC_DUP.getText());
                     		hasProblem = true;
                     		//重复的广告位放入临时表id集合中
@@ -1193,9 +1208,9 @@ public class ExcelController extends BasicController {
                     	}
                 	}
                 	
-                	if(!(StringUtils.equals(String.valueOf(lo.get(18)), importFail))) {
+                	if(!(StringUtils.equals(String.valueOf(lo.get(18)), IMPORT_FAIL))) {
                 		//导入成功
-                		lo.set(19, importSucc);
+                		lo.set(19, IMPORT_SUCC);
                 		//默认没有贴上二维码
                 		info.setCodeFlag(0);
                 		
@@ -1224,6 +1239,7 @@ public class ExcelController extends BasicController {
         	keySet.clear();
         	databaseAdseatMap.clear();
         	tmpSeatIds.clear();
+        	memoSet.clear();
             
             //导出到excel, 返回导入广告位信息结果
             List<List<String>> listString = objToString(listob);
@@ -1341,7 +1357,7 @@ public class ExcelController extends BasicController {
                 	
                 	//设置广告位名称
                 	if(lo.get(0) == null) {
-                		lo.set(17, importFail);
+                		lo.set(17, IMPORT_FAIL);
                 		lo.set(18, ExcelImportFailEnum.ADNAME_NULL.getText());
                 		hasProblem = true;
                 	} else {
@@ -1354,7 +1370,7 @@ public class ExcelController extends BasicController {
                 	//设置媒体大类
                 	if(hasProblem == false) {
                 		if(lo.get(1) == null) {
-                    		lo.set(17, importFail);
+                    		lo.set(17, IMPORT_FAIL);
                     		lo.set(18, ExcelImportFailEnum.PARENT_NULL.getText());
                     		hasProblem = true;
                     	}
@@ -1363,7 +1379,7 @@ public class ExcelController extends BasicController {
                 	//设置媒体小类
                 	if(hasProblem == false) {
                 		if(lo.get(2) == null) {
-                    		lo.set(17, importFail);
+                    		lo.set(17, IMPORT_FAIL);
                     		lo.set(18, ExcelImportFailEnum.SECOND_NULL.getText());
                     		hasProblem = true;
                     	} else {
@@ -1377,7 +1393,7 @@ public class ExcelController extends BasicController {
                     			info.setAllowMulti(adMediaTypeVo.getAllowMulti());
                     			info.setMultiNum(adMediaTypeVo.getMultiNum());
                     		} else {
-                    			lo.set(17, importFail);
+                    			lo.set(17, IMPORT_FAIL);
                         		lo.set(18, ExcelImportFailEnum.MEDIA_TYPE_INVALID.getText());
                         		hasProblem = true;
                     		}
@@ -1414,7 +1430,7 @@ public class ExcelController extends BasicController {
 //                					Integer multiNum = multiNumDou.intValue();
 //                					info.setMultiNum(multiNum);
 //								} catch (Exception e) {
-//									lo.set(17, importFail);
+//									lo.set(17, IMPORT_FAIL);
 //	                        		lo.set(18, ExcelImportFailEnum.NUM_INVALID.getText());
 //	                        		hasProblem = true;
 //								}
@@ -1425,7 +1441,7 @@ public class ExcelController extends BasicController {
                 	//设置广告位所在省份(包括直辖市)
                 	if(hasProblem == false) {
                 		if(lo.get(3) == null) {
-                    		lo.set(17, importFail);
+                    		lo.set(17, IMPORT_FAIL);
                     		lo.set(18, ExcelImportFailEnum.PROVINCE_NULL.getText());
                     		hasProblem = true;
                     	} else {
@@ -1460,7 +1476,7 @@ public class ExcelController extends BasicController {
                     		}
                     		provinceId = provinceMap.get(provinceName);
                     		if(provinceId == null) {
-                    			lo.set(17, importFail);
+                    			lo.set(17, IMPORT_FAIL);
                         		lo.set(18, ExcelImportFailEnum.PROVINCE_INVALID.getText());
                         		hasProblem = true;
                     		}
@@ -1473,7 +1489,7 @@ public class ExcelController extends BasicController {
                 	if(hasProblem == false) {
                 		if(lo.get(4) == null) {
                     		if(zhiXiaShiFlag == false) {
-                    			lo.set(17, importFail);
+                    			lo.set(17, IMPORT_FAIL);
                         		lo.set(18, ExcelImportFailEnum.CITY_NULL.getText());
                         		hasProblem = true;
                     		}
@@ -1500,7 +1516,7 @@ public class ExcelController extends BasicController {
         							}
                             		cityId = cityMap.get(cityName);
                             		if(cityId == null) {
-                            			lo.set(17, importFail);
+                            			lo.set(17, IMPORT_FAIL);
                                 		lo.set(18, ExcelImportFailEnum.CITY_INVALID.getText());
                                 		hasProblem = true;
                             		}
@@ -1514,7 +1530,7 @@ public class ExcelController extends BasicController {
                 	//设置广告位所在区(县)
 //                	if(hasProblem == false) {
 //                		if(lo.get(5) == null) {
-//                    		lo.set(17, importFail);
+//                    		lo.set(17, IMPORT_FAIL);
 //                    		lo.set(18, ExcelImportFailEnum.REGION_NULL.getText());
 //                    		hasProblem = true;
 //                    	} else {
@@ -1534,7 +1550,7 @@ public class ExcelController extends BasicController {
 //    							}
 //                        		regionId = regionMap.get(regionName);
 //                        		if(regionId == null) {
-//                        			lo.set(17, importFail);
+//                        			lo.set(17, IMPORT_FAIL);
 //                            		lo.set(18, ExcelImportFailEnum.REGION_INVALID.getText());
 //                            		hasProblem = true;
 //                        		}
@@ -1552,7 +1568,7 @@ public class ExcelController extends BasicController {
 //    							}
 //                        		regionId = regionMap.get(regionName);
 //                        		if(regionId == null) {
-//                        			lo.set(17, importFail);
+//                        			lo.set(17, IMPORT_FAIL);
 //                            		lo.set(18, ExcelImportFailEnum.REGION_INVALID.getText());
 //                            		hasProblem = true;
 //                        		}
@@ -1565,7 +1581,7 @@ public class ExcelController extends BasicController {
                 	//设置广告位所在主要路段
                 	if(hasProblem == false) {
                 		if(lo.get(5) == null) {
-                    		lo.set(17, importFail);
+                    		lo.set(17, IMPORT_FAIL);
                     		lo.set(18, ExcelImportFailEnum.STREET_NULL.getText());
                     		hasProblem = true;
                     	} else {
@@ -1578,7 +1594,7 @@ public class ExcelController extends BasicController {
                 	//设置广告位详细地址
                 	if(hasProblem == false) {
                 		if(lo.get(6) == null) {
-                    		lo.set(17, importFail);
+                    		lo.set(17, IMPORT_FAIL);
                     		lo.set(18, ExcelImportFailEnum.LOCATION_NULL.getText());
                     		hasProblem = true;
                     	} else {
@@ -1593,7 +1609,7 @@ public class ExcelController extends BasicController {
                 			info.setMemo(String.valueOf(lo.get(7)).trim());
                 		}
 //                		else {
-//                			lo.set(17, importFail);
+//                			lo.set(17, IMPORT_FAIL);
 //                    		lo.set(18, ExcelImportFailEnum.MEDIA_NUM_INVAILD.getText());
 //                    		hasProblem = true;
 //                		}
@@ -1605,7 +1621,7 @@ public class ExcelController extends BasicController {
 //                		if(lo.get(10) == null) {
 //                			if(uniqueKeyNeed == 1) {
 //                				//需要唯一标识
-//                    			lo.set(17, importFail);
+//                    			lo.set(17, IMPORT_FAIL);
 //                        		lo.set(18, ExcelImportFailEnum.UNIQUE_KEY_NULL.getText());
 //                        		hasProblem = true;
 //                			}
@@ -1624,11 +1640,11 @@ public class ExcelController extends BasicController {
                     		lo.set(8, length);
                     		lo.set(9, width);
                     	} else if (lo.get(8) != null && lo.get(9) == null) {
-                    		lo.set(17, importFail);
+                    		lo.set(17, IMPORT_FAIL);
                     		lo.set(18, ExcelImportFailEnum.SIZE_ONLYONE.getText());
                     		hasProblem = true;
     					} else if (lo.get(8) == null && lo.get(9) != null) {
-                    		lo.set(17, importFail);
+                    		lo.set(17, IMPORT_FAIL);
                     		lo.set(18, ExcelImportFailEnum.SIZE_ONLYONE.getText());
                     		hasProblem = true;
     					} else {
@@ -1653,11 +1669,11 @@ public class ExcelController extends BasicController {
                 	//设置经纬度
                 	if(hasProblem == false) {
                 		if(lo.get(12) != null && lo.get(13) == null) {
-                    		lo.set(17, importFail);
+                    		lo.set(17, IMPORT_FAIL);
                     		lo.set(18, ExcelImportFailEnum.LOC_ONLYONE.getText());
                     		hasProblem = true;
                     	} else if (lo.get(12) == null && lo.get(13) != null) {
-                    		lo.set(17, importFail);
+                    		lo.set(17, IMPORT_FAIL);
                     		lo.set(18, ExcelImportFailEnum.LOC_ONLYONE.getText());
                     		hasProblem = true;
     					} else if (lo.get(12) == null && lo.get(13) == null) {
@@ -1665,14 +1681,14 @@ public class ExcelController extends BasicController {
     						//判断经度在-180-180之间
     						double lon = Double.parseDouble(String.valueOf(lo.get(12)).trim());
     						if(lon < -180 || lon > 180) {
-    							lo.set(17, importFail);
+    							lo.set(17, IMPORT_FAIL);
     	                		lo.set(18, ExcelImportFailEnum.LON_OVERFLOW.getText());
     	                		hasProblem = true;
     						}
     						//判断纬度在-90-90之间
     						double lat = Double.parseDouble(String.valueOf(lo.get(13)).trim());
     						if(lat < -90 || lat > 90) {
-    	                		lo.set(17, importFail);
+    	                		lo.set(17, IMPORT_FAIL);
     	                		lo.set(18, ExcelImportFailEnum.LAT_OVERFLOW.getText());
     	                		hasProblem = true;
     						}
@@ -1690,7 +1706,7 @@ public class ExcelController extends BasicController {
     	                				info.setMapStandard(MapStandardEnum.getId("谷歌"));
     	                			}
         	                	} else {
-        	                		lo.set(17, importFail);
+        	                		lo.set(17, IMPORT_FAIL);
         	                		lo.set(18, ExcelImportFailEnum.NONE_MAP.getText());
         	                		hasProblem = true;
         						}
@@ -1718,7 +1734,7 @@ public class ExcelController extends BasicController {
                 	//检查是否重复
                 	if(hasProblem == false) {
                 		if(keySet.contains(buffer.toString())) {
-                    		lo.set(17, importFail);
+                    		lo.set(17, IMPORT_FAIL);
                     		lo.set(18, ExcelImportFailEnum.LOC_DUP.getText());
                     		hasProblem = true;
                     	} else {
@@ -1726,9 +1742,9 @@ public class ExcelController extends BasicController {
                     	}
                 	}
                 	
-                	if(!(StringUtils.equals(String.valueOf(lo.get(17)), importFail))) {
+                	if(!(StringUtils.equals(String.valueOf(lo.get(17)), IMPORT_FAIL))) {
                 		//导入成功
-                		lo.set(17, importSucc);
+                		lo.set(17, IMPORT_SUCC);
                 		//默认没有贴上二维码
                 		info.setCodeFlag(0);
                 		

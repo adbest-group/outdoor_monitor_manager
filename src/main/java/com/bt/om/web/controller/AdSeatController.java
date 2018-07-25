@@ -132,7 +132,7 @@ public class AdSeatController extends BasicController {
     }
 
     /**
-     * 新增广告位(暂时好像没用到)
+     * 新增广告位(暂时不用)
      *
      * @param adSeatInfoVo 封装类
      * @param request
@@ -304,7 +304,7 @@ public class AdSeatController extends BasicController {
     }
 
     /**
-     * 保存广告位
+     * 保存广告位（暂时不用）
      **/
     @RequiresRoles(value = {"superadmin", "media"}, logical = Logical.OR)
     @RequestMapping(value = "/save")

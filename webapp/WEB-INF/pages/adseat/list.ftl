@@ -16,7 +16,9 @@
 					<#--autocomplete="off" onclick="">批量导入</button>-->
 	                <#--<div style="border-bottom: 1px solid black; margin:10px auto"></div>-->
                 <form id="form" method="get" action="/adseat/list" style="display: inline-block;">
+                	<#if user.usertype !=6>
               		<button type="button" style="float:left;margin-right:30px" class="btn btn-red" autocomplete="off" onclick="window.location.href='/platmedia/adseat/edit'">新增广告位</button>
+              		</#if>
                 	<!--活动搜索框-->
                      <div class="inp">
                     	<input type="text" placeholder="请输入广告位名称" value="${name?if_exists}" id="searchName" name="name">
@@ -37,8 +39,10 @@
                             <select style="height: 30px" id="adSeatInfo-street" name="street"></select> -->
                         </p>
                     </div>
+                    <#if user.usertype !=6>
                        	<button style="margin-left: 10px" type="button" class="btn" id="batchInsert" autocomplete="off">批量导入</button>
 						<button style="margin-left: 10px" type="button" class="btn" id="downloadBatch" autocomplete="off" onclick="">模板下载</button>
+					</#if>
                     <br/><br/>
 
                     <div style="float: left;  font-size: 12px">
@@ -111,12 +115,14 @@
 	                        <td style="width: 80px">
 							<#--<a href="#" style="margin-right: 5px">数据上传</a> -->
 	                            <a href="/adseat/edit?id=${adseat.id}" style="margin-right: 5px">编辑</a>
+	                            <#if user.usertype !=6>
 	                            <a href="javascript:deleteSeat('${adseat.id}');" style="margin-right: 5px">删除</a>
 	                            <#if adseat.codeFlag?exists && adseat.codeFlag == 1>
 		                             <a href="javascript:void(0);" onclick="updateStatus('${adseat.id}', 0);">未贴</a>
 		                        </#if>
 		                        <#if adseat.codeFlag?exists && adseat.codeFlag == 0>
 		                            <a href="javascript:void(0);" onclick="updateStatus('${adseat.id}', 1);">已贴</a>
+		                        </#if>
 		                        </#if>
 	                    </tr>
 					</#list> <#else>

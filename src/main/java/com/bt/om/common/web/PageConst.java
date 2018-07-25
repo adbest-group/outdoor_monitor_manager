@@ -136,4 +136,8 @@ public class PageConst {
 	/*** 系统管理下的系统消息推送管理  ***/
 	public static final String SYSTRM_PUSH_LIST = "system/push/list";
 	public static final String SYSTRM_PUSH_EDIT = "system/push/edit";
+	
+	/*** 超级管理员下的呼叫中心人员管理  ***/
+	public static final String RESOURCES_PHONEOPERATOR_LIST = "resources/phoneoperatorList";
+	public static final String PHONEOPERATOR_EDIT = "resources/phoneoperatorEdit";
 }

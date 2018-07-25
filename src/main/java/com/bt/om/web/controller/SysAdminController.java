@@ -55,7 +55,7 @@ public class SysAdminController {
 	/**
 	 * 查询admin账号列表
 	 */
-	@RequiresRoles(value = {"departmentadmin", "depactivityadmin", "deptaskadmin", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)
+	@RequiresRoles(value = {"departmentadmin", "depactivityadmin", "deptaskadmin", "depjiucuoadmin", "superadmin", "phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/list")
     public String departmentLeaderList(Model model, HttpServletRequest request,
                                @RequestParam(value = "name", required = false) String name) {
@@ -117,7 +117,7 @@ public class SysAdminController {
 				}
 			}
 		}
-    
+    	model.addAttribute("user" ,user);
         SearchUtil.putToModel(model, vo);
         if(user.getUsertype() == 4) {
         	return PageConst.SUPERADMIN_ADMIN_USER_LIST;

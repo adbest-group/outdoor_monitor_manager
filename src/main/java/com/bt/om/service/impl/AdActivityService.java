@@ -337,7 +337,7 @@ public class AdActivityService implements IAdActivityService {
 		userIds = sysUserMapper.getUserId(4);//超级管理员id
 		Integer dep_id = sysResourcesMapper.getUserId(2);//2：任务审核、指派部门
 		userIds.add(dep_id);
-        
+
     	//[4] 确认操作在业务层方法里进行循环
     	for (String actId : activityIds) {
     		Integer id = Integer.parseInt(actId);

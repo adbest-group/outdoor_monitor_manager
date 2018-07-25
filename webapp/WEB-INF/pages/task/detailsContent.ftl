@@ -210,7 +210,7 @@
     </div>
 </#if>
 
-<#if usertype?exists&&usertype==4>
+<#if usertype?exists&& usertype==4 || usertype==6>
 <#if vo.status?exists && vo.status==1 || vo.status==2>
     <div class="clearfix">
         <div class="main-box">
@@ -222,7 +222,7 @@
                     <div class="submitdetails-wrap" style="font-size: 15px">
                     	<input type="hidden" id="selectMonitorTaskId" value="${vo.id?if_exists}">
                     		<p>替换的执行人员：</p> <br>
-                    		<input type="hidden" id="selectMediaId" value="${vo.mediaId?if_exists}">
+                    		<input type="hidden" id="selectMediaId" value="${vo.mediaId?if_exists}" >
                     		<#--<div class="select-box select-box-100 un-inp-select ll">
 		                       	 <select class="select" name="selectMediaId" id="selectMediaId" onchange="changeMediaTypeId();">
 				                     <option value="">所有媒体</option>
@@ -230,7 +230,7 @@
 				                 </select>
 		                    </div>  -->						
 		                    <div class="select-box select-box-100 un-inp-select ll">
-		                       	 <select class="select" name="selectMediaName" id="selectMediaName">
+		                       	 <select class="select" name="selectMediaName" id="selectMediaName" <#if usertype==6>disabled</#if> >
 				                     <option value="">媒体成员</option>
 				                     <@model.showUserExecuteByMedia mediaId="${vo.mediaId?if_exists}"/>
 				                 </select>
@@ -241,7 +241,7 @@
                             <div style="vertical-align: middle;display: table-cell;text-align: center;">
 	                            <table id="formValid">
 	                            	<tr>
-	                            		<td>经度：<input type="text" id="lontitude" name="lontitude"/></td>
+	                            		<td>经度：<input type="text" id="lontitude" name="lontitude" <#if usertype ==6>disabled</#if>/></td>
 	                            		<td><span id="lontitudeTip"></span></td>
 	                            	<tr>
 	                            	<tr>
@@ -249,7 +249,7 @@
 	                            		<td>&nbsp;</td>
                             		</tr>
 	                            	<tr>
-	                            		<td>纬度：<input type="text" id="latitude" name="latitude"/></td>
+	                            		<td>纬度：<input type="text" id="latitude" name="latitude" <#if usertype ==6>disabled</#if> /></td>
 	                            		<td><span id="latitudeTip"></span></td>
 	                            	</tr>
 	                            </table>
@@ -259,24 +259,32 @@
                             <p>提交照片：</p>
                             <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
                                  <img style="vertical-align: top;width:350px" src=""></img>
+                                 <#if usertype !=6>
                                  <input type="button" class="changePic btn btn-primary" value="　更换　" onclick="checkVal(this);"/>
                                  <input type="button" id="changePic11" style="visibility: hidden" class="changePic btn btn-primary" value="　更换　"/>
+                                 </#if>
                             </div>
                             <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
                                 <img style="vertical-align: top;width:350px"" src=""></img>
+                                <#if usertype !=6>
                                 <input type="button" class="changePic btn btn-primary" value="　更换　" onclick="checkVal(this);"/>
                                 <input type="button" id="changePic22" style="visibility: hidden" class="changePic btn btn-primary" value="　更换　"/>
+                                </#if>
                             </div> 
                             </br>
                             <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
                                 <img style="vertical-align: top;width:350px"" src=""></img>
+                                <#if usertype !=6>
                                 <input type="button" class="changePic btn btn-primary" value="　更换　" onclick="checkVal(this);"/>
                                 <input type="button" id="changePic33" style="visibility: hidden" class="changePic btn btn-primary" value="　更换　"/>
+                                </#if>
                             </div> 
                             <div style="width: 360px;margin-bottom: 10px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
                                 <img style="vertical-align: top;width:350px"" src=""></img>
+                                <#if usertype !=6>
                                 <input type="button" class="changePic btn btn-primary" value="　更换　" onclick="checkVal(this);"/>
                                 <input type="button" id="changePic44" style="visibility: hidden" class="changePic btn btn-primary" value="　更换　"/>
+                                </#if>
                             </div> 
                         
                             <div style="border-bottom: 1px solid #ddd;padding-top: 20px"></div>
@@ -786,7 +794,7 @@
             map.addOverlay(seatMarker);
         });
         $("#btnBack").click(function(){history.back();});
-        changeMediaTypeId();
+        <#-- changeMediaTypeId(); -->
       <#--   $.formValidator.initConfig({ formID: "formValid", onError: function () { alert("校验没有通过，具体错误请看错误提示") } });
         inputValid();--> 
         
@@ -828,5 +836,5 @@
 		});
 	}
 	
-	changeMediaTypeId();
+	<#-- changeMediaTypeId(); -->
 </script>

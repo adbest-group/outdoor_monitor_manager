@@ -7,7 +7,9 @@
 <div class="main-container" style="height: auto;">
     <div class="main-box ott-market">
         <div class="title clearfix">
+        <#if user.usertype !=6>
             <a href="javascript:;" class="add-new-btn ll" id="add_type"><i></i> 新建客户类型</a>
+        </#if>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <div class="inp">
                     <input type="text" placeholder="请输入客户行业类型名称" value="${searchName?if_exists}" id="searchName" name="searchName">
@@ -24,7 +26,9 @@
                     <tr>
                         <th>序号</th>
                         <th>行业类型</th>
+                        <#if user.usertype !=6>
                         <th>操作</th>
+                        </#if>
                     </tr>
                     </thead>
                     <tbody>
@@ -33,9 +37,11 @@
                         <tr>
                             <td width="30">${(bizObj.page.currentPage-1)*20+obj_index+1}</td>
                             <td>${obj.name?if_exists}</td>
+                            <#if user.usertype !=6>
                             <td>
                                 <a href="javascript:void(0);" onclick="edit('${obj.id}');">编辑</a>
                             </td>
+                            </#if>
                         </tr>
                         </#list>
                     </#if>

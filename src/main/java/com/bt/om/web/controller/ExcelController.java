@@ -1308,6 +1308,7 @@ public class ExcelController extends BasicController {
 		//获取全部广告位(检验唯一性)
 		List<AdSeatInfo> adSeats = adSeatService.selectAllSeats();
 		List<String> databaseAdSeats = new ArrayList<>();
+		Set<String> memoSet = new HashSet<>();
 		for (AdSeatInfo adSeatInfo : adSeats) {
 			StringBuffer buffer = new StringBuffer();
 			if(adSeatInfo.getProvince() != null) {
@@ -1319,6 +1320,11 @@ public class ExcelController extends BasicController {
 			buffer.append(adSeatInfo.getRoad());//主要路段
 			buffer.append(adSeatInfo.getLocation()); //详细位置
 			databaseAdSeats.add(buffer.toString());
+			
+			// 记录广告位编号 保证唯一性
+			if(StringUtil.isNotBlank(adSeatInfo.getMemo())) {
+				memoSet.add(adSeatInfo.getMemo());
+			}
 		}
 		Set<String> keySet = new HashSet<>(databaseAdSeats);
 		adSeats.clear();
@@ -1606,14 +1612,18 @@ public class ExcelController extends BasicController {
                 	//设置媒体方广告位编号信息
                 	if(hasProblem == false) {
                 		if(lo.get(7) != null) {
-                			info.setMemo(String.valueOf(lo.get(7)).trim());
+                			String memo = String.valueOf(lo.get(7)).trim();
+                			if(memoSet.contains(memo) == true) {
+                				lo.set(18, IMPORT_FAIL);
+                        		lo.set(19, ExcelImportFailEnum.MEMO_DUP.getText());
+                        		hasProblem = true;
+                			} else {
+                				info.setMemo(memo);
+                				memoSet.add(memo);
+                			}
                 		}
-//                		else {
-//                			lo.set(17, IMPORT_FAIL);
-//                    		lo.set(18, ExcelImportFailEnum.MEDIA_NUM_INVAILD.getText());
-//                    		hasProblem = true;
-//                		}
                 	}
+                	
                 	//设置唯一标识
 //                	if(hasProblem == false) {
 //                		Integer uniqueKeyNeed = adMediaTypeVo.getUniqueKeyNeed();

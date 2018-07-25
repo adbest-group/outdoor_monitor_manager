@@ -7,7 +7,9 @@
 <div class="main-container" style="height: auto;">
     <div class="main-box ott-market">
         <div class="title clearfix">
+        	<#if user.usertype !=6>
             <a href="javascript:;" class="add-new-btn ll" id="add_leader"><i></i> 新建领导账号</a>
+            </#if>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <div class="inp">
                     <input type="text" placeholder="请输入领导用户名/真实姓名" value="${seachName?if_exists}" id="searchName" name="searchName">
@@ -28,8 +30,9 @@
                   		<th>电话号码</th>
                   		<th>状态</th>
                   		<th>创建时间</th>
+                  		<#if user.usertype !=6>
                         <th>操作</th>
-                        
+                        </#if>
                     </tr>
                     </thead>
                     <tbody>
@@ -46,6 +49,7 @@
                             </td>
                          	
                             <td>${type.createTime?string('yyyy-MM-dd HH:mm:ss')}</td>
+                            <#if user.usertype !=6>
                             <td>
                                 <a href="javascript:void(0);" onclick="edit('${type.id}');">编辑</a>
                                 
@@ -56,6 +60,7 @@
                             		<a href="javascript:void(0);" onclick="updateStatus('${type.id}', 1);">可用</a>
                                 </#if>
                             </td>
+                            </#if>
                         </tr>
                         </#list>
                     </#if>

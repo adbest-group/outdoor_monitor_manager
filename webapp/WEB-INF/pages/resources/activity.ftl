@@ -8,7 +8,9 @@
 <div class="main-container" style="height: auto;">
     <div class="main-box">
         <div class="title clearfix">
-        	<a href="/customer/activity/edit" class="btn btn-red mr-10 ll">创建活动</a>
+        	<#if user.usertype !=6>
+        		<a href="/customer/activity/edit" class="btn btn-red mr-10 ll">创建活动</a>
+        	</#if>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <form id="form" method="get" action="/sysResources/activity">
                     <!--活动搜索框-->
@@ -71,7 +73,9 @@
                     </div>
                      -->
                     <button type="button" class="btn btn-red" style="margin-left:10px;" autocomplete="off" id="searchBtn">查询</button>
+                    <#if user.usertype !=6>
                      <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">批量确认</button> 
+                    </#if>
                 </form>
             </div>
         </div>
@@ -82,7 +86,7 @@
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan">
                     <thead>
                     <tr>
-                     <th width="30"><input type="checkbox" style="visibility: hidden" id='thead-checkbox' name="ck-alltask" value=""/></th>
+                     <th width="30"><#if user.usertype !=6><input type="checkbox" style="visibility: hidden" id='thead-checkbox' name="ck-alltask" value=""/></#if></th>
                         <th>序号</th>
                         <th>活动名称</th>
                         <th>广告商</th>                        
@@ -97,7 +101,9 @@
                     <#if (bizObj.list?exists && bizObj.list?size>0) >
                         <#list bizObj.list as activity>
                         <tr>
-                        	<td width="30"><#if (activity.status?exists&&activity.status == 1)><input type="checkbox"  name="ck-task" data-status='${activity.status}' value="${activity.id}"/></#if></td> 
+                        	<td width="30"><#if (activity.status?exists&&activity.status == 1)>
+                        		<#if user.usertype !=6><input type="checkbox"  name="ck-task" data-status='${activity.status}' value="${activity.id}"/></#if>
+                        	</#if></td> 
                             <td width="30">${(bizObj.page.currentPage-1)*20+activity_index+1}</td>
                             <td>
                                 <div class="data-title w200" data-title="${activity.activityName}" data-id="${activity.id}">${activity.activityName?if_exists}</div>
@@ -108,12 +114,15 @@
                             <td>${activity.realName?if_exists}</td>
                             <td>${activity.updateTime?string('yyyy-MM-dd HH:mm:ss')}</td>
                             <td>
-                            	<#if activity.status==1><a href="javascript:queren('${activity.id}','${activity.userId}')">确认</a></#if>
+                                <#if user.usertype !=6>
+                            		<#if activity.status==1><a href="javascript:queren('${activity.id}','${activity.userId}')">确认</a></#if>
+                            	</#if>
                                 <#if activity.status gt 0 ><a href="/activity/edit?id=${activity.id}">详情</a></#if>
-                                <#if activity.status==1><a href="javascript:del('${activity.id}')">删除</a></#if>
-                               
-                                 <#if activity.status!=1&&activity.status!=4><a id="openActivityExcel" href="javascript:openActivityExcel('${activity.id}')">导出excel</a></#if>
-                                 <#if activity.status!=1&&activity.status!=4><a id="openActivityPdf" href="javascript:openActivityPdf('${activity.id}')">导出pdf</a></#if>
+                                <#if user.usertype !=6>
+                                	<#if activity.status==1><a href="javascript:del('${activity.id}')">删除</a></#if>
+                                </#if>
+                                <#if activity.status!=1&&activity.status!=4><a id="openActivityExcel" href="javascript:openActivityExcel('${activity.id}')">导出excel</a></#if>
+                                <#if activity.status!=1&&activity.status!=4><a id="openActivityPdf" href="javascript:openActivityPdf('${activity.id}')">导出pdf</a></#if>
                                  <#-- <#if activity.status!=1&&activity.status!=4><a id="exportExcel" href="javascript:exportExcel('${activity.id}')">导出excel</a></#if> -->
                                 <#-- <#if activity.status!=1&&activity.status!=4><a id="exportPdf" href="javascript:exportPdf('${activity.id}')">导出pdf</a></#if> --> 
                             </td>

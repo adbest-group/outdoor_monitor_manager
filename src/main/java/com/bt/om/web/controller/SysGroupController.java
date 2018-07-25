@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.adtime.common.lang.StringUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
+import com.bt.om.entity.AdMediaType;
 import com.bt.om.entity.SysResources;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserRes;
@@ -66,11 +68,13 @@ public class SysGroupController extends BasicController{
 	/**
 	 * 部门管理员查询组列表
 	 */
-	@RequiresRoles(value = {"departmentadmin", "depactivityadmin", "deptaskadmin", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)
+	@RequiresRoles(value = {"departmentadmin", "depactivityadmin", "deptaskadmin", "depjiucuoadmin", "superadmin" ,"phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/groupList")
     public String customerList(Model model, HttpServletRequest request,
                                @RequestParam(value = "name", required = false) String name) {
         SearchDataVo vo = SearchUtil.getVo();
+        //获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         //查询小组名称
         if (name != null) {
         	name = "%" + name + "%";
@@ -91,6 +95,8 @@ public class SysGroupController extends BasicController{
         
         sysGroupService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
+        
+        model.addAttribute("user" , userObj);
         return PageConst.DEPARMENT_ADMIN_GROUP_LIST;
     }
 	
@@ -427,7 +433,7 @@ public class SysGroupController extends BasicController{
     /**
      * 【活动审核部门】领导/【超级管理员】查看 所有活动页面
      */
-    @RequiresRoles(value = {"departmentadmin", "depactivityadmin", "superadmin"}, logical = Logical.OR)
+    @RequiresRoles(value = {"departmentadmin", "depactivityadmin", "superadmin", "phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/activity")
     public String customerList(Model model, HttpServletRequest request,
                                @RequestParam(value = "activityId", required = false) Integer activityId,
@@ -443,7 +449,8 @@ public class SysGroupController extends BasicController{
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
         SearchDataVo vo = SearchUtil.getVo();
-        
+        //获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         if(userId != null) {
         	vo.putSearchParam("userId", userId.toString(), userId);
         }
@@ -491,13 +498,14 @@ public class SysGroupController extends BasicController{
         }
     	adActivityService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
+        model.addAttribute("user",userObj);
         return PageConst.RESOURCES_ACTIVITY;
     }
     
     /**
      * 【任务审核部门】领导/【超级管理员】查看 监测任务审核页面
      */
-    @RequiresRoles(value = {"departmentadmin", "deptaskadmin", "superadmin","jiucuoadmin"}, logical = Logical.OR)
+    @RequiresRoles(value = {"departmentadmin", "deptaskadmin", "superadmin","jiucuoadmin", "phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/taskList")
     public String getTaskList(Model model, HttpServletRequest request,
                               @RequestParam(value = "activityId", required = false) Integer activityId,
@@ -517,6 +525,8 @@ public class SysGroupController extends BasicController{
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
         
+     	//获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         if (activityId != null) {
             vo.putSearchParam("activityId", activityId.toString(), activityId);
         }
@@ -587,14 +597,14 @@ public class SysGroupController extends BasicController{
     	adMonitorTaskService.getPageData(vo);
         // vo.putSearchParam("hasUserId","1","1");
         SearchUtil.putToModel(model, vo);
-
+        model.addAttribute("user",userObj);
         return PageConst.RESOURCES_TASK_LIST;
     }
 
     /**
      * 【任务审核部门】领导/【超级管理员】查看 监测任务指派页面
      */
-    @RequiresRoles(value = {"departmentadmin", "deptaskadmin", "superadmin"}, logical = Logical.OR)
+    @RequiresRoles(value = {"departmentadmin", "deptaskadmin", "superadmin", "phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/taskUnassign")
     public String getUnAssignList(Model model, HttpServletRequest request,
                                   @RequestParam(value = "activityId", required = false) Integer activityId,
@@ -610,6 +620,8 @@ public class SysGroupController extends BasicController{
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
 
+        //获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         if (status == null) {
             vo.putSearchParam("statuses", null,
                     new Integer[]{MonitorTaskStatus.UNASSIGN.getId(), MonitorTaskStatus.CAN_GRAB.getId(), MonitorTaskStatus.TO_CARRY_OUT.getId()});
@@ -666,13 +678,14 @@ public class SysGroupController extends BasicController{
         }
     	adMonitorTaskService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
+        model.addAttribute("user",userObj);
         return PageConst.RESOURCES_TASK_UNASSIGN;
     }
     
     /**
      * 【任务审核部门】领导/【超级管理员】查看 上刊任务指派页面
      */
-    @RequiresRoles(value = {"departmentadmin", "deptaskadmin", "superadmin"}, logical = Logical.OR)
+    @RequiresRoles(value = {"departmentadmin", "deptaskadmin", "superadmin" , "phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/upTaskList")
     public String getUpTaskList(Model model, HttpServletRequest request,
                                   @RequestParam(value = "activityId", required = false) Integer activityId,
@@ -688,6 +701,8 @@ public class SysGroupController extends BasicController{
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
 
+        //获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         if (status == null) {
             vo.putSearchParam("statuses", null,
                     new Integer[]{MonitorTaskStatus.UNASSIGN.getId(), MonitorTaskStatus.TO_CARRY_OUT.getId(), MonitorTaskStatus.CAN_GRAB.getId()});
@@ -743,13 +758,14 @@ public class SysGroupController extends BasicController{
         }
     	adMonitorTaskService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
+        model.addAttribute("user",userObj);
         return PageConst.UP_TASK_UNASSIGN;
     }
     
     /**
      * 【纠错审核部门】领导/【超级管理员】查看 纠错任务页面
      */
-    @RequiresRoles(value = {"departmentadmin", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)
+    @RequiresRoles(value = {"departmentadmin", "depjiucuoadmin", "superadmin", "phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/jiucuoList")
     public String joucuoList(Model model, HttpServletRequest request,
                              @RequestParam(value = "id", required = false) Integer id,
@@ -767,6 +783,8 @@ public class SysGroupController extends BasicController{
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
         
+        //获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         if (id != null) {
             vo.putSearchParam("id", id.toString(), id);
         }
@@ -819,7 +837,7 @@ public class SysGroupController extends BasicController{
         }
     	adJiucuoTaskService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
-
+        model.addAttribute("user",userObj);
         return PageConst.RESOURCES_JIUCUO_LIST;
     }
     
@@ -874,5 +892,77 @@ public class SysGroupController extends BasicController{
         SearchUtil.putToModel(model, vo);
 
         return PageConst.RESOURCES_MESSAGE_LIST;
+    }
+    
+    //呼叫中心人员管理phoneoperatorList
+    @RequiresRoles(value={"superadmin"}, logical = Logical.OR)
+    @RequestMapping(value="/phoneoperatorList")
+    public String phoneoperatorList(Model model ,HttpServletRequest request,
+    		@RequestParam(value = "nameOrUsername", required = false) String nameOrUsername) {
+    	 SearchDataVo vo = SearchUtil.getVo();
+
+//         SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+         // 名称或登录账号
+         if (StringUtils.isNotBlank(nameOrUsername)) {
+             vo.putSearchParam("nameOrUsername", nameOrUsername, "%" + nameOrUsername + "%");
+         }
+         vo.putSearchParam("usertype", "usertype", 6);
+         sysUserService.getPageData(vo);
+         SearchUtil.putToModel(model, vo);
+
+    	return PageConst.RESOURCES_PHONEOPERATOR_LIST;
+    }
+    
+    /**
+     * 编辑话务员
+     */
+    @RequestMapping(value = "/phoneoperatorEdit")
+    public String AddPhoneoperator(Model model,HttpServletRequest request,
+    		@RequestParam(value = "id", required = false) Integer id) {
+    	if (id != null) {
+    		SysUser sysUser = sysUserService.findUserinfoById(id);
+    		model.addAttribute("obj" ,sysUser);
+    	}
+        return PageConst.PHONEOPERATOR_EDIT;
+    }
+    
+    /***
+     * 保存话务员信息
+     * **/
+    @ResponseBody
+    @RequestMapping(value="/phoneoperatorSave")
+    @RequiresRoles("superadmin")
+    public Model savePhoneoperator(Model model, SysUser sysUser, HttpServletRequest request,
+    		@RequestParam(value = "telephone") String telephone) {
+    	ResultVo<String> result = new ResultVo<String>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("保存成功");
+        model = new ExtendedModelMap();
+        
+        if(sysUser.getStatus() == null) {
+        	sysUser.setStatus(1);	//可用
+        }
+        if(sysUser.getPlatform() == null) {
+        	sysUser.setPlatform(1); 
+        }
+        if(sysUser.getUsertype() == null) {
+        	sysUser.setUsertype(6);    
+        }
+        sysUser.setMobile(telephone);
+        try {
+        	if(sysUser.getId() != null) {
+        		sysUserService.modify(sysUser);
+        	}else {
+        		sysUserService.addUser(sysUser);
+        	}
+        } catch (Exception e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("保存失败！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        model.addAttribute(SysConst.RESULT_KEY, result);
+		return model;
+    	
     }
 }

@@ -12,7 +12,9 @@
 <div class="main-container" style="height: auto;">
     <div class="main-box ott-market">
         <div class="title clearfix">
+        	<#if user.usertype !=6>
             <a href="javascript:;" class="add-new-btn ll" id="add_user"><i></i> 新建员工账号</a>
+            </#if>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <div class="inp">
                     <input type="text" placeholder="请输入员工名称" value="${searchName?if_exists}" id="searchName" name="searchName">
@@ -34,8 +36,9 @@
                   		<th>状态</th>
                   		
                   		<th>创建时间</th>
+                  		<#if user.usertype !=6>
                         <th>操作</th>
-                        
+                        </#if>
                     </tr>
                     </thead>
                     <tbody>
@@ -52,6 +55,7 @@
                             </td>
                          	
                             <td>${type.createTime?string('yyyy-MM-dd HH:mm:ss')}</td>
+                            <#if user.usertype !=6>
                             <td>
                             	<#if type.isOwn?exists && type.isOwn == "1">
                                 	<a href="javascript:void(0);" onclick="edit('${type.id}');">编辑</a>
@@ -64,6 +68,7 @@
 	                                </#if>
                                 </#if>
                             </td>
+                            </#if>
                         </tr>
                         </#list>
                     </#if>

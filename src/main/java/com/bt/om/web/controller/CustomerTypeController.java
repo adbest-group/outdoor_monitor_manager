@@ -18,7 +18,10 @@ import com.alibaba.druid.util.StringUtils;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdCustomerType;
+import com.bt.om.entity.SysUser;
 import com.bt.om.enums.ResultCode;
+import com.bt.om.enums.SessionKey;
+import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdCustomerTypeService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -37,12 +40,13 @@ public class CustomerTypeController {
 	/**
      * 客户类型展示
      */
-    @RequiresRoles("superadmin")
+    @RequiresRoles(value = {"superadmin" , "phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/list")
     public String resourceDetailPage(Model model, HttpServletRequest request,
                                      @RequestParam(value = "name", required = false) String name) {
         SearchDataVo vo = SearchUtil.getVo();
-
+        //获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         if (!StringUtils.isEmpty(name)) {
         	model.addAttribute("searchName", name);
         	name = "%" + name + "%";
@@ -51,7 +55,7 @@ public class CustomerTypeController {
         
         adCustomerTypeService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
-
+        model.addAttribute("user" ,userObj);
         return PageConst.CUSTOMER_TYPE_LIST;
     }
     

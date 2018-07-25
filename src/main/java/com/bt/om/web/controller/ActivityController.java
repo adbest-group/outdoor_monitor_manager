@@ -268,7 +268,7 @@ public class ActivityController extends BasicController {
 	}
 
 	// 前往编辑活动
-    @RequiresRoles(value = {"activityadmin", "depactivityadmin", "superadmin", "customer"}, logical = Logical.OR)
+    @RequiresRoles(value = {"activityadmin", "depactivityadmin", "superadmin", "customer" ,"phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/edit")
     public String customerEdit(Model model, HttpServletRequest request,
                                @RequestParam(value = "id", required = false) Integer id) {
@@ -290,7 +290,7 @@ public class ActivityController extends BasicController {
         
         model.addAttribute("monitorTime", monitorTime);
         model.addAttribute("auditTime", auditTime);
-
+        model.addAttribute("user" , user);
         return PageConst.ACTIVITY_EDIT;
     }
 

@@ -7,7 +7,9 @@
 <div class="main-container" style="height: auto;">
     <div class="main-box ott-market">
         <div class="title clearfix">
-            <a href="javascript:;" class="add-new-btn ll" id="add_media"><i></i> 新建媒体类型</a>
+        	<#if user.usertype !=6>
+            	<a href="javascript:;" class="add-new-btn ll" id="add_media"><i></i> 新建媒体类型</a>
+            </#if>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
             	<form id="form" method="get" action="/mediaType/list">
 	                
@@ -27,10 +29,11 @@
 	                    <input type="text" placeholder="请输入媒体类型名称" value="${searchMediaName?if_exists}" id="name" name="name">
 	                </div>
 	                <button type="button" class="btn btn-red" autocomplete="off" id="searchBtn">查询</button>
-	                
+	                <#if user.usertype !=6>
 	                <button style="margin-left: 10px" type="button" class="btn" id="insertBatchId" autocomplete="off">批量导入</button>
 	                
 	                <button style="margin-left: 10px" type="button" class="btn" id="downloadBatch" autocomplete="off" onclick="">模板下载</button>
+	                </#if>
                 </form>
             </div>
         </div>
@@ -48,7 +51,9 @@
                         <th>允许的活动数量</th>
                         <#-- <th>需要唯一标识</th> -->
                         <th>当前状态</th>
+                        <#if user.usertype !=6>
                         <th>操作</th>
+                        </#if>
                     </tr>
                     </thead>
                     <tbody>
@@ -80,6 +85,7 @@
                             	<#if type.status?exists && type.status == 1>可用</#if>
                             	<#if type.status?exists && type.status == 2>不可用</#if>
                             </td>
+                            <#if user.usertype !=6>
                             <td>
                             	<#if type.mediaType?exists && type.mediaType == 2>
                                 <a href="javascript:void(0);" onclick="edit('${type.id}');">编辑</a>&nbsp&nbsp&nbsp&nbsp
@@ -105,6 +111,7 @@
                                 </#if>
                                  -->
                             </td>
+                            </#if>
                         </tr>
                         </#list>
                     </#if>

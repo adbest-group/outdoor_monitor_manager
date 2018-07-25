@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,8 +23,11 @@ import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdApp;
 import com.bt.om.entity.AdPoint;
 import com.bt.om.entity.SysResources;
+import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.UserRoleVo;
 import com.bt.om.enums.ResultCode;
+import com.bt.om.enums.SessionKey;
+import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IPointService;
 import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserService;
@@ -52,11 +56,13 @@ public class SysResourcesController extends BasicController {
 	/**
 	 * 超级管理员查询部门列表
 	 */
-	@RequiresRoles("superadmin")
+	@RequiresRoles(value = {"superadmin" ,"phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/departmentList")
     public String customerList(Model model, HttpServletRequest request,
                                @RequestParam(value = "name", required = false) String name) {
         SearchDataVo vo = SearchUtil.getVo();
+        //获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         //查询部门名称
         if (name != null) {
         	name = "%" + name + "%";
@@ -67,6 +73,7 @@ public class SysResourcesController extends BasicController {
         vo.putSearchParam("type", type, type);
         sysResourcesService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
+        model.addAttribute("user",userObj);
         return PageConst.SUPER_ADMIN_DEPT_LIST;
     }
 
@@ -186,11 +193,13 @@ public class SysResourcesController extends BasicController {
         return PageConst.SUPER_ADMIN_DEPT_EDIT;
     }
     
-    @RequiresRoles("superadmin")
+    @RequiresRoles(value = {"superadmin" ,"phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/pointList")
     public String pointList(Model model, HttpServletRequest request,
             @RequestParam(value = "name", required = false) String name) {
     	SearchDataVo vo = SearchUtil.getVo();
+    	//获取登录用户信息
+        SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         //查询积分明细名称
         if (name != null) {
         	name = "%" + name + "%";
@@ -199,6 +208,7 @@ public class SysResourcesController extends BasicController {
         //查询积分列表
         pointService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
+        model.addAttribute("user" , user);
         return PageConst.SUPER_ADMIN_POINT_LIST;
     }
     
@@ -255,7 +265,7 @@ public class SysResourcesController extends BasicController {
         return model;
     }
 	
-	 @RequiresRoles("superadmin")
+	 @RequiresRoles(value = {"superadmin" ,"phoneoperator"}, logical = Logical.OR)
 	 @RequestMapping(value = "/user/pointList")
 	 public String userPointList(Model model, HttpServletRequest request,
 	         @RequestParam(value = "username", required = false) String username) {

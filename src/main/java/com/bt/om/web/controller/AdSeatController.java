@@ -88,7 +88,7 @@ public class AdSeatController extends BasicController {
     /**
      * 广告位列表展示
      */
-    @RequiresRoles("superadmin")
+    @RequiresRoles(value = {"superadmin" , "phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/list")
     public String resourceDetailPage(Model model, HttpServletRequest request,
                                      @RequestParam(value = "province", required = false) Long province,
@@ -100,7 +100,8 @@ public class AdSeatController extends BasicController {
                                      @RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
                                      @RequestParam(value = "mediaId", required = false) Integer mediaId) {
         SearchDataVo vo = SearchUtil.getVo();
-
+        //获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         
         if (street != null) {
             vo.putSearchParam("street", street.toString(), street);
@@ -127,7 +128,8 @@ public class AdSeatController extends BasicController {
         }
         adSeatService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
-
+        
+        model.addAttribute("user",userObj);
         return PageConst.ADSEAT_LIST;
     }
 
@@ -260,11 +262,14 @@ public class AdSeatController extends BasicController {
     /**
      * 前往编辑广告位页面
      */
-    @RequiresRoles(value = {"superadmin", "media"}, logical = Logical.OR)
+    @RequiresRoles(value = {"superadmin", "media" , "phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/edit")
     public ModelAndView toEdit(Model model, HttpServletRequest request,
                                @RequestParam(value = "id", required = false) Integer id) {
 
+    	//获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        model.addAttribute("user" , userObj);
         ModelAndView mv = new ModelAndView(PageConst.ADSEAT_EDIT);
         if (id != null) {
 //            AdSeatInfo adSeatInfo = adSeatService.getById(id);

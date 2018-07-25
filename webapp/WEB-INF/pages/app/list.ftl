@@ -7,8 +7,10 @@
 	<div class="main-box">
 		<div class="title clearfix" style="display: block;">
 			<div class="search-box search-ll" style="margin: 0 0 0 20px">
+			<#if user.usertype !=6>
 				<button type="button" class="btn btn-red" autocomplete="off"
 					onclick="window.location.href='/app/edit'">新增</button>
+			</#if>
 				<div style="border-bottom: 1px solid black; margin:10px auto"></div>
 			</div>
 		</div>
@@ -27,7 +29,9 @@
 							<th>App标题</th>
 							<th>创建时间</th>
 							<th>更新时间</th>
+							<#if user.usertype !=6>
 							<th>操作</th>
+							</#if>
 						</tr>
 					</thead>
 					<tbody>
@@ -41,11 +45,13 @@
 							<td>${adapp.appTitle!""}</td>
 							<td>${adapp.createTime?string('yyyy-MM-dd HH:mm:ss')}</td>
 							<td>${adapp.updateTime?string('yyyy-MM-dd HH:mm:ss')}</td>
+							<#if user.usertype !=6>
 							<td style="width: 80px">
 								<#--<a href="#" style="margin-right: 5px">数据上传</a> -->
 								<a href="/app/edit?id=${adapp.id}" style="margin-right: 5px">编辑</a>
                                 <a href="javascript:deleteAppSid('${adapp.id}');" style="margin-right: 5px">删除</a>
 	                        </td>
+	                        </#if>
 						</tr>
 						</#list> <#else>
 						<tr>

@@ -74,7 +74,7 @@
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>广告活动名称：</td>
                             <td colspan="2">
-                                <input type="text" id="activityName" ${editMode?string("","disabled")} name="activityName" value="" autocomplete="off" class="form-control" style="float:left">
+                                <input type="text" id="activityName" ${editMode?string("","disabled")} name="activityName" value="" <#if user.usertype ==6>disabled</#if> autocomplete="off" class="form-control" style="float:left">
                                 <span id="activityNameTip"></span>
                                 <#-- <input type="button" id="btnDemo" class="btn btn-green" value="演示专用"/> -->
                             </td>
@@ -99,8 +99,8 @@
                             <td colspan="2">
                                 <div class="ll inputs-date" id="activityTime">
                                     <div class="date">
-                                        <input id="dts" ${editMode?string("","disabled")} class="activityTime-Wdate Wdate" type="text"> -
-                                        <input id="dt" ${editMode?string("","disabled")} class="activityTime-Wdate Wdate" type="text">
+                                        <input id="dts" ${editMode?string("","disabled")} <#if user.usertype ==6>disabled</#if> class="activityTime-Wdate Wdate" type="text"> -
+                                        <input id="dt" ${editMode?string("","disabled")} <#if user.usertype ==6>disabled</#if> class="activityTime-Wdate Wdate" type="text">
                                     </div>
                                 </div>
                                 <span style="margin-left:10px;" id="dateTip"></span>
@@ -111,9 +111,9 @@
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>上刊报告时间：</td>
                             <td style="width:200px">
-                                <div class="ll inputs-date">
+                                <div class="ll inputs-date" id="upTaskTimeWrap">
                                     <div class="date">
-                                        <input id="upTaskTime" ${editMode?string("","disabled")} class="upTask-Wdate Wdate" type="text">
+                                        <input id="upTaskTime" ${editMode?string("","disabled")} <#if user.usertype ==6>disabled</#if> class="upTask-Wdate Wdate" type="text">
                                     </div>
                                 </div>
                                 <span style="margin-left:10px;" id="upTaskTimeTip"></span>
@@ -121,12 +121,12 @@
 	                        <td class='clearfix'>
 	                        	<div>
 	                        		<font class="s-red">*</font>积分：
-	                        		<input type="text" id="upTaskPoint" ${editMode?string("","disabled")} name="upTaskPoint" value="0" style="width: 100px;" autocomplete="off" class="form-control point"> 
+	                        		<input type="text" id="upTaskPoint" ${editMode?string("","disabled")} name="upTaskPoint" value="0" <#if user.usertype ==6>disabled</#if> style="width: 100px;" autocomplete="off" class="form-control point"> 
 	                        		<span id="upTaskPointTip"></span>
 	                        	</div>
 	                        	<div>
 	                        		<font class="s-red">*</font>金额：
-	        						<input type="text" id="upTaskMoney" ${editMode?string("","disabled")} name="upTaskMoney" value="0.00" style="width: 100px;" autocomplete="off" class="form-control money"> 
+	        						<input type="text" id="upTaskMoney" ${editMode?string("","disabled")} name="upTaskMoney" value="0.00" <#if user.usertype ==6>disabled</#if> style="width: 100px;" autocomplete="off" class="form-control money"> 
 	                        		<span id="upTaskMoneyTip"></span>
 	                        	</div>
 	        				</td>
@@ -138,7 +138,7 @@
                             <td  style="width:200px">
                                 <div class="ll inputs-date" id="upMonitorTaskTime" >
                                     <div class="date">
-                                        <input id="upMonitor-Wdate" ${editMode?string("","disabled")} class="upMonitor-Wdate Wdate" type="text">
+                                        <input id="upMonitor-Wdate" ${editMode?string("","disabled")} <#if user.usertype ==6>disabled</#if> class="upMonitor-Wdate Wdate" type="text">
                                     </div>
                                 </div>
                                 <span style="margin-left:10px;" id="upMonitorTaskTimeTip"></span>
@@ -146,12 +146,12 @@
                             <td class='clearfix'>
                             	<div>
                             		<font class="s-red">*</font>积分：
-                            		<input type="text" id="upMonitorTaskPoint" ${editMode?string("","disabled")} name="upMonitorTaskPoint" value="0" style="width: 100px;" autocomplete="off" class="form-control point"> 
+                            		<input type="text" id="upMonitorTaskPoint" ${editMode?string("","disabled")} name="upMonitorTaskPoint" value="0" <#if user.usertype ==6>disabled</#if> style="width: 100px;" autocomplete="off" class="form-control point"> 
                             		<span id="upMonitorTaskPointTip"></span>
                             	</div>
                             	<div>
 									<font class="s-red">*</font>金额：
-                            		<input type="text" id="upMonitorTaskMoney" ${editMode?string("","disabled")} name="upMonitorTaskMoney" value="0.00" style="width: 100px;" autocomplete="off" class="form-control money"> 
+                            		<input type="text" id="upMonitorTaskMoney" ${editMode?string("","disabled")} name="upMonitorTaskMoney" value="0.00" <#if user.usertype ==6>disabled</#if> style="width: 100px;" autocomplete="off" class="form-control money"> 
                             		<span id="upMonitorTaskMoneyTip"></span>
                             	</div>
                             </td>
@@ -163,21 +163,21 @@
                             <td  style="width:200px">
                                 <div class="ll inputs-date durationMonitorTaskTime" id="durationTime0">
                                     <div class="date">
-                                        <input id="durationMonitorTaskTime0" ${editMode?string("","disabled")} class="durationMonitor-Wdate Wdate" type="text">
+                                        <input id="durationMonitorTaskTime0" ${editMode?string("","disabled")} <#if user.usertype ==6>disabled</#if> class="durationMonitor-Wdate Wdate" type="text">
                                     </div>
                                 </div>
-                                <span style="margin-left:10px;" id="durationMonitorTaskTimeTip0"></span> &nbsp;&nbsp;<#if editMode><input class="btn btn-primary" type='button' id="addDurationMonitor" value='添加'></#if>
+                                <span style="margin-left:10px;" id="durationMonitorTaskTimeTip0"></span> &nbsp;&nbsp;<#if editMode><#if user.usertype !=6><input class="btn btn-primary" type='button' id="addDurationMonitor" value='添加'></#if></#if>
 
                             </td>
                            	<td class='clearfix'>
                            		<div>
                            			<font class="s-red">*</font>积分：
-	                           		<input type="text" id="durationMonitorTaskPoint" ${editMode?string("","disabled")} name="durationMonitorTaskPoint" value="0" style="width: 100px;" autocomplete="off" class="form-control point"> 
+	                           		<input type="text" id="durationMonitorTaskPoint" ${editMode?string("","disabled")} name="durationMonitorTaskPoint" value="0" <#if user.usertype ==6>disabled</#if> style="width: 100px;" autocomplete="off" class="form-control point"> 
 	                           		<span id="durationMonitorTaskPointTip"></span>
                            		</div>
                            		<div>
                            			<font class="s-red">*</font>金额：
-                           			<input type="text" id="durationMonitorTaskMoney" ${editMode?string("","disabled")} name="durationMonitorTaskMoney" value="0.00" style="width: 100px;" autocomplete="off" class="form-control money"> 
+                           			<input type="text" id="durationMonitorTaskMoney" ${editMode?string("","disabled")} name="durationMonitorTaskMoney" value="0.00" <#if user.usertype ==6>disabled</#if> style="width: 100px;" autocomplete="off" class="form-control money"> 
                            			<span id="durationMonitorTaskMoneyTip"></span>
                            		</div>
                            	</td>
@@ -187,9 +187,9 @@
                         <tr class='down'>
                             <td class="a-title"><font class="s-red">*</font>下刊监测报告时间：</td>
                             <td  style="width:200px">
-                                <div class="ll inputs-date">
+                                <div class="ll inputs-date" id="downMonitorTaskTimeWrap">
                                     <div class="date">
-                                        <input id="downMonitorTaskTime" ${editMode?string("","disabled")} class="downMonitor-Wdate Wdate" type="text">
+                                        <input id="downMonitorTaskTime" ${editMode?string("","disabled")} <#if user.usertype ==6>disabled</#if> class="downMonitor-Wdate Wdate" type="text">
                                     </div>
                                 </div>
                                 <span style="margin-left:10px;" id="downMonitorTaskTimeTip"></span>
@@ -197,12 +197,12 @@
                             <td class='clearfix'>
                             	<div>
                             		<font class="s-red">*</font>积分：
-	                            	<input type="text" id="downMonitorTaskPoint" ${editMode?string("","disabled")} name="downMonitorTaskPoint" style="width: 100px;" value="0" autocomplete="off" class="form-control point"> 
+	                            	<input type="text" id="downMonitorTaskPoint" ${editMode?string("","disabled")} name="downMonitorTaskPoint" style="width: 100px;" value="0" <#if user.usertype ==6>disabled</#if> autocomplete="off" class="form-control point"> 
 	                				<span id="downMonitorTaskPointTip"></span>
                             	</div>
                             	<div>
                             		<font class="s-red">*</font>金额：
-                            		<input type="text" id="downMonitorTaskMoney" ${editMode?string("","disabled")} name="downMonitorTaskMoney" value="0.00" style="width: 100px;" autocomplete="off" class="form-control money"> 
+                            		<input type="text" id="downMonitorTaskMoney" ${editMode?string("","disabled")} name="downMonitorTaskMoney" value="0.00" <#if user.usertype ==6>disabled</#if> style="width: 100px;" autocomplete="off" class="form-control money"> 
                             		<span id="downMonitorTaskMoneyTip"></span>
                             	</div>
                             </td>
@@ -280,10 +280,12 @@
 							<td colspan="2">
 								<#if (editMode && activity.status==1)!true>
 									<input type="hidden" id="img-demo-bak"/>
+									<#if user.usertype !=6>
                        					<div class="btn-file addBtn" id="resource_sel" style="width:74px;height:28px;top:0px;cursor:pointer;line-height:28px;padding:0px;color:#fff">
 										上传
 										<input type="file" id="img-demo" name="file" unselectable="on" onchange="uploadPic('img-demo')">
-									</div> <span id="img-demoTip"></span>
+									</div>
+									</#if> <span id="img-demoTip"></span>
 								</#if>
                    			</td>
 						</tr>
@@ -298,9 +300,11 @@
                             <td class="a-title"><font class="s-red">*</font>广告位监测：</td>
                             <td colspan="2">
                                 <#if editMode>
+                                <#if user.usertype !=6>
                                     <a class="addBtn" href="javascript:;" id="add-adseat">选择广告位</a>
                                     <a class="btn btn-orange" href="javascript:;" id="import-adseat">最近一次导入</a>
                                     <a class="btn btn-red" href="javascript:;" id="clear-adseat" style="display: none;">清空已占用</a>
+                                </#if>
                                 </#if>
                             </td>
                         </tr>
@@ -362,10 +366,12 @@
 							<td colspan="2">
 								<#if (editMode && activity.status==1)!true>
 									<input type="hidden" id="img-qualified-bak"/>
+									<#if user.usertype !=6>
                        					<div class="btn-file addBtn" id="resource_sel" style="width:74px;height:28px;top:0px;cursor:pointer;line-height:28px;padding:0px;color:#fff">
 										上传
 										<input type="file" id="img-qualified" name="file" unselectable="on" onchange="uploadPic('img-qualified')">
-									</div> <span id="img-demo-qualifiedTip"></span>
+									</div>
+									</#if> <span id="img-demo-qualifiedTip"></span>
 								</#if>
                    			</td>
 						</tr>
@@ -397,28 +403,34 @@
 								<#if (editMode && activity.status==1)!true>
 									<div class="uploadContainer">
 										<input type="hidden" id="img-noQualified1-bak"/>
+										<#if user.usertype !=6>
 	                       					<div class="btn-file addBtn" id="resource_sel" style="width:74px;height:28px;top:0px;cursor:pointer;line-height:28px;padding:0px;color:#fff">
 											上传
 											<input type="file" id="img-noQualified1" name="file" unselectable="on" onchange="uploadPic('img-noQualified1')">
-										</div> <span id="img-demoTip"></span>
+											</div>
+										</#if> <span id="img-demoTip"></span>
 									</div>
 								</#if>
 								<#if (editMode && activity.status==1)!true>
 									<div class="uploadContainer">
 										<input type="hidden" id="img-noQualified2-bak"/>
+										<#if user.usertype !=6>
 	                       					<div class="btn-file addBtn" id="resource_sel" style="width:74px;height:28px;top:0px;cursor:pointer;line-height:28px;padding:0px;color:#fff">
 											上传
 											<input type="file" id="img-noQualified2" name="file" unselectable="on" onchange="uploadPic('img-noQualified2')">
-										</div> <span id="img-demoTip"></span>
+										</div>
+										</#if> <span id="img-demoTip"></span>
 									</div>
 								</#if>
 								<#if (editMode && activity.status==1)!true>
 									<div class="uploadContainer">
 										<input type="hidden" id="img-noQualified3-bak"/>
+										<#if user.usertype !=6>
 	                       					<div class="btn-file addBtn" id="resource_sel" style="width:74px;height:28px;top:0px;cursor:pointer;line-height:28px;padding:0px;color:#fff">
 											上传
 											<input type="file" id="img-noQualified3" name="file" unselectable="on" onchange="uploadPic('img-noQualified3')">
-										</div> <span id="img-demoTip"></span>
+										</div>
+										</#if> <span id="img-demoTip"></span>
 									</div>
 								</#if>
                    			</td>
@@ -440,7 +452,7 @@
                 		<tr>
                 			<td class="a-title">注意事项：</td>
                 			<td colspan="2">
-                				<textarea id="notification" class="layui-textarea" style="width: 840px;"></textarea>
+                				<textarea id="notification"<#if user.usertype ==6>disabled</#if> class="layui-textarea" style="width: 840px;"></textarea>
                 			</td>
                 		</tr>
                 		
@@ -449,7 +461,9 @@
                             <td class="a-title">&nbsp;</td>
                             <td colspan="2">
                                 <#if editMode>
+                                <#if user.usertype !=6>
                                     <input type="button" id="btnSave" class="btn btn-red" value="　保 存　"/>
+                                </#if>
                                 </#if>
                                     <input type="button" id="btnBack" class="btn btn-primary" value="　返 回　"/>
 
@@ -673,7 +687,7 @@
                 }
             });
             
-            $('#upTaskTime').dateRangePicker({
+            $('#upTaskTimeWrap').dateRangePicker({
             	   singleDate: true,
             	   showShortcuts: false,
                    getValue: function () {
@@ -727,7 +741,7 @@
 	             });
 	    	});
 	    	
-	    	$('#downMonitorTaskTime').dateRangePicker({
+	    	$('#downMonitorTaskTimeWrap').dateRangePicker({
             	   singleDate: true,
             	   showShortcuts: false,
                    getValue: function () {
@@ -1908,9 +1922,9 @@
 	function ModCheckboxData() {
 		var len = activity_seats.length
 		if(len > 0){
-			var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>操作</th> </tr></thead><tbody>'
+			var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><#if user.usertype !=6><th>操作</th></#if> </tr></thead><tbody>'
 			for(var i = 0; i < len; i++){
-				var str = '<tr><td>' + activity_seats[i].seatName + '</td><td>' + activity_seats[i].area + '</td><td>' + activity_seats[i].road + '</td><td>' + activity_seats[i].location + '</td><td>' + activity_seats[i].mediaName + '</td> <td>' + activity_seats[i].parentName + '</td><td>' + activity_seats[i].secondName + '</td><td><#if (activity?exists&&activity.status?exists&&activity.status==1)><a style="cursor:pointer" class="deleteCheckBtn" data-id='+ activity_seats[i].seatId + '>删除</a></#if> <#if usertype?exists && usertype != 2><#if (activity?exists&&activity.status?exists&&activity.status==2)><a style="cursor:pointer" class="addMonitorTask" data-id='+ activity_seats[i].seatId + '>追加监测</a></#if></#if></td></td> </tr>'
+				var str = '<tr><td>' + activity_seats[i].seatName + '</td><td>' + activity_seats[i].area + '</td><td>' + activity_seats[i].road + '</td><td>' + activity_seats[i].location + '</td><td>' + activity_seats[i].mediaName + '</td> <td>' + activity_seats[i].parentName + '</td><td>' + activity_seats[i].secondName + '</td><td><#if user.usertype !=6><#if (activity?exists&&activity.status?exists&&activity.status==1)><a style="cursor:pointer" class="deleteCheckBtn" data-id='+ activity_seats[i].seatId + '>删除</a></#if> <#if usertype?exists && usertype != 2><#if (activity?exists&&activity.status?exists&&activity.status==2)><a style="cursor:pointer" class="addMonitorTask" data-id='+ activity_seats[i].seatId + '>追加监测</a></#if></#if></#if></td></td> </tr>'
 				checkArr.push({
 					id: activity_seats[i].seatId,
 					html: str

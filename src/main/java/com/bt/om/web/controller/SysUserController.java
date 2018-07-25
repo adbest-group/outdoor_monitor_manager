@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserDetail;
 import com.bt.om.entity.SysUserRole;
 import com.bt.om.enums.ResultCode;
+import com.bt.om.enums.SessionKey;
+import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.service.impl.SysUserService;
 import com.bt.om.vo.web.ResultVo;
@@ -40,11 +43,13 @@ public class SysUserController extends BasicController{
 	/**
 	 * 查询部门领导账号列表
 	 */
-	@RequiresRoles("superadmin")
+	@RequiresRoles(value = {"superadmin" , "phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/leaderList")
     public String departmentLeaderList(Model model, HttpServletRequest request,
                                @RequestParam(value = "name", required = false) String name) {
         SearchDataVo vo = SearchUtil.getVo();
+        //获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         //查询领导名称
         if (name != null) {
         	model.addAttribute("seachName", name);
@@ -57,6 +62,7 @@ public class SysUserController extends BasicController{
         sysUserService.getPageData(vo);
         
         SearchUtil.putToModel(model, vo);
+        model.addAttribute("user",userObj);
         return PageConst.SUPER_ADMIN_LEAD_LIST;
     }
 	

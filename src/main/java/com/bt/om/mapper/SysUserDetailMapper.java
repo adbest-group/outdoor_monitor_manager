@@ -1,5 +1,6 @@
 package com.bt.om.mapper;
 
+import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserDetail;
 import org.apache.ibatis.annotations.Param;
 
@@ -58,4 +59,7 @@ public interface SysUserDetailMapper {
     public SysUserDetail selectByUserId(@Param("id") Integer id);
 
     public List<SysUserDetail> isExistsPrefix(@Param("prefix") String prefix,@Param("id") Integer id);
+
+	void updateUserInfo(SysUserDetail detail);
+
 }

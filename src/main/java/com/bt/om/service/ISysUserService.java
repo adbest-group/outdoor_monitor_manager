@@ -139,4 +139,6 @@ public interface ISysUserService {
 
 	void changeAppType(Integer id);
 
+	void modify(SysUser sysUser);
+
 }

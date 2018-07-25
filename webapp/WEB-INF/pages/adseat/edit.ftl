@@ -233,7 +233,7 @@
 						</tr>
 						
 						<tr>
-							<td class="a-title"><font class="s-red">*</font>二维码：</td>
+							<td class="a-title">二维码：</td>
 							<td>
 								<#if (adSeatInfo?exists && adSeatInfo.adCodeUrl?exists)>
 									<img src="<#if (adSeatInfo?exists)>${adSeatInfo.adCodeUrl!""}</#if>" height="200" width="200" />

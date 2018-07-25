@@ -1,12 +1,10 @@
 package com.bt.om.web.controller;
 
-import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -23,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.adtime.common.lang.StringUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdActivity;
@@ -39,6 +38,7 @@ import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.entity.vo.AdSeatInfoVo;
 import com.bt.om.entity.vo.SysUserVo;
+import com.bt.om.enums.AllowMultiEnum;
 import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.ResultCode;
@@ -55,7 +55,6 @@ import com.bt.om.service.IAdSeatService;
 import com.bt.om.service.IResourceService;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.service.ISysUserService;
-import com.bt.om.util.QRcodeUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.util.SearchUtil;
@@ -415,7 +414,7 @@ public class MediaManagerController {
     }
 
     /**
-     * 广告位编辑
+     * 广告位编辑 前往编辑页面
      **/
     @RequiresRoles(value = {"superadmin", "media"}, logical = Logical.OR)
     @RequestMapping(value = "/adseat/edit")
@@ -441,7 +440,7 @@ public class MediaManagerController {
     }
 
     /**
-     * 保存广告位
+     * 保存广告位(媒体主 和 超级管理员创建广告位共用)
      **/
     @RequiresRoles(value = {"superadmin", "media"}, logical = Logical.OR)
     @RequestMapping(value = "/adseat/save")
@@ -506,38 +505,65 @@ public class MediaManagerController {
         	
         	if(adSeatInfo.getMultiNum() == 0) {
         		adSeatInfo.setMultiNum(1);
+        		adSeatInfo.setAllowMulti(AllowMultiEnum.NOT_ALLOW.getId());
         	}
         	if(adSeatInfo.getAllowMulti() == 0) {
         		adSeatInfo.setMultiNum(1); //0代表不允许同时有多个活动, 设置活动数量为1
         	}
+        	
             if (adSeatInfo.getId() != null) {
-            	//修改时检验广告位位置唯一，忽略自身，先查后校验
-            	//【芙蓉不改就遭天谴】
-            	AdSeatInfo adSeatInfo2 = adSeatService.searchLocation(searchMap);
-            	if(adSeatInfo2!=null) {
-            		if(!adSeatInfo.getId().equals(adSeatInfo2.getId())) {
-            			result.setCode(ResultCode.RESULT_FAILURE.getCode());
-                        result.setResultDes("广告位位置重复！");
-                        model.addAttribute(SysConst.RESULT_KEY, result);
-                        return model;
+            	//修改时检验广告位位置唯一，忽略自身，先查校验后再修改
+            	List<AdSeatInfo> adSeatInfos = adSeatService.searchLocation(searchMap);
+            	if(adSeatInfos != null && adSeatInfos.size() > 0) {
+            		for (AdSeatInfo adSeatInfo2 : adSeatInfos) {
+            			if(!adSeatInfo.getId().equals(adSeatInfo2.getId())) {
+                			result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                            result.setResultDes("广告位位置已存在！");
+                            model.addAttribute(SysConst.RESULT_KEY, result);
+                            return model;
+                		}
+					}
+            	}
+            	
+            	//修改时校验广告位编号唯一, 忽略自身
+            	if(StringUtil.isNotBlank(adSeatInfo.getMemo())) {
+            		Map<String, Object> map = new HashMap<>();
+            		map.put("memo", adSeatInfo.getMemo());
+            		List<AdSeatInfo> adSeatInfosForMemo = adSeatService.searchLocation(map);
+            		if(adSeatInfosForMemo != null && adSeatInfosForMemo.size() > 0) {
+            			for (AdSeatInfo adSeatInfo3 : adSeatInfosForMemo) {
+                    		if(!adSeatInfo.getId().equals(adSeatInfo3.getId())) {
+                    			result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                                result.setResultDes("广告位编号已存在！");
+                                model.addAttribute(SysConst.RESULT_KEY, result);
+                                return model;
+                    		}
+    					}
             		}
             	}
-//            	int count = adSeatService.selectByLocation(searchMap);
-//            	if(count > 0) {
-//            		result.setCode(ResultCode.RESULT_FAILURE.getCode());
-//                    result.setResultDes("广告位位置重复！");
-//                    model.addAttribute(SysConst.RESULT_KEY, result);
-//                    return model;
-//            	}
+            	
             	//修改
                 adSeatService.modify(adSeatInfo);
             } else {
             	int count = adSeatService.selectByLocation(searchMap);
             	if(count > 0) {
             		result.setCode(ResultCode.RESULT_FAILURE.getCode());
-                    result.setResultDes("广告位位置重复！");
+                    result.setResultDes("广告位位置已存在！");
                     model.addAttribute(SysConst.RESULT_KEY, result);
                     return model;
+            	}
+            	
+            	//添加时校验广告位编号唯一
+            	if(StringUtil.isNotBlank(adSeatInfo.getMemo())) {
+            		Map<String, Object> map = new HashMap<>();
+            		map.put("memo", adSeatInfo.getMemo());
+            		List<AdSeatInfo> adSeatInfosForMemo = adSeatService.searchLocation(map);
+            		if(adSeatInfosForMemo != null && adSeatInfosForMemo.size() > 0) {
+            			result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                        result.setResultDes("广告位编号已存在！");
+                        model.addAttribute(SysConst.RESULT_KEY, result);
+                        return model;
+            		}
             	}
             	
             	if(adSeatInfo.getMediaTypeParentId() == null || adSeatInfo.getMediaTypeId() == null) {
@@ -549,7 +575,6 @@ public class MediaManagerController {
             	
             	//添加
                 SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-                //生成二维码
                 AdMedia media = new AdMedia();
             	SysUserVo mediaUser = new SysUserVo();
         		Integer usertype = user.getUsertype();
@@ -570,9 +595,10 @@ public class MediaManagerController {
 //        		QRcodeUtil.encode(adCodeInfo, path);
 //        		adSeatInfo.setAdCode(adCodeInfo);
 //        		adSeatInfo.setAdCodeUrl("/static/qrcode/" + adCodeInfo + ".jpg");
+        		
         		//默认没有贴上二维码
         		adSeatInfo.setCodeFlag(0);
-        		adSeatService.save(adSeatInfo, user.getId());
+        		adSeatService.save(adSeatInfo, mediaUser.getId());
             }
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());

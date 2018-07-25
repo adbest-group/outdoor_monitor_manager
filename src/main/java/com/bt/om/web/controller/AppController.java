@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -42,7 +43,7 @@ public class AppController {
 	@Autowired
 	private ISysUserService sysUserService;
 	
-	@RequiresRoles("superadmin")
+	@RequiresRoles(value = {"superadmin" , "phoneoperator"}, logical = Logical.OR)
 	@RequestMapping(value = "/list")
 	public String getList(Model model, HttpServletRequest request,
 			@RequestParam(value = "id", required = false) Integer id,
@@ -54,6 +55,8 @@ public class AppController {
             @RequestParam(value = "updateDate", required = false) String updateDate) {
 		
 		SearchDataVo vo = SearchUtil.getVo();
+		//获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		Integer page = 1;
         Integer pageSize = 10;
@@ -88,6 +91,7 @@ public class AppController {
 	    
 	    appService.getPageData(vo);
 	    SearchUtil.putToModel(model, vo);
+	    model.addAttribute("user" , userObj);
 	    return PageConst.SUPER_ADMIN_APP_LIST;
 	}
 	

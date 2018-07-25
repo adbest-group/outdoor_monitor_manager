@@ -30,7 +30,9 @@
                         	<th>积分值</th>
                         	<th>创建时间</th>
                         	<th>更新时间</th>
+                        	<#if user.usertype !=6>
                         	<th>操作</th>
+                        	</#if>
 						</tr>
 					</thead>
 					<tbody>
@@ -42,10 +44,11 @@
 							<td>${type.point!""}</td>
 							<td>${type.createTime?string('yyyy-MM-dd HH:mm:ss')}</td>
 							<td>${type.updateTime?string('yyyy-MM-dd HH:mm:ss')}</td>
-						
+							<#if user.usertype !=6>
 							<td style="width: 80px">
 								<a href="/sysResources/pointEdit?id=${type.id}" style="margin-right: 5px">编辑</a>
 	                        </td>
+	                        </#if>
 						</tr>
 						</#list> <#else>
 						<tr>

@@ -26,7 +26,9 @@
                         <th>部门名称</th>
                         <th>部门领导</th>
                         <th>创建时间</th>
+                        <#if user.usertype !=6>
                         <th>操作</th>
+                        </#if>
                     </tr>
                     </thead>
                     <tbody>
@@ -37,9 +39,11 @@
                             <td>${type.name?if_exists}</td>
                             <td>${type.leaderName?if_exists}</td>
                             <td>${type.createTime?string('yyyy-MM-dd HH:mm')}</td>
+                            <#if user.usertype !=6>
                             <td>
                                 <a href="javascript:void(0);" onclick="edit('${type.id}');">编辑</a>
                             </td>
+                            </#if>
                         </tr>
                         </#list>
                     </#if>

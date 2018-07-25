@@ -99,9 +99,10 @@
                     <button type="button" class="btn btn-red" style="margin-left:10px;" autocomplete="off"
                             id="searchBtn">查询
                     </button>
-                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">批量审核</button> 
+                    <#if user.usertype !=6>
+                      <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">批量审核</button> 
                       <button type="button" class="btn btn-red" style="margin-left:10px;" id="batchRefuse">批量拒绝</button>
-
+					</#if>
                 </form>
             </div>
         </div>

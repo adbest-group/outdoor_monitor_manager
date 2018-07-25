@@ -655,6 +655,10 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	        for(Integer i: cuslist) {
 	        	userIdList.add(i);
 	        }
+	        list = sysUserMapper.getUserId(6);//6:呼叫中心人员
+	        for(Integer i : list) {
+	        	userIdList.add(i);
+	        }
 	        userIdList.add(dep_id);
 	        String taskType = null;
 	        if(adMonitorTask.getTaskType()==1) {
@@ -1283,5 +1287,12 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 		adMonitorTaskMapper.updateTaskStatus(now);
 		
 	
+	}
+
+	@Override
+	public AdMonitorTask geAdMonitorTaskByFeedbackId(Integer adMonitorTaskFeedbackId) {
+		AdMonitorTaskFeedback taskFeedback = adMonitorTaskFeedbackMapper.selectByPrimaryKey(adMonitorTaskFeedbackId);
+		AdMonitorTask adMonitorTask = adMonitorTaskMapper.selectByPrimaryKey(taskFeedback.getMonitorTaskId());
+		return adMonitorTask;
 	}
 }

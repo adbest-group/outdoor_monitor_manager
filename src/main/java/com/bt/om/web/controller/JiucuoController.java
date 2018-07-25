@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -56,6 +57,7 @@ import com.bt.om.service.ISysGroupService;
 import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserRoleService;
 import com.bt.om.service.ISysUserService;
+import com.bt.om.util.ConfigUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
@@ -90,6 +92,10 @@ public class JiucuoController extends BasicController {
 	private SysUserResMapper sysUserResMapper;
     @Autowired
 	private IAdUserMessageService adUserMessageService;
+    
+    private String file_upload_path = ConfigUtil.getString("file.upload.path");
+	
+	private String file_upload_ip = ConfigUtil.getString("file.upload.ip");
 
 	/**
 	 * 查看纠错审核列表
@@ -537,9 +543,12 @@ public class JiucuoController extends BasicController {
 			return model;
 		}
 		
-		String path = request.getRealPath("/");
-		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"upload"+File.separatorChar;
-		String imageName = file.getOriginalFilename();
+		AdJiucuoTask jiucuoTask = adJiucuoTaskService.getById(id);
+		String path = file_upload_path;
+		Calendar date = Calendar.getInstance();
+		String timePath = date.get(Calendar.YEAR)+ File.separator + (date.get(Calendar.MONTH)+1) + File.separator+ date.get(Calendar.DAY_OF_MONTH) + File.separator;
+		path = path + (path.endsWith(File.separator) ? "" : File.separatorChar) + "activity" + File.separatorChar + jiucuoTask.getActivityId() + File.separatorChar + "jiucuo" + File.separator + timePath;
+        String imageName = file.getOriginalFilename();
 		InputStream is;
 		String filepath;
 		try {
@@ -560,7 +569,7 @@ public class JiucuoController extends BasicController {
 			//[1] 上传图片
 			filepath = saveFile(path,imageName,is);
 			//[2] 更改数据库
-			adJiucuoTaskService.updatePicUrl(id, filepath, index);
+			adJiucuoTaskService.updatePicUrl(id, file_upload_ip + filepath, index);
 		} catch (IOException e) {
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("替换失败！");
@@ -578,13 +587,19 @@ public class JiucuoController extends BasicController {
 		filename = UUID.randomUUID().toString().toLowerCase()+"."+ext.toLowerCase();
 		FileOutputStream fos = null;
 		try {
-			 fos = new FileOutputStream(path+filename);
+			File file = new File(path);
+	        if(!file.exists()){
+	            file.mkdirs();
+	        }
+			fos = new FileOutputStream(path+filename);
 			int len = 0;
 			byte[] buff = new byte[1024];
 			while((len=is.read(buff))>0){
 				fos.write(buff);
 			}
-			return "/static/upload/"+filename;
+			path = path.substring(path.indexOf(":")+1, path.length()).replaceAll("\\\\", "/");
+			path = path.replaceFirst("/opt/", "/");
+			return path+filename;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

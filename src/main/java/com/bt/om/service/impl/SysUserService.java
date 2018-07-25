@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.session.RowBounds;
+import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,7 +94,24 @@ public class SysUserService implements ISysUserService {
 
 	@Override
 	public void addUser(SysUser sysUser) {
-		
+		Date now = new Date();
+		sysUser.setPassword(new Md5Hash(sysUser.getPassword(), sysUser.getUsername()).toString());
+		sysUser.setCreateTime(now);
+		sysUser.setUpdateTime(now);
+		sysUserMapper.insertSelective(sysUser);
+		SysUserDetail detail  = new SysUserDetail();
+		detail.setUserId(sysUser.getId());
+		detail.setTelephone(sysUser.getMobile());
+		detail.setCreateTime(now);
+		detail.setUpdateTime(now);
+		sysUserDetailMapper.insertSelective(detail);
+		SysUserRole userRole = new SysUserRole();
+        userRole.setPlatform(1);
+        userRole.setUserId(sysUser.getId());
+        userRole.setRoleId(111); //111: phoneoperator
+        userRole.setCreateTime(now);
+        userRole.setUpdateTime(now);
+        sysUserRoleMapper.insertSelective(userRole);
 	}
 
 	@Override
@@ -261,6 +279,27 @@ public class SysUserService implements ISysUserService {
 	@Override
 	public void changeAppType(Integer id) {
 		sysUserMapper.changeAppTypeById(id);
+	}
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+	public void modify(SysUser sysUser) {
+		Date now = new Date();
+		SysUser user = sysUserMapper.findUserinfoById(sysUser.getId());
+		if(!sysUser.getPassword().equals("******")) {
+			sysUser.setPassword(new Md5Hash(sysUser.getPassword(), sysUser.getUsername()).toString());
+		}else {
+			sysUser.setPassword(user.getPassword());
+		}
+		sysUser.setUpdateTime(now);
+        sysUserMapper.updateByPrimaryKeySelective(sysUser);
+        SysUserDetail detail = sysUserDetailMapper.selectByUserId(sysUser.getId());
+	
+		if(!sysUser.getMobile().equals(detail.getTelephone())) {
+			detail.setTelephone(sysUser.getMobile());
+			detail.setUpdateTime(now);
+			sysUserDetailMapper.updateByPrimaryKeySelective(detail);
+		}
 	}
 
 }

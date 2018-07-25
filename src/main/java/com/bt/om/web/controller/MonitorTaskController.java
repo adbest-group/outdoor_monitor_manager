@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -61,6 +62,7 @@ import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.service.ISysUserRoleService;
 import com.bt.om.service.ISysUserService;
+import com.bt.om.util.ConfigUtil;
 import com.bt.om.util.MarkLogoUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -106,6 +108,10 @@ public class MonitorTaskController extends BasicController {
 	private String SMS_REJECT_CONTENT_TEMPLATE;
 	@Value("${sms.zhipai.content.template}")
     private String SMS_ZHIPAI_CONTENT_TEMPLATE;
+	
+	private String file_upload_path = ConfigUtil.getString("file.upload.path");
+	
+	private String file_upload_ip = ConfigUtil.getString("file.upload.ip");
 
 	/**
 	 * 监测任务管理（任务审核指派部员工登录）
@@ -1052,7 +1058,7 @@ public class MonitorTaskController extends BasicController {
 	 * @return 详情页面
 	 */
 	@RequiresRoles(value = { "superadmin", "taskadmin", "customer", "media", "deptaskadmin", "activityadmin",
-			"depactivityadmin" }, logical = Logical.OR)
+			"depactivityadmin" ,"phoneoperator"}, logical = Logical.OR)
 	@RequestMapping(value = "/details")
 	public String gotoDetailsPage(@RequestParam("task_Id") String taskId, Model model, HttpServletRequest request) {
 		AdMonitorTaskVo vo = adMonitorTaskService.getTaskDetails(taskId);
@@ -1146,9 +1152,17 @@ public class MonitorTaskController extends BasicController {
 			model.addAttribute(SysConst.RESULT_KEY, result);
 			return model;
 		}*/
+		AdMonitorTask adMonitorTask = null;
+		if (id != null) {
+			adMonitorTask = adMonitorTaskService.geAdMonitorTaskByFeedbackId(id);
+		}else {
+			adMonitorTask = adMonitorTaskService.selectByPrimaryKey(monitorTaskId);
+		}
+		String path = file_upload_path;
+		Calendar date = Calendar.getInstance();
+	    String timePath = date.get(Calendar.YEAR)+ File.separator + (date.get(Calendar.MONTH)+1) + File.separator+ date.get(Calendar.DAY_OF_MONTH) + File.separator;
+	    path = path + (path.endsWith(File.separator) ? "" : File.separatorChar) + "activity" + File.separatorChar + adMonitorTask.getActivityId() + File.separatorChar + "monitor" + File.separator + timePath;
 		
-		String path = request.getRealPath("/");
-		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"upload"+File.separatorChar;
 		String imageName = file.getOriginalFilename();
 		InputStream is;
 		String filepath;
@@ -1176,7 +1190,7 @@ public class MonitorTaskController extends BasicController {
                 MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
                 
 				//[2] 已有feedback的时候替换的图片
-				adMonitorTaskService.updatePicUrl(id, filepath, index);
+				adMonitorTaskService.updatePicUrl(id, file_upload_ip + filepath, index);
 			} else {
 				//[3] 没有feedback的时候新增feedback
 				AdMonitorTaskFeedback feedback = new AdMonitorTaskFeedback();
@@ -1190,16 +1204,16 @@ public class MonitorTaskController extends BasicController {
 				feedback.setLat(lat); //做任务时的纬度
 				if(index == 1) {
 					MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
-					feedback.setPicUrl1(filepath);
+					feedback.setPicUrl1(file_upload_ip + filepath);
 				} else if (index == 2) {
 					MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
-					feedback.setPicUrl2(filepath);
+					feedback.setPicUrl2(file_upload_ip + filepath);
 				} else if (index == 3) {
 					MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
-					feedback.setPicUrl3(filepath);
+					feedback.setPicUrl3(file_upload_ip + filepath);
 				} else if (index == 4) {
 					MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
-					feedback.setPicUrl4(filepath);
+					feedback.setPicUrl4(file_upload_ip + filepath);
 				}
 				AdSeatInfo seatInfo = adMonitorTaskService.selectLonLatByMonitorTaskId(monitorTaskId);
 				if(seatInfo != null) {
@@ -1226,13 +1240,19 @@ public class MonitorTaskController extends BasicController {
 		filename = UUID.randomUUID().toString().toLowerCase()+"."+ext.toLowerCase();
 		FileOutputStream fos = null;
 		try {
+			File file = new File(path);
+	        if(!file.exists()){
+	            file.mkdirs();
+	        }
 			 fos = new FileOutputStream(path+filename);
 			int len = 0;
 			byte[] buff = new byte[1024];
 			while((len=is.read(buff))>0){
 				fos.write(buff);
 			}
-			return "/static/upload/"+filename;
+			path = path.substring(path.indexOf(":")+1, path.length()).replaceAll("\\\\", "/");
+			path = path.replaceFirst("/opt/", "/");
+			return path + filename;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

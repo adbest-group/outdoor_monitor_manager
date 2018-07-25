@@ -7,7 +7,9 @@
 <div class="main-container" style="height: auto;">
     <div class="main-box ott-market">
         <div class="title clearfix">
-            <a href="javascript:;" class="add-new-btn ll" id="add_group"><i></i> 新建小组</a>
+        	<#if user.usertype !=6>
+            	<a href="javascript:;" class="add-new-btn ll" id="add_group"><i></i> 新建小组</a>
+            </#if>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <div class="inp">
                     <input type="text" placeholder="请输入小组名称" value="${searchName?if_exists}" id="searchName" name="searchName">
@@ -26,7 +28,9 @@
                         <th>小组名称</th>
                         <th>所属部门名称</th>
                         <th>创建时间</th>
+                        <#if user.usertype !=6>
                         <th>操作</th>
+                        </#if>
                     </tr>
                     </thead>
                     <tbody>
@@ -37,12 +41,14 @@
                             <td>${type.name?if_exists}</td>
                             <td>${type.departmentName?if_exists}</td>
                             <td>${type.createTime?string('yyyy-MM-dd HH:mm')}</td>
+                            <#if user.usertype !=6>
                             <td>
                             	<a href="javascript:void(0);" onclick="edit('${type.id}', '${type.parentid}');">编辑</a>
                                 <a href="javascript:void(0);" onclick="deleteGroup('${type.id}');">删除</a>
                                 <a href="javascript:void(0);" onclick="editUser('${type.id}', '${type.parentid}');">员工</a>
                                 <a href="javascript:void(0);" onclick="editCustomer('${type.id}');">广告商</a>
                             </td>
+                            </#if>
                         </tr>
                         </#list>
                     </#if>

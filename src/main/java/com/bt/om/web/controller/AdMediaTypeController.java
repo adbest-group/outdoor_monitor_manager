@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,7 +20,10 @@ import com.alibaba.druid.util.StringUtils;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdMediaType;
+import com.bt.om.entity.SysUser;
 import com.bt.om.enums.ResultCode;
+import com.bt.om.enums.SessionKey;
+import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdMediaTypeService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -38,14 +42,16 @@ public class AdMediaTypeController {
 	/**
      * 媒体大类, 媒体小类展示
      */
-    @RequiresRoles("superadmin")
+    @RequiresRoles(value = {"superadmin" , "phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/list")
     public String resourceDetailPage(Model model, HttpServletRequest request,
                                      @RequestParam(value = "name", required = false) String name,
                                      @RequestParam(value = "mediaType", required = false) Integer mediaType,
                                      @RequestParam(value = "parentId", required = false) Integer searchParentMediaId) {
         SearchDataVo vo = SearchUtil.getVo();
-
+        
+        //获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         if (!StringUtils.isEmpty(name)) {
         	model.addAttribute("searchMediaName", name);
         	name = "%" + name + "%";
@@ -63,7 +69,7 @@ public class AdMediaTypeController {
 
         adMediaTypeService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
-
+        model.addAttribute("user" , userObj);
         return PageConst.MEDIA_TYPE_LIST;
     }
 	

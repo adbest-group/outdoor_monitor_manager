@@ -68,7 +68,9 @@
                         </div>
                     </div> -->
                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="searchBtn">查询</button>
+                    <#if user.usertype !=6>
                      <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">批量指派</button> 
+                    </#if> 
                 </form>
             </div>
         </div>
@@ -79,7 +81,7 @@
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan">
                     <thead>
                     <tr>
-                     <th width="30"><input type="checkbox" style="visibility: hidden" id='thead-checkbox' name="ck-alltask" value=""/></th>
+                     <th width="30"><#if user.usertype !=6><input type="checkbox" style="visibility: hidden" id='thead-checkbox' name="ck-alltask" value=""/></#if></th>
                         <th width="30">序号</th>
                         <th>活动名称</th>
                         <th>上刊示例</th>
@@ -99,7 +101,8 @@
                     <#if (bizObj.list?exists && bizObj.list?size>0) >
                         <#list bizObj.list as task>
                         <tr>
-                        	<td width="30"><#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status?exists&&task.status == 1||task.status == 2)><input type="checkbox" data-status='${task.status}'  name="ck-task" value="${task.id}"/><div style='display:none;' data-id='${task.mediaId}'></div></#if></#if></td>
+                        	<td width="30"><#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status?exists&&task.status == 1||task.status == 2)>
+                        	<#if user.usertype !=6><input type="checkbox" data-status='${task.status}'  name="ck-task" value="${task.id}"/></#if><div style='display:none;' data-id='${task.mediaId}'></div></#if></#if></td>
                             <td width="30">${(bizObj.page.currentPage-1)*20+task_index+1}</td>
                             <td>
                                 <div class="data-title w200" data-title="${task.activityName!""}" data-id="${task.id}">${task.activityName?if_exists}</div>
@@ -115,7 +118,9 @@
                             <td>${vm.getMonitorTaskTypeText(task.taskType)!""}</td>
                             <td>${vm.getMonitorTaskStatusText(task.status)!""}</td>
                             <td>
-                            	<#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status==1 || task.status==8 || task.status==2)><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if></#if>
+                            	<#if user.usertype !=6>
+                            		<#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status==1 || task.status==8 || task.status==2)><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if></#if>
+                                </#if>
                                 <a href="/task/details?task_Id=${task.id}">详情</a>
                             </td>
                         </tr>

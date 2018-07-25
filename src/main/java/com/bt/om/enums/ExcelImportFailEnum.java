@@ -29,7 +29,8 @@ public enum ExcelImportFailEnum {
 	STREET_INVALID(23, "主要路段有误"),
 	MEDIA_NUM_INVAILD(24,"媒体方广告位编号不能为空"),
 	MEDIA_NULL(25,"媒体主不能为空"),
-	MEDIA_INVAILD(26,"媒体主名称无效");
+	MEDIA_INVAILD(26,"媒体主名称无效"),
+	MEMO_DUP(27,"广告位编号重复");
     private Integer id;
     private String text;
 

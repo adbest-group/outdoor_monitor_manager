@@ -806,7 +806,10 @@
 	    </if> 
 	    <if test="location != null" >
 	      and location = #{location,jdbcType=VARCHAR}
-	    </if> 
+	    </if>
+	    <if test="memo != null" >
+	      and memo = #{memo,jdbcType=VARCHAR}
+	    </if>
 	</select>
 	
 	<!-- 通过id集合查询出相关的广告位信息 -->
@@ -822,7 +825,7 @@
 	    </if>
 	</select>
 	
-	<!-- 查询广告位详细位置是否重复  排除自身-->
+	<!-- 查询广告位详细位置/广告位编号是否重复  排除自身-->
 	<select id="searchLocation" resultMap="BaseResultMap" parameterType="map">
 		select 
 		<include refid="Base_Column_List" />
@@ -840,6 +843,9 @@
 	    <if test="location != null" >
 	      and location = #{location,jdbcType=VARCHAR}
 	    </if> 
+	    <if test="memo != null" >
+	      and memo = #{memo,jdbcType=VARCHAR}
+	    </if>
 	</select>
 	
 	<!-- 查询所有的广告位 -->

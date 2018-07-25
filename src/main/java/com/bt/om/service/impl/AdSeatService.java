@@ -244,7 +244,7 @@ public class AdSeatService implements IAdSeatService {
 	}
 
 	@Override
-	public AdSeatInfo searchLocation(Map<String, Object> searchMap) {
+	public List<AdSeatInfo> searchLocation(Map<String, Object> searchMap) {
 		return adSeatInfoMapper.searchLocation(searchMap);
 	}
 	

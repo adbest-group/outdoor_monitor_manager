@@ -1,6 +1,7 @@
 package com.bt.om.web;
 
 import java.io.*;
+import java.util.Calendar;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,12 +30,16 @@ public class UploadController extends BasicController {
 	private String ip = ConfigUtil.getString("sys.uploadAdd.domain");
 
 	private String path = ConfigUtil.getString("sys.uploadAdd.display.domain");
+	
+	private String file_upload_path = ConfigUtil.getString("file.upload.path");
+	
+	private String file_upload_ip = ConfigUtil.getString("file.upload.ip");
 
 	@RequestMapping(value = "/upload")
 	public @ResponseBody String uploadPic(@RequestParam(value = "file", required = false) MultipartFile file,
 			HttpServletRequest request, ModelMap model, HttpServletResponse response) {
-		String path = request.getRealPath("/");
-		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"upload"+File.separatorChar;
+		String path = file_upload_path;
+		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"activity"+File.separatorChar+"temporary"+File.separatorChar;
 		String imageName = file.getOriginalFilename();
 		InputStream is;
 		String filepath;
@@ -57,22 +62,32 @@ public class UploadController extends BasicController {
 		} catch (IOException e) {
 			return "error";
 		}
-		return filepath;
+		filepath = filepath.replaceFirst("/opt/", "/");
+		return file_upload_ip+filepath;
 	}
 
 	//保存在本服务器
 	private String saveFile(String path,String filename,InputStream is){
+		Calendar date = Calendar.getInstance();
+        String pathDir = path + date.get(Calendar.YEAR)
+        + File.separator + (date.get(Calendar.MONTH)+1) + File.separator
+        + date.get(Calendar.DAY_OF_MONTH) + File.separator;
+        File file = new File(pathDir);
+        if(!file.exists()){
+            file.mkdirs();
+        }
 		String ext = filename.substring(filename.lastIndexOf("."));
-		filename = UUID.randomUUID().toString().toLowerCase()+"."+ext.toLowerCase();
+		filename = UUID.randomUUID().toString().toLowerCase()+ext.toLowerCase();
 		FileOutputStream fos = null;
 		try {
-			 fos = new FileOutputStream(path+filename);
+			 fos = new FileOutputStream(pathDir+filename);
 			int len = 0;
 			byte[] buff = new byte[1024];
 			while((len=is.read(buff))>0){
 				fos.write(buff);
 			}
-			return "/static/upload/"+filename;
+			path = pathDir.substring(pathDir.indexOf(":")+1, pathDir.length()).replaceAll("\\\\", "/");
+			return path + filename;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

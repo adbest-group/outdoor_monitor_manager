@@ -155,10 +155,6 @@ public class CustomerActivityControl extends BasicController {
     public String customerEdit(Model model, HttpServletRequest request,
                                @RequestParam(value = "id", required = false) Integer id) {
         AdActivityVo activity = adActivityService.getVoById(id);
-
-        if (activity != null) {
-            model.addAttribute("activity", activity);
-        }
         
         //获取登录用户信息
         SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
@@ -166,6 +162,13 @@ public class CustomerActivityControl extends BasicController {
         if(user != null) {
         	model.addAttribute("user", user);
         	model.addAttribute("usertype", user.getUsertype());
+        	if (user.getUsertype()==2&&user.getId().intValue()!=activity.getUserId().intValue()) {
+        		return PageConst.NO_AUTHORITY;
+			}
+        }
+        
+        if (activity != null) {
+            model.addAttribute("activity", activity);
         }
         
         Integer monitorTime = ConfigUtil.getInt("monitor_time"); //允许任务执行天数
@@ -431,6 +434,15 @@ public class CustomerActivityControl extends BasicController {
         model = new ExtendedModelMap();
 
         SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        if (!id.isEmpty()) {
+        	AdActivityVo activity = adActivityService.getVoById(Integer.valueOf(id));
+        	if (user.getUsertype()==2&&user.getId().intValue()!=activity.getUserId().intValue()) {
+        		result.setCode(ResultCode.RESULT_NOAUTH.getCode());
+                result.setResult("没有权限！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+        		return model;
+    		}
+		}
 
         AdActivityVo adActivityVo = new AdActivityVo();
         adActivityVo.setActivityName(activityName);

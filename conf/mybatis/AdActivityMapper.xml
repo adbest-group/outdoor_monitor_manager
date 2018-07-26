@@ -475,9 +475,9 @@
     <!--<result column="name" jdbcType="INTEGER" property="name" />-->
     <!--<result column="telephone" jdbcType="INTEGER" property="telephone" />-->
     <!--<result column="role_name" jdbcType="INTEGER" property="roleName" />-->
-    <collection property="activityAreas" column="id" javaType="list" select="com.bt.om.mapper.AdActivityAreaMapper.selectByActivityId"></collection>
-    <collection property="activitySeats" column="id" select="com.bt.om.mapper.AdActivityAdseatMapper.selectByActivityId"></collection>
-    <collection property="activityMedias" column="id" select="com.bt.om.mapper.AdActivityMediaMapper.selectByActivityId"></collection>
+    <!--<collection property="activityAreas" column="id" javaType="list" select="com.bt.om.mapper.AdActivityAreaMapper.selectByActivityId"></collection>-->
+    <!--<collection property="activitySeats" column="id" select="com.bt.om.mapper.AdActivityAdseatMapper.selectByActivityId"></collection>-->
+    <!--<collection property="activityMedias" column="id" select="com.bt.om.mapper.AdActivityMediaMapper.selectByActivityId"></collection>-->
   </resultMap>
   
   <resultMap id="ExtResultMap2" extends="BaseResultMap" type="com.bt.om.entity.vo.AdActivityVo2">

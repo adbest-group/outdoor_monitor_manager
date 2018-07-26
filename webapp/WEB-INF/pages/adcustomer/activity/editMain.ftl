@@ -894,6 +894,7 @@
 
     //以下演示数据
     $(function () {
+		<#--     	
         //加载所有媒体
         $.each(media_seats,function(i,n){
             $("#mediaTd").append("<label><input type=\"checkbox\" "+(editMode?"":"disabled")+" id=\"media_"+n.id+"\" name=\"media\" value=\""+n.id+"\"> "+n.name+"</label>");
@@ -909,6 +910,7 @@
                 });
             });
         });
+        -->
 
         $("#btnDemo").click(function () {
             var demo_data = {

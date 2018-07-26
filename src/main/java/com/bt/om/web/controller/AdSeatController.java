@@ -2,6 +2,7 @@ package com.bt.om.web.controller;
 
 import java.io.File;
 import java.text.MessageFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -46,6 +47,7 @@ import com.bt.om.service.IMediaService;
 import com.bt.om.service.IOperateLogService;
 import com.bt.om.service.IResourceService;
 import com.bt.om.service.ISysUserService;
+import com.bt.om.util.ConfigUtil;
 import com.bt.om.util.QRcodeUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -69,6 +71,10 @@ public class AdSeatController extends BasicController {
     private IMediaService mediaService;
     @Autowired
     private ISysUserService sysUserService;
+    
+	private String file_upload_path = ConfigUtil.getString("file.upload.path");
+	
+	private String file_upload_ip = ConfigUtil.getString("file.upload.ip");
 
     /**
      * 新增广告位跳转
@@ -539,11 +545,17 @@ public class AdSeatController extends BasicController {
         	SysUserVo mediaUser = sysUserService.findUserinfoById(adMedia.getUserId());
         	//生成广告位对应的二维码
     		String adCodeInfo = mediaUser.getPrefix() + UUID.randomUUID(); //二维码存的值（媒体前缀比如media3- 加上UUID随机数）
-    		String path = request.getSession().getServletContext().getRealPath("/");
-    		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"qrcode"+File.separatorChar+adCodeInfo + ".jpg";
+    		String path = file_upload_path;
+    		Calendar date = Calendar.getInstance();
+            String pathDir = date.get(Calendar.YEAR)
+            + File.separator + (date.get(Calendar.MONTH)+1) + File.separator
+            + date.get(Calendar.DAY_OF_MONTH) + File.separator;
+    		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"media"+File.separatorChar+mediaUser.getPrefix().replaceAll("-", "")+File.separatorChar+"qrcode"+File.separatorChar+pathDir+adCodeInfo + ".jpg";
     		QRcodeUtil.encode(adCodeInfo, path);
+    		path = path.substring(path.indexOf(":")+1, path.length()).replaceAll("\\\\", "/");
+    		path = path.replaceFirst("/opt/", "/");
     		adSeatInfo.setAdCode(adCodeInfo);
-    		adSeatInfo.setAdCodeUrl("/static/qrcode/" + adCodeInfo + ".jpg");
+    		adSeatInfo.setAdCodeUrl(file_upload_ip+path);
     		
     		//更新
     		adSeatService.modify(adSeatInfo);

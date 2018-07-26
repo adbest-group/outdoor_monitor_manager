@@ -164,6 +164,7 @@ public class CustomerActivityControl extends BasicController {
         SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         
         if(user != null) {
+        	model.addAttribute("user", user);
         	model.addAttribute("usertype", user.getUsertype());
         }
         

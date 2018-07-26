@@ -143,4 +143,8 @@ public class PageConst {
 	public static final String RESOURCES_PHONEOPERATOR_LIST = "resources/phoneoperatorList";
 	public static final String PHONEOPERATOR_EDIT = "resources/phoneoperatorEdit";
 	
+	/*** 超级管理员下的第三方监测公司管理  ***/
+	public static final String THIRD_COMPANY_LIST = "resources/thirdCompanyList";
+	public static final String THIRD_COMPANY_EDIT = "resources/thirdCompanyEdit";
+
 }

@@ -61,6 +61,7 @@ import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.AdPoint;
 import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.AdUserMoney;
 import com.bt.om.entity.AdUserPoint;
 import com.bt.om.entity.AdVersion;
 import com.bt.om.entity.City;
@@ -101,6 +102,7 @@ import com.bt.om.service.ISendSmsService;
 import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.service.ISysUserService;
+import com.bt.om.service.IUserMoneyService;
 import com.bt.om.service.IUserPointService;
 import com.bt.om.util.AddressUtils;
 import com.bt.om.util.CityUtil;
@@ -181,6 +183,8 @@ public class ApiController extends BasicController {
 	private IMediaService mediaService;
 	@Autowired
 	private ILoginLogService loginLogService;
+    @Autowired
+    private IUserMoneyService userMoneyService;
     
     @Value("${sms.checkcode.content.template}")
     private String SMS_CHECKCODE_CONTENT_TEMPLATE;
@@ -847,6 +851,76 @@ public class ApiController extends BasicController {
         return model;
     }
     
+    //请求金额明细列表
+    @RequestMapping(value = "/getmoneylist")
+    @ResponseBody
+    public Model moneyList(Model model, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    	ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("获取成功");
+        model = new ExtendedModelMap();
+    	
+        Integer userId = null;
+        String token = null;
+        Integer page = 1;
+        Integer pageSize = 10;
+        String updateTime = null;
+        
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            userId = obj.get("userId").getAsInt();
+            updateTime = obj.get("updateTime") == null ? null : obj.get("updateTime").getAsString();
+            if (token != null) {
+                useSession.set(Boolean.FALSE);
+                this.sessionByRedis.setToken(token);
+            } else {
+                useSession.set(Boolean.TRUE);
+            }
+            if(obj.get("page") != null){
+                page = obj.get("page").getAsInt();
+            }
+            if(obj.get("page_size") != null){
+                pageSize = obj.get("page_size").getAsInt();
+            }
+        } catch (IOException e) {
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        
+        SearchDataVo vo = new SearchDataVo(null,null,(page-1)*pageSize,pageSize);
+        vo.putSearchParam("userId",null,userId);
+        vo.putSearchParam("updateTime", null, updateTime);
+        //通过用户id查找该用户的所有金额数据
+        userMoneyService.getPageData(vo);
+        List<?> list = vo.getList();
+        Double totalMoney = userMoneyService.getMoneyCountById(userId);
+        if(totalMoney == null) {
+        	totalMoney = 0.00;
+        }
+        List<AdUserMoney> usermoneylist = new ArrayList<>();
+        
+        for(Object obj : list) {
+        	AdUserMoney userMoney = (AdUserMoney) obj;
+        	userMoney.setCreateTimeStr(DateUtil.dateFormate(userMoney.getCreateTime(), "MM-dd HH:mm"));
+        	userMoney.setUpdateTimeStr(DateUtil.dateFormate(userMoney.getUpdateTime(), "MM-dd HH:mm"));
+        	usermoneylist.add(userMoney);
+        }
+        //设置总页数
+        int totalCount = (int) ((vo.getCount() + pageSize - 1) / pageSize);
+        result.setResult(usermoneylist);
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        model.addAttribute("totalMoney", totalMoney);
+        model.addAttribute("totalCount", totalCount);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+    
     //请求监测任务 或 纠错任务列表
     @RequestMapping(value = "/gettasklist")
     @ResponseBody
@@ -1403,6 +1477,8 @@ public class ApiController extends BasicController {
                 feedback.setSeatLon(seatLon);
                 feedback.setLat(lat);
                 feedback.setLon(lon);
+                int index = filename1.indexOf('.');
+                MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename1, path, filename1.substring(0, index), "jpg", null);      
                 feedback.setPicUrl1("/static/upload/" + filename1);
                 feedback.setProblem(problem);
                 feedback.setProblemOther(other);

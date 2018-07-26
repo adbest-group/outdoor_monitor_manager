@@ -143,4 +143,71 @@
       update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  
+  <select id="getPageCount" parameterType="map" resultType="java.lang.Integer">
+    select
+    count(a.id)
+    from
+    ad_user_money a
+    left join sys_user_execute b on a.user_id=b.id
+    where 1=1
+    <if test="username != null" >
+      and b.username like #{username,jdbcType=VARCHAR}
+    </if>
+    <if test="userId != null">
+      and a.user_id = #{userId,jdbcType=INTEGER}
+    </if>
+    <if test="money != null">
+      and a.money = #{money,jdbcType=DOUBLE}
+      </if>
+    <if test="result != null">
+      and a.result = #{result,jdbcType=VARCHAR}
+    </if>
+    <if test="createTime != null">
+       and a.create_time = #{createTime,jdbcType=TIMESTAMP}
+    </if>
+    <if test="updateTime != null">
+       and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+    </if>
+  </select>
+
+  <select id="getPageData" parameterType="map" resultType="com.bt.om.entity.vo.AdUserMoneyVo">
+    select
+    	a.id id, 
+    	a.user_id userId, 
+    	a.money money,
+    	a.result result,
+    	a.create_time createTime, 
+    	a.update_time updateTime,
+    	b.username username,
+       (select sum(c.money) from ad_user_money c where c.user_id = a.user_id) sum
+    from ad_user_money a
+    left join sys_user_execute b on a.user_id=b.id
+    where 1=1
+    <if test="username != null" >
+      and b.username like #{username,jdbcType=VARCHAR}
+    </if>
+    <if test="userId != null">
+      and a.user_id = #{userId,jdbcType=INTEGER}
+    </if>
+    <if test="money != null">
+      and a.money = #{money,jdbcType=DOUBLE}
+    </if>
+    <if test="result != null">
+      and a.result = #{result,jdbcType=VARCHAR}
+    </if>
+    <if test="createTime != null">
+      and a.create_time = #{createTime,jdbcType=TIMESTAMP}
+    </if>
+    <if test="updateTime != null">
+      and a.update_time &lt;= DATE_FORMAT(#{updateTime,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+    </if>
+    order by a.id desc
+  </select>
+  
+  <select id="getMoneyCountById" parameterType="int" resultType="java.lang.Double">
+  	select sum(money) 
+  	FROM ad_user_money 
+  	where user_id=#{userId,jdbcType=INTEGER}
+  </select>
 </mapper>

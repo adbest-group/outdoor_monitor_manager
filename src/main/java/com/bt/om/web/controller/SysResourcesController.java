@@ -31,6 +31,7 @@ import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IPointService;
 import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserService;
+import com.bt.om.service.IUserMoneyService;
 import com.bt.om.service.IUserPointService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -52,6 +53,9 @@ public class SysResourcesController extends BasicController {
 	
 	@Autowired
 	private IUserPointService userpointService;
+	
+	@Autowired
+	private IUserMoneyService usermoneyService;
 	
 	/**
 	 * 超级管理员查询部门列表
@@ -279,5 +283,21 @@ public class SysResourcesController extends BasicController {
 	    userpointService.getPageData(vo);
 	    SearchUtil.putToModel(model, vo);
 	    return PageConst.SUPER_ADMIN_USERPOINT_LIST;
+	}
+	 
+	 @RequiresRoles(value = {"superadmin" ,"phoneoperator"}, logical = Logical.OR)
+	 @RequestMapping(value = "/moneyList")
+	 public String userMoneyList(Model model, HttpServletRequest request,
+	         @RequestParam(value = "username", required = false) String username) {
+	    SearchDataVo vo = SearchUtil.getVo();
+	    //查询指定用户金额明细
+	    if (username != null) {
+	    	username = "%" + username + "%";
+	        vo.putSearchParam("username", username, username);
+	    }
+	    //查询用户金额列表
+	    usermoneyService.getPageData(vo);
+	    SearchUtil.putToModel(model, vo);
+	    return PageConst.SUPER_ADMIN_USERMONEY_LIST;
 	}
 }

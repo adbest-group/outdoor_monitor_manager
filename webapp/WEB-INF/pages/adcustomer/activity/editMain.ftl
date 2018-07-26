@@ -507,12 +507,11 @@
 <link type="text/css" rel="stylesheet" href="${model.static_domain}/js/formValidator/style/validator.css"></link>
 <script type="text/javascript" src="${model.static_domain}/js/formValidator/formValidator-4.0.1.js"></script>
 <script type="text/javascript" src="/static/js/jquery.citys.js"></script>
-
 <script type="text/javascript">
-    var editMode = ${editMode?string("true","false")}
-    var mod_activity_seat = null;
-    var del_activity_seats = [];
-    <#if activity?exists>
+	var editMode = ${editMode?string("true","false")}
+	var mod_activity_seat = null;
+	var del_activity_seats = [];
+	<#if activity?exists>
 	    var activity = {
 	        "id":${activity.id},
 	        "activityName": '${activity.activityName}',
@@ -630,7 +629,7 @@
 	            ${media.mediaId}<#if media_has_next>,</#if>
 	            </#list>
 	        </#if>]
-    <#else>
+	<#else>
 	    var activity = null;
 	    var activity_seats = [];
 	    var activity_meias = [];
@@ -649,94 +648,94 @@
 		$("#img-noQualified3-img").attr({src: "/static/images/jflogo.png", style: {display: 'block'}});//不合格样例画面图片地址
 		$("#img-noQualified3-bak").attr("src","/static/images/jflogo.png");//不合格样例画面图片地址
 		$("#img-noQualified3-tip").hide();
-    </#if>
-    $(function () {
-        $(".nav-sidebar>ul>li").on("click", function () {
-            $(".nav-sidebar>ul>li").removeClass("on");
-            $(this).addClass("on");
-        });
-    });
-
-    $(function () {
-        $(window).resize();
-    });
-
-    $(window).resize(function () {
-        var h = $(document.body).height() - 115;
-        $('.main-container').css('height', h);
-    });
-
-    $(function () {
-        window.$province = $("#province");
-        window.$city = $("#city");
-        window.$region = $("#region");
-        window.$street = $("#street");
-        window.$dts = $("#dts");
-        window.$dt = $("#dt");
+	</#if>
+	$(function () {
+	    $(".nav-sidebar>ul>li").on("click", function () {
+	        $(".nav-sidebar>ul>li").removeClass("on");
+	        $(this).addClass("on");
+	    });
+	});
 	
-        // 下拉
-        $('.select').searchableSelect();
-        $('#customerId').next().find('.searchable-select-input').css('display', 'block');
-
-        if(editMode) {
-            //日期
-            $('#activityTime').dateRangePicker({
-                separator: ' 至 ',
-                showShortcuts: false,
-                getValue: function () {
-                    if ($('#dts').val() && $('#dt').val())
-                        return $('#dts').val() + ' 至 ' + $('#dt').val();
-                    else
-                        return '';
-                },
-                setValue: function (s, s1, s2) {
-                    $('#dts').val(s1);
-                    $('#dt').val(s2);
+	$(function () {
+	    $(window).resize();
+	});
+	
+	$(window).resize(function () {
+	    var h = $(document.body).height() - 115;
+	    $('.main-container').css('height', h);
+	});
+	
+	$(function () {
+	    window.$province = $("#province");
+	    window.$city = $("#city");
+	    window.$region = $("#region");
+	    window.$street = $("#street");
+	    window.$dts = $("#dts");
+	    window.$dt = $("#dt");
+	
+	    // 下拉
+	    $('.select').searchableSelect();
+	    $('#customerId').next().find('.searchable-select-input').css('display', 'block');
+	
+	    if(editMode) {
+	        //日期
+	        $('#activityTime').dateRangePicker({
+	            separator: ' 至 ',
+	            showShortcuts: false,
+	            getValue: function () {
+	                if ($('#dts').val() && $('#dt').val())
+	                    return $('#dts').val() + ' 至 ' + $('#dt').val();
+	                else
+	                    return '';
+	            },
+	            setValue: function (s, s1, s2) {
+	                $('#dts').val(s1);
+	                $('#dt').val(s2);
 					$('.activityTime-Wdate').blur()
 					$('#upTaskTime').val(s1);
-                    $('#downMonitorTaskTime').val(s2);
-                }
-            });
-            
-            $('#upTaskTimeWrap').dateRangePicker({
-            	   singleDate: true,
-            	   showShortcuts: false,
-                   getValue: function () {
-                       return $(this).find('.upTask-Wdate').val()
-                   },
-                   setValue: function (s) {
-                      $('#upTaskTime').val(s);
-   					  $('#upTaskTime').blur()
-                   }
-            });
-              
-            $('#upMonitorTaskTime').dateRangePicker({
-            	   singleDate: true,
-            	   showShortcuts: false,
-                   getValue: function () {
-                       return $(this).find('.upMonitor-Wdate').val()
-                   },
-                   setValue: function (s) {
-                      $(this).find('.upMonitor-Wdate').val(s)
-   					  $(this).find('.upMonitor-Wdate').blur()
-                   }
-              });
-            
-            <#-- 
-            $('#durationTime0').dateRangePicker({
-           	   singleDate: true,
-           	   showShortcuts: false,
-                  getValue: function () {
-                      return $(this).find('#durationMonitorTaskTime0').val()
-                  },
-                  setValue: function (s) {
-                     $(this).find('#durationMonitorTaskTime0').val(s)
-  					  $(this).find('#durationMonitorTaskTime0').blur()
-                  }
-             });
-            -->
-            
-            $('.durationMonitor-Wdate').each(function(index){
+	                $('#downMonitorTaskTime').val(s2);
+	            }
+	        });
+	        
+	        $('#upTaskTimeWrap').dateRangePicker({
+	        	   singleDate: true,
+	        	   showShortcuts: false,
+	               getValue: function () {
+	                   return $(this).find('.upTask-Wdate').val()
+	               },
+	               setValue: function (s) {
+	                  $('#upTaskTime').val(s);
+						  $('#upTaskTime').blur()
+	               }
+	        });
+	          
+	        $('#upMonitorTaskTime').dateRangePicker({
+	        	   singleDate: true,
+	        	   showShortcuts: false,
+	               getValue: function () {
+	                   return $(this).find('.upMonitor-Wdate').val()
+	               },
+	               setValue: function (s) {
+	                  $(this).find('.upMonitor-Wdate').val(s)
+						  $(this).find('.upMonitor-Wdate').blur()
+	               }
+	          });
+	        
+	        <#-- 
+	        $('#durationTime0').dateRangePicker({
+	       	   singleDate: true,
+	       	   showShortcuts: false,
+	              getValue: function () {
+	                  return $(this).find('#durationMonitorTaskTime0').val()
+	              },
+	              setValue: function (s) {
+	                 $(this).find('#durationMonitorTaskTime0').val(s)
+						  $(this).find('#durationMonitorTaskTime0').blur()
+	              }
+	         });
+	        -->
+	        
+	        $('.durationMonitor-Wdate').each(function(index){
 	    		var topId = "durationTime" + index;
 	    		var lastId = "durationMonitorTaskTime" + index;
 	    		$('#' + topId).dateRangePicker({
@@ -753,134 +752,130 @@
 	    	});
 	    	
 	    	$('#downMonitorTaskTimeWrap').dateRangePicker({
-            	   singleDate: true,
-            	   showShortcuts: false,
-                   getValue: function () {
-                       return $(this).find('.downMonitor-Wdate').val()
-                   },
-                   setValue: function (s) {
-                      $('#downMonitorTaskTime').val(s);
-   					  $('#downMonitorTaskTime').blur()
-                   }
-            });
-        }
-
-        $("#add-adseat").click(function () {
-            <#-- if($("#dts").val().length<1||$("#province").val().length<1||$("input:checkbox:checked").length<1){ -->
-            if($("#dts").val().length<1){
-                layer.alert("请先确认活动时间");
-                return;
-            }
-            mod_activity_seat = null;
-
-            delDataArr = []
-            modDataArr = []
-            
-            layer.open({
-                type: 2,
-                title: '新增广告位监测',
-                shade: 0.8,
-                area: ['1020px', '600px'],
-                content: '/customer/activity/adseat/toSelect'
-            });
-        });
-        
-        var isLoading = true;
-        
-        // 导入最近一次导入广告位
-        $("#import-adseat").click(function () {
-            <#-- if($("#dts").val().length<1||$("#province").val().length<1||$("input:checkbox:checked").length<1){ -->
-            if($("#dts").val().length<1){
-                layer.alert("请先确认活动时间");
-                return;
-            }else{
-            	var startDate = $("#dts").val(); //投放开始时间
-                var endDate = $("#dt").val(); //投放结束时间
-                var activityId = $("#id").val();
-                
-                isLoading = true;
-            	layer.msg('正在操作中...', {
-    	    		icon: 16,
-    	    		shade: [0.5, '#f5f5f5'],
-    	    		scrollbar: false,
-    	    		time: 150000
-    	    	}, function(){
-    	    		if(isLoading){
-    	    			layer.alert('操作超时', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
-    	    		}
-        		})
-            	
-            	$.ajax({
-            		url: "/customer/activity/adseat/selectTmp",
-                    type: "post",
-                    data: {
-                        "startDate": startDate,
-                        "endDate": endDate,
-                        "activityId": activityId
-                    },
-                    dataType: 'json',
-                    success: function (res) {
-                    	isLoading = false;
-                        ImportLastData(res);
-                        layer.closeAll();
-                    },
-    	            error: function(e) {
-    	            	isLoading = false;
-    	            	layer.closeAll();
-    	                layer.confirm("服务忙，请稍后再试", {
-    	                    icon: 5,
-    	                    btn: ['确定'] //按钮
-    	                });
-    	            }
-                });
-            }
-        });
-
-        /*获取城市  */
-        var $town = $('#demo3 select[name="street"]');
-        var townFormat = function (info) {
-            $town.hide().empty();
-            if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
-                $.ajax({
-                    url: 'http://passer-by.com/data_location/town/' + info['code']
-                    + '.json',
-                    dataType: 'json',
-                    success: function (town) {
-                        $town.show();
-                        for (i in town) {
-                            $town.append('<option value="' + i + '" <#if adSeatInfo?exists&&adSeatInfo.street?exists>'+ (i ==${adSeatInfo.street} ? "selected" : "")+'</#if>>' + town[i]
-                                    + '</option>');
-                        }
-                    }
-                });
-            }
-        };
-        $('#demo3').citys({
-            "province": '330000',
-            "city": '330100',
-            "region": '330108',
-            "required":false,
-            onChange: function (info) {
-                townFormat(info);
-            }
-        }, function (api) {
-            var info = api.getInfo();
-            townFormat(info);
-        });
-        
-        if(!localStorage.getItem('fromUrl')){
-        	localStorage.setItem('fromUrl', document.referrer)
-        }
-        $("#btnBack").click(function(){
-        	location = localStorage.getItem('fromUrl')
-        	localStorage.removeItem('fromUrl')
-        });
-    });
+	        	   singleDate: true,
+	        	   showShortcuts: false,
+	               getValue: function () {
+	                   return $(this).find('.downMonitor-Wdate').val()
+	               },
+	               setValue: function (s) {
+	                  $('#downMonitorTaskTime').val(s);
+						  $('#downMonitorTaskTime').blur()
+	               }
+	        });
+	    }
 	
+	    $("#add-adseat").click(function () {
+	        <#-- if($("#dts").val().length<1||$("#province").val().length<1||$("input:checkbox:checked").length<1){ -->
+	        if($("#dts").val().length<1){
+	            layer.alert("请先确认活动时间");
+	            return;
+	        }
+	        mod_activity_seat = null;
 	
-</script>
+	        delDataArr = []
+	        modDataArr = []
+	        
+	        layer.open({
+	            type: 2,
+	            title: '新增广告位监测',
+	            shade: 0.8,
+	            area: ['1020px', '600px'],
+	            content: '/customer/activity/adseat/toSelect'
+	        });
+	    });
+	    
+	    var isLoading = true;
+	    
+	    // 导入最近一次导入广告位
+	    $("#import-adseat").click(function () {
+	        <#-- if($("#dts").val().length<1||$("#province").val().length<1||$("input:checkbox:checked").length<1){ -->
+	        if($("#dts").val().length<1){
+	            layer.alert("请先确认活动时间");
+	            return;
+	        }else{
+	        	var startDate = $("#dts").val(); //投放开始时间
+	            var endDate = $("#dt").val(); //投放结束时间
+	            var activityId = $("#id").val();
+	            
+	            isLoading = true;
+	        	layer.msg('正在操作中...', {
+		    		icon: 16,
+		    		shade: [0.5, '#f5f5f5'],
+		    		scrollbar: false,
+		    		time: 150000
+		    	}, function(){
+		    		if(isLoading){
+		    			layer.alert('操作超时', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+		    		}
+	    		})
+	        	
+	        	$.ajax({
+	        		url: "/customer/activity/adseat/selectTmp",
+	                type: "post",
+	                data: {
+	                    "startDate": startDate,
+	                    "endDate": endDate,
+	                    "activityId": activityId
+	                },
+	                dataType: 'json',
+	                success: function (res) {
+	                	isLoading = false;
+	                    ImportLastData(res);
+	                    layer.closeAll();
+	                },
+		            error: function(e) {
+		            	isLoading = false;
+		            	layer.closeAll();
+		                layer.confirm("服务忙，请稍后再试", {
+		                    icon: 5,
+		                    btn: ['确定'] //按钮
+		                });
+		            }
+	            });
+	        }
+	    });
+	
+	    /*获取城市  */
+	    var $town = $('#demo3 select[name="street"]');
+	    var townFormat = function (info) {
+	        $town.hide().empty();
+	        if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
+	            $.ajax({
+	                url: 'http://passer-by.com/data_location/town/' + info['code']
+	                + '.json',
+	                dataType: 'json',
+	                success: function (town) {
+	                    $town.show();
+	                    for (i in town) {
+	                        $town.append('<option value="' + i + '" <#if adSeatInfo?exists&&adSeatInfo.street?exists>'+ (i ==${adSeatInfo.street} ? "selected" : "")+'</#if>>' + town[i]
+	                                + '</option>');
+	                    }
+	                }
+	            });
+	        }
+	    };
+	    $('#demo3').citys({
+	        "province": '330000',
+	        "city": '330100',
+	        "region": '330108',
+	        "required":false,
+	        onChange: function (info) {
+	            townFormat(info);
+	        }
+	    }, function (api) {
+	        var info = api.getInfo();
+	        townFormat(info);
+	    });
+	    
+	    if(!localStorage.getItem('fromUrl')){
+	    	localStorage.setItem('fromUrl', document.referrer)
+	    }
+	    $("#btnBack").click(function(){
+	    	location = localStorage.getItem('fromUrl')
+	    	localStorage.removeItem('fromUrl')
+	    });
+	});
 
-<script type="text/javascript">
     $("#date_val").click(function () {
         if ($(".dsp-select").hasClass("hover")) {
             $(".dsp-select").removeClass("hover")

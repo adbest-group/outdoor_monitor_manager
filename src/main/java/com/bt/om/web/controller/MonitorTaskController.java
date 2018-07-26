@@ -1234,6 +1234,37 @@ public class MonitorTaskController extends BasicController {
 		return model;
 	}
 	
+	/**
+	 * 编辑图片的状态
+	 * */
+	@RequiresRoles("superadmin")
+	@RequestMapping(value = "/verifyPic")
+	public String editPicStatus(@RequestParam("id") String id, Model model, HttpServletRequest request) {
+		return PageConst.VERIFYPIC_PAGE;
+	}
+	
+	/**
+	 * 保存审核图片的状态
+	 * */
+	@RequiresRoles("superadmin")
+	@RequestMapping(value = "/savePicStatus")
+	@ResponseBody
+	public Model verifyPic(@RequestParam("id") String id, Model model, HttpServletRequest request,
+			@RequestParam("status") Integer status) {
+		ResultVo resultVo = new ResultVo();
+		AdMonitorTaskFeedback feedback = new AdMonitorTaskFeedback();
+		try {
+			if(id != null) {
+			}
+		}catch (Exception ex) {
+            ex.printStackTrace();
+            resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
+            resultVo.setResultDes("服务忙，请稍后再试");
+        }
+		model.addAttribute(SysConst.RESULT_KEY, resultVo);
+		return model;
+	}
+	
 	//保存在本服务器
 	private String saveFile(String path,String filename,InputStream is){
 		String ext = filename.substring(filename.lastIndexOf(".") + 1);

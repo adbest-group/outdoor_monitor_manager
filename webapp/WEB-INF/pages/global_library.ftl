@@ -455,3 +455,13 @@
 		</#list>
 	</#if>
 </#macro>
+
+<#-- 所有第三方监测公司下拉选项  -->
+<#macro showAllThirdCompanyOps value="-1">
+	<#local list = vm.getAllThirdCompanyByUserType() />
+	<#if (list?exists && list?size > 0)>
+		<#list list as type>
+			<@showOption value="${type.id?if_exists}" title="${type.realname?if_exists}" select="${value?if_exists}" />
+		</#list>
+	</#if>
+</#macro>

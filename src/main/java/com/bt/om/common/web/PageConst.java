@@ -60,7 +60,7 @@ public class PageConst {
 	public static final String ADD_ZHUIJIA = "task/addZhuijia";
 	public static final String SELECT_ALL_TASKS = "task/selectTaskToExcel";
 	public static final String SELECT_TASKPDF = "task/selectTaskToPdf";
-	
+	public static final String VERIFYPIC_PAGE = "task/verifyPic";
 	/*** 纠错管理 ***/
 	public static final String JIUCUO_LIST = "jiucuo/list";
 	public static final String JIUCUO_DETAIL = "jiucuo/detail";
@@ -120,6 +120,8 @@ public class PageConst {
 	public static final String SUPER_ADMIN_POINT_EDIT = "resources/pointEdit";
 	public static final String SUPER_ADMIN_USERPOINT_LIST = "resources/userpointList";
 	
+	/*** 超级管理员下的金额设置管理***/
+	public static final String SUPER_ADMIN_USERMONEY_LIST = "resources/moneyList";
 	/*** 超级管理员下的站内信管理 ***/
 	public static final String RESOURCES_MESSAGE_LIST = "resources/messageList";
 	
@@ -140,4 +142,9 @@ public class PageConst {
 	/*** 超级管理员下的呼叫中心人员管理  ***/
 	public static final String RESOURCES_PHONEOPERATOR_LIST = "resources/phoneoperatorList";
 	public static final String PHONEOPERATOR_EDIT = "resources/phoneoperatorEdit";
+	
+	/*** 超级管理员下的第三方监测公司管理  ***/
+	public static final String THIRD_COMPANY_LIST = "resources/thirdCompanyList";
+	public static final String THIRD_COMPANY_EDIT = "resources/thirdCompanyEdit";
+
 }

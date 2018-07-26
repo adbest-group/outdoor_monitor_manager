@@ -1,5 +1,10 @@
 package com.bt.om.mapper;
 
+import java.util.HashMap;
+import java.util.List;
+
+import org.apache.ibatis.session.RowBounds;
+
 import com.bt.om.entity.AdUserMoney;
 
 public interface AdUserMoneyMapper {
@@ -39,4 +44,13 @@ public interface AdUserMoneyMapper {
 	 * @mbg.generated  Wed Jul 18 17:54:41 CST 2018
 	 */
 	int updateByPrimaryKey(AdUserMoney record);
+
+	int getPageCount(HashMap<String, Object> searchMap);
+
+	List<?> getPageData(HashMap<String, Object> searchMap, RowBounds rowBounds);
+
+	/**
+	 * 获取总积分
+	 * */
+	Double getMoneyCountById(Integer userId);
 }

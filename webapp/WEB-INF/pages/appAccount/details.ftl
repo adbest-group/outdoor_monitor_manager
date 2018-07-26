@@ -16,9 +16,9 @@
             	<th>序号</th>
                 <th>更新时间</th>
                 <th>过去用户类型</th>
-                <th>过去所属媒体主</th>
+                <th>过去所属公司</th>
                 <th>现在用户类型</th>
-                <th>现在所属媒体主</th>
+                <th>现在所属公司</th>
                 <th>操作人</th>
             </tr>
             </thead>
@@ -30,10 +30,15 @@
                     <td>${user.updateTime?string('yyyy-MM-dd HH:mm:ss')}</td>
                     <td><#if user.usertypeOld?exists&&user.usertypeOld==3>媒体监测人员</#if>
                     	<#if user.usertypeOld?exists&&user.usertypeOld==4>社会人员</#if>
+                    	<#if user.usertypeOld?exists&&user.usertypeOld==5>第三方监测人员</#if>
                     </td>
-                    <td>${user.mediaNameOld?if_exists}</td>
+                    <td>
+                    	${user.mediaNameOld?if_exists}
+                    </td>
                     <td><#if user.usertypeNew?exists&&user.usertypeNew==3>媒体监测人员</#if>
-                    	<#if user.usertypeNew?exists&&user.usertypeNew==4>社会人员</#if></td>
+                    	<#if user.usertypeNew?exists&&user.usertypeNew==4>社会人员</#if>
+                    	<#if user.usertypeNew?exists&&user.usertypeNew==5>第三方监测人员</#if>
+                    </td>
                     <td>${user.mediaNameNew?if_exists}</td>
                 	<td>${user.loginName?if_exists}</td>
                 </tr>

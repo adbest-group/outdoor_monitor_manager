@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.adtime.common.lang.StringUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
-import com.bt.om.entity.AdMediaType;
 import com.bt.om.entity.SysResources;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserRes;
@@ -34,6 +33,8 @@ import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.SessionKey;
+import com.bt.om.enums.UserRoleEnum;
+import com.bt.om.enums.UserTypeEnum;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
@@ -906,7 +907,7 @@ public class SysGroupController extends BasicController{
          if (StringUtils.isNotBlank(nameOrUsername)) {
              vo.putSearchParam("nameOrUsername", nameOrUsername, "%" + nameOrUsername + "%");
          }
-         vo.putSearchParam("usertype", "usertype", 6);
+         vo.putSearchParam("usertype", "usertype", UserTypeEnum.PHONE_OPERATOR.getId());
          sysUserService.getPageData(vo);
          SearchUtil.putToModel(model, vo);
 
@@ -946,14 +947,14 @@ public class SysGroupController extends BasicController{
         	sysUser.setPlatform(1); 
         }
         if(sysUser.getUsertype() == null) {
-        	sysUser.setUsertype(6);    
+        	sysUser.setUsertype(UserTypeEnum.PHONE_OPERATOR.getId()); //6：话务员 
         }
         sysUser.setMobile(telephone);
         try {
         	if(sysUser.getId() != null) {
         		sysUserService.modify(sysUser);
         	}else {
-        		sysUserService.addUser(sysUser);
+        		sysUserService.addUser(sysUser, UserRoleEnum.PHONE_OPERATOR.getId());
         	}
         } catch (Exception e) {
             result.setCode(ResultCode.RESULT_FAILURE.getCode());

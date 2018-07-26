@@ -57,6 +57,7 @@ import com.bt.om.service.ISysGroupService;
 import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserRoleService;
 import com.bt.om.service.ISysUserService;
+import com.bt.om.util.MarkLogoUtil;
 import com.bt.om.util.ConfigUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -568,6 +569,11 @@ public class JiucuoController extends BasicController {
 			}
 			//[1] 上传图片
 			filepath = saveFile(path,imageName,is);
+			int picindex = filepath.lastIndexOf('/')+1;
+			String filename = filepath.substring(picindex);
+			int nameindex = filename.indexOf('.');
+			MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
+            
 			//[2] 更改数据库
 			adJiucuoTaskService.updatePicUrl(id, file_upload_ip + filepath, index);
 		} catch (IOException e) {

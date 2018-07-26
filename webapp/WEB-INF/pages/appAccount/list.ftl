@@ -16,6 +16,7 @@
 	                        <option value="2" <#if (bizObj.queryMap.usertype?exists&&bizObj.queryMap.usertype == '2')>selected</#if>>客户人员</option>
 	                    	<option value="3" <#if (bizObj.queryMap.usertype?exists&&bizObj.queryMap.usertype == '3')>selected</#if>>媒体人员</option>
 	                    	<option value="4" <#if (bizObj.queryMap.usertype?exists&&bizObj.queryMap.usertype == '4')>selected</#if>>社会人员</option>
+	                    	<option value="5" <#if (bizObj.queryMap.usertype?exists&&bizObj.queryMap.usertype == '5')>selected</#if>>第三方监测人员</option>
 	                    </select>
 	                </div>
 	                <div class="inp">
@@ -39,7 +40,7 @@
                         <th>序号</th>
                         <th>App账户</th>
                         <th>账户类型</th>
-                        <th>所属媒体主</th>
+                        <th>所属公司</th>
                         <th>姓名</th>
                         <th>联系电话</th>
                         <th>状态</th>
@@ -53,7 +54,10 @@
                             <td width="30">${(bizObj.page.currentPage-1)*20+user_index+1}</td>
                             <td>${user.username?if_exists}</td>
                             <td>${vm.getUserExecuteTypeText(user.usertype)?if_exists}</td>
-                            <td>${user.mediaName?if_exists}</td>
+                            <td>
+                            	<#if user.usertype?exists&&user.usertype==3>${user.mediaName?if_exists}</#if>
+                            	<#if user.usertype?exists&&user.usertype==5>${user.companyName?if_exists}</#if>
+                            </td>
                             <td>${user.realname?if_exists}</td>
                             <td>${user.mobile?if_exists}</td>
                             <td><span onclick="updStatus('${user.id}', '${user.status}');"
@@ -61,7 +65,7 @@
                             </td>
                             <td>
                                 <a href="javascript:void(0);" onclick="edit('${user.id}');">编辑</a>
-                                <#if user.usertype==3 || user.usertype==4>
+                                <#if user.usertype==3 || user.usertype==4 || user.usertype==5>
                                 	<a href="javascript:void(0);" onclick="details('${user.id}');">详情</a>
                                 </#if>
                                 <#--<a href="javascript:void(0);" onclick="deleteAccount('${partnerUser.id}');">删除</a>-->

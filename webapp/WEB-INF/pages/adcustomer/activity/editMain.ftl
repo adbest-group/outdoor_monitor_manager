@@ -36,6 +36,17 @@
     	max-height: 500px;
     	overflow-y: auto;
     }
+    
+    #as-container table, #as-container-question table{
+    	table-layout: fixed;
+    }
+    #as-container table td, #as-container-question table td{
+    	white-space: pre-line;
+    	word-break: break-all;
+    	word-wrap: break-word;
+    }
+    
+    
 </style>
 <#assign editMode=false/>
 <#-- <@shiro.hasRole name="customer"> -->
@@ -774,6 +785,8 @@
             });
         });
         
+        var isLoading = true;
+        
         // 导入最近一次导入广告位
         $("#import-adseat").click(function () {
             <#-- if($("#dts").val().length<1||$("#province").val().length<1||$("input:checkbox:checked").length<1){ -->
@@ -784,6 +797,18 @@
             	var startDate = $("#dts").val(); //投放开始时间
                 var endDate = $("#dt").val(); //投放结束时间
                 var activityId = $("#id").val();
+                
+                isLoading = true;
+            	layer.msg('正在操作中...', {
+    	    		icon: 16,
+    	    		shade: [0.5, '#f5f5f5'],
+    	    		scrollbar: false,
+    	    		time: 150000
+    	    	}, function(){
+    	    		if(isLoading){
+    	    			layer.alert('操作超时', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+    	    		}
+        		})
             	
             	$.ajax({
             		url: "/customer/activity/adseat/selectTmp",
@@ -795,12 +820,20 @@
                     },
                     dataType: 'json',
                     success: function (res) {
-                        console.log(res)
+                    	isLoading = false;
                         ImportLastData(res);
-                    }
+                        layer.closeAll();
+                    },
+    	            error: function(e) {
+    	            	isLoading = false;
+    	            	layer.closeAll();
+    	                layer.confirm("服务忙，请稍后再试", {
+    	                    icon: 5,
+    	                    btn: ['确定'] //按钮
+    	                });
+    	            }
                 });
             }
-            
         });
 
         /*获取城市  */
@@ -996,6 +1029,18 @@
 				var noQualifiedText3 = $("#noQualifiedText3").val();//不合格原因3
 				var notification = $("#notification").val();//注意事项
 				
+				isLoading = true;
+            	layer.msg('正在操作中...', {
+    	    		icon: 16,
+    	    		shade: [0.5, '#f5f5f5'],
+    	    		scrollbar: false,
+    	    		time: 150000
+    	    	}, function(){
+    	    		if(isLoading){
+    	    			layer.alert('操作超时', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+    	    		}
+        		})
+				
                 $.ajax({
                     url: "/customer/activity/save",
                     type: "post",
@@ -1046,6 +1091,9 @@
                     cache: false,
                     dataType: "json",
                     success: function (datas) {
+                    	isLoading = false;
+    	            	layer.closeAll('msg');
+    	            	
                         var resultRet = datas.ret;
                         if (resultRet.code == 101) {
                             layer.confirm(resultRet.resultDes, {
@@ -1084,6 +1132,8 @@
                         }
                     },
                     error: function (e) {
+                    	isLoading = false;
+    	            	layer.closeAll('msg');
                         layer.confirm("服务忙，请稍后再试", {
                             icon: 5,
                             btn: ['确定'] //按钮

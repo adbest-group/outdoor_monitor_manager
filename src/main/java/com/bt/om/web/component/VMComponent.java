@@ -36,6 +36,7 @@ import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
 import com.bt.om.enums.UserExecuteType;
+import com.bt.om.enums.UserTypeEnum;
 //import com.bt.om.mapper.SysDictMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
@@ -427,14 +428,14 @@ public class VMComponent {
      * 获取全部可用的客户
      */
     public List<SysUser> getAllCustomerAvailable() {
-    	return sysUserService.getAvailableByUserType(2); //2：客户账户
+    	return sysUserService.getAvailableByUserType(UserTypeEnum.CUSTOMER.getId()); //2：客户账户
     }
     
     /**
      * 获取全部的客户
      */
     public List<SysUserVo> getAllCustomerByUserType() {
-    	return sysUserService.getAllByUserType(2); //2：客户账户
+    	return sysUserService.getAllByUserType(UserTypeEnum.CUSTOMER.getId()); //2：客户账户
     }
     
     /**
@@ -442,6 +443,13 @@ public class VMComponent {
      */
     public List<SysUserExecute> showUserExecuteByMedia(String mediaId) {
     	return sysUserExecuteService.selectMediaNameByUserId(Integer.parseInt(mediaId));
+    }
+    
+    /**
+     * 获取全部的第三方监测公司
+     */
+    public List<SysUserVo> getAllThirdCompanyByUserType() {
+    	return sysUserService.getAllByUserType(UserTypeEnum.THIRD_COMPANY.getId()); //7：第三方监测公司
     }
     
     /***************************** 下面是工具类 ****************************************/

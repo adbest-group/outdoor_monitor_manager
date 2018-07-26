@@ -92,8 +92,11 @@ public class SysUserService implements ISysUserService {
 		return sysUserDetailMapper.selectByUserId(userId);
 	}
 
+	/**
+	 * 新增后台用户
+	 */
 	@Override
-	public void addUser(SysUser sysUser) {
+	public void addUser(SysUser sysUser, Integer roleId) {
 		Date now = new Date();
 		sysUser.setPassword(new Md5Hash(sysUser.getPassword(), sysUser.getUsername()).toString());
 		sysUser.setCreateTime(now);
@@ -108,7 +111,7 @@ public class SysUserService implements ISysUserService {
 		SysUserRole userRole = new SysUserRole();
         userRole.setPlatform(1);
         userRole.setUserId(sysUser.getId());
-        userRole.setRoleId(111); //111: phoneoperator
+        userRole.setRoleId(roleId);
         userRole.setCreateTime(now);
         userRole.setUpdateTime(now);
         sysUserRoleMapper.insertSelective(userRole);
@@ -129,6 +132,9 @@ public class SysUserService implements ISysUserService {
 		return sysUserMapper.getIdNameByUserType(userType);
 	}
 
+	/**
+	 * 新增部门领导
+	 */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public int createDepartmentLeader(SysUser record, SysUserDetail sysUserDetail, SysUserRole sysUserRole) {
@@ -281,6 +287,9 @@ public class SysUserService implements ISysUserService {
 		sysUserMapper.changeAppTypeById(id);
 	}
 
+	/**
+	 * 修改后台用户信息
+	 */
     @Override
     @Transactional(rollbackFor = Exception.class)
 	public void modify(SysUser sysUser) {

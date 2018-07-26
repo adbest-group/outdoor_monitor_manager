@@ -23,6 +23,7 @@ import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.SysUserHistory;
 import com.bt.om.entity.vo.SysUserExecuteVo;
+import com.bt.om.enums.AppUserTypeEnum;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.UserExecuteType;
@@ -47,6 +48,7 @@ public class AppAccountController extends BasicController {
     private IMediaService mediaService;
     @Autowired
     private ISysUserHistoryService sysUserHistoryService;
+    
     /**
      * 媒体安装人员管理列表
      **/
@@ -113,6 +115,7 @@ public class AppAccountController extends BasicController {
         SearchUtil.putToModel(model, vo);
 		return PageConst.APP_ACCOUNT_DETAILS;
     }
+    
     /**
      * 检查媒体工人账号是否重名
      **/
@@ -140,7 +143,7 @@ public class AppAccountController extends BasicController {
     }
 
     /**
-     * 保存工人
+     * 保存APP人员
      **/
     @RequiresRoles("superadmin")
     @RequestMapping(value = {"/save"}, method = {RequestMethod.POST})
@@ -151,7 +154,8 @@ public class AppAccountController extends BasicController {
                       @RequestParam(value = "password", required = true) String password,
                       @RequestParam(value = "name", required = true) String name,
                       @RequestParam(value = "usertype", required = true) Integer usertype,
-                      @RequestParam(value = "mediaId", required = true) Integer mediaId) {
+                      @RequestParam(value = "mediaId", required = true) Integer mediaId,
+                      @RequestParam(value = "companyId", required = true) Integer companyId) {
 
         ResultVo resultVo = new ResultVo();
         SysUser loginuser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
@@ -165,14 +169,19 @@ public class AppAccountController extends BasicController {
                 user.setUsertype(usertype);
                 user.setStatus(1);
                 user.setCompany(loginuser.getRealname());
-                if(usertype==3){
+                if(usertype == AppUserTypeEnum.MEDIA.getId()){
+                	//添加媒体监测人员
                     AdMedia media = mediaService.getById(mediaId);
                     user.setOperateId(media.getUserId());
-                }else if(usertype!=4){
+                } else if(usertype == AppUserTypeEnum.THIRD_COMPANY.getId()) {
+                	//添加第三方监测人员
+                	user.setOperateId(companyId);
+                } else if(usertype != AppUserTypeEnum.SOCIAL.getId()){
+                	//添加非社会人员
                     user.setOperateId(loginuser.getId());
                 }
+                
                 sysUserExecuteService.add(user);
-             
             } else {//修改
                 SysUserExecute user = sysUserExecuteService.getById(id);
                 SysUserHistory userHistory = new SysUserHistory(); //获取未修改前用户的信息
@@ -192,20 +201,20 @@ public class AppAccountController extends BasicController {
                 user.setRealname(name);
                 user.setMobile(username);
                 user.setUsertype(usertype);
-                if(usertype==3){
+                if(usertype==UserExecuteType.MEDIA_WORKER.getId()){
+                	//3：媒体监测人员
                     AdMedia media = mediaService.getById(mediaId);
                     user.setOperateId(media.getUserId());
                     userHistory.setOperateIdNew(media.getUserId());
-                }else if(usertype==4) {
+                }else if(usertype==UserExecuteType.Social.getId()) {
+                	//4：社会人员
                 	user.setOperateId(null);
                 	userHistory.setOperateIdNew(null);
+                }else if(usertype==UserExecuteType.THIRD_COMPANY.getId()) {
+                	//5：第三方监测人员
+                	user.setOperateId(companyId);
+                	userHistory.setOperateIdNew(companyId);
                 }
-//                if(usertype==3){
-//                    AdMedia media = mediaService.getById(mediaId);
-//                    user.setOperateId(media.getUserId());
-//                }else if(usertype!=4){
-//                    user.setOperateId(loginuser.getId());
-//                }
                 
                 sysUserExecuteService.modifyUser(user,userHistory);
             }
@@ -218,7 +227,6 @@ public class AppAccountController extends BasicController {
         model.addAttribute(SysConst.RESULT_KEY, resultVo);
         return model;
     }
-
 
     @RequiresRoles("superadmin")
     @RequestMapping(value = {"/updateAccountStatus"}, method = {RequestMethod.POST})

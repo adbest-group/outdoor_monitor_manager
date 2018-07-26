@@ -11,15 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bt.om.entity.AdMonitorTask;
-import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.SysUserHistory;
 import com.bt.om.entity.vo.SysUserExecuteVo;
-import com.bt.om.entity.vo.SysUserVo;
-import com.bt.om.enums.SessionKey;
 import com.bt.om.mapper.SysUserExecuteMapper;
 import com.bt.om.mapper.SysUserHistoryMapper;
-import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.vo.web.SearchDataVo;
 
@@ -112,14 +108,27 @@ public class SysUserExecuteService implements ISysUserExecuteService {
 		return sysUserExecuteMapper.updatePhoneModel(sysUserExecute);
 	}
 
+	/**
+	 * 更新APP用户并且插入历史记录
+	 */
 	@Override
 	@Transactional
 	public void modifyUser(SysUserExecute userExecute, SysUserHistory userHistory) {
 		sysUserExecuteMapper.updateByPrimaryKey(userExecute);
-		if(userHistory.getUsertypeOld().equals(userHistory.getUsertypeNew()) &&
-				userHistory.getOperateIdOld().equals(userHistory.getOperateIdNew())) {
+		if(userHistory.getUsertypeOld().equals(userHistory.getUsertypeNew())) {
+			// 用户类型不变
+			if(userHistory.getOperateIdOld() == null && userHistory.getOperateIdNew() == null) {
+				// 社会人员 → 社会人员 不做操作
+			} else {
+				// 某家媒体人员 → 另一家媒体人员
+				if(!userHistory.getOperateIdOld().equals(userHistory.getOperateIdNew())) {
+					sysUserHistoryMapper.insertSelective(userHistory);
+				}
+			}
 		} else {
+			// 用户类型改变
 			sysUserHistoryMapper.insertSelective(userHistory);
 		}
 	}
+	
 }

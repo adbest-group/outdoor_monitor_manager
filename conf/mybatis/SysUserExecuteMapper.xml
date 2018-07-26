@@ -372,6 +372,7 @@
 
   <resultMap id="ExtResultMap" extends="BaseResultMap" type="com.bt.om.entity.vo.SysUserExecuteVo">
         <result column="media_name" jdbcType="VARCHAR" property="mediaName"/>
+        <result column="companyName" jdbcType="VARCHAR" property="companyName"/>
   </resultMap>
 
   <select id="selectByIdAndMedia" parameterType="java.lang.Integer" resultMap="ExtResultMap">
@@ -420,7 +421,7 @@
     select
 	    a.id, a.username, a.password, a.realname, a.mobile, a.company, a.head_img_url, a.usertype, a.operate_id, a.status,
 	    a.province, a.city, a.region, a.street, a.remark, a.login_ip, a.login_time, a.default_page, a.create_time, a.update_time,
-    	b.media_name,a.device_id,a.system_version
+    	b.media_name,a.device_id,a.system_version, c.realname companyName
     from sys_user_execute a
     left join sys_user c on a.operate_id = c.id
     left join ad_media b on b.user_id = c.id

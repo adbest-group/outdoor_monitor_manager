@@ -1545,7 +1545,7 @@
     </select>
     
     <!-- 将主表中所有超时任务状态设为“已超时” -->
-    <update id="updateTaskStatus" parameterType="java.util.Date">
+    <update id="updateTaskStatus">
     	update 
 			ad_monitor_task a
 		SET 
@@ -1555,4 +1555,14 @@
 		and DATE_FORMAT(date_add(a.monitor_date,interval (a.monitor_last_days) day),'%Y-%m-%d %H:%i:%s') &lt;= DATE_FORMAT(#{nowDate,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
     </update>
     
+    <!-- 查询出所有超时任务 -->
+    <select id="selectOverTimeTasks" parameterType="java.util.Date" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+    	from
+			ad_monitor_task a
+		WHERE 
+		a.status in (1,2,6,8)
+		and DATE_FORMAT(date_add(a.monitor_date,interval (a.monitor_last_days) day),'%Y-%m-%d %H:%i:%s') &lt;= DATE_FORMAT(#{now,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+    </select>
 </mapper>

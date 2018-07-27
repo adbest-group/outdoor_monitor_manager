@@ -497,7 +497,7 @@
   <select id="getUserId" resultType="java.lang.Integer">
   	select id 
   	from sys_user
-  	where usertype = 4
+  	where usertype = #{userType,jdbcType=INTEGER}
   </select>
   <update id="changeAppTypeById" parameterType="java.lang.Integer">
   	update sys_user 

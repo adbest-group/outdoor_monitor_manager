@@ -163,5 +163,7 @@ public interface AdMonitorTaskMapper {
 	
 	int recycleMediaTask(Map<String, Object> searchMap);
 
-	List<Integer> updateTaskStatus(Date nowDate);
+	boolean updateTaskStatus(Date nowDate);
+
+	List<AdMonitorTask> selectOverTimeTasks(Date now);
 }

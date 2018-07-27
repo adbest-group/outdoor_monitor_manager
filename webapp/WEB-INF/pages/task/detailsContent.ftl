@@ -162,9 +162,9 @@
                                      <#if usertype?exists&&usertype==4>
                                      	<#if (vo.status?exists&&vo.status!=7&&vo.status!=8)>
                                       		<input type="button" id="changePic1" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/>
-                                      		<#-- 
+                                      		 <#-- 
                                       		<input type="button" id="verifyPic1" class="changePic btn btn-primary" value="　审核　" onclick="openverify(${item.feedbackId!""})"/>
-                                      		 -->
+                                      		  -->
                                       	</#if>
                                      </#if>
                                 </div>

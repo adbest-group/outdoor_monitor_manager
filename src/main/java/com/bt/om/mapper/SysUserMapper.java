@@ -89,7 +89,7 @@ public interface SysUserMapper {
 
 	int updateUserPwd(SysUser u);
 
-	List<Integer> getUserId(int i);
+	List<Integer> getUserId(int userType);
 
 	void changeAppTypeById(@Param("appTypeId") Integer id);
 	 

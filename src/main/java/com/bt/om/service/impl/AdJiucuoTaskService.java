@@ -268,12 +268,11 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
         }
         cuslist = sysUserResMapper.getAnotherUserId(resId, 1);//获取组下面的员工id集合
         List<Integer> userIdList = new ArrayList<>();
-        for(Integer i : list) {
-        	userIdList.add(i);
-        }
-        for(Integer i: cuslist) {
-        	userIdList.add(i);
-        }
+        userIdList.addAll(list);
+        userIdList.addAll(cuslist);
+        list.removeAll(list);
+        list = sysUserMapper.getUserId(6);//6:呼叫中心人员
+        userIdList.addAll(list);
         userIdList.add(dep_id);
         
         SysUserExecute sysUserExecute = sysUserExecuteMapper.selectByPrimaryKey(task.getUserId()); //获取app提交人员的信息

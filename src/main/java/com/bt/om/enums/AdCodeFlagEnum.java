@@ -1,22 +1,23 @@
 package com.bt.om.enums;
 
 /**
- * 活动状态 枚举
- * 对应 ad_activity 表的 status
+ * 是否贴上二维码 枚举
+ * 对应 ad_seat_info 的 ad_code_flag
  */
-public enum ActivityStatus {
-    UNCONFIRM(1,"未确认"),CONFIRMED(2,"已确认"),COMPLETE(3,"已结束"),TIMEOUT(4,"超时未确认");
+public enum AdCodeFlagEnum {
+    YES(1, "已贴上"),
+    NO(0, "没贴上");
 
     private Integer id;
     private String text;
 
-    ActivityStatus(int id,String text) {
+    AdCodeFlagEnum(int id,String text) {
         this.id = id;
         this.text = text;
     }
 
     public static String getText(int id){
-        for(ActivityStatus e : ActivityStatus.values()){
+        for(AdCodeFlagEnum e : AdCodeFlagEnum.values()){
             if(e.getId() == id){
                 return e.getText();
             }
@@ -25,7 +26,7 @@ public enum ActivityStatus {
     }
 
     public static Integer getId(String text){
-        for(ActivityStatus e : ActivityStatus.values()){
+        for(AdCodeFlagEnum e : AdCodeFlagEnum.values()){
             if(e.getText().equals(text)){
                 return e.getId();
             }

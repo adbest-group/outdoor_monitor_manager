@@ -1,7 +1,7 @@
 package com.bt.om.enums;
 
 /**
- * Created by jiayong.mao on 2018/4/19.
+ * APP广告主查询活动的状态 枚举
  */
 public enum AdMediaInfoStatus {
     NOT_BEGIN(1, "未开始"),WATCHING(2, "监测中"),HAS_PROBLEM(3, "有问题"),FINISHED(4, "已结束");

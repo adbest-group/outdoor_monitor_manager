@@ -1,7 +1,8 @@
 package com.bt.om.enums;
 
 /**
- * Created by caiting on 2018/1/19.
+ * 站内信类型 枚举
+ * 对应 sys_user_message 的 type
  */
 public enum MessageType {
     ACTIVITY_AUDIT(1,"活动管理"),TASK_AUDIT(2,"任务审核"),TASK_ASSIGN(3,"任务指派"),JIUCUO_AUDIT(4,"纠错审核");

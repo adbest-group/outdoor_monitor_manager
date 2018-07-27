@@ -27,6 +27,7 @@ import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.SysMenuVo;
 import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.ActivityStatus;
+import com.bt.om.enums.AppUserTypeEnum;
 import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.MediaType;
 import com.bt.om.enums.MessageIsFinish;
@@ -35,7 +36,6 @@ import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
-import com.bt.om.enums.UserExecuteType;
 import com.bt.om.enums.UserTypeEnum;
 //import com.bt.om.mapper.SysDictMapper;
 import com.bt.om.security.ShiroUtils;
@@ -227,7 +227,7 @@ public class VMComponent {
      * 获取app端用户类型名称
      **/
     public String getUserExecuteTypeText(int id) {	
-        return UserExecuteType.getText(id);
+        return AppUserTypeEnum.getText(id);
     }
     
     /**
@@ -261,8 +261,8 @@ public class VMComponent {
     /**
      * 获取app端用户类型列表
      **/
-    public UserExecuteType[] getUserExecuteTypeList() {
-        return UserExecuteType.values();
+    public AppUserTypeEnum[] getUserExecuteTypeList() {
+        return AppUserTypeEnum.values();
     }
     
     /**

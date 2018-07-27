@@ -1,7 +1,8 @@
 package com.bt.om.enums;
 
 /**
- * Created by caiting on 2018/1/20.
+ * 监测任务类型 枚举
+ * 对应 ad_monitor_task 的 status
  */
 public enum MonitorTaskStatus {
     UN_ACTIVE(7, "待激活"),

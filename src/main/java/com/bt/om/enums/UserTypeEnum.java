@@ -2,6 +2,7 @@ package com.bt.om.enums;
 
 /**
  * 后台用户类型枚举
+ * 对应 sys_user 的 usertype
  */
 public enum UserTypeEnum {
     ADMIN(1,"普通员工"),

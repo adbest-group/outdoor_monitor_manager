@@ -193,12 +193,6 @@
                enableUpdateByExample="false">
         </table> -->
 
-		<!-- <table schema="outdoor-monitor" tableName="ad_version"
-               domainObjectName="AdVersion" enableCountByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false"
-               enableUpdateByExample="false">
-        </table> -->
-        
         <!-- 
         <table schema="outdoor-monitor" tableName="ad_sms"
                domainObjectName="AdSms" enableCountByExample="false"
@@ -278,11 +272,19 @@
         </table>
          -->
          
+        <!-- 
         <table schema="outdoor-monitor" tableName="ad_seat_info_tmp"
                domainObjectName="AdSeatInfoTmp" enableCountByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false"
                enableUpdateByExample="false">
         </table>
-         
+         -->
+        
+        <table schema="outdoor-monitor" tableName="ad_version"
+               domainObjectName="AdVersion" enableCountByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false"
+               enableUpdateByExample="false">
+        </table>
+        
     </context>
 </generatorConfiguration>

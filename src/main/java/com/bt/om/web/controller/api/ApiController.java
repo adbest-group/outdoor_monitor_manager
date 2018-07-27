@@ -1945,10 +1945,7 @@ public class ApiController extends BasicController {
     }
 
     /**
-     * APP一打开调用
-     * @param model
-     * @param request
-     * @param response
+     * APP一打开调用 检查版本号是否要更新
      */
     @RequestMapping(value = "/checkVersion")
     @ResponseBody
@@ -1971,7 +1968,7 @@ public class ApiController extends BasicController {
             JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
             appVersion = obj.get("appVersion") == null ? null : obj.get("appVersion").getAsString();
             
-            //判断版本号比较, 提示是否需要强制更新
+            //【1】判断版本号比较, 提示是否需要强制更新
             if(version != null) {
             	String[] versionSplit = version.getAppVersion().split("\\.");
             	String[] appVersionSplit = appVersion.split("\\.");
@@ -1989,9 +1986,11 @@ public class ApiController extends BasicController {
         			}
         		}
             	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+            	model.addAttribute("apkUrl", version.getApkUrl());
+            	model.addAttribute("iosUrl", version.getIosUrl());
             }
             
-            //判断版本号比较, 提示是否更新
+            //【2】判断版本号比较, 提示是否更新
             if(nowVersion == null) {
             	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
                 result.setResultDes("版本号有误！");
@@ -2000,14 +1999,18 @@ public class ApiController extends BasicController {
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
             } else {
-            	if(needForceUpdate != 0) {
+            	if(needForceUpdate != AppUpdateTypeEnum.FORCE_UPDATE.getId()) {
+            		//不需要强制更新
             		String[] versionSplit = nowVersion.getAppVersion().split("\\.");
                 	String[] appVersionSplit = appVersion.split("\\.");
                 	for (int i = 0; i < appVersionSplit.length; i++) {
             			Integer versionInt = Integer.parseInt(versionSplit[i]);
             			Integer appVersionInt = Integer.parseInt(appVersionSplit[i]);
             			if(appVersionInt < versionInt) {
+            				//有新版本,可去更新
             				needForceUpdate = AppUpdateTypeEnum.CAN_UPDATE.getId();
+            				model.addAttribute("apkUrl", nowVersion.getApkUrl());
+                        	model.addAttribute("iosUrl", nowVersion.getIosUrl());
             				break;
             			} else if(appVersionInt == versionInt) {
             				needForceUpdate = AppUpdateTypeEnum.LATEEST_VERSION.getId();
@@ -2018,9 +2021,9 @@ public class ApiController extends BasicController {
 			}
             
             if(needForceUpdate == AppUpdateTypeEnum.LATEEST_VERSION.getId()) {
-        		result.setResultDes("有新版本，可去更新！");
+        		result.setResultDes("有新版本，可去更新！新版本号：" + nowVersion.getAppVersion());
         	} else if(needForceUpdate == AppUpdateTypeEnum.FORCE_UPDATE.getId()) {
-        		result.setResultDes("有新版本，需要强制更新！");
+        		result.setResultDes("有新版本，需要强制更新！新版本号：" + version.getAppVersion());
         	} else {
         		result.setResultDes("最新版本！");
         	}

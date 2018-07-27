@@ -1,23 +1,24 @@
 package com.bt.om.enums;
 
 /**
- * 媒体类型 枚举
- * 对应 ad_media_type 的 media_type
+ * 部门类型 枚举
+ * 对应 sys_resources 的 department_type
  */
-public enum MediaType {
-    PARENT_TYPE(1,"媒体大类"),
-    SECOND_TYPE(2,"媒体小类");
+public enum DepartmentTypeEnum {
+    ACTIVITY(1,"活动审核部门"),
+    MONITOR_TASK(2,"任务审核指派部门"),
+    JIUCUO_TASK(3,"纠错审核部门");
 
     private Integer id;
     private String text;
 
-    MediaType(int id, String text) {
+    DepartmentTypeEnum(int id, String text) {
         this.id = id;
         this.text = text;
     }
 
     public static String getText(int id){
-        for(MediaType e : MediaType.values()){
+        for(DepartmentTypeEnum e : DepartmentTypeEnum.values()){
             if(e.getId() == id){
                 return e.getText();
             }
@@ -26,7 +27,7 @@ public enum MediaType {
     }
 
     public static Integer getId(String text){
-        for(MediaType e : MediaType.values()){
+        for(DepartmentTypeEnum e : DepartmentTypeEnum.values()){
             if(e.getText().equals(text)){
                 return e.getId();
             }

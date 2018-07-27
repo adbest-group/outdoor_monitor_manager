@@ -43,6 +43,7 @@ import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.enums.AppUserTypeEnum;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.ResultCode;
@@ -159,7 +160,7 @@ public class MonitorTaskController extends BasicController {
 		
 		List<Integer> statuses = new ArrayList<>();
 		if (status == null) {
-			status = 3; // 如果没有传参status, 默认取3：待审核
+			status = MonitorTaskStatus.UNVERIFY.getId(); // 如果没有传参status, 默认取3：待审核
 		}
 		statuses.add(status);
 		vo.putSearchParam("statuses", null, statuses);
@@ -716,7 +717,7 @@ public class MonitorTaskController extends BasicController {
 			@RequestParam(value = "mediaId", required = false) Integer mediaId) {
 		Map condition = Maps.newHashMap();
 		// 指派人员改成指派给媒体人员
-		condition.put("usertype", 3); // 3: 媒体监测人员
+		condition.put("usertype", AppUserTypeEnum.MEDIA.getId()); // 3: 媒体监测人员
 		if (mediaId != null) {
 			AdMedia media = mediaService.getById(mediaId);
 			condition.put("operateId", media.getUserId());

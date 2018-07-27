@@ -930,8 +930,8 @@ public class ExcelController extends BasicController {
                     			}
                     		}
                     		if(info.getMediaId() == null) {
-                    			lo.set(18, IMPORT_FAIL);
-                        		lo.set(19, ExcelImportFailEnum.MEDIA_INVAILD.getText());
+                    			lo.set(17, IMPORT_FAIL);
+                        		lo.set(18, ExcelImportFailEnum.MEDIA_INVAILD.getText());
                         		hasProblem = true;
                     		}
                     	}

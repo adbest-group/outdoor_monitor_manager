@@ -86,7 +86,7 @@ public class CityUtil {
 //            writer.newLine();
 //            writer.write("(" + entry.getKey() + ",'" + entry.getValue() + "'),");
 //            if(isRegion(Integer.valueOf(entry.getKey()))){
-//                String jdStr = HttpClientHelper.getInstance().doGet("http://passer-by.com/data_location/town/"+entry.getKey()+".json");
+//                String jdStr = HttpClientHelper.getInstance().doGet("/api/city?provinceId="+entry.getKey()+".json");
 //                Map<String,String> jds = GsonUtil.GsonToMaps(jdStr);
 //                if(jds!=null) {
 //                    for (Map.Entry<String, String> jd : jds.entrySet()) {

@@ -30,6 +30,7 @@ import com.bt.om.entity.AdUserPoint;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AbandonTaskVo;
+import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.entity.vo.AllAdMonitorTaskVo;
@@ -523,6 +524,16 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         //获取监测任务
         AdMonitorTask task = adMonitorTaskMapper.selectByPrimaryKey(taskId);
         
+        //每次更新广告位经纬度
+        if (feedback.getLat()!=null&feedback.getLon()!=null) {
+        	AdActivityAdseatVo adseatVo = adActivityAdseatMapper.selectVoById(task.getActivityAdseatId());
+            AdSeatInfo adSeatInfo = new AdSeatInfo();
+            adSeatInfo.setId(adseatVo.getAdSeatId());
+            adSeatInfo.setLat(feedback.getLat());
+            adSeatInfo.setLon(feedback.getLon());
+            adSeatInfoMapper.updateByPrimaryKeySelective(adSeatInfo);
+		}
+        
         //上刊任务添加用户积分
         if(task.getTaskType() == MonitorTaskType.UP_TASK.getId()) {
 //        	AdPoint adPoint = adPointMapper.selectByPointType(4);//上刊任务
@@ -550,11 +561,11 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         
         //获取任务对应的广告位
         AdSeatInfo seatInfo = adSeatInfoMapper.getAdSeatInfoByAdActivitySeatId(task.getActivityAdseatId());
-        if(seatInfo.getLon() == null || seatInfo.getLat() == null) {
-        	seatInfo.setLon(feedback.getLon());
-        	seatInfo.setLat(feedback.getLat());
-        	adSeatInfoMapper.updateByPrimaryKeySelective(seatInfo);
-        }
+//        if(seatInfo.getLon() == null || seatInfo.getLat() == null) {
+//        	seatInfo.setLon(feedback.getLon());
+//        	seatInfo.setLat(feedback.getLat());
+//        	adSeatInfoMapper.updateByPrimaryKeySelective(seatInfo);
+//        }
         
         //如果检测任务当前处于"待执行"或"审核未通过"
         if (task.getStatus() == MonitorTaskStatus.TO_CARRY_OUT.getId() || task.getStatus() == MonitorTaskStatus.VERIFY_FAILURE.getId()) {

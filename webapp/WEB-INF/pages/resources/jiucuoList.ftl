@@ -250,8 +250,7 @@
         $town.hide().empty();
         if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
             $.ajax({
-                url : 'http://passer-by.com/data_location/town/' + info['code']
-                + '.json',
+                url : '/api/city?provinceId=' + info['code'],
                 dataType : 'json',
                 success : function(town) {
                     $town.show();

@@ -1,22 +1,22 @@
 package com.bt.om.enums;
 
 /**
- * 活动状态 枚举
- * 对应 ad_activity 表的 status
+ * APP执行的任务类型
  */
-public enum ActivityStatus {
-    UNCONFIRM(1,"未确认"),CONFIRMED(2,"已确认"),COMPLETE(3,"已结束"),TIMEOUT(4,"超时未确认");
+public enum AppTaskEnum {
+    MONITOR_TASK(1, "监测任务"),
+    JIUCUO_TASK(2, "纠错任务");
 
     private Integer id;
     private String text;
 
-    ActivityStatus(int id,String text) {
+    AppTaskEnum(int id,String text) {
         this.id = id;
         this.text = text;
     }
 
     public static String getText(int id){
-        for(ActivityStatus e : ActivityStatus.values()){
+        for(AppTaskEnum e : AppTaskEnum.values()){
             if(e.getId() == id){
                 return e.getText();
             }
@@ -25,7 +25,7 @@ public enum ActivityStatus {
     }
 
     public static Integer getId(String text){
-        for(ActivityStatus e : ActivityStatus.values()){
+        for(AppTaskEnum e : AppTaskEnum.values()){
             if(e.getText().equals(text)){
                 return e.getId();
             }

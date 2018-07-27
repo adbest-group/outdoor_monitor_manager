@@ -1,25 +1,24 @@
 package com.bt.om.enums;
 
 /**
- * Created by caiting on 2018/4/11.
+ * 部门类型 枚举
+ * 对应 sys_resources 的 department_type
  */
-public enum UserExecuteType {
-    MONITOR(1,"监测人员"),
-    CUSTOMER(2,"客户人员"),
-    MEDIA_WORKER(3,"媒体人员"),
-    Social(4,"社会人员"),
-    THIRD_COMPANY(5,"第三方监测人员");
+public enum DepartmentTypeEnum {
+    ACTIVITY(1,"活动审核部门"),
+    MONITOR_TASK(2,"任务审核指派部门"),
+    JIUCUO_TASK(3,"纠错审核部门");
 
     private Integer id;
     private String text;
 
-    UserExecuteType(int id, String text) {
+    DepartmentTypeEnum(int id, String text) {
         this.id = id;
         this.text = text;
     }
 
     public static String getText(int id){
-        for(UserExecuteType e : UserExecuteType.values()){
+        for(DepartmentTypeEnum e : DepartmentTypeEnum.values()){
             if(e.getId() == id){
                 return e.getText();
             }
@@ -28,7 +27,7 @@ public enum UserExecuteType {
     }
 
     public static Integer getId(String text){
-        for(UserExecuteType e : UserExecuteType.values()){
+        for(DepartmentTypeEnum e : DepartmentTypeEnum.values()){
             if(e.getText().equals(text)){
                 return e.getId();
             }

@@ -61,7 +61,6 @@
                         <th>类型</th>
                         <th>站内信内容</th>                        
                         <th>是否已处理</th>
-                        <th>创建时间</th>
                         <th>更新时间</th>
                     </tr>
                     </thead>
@@ -75,7 +74,6 @@
                             </td>
                             <td>${list.content?if_exists}</td>
                             <td>${vm.getUserMessageText(list.isFinish)!""}</td>
-                            <td>${list.createTime?string('yyyy-MM-dd HH:mm:ss')}</td>
                             <td>${list.updateTime?string('yyyy-MM-dd HH:mm:ss')}</td>
                         </tr>
                         </#list>

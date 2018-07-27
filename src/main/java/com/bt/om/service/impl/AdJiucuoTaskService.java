@@ -24,6 +24,7 @@ import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdJiucuoTaskMobileVo;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.enums.DepartmentTypeEnum;
 import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.MessageIsFinish;
 import com.bt.om.enums.MessageType;
@@ -31,6 +32,7 @@ import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.enums.UserTypeEnum;
 import com.bt.om.mapper.AdActivityAdseatMapper;
 import com.bt.om.mapper.AdActivityMapper;
 import com.bt.om.mapper.AdJiucuoTaskFeedbackMapper;
@@ -258,8 +260,8 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
         
         List<Integer> list = new ArrayList<>();
 		List<Integer> cuslist = new ArrayList<>();
-        list = sysUserMapper.getUserId(4);//4：超级管理员
-        Integer dep_id = sysResourcesMapper.getUserId(3);//3：纠错审核部门
+        list = sysUserMapper.getUserId(UserTypeEnum.SUPER_ADMIN.getId());//4：超级管理员
+        Integer dep_id = sysResourcesMapper.getUserId(DepartmentTypeEnum.JIUCUO_TASK.getId());//3：纠错审核部门
         List<AdUserMessage> message = new ArrayList<>();
 		
 		AdActivity adActivity = null;
@@ -278,12 +280,11 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
         }
         cuslist = sysUserResMapper.getAnotherUserId(resId, 1);//获取组下面的员工id集合
         List<Integer> userIdList = new ArrayList<>();
-        for(Integer i : list) {
-        	userIdList.add(i);
-        }
-        for(Integer i: cuslist) {
-        	userIdList.add(i);
-        }
+        userIdList.addAll(list);
+        userIdList.addAll(cuslist);
+        list.removeAll(list);
+        list = sysUserMapper.getUserId(UserTypeEnum.PHONE_OPERATOR.getId());//6:呼叫中心人员
+        userIdList.addAll(list);
         userIdList.add(dep_id);
         
         SysUserExecute sysUserExecute = sysUserExecuteMapper.selectByPrimaryKey(task.getUserId()); //获取app提交人员的信息

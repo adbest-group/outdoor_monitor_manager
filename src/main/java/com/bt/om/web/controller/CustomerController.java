@@ -24,6 +24,7 @@ import com.bt.om.entity.SysRole;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.ResultCode;
+import com.bt.om.enums.UserTypeEnum;
 import com.bt.om.service.IAppService;
 import com.bt.om.service.ICustomerService;
 import com.bt.om.service.ISysUserService;
@@ -54,7 +55,7 @@ public class CustomerController {
                           @RequestParam(value = "name", required = false) String name) {
         SearchDataVo vo = SearchUtil.getVo();
 
-        vo.putSearchParam("usertype", null, 2);
+        vo.putSearchParam("usertype", null, UserTypeEnum.CUSTOMER.getId());
         // 名称或登录账号
         if (StringUtils.isNotBlank(name)) {
             vo.putSearchParam("nameOrUsername", name, "%" + name + "%");
@@ -150,7 +151,7 @@ public class CustomerController {
                 user.setRealname(name);
                 user.setTelephone(telephone);
                 user.setPlatform(1);
-                user.setUsertype(2);
+                user.setUsertype(UserTypeEnum.CUSTOMER.getId());
                 user.setStatus(1);
                 user.setCustomerTypeId(customerTypeId);
                 user.setAppTypeId(appTypeId);

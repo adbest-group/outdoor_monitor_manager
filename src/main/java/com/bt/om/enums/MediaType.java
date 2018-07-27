@@ -1,7 +1,8 @@
 package com.bt.om.enums;
 
 /**
- * Created by caiting on 2018/1/20.
+ * 媒体类型 枚举
+ * 对应 ad_media_type 的 media_type
  */
 public enum MediaType {
     PARENT_TYPE(1,"媒体大类"),

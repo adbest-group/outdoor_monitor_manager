@@ -1,22 +1,23 @@
 package com.bt.om.enums;
 
 /**
- * 活动状态 枚举
- * 对应 ad_activity 表的 status
+ * 登录日志类型 枚举 
+ * 对应 login_log 表的 type
  */
-public enum ActivityStatus {
-    UNCONFIRM(1,"未确认"),CONFIRMED(2,"已确认"),COMPLETE(3,"已结束"),TIMEOUT(4,"超时未确认");
+public enum LoginLogTypeEnum {
+    PLATFORM(0,"后台"),
+    APP(1,"APP");
 
     private Integer id;
     private String text;
 
-    ActivityStatus(int id,String text) {
+    LoginLogTypeEnum(int id,String text) {
         this.id = id;
         this.text = text;
     }
 
     public static String getText(int id){
-        for(ActivityStatus e : ActivityStatus.values()){
+        for(LoginLogTypeEnum e : LoginLogTypeEnum.values()){
             if(e.getId() == id){
                 return e.getText();
             }
@@ -25,7 +26,7 @@ public enum ActivityStatus {
     }
 
     public static Integer getId(String text){
-        for(ActivityStatus e : ActivityStatus.values()){
+        for(LoginLogTypeEnum e : LoginLogTypeEnum.values()){
             if(e.getText().equals(text)){
                 return e.getId();
             }

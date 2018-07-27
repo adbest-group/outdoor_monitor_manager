@@ -37,9 +37,11 @@ import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.entity.vo.AdSeatCount;
 import com.bt.om.entity.vo.AdSeatInfoVo;
 import com.bt.om.enums.ActivityStatus;
+import com.bt.om.enums.AllowMultiEnum;
 import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
+import com.bt.om.enums.UserTypeEnum;
 import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
@@ -162,7 +164,7 @@ public class CustomerActivityControl extends BasicController {
         if(user != null) {
         	model.addAttribute("user", user);
         	model.addAttribute("usertype", user.getUsertype());
-        	if (user.getUsertype()==2&&user.getId().intValue()!=activity.getUserId().intValue()) {
+        	if (user.getUsertype()==UserTypeEnum.CUSTOMER.getId() &&user.getId().intValue()!=activity.getUserId().intValue()) {
         		return PageConst.NO_AUTHORITY;
 			}
         }
@@ -249,11 +251,11 @@ public class CustomerActivityControl extends BasicController {
         for (AdSeatCount adSeatCount : adSeatCounts) {
 			if(adSeatCount != null) {
 				//判断是否要移除
-				if(adSeatCount.getAllowMulti() == 0 && adSeatCount.getCount() >= 1) {
+				if(adSeatCount.getAllowMulti() == AllowMultiEnum.NOT_ALLOW.getId() && adSeatCount.getCount() >= 1) {
 					//否：不允许同时有多个活动; 当前广告位正在参与活动的数量 大于等于 1
 					adseatInfoIds.add(adSeatCount.getAdseatId());
 				}
-				if(adSeatCount.getAllowMulti() == 1 && adSeatCount.getCount() >= adSeatCount.getMultiNum()) {
+				if(adSeatCount.getAllowMulti() == AllowMultiEnum.ALLOW.getId() && adSeatCount.getCount() >= adSeatCount.getMultiNum()) {
 					//是: 允许同时有多个活动; 当前广告位正在参与活动的数量 大于等于 最大允许数量
 					adseatInfoIds.add(adSeatCount.getAdseatId());
 				}
@@ -342,11 +344,11 @@ public class CustomerActivityControl extends BasicController {
             for (AdSeatCount adSeatCount : adSeatCounts) {
     			if(adSeatCount != null) {
     				//判断是否要移除
-    				if(adSeatCount.getAllowMulti() == 0 && adSeatCount.getCount() >= 1) {
+    				if(adSeatCount.getAllowMulti() == AllowMultiEnum.NOT_ALLOW.getId() && adSeatCount.getCount() >= 1) {
     					//否：不允许同时有多个活动; 当前广告位正在参与活动的数量 大于等于 1
     					problemInfoIds.add(adSeatCount.getAdseatId());
     				}
-    				if(adSeatCount.getAllowMulti() == 1 && adSeatCount.getCount() >= adSeatCount.getMultiNum()) {
+    				if(adSeatCount.getAllowMulti() == AllowMultiEnum.ALLOW.getId() && adSeatCount.getCount() >= adSeatCount.getMultiNum()) {
     					//是: 允许同时有多个活动; 当前广告位正在参与活动的数量 大于等于 最大允许数量
     					problemInfoIds.add(adSeatCount.getAdseatId());
     				}

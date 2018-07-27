@@ -25,6 +25,8 @@ import com.bt.om.entity.SysUserDetail;
 import com.bt.om.entity.SysUserRole;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
+import com.bt.om.enums.UserRoleEnum;
+import com.bt.om.enums.UserTypeEnum;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.service.impl.SysUserService;
@@ -57,7 +59,7 @@ public class SysUserController extends BasicController{
             vo.putSearchParam("nameOrUsername", name, name);
         }
         
-        Integer usertype = 5;
+        Integer usertype = UserTypeEnum.DEPARTMENT_LEADER.getId();
         vo.putSearchParam("usertype", usertype.toString(), usertype);
         sysUserService.getPageData(vo);
         
@@ -118,7 +120,7 @@ public class SysUserController extends BasicController{
             	sysUser.setCreateTime(now);
             	sysUser.setUpdateTime(now);
             	sysUser.setPlatform(1);
-            	sysUser.setUsertype(5); //5：部门领导
+            	sysUser.setUsertype(UserTypeEnum.DEPARTMENT_LEADER.getId()); //5：部门领导
             	sysUser.setStatus(1); //1：可用（默认）
             	sysUser.setPassword(new Md5Hash(sysUser.getPassword(), sysUser.getUsername()).toString());
             	//[2] 插入sys_user_detail
@@ -131,7 +133,7 @@ public class SysUserController extends BasicController{
             	SysUserRole sysUserRole = new SysUserRole();
             	sysUserRole.setPlatform(1);
             	sysUserRole.setUserId(sysUser.getId());
-            	sysUserRole.setRoleId(104); //104: 部门领导role
+            	sysUserRole.setRoleId(UserRoleEnum.DEPARTMENT_LEADER.getId()); //104: 部门领导role
             	sysUserRole.setCreateTime(now);
             	sysUserRole.setUpdateTime(now);
             	sysUserService.createDepartmentLeader(sysUser, sysUserDetail, sysUserRole);
@@ -146,6 +148,7 @@ public class SysUserController extends BasicController{
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }
+    
     /**
      * 修改领导账号状态： 可用, 不可用
      **/

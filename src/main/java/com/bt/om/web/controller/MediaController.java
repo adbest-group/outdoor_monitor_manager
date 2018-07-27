@@ -21,6 +21,7 @@ import com.bt.om.entity.SysRole;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.ResultCode;
+import com.bt.om.enums.UserTypeEnum;
 import com.bt.om.service.IMediaService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.vo.web.ResultVo;
@@ -48,7 +49,7 @@ public class MediaController {
                           @RequestParam(value = "name", required = false) String name) {
         SearchDataVo vo = SearchUtil.getVo();
 
-        vo.putSearchParam("usertype", null, 3);
+        vo.putSearchParam("usertype", null, UserTypeEnum.MEDIA.getId());
         // 名称或登录账号
         if (StringUtils.isNotBlank(name)) {
             vo.putSearchParam("nameOrUsername", name, "%" + name + "%");
@@ -80,7 +81,7 @@ public class MediaController {
     }
 
     /**
-     * 检查是否重名
+     * 检查后台用户名是否重名
      **/
     @RequestMapping(value = {"isExistsAccountName"}, method = {RequestMethod.POST})
     @ResponseBody
@@ -153,7 +154,7 @@ public class MediaController {
                 user.setRealname(name);
                 user.setTelephone(telephone);
                 user.setPlatform(1);
-                user.setUsertype(3);
+                user.setUsertype(UserTypeEnum.MEDIA.getId());
                 user.setStatus(1);
                 user.setPrefix(prefix);
                 mediaService.add(user);

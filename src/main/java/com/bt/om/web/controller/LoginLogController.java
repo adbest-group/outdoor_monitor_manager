@@ -11,14 +11,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.bt.om.common.web.PageConst;
-import com.bt.om.entity.SysUser;
-import com.bt.om.enums.SessionKey;
-import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.ILoginLogService;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.util.SearchUtil;
 
-import cn.jiguang.common.connection.IHttpClient.RequestMethod;
+/**
+ * 登录日志 控制类
+ */
 @Controller
 @RequestMapping("/root")
 public class LoginLogController {

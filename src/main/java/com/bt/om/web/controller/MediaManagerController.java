@@ -55,6 +55,7 @@ import com.bt.om.service.IAdSeatService;
 import com.bt.om.service.IResourceService;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.service.ISysUserService;
+import com.bt.om.util.NumberUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.util.SearchUtil;
@@ -542,6 +543,12 @@ public class MediaManagerController {
             		}
             	}
             	
+            	if (NumberUtil.parseDouble(adSeatInfo.getWidth())!=0&&NumberUtil.parseDouble(adSeatInfo.getHeight())!=0) {
+            		double area = NumberUtil.divideInHalfUp(NumberUtil.multiply(adSeatInfo.getWidth(), adSeatInfo.getHeight()).toString(),"10000" , 3).doubleValue();
+					adSeatInfo.setAdArea(area + "");
+				}else {
+					adSeatInfo.setAdArea("");
+				}
             	//修改
                 adSeatService.modify(adSeatInfo);
             } else {
@@ -595,6 +602,12 @@ public class MediaManagerController {
 //        		QRcodeUtil.encode(adCodeInfo, path);
 //        		adSeatInfo.setAdCode(adCodeInfo);
 //        		adSeatInfo.setAdCodeUrl("/static/qrcode/" + adCodeInfo + ".jpg");
+        		if (NumberUtil.parseDouble(adSeatInfo.getWidth())!=0&&NumberUtil.parseDouble(adSeatInfo.getHeight())!=0) {
+            		double area = NumberUtil.divideInHalfUp(NumberUtil.multiply(adSeatInfo.getWidth(), adSeatInfo.getHeight()).toString(),"10000" , 3).doubleValue();
+					adSeatInfo.setAdArea(area + "");
+				}else {
+					adSeatInfo.setAdArea("");
+				}
         		
         		//默认没有贴上二维码
         		adSeatInfo.setCodeFlag(0);

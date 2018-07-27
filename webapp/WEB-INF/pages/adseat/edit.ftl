@@ -142,7 +142,7 @@
                         <tr>
 							<td class="a-title">广告位面积：</td>
 							<td><input type="text" style="width: 130px;" id="adArea" name="adArea" <#if user.usertype ==6>disabled</#if> value="<#if (adSeatInfo?exists)>${adSeatInfo.adArea!""}</#if>"
-								autocomplete="off" class="form-control">
+								autocomplete="off" class="form-control" readonly="readonly">
                                 <span id="adAreaTip"></span>
 							</td>
 						</tr>
@@ -610,7 +610,7 @@
         $("#adArea").formValidator({
             validatorGroup:"2",
             onShow: "　",
-            onFocus: "请输入面积(㎡)",
+            onFocus: "面积(㎡)",
             onCorrect: ""
        }).inputValidator({
             type:"number",
@@ -723,8 +723,7 @@
         $town.hide().empty();
         if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
             $.ajax({
-                url: 'http://passer-by.com/data_location/town/' + info['code']
-                + '.json',
+                url: '/api/city?provinceId=' + info['code'],
                 dataType: 'json',
                 success: function (town) {
                     $town.show();
@@ -756,5 +755,25 @@
         $(window).resize();
 
     });
+    /*动态计算广告面积*/
+	$("#width,#height").on("input",function(e){
+        //获取input输入的值
+        var width = $("#width").val();
+        var height = $("#height").val();
+        if(isNumber(width) && isNumber(height)){
+        	$("#adArea").val(parseFloat((width*height/10000).toFixed(3)));
+        }else{
+        	$("#adArea").val('');
+        }
+    });
+    function isNumber(val){
+	    var regPos = /^\d+(\.\d+)?$/; //非负浮点数
+	    var regNeg = /^(-(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*)))$/; //负浮点数
+	    if(regPos.test(val) || regNeg.test(val)){
+	        return true;
+	    }else{
+	        return false;
+	    }
+	}
 </script>
 <@model.webend />

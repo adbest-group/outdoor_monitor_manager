@@ -49,6 +49,7 @@ import com.bt.om.service.ILoginLogService;
 import com.bt.om.service.ISysGroupService;
 import com.bt.om.service.impl.LoginLogService;
 import com.bt.om.util.AddressUtils;
+import com.bt.om.util.ConfigUtil;
 import com.bt.om.util.RequestUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -69,6 +70,7 @@ public class LoginController extends BasicController {
 	private SysRoleMapper sysRoleMapper;
 	@Autowired
 	private ILoginLogService loginLogService;
+	private String session_timeout = ConfigUtil.getString("session.timeout");
     /**
      * 跳转到登录页
      *
@@ -203,7 +205,7 @@ public class LoginController extends BasicController {
             model.addAttribute("username", user.getUsername());
             return PageConst.LOGIN_PAGE;
         }
-
+        subject.getSession().setTimeout(Long.valueOf(session_timeout));
         List<SysMenu> menuList = (List<SysMenu>) ShiroUtils
                 .getSessionAttribute(SessionKey.SESSION_USER_MENU.toString());
         if (menuList != null && menuList.size() > 0) {

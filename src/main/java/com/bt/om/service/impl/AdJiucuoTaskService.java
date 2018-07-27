@@ -20,6 +20,7 @@ import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.AdUserMessage;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
+import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdJiucuoTaskMobileVo;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
@@ -247,6 +248,15 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
         feedback.setCreateTime(now);
         feedback.setUpdateTime(now);
         adJiucuoTaskFeedbackMapper.insert(feedback);
+        
+        //每次更新广告位经纬度
+        if (feedback.getLat()!=null&feedback.getLon()!=null) {
+	        AdSeatInfo adSeat = new AdSeatInfo();
+	        adSeat.setId(task.getAdSeatId());
+	        adSeat.setLat(feedback.getLat());
+	        adSeat.setLon(feedback.getLon());
+	        adSeatInfoMapper.updateByPrimaryKeySelective(adSeat);
+        }
         
         List<Integer> list = new ArrayList<>();
 		List<Integer> cuslist = new ArrayList<>();

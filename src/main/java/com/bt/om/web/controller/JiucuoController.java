@@ -46,6 +46,7 @@ import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.enums.UserTypeEnum;
 import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
@@ -57,8 +58,8 @@ import com.bt.om.service.ISysGroupService;
 import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserRoleService;
 import com.bt.om.service.ISysUserService;
-import com.bt.om.util.MarkLogoUtil;
 import com.bt.om.util.ConfigUtil;
+import com.bt.om.util.MarkLogoUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
@@ -163,7 +164,7 @@ public class JiucuoController extends BasicController {
         	name = "%" + name + "%";
             vo.putSearchParam("activityName", name, name);
         }
-		if (userObj.getUsertype() != 4 && userObj.getUsertype() != 5) {
+		if (userObj.getUsertype() != UserTypeEnum.SUPER_ADMIN.getId() && userObj.getUsertype() != UserTypeEnum.DEPARTMENT_LEADER.getId()) {
 			List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId()); // 根据员工id查询所属组对应的所有广告商id集合
 			if (customerIds != null && customerIds.size() == 0) {
 				// 员工对应的广告商id集合为空, 不需要再去查询纠错审核列表
@@ -296,9 +297,6 @@ public class JiucuoController extends BasicController {
 	/**
 	 * 查看纠错详情
 	 */
-	// @RequiresRoles(value =
-	// {"jiucuoadmin","superadmin","depjiucuoadmin","deptaskadmin","taskadmin"},logical
-	// = Logical.OR)
 	@RequestMapping(value = "/detail")
 	public String showDetail(Model model, HttpServletRequest request,
 			@RequestParam(value = "id", required = false) Integer id) {
@@ -466,8 +464,6 @@ public class JiucuoController extends BasicController {
 	/**
 	 * 关闭纠错问题任务
 	 */
-	// @RequiresRoles(value = {"jiucuoadmin", "depjiucuoadmin", "superadmin"},
-	// logical = Logical.OR)
 	@RequestMapping(value = "/close")
 	@ResponseBody
 	public Model close(Model model, HttpServletRequest request,
@@ -496,8 +492,6 @@ public class JiucuoController extends BasicController {
 	/**
 	 * 创建复查子任务
 	 */
-	// @RequiresRoles(value = {"jiucuoadmin", "depjiucuoadmin", "superadmin"},
-	// logical = Logical.OR)
 	@RequestMapping(value = "/createTask")
 	@ResponseBody
 	public Model newSub(Model model, HttpServletRequest request,

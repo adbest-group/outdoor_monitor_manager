@@ -82,6 +82,7 @@ import com.bt.om.entity.vo.ProvinceAndCity;
 import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.AdCodeFlagEnum;
 import com.bt.om.enums.AdMediaInfoStatus;
+import com.bt.om.enums.AdPointEnum;
 import com.bt.om.enums.AppTaskEnum;
 import com.bt.om.enums.AppUpdateTypeEnum;
 import com.bt.om.enums.AppUserTaskEnum;
@@ -89,6 +90,7 @@ import com.bt.om.enums.AppUserTypeEnum;
 import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.LoginLogTypeEnum;
 import com.bt.om.enums.MonitorTaskStatus;
+import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
@@ -1860,7 +1862,7 @@ public class ApiController extends BasicController {
 
         SysUserExecute user = getLoginUser(request, token);
 
-        if(user.getUsertype()==3){
+        if(user.getUsertype()==AppUserTypeEnum.MEDIA.getId()){
             result.setResult(adSeatService.getByStreetAndMediaUserId(street,user.getOperateId()));
         }else{
             result.setResult(Lists.newArrayList());
@@ -1978,6 +1980,8 @@ public class ApiController extends BasicController {
         			if(appVersionInt < versionInt) {
         				//需要强制更新
         				needForceUpdate = AppUpdateTypeEnum.FORCE_UPDATE.getId();
+        				model.addAttribute("apkUrl", version.getApkUrl());
+                    	model.addAttribute("iosUrl", version.getIosUrl());
         				break;
         			} else if(appVersionInt > versionInt) {
         				//不需要强制更新
@@ -1986,8 +1990,6 @@ public class ApiController extends BasicController {
         			}
         		}
             	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
-            	model.addAttribute("apkUrl", version.getApkUrl());
-            	model.addAttribute("iosUrl", version.getIosUrl());
             }
             
             //【2】判断版本号比较, 提示是否更新
@@ -2021,9 +2023,11 @@ public class ApiController extends BasicController {
 			}
             
             if(needForceUpdate == AppUpdateTypeEnum.LATEEST_VERSION.getId()) {
-        		result.setResultDes("有新版本，可去更新！新版本号：" + nowVersion.getAppVersion());
+        		result.setResultDes("最新版本");
         	} else if(needForceUpdate == AppUpdateTypeEnum.FORCE_UPDATE.getId()) {
         		result.setResultDes("有新版本，需要强制更新！新版本号：" + version.getAppVersion());
+        	} else if(needForceUpdate == AppUpdateTypeEnum.CAN_UPDATE.getId()) {
+        		result.setResultDes("有新版本，可以更新！新版本号：" + version.getAppVersion());
         	} else {
         		result.setResultDes("最新版本！");
         	}
@@ -2676,9 +2680,9 @@ public class ApiController extends BasicController {
         	SysUserExecute sysUserExecute = sysUserExecuteService.getMobile(inviteAcc);
         	if(sysUserExecute!=null) {
         		//邀请码输入正确   ,获得邀请注册默认积分
-        		AdPoint adpoint = pointService.findPointValue(1);
+        		AdPoint adpoint = pointService.findPointValue(AdPointEnum.INVITE_REGIST.getId());
         		//正常注册，获得默认注册积分
-        		AdPoint adpointreg = pointService.findPointValue(9);
+        		AdPoint adpointreg = pointService.findPointValue(AdPointEnum.NORMAL_REGIST.getId());
         		
         		//正常注册
             	String md5Pwd = new Md5Hash(password, username).toString();
@@ -2715,7 +2719,7 @@ public class ApiController extends BasicController {
         	}
         }else {
 	        //正常注册(注册的人添加的积分是"正常注册")
-        	AdPoint adpointreg = pointService.findPointValue(9); //正常注册
+        	AdPoint adpointreg = pointService.findPointValue(AdPointEnum.NORMAL_REGIST.getId()); //正常注册
 	    	String md5Pwd = new Md5Hash(password, username).toString();
 	
 	        userExecute = new SysUserExecute();
@@ -3323,11 +3327,11 @@ public class ApiController extends BasicController {
         vo.setId(monitorTaskId);
         vo.setAbandonTime(now);
         vo.setUpdateTime(now);
-        vo.setUserTaskStatus(2); //1.正常 2.主动放弃 3.超时回收
+        vo.setUserTaskStatus(AppUserTaskEnum.ABANDON.getId()); //1.正常 2.主动放弃 3.超时回收
         
-        if(user.getUsertype().equals(4)) {
+        if(user.getUsertype().equals(AppUserTypeEnum.SOCIAL.getId())) {
         	//[1] 社会人员抢单 放弃任务
-        	if(adMonitorTask.getStatus() == 2 || adMonitorTask.getStatus() == 6) {
+        	if(adMonitorTask.getStatus() == MonitorTaskStatus.TO_CARRY_OUT.getId() || adMonitorTask.getStatus() == MonitorTaskStatus.UN_FINISHED.getId()) {
             	//[2] 判断24+12小时的逻辑, 将状态改成 1：待指派 或 8：可抢单
                 /**
                  * monitor_date + monitor_last_days - 2天 + 12小时 < now
@@ -3336,14 +3340,14 @@ public class ApiController extends BasicController {
                 Date monitorDate = adMonitorTask.getMonitorDate();
                 Integer monitorLastDays = adMonitorTask.getMonitorLastDays();
                 if(monitorDate.getTime() <= now.getTime() - monitorLastDays*24*60*60*1000 + 2*24*60*60*1000 - 12*60*60*1000) {
-                	vo.setTaskStatus(1); //1：待指派
+                	vo.setTaskStatus(MonitorTaskStatus.UNASSIGN.getId()); //1：待指派
                 } else {
-                	vo.setTaskStatus(8); //8：可抢单
+                	vo.setTaskStatus(MonitorTaskStatus.CAN_GRAB.getId()); //8：可抢单
                 }
             }
-        } else if(user.getUsertype().equals(3)) {
+        } else if(user.getUsertype().equals(AppUserTypeEnum.MEDIA.getId())) {
         	//[1] 媒体监测人员抢单(自己媒体公司下的任务) 放弃任务直接改回待指派
-        	vo.setTaskStatus(1); //1：待指派
+        	vo.setTaskStatus(MonitorTaskStatus.UNASSIGN.getId()); //1：待指派
         }
         
         //[3] 联表更新
@@ -3490,23 +3494,23 @@ public class ApiController extends BasicController {
 					if(pictureVo.getDate() != null) {
 						//代表有人做过该任务
 						pictureVo.setTime(DateUtil.dateFormate(pictureVo.getDate(), "yyyy-MM-dd HH:mm:ss"));
-						if(StringUtil.equals(pictureVo.getTaskType(), "1")) {
+						if(StringUtil.equals(pictureVo.getTaskType(), MonitorTaskType.UP_MONITOR.getId() + "")) {
 							//1：上刊监测
 							pictureVo.setTaskType("上刊监测");
 							upPics.add(pictureVo);
-						} else if(StringUtil.equals(pictureVo.getTaskType(), "2")) {
+						} else if(StringUtil.equals(pictureVo.getTaskType(), MonitorTaskType.DURATION_MONITOR.getId() + "")) {
 							//2：投放期间监测
 							pictureVo.setTaskType("投放期间监测");
 							durationPics.add(pictureVo);
-						} else if(StringUtil.equals(pictureVo.getTaskType(), "3")) {
+						} else if(StringUtil.equals(pictureVo.getTaskType(), MonitorTaskType.DOWNMONITOR.getId() + "")) {
 							//3：下刊监测
 							pictureVo.setTaskType("下刊监测");
 							downPics.add(pictureVo);
-						} else if(StringUtil.equals(pictureVo.getTaskType(), "5")) {
+						} else if(StringUtil.equals(pictureVo.getTaskType(), MonitorTaskType.UP_TASK.getId() + "")) {
 							//5：上刊任务
 							pictureVo.setTaskType("上刊任务");
 							upTaskPics.add(pictureVo);
-						} else if(StringUtil.equals(pictureVo.getTaskType(), "6")) {
+						} else if(StringUtil.equals(pictureVo.getTaskType(), MonitorTaskType.ZHUIJIA_MONITOR.getId() + "")) {
 							//6：追加监测任务
 							pictureVo.setTaskType("追加监测");
 							zhuijiaPics.add(pictureVo);

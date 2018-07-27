@@ -38,13 +38,16 @@ import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.entity.vo.AdSeatInfoVo;
 import com.bt.om.entity.vo.SysUserVo;
+import com.bt.om.enums.AdCodeFlagEnum;
 import com.bt.om.enums.AllowMultiEnum;
+import com.bt.om.enums.AppUserTypeEnum;
 import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.enums.UserTypeEnum;
 import com.bt.om.mapper.AdMediaMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
@@ -507,7 +510,7 @@ public class MediaManagerController {
         		adSeatInfo.setMultiNum(1);
         		adSeatInfo.setAllowMulti(AllowMultiEnum.NOT_ALLOW.getId());
         	}
-        	if(adSeatInfo.getAllowMulti() == 0) {
+        	if(adSeatInfo.getAllowMulti() == AllowMultiEnum.NOT_ALLOW.getId()) {
         		adSeatInfo.setMultiNum(1); //0代表不允许同时有多个活动, 设置活动数量为1
         	}
         	
@@ -578,7 +581,7 @@ public class MediaManagerController {
                 AdMedia media = new AdMedia();
             	SysUserVo mediaUser = new SysUserVo();
         		Integer usertype = user.getUsertype();
-        		if (usertype == 3) {
+        		if (usertype == UserTypeEnum.MEDIA.getId()) {
         			//媒体人员自行添加 3：媒体账户
         			media = adMediaMapper.selectByUserId(user.getId()); //通过登录后台用户id查询AdMedia信息
         			mediaUser = sysUserService.findUserinfoById(media.getUserId()); //通过登录后台用户id查询媒体信息(比如二维码前缀)
@@ -597,7 +600,7 @@ public class MediaManagerController {
 //        		adSeatInfo.setAdCodeUrl("/static/qrcode/" + adCodeInfo + ".jpg");
         		
         		//默认没有贴上二维码
-        		adSeatInfo.setCodeFlag(0);
+        		adSeatInfo.setCodeFlag(AdCodeFlagEnum.NO.getId());
         		adSeatService.save(adSeatInfo, mediaUser.getId());
             }
         } catch (Exception e) {
@@ -727,7 +730,7 @@ public class MediaManagerController {
                           @RequestParam(value = "name", required = false) String name) {
         SearchDataVo vo = SearchUtil.getVo();
 
-        vo.putSearchParam("usertype", null, 3);
+        vo.putSearchParam("usertype", null, AppUserTypeEnum.MEDIA.getId());
         SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         vo.putSearchParam("operateId",null,user.getId());
         // 名称或登录账号
@@ -807,7 +810,7 @@ public class MediaManagerController {
                 user.setPassword(new Md5Hash(password, username).toString());
                 user.setRealname(name);
                 user.setMobile(username);
-                user.setUsertype(3);
+                user.setUsertype(AppUserTypeEnum.MEDIA.getId());
                 user.setStatus(1);
                 user.setOperateId(loginuser.getId());
                 user.setCompany(loginuser.getRealname());

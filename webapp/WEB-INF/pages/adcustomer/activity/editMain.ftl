@@ -875,6 +875,7 @@
 	    	localStorage.removeItem('fromUrl')
 	    });
 	});
+</script>
 
     $("#date_val").click(function () {
         if ($(".dsp-select").hasClass("hover")) {
@@ -2052,6 +2053,3 @@
             },
             onError: "只允许填写1-3的数字"
         });
-        
-
-</script>

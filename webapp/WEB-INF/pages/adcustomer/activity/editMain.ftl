@@ -1089,7 +1089,7 @@
                     dataType: "json",
                     success: function (datas) {
                     	isLoading = false;
-    	            	layer.closeAll('msg');
+    	            	layer.closeAll();
     	            	
                         var resultRet = datas.ret;
                         if (resultRet.code == 101) {
@@ -1130,7 +1130,7 @@
                     },
                     error: function (e) {
                     	isLoading = false;
-    	            	layer.closeAll('msg');
+    	            	layer.closeAll();
                         layer.confirm("服务忙，请稍后再试", {
                             icon: 5,
                             btn: ['确定'] //按钮

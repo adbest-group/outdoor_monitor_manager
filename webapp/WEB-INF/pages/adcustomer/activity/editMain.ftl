@@ -280,12 +280,12 @@
 							<td colspan="2">
 								<#if (editMode && activity.status==1)!true>
 									<input type="hidden" id="img-demo-bak"/>
-									<#if user.usertype !=6>
+									<#if usertype !=6>
                        					<div class="btn-file addBtn" id="resource_sel" style="width:74px;height:28px;top:0px;cursor:pointer;line-height:28px;padding:0px;color:#fff">
 										上传
 										<input type="file" id="img-demo" name="file" unselectable="on" onchange="uploadPic('img-demo')">
 									</div>
-									</#if> <span id="img-demoTip"></span>
+									</#if><span id="img-demoTip"></span>
 								</#if>
                    			</td>
 						</tr>

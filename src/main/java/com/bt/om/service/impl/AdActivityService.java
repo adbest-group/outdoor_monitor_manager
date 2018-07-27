@@ -171,12 +171,11 @@ public class AdActivityService implements IAdActivityService {
         List<Integer> cuslist = sysUserResMapper.getAnotherUserId(resId, 1);//获取组下面的员工id集合
         
         List<Integer> userIdList = new ArrayList<>();
-        for(Integer i : list) {
-        	userIdList.add(i);
-        }
-        for(Integer i: cuslist) {
-        	userIdList.add(i);
-        }
+        userIdList.addAll(list);
+        userIdList.addAll(cuslist);
+        list.removeAll(list);
+        list = sysUserMapper.getUserId(6);//6:呼叫中心人员
+        userIdList.addAll(list);
         userIdList.add(dep_id);
         
         List<AdUserMessage> message = new ArrayList<>();
@@ -333,9 +332,14 @@ public class AdActivityService implements IAdActivityService {
         //【2】添加上刊任务的站内信
         List<AdUserMessage> message = new ArrayList<>();
         List<Integer> userIds = new ArrayList<>();
+        List<Integer> list = new ArrayList<>();
         //查询添加站内信的用户id集合
 		userIds = sysUserMapper.getUserId(4);//超级管理员id
 		Integer dep_id = sysResourcesMapper.getUserId(2);//2：任务审核、指派部门
+		list = sysUserMapper.getUserId(6);//6:呼叫中心人员
+        for(Integer i : list) {
+        	userIds.add(i);
+        }
 		userIds.add(dep_id);
 
     	//[4] 确认操作在业务层方法里进行循环

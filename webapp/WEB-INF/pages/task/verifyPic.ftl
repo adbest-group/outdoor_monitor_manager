@@ -17,8 +17,8 @@
 					<div class="layui-form-item">
 					    <label class="layui-form-label">审核状态</label>
 					    <div class="layui-input-block">
-					      <input name="status" value="1" title="通过" checked="" type="radio">
-					      <input name="status" value="0" title="驳回" type="radio">
+					      <input name="status" value="1" title="通过" checked="" type="radio">通过
+					      <input name="status" value="0" title="驳回" type="radio">驳回
 					    </div>
 					 </div>
 				</tr>
@@ -62,8 +62,8 @@ $(function() {
                 url: "/task/savePicStatus",
                 type: "post",
                 data: {
-                	"id": id ,
-                    "status": status
+                	"id": id,
+                	"status" : status
                 },
                 cache: false,
                 dataType: "json",

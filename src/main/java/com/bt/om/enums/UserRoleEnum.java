@@ -2,6 +2,7 @@ package com.bt.om.enums;
 
 /**
  * 后台用户角色枚举
+ * 对应 sys_role
  */
 public enum UserRoleEnum {
     ADMIN(100,"员工默认角色"),

@@ -1,7 +1,7 @@
 package com.bt.om.enums;
 
 /**
- * 后台用户类型枚举
+ * APP用户类型枚举
  */
 public enum AppUserTypeEnum {
     CUSTOMER(2,"广告主"),

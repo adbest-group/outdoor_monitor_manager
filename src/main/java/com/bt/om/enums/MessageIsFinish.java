@@ -1,7 +1,8 @@
 package com.bt.om.enums;
 
 /**
- * Created by caiting on 2018/1/19.
+ * 站内信是否已处理 枚举
+ * 对应 sys_user_message 的 is_finish
  */
 public enum MessageIsFinish {
     CONFIRMED(0,"未处理"),UNCONFIRM(1,"已处理");

@@ -2,6 +2,7 @@ package com.bt.om.enums;
 
 /**
  * 是否允许多个活动 枚举类
+ * 对应 ad_seat_info 和 ad_media_type 的 allow_multi
  */
 public enum AllowMultiEnum {
     ALLOW(1,"是"),NOT_ALLOW(0,"否");

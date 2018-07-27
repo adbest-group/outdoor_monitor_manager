@@ -80,13 +80,18 @@ import com.bt.om.entity.vo.ParentMediaType;
 import com.bt.om.entity.vo.PictureVo;
 import com.bt.om.entity.vo.ProvinceAndCity;
 import com.bt.om.entity.vo.SysUserVo;
+import com.bt.om.enums.AdCodeFlagEnum;
 import com.bt.om.enums.AdMediaInfoStatus;
+import com.bt.om.enums.AppTaskEnum;
+import com.bt.om.enums.AppUpdateTypeEnum;
+import com.bt.om.enums.AppUserTaskEnum;
+import com.bt.om.enums.AppUserTypeEnum;
 import com.bt.om.enums.JiucuoTaskStatus;
+import com.bt.om.enums.LoginLogTypeEnum;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
-import com.bt.om.enums.UserExecuteType;
 import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
@@ -655,7 +660,7 @@ public class ApiController extends BasicController {
         Date now = new Date();	           
         LoginLog loginlog=new LoginLog();   
         loginlog.setUserId(userExecute.getId());
-        loginlog.setType(1);
+        loginlog.setType(LoginLogTypeEnum.APP.getId());
         loginlog.setIp(getIp());
         loginlog.setLocation(address);
         loginlog.setCreateTime(now);
@@ -987,7 +992,7 @@ public class ApiController extends BasicController {
         datavo.putSearchParam("userId",null,user.getId());
         
         //监测任务列表(已修改：添加了province, city, region, street, startTime, endTime, assignType)
-        if (type == 1) {
+        if (type == AppTaskEnum.MONITOR_TASK.getId()) {
         	if(status == MonitorTaskStatus.VERIFY.getId()) {
             	//9：已审核 包括 审核通过 和 审核未通过
             	List<Integer> statuses = new ArrayList<>();
@@ -999,7 +1004,7 @@ public class ApiController extends BasicController {
             }
             datavo.putSearchParam("updateTime", null, updateTime);
             //List<AdMonitorTaskMobileVo> tasks = adMonitorTaskService.getByUserIdForMobile(user.getId());
-            Integer userTaskStatus = 1; //状态：1.正常 2.主动放弃 3.超时回收
+            Integer userTaskStatus = AppUserTaskEnum.NORMAL.getId(); //状态：1.正常 2.主动放弃 3.超时回收 4.修改指派
             datavo.putSearchParam("userTaskStatus", null, userTaskStatus);
             adMonitorTaskService.getTaskPageData(datavo);
             List<AdMonitorTaskMobileVo> list = (List<AdMonitorTaskMobileVo>) datavo.getList();
@@ -1013,7 +1018,7 @@ public class ApiController extends BasicController {
                     vo.setRegion(cityCache.getCityName(task.getRegion()));
                     vo.setStreet(cityCache.getCityName(task.getStreet()));
                     //若没有贴上二维码, 清空二维码信息
-                    if(vo.getAdCodeFlag() == 0) {
+                    if(vo.getAdCodeFlag() == AdCodeFlagEnum.NO.getId()) {
                     	vo.setAd_seat_code(null);
                     	vo.setAdCode(null);
                     }
@@ -1026,7 +1031,7 @@ public class ApiController extends BasicController {
                     vo.setStreet(cityCache.getCityName(task.getStreet()));
                     
                     //若没有贴上二维码, 清空二维码信息
-                    if(vo.getAdCodeFlag() == 0) {
+                    if(vo.getAdCodeFlag() == AdCodeFlagEnum.NO.getId()) {
                     	vo.setAdCode(null);
                     }
                     resultVo.getExecuting().add(vo);
@@ -1037,7 +1042,7 @@ public class ApiController extends BasicController {
                     vo.setRegion(cityCache.getCityName(task.getRegion()));
                     vo.setStreet(cityCache.getCityName(task.getStreet()));
                     //若没有贴上二维码, 清空二维码信息
-                    if(vo.getAdCodeFlag() == 0) {
+                    if(vo.getAdCodeFlag() == AdCodeFlagEnum.NO.getId()) {
                     	vo.setAd_seat_code(null);
                     	vo.setAdCode(null);
                     }
@@ -1049,7 +1054,7 @@ public class ApiController extends BasicController {
                 	vo.setRegion(cityCache.getCityName(task.getRegion()));
                     vo.setStreet(cityCache.getCityName(task.getStreet()));
                     //若没有贴上二维码, 清空二维码信息
-                    if(vo.getAdCodeFlag() == 0) {
+                    if(vo.getAdCodeFlag() == AdCodeFlagEnum.NO.getId()) {
                     	vo.setAd_seat_code(null);
                     	vo.setAdCode(null);
                     }
@@ -1058,7 +1063,7 @@ public class ApiController extends BasicController {
             }
             
             result.setResult(resultVo);
-        } else if (type == 2) {
+        } else if (type == AppTaskEnum.JIUCUO_TASK.getId()) {
         	if(status == JiucuoTaskStatus.VERIFY.getId()) {
             	//4：纠错审核已结束 包括 审核通过 和 审核未通过
             	List<Integer> statuses = new ArrayList<>();
@@ -1145,7 +1150,7 @@ public class ApiController extends BasicController {
         }
         String path = request.getRealPath("/");
         path = path + (path.endsWith(File.separator) ? "" : File.separatorChar) + "static" + File.separatorChar + "upload" + File.separatorChar;
-        if (type == 1) {
+        if (type == AppTaskEnum.MONITOR_TASK.getId()) {
             //参数不对
             if (type == null || taskId == null || file1 == null || file2 == null || file3 == null || file4 == null) {
                 result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
@@ -1202,7 +1207,7 @@ public class ApiController extends BasicController {
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
             }
-        } else if (type == 2) {
+        } else if (type == AppTaskEnum.JIUCUO_TASK.getId()) {
             //参数不对
             if (type == null || adActivitySeatId == null || file1 == null) {
                 result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
@@ -1324,7 +1329,7 @@ public class ApiController extends BasicController {
         Calendar date = Calendar.getInstance();
         String timePath = date.get(Calendar.YEAR)+ File.separator + (date.get(Calendar.MONTH)+1) + File.separator+ date.get(Calendar.DAY_OF_MONTH) + File.separator;
         path = path + (path.endsWith(File.separator) ? "" : File.separatorChar) + "activity" + File.separatorChar;
-        if (type == 1) {
+        if (type == AppTaskEnum.MONITOR_TASK.getId()) {
         	AdMonitorTask adMonitorTask = adMonitorTaskService.selectByPrimaryKey(taskId);
         	path = path + adMonitorTask.getActivityId() + File.separatorChar + "monitor" + File.separator + timePath;
         	String servicePath = path.substring(path.indexOf(":")+1, path.length()).replaceAll("\\\\", "/");
@@ -1388,7 +1393,7 @@ public class ApiController extends BasicController {
                 }
                 if (filename1 == null && filename2 == null && filename3 == null && filename4 == null) {
                     result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
-                    result.setResultDes("上传出错！");
+                    result.setResultDes("上传图片失败，请稍后再试！");
                     model.addAttribute(SysConst.RESULT_KEY, result);
                     return model;
                 }
@@ -1437,7 +1442,7 @@ public class ApiController extends BasicController {
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
             }
-        } else if (type == 2) {
+        } else if (type == AppTaskEnum.JIUCUO_TASK.getId()) {
             //参数不对
             if (type == null || adActivitySeatId == null || file1 == null) {
                 result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
@@ -1460,7 +1465,7 @@ public class ApiController extends BasicController {
             Map<String, Object> searchMap = new HashMap<>();
             searchMap.put("activityId", seat.getActivityId()); //活动id
             searchMap.put("adSeatId", seat.getAdSeatId()); //广告位id
-            searchMap.put("status", 1); //纠错任务待审核
+            searchMap.put("status", JiucuoTaskStatus.UNVERIFY.getId()); //纠错任务待审核
             int count = adJiucuoTaskService.selectCountByActivityAndSeat(searchMap);
             if(count > 0) {
             	result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -1953,7 +1958,7 @@ public class ApiController extends BasicController {
         result.setResultDes("操作成功");
         model = new ExtendedModelMap();
         
-        Integer needForceUpdate = 3; // 0: 有新版本,需要强制更新; 1: 有新版本,可去更新; 2: 最新版本; 3: 版本号有误
+        Integer needForceUpdate = AppUpdateTypeEnum.VERSION_ERROR.getId(); // 0: 有新版本,需要强制更新; 1: 有新版本,可去更新; 2: 最新版本; 3: 版本号有误
         String appVersion;
         
         // 查询最新的需要强制更新的版本号
@@ -1975,11 +1980,11 @@ public class ApiController extends BasicController {
         			Integer appVersionInt = Integer.parseInt(appVersionSplit[i]);
         			if(appVersionInt < versionInt) {
         				//需要强制更新
-        				needForceUpdate = 0;
+        				needForceUpdate = AppUpdateTypeEnum.FORCE_UPDATE.getId();
         				break;
         			} else if(appVersionInt > versionInt) {
         				//不需要强制更新
-        				needForceUpdate = 1;
+        				needForceUpdate = AppUpdateTypeEnum.CAN_UPDATE.getId();
         				break;
         			}
         		}
@@ -1990,7 +1995,7 @@ public class ApiController extends BasicController {
             if(nowVersion == null) {
             	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
                 result.setResultDes("版本号有误！");
-                needForceUpdate = 3;
+                needForceUpdate = AppUpdateTypeEnum.VERSION_ERROR.getId();
                 result.setResult(needForceUpdate);
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
@@ -2002,19 +2007,19 @@ public class ApiController extends BasicController {
             			Integer versionInt = Integer.parseInt(versionSplit[i]);
             			Integer appVersionInt = Integer.parseInt(appVersionSplit[i]);
             			if(appVersionInt < versionInt) {
-            				needForceUpdate = 1;
+            				needForceUpdate = AppUpdateTypeEnum.CAN_UPDATE.getId();
             				break;
             			} else if(appVersionInt == versionInt) {
-            				needForceUpdate = 2;
+            				needForceUpdate = AppUpdateTypeEnum.LATEEST_VERSION.getId();
             			}
             		}
             	}
             	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
 			}
             
-            if(needForceUpdate == 1) {
+            if(needForceUpdate == AppUpdateTypeEnum.LATEEST_VERSION.getId()) {
         		result.setResultDes("有新版本，可去更新！");
-        	} else if(needForceUpdate == 0) {
+        	} else if(needForceUpdate == AppUpdateTypeEnum.FORCE_UPDATE.getId()) {
         		result.setResultDes("有新版本，需要强制更新！");
         	} else {
         		result.setResultDes("最新版本！");
@@ -2198,18 +2203,18 @@ public class ApiController extends BasicController {
             return model;
         }
         
-        Integer status = 8;
-        if(user.getUsertype().equals(4)) {
+        Integer status = MonitorTaskStatus.CAN_GRAB.getId();
+        if(user.getUsertype().equals(AppUserTypeEnum.SOCIAL.getId())) {
         	//[1] 社会人员抢单
-        	status = 8; //8：可抢单
+        	status = MonitorTaskStatus.CAN_GRAB.getId(); //8：可抢单
         	vo.putSearchParam("status", null, status);
-        } else if(user.getUsertype().equals(3)) {
+        } else if(user.getUsertype().equals(AppUserTypeEnum.MEDIA.getId())) {
         	//[2] 媒体监测人员抢单(自己媒体公司下的任务)
         	Integer mediaSysUserId = user.getOperateId();
         	AdMedia adMedia = mediaService.getMediaByUserId(mediaSysUserId);
         	vo.putSearchParam("mediaId", null, adMedia.getId());
         	
-        	status = 1; //1：待指派
+        	status = MonitorTaskStatus.UNASSIGN.getId(); //1：待指派
         	vo.putSearchParam("status", null, status);
         }
         
@@ -2351,17 +2356,17 @@ public class ApiController extends BasicController {
         }
         
         Integer status = null;
-        if(user.getUsertype().equals(4)) {
+        if(user.getUsertype().equals(AppUserTypeEnum.SOCIAL.getId())) {
         	//[1] 社会人员抢单
-        	status = 8; //8：可抢单
+        	status = MonitorTaskStatus.CAN_GRAB.getId(); //8：可抢单
         	vo.putSearchParam("status", null, status);
-        } else if(user.getUsertype().equals(3)) {
+        } else if(user.getUsertype().equals(AppUserTypeEnum.MEDIA.getId())) {
         	//[2] 媒体监测人员抢单(自己媒体公司下的任务)
         	Integer mediaSysUserId = user.getOperateId();
         	AdMedia adMedia = mediaService.getMediaByUserId(mediaSysUserId);
         	vo.putSearchParam("mediaId", null, adMedia.getId());
         	
-        	status = 1; //1：待指派
+        	status = MonitorTaskStatus.UNASSIGN.getId(); //1：待指派
         	vo.putSearchParam("status", null, status);
         }
         
@@ -2679,7 +2684,7 @@ public class ApiController extends BasicController {
                 userExecute.setUsername(username);
                 userExecute.setRealname(username);
                 userExecute.setPassword(md5Pwd);
-                userExecute.setUsertype(UserExecuteType.Social.getId());
+                userExecute.setUsertype(AppUserTypeEnum.SOCIAL.getId());
                 userExecute.setStatus(1);
                 userExecute.setMobile(username);
                 userExecute.setMac(mac);
@@ -2714,7 +2719,7 @@ public class ApiController extends BasicController {
 	        userExecute.setUsername(username);
 	        userExecute.setRealname(username);
 	        userExecute.setPassword(md5Pwd);
-	        userExecute.setUsertype(UserExecuteType.Social.getId());
+	        userExecute.setUsertype(AppUserTypeEnum.SOCIAL.getId());
 	        userExecute.setStatus(1);
 	        userExecute.setMobile(username);
 	        userExecute.setMac(mac);

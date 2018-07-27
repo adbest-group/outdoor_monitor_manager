@@ -26,7 +26,6 @@ import com.bt.om.entity.vo.SysUserExecuteVo;
 import com.bt.om.enums.AppUserTypeEnum;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
-import com.bt.om.enums.UserExecuteType;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IMediaService;
 import com.bt.om.service.ISysUserExecuteService;
@@ -89,7 +88,7 @@ public class AppAccountController extends BasicController {
             if (user != null) {
                 model.addAttribute("obj", user);
                 //如果是媒体安装人员，传所属媒体id
-                if(user.getUsertype()==UserExecuteType.MEDIA_WORKER.getId()){
+                if(user.getUsertype()==AppUserTypeEnum.MEDIA.getId()){
                     AdMedia media = mediaService.getMediaByUserId(user.getOperateId());
                     if(media!=null) {
                         model.addAttribute("mediaId", media.getId());
@@ -201,16 +200,16 @@ public class AppAccountController extends BasicController {
                 user.setRealname(name);
                 user.setMobile(username);
                 user.setUsertype(usertype);
-                if(usertype==UserExecuteType.MEDIA_WORKER.getId()){
+                if(usertype == AppUserTypeEnum.MEDIA.getId()){
                 	//3：媒体监测人员
                     AdMedia media = mediaService.getById(mediaId);
                     user.setOperateId(media.getUserId());
                     userHistory.setOperateIdNew(media.getUserId());
-                }else if(usertype==UserExecuteType.Social.getId()) {
+                }else if(usertype == AppUserTypeEnum.SOCIAL.getId()) {
                 	//4：社会人员
                 	user.setOperateId(null);
                 	userHistory.setOperateIdNew(null);
-                }else if(usertype==UserExecuteType.THIRD_COMPANY.getId()) {
+                }else if(usertype == AppUserTypeEnum.THIRD_COMPANY.getId()) {
                 	//5：第三方监测人员
                 	user.setOperateId(companyId);
                 	userHistory.setOperateIdNew(companyId);

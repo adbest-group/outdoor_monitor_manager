@@ -2,6 +2,7 @@ package com.bt.om.enums;
 
 /**
  * Created by jiayong.mao on 2018/4/9.
+ * 批量导入错误 枚举
  */
 public enum ExcelImportFailEnum {
 	ADNAME_NULL(1, "广告位名称不能为空"),

@@ -434,7 +434,7 @@ public class CustomerActivityControl extends BasicController {
         model = new ExtendedModelMap();
 
         SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-        if (!id.isEmpty()) {
+        if (StringUtil.isNotEmpty(id)) {
         	AdActivityVo activity = adActivityService.getVoById(Integer.valueOf(id));
         	if (user.getUsertype()==2&&user.getId().intValue()!=activity.getUserId().intValue()) {
         		result.setCode(ResultCode.RESULT_NOAUTH.getCode());

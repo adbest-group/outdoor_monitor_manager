@@ -1,7 +1,8 @@
 package com.bt.om.enums;
 
 /**
- * Created by caiting on 2018/2/2.
+ * 监测任务问题状态 枚举
+ * 对应 ad_monitor_task 的 problem_status
  */
 public enum TaskProblemStatus {
     UNMONITOR(1,"未监测"),NO_PROBLEM(2,"无问题"),PROBLEM(3,"有问题"),FIXED(4,"已解决"),CLOSED(5,"已闭环");

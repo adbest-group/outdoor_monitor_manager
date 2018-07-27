@@ -39,8 +39,10 @@ import com.bt.om.entity.SysResources;
 import com.bt.om.entity.SysRole;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserRole;
+import com.bt.om.enums.LoginLogTypeEnum;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
+import com.bt.om.enums.UserTypeEnum;
 import com.bt.om.log.SystemLogThread;
 import com.bt.om.mapper.SysRoleMapper;
 import com.bt.om.mapper.SysUserRoleMapper;
@@ -164,7 +166,7 @@ public class LoginController extends BasicController {
             }
             
             //部门领导校验是否有管理部门
-            if(findUser.getUsertype() == 5) {
+            if(findUser.getUsertype() == UserTypeEnum.DEPARTMENT_LEADER.getId()) {
             	//部门领导登录, 查询部门领导账号一对一管理的部门信息
             	SysResources department = sysGroupService.getByUserId(findUser.getId());
             	if(department == null) {
@@ -194,7 +196,7 @@ public class LoginController extends BasicController {
              Date now = new Date();	           
              LoginLog loginlog=new LoginLog();   
              loginlog.setUserId(findUser.getId());
-             loginlog.setType(0);
+             loginlog.setType(LoginLogTypeEnum.PLATFORM.getId());
 	         loginlog.setIp(getIp());
 	         loginlog.setLocation(address);
 	         loginlog.setCreateTime(now);

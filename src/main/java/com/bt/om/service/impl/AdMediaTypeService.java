@@ -14,6 +14,7 @@ import com.adtime.common.lang.StringUtil;
 import com.bt.om.entity.AdMediaType;
 import com.bt.om.entity.vo.AdMediaTypeVo;
 import com.bt.om.enums.AllowMultiEnum;
+import com.bt.om.enums.MediaType;
 import com.bt.om.mapper.AdMediaTypeMapper;
 import com.bt.om.service.IAdMediaTypeService;
 import com.bt.om.vo.web.SearchDataVo;
@@ -73,7 +74,7 @@ public class AdMediaTypeService implements IAdMediaTypeService {
 	public void updateStatusById(AdMediaType adMediaType) {
 		Date now = new Date();
 		adMediaType.setUpdateTime(now);
-		if(adMediaType.getMediaType() == 1) {
+		if(adMediaType.getMediaType() == MediaType.PARENT_TYPE.getId()) {
 			//更新父类
 			adMediaTypeMapper.updateStatusById(adMediaType);
 			//更新子类
@@ -160,7 +161,7 @@ public class AdMediaTypeService implements IAdMediaTypeService {
             			if(exist == false) {
             				AdMediaType parentType = new AdMediaType();
                 			parentType.setName(String.valueOf(lo.get(0)).trim()); //媒体大类名称
-                			parentType.setMediaType(1); //1：媒体大类
+                			parentType.setMediaType(MediaType.PARENT_TYPE.getId()); //1：媒体大类
                 			parentType.setUniqueKeyNeed(2); //默认 2：不是
                 			parentType.setStatus(1); //1：可用
                 			parentType.setCreateTime(now);
@@ -186,7 +187,7 @@ public class AdMediaTypeService implements IAdMediaTypeService {
                 			childType.setAllowMulti(AllowMultiEnum.NOT_ALLOW.getId());
                 		}
             			childType.setName(String.valueOf(lo.get(1)).trim()); //媒体小类名称
-            			childType.setMediaType(2); //2：媒体小类
+            			childType.setMediaType(MediaType.SECOND_TYPE.getId()); //2：媒体小类
             			childType.setUniqueKeyNeed(2); //默认 2：不是
             			childType.setStatus(1); //1：可用
             			childType.setCreateTime(now);

@@ -28,7 +28,7 @@ import com.bt.om.util.GeoUtil;
 import com.bt.om.vo.web.SearchDataVo;
 
 /**
- * Created by caiting on 2018/3/5.
+ * 广告位相关事务层
  */
 @Service
 public class AdSeatService implements IAdSeatService {
@@ -43,11 +43,17 @@ public class AdSeatService implements IAdSeatService {
     @Autowired
     private AdSeatInfoTmpMapper adSeatInfoTmpMapper;
 
+    /**
+     * 分页查询广告位信息
+     */
     @Override
     public int getPageCount(SearchDataVo vo) {
         return adSeatInfoMapper.getPageCount(vo.getSearchMap());
     }
 
+    /**
+     * 分页查询广告位信息
+     */
     @Override
     public void getPageData(SearchDataVo vo) {
         int count = adSeatInfoMapper.getPageCount(vo.getSearchMap());
@@ -59,26 +65,41 @@ public class AdSeatService implements IAdSeatService {
         }
     }
 
+    /**
+     * 通过id查询广告位信息
+     */
     @Override
     public AdSeatInfo getById(Integer id) {
         return adSeatInfoMapper.selectByPrimaryKey(id);
     }
 
+    /**
+     * 通过媒体主后台id查询出对应街道的广告位信息
+     */
     @Override
     public List<AdSeatInfo> getByStreetAndMediaUserId(Long street, Integer userId) {
         return adSeatInfoMapper.getAdSeatInfoByStreetAndMediaUserId(userId,street);
     }
 
+    /**
+     * 通过二维码查询广告位数量
+     */
     @Override
     public int getCountByAdCode(String adSeatCode) {
         return adSeatInfoMapper.getCountByAdCode(adSeatCode);
     }
 
+    /**
+     * 保存一条广告位信息
+     */
     @Override
     public void save(AdSeatInfo adSeatInfo) {
         adSeatInfoMapper.insertSelective(adSeatInfo);
     }
     
+    /**
+     * 保存一条广告位信息
+     */
     @Override
     public void save(AdSeatInfo adSeatInfo, Integer userId) {
         AdMedia media = adMediaMapper.selectByUserId(userId);
@@ -88,6 +109,9 @@ public class AdSeatService implements IAdSeatService {
         adSeatInfoMapper.insertSelective(adSeatInfo);
     }
 
+    /**
+     * 修改广告位
+     */
     @Override
     public void modify(AdSeatInfo adSeatInfo) {
         Date now = new Date();
@@ -95,6 +119,9 @@ public class AdSeatService implements IAdSeatService {
         adSeatInfoMapper.updateByPrimaryKeySelective(adSeatInfo);
     }
 
+    /**
+     * 修改广告位
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void modify(AdSeatInfo adSeatInfo, List<AdCrowd> crowds) {
@@ -112,6 +139,9 @@ public class AdSeatService implements IAdSeatService {
         }
     }
 
+    /**
+     * 修改广告位
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void modifyInfo(AdSeatInfo adSeatInfo) {
@@ -121,6 +151,9 @@ public class AdSeatService implements IAdSeatService {
         adSeatInfoMapper.updateByPrimaryKeySelective(adSeatInfo);
     }
     
+    /**
+     * 删除广告位
+     */
     @Override
     public void delete(Integer id) {
         adSeatInfoMapper.deleteByPrimaryKey(id);
@@ -168,6 +201,9 @@ public class AdSeatService implements IAdSeatService {
     	return count;
     }
 
+    /**
+     * 通过经纬度查询附近的广告位
+     */
     @Override
     public List<AdSeatInfo> getAdseatAround(Double lat, Double lon, Double metre) {
         return adSeatInfoMapper.getAdSeatByPointAround(lon,lat,metre, GeoUtil.getDegreeFromDistance(metre));
@@ -189,6 +225,9 @@ public class AdSeatService implements IAdSeatService {
 		return adSeatInfoMapper.selectAllSeats();
 	}
 	
+	/**
+	 * 广告主查看某市广告位热力图
+	 */
 	@Override
 	public List<CountGroupByCityVo> getCountGroupByCity(HeatMapVo heatMapVo, Integer userId) {
 		Map<String, Object> searchMap = new HashMap<>();
@@ -211,6 +250,9 @@ public class AdSeatService implements IAdSeatService {
 		return adSeatInfoMapper.getCountGroupByCity(heatMapVo);
 	}
 	
+	/**
+	 * 广告主查看广告位热力图
+	 */
 	@Override
 	public List<AdSeatInfo> getAllLonLat(HeatMapVo heatMapVo, Integer userId) {
 		Map<String, Object> searchMap = new HashMap<>();
@@ -233,26 +275,41 @@ public class AdSeatService implements IAdSeatService {
 		return adSeatInfoMapper.getAllLonLat(heatMapVo);
 	}
 
+	/**
+	 * 更新是否贴上二维码
+	 */
 	@Override
 	public int updateFlag(Integer codeFlag,Integer id) {
 		return adSeatInfoMapper.updateFlag(codeFlag,id);
 	}
 	
+	/**
+	 * 筛选条件查询广告位数量
+	 */
 	@Override
 	public int selectByLocation(Map<String, Object> searchMap) {
 		return adSeatInfoMapper.selectByLocation(searchMap);
 	}
 
+	/**
+	 * 查询广告位详细位置/广告位编号是否重复  排除自身
+	 */
 	@Override
 	public List<AdSeatInfo> searchLocation(Map<String, Object> searchMap) {
 		return adSeatInfoMapper.searchLocation(searchMap);
 	}
 	
+	/**
+	 * 插入最近一次导入的广告位id集合
+	 */
 	@Override
 	public List<Integer> selectSeatIds(){
 		return adSeatInfoTmpMapper.selectSeatIds();
 	}
 	
+	/**
+	 * 查询指定id集合的广告位信息
+	 */
 	@Override
 	public List<AdSeatInfoVo> selectSeatByIds(Map<String, Object> searchMap){
 		return adSeatInfoMapper.selectSeatByIds(searchMap);

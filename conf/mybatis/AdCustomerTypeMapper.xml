@@ -131,6 +131,7 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
   
+  <!-- 分页查询行业类型 -->
   <select id="getPageCount" parameterType="map" resultType="int">
 		select
 		count(1)
@@ -149,7 +150,8 @@
         	and update_time = #{updateTime,jdbcType=TIMESTAMP} 
       	</if>
 	</select>
-
+	
+	<!-- 分页查询行业类型 -->
 	<select id="getPageData" parameterType="map" resultMap="BaseResultMap">
 		select
 		<include refid="Base_Column_List" />
@@ -170,6 +172,7 @@
 		order by id asc
 	</select>
 	
+	<!-- 查询所有的行业类型 -->
 	<select id="getAll" resultMap="BaseResultMap">
 		select
   		<include refid="Base_Column_List" />

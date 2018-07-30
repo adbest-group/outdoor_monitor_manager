@@ -259,6 +259,7 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
 
+  <!-- 通过任务主表id和反馈审核状态查询反馈信息 -->
   <select id="selectByTaskId" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
@@ -269,6 +270,7 @@
     </if>
   </select>
   
+  <!-- 通过某些任务主表id查询对应的反馈信息有效的反馈信息 -->
   <select id="selectByActivity" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
@@ -280,6 +282,7 @@
     and status = 1
   </select>
   
+  <!-- 后台用户替换反馈图片1 -->
   <update id="updatePicUrl1" parameterType="map">
    	update ad_monitor_task_feedback
    	set
@@ -288,6 +291,7 @@
    	where id = #{id,jdbcType=INTEGER}
   </update>
   
+  <!-- 后台用户替换反馈图片2 -->
   <update id="updatePicUrl2" parameterType="map">
    	update ad_monitor_task_feedback
    	set
@@ -296,6 +300,7 @@
    	where id = #{id,jdbcType=INTEGER}
   </update>
   
+  <!-- 后台用户替换反馈图片3 -->
   <update id="updatePicUrl3" parameterType="map">
    	update ad_monitor_task_feedback
    	set
@@ -304,6 +309,7 @@
    	where id = #{id,jdbcType=INTEGER}
   </update>
   
+  <!-- 后台用户替换反馈图片4 -->
   <update id="updatePicUrl4" parameterType="map">
    	update ad_monitor_task_feedback
    	set

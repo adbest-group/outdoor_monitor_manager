@@ -21,7 +21,7 @@ import com.bt.om.vo.web.SearchDataVo;
 import com.google.common.collect.Table;
 
 /**
- * Created by jiayong.mao on 2018/4/13.
+ * 媒体类型相关事务层
  */
 @Service
 public class AdMediaTypeService implements IAdMediaTypeService {
@@ -29,6 +29,9 @@ public class AdMediaTypeService implements IAdMediaTypeService {
 	@Autowired
 	private AdMediaTypeMapper adMediaTypeMapper;
 	
+	/**
+	 * 分页查询媒体类型
+	 */
 	@Override
 	public void getPageData(SearchDataVo vo) {
 		int count = adMediaTypeMapper.getPageCount(vo.getSearchMap());
@@ -40,17 +43,26 @@ public class AdMediaTypeService implements IAdMediaTypeService {
         }
 	}
 
+	/**
+	 * 通过id查询媒体类型
+	 */
 	@Override
 	public AdMediaType getById(Integer id) {
 		return adMediaTypeMapper.selectByPrimaryKey(id);
 	}
 
+	/**
+	 * 插入一条媒体类型
+	 */
 	@Override
 	@Transactional
 	public void save(AdMediaType adMediaType) {
 		adMediaTypeMapper.insert(adMediaType);
 	}
 
+	/**
+	 * 更新媒体类型
+	 */
 	@Override
 	@Transactional
 	public void modify(AdMediaType adMediaType) {
@@ -59,16 +71,25 @@ public class AdMediaTypeService implements IAdMediaTypeService {
 		adMediaTypeMapper.updateByPrimaryKeySelective(adMediaType);
 	}
 
+	/**
+	 * 通过媒体类型查询所有的媒体大类/媒体小类
+	 */
 	@Override
 	public List<AdMediaType> getParentMedia(Integer mediaType) {
 		return adMediaTypeMapper.getParentMedia(mediaType);
 	}
 	
+	/**
+	 * 通过媒体类型查询所有可用的媒体大类/媒体小类
+	 */
 	@Override
 	public List<AdMediaType> getParentMediaAvailable(Integer mediaType) {
 		return adMediaTypeMapper.getParentMediaAvailable(mediaType);
 	}
 
+	/**
+	 * 更新媒体类型是否可用
+	 */
 	@Override
 	@Transactional
 	public void updateStatusById(AdMediaType adMediaType) {
@@ -85,6 +106,9 @@ public class AdMediaTypeService implements IAdMediaTypeService {
 		}
 	}
 
+	/**
+	 * 更新是否需要唯一标识, 功能已废弃
+	 */
 	@Override
 	@Transactional
 	public void updateNeedById(AdMediaType adMediaType) {
@@ -93,16 +117,25 @@ public class AdMediaTypeService implements IAdMediaTypeService {
 		adMediaTypeMapper.updateNeedById(adMediaType);
 	}
 
+	/**
+	 * 获取媒体大类与对应的媒体小类
+	 */
 	@Override
 	public List<AdMediaTypeVo> selectParentAndSecond() {
 		return adMediaTypeMapper.selectParentAndSecond();
 	}
 
+	/**
+	 * 获取全部的媒体类型
+	 */
 	@Override
 	public List<AdMediaType> getAll() {
 		return adMediaTypeMapper.getAll();
 	}
 	
+	/**
+	 * 通过媒体大类id查询对应的媒体小类信息
+	 */
 	@Override
 	public List<AdMediaType> selectByParentId(Integer parentId) {
 		return adMediaTypeMapper.selectByParentId(parentId);

@@ -20,25 +20,35 @@ import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.vo.web.SearchDataVo;
 
 /**
- * Created by caiting on 2018/1/23.
+ * APP用户 相关事务层
  */
 @Service
 public class SysUserExecuteService implements ISysUserExecuteService {
+	
     @Autowired
     private SysUserExecuteMapper sysUserExecuteMapper;
     @Autowired
     private SysUserHistoryMapper sysUserHistoryMapper;
 
+    /**
+     * 通过用户名查询APP用户信息
+     */
     @Override
     public SysUserExecute getByUsername(String username) {
         return sysUserExecuteMapper.selectByUsername(username);
     }
 
+    /**
+     * 通过后台用户id和用户类型查询APP用户信息
+     */
     @Override
     public List<SysUserExecute> getByConditionMap(Map map) {
         return sysUserExecuteMapper.selectByConditionMap(map);
     }
 
+    /**
+     * 分页查询APP用户信息
+     */
     @Override
     public void getPageData(SearchDataVo vo) {
         int count = sysUserExecuteMapper.getPageCount(vo.getSearchMap());
@@ -50,26 +60,41 @@ public class SysUserExecuteService implements ISysUserExecuteService {
         }
     }
     
+    /**
+     * 通过id查询APP用户信息
+     */
     @Override
     public SysUserExecute getById(Integer id) {
         return sysUserExecuteMapper.selectByPrimaryKey(id);
     }
     
+    /**
+     * 查询媒体监测人员信息
+     */
     @Override
     public SysUserExecuteVo selectByIdAndMedia(Integer id) {
         return sysUserExecuteMapper.selectByIdAndMedia(id);
     }
 
+    /**
+     * 检查用户名是否重复
+     */
     @Override
     public List<SysUserExecute> isExistsName(String username) {
         return sysUserExecuteMapper.isExistsName(username,null);
     }
 
+    /**
+     * 检查用户名是否重复
+     */
     @Override
     public List<SysUserExecute> isExistsName(String username,Integer id) {
         return sysUserExecuteMapper.isExistsName(username,id);
     }
 
+    /**
+     * 新增APP用户
+     */
     @Override
     public void add(SysUserExecute userExecute) {
         sysUserExecuteMapper.insertSelective(userExecute);
@@ -82,26 +107,41 @@ public class SysUserExecuteService implements ISysUserExecuteService {
         sysUserHistoryMapper.insertSelective(userHistory);
     }
 
+    /**
+     * 修改APP用户
+     */
     @Override
     public void modify(SysUserExecute userExecute) {
         sysUserExecuteMapper.updateByPrimaryKey(userExecute);
     }
 
+    /**
+     * 修改APP用户mac地址信息
+     */
 	@Override
 	public void addMacAddress(String mac) {
 		sysUserExecuteMapper.insertMacAddress(mac);
 	}
 
+	/**
+	 * 查找是否有该邀请码(手机号)
+	 */
 	@Override
 	public SysUserExecute getMobile(String mobile) {
 		return sysUserExecuteMapper.getMobile(mobile);
 	}
 
+	/**
+	 * 查询媒体执行人员
+	 */
 	@Override
 	public List<SysUserExecute> selectMediaNameByUserId(Integer id) {
 		return sysUserExecuteMapper.selectMediaNameByUserId(id);
 	}
 
+	/**
+	 * 更新用户的手机型号和手机系统版本
+	 */
 	@Override
 	@Transactional
 	public int updatePhoneModel(SysUserExecute sysUserExecute) {

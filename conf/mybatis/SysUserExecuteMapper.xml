@@ -350,6 +350,7 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
 
+  <!-- 通过用户名查询APP用户信息 -->
   <select id="selectByUsername" parameterType="java.lang.String" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
@@ -357,6 +358,7 @@
     where username = #{username,jdbcType=VARCHAR}
   </select>
 
+  <!-- 通过后台用户id和用户类型查询APP用户信息 -->
   <select id="selectByConditionMap" parameterType="map" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
@@ -375,6 +377,7 @@
         <result column="companyName" jdbcType="VARCHAR" property="companyName"/>
   </resultMap>
 
+  <!-- 查询媒体监测人员信息 -->
   <select id="selectByIdAndMedia" parameterType="java.lang.Integer" resultMap="ExtResultMap">
     select
 	    a.id, a.username, a.password, a.realname, a.mobile, a.company, a.head_img_url, a.usertype, a.operate_id, a.status,
@@ -387,7 +390,7 @@
     and a.id = #{id,jdbcType=INTEGER}
   </select>
   
-	<!-- 查询媒体执行人员 -->
+  <!-- 查询媒体执行人员 -->
   <select id="selectMediaNameByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
      a.id,a.realname
@@ -396,6 +399,7 @@
      where b.id = #{id,jdbcType=INTEGER}
   </select>
   
+  <!-- 分页查询APP用户信息 -->
   <select id="getPageCount" parameterType="map" resultType="int">
     select
     count(1)
@@ -417,6 +421,7 @@
     </if>
   </select>
 
+  <!-- 分页查询APP用户信息 -->
   <select id="getPageData" parameterType="map" resultMap="ExtResultMap">
     select
 	    a.id, a.username, a.password, a.realname, a.mobile, a.company, a.head_img_url, a.usertype, a.operate_id, a.status,
@@ -443,6 +448,7 @@
     order by a.id desc
   </select>
 
+  <!-- 检查用户名是否重复 -->
   <select id="isExistsName" parameterType="map" resultMap="BaseResultMap">
     select
     id
@@ -463,6 +469,7 @@
   	where mobile = #{mobile ,jdbcType=VARCHAR}
   </select>
   
+  <!-- 更新用户的手机型号和手机系统版本 -->
   <update id="updatePhoneModel" parameterType="com.bt.om.entity.SysUserExecute"> 
 	update 
 		sys_user_execute

@@ -12,6 +12,9 @@ import com.bt.om.mapper.AdSystemPushMapper;
 import com.bt.om.service.IAdSystemPushService;
 import com.bt.om.vo.web.SearchDataVo;
 
+/**
+ * 消息推送相关事务层
+ */
 @Service
 public class AdSystemPushService implements IAdSystemPushService {
 	

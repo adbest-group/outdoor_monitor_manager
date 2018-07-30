@@ -166,6 +166,7 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
   
+  <!-- 分页查询用户站内信 -->
   <select id="getPageCount" parameterType="map" resultType="java.lang.Integer">
   	select count(1)
   	from sys_user_message
@@ -187,6 +188,7 @@
     </if>
   </select>
   
+  <!-- 分页查询用户站内信 -->
   <select id="getPageData" parameterType="map" resultMap="BaseResultMap">
   	  select a.id,a.target_id,a.target_user_id,a.type,a.content,a.is_finish,a.create_time,a.update_time
   	  from sys_user_message a 
@@ -209,6 +211,7 @@
     order by a.update_time desc,a.id desc 
   </select>
   
+  <!-- 批量插入用户站内信 -->
   <insert id="insertMessage" parameterType="com.bt.om.entity.AdUserMessage">
   	insert into sys_user_message(
         	target_id, 

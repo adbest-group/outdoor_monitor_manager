@@ -155,6 +155,7 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
   
+  <!-- 查询最新一条需要强制更新的版本号信息 -->
   <select id="selectLatestForceUpdateRecord" resultMap="BaseResultMap">
   	select 
     <include refid="Base_Column_List" />
@@ -164,6 +165,7 @@
     limit 1
   </select>
   
+  <!-- 查询最新一条版本号信息 -->
   <select id="selectLatestRecord" resultMap="BaseResultMap">
   	select 
     <include refid="Base_Column_List" />

@@ -12,6 +12,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +77,8 @@ public class AdSeatController extends BasicController {
 	private String file_upload_path = ConfigUtil.getString("file.upload.path");
 	
 	private String file_upload_ip = ConfigUtil.getString("file.upload.ip");
+	
+	private static final Logger logger = Logger.getLogger(AdSeatController.class);
 
     /**
      * 新增广告位跳转
@@ -176,6 +179,7 @@ public class AdSeatController extends BasicController {
             resourceService.insertAdSeatInfo(adSeatInfoVo);
             modelMap.put("success", true);
         } catch (Exception e) {
+        	logger.error(e);
             modelMap.put("errMsg", "请重新输入!");
             e.printStackTrace();
         }
@@ -234,6 +238,7 @@ public class AdSeatController extends BasicController {
             operateLog.setUserId(user.getId());
             operateLogService.save(operateLog);
         } catch (Exception e) {
+        	logger.error(e);
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("删除失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -371,6 +376,7 @@ public class AdSeatController extends BasicController {
                 adSeatService.save(adSeatInfo, user.getId());
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -483,6 +489,7 @@ public class AdSeatController extends BasicController {
         	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
             result.setResult(groupByCity);
 		} catch (Exception e) {
+			logger.error(e);
 			logger.error(MessageFormat.format("查询热力图报表失败", new Object[] {}));
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());
         	result.setResultDes("查询热力图报表失败");

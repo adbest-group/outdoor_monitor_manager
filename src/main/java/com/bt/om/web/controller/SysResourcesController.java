@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import com.bt.om.enums.DepartmentTypeEnum;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.UserRoleEnum;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IPointService;
 import com.bt.om.service.ISysResourcesService;
@@ -58,6 +60,8 @@ public class SysResourcesController extends BasicController {
 	
 	@Autowired
 	private IUserMoneyService usermoneyService;
+	
+	private static final Logger logger = Logger.getLogger(LogFilter.class);
 	
 	/**
 	 * 超级管理员查询部门列表
@@ -175,6 +179,7 @@ public class SysResourcesController extends BasicController {
             	sysResourcesService.save(sysResources);
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -261,6 +266,7 @@ public class SysResourcesController extends BasicController {
             	pointService.save(adpoint);
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);

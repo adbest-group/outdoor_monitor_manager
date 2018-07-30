@@ -70,7 +70,17 @@
 		<filter-name>shiroFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
-	
+		<!-- 记录日志 -->
+	<filter>
+	    <filter-name>logFilter</filter-name>
+	    <filter-class>
+			com.bt.om.filter.LogFilter
+		</filter-class>
+	</filter>
+	<filter-mapping>
+	    <filter-name>logFilter</filter-name>
+	    <url-pattern>/*</url-pattern>
+	</filter-mapping>
 	<!-- 防js攻击 -->
 	<filter>
 	     <filter-name>XssFilter</filter-name>

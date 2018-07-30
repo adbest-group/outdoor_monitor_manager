@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,6 +23,7 @@ import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdSystemPush;
 import com.bt.om.enums.ResultCode;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.service.IAdSystemPushService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -34,6 +36,8 @@ public class AdSystemPushController {
 
 	@Autowired
 	private IAdSystemPushService iAdSystemPushService;
+	
+	private static final Logger logger = Logger.getLogger(AdSystemPushController.class);
 	
     @RequiresRoles("superadmin")
     @RequestMapping(value = "/list")
@@ -104,6 +108,7 @@ public class AdSystemPushController {
             String pushResult = JPushUtils.pushAll(param);
             System.out.println("pushResult:: " + pushResult);
         } catch (Exception e) {
+        	logger.error(e);
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);

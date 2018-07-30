@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,7 @@ import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
@@ -113,6 +115,8 @@ public class MonitorTaskController extends BasicController {
 	private String file_upload_path = ConfigUtil.getString("file.upload.path");
 	
 	private String file_upload_ip = ConfigUtil.getString("file.upload.ip");
+	
+	private static final Logger logger = Logger.getLogger(MonitorTaskController.class);
 
 	/**
 	 * 监测任务管理（任务审核指派部员工登录）
@@ -184,12 +188,14 @@ public class MonitorTaskController extends BasicController {
 			try {
 				vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
 			} catch (ParseException e) {
+				logger.error(e);
 			}
 		}
 		if (endDate != null) {
 			try {
 				vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
 			} catch (ParseException e) {
+				logger.error(e);
 			}
 		}
 		//查询活动名称
@@ -397,12 +403,14 @@ public class MonitorTaskController extends BasicController {
 			try {
 				vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
 			} catch (ParseException e) {
+				logger.error(e);
 			}
 		}
 		if (endDate != null) {
 			try {
 				vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
 			} catch (ParseException e) {
+				logger.error(e);
 			}
 		}
 		 //查询活动名称
@@ -588,6 +596,7 @@ public class MonitorTaskController extends BasicController {
 			try {
 				vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
 			} catch (ParseException e) {
+				logger.error(e);
 			}
 		}
 		 //查询活动名称
@@ -746,6 +755,7 @@ public class MonitorTaskController extends BasicController {
         	resultVo.setCode(ResultCode.RESULT_SUCCESS.getCode());
         	}
         } catch (Exception ex) {
+        	logger.error(ex);
             ex.printStackTrace();
             resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
             resultVo.setResultDes("服务忙，请稍后再试");
@@ -820,6 +830,7 @@ public class MonitorTaskController extends BasicController {
 //			String pushResult = JPushUtils.pushAllByAlias(param);
 //			System.out.println("pushResult:: " + pushResult);
 		} catch (Exception e) {
+			logger.error(e);
 			// [5] 异常情况, 循环删除redis
 			for (String taskId : taskIds) {
 				String beginRedisStr = "zhipai_" + taskId + "_begin";
@@ -929,6 +940,7 @@ public class MonitorTaskController extends BasicController {
 //				System.out.println("pushResult:: " + pushResult);
 //			}
 		} catch (Exception e) {
+			logger.error(e);
 			// [5] 异常情况, 循环删除redis
 			for (String taskId : taskIds) {
 				String beginRedisStr = "monitorTask_" + taskId + "_begin";
@@ -982,6 +994,7 @@ public class MonitorTaskController extends BasicController {
 				return model;
 			}
 		} catch (Exception e) {
+			logger.error(e);
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("撤消失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1010,6 +1023,7 @@ public class MonitorTaskController extends BasicController {
 		try {
 			adMonitorTaskService.update(task);
 		} catch (Exception e) {
+			logger.error(e);
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("关闭失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1039,6 +1053,7 @@ public class MonitorTaskController extends BasicController {
 		try {
 			adMonitorTaskService.createSubTask(id);
 		} catch (Exception e) {
+			logger.error(e);
 			e.printStackTrace();
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("创建失败！");
@@ -1225,6 +1240,7 @@ public class MonitorTaskController extends BasicController {
 				adMonitorTaskService.insertMonitorTaskFeedback(feedback, userId, sysUser.getId());
 			}
 		} catch (IOException e) {
+			logger.error(e);
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("替换失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1258,6 +1274,7 @@ public class MonitorTaskController extends BasicController {
 			if(id != null) {
 			}
 		}catch (Exception ex) {
+			logger.error(ex);
             ex.printStackTrace();
             resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
             resultVo.setResultDes("服务忙，请稍后再试");
@@ -1286,8 +1303,10 @@ public class MonitorTaskController extends BasicController {
 			path = path.replaceFirst("/opt/", "/");
 			return path + filename;
 		} catch (FileNotFoundException e) {
+			logger.error(e);
 			e.printStackTrace();
 		} catch (IOException e) {
+			logger.error(e);
 			e.printStackTrace();
 		}finally {
 			if(fos!=null){
@@ -1295,6 +1314,7 @@ public class MonitorTaskController extends BasicController {
 					fos.flush();
 					fos.close();
 				} catch (IOException e) {
+					logger.error(e);
 					e.printStackTrace();
 				}
 			}
@@ -1302,6 +1322,7 @@ public class MonitorTaskController extends BasicController {
 				try {
 					is.close();
 				} catch (IOException e) {
+					logger.error(e);
 					e.printStackTrace();
 				}
 			}

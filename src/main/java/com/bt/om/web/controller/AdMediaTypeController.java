@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,7 @@ public class AdMediaTypeController {
 	@Autowired
 	private IAdMediaTypeService adMediaTypeService;
 	
+	private static final Logger logger = Logger.getLogger(AdMediaTypeController.class);
 	/**
      * 媒体大类, 媒体小类展示
      */
@@ -113,6 +115,7 @@ public class AdMediaTypeController {
                 modelMap.put("success", true);
         	}
         } catch (Exception e) {
+        	logger.error(e);
         	modelMap.put("success", false);
             modelMap.put("errMsg", "请重新输入!");
             e.printStackTrace();
@@ -183,6 +186,7 @@ public class AdMediaTypeController {
             	adMediaTypeService.save(adMediaType);
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -213,6 +217,7 @@ public class AdMediaTypeController {
         	adMediaType.setMediaType(mediaType);
         	adMediaTypeService.updateStatusById(adMediaType);
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -243,6 +248,7 @@ public class AdMediaTypeController {
         	adMediaTypeService.updateNeedById(adMediaType);
         	
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);

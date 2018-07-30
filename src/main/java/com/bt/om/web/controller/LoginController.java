@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -43,6 +44,7 @@ import com.bt.om.enums.LoginLogTypeEnum;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.UserTypeEnum;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.log.SystemLogThread;
 import com.bt.om.mapper.SysRoleMapper;
 import com.bt.om.mapper.SysUserRoleMapper;
@@ -73,6 +75,7 @@ public class LoginController extends BasicController {
 	@Autowired
 	private ILoginLogService loginLogService;
 	private String session_timeout = ConfigUtil.getString("session.timeout");
+	private static final Logger logger = Logger.getLogger(LoginController.class);
     /**
      * 跳转到登录页
      *
@@ -203,6 +206,7 @@ public class LoginController extends BasicController {
     		 loginLogService.save(loginlog);                	
             
         } catch (AuthenticationException ae) {
+        	logger.error(ae);
             model.addAttribute(SysConst.RESULT_KEY, "用户名或密码错误");
             model.addAttribute("username", user.getUsername());
             return PageConst.LOGIN_PAGE;

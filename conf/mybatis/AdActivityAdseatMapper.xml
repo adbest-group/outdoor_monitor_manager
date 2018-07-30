@@ -298,6 +298,7 @@
   <result column="memo" jdbcType="VARCHAR" property="memo" />
   </resultMap>
 
+  <!-- 通过活动id查询出相应的本次活动参与的广告位信息 -->
   <select id="selectByActivityId" resultMap="ExtResultMap">
     select
 	    a.id, 
@@ -336,11 +337,13 @@
     and a.activity_id = #{activityId,jdbcType=INTEGER}
   </select>
   
+  <!-- 通过活动id删除本次活动参与的广告位信息 -->
   <delete id="deleteByActivityId" parameterType="java.lang.Integer" >
     delete from ad_activity_adseat
     where activity_id = #{activityId,jdbcType=INTEGER}
   </delete>
 
+  <!-- 通过本表id查询出该活动对应的某一具体广告位信息 -->
   <select id="selectVoById" resultMap="ExtResultMap">
     select
     a.id, a.activity_id, a.media_id, a.ad_seat_id, a.brand, a.monitor_start, a.monitor_end, a.monitor_count,
@@ -352,6 +355,7 @@
     and a.id = #{id,jdbcType=INTEGER}
   </select>
 
+  <!-- 通过广告位id查询出 当前时间在活动时间段内的广告位信息 -->
   <select id="selectVoBySeatId" resultMap="ExtResultMap">
     select
     a.id, a.activity_id, a.media_id, a.ad_seat_id, a.brand, a.monitor_start, a.monitor_end, a.monitor_count,
@@ -366,6 +370,7 @@
     order by id
   </select>
   
+  <!-- 通过经纬度和广告位名称查询出 当前时间在活动时间段内的广告位信息 -->
   <select id="selectVoByLonLatTitle" resultMap="ExtResultMap">
     select
 	    a.id, a.activity_id, a.media_id, a.ad_seat_id, a.brand, a.monitor_start, a.monitor_end, a.monitor_count,
@@ -387,6 +392,7 @@
     order by id
   </select>
 
+  <!-- 通过二维码查询出 当前时间在活动时间段内的广告位信息 -->
   <select id="selectVoBySeatCode" resultMap="ExtResultMap">
     select
 	    a.id, a.activity_id, a.media_id, a.ad_seat_id, a.brand, a.monitor_start, a.monitor_end, a.monitor_count,
@@ -406,6 +412,7 @@
     order by id
   </select>
 
+  <!-- 通过广告位编号查询出 当前时间在活动时间段内的广告位信息 -->
   <select id="selectVoByMemo" resultMap="ExtResultMap">
     select
 	    a.id, a.activity_id, a.media_id, a.ad_seat_id, a.brand, a.monitor_start, a.monitor_end, a.monitor_count,
@@ -425,6 +432,7 @@
     order by id
   </select>
 
+  <!-- 通过活动id和广告位id查询出本次活动本广告位的活动信息 -->
   <select id="selectByActivityAndSeatId" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
@@ -581,6 +589,7 @@
 		and b.report_time = DATE_FORMAT(#{reportTime,jdbcType=TIMESTAMP},'%Y-%m-%d')
   </select>
   
+  <!-- 查询活动是否存在有问题的广告位 -->
   <select id="selectAdSeatTaskReport" resultType="com.bt.om.entity.vo.AdActivityAdseatTaskVo" parameterType="java.lang.Integer">
   	SELECT
 		a.monitor_start monitorStart,
@@ -591,6 +600,7 @@
 	WHERE a.activity_id = #{activityId,jdbcType=INTEGER}
   </select>
   
+  <!-- 通过活动id查询出 本次活动所有参与的广告位id集合 -->
   <select id="selectSeatIdByActivityId" parameterType="map" resultType="java.lang.Integer">
     select
     	a.ad_seat_id
@@ -605,6 +615,7 @@
 	    </if>
   </select>
   
+  <!-- 通过广告位id查询出该广告位参与的活动数量 -->
   <select id="selectCountByAdSeatId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
   	select count(1)
   	from ad_activity_adseat

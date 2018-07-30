@@ -14,7 +14,7 @@ import com.bt.om.service.IOperateLogService;
 import com.bt.om.vo.web.SearchDataVo;
 
 /**
- * Created by jiayong.mao on 2018/5/24.
+ * 操作日志 相关事务层
  */
 @Service
 public class OperateLogService implements IOperateLogService {
@@ -22,6 +22,9 @@ public class OperateLogService implements IOperateLogService {
 	@Autowired
 	private OperateLogMapper operateLogMapper;
 	
+	/**
+	 * 分页查询操作日志
+	 */
 	@Override
 	public void getPageData(SearchDataVo vo) {
 		int count = operateLogMapper.getPageCount(vo.getSearchMap());
@@ -33,17 +36,26 @@ public class OperateLogService implements IOperateLogService {
         }
 	}
 
+	/**
+	 * 通过id查询操作日志
+	 */
 	@Override
 	public OperateLog getById(Integer id) {
 		return operateLogMapper.selectByPrimaryKey(id);
 	}
 
+	/**
+	 * 插入一条操作日志
+	 */
 	@Override
 	@Transactional
 	public void save(OperateLog operateLog) {
 		operateLogMapper.insert(operateLog);
 	}
 
+	/**
+	 * 修改操作日志
+	 */
 	@Override
 	@Transactional
 	public void modify(OperateLog operateLog) {

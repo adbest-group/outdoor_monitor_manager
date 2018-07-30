@@ -272,6 +272,7 @@
     <result column="customerTypeName" jdbcType="VARCHAR" property="customerTypeName" />
     </resultMap>
 
+  <!-- 通过用户id查询用户详细信息 -->
   <select id="findUserinfoById" parameterType ="map" resultMap="ExtResultMap">
     select
     tt1.id, tt1.username,tt1.realname, tt1.usertype, tt1.password, tt1.customer_type_id,tt1.app_type_id,
@@ -286,6 +287,7 @@
     and tt1.id = #{id}
   </select>
 
+  <!-- 通过用户登录名查询用户详细信息 -->
   <select id="findByUsername" parameterType ="map" resultMap="ExtResultMap">
     select
     t1.id, t1.`username`, t1.`password`, t1.`status`, t1.usertype,
@@ -297,6 +299,7 @@
     and t1.username = #{username}
   </select>
 
+  <!-- 分页查询后台用户 -->
   <select id="getPageCount" parameterType="map" resultType="int">
     select
     count(1)
@@ -321,6 +324,7 @@
     and tt1.platform=1
   </select>
 
+  <!-- 分页查询后台用户 -->
   <select id="getPageData" parameterType="map" resultMap="ListResultMap">
     select
     	tt1.id, tt1.username, tt1.create_time, tt1.customer_type_id, tt1.realname, tt1.status,tt1.app_type_id,
@@ -349,6 +353,7 @@
     order by tt1.id desc
   </select>
 
+  <!-- 查询后台用户名是否重复 -->
   <select id="isExistsName" parameterType="map" resultMap="BaseResultMap">
     select
     id
@@ -436,6 +441,7 @@
     and b.res_id = #{groupId,jdbcType=INTEGER}
   </select>
  
+  <!-- 获取不属于任何组的员工信息 -->
   <select id="findNoUserName" resultMap="BaseResultMap">
     select
     	a.id id,
@@ -446,7 +452,8 @@
     and a.status = 1
     and b.res_id is null;
   </select>
-  	
+  
+  <!-- 获取属于某组下的广告主信息 -->
   <select id="findCustomerName" resultMap="BaseResultMap">
     select
    		a.id id,
@@ -459,6 +466,7 @@
     and b.res_id = #{groupId,jdbcType=INTEGER}
   </select>
   
+  <!-- 获取不属于某部门下任何组的广告主信息 -->
   <select id="findNoCustomerName" resultMap="BaseResultMap" parameterType="map">
     select
    		a.id id,
@@ -469,14 +477,17 @@
     and a.status = 1
     and b.res_id in
     <foreach collection="groupIds" separator="," open="(" close=")" item="id">#{id,jdbcType=INTEGER}</foreach>
- </select>
+  </select>
  
+  <!-- 通过用户类型查询用户信息 -->
   <select id="getIdNameByUserType" resultMap="BaseResultMap" parameterType="java.lang.Integer">
   	select
   		id, realname
     from sys_user
     where usertype = #{usertype,jdbcType=INTEGER}
   </select>
+  
+  <!-- 更新用户密码 -->
   <update id="updateUserPwd" parameterType="com.bt.om.entity.SysUser">
     <!--
       WARNING - @mbggenerated
@@ -494,11 +505,15 @@
     </set>
     where username = #{username,jdbcType=VARCHAR}
   </update>
+  
+  <!-- 通过用户类型获取用户id集合 -->
   <select id="getUserId" resultType="java.lang.Integer">
   	select id 
   	from sys_user
   	where usertype = #{userType,jdbcType=INTEGER}
   </select>
+  
+  <!-- 更新广告主后台用户的APP类型 -->
   <update id="changeAppTypeById" parameterType="java.lang.Integer">
   	update sys_user 
   	<set>
@@ -508,4 +523,5 @@
   	</set>
   	where app_type_id = #{appTypeId,jdbcType=INTEGER}
   </update>
+  
 </mapper>

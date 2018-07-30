@@ -26,7 +26,7 @@ import com.bt.om.service.ISysUserService;
 import com.bt.om.vo.web.SearchDataVo;
 
 /**
- * OttvUser表数据服务层接口实现类
+ * sys_user表数据服务层接口实现类
  */
 @Service
 public class SysUserService implements ISysUserService {

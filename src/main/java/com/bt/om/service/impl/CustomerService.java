@@ -22,7 +22,7 @@ import com.bt.om.mapper.SysUserRoleMapper;
 import com.bt.om.service.ICustomerService;
 
 /**
- * Created by caiting on 2018/2/27.
+ * 广告主相关事务层
  */
 @Service
 public class CustomerService implements ICustomerService {
@@ -51,6 +51,9 @@ public class CustomerService implements ICustomerService {
         return format;
     }
 
+    /**
+     * 插入广告主
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void add(SysUserVo user) {
@@ -87,6 +90,9 @@ public class CustomerService implements ICustomerService {
         sysUserExecuteMapper.insertSelective(userExe);
     }
 
+    /**
+     * 修改广告主
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void modify(SysUserVo user) {
@@ -110,6 +116,9 @@ public class CustomerService implements ICustomerService {
         sysUserExecuteMapper.updateByPrimaryKeySelective(userExe);
     }
     
+    /**
+     * 通过行业类型id查询行业类型信息
+     */
     @Override
     public AdCustomerType selectById(Integer id) {
     	return adCustomerTypeMapper.selectByPrimaryKey(id);

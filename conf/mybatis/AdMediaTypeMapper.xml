@@ -191,6 +191,7 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
   
+  <!-- 分页查询媒体类型 -->
   <select id="getPageCount" parameterType="map" resultType="int">
 		select
 		count(1)
@@ -220,6 +221,7 @@
 		order by id asc
 	</select>
 
+	<!-- 分页查询媒体类型 -->
 	<select id="getPageData" parameterType="map" resultMap="BaseResultMap">
 		select
 		<include refid="Base_Column_List" />
@@ -249,6 +251,7 @@
 		order by id asc
 	</select>
 	
+	<!-- 获取所有的媒体大类或媒体小类 -->
 	<select id="getParentMedia" parameterType="java.lang.Integer" resultMap="BaseResultMap">
 		select
 		<include refid="Base_Column_List" />
@@ -333,7 +336,7 @@
   		and status = 1
   	</select>
   
-  	<!-- 批量插入 -->
+  	<!-- 批量插入媒体类型 -->
   	<insert id="insertBatchByExcel" parameterType="com.bt.om.entity.AdMediaType">
 		insert into ad_media_type (
 			name, parent_id, media_type, unique_key_need, status, allow_multi, multi_num, create_time, update_time

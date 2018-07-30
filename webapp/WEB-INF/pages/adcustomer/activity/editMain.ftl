@@ -842,7 +842,6 @@
 	        if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
 	            $.ajax({
 	                url: '/api/city?provinceId=' + info['code'],
-	                + '.json',
 	                dataType: 'json',
 	                success: function (town) {
 	                    $town.show();

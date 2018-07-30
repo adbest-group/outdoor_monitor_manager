@@ -58,6 +58,7 @@ public class LogFilter implements Filter{
 		}
         logger.info(method + "  url:" + requestURI + userName);
         chain.doFilter(request, response);
+        
 	}
 
 	@Override

@@ -26,6 +26,7 @@
                     <tr>
                         <th>序号</th>
                         <th>行业类型</th>
+                        <th>用户</th>
                         <#if user.usertype !=6>
                         <th>操作</th>
                         </#if>
@@ -37,6 +38,9 @@
                         <tr>
                             <td width="30">${(bizObj.page.currentPage-1)*20+obj_index+1}</td>
                             <td>${obj.name?if_exists}</td>
+                            <td>
+                            	<a href="javascript:void(0);" onclick="users('${obj.id}');">查看</a>
+                            </td>
                             <#if user.usertype !=6>
                             <td>
                                 <a href="javascript:void(0);" onclick="edit('${obj.id}');">编辑</a>
@@ -197,6 +201,16 @@
                     btn: ['确定'] //按钮
                 });
             }
+        });
+    }
+    function users(id) {
+        layer.open({
+            type: 2,
+            title: '用户',
+            shadeClose: true,
+            shade: 0.8,
+            area: ['890px', '480px'],
+            content: '/customerType/users?customerTypeId=' + id //iframe的url
         });
     }
 </script>

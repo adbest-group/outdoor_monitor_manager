@@ -321,6 +321,9 @@
         <foreach collection="ids" separator="," open="(" close=")" item="s">#{s,jdbcType=INTEGER}
         </foreach>
   	</if>
+  	<if test="customerTypeId != null">
+      and tt1.customer_type_id = #{customerTypeId,jdbcType=INTEGER}
+    </if>
     and tt1.platform=1
   </select>
 
@@ -349,6 +352,9 @@
 	    <if test="usertype != null">
 	      and tt1.usertype = #{usertype,jdbcType=INTEGER}
 	    </if>
+	    <if test="customerTypeId != null">
+			and tt1.customer_type_id = #{customerTypeId,jdbcType=INTEGER}
+		</if>
     	and tt1.platform = 1
     order by tt1.id desc
   </select>

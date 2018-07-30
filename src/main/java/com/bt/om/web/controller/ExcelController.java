@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,7 @@ import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
 import com.bt.om.enums.UserTypeEnum;
 import com.bt.om.exception.web.ExcelException;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.mapper.AdMediaMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
@@ -129,6 +131,8 @@ public class ExcelController extends BasicController {
 	
 	@Autowired
 	private IAdUserMessageService adUserMessageService;
+	
+	private static final Logger logger = Logger.getLogger(ExcelController.class);
 	
 	/**
 	 * 批量导入媒体监测人员

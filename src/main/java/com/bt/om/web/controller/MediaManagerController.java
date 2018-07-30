@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.crypto.hash.Md5Hash;
@@ -48,6 +49,7 @@ import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
 import com.bt.om.enums.UserTypeEnum;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.mapper.AdMediaMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
@@ -88,6 +90,7 @@ public class MediaManagerController {
 	private AdMediaMapper adMediaMapper;
 	@Autowired
 	private IAdMediaTypeService adMediaTypeService;
+	private static final Logger logger = Logger.getLogger(MediaManagerController.class);
 
     /**
      * 媒体端任务管理，主要分配任务
@@ -127,12 +130,14 @@ public class MediaManagerController {
             try {
                 vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         if (endDate != null) {
             try {
                 vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         //查询活动名称
@@ -197,12 +202,14 @@ public class MediaManagerController {
             try {
                 vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         if (endDate != null) {
             try {
                 vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         //查询活动名称
@@ -253,6 +260,7 @@ public class MediaManagerController {
         try {
             adMonitorTaskService.update(task);
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("处理失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -296,12 +304,14 @@ public class MediaManagerController {
             try {
                 vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         if (endDate != null) {
             try {
                 vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
 
@@ -372,6 +382,7 @@ public class MediaManagerController {
         try {
             adJiucuoTaskService.update(task);
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("处理失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -617,6 +628,7 @@ public class MediaManagerController {
         		adSeatService.save(adSeatInfo, mediaUser.getId());
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -661,6 +673,7 @@ public class MediaManagerController {
                 result.setResultDes("已存在该编号，请修改！");
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("判断失败！");
             return model;
@@ -692,6 +705,7 @@ public class MediaManagerController {
                 return model;
             }
         } catch (Exception e) {
+        	logger.error(e);
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("删除失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -792,6 +806,7 @@ public class MediaManagerController {
                 resultVo.setResultDes("已存在该登录账户，请修改");
             }
         } catch (Exception ex) {
+        	logger.error(ex);
             ex.printStackTrace();
             resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
             resultVo.setResultDes("服务忙，请稍后再试");
@@ -840,6 +855,7 @@ public class MediaManagerController {
                 sysUserExecuteService.modify(user);
             }
         } catch (Exception ex) {
+        	logger.error(ex);
             ex.printStackTrace();
             resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
             resultVo.setResultDes("服务忙，请稍后再试");
@@ -862,6 +878,7 @@ public class MediaManagerController {
             user.setStatus(status);
             sysUserExecuteService.modify(user);
         } catch (Exception ex) {
+        	logger.error(ex);
             ex.printStackTrace();
             resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
             resultVo.setResultDes("服务忙，请稍后再试");
@@ -889,6 +906,7 @@ public class MediaManagerController {
         	//seatInfo.setCodeFlag(1);
         	adSeatService.updateFlag(codeFlag.getCodeFlag(),id);
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -911,6 +929,7 @@ public class MediaManagerController {
         	resultVo.setResult(adMediaTypes);
         	resultVo.setCode(ResultCode.RESULT_SUCCESS.getCode());
         } catch (Exception ex) {
+        	logger.error(ex);
             ex.printStackTrace();
             resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
             resultVo.setResultDes("服务忙，请稍后再试");

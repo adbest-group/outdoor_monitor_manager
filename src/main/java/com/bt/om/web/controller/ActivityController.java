@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,7 @@ import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.UserTypeEnum;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
@@ -86,6 +88,7 @@ public class ActivityController extends BasicController {
 	private IAdMonitorTaskService adMonitorTaskService;
 	@Autowired
 	protected RedisTemplate redisTemplate;
+	private static final Logger logger = Logger.getLogger(ActivityController.class);
 
 	// 活动审核人员查看活动列表
 	@RequiresRoles("activityadmin")
@@ -128,12 +131,14 @@ public class ActivityController extends BasicController {
 			try {
 				vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
 			} catch (ParseException e) {
+				logger.error(e);
 			}
 		}
 		if (endDate != null) {
 			try {
 				vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
 			} catch (ParseException e) {
+				logger.error(e);
 			}
 		}
 		//查询活动名称
@@ -333,6 +338,7 @@ public class ActivityController extends BasicController {
  			//批量插入
 			adMonitorTaskService.insertMonitorTask(activityId, Arrays.asList(splitSeatIds), reportTime ,zhuijiaMonitorTaskPoint,zhuijiaMonitorTaskMoney);
  		} catch (Exception e) {
+ 			logger.error(e);
  			result.setCode(ResultCode.RESULT_FAILURE.getCode());
  			result.setResultDes("确认失败！");
  			model.addAttribute(SysConst.RESULT_KEY, result);
@@ -408,6 +414,7 @@ public class ActivityController extends BasicController {
 				System.out.println("pushResult:: " + pushResult);
 			}
 		} catch (Exception e) {
+			logger.error(e);
 			// [5] 异常情况, 循环删除redis
 			for (String actId : activityIds) {
 				String beginRedisStr = "activity_" + actId + "_begin";
@@ -465,6 +472,7 @@ public class ActivityController extends BasicController {
 				return model;
 			}
 		} catch (Exception e) {
+			logger.error(e);
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("撤销失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
@@ -494,6 +502,7 @@ public class ActivityController extends BasicController {
 			// 删除活动
 			adActivityService.delete(id, userObj.getId());
 		} catch (Exception e) {
+			logger.error(e);
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("删除失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);

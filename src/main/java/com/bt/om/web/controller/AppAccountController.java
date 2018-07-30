@@ -6,6 +6,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ import com.bt.om.entity.vo.SysUserExecuteVo;
 import com.bt.om.enums.AppUserTypeEnum;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IMediaService;
 import com.bt.om.service.ISysUserExecuteService;
@@ -47,6 +49,8 @@ public class AppAccountController extends BasicController {
     private IMediaService mediaService;
     @Autowired
     private ISysUserHistoryService sysUserHistoryService;
+    
+    private static final Logger logger = Logger.getLogger(AppAccountController.class);
     
     /**
      * 媒体安装人员管理列表
@@ -132,6 +136,7 @@ public class AppAccountController extends BasicController {
                 resultVo.setResultDes("已存在该登录账户，请修改");
             }
         } catch (Exception ex) {
+        	logger.error(ex);
             ex.printStackTrace();
             resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
             resultVo.setResultDes("服务忙，请稍后再试");
@@ -218,6 +223,7 @@ public class AppAccountController extends BasicController {
                 sysUserExecuteService.modifyUser(user,userHistory);
             }
         } catch (Exception ex) {
+        	logger.error(ex);
             ex.printStackTrace();
             resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
             resultVo.setResultDes("服务忙，请稍后再试");
@@ -240,6 +246,7 @@ public class AppAccountController extends BasicController {
             user.setStatus(status);
             sysUserExecuteService.modify(user);
         } catch (Exception ex) {
+        	logger.error(ex);
             ex.printStackTrace();
             resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
             resultVo.setResultDes("服务忙，请稍后再试");

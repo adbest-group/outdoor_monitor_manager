@@ -5,6 +5,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.UserTypeEnum;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.service.IMediaService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.vo.web.ResultVo;
@@ -39,6 +41,7 @@ public class MediaController {
     private ISysUserService sysUserService;
     @Autowired
     private IMediaService mediaService;
+    private static final Logger logger = Logger.getLogger(MediaController.class);
 
     /**
      * 媒体管理列表
@@ -96,6 +99,7 @@ public class MediaController {
                 resultVo.setResultDes("已存在该登录账户，请修改");
             }
         } catch (Exception ex) {
+        	logger.error(ex);
             ex.printStackTrace();
             resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
             resultVo.setResultDes("服务忙，请稍后再试");
@@ -122,6 +126,7 @@ public class MediaController {
                 resultVo.setResultDes("已存在该前缀，请修改");
             }
         } catch (Exception ex) {
+        	logger.error(ex);
             ex.printStackTrace();
             resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
             resultVo.setResultDes("服务忙，请稍后再试");
@@ -171,6 +176,7 @@ public class MediaController {
                 mediaService.modify(user);
             }
         } catch (Exception ex) {
+        	logger.error(ex);
             ex.printStackTrace();
             resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
             resultVo.setResultDes("服务忙，请稍后再试");
@@ -200,6 +206,7 @@ public class MediaController {
                 resultVo.setResultDes("操作失败，请稍后再试");
             }
         } catch (Exception ex) {
+        	logger.error(ex);
             ex.printStackTrace();
             resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
             resultVo.setResultDes("服务忙，请稍后再试");

@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,7 @@ import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.UserTypeEnum;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
@@ -80,6 +82,7 @@ public class CustomerActivityControl extends BasicController {
 	private SysUserResMapper sysUserResMapper;
 	@Autowired
 	private CityCache cityCache;
+	private static final Logger logger = Logger.getLogger(CustomerActivityControl.class);
 	
 	/**
      * 查询活动列表
@@ -113,12 +116,14 @@ public class CustomerActivityControl extends BasicController {
             try {
                 vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         if (endDate != null) {
             try {
                 vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         //查询活动名称
@@ -476,6 +481,7 @@ public class CustomerActivityControl extends BasicController {
         try {
             adActivityVo.setEndTime(sdf.parse(endDate));
         } catch (ParseException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("日期格式有误！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -651,12 +657,14 @@ public class CustomerActivityControl extends BasicController {
             try {
                 vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         if (endDate != null) {
             try {
                 vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         //查询活动名称

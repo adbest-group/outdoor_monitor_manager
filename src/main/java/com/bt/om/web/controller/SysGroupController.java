@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.UserRoleEnum;
 import com.bt.om.enums.UserTypeEnum;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
@@ -67,6 +69,7 @@ public class SysGroupController extends BasicController{
     private IAdJiucuoTaskService adJiucuoTaskService;
 	@Autowired
 	private IAdUserMessageService adUserMessageService;
+	private static final Logger logger = Logger.getLogger(LogFilter.class);
 	
 	/**
 	 * 部门管理员查询组列表
@@ -158,6 +161,7 @@ public class SysGroupController extends BasicController{
                 }
             } 
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -215,6 +219,7 @@ public class SysGroupController extends BasicController{
                 return model;
             }
         } catch (Exception e) {
+        	logger.error(e);
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("删除失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -371,6 +376,7 @@ public class SysGroupController extends BasicController{
             	sysUserService.deleteUserRess(sysUserRes, userRoleVo);
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -420,6 +426,7 @@ public class SysGroupController extends BasicController{
             	sysUserService.deleteCustomerRess(sysUserRes);
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -473,6 +480,7 @@ public class SysGroupController extends BasicController{
             try {
                 vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         //查询活动名称
@@ -561,6 +569,7 @@ public class SysGroupController extends BasicController{
             try {
                 vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         if (endDate != null) {
@@ -643,12 +652,14 @@ public class SysGroupController extends BasicController{
             try {
                 vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         if (endDate != null) {
             try {
                 vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
        //查询媒体主
@@ -729,6 +740,7 @@ public class SysGroupController extends BasicController{
             try {
                 vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
        //查询媒体主
@@ -802,12 +814,14 @@ public class SysGroupController extends BasicController{
             try {
                 vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         if (endDate != null) {
             try {
                 vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
       //查询媒体主
@@ -856,6 +870,7 @@ public class SysGroupController extends BasicController{
     	 try {
 	         sysGroupService.deleteGroup(id);
     	}catch (Exception e) {
+    		logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("删除失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -956,6 +971,7 @@ public class SysGroupController extends BasicController{
         		sysUserService.addUser(sysUser, UserRoleEnum.PHONE_OPERATOR.getId());
         	}
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);

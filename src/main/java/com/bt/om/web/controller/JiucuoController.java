@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,7 @@ import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
 import com.bt.om.enums.UserTypeEnum;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
@@ -98,6 +100,8 @@ public class JiucuoController extends BasicController {
     private String file_upload_path = ConfigUtil.getString("file.upload.path");
 	
 	private String file_upload_ip = ConfigUtil.getString("file.upload.ip");
+	
+	private static final Logger logger = Logger.getLogger(JiucuoController.class);
 
 	/**
 	 * 查看纠错审核列表
@@ -151,12 +155,14 @@ public class JiucuoController extends BasicController {
 			try {
 				vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
 			} catch (ParseException e) {
+				logger.error(e);
 			}
 		}
 		if (endDate != null) {
 			try {
 				vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
 			} catch (ParseException e) {
+				logger.error(e);
 			}
 		}
 		 //查询活动名称
@@ -397,6 +403,7 @@ public class JiucuoController extends BasicController {
 				System.out.println("pushResult:: " + pushResult);
 			}
 		} catch (Exception e) {
+			logger.error(e);
 			// [5] 异常情况, 循环删除redis
 			for (String jcId : jiucuoIds) {
 				String beginRedisStr = "jiucuo_" + jcId + "_begin";
@@ -452,6 +459,7 @@ public class JiucuoController extends BasicController {
 				return model;
 			}
 		} catch (Exception e) {
+			logger.error(e);
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("撤消失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
@@ -479,6 +487,7 @@ public class JiucuoController extends BasicController {
 		try {
 			adJiucuoTaskService.update(task);
 		} catch (Exception e) {
+			logger.error(e);
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("关闭失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
@@ -507,6 +516,7 @@ public class JiucuoController extends BasicController {
 		try {
 			adJiucuoTaskService.createSubTask(id);
 		} catch (Exception e) {
+			logger.error(e);
 			e.printStackTrace();
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("创建失败！");
@@ -571,6 +581,7 @@ public class JiucuoController extends BasicController {
 			//[2] 更改数据库
 			adJiucuoTaskService.updatePicUrl(id, file_upload_ip + filepath, index);
 		} catch (IOException e) {
+			logger.error(e);
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("替换失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
@@ -601,8 +612,10 @@ public class JiucuoController extends BasicController {
 			path = path.replaceFirst("/opt/", "/");
 			return path+filename;
 		} catch (FileNotFoundException e) {
+			logger.error(e);
 			e.printStackTrace();
 		} catch (IOException e) {
+			logger.error(e);
 			e.printStackTrace();
 		}finally {
 			if(fos!=null){
@@ -610,6 +623,7 @@ public class JiucuoController extends BasicController {
 					fos.flush();
 					fos.close();
 				} catch (IOException e) {
+					logger.error(e);
 					e.printStackTrace();
 				}
 			}
@@ -617,6 +631,7 @@ public class JiucuoController extends BasicController {
 				try {
 					is.close();
 				} catch (IOException e) {
+					logger.error(e);
 					e.printStackTrace();
 				}
 			}

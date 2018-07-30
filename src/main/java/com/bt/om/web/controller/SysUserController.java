@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.crypto.hash.Md5Hash;
@@ -27,6 +28,7 @@ import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.UserRoleEnum;
 import com.bt.om.enums.UserTypeEnum;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.service.impl.SysUserService;
@@ -41,6 +43,7 @@ public class SysUserController extends BasicController{
 
 	@Autowired
 	private ISysUserService sysUserService;
+	private static final Logger logger = Logger.getLogger(SysUserController.class);
 	
 	/**
 	 * 查询部门领导账号列表
@@ -139,6 +142,7 @@ public class SysUserController extends BasicController{
             	sysUserService.createDepartmentLeader(sysUser, sysUserDetail, sysUserRole);
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -168,6 +172,7 @@ public class SysUserController extends BasicController{
         	userType.setStatus(1);
         	sysUserService.updateStatus(status);
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);

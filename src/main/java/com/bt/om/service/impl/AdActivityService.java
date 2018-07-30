@@ -55,7 +55,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
- * Created by caiting on 2018/1/18.
+ * 活动相关事务层
  */
 @Service
 public class AdActivityService implements IAdActivityService {
@@ -80,6 +80,9 @@ public class AdActivityService implements IAdActivityService {
     @Autowired
     AdUserMessageMapper adUserMessageMapper;
 
+    /**
+     * 插入一条活动信息(暂时没用使用)
+     */
     @Override
     public void save(AdActivity adActivity) {
         adActivityMapper.insert(adActivity);
@@ -197,6 +200,9 @@ public class AdActivityService implements IAdActivityService {
         }
     }
 
+    /**
+     * 修改活动信息
+     */
     @Override
     public void modify(AdActivityVo adActivityVo, String activeSeat) {
     	Date now = new Date();
@@ -296,6 +302,9 @@ public class AdActivityService implements IAdActivityService {
 
     }
 
+    /**
+     * 分页查询活动信息
+     */
     @Override
     public void getPageData(SearchDataVo vo) {
         int count = adActivityMapper.getPageCount(vo.getSearchMap());
@@ -307,6 +316,9 @@ public class AdActivityService implements IAdActivityService {
         }
     }
 
+    /**
+     * 通过活动id查询活动、活动的广告位信息
+     */
     @Override
     public AdActivityVo getVoById(Integer id) {
     	if(id != null) {
@@ -583,6 +595,9 @@ public class AdActivityService implements IAdActivityService {
         return adActivityMapper.selectByMap(MapUtils.EMPTY_MAP);
     }
 
+    /**
+     * 获取某一广告主下的所有活动信息
+     */
     @Override
     public List<AdActivity> getByUerId(Integer userId) {
         Map<String, Object> map = Maps.newHashMap();
@@ -590,21 +605,33 @@ public class AdActivityService implements IAdActivityService {
         return adActivityMapper.selectByMap(map);
     }
 
+    /**
+     * 通过活动-广告位关联表的id查询关联信息
+     */
     @Override
     public AdActivityAdseat getActivitySeatById(Integer id) {
         return adActivityAdseatMapper.selectVoById(id);
     }
 
+    /**
+     * 通过广告位id查询出所有的关联活动信息
+     */
     @Override
     public List<AdActivityAdseatVo> getActivitySeatBySeatId(Integer id) {
         return adActivityAdseatMapper.selectVoBySeatId(id);
     }
 	
+    /**
+     * 通过广告位经纬度查询出关联活动信息
+     */
 	@Override
     public List<AdActivityAdseatVo> selectVoByLonLatTitle(Double lon, Double lat, String title) {
         return adActivityAdseatMapper.selectVoByLonLatTitle(lon, lat, title);
     }
 
+	/**
+	 * 通过广告位二维码查询出关联活动信息
+	 */
     @Override
     public List<AdActivityAdseatVo> getActivitySeatBySeatCode(String adSeatCode) {
         return adActivityAdseatMapper.selectVoBySeatCode(adSeatCode);
@@ -632,6 +659,9 @@ public class AdActivityService implements IAdActivityService {
         return task;
     }
 
+    /**
+     * 通过活动id查询出活动信息
+     */
 	@Override
 	public AdActivity getById(Integer id) {
 		return adActivityMapper.selectByPrimaryKey(id);
@@ -811,6 +841,9 @@ public class AdActivityService implements IAdActivityService {
 		return atimeActivity;
 	}
 
+	/**
+	 * 撤销活动, 功能已废弃
+	 */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void offActivityByAssessorId(Integer id) {
@@ -901,7 +934,7 @@ public class AdActivityService implements IAdActivityService {
 	}
 
 	/**
-	 * 根据memo确定广告位信息
+	 * 根据广告位编号确定广告位信息
 	 * */
 	@Override
 	public List<AdActivityAdseatVo> getActivitySeatByMemo(String memo) {

@@ -424,10 +424,6 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="cancelActivityByAssessorId" parameterType="java.lang.Integer">
-  		update ad_activity set assessor_id = null 
-  		where status = 1 and id = #{id,jdbcType=INTEGER}
-  </update>
   <update id="updateByPrimaryKey" parameterType="com.bt.om.entity.AdActivity" >
     <!--
       WARNING - @mbggenerated
@@ -491,6 +487,13 @@
 	<result column="secondName" jdbcType="VARCHAR" property="secondName"/>
   </resultMap>
 
+  <!-- 撤销活动, 功能已废弃 -->
+  <update id="cancelActivityByAssessorId" parameterType="java.lang.Integer">
+  		update ad_activity set assessor_id = null 
+  		where status = 1 and id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <!-- 后台查询活动信息 分页 -->
   <select id="getPageCount" parameterType="map" resultType="int">
     select
     count(a.id)
@@ -529,6 +532,7 @@
     </if>
   </select>
 
+  <!-- 后台查询活动信息 分页 -->
   <select id="getPageData" parameterType="map" resultMap="ExtResultMap2">
     select
     	a.id, a.activity_name, a.start_time, a.end_time, a.status, a.user_id, a.create_time, a.update_time, a.assessor_id,
@@ -567,6 +571,7 @@
     order by a.id desc
   </select>
 
+  <!-- 通过活动id查询活动的基础信息 -->
   <select id="selectVoByPrimaryKey" resultMap="ExtResultMap" parameterType="java.lang.Integer" >
     select
     <include refid="Base_Column_List" />
@@ -574,6 +579,7 @@
     where id = #{id,jdbcType=INTEGER}
   </select>
 
+  <!-- 通过广告主id查询活动信息 -->
   <select id="selectByMap" resultMap="BaseResultMap" parameterType="map" >
     select
     <include refid="Base_Column_List" />
@@ -650,6 +656,7 @@
     </if>
   </select>
   
+  <!-- 查询广告主在某一时间段内的活动信息 -->
   <select id="selectActivityReportByTime1" parameterType="map" resultType="java.lang.Integer">
   	select
   		id
@@ -664,6 +671,7 @@
     </if>
   </select>
   
+  <!-- 查询广告主在某一时间段内的活动信息 -->
   <select id="selectActivityReportByTime2" parameterType="map" resultType="java.lang.Integer">
   	select
   		id
@@ -703,6 +711,7 @@
     order by id desc
   </select>
   
+  <!-- 获取某些广告主未被后台admin抢到的活动信息, 功能已废弃 -->
   <select id="getAtimeActivity" parameterType="map" resultMap="BaseResultMap">
   	select
     	id, activity_name, start_time, end_time, status, user_id, create_time, update_time,assessor_id
@@ -732,6 +741,7 @@
     	</if> 
   </select>
   
+  <!-- 将某些广告主的活动设置给后台admin抢到的活动, 功能已废弃 -->
   <update id="updateAssessorId" parameterType="map">
   	update ad_activity
     set

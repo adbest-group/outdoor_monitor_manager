@@ -226,6 +226,7 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
 
+  <!-- 通过用户id查询用户详细信息 -->
   <select id="selectByUserId" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
@@ -233,6 +234,7 @@
     where user_id = #{id,jdbcType=INTEGER}
   </select>
 
+  <!-- 检查媒体前缀是否重复 -->
   <select id="isExistsPrefix" resultMap="BaseResultMap">
     select
     id
@@ -244,6 +246,8 @@
       and id &lt;> #{id,jdbcType=INTEGER}
     </if>
   </select>
+  
+  <!-- 更新用户详细信息 -->
   <update id="updateUserInfo" parameterType="com.bt.om.entity.SysUserDetail">
     <!--
       WARNING - @mbggenerated

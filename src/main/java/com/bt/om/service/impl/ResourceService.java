@@ -22,23 +22,26 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * 广告位媒体资源 相关事务层
+ */
 @Service
 public class ResourceService implements IResourceService {
-	@Autowired
-	private AdSeatInfoMapper adSeatInfoMapper;
 	
 	@Autowired
+	private AdSeatInfoMapper adSeatInfoMapper;
+	@Autowired
 	private AdActivityAdseatMapper adActivityAdseatMapper;
-
 	@Autowired
 	private AdMediaMapper adMediaMapper;
-
 	@Autowired
 	private AdSeatTypeMapper adSeatTypeMapper;
-
 	@Autowired
 	private AdCrowdMapper adCrowdMapper;
 
+	/**
+	 * 插入广告位及广告位人群信息, 暂时不用
+	 */
 	@Override
 	@Transactional
 	public void insertAdSeatInfo(ResourceVo adSeatInfoVo) {
@@ -59,6 +62,9 @@ public class ResourceService implements IResourceService {
 		adCrowdMapper.insertAdCrowdVoFemale(adSeatInfoVo.getAdCrowdVo());
 	}
 
+	/**
+	 * 分页查询广告位信息
+	 */
 	@Override
 	public void getDetailsInfo(SearchDataVo vo) {
 		int count = adSeatInfoMapper.getPageCount(vo.getSearchMap());
@@ -70,22 +76,34 @@ public class ResourceService implements IResourceService {
 		}
 	}
 
+	/**
+	 * 通过id查询广告位信息
+	 */
 	@Override
 	public AdSeatInfoVo getAdSeatInfoById(String id) {
 		int ids = Integer.valueOf(id);
 		return adSeatInfoMapper.getAdSeatInfoById(ids);
 	}
 
+	/**
+	 * 查询所有的媒体主
+	 */
 	@Override
 	public List<AdMedia> getAll() {
 		return adMediaMapper.getAll();
 	}
 	
+	/**
+	 * 查询所有可用的媒体主
+	 */
 	@Override
 	public List<AdMedia> getAvailableAll() {
 		return adMediaMapper.getAvailableAll();
 	}
 
+	/**
+	 * 删除没有参与活动的广告位
+	 */
 	@Override
 	public int deleteAdSeatById(Integer id) {
 		//只能删除没有参与活动的广告位
@@ -97,11 +115,17 @@ public class ResourceService implements IResourceService {
 		}
 	}
 
+	/**
+	 * 获取全部的广告位类型, 功能已废弃
+	 */
 	@Override
 	public List<AdSeatType> getSeatTypeAll() {
 		return adSeatTypeMapper.getSeatTypeAll();
 	}
 
+	/**
+	 * 广告位人群暂时不用
+	 */
 	public List<AdCrowd> getAgePartListByAdSeatId(Integer seatId) {
 		Integer ids = Integer.valueOf(seatId);
 		return adCrowdMapper.getAgePartListByAdSeatId(ids);

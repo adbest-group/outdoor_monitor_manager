@@ -1,7 +1,6 @@
 package com.bt.om.service.impl;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +12,15 @@ import com.bt.om.mapper.AdPointMapper;
 import com.bt.om.service.IPointService;
 import com.bt.om.vo.web.SearchDataVo;
 
+/**
+ * 积分 相关事务层
+ */
 @Service
 public class PointService implements IPointService {
 
 	@Autowired
 	private AdPointMapper adPointMapper;
+	
 	/**
 	 * 将积分添加进积分设置表
 	 * */
@@ -48,16 +51,25 @@ public class PointService implements IPointService {
 		}
 	}
 
+	/**
+	 * 通过id查询积分设置信息
+	 */
 	@Override
 	public AdPoint getVoById(Integer id) {
 		return adPointMapper.selectByPrimaryKey(id);
 	}
 
+	/**
+	 * 修改积分设置
+	 */
 	@Override
 	public void modify(AdPoint adpoint) {
 		adPointMapper.updateByPrimaryKeySelective(adpoint);
 	}
 
+	/**
+	 * 插入一条积分设置
+	 */
 	@Override
 	public void save(AdPoint adpoint) {
 		adPointMapper.insert(adpoint);

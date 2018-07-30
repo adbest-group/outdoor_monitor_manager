@@ -69,7 +69,7 @@ import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.util.JPushUtils;
 
 /**
- * Created by caiting on 2018/1/20.
+ * 监测任务相关事务层
  */
 @Service
 public class AdMonitorTaskService implements IAdMonitorTaskService {
@@ -106,6 +106,9 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	@Autowired
 	private AdUserMoneyMapper adUserMoneyMapper;
     
+	/**
+	 * 分页查询监测任务信息
+	 */
 	@Override
     public void getPageData(SearchDataVo vo) {
         int count = adMonitorTaskMapper.getPageCount(vo.getSearchMap());
@@ -241,6 +244,9 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         }
     }
 
+    /**
+     * 更新监测任务
+     */
     @Override
     public void update(AdMonitorTask task) {
         task.setUpdateTime(new Date());
@@ -507,6 +513,9 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
     	}
     }
 
+    /**
+     * 通过任务执行人id查询监测任务
+     */
     @Override
     public List<AdMonitorTaskMobileVo> getByUserIdForMobile(Integer userId) {
         return adMonitorTaskMapper.selectByUserId(userId);
@@ -722,6 +731,9 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         }
     }
 
+    /**
+     * 创建有问题的监测任务的子任务
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void createSubTask(Integer taskId) {
@@ -750,12 +762,18 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         adMonitorTaskMapper.updateByPrimaryKeySelective(task);
     }
 
+    /**
+     * 获取监测任务的详细信息
+     */
     @Override
     public AdMonitorTaskVo getTaskDetails(String taskId) {
         int taskIds = Integer.valueOf(taskId);
         return adMonitorTaskMapper.getTaskDetails(taskIds);
     }
 
+    /**
+     * 获取一组监测任务的详细信息
+     */
     @Override
     public List<AdMonitorTaskVo> getSubmitDetails(String taskId) {
         int taskIds = Integer.valueOf(taskId);
@@ -763,11 +781,17 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         return list;
     }
 
+    /**
+     * 通过任务id查询任务信息
+     */
     @Override
     public AdMonitorTaskVo getTaskVoById(Integer id) {
         return adMonitorTaskMapper.selectVoByPrimaryKey(id);
     }
 
+    /**
+     * 通过经纬度查询附近的活动-广告位-监测任务信息
+     */
     @Override
     public void getByPointAroundPageData(SearchDataVo vo) {
         int count = adMonitorTaskMapper.getByPointAroundPageCount(vo.getSearchMap());
@@ -779,6 +803,9 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         }
     }
 
+    /**
+     * 通过本市的活动-广告位-监测任务信息
+     */
     @Override
     public void getByCurCityPageData(SearchDataVo vo) {
         int count = adMonitorTaskMapper.getByCurCityPageCount(vo.getSearchMap());
@@ -833,6 +860,9 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         return ret;
     }
 
+    /**
+     * 获取全部的监测任务
+     */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public List<AdMonitorTask> selectAllTask() {
@@ -840,6 +870,9 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 		return taskList;
 	}
 
+	/**
+	 * 分页查询监测任务
+	 */
 	@Override
 	public void getPageDataAllTask(SearchDataVo vo) {
 		int count = adMonitorTaskMapper.getPageCountAllTask(vo.getSearchMap());
@@ -851,11 +884,17 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         }
     }
 
+	/**
+	 * 获取后台审核admin捞取过的任务信息, 功能已废弃
+	 */
 	@Override
 	public List<AdMonitorTaskVo> selectAllByAssessorId(Map<String, Object> searchMap) {
 		return adMonitorTaskMapper.selectAllByAssessorId(searchMap);
 	}
 	
+	/**
+	 * 后台审核admin捞取任务, 功能已废弃
+	 */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public List<AdMonitorTaskVo> getTenAdMonitorTaskVo(Map<String, Object> searchMap) {
@@ -877,6 +916,9 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 		return taskVos;
 	}
 	
+	/**
+	 * 后台指派admin捞取任务, 功能已废弃
+	 */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public List<AdMonitorTaskVo> getTenAdMonitorTaskAssignVo(Map<String, Object> searchMap) {
@@ -898,11 +940,17 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 		return taskVos;
 	}
 
+	/**
+	 * 查询某一活动最新的监测任务
+	 */
 	@Override
 	public List<AdMonitorTask> selectLatestMonitorTaskIds(Integer activityId) {
 		return adMonitorTaskMapper.selectLatestMonitorTaskIds(activityId);
 	}
     
+	/**
+	 * 通过某些任务主表id查询对应的反馈信息有效的反馈信息
+	 */
 	@Override
 	public List<AdMonitorTaskFeedback> selectByActivity(List<Integer> monitorTaskIds) {
 		return adMonitorTaskFeedbackMapper.selectByActivity(monitorTaskIds);
@@ -1094,50 +1142,77 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 		return pushResult;
 	}
 
+	/**
+	 * 强制指派
+	 */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void forceAssignTask() {
 		adMonitorTaskMapper.forceAssignTask(12);
 	}
 
+	/**
+	 * 通过任务id查询任务信息
+	 */
 	@Override
 	public AdMonitorTask selectByPrimaryKey(Integer id) {
 		return adMonitorTaskMapper.selectByPrimaryKey(id);
 	}
 
+	/**
+	 * APP用户主动放弃任务
+	 */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void abandonUserTask(AbandonTaskVo vo) {
 		adMonitorUserTaskMapper.abandonUserTask(vo);
 	}
 
+	/**
+	 * 后台审核admin撤销任务, 功能已废弃
+	 */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void offAdMonitorTaskByAssessorId(Integer id) {
 		adMonitorTaskMapper.cancelAdMonitorTaskByAssessorId(id);	
 	}
 
+	/**
+	 * 后台指派admin撤销任务, 功能已废弃
+	 */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void offAdMonitorTaskByAssignorId(Integer id) {
 		adMonitorTaskMapper.cancelAdMonitorTaskByAssignorId(id);	
 	}
 
+	/**
+	 * 获取某一任务执行人所有待审核的任务
+	 */
 	@Override
 	public List<AdMonitorTask> getAllByStatusUnCheck(Map<String, Object> searchMap) {
 		return adMonitorTaskMapper.getAllByStatusUnCheck(searchMap);
 	}
 
+	/**
+	 * 获取某一任务执行人所有待指派的任务
+	 */
 	@Override
 	public List<AdMonitorTask> getAllByStatusUnZhipai(Map<String, Object> searchMap) {
 		return adMonitorTaskMapper.getAllByStatusUnZhipai(searchMap);
 	}
 	
+	/**
+	 * 查询每条监测任务中最新的一条反馈信息
+	 */
 	@Override
 	public List<PictureVo> selectFeedBackByActivityIdAndSeatId(Map<String, Object> searchMap) {
 		return adMonitorTaskMapper.selectFeedBackByActivityIdAndSeatId(searchMap);
 	}
 
+	/**
+	 * 分页查询任务信息
+	 */
 	@Override
 	public void getTaskPageData(SearchDataVo datavo) {
 		int count = adMonitorTaskMapper.getTaskPageCount(datavo.getSearchMap());
@@ -1236,6 +1311,9 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 		adActivityMapper.updateByPrimaryKeySelective(adActivity);
 	}
 
+	/**
+	 * 通过任务id查询任务信息
+	 */
 	@Override
 	public AdMonitorTask getActivityId(int id) {
 		return adMonitorTaskMapper.selectByPrimaryKey(id);
@@ -1260,21 +1338,33 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 		return adMonitorTaskFeedbackMapper.insert(feedback);
 	}
 	
+	/**
+	 * 查询主任务下存在的反馈数量
+	 */
 	@Override
 	public Integer selectCountByMonitorTaskId(int monitorTaskId) {
 		return adMonitorTaskFeedbackMapper.selectCountByMonitorTaskId(monitorTaskId);
 	}
 	
+	/**
+	 * 查询该任务对应的广告位的经纬度信息
+	 */
 	@Override
 	public AdSeatInfo selectLonLatByMonitorTaskId(int monitorTaskId) {
 		return adMonitorTaskMapper.selectLonLatByMonitorTaskId(monitorTaskId);
 	}
 
+	/**
+	 * 通过活动id查询出所有的任务信息
+	 */
 	@Override
 	public List<AdMonitorTask> getAllTasksByActivityId(Integer activityId) {
 		return adMonitorTaskMapper.getAllTasksByActivityId(activityId);
 	}
 
+	/**
+	 * 查询某一活动某种任务类型某一报告时间的最新的监测任务
+	 */
 	@Override
 	public List<AdMonitorTask> newSelectLatestMonitorTaskIds(Map<String, Object> searchMap) {
 		return adMonitorTaskMapper.newSelectLatestMonitorTaskIds(searchMap);
@@ -1349,6 +1439,9 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 		}
 	}
 
+	/**
+	 * 通过反馈id查询对应的任务主表信息
+	 */
 	@Override
 	public AdMonitorTask geAdMonitorTaskByFeedbackId(Integer adMonitorTaskFeedbackId) {
 		AdMonitorTaskFeedback taskFeedback = adMonitorTaskFeedbackMapper.selectByPrimaryKey(adMonitorTaskFeedbackId);

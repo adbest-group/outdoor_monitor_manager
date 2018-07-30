@@ -25,6 +25,9 @@ import com.bt.om.mapper.SysUserMapper;
 import com.bt.om.service.IAdUserMessageService;
 import com.bt.om.vo.web.SearchDataVo;
 
+/**
+ * 站内信相关事务层
+ */
 @Service
 public class AdUserMessageService implements IAdUserMessageService{
 	private static final String MOBILE_NULL = "手机号为空";
@@ -52,6 +55,9 @@ public class AdUserMessageService implements IAdUserMessageService{
 	@Autowired
 	private SysUserExecuteMapper sysUserExecuteMapper;
 	
+	/**
+	 * 分页查询用户站内信信息
+	 */
 	@Override
 	public void getPageData(SearchDataVo vo) {
 		int count = adUserMessageMapper.getPageCount(vo.getSearchMap());
@@ -63,11 +69,13 @@ public class AdUserMessageService implements IAdUserMessageService{
         }
 	}
 
+	/**
+	 * 插入一条站内信
+	 */
 	@Override
 	public void insertMessage(List<AdUserMessage> message) {
 		adUserMessageMapper.insertMessage(message);
 	}
-	
 	
 	/**
 	 * 批量导入媒体监测人员

@@ -144,6 +144,7 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
   
+  <!-- 分页查询用户金额明细 -->
   <select id="getPageCount" parameterType="map" resultType="java.lang.Integer">
     select
     count(a.id)
@@ -171,6 +172,7 @@
     </if>
   </select>
 
+  <!-- 分页查询用户金额明细 -->
   <select id="getPageData" parameterType="map" resultType="com.bt.om.entity.vo.AdUserMoneyVo">
     select
     	a.id id, 
@@ -205,6 +207,7 @@
     order by a.id desc
   </select>
   
+  <!-- 查询某一APP用户的总金额 -->
   <select id="getMoneyCountById" parameterType="int" resultType="java.lang.Double">
   	select sum(money) 
   	FROM ad_user_money 

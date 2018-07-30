@@ -10,11 +10,19 @@ import com.bt.om.entity.SysResources;
 import com.bt.om.mapper.AdUserMoneyMapper;
 import com.bt.om.service.IUserMoneyService;
 import com.bt.om.vo.web.SearchDataVo;
+
+/**
+ * 用户金额 相关业务层
+ */
 @Service
 public class UserMoneyService implements IUserMoneyService {
 
 	@Autowired
 	private AdUserMoneyMapper adUserMoneyMapper;
+	
+	/**
+	 * 分页查询用户金额明细
+	 */
 	@Override
 	public void getPageData(SearchDataVo vo) {
 		int count = adUserMoneyMapper.getPageCount(vo.getSearchMap());
@@ -26,6 +34,9 @@ public class UserMoneyService implements IUserMoneyService {
 		}
 	}
 	
+	/**
+	 * 查询某一APP用户的总金额
+	 */
 	@Override
 	public Double getMoneyCountById(Integer userId) {
 		return adUserMoneyMapper.getMoneyCountById(userId);

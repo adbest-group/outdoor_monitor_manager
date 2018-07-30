@@ -172,15 +172,19 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
   
-   <update id="updateGroupName" parameterType="com.bt.om.entity.SysResources">
+  <!-- 更新部门/组信息 -->
+  <update id="updateGroupName" parameterType="com.bt.om.entity.SysResources">
   		update sys_resources
   		set name=#{name,jdbcType=VARCHAR}
   		where id = #{id,jdbcType=INTEGER}
   </update>
+  
+  <!-- 获取全部的部门/组信息 -->
   <select id="getAll" resultMap="BaseResultMap">
   	select * from sys_resources
   </select>
 
+  <!-- 通过部门领导id查询部门信息 -->
   <select id="selectByUserId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select
     <include refid="Base_Column_List" />
@@ -188,6 +192,7 @@
     where user_id = #{id,jdbcType=INTEGER}
   </select>
   
+  <!-- 通过部门领导id查询部门信息 -->
   <select id="getByUserId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select
     <include refid="Base_Column_List" />
@@ -195,6 +200,7 @@
     where user_id = #{userId,jdbcType=INTEGER}
   </select>
   
+  <!-- 分页查询部门/组信息 -->
   <select id="getPageCount" parameterType="map" resultType="int">
     select
     count(id)
@@ -224,6 +230,7 @@
     </if>
   </select>
 
+  <!-- 分页查询部门/组信息 -->
   <select id="getPageData" parameterType="map" resultType="com.bt.om.entity.vo.SysResourcesVo">
     select
     	a.id id, 
@@ -264,6 +271,7 @@
     order by a.id desc
   </select>
 
+	<!-- 查询部门领导管理的部门数量 -->
 	<select id="selectCountByUserId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
 		select count(1)
 		from sys_resources
@@ -271,6 +279,7 @@
 		and user_id = #{userId,jdbcType=INTEGER}
 	</select>
 
+	<!-- 查询某部门下组的id集合 -->
 	<select id="selectGroupIdsByDepartmentId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
 		select id
 		from sys_resources
@@ -303,17 +312,21 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
+  
+  <!-- 删除组 -->
   <delete id = "deleteGroup" parameterType="java.lang.Integer">
   	 delete from sys_resources
   	where id =#{id,jdbcType=INTEGER} and type = 2
   </delete>
   
+  <!-- 查询某一部门类型的部门领导id -->
   <select id="getUserId" resultType="java.lang.Integer" parameterType="java.lang.Integer">
   	select user_id 
   	from sys_resources
   	where department_type = #{departmentType,jdbcType=INTEGER}
   </select>
   
+  <!-- 通过父部门id和组id查询 部门下其他组id集合 -->
   <select id="getResId" resultType="java.lang.Integer">
   	select id
   	from sys_resources
@@ -321,10 +334,12 @@
   	and id=#{id,jdbcType=INTEGER}
   </select>
   
+  <!-- 获取所有的部门/组 -->
   <select id="getAllDepartment" parameterType="java.lang.Integer" resultMap="BaseResultMap">
   	select 
   	<include refid="Base_Column_List" />
     from sys_resources
     where type = #{type,jdbcType=INTEGER}
   </select>
+  
 </mapper>

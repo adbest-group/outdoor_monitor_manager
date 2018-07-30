@@ -2,19 +2,15 @@ package com.bt.om.service.impl;
 
 import java.util.List;
 
-import com.bt.om.entity.SysRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.bt.om.entity.vo.SysRoleVo;
+import com.bt.om.entity.SysRole;
 import com.bt.om.mapper.SysRoleMapper;
 import com.bt.om.service.ISysRoleService;
 
 /**
- * 
- * 
- * @author tanyong
- * @version $Id: SysRoleService.java, v 0.1 2016年12月2日 下午2:36:01 tanyong Exp $
+ * 后台角色 相关事务层
  */
 @Service
 public class SysRoleServiceImpl implements ISysRoleService {
@@ -22,9 +18,8 @@ public class SysRoleServiceImpl implements ISysRoleService {
 	@Autowired
 	private SysRoleMapper sysRoleMapper;
 	
-	/*
-	 * (non-Javadoc)
-	 * @see com.bt.om.service.ISysRoleService#getRoleListByUserId(java.lang.Integer)
+	/**
+	 * 通过用户id查询出角色信息
 	 */
 	@Override
 	public List<SysRole> findRoleByUserId(Integer userId) {

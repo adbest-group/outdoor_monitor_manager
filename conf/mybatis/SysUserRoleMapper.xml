@@ -144,6 +144,7 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
   
+  <!-- 更新用户角色 -->
   <update id="updateUserRole" parameterType="com.bt.om.entity.vo.UserRoleVo">
   	update sys_user_role
   	set role_id = #{roleId,jdbcType=INTEGER},
@@ -151,10 +152,13 @@
   	where user_id in 
   	<foreach collection="userIds" separator="," open="(" close=")" item="userId">#{userId,jdbcType=INTEGER}</foreach>
   </update> 
+  
+  <!-- 通过用户id查询用户角色 -->
   <select id="findRoleByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
   	select 
     <include refid="Base_Column_List" />
     from sys_user_role
     where user_id = #{userId,jdbcType=INTEGER}
   </select>
+  
 </mapper>

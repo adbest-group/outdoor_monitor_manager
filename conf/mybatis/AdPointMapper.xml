@@ -140,14 +140,16 @@
       update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  
   <!-- 通过积分类型查找所有数据 -->
-   <select id="selectByPointType" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="selectByPointType" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from ad_point
     where type = #{type,jdbcType=INTEGER}
   </select>
   
+  <!-- 分页查询积分设置 -->
   <select id="getPageCount" parameterType="map" resultType="int">
     select
     count(id)
@@ -171,6 +173,7 @@
     </if>
   </select>
 
+  <!-- 分页查询积分设置 -->
   <select id="getPageData" parameterType="map" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />

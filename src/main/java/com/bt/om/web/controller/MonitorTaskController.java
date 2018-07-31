@@ -1256,22 +1256,46 @@ public class MonitorTaskController extends BasicController {
 	 * */
 	@RequiresRoles("superadmin")
 	@RequestMapping(value = "/verifyPic")
-	public String editPicStatus(@RequestParam("id") String id, Model model, HttpServletRequest request) {
+	public String editPicStatus(@RequestParam("id") String id, Model model, HttpServletRequest request,
+			@RequestParam(value = "index", required = false) Integer index) {
+		model.addAttribute("index", index);
+		model.addAttribute("id", id);
 		return PageConst.VERIFYPIC_PAGE;
 	}
 	
 	/**
-	 * 保存审核图片的状态
+	 * 保存单条审核图片的状态
 	 * */
 	@RequiresRoles("superadmin")
 	@RequestMapping(value = "/savePicStatus")
 	@ResponseBody
-	public Model verifyPic(@RequestParam("id") String id, Model model, HttpServletRequest request,
-			@RequestParam("status") Integer status) {
+	public Model verifyPic(@RequestParam("id") Integer id, Model model, HttpServletRequest request,
+			@RequestParam(value = "status",required = false) Integer status,
+			@RequestParam(value = "index",required = false) Integer index) {
 		ResultVo resultVo = new ResultVo();
 		AdMonitorTaskFeedback feedback = new AdMonitorTaskFeedback();
 		try {
 			if(id != null) {
+				if(index == 1) {
+					feedback.setPicUrl1Status(status);
+				}else if(index == 2){
+					feedback.setPicUrl2Status(status);
+				}else if(index == 3) {
+					feedback.setPicUrl3Status(status);
+				}else if(index == 4) {
+					feedback.setPicUrl4Status(status);
+				}
+				feedback.setId(id);
+				boolean result = adMonitorTaskService.updatePicStatus(feedback,status);
+				if(result) {
+					//驳回发送短信
+					if(feedback.getMonitorTaskId() != null) {
+						String username = adMonitorTaskService.selectUserNameByTaskId(feedback.getMonitorTaskId());
+						if(StringUtil.isNotBlank(username)) {
+							sendSmsService.sendSms(username, SMS_REJECT_CONTENT_TEMPLATE);
+						}
+					}
+				}
 			}
 		}catch (Exception ex) {
 			logger.error(ex);

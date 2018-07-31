@@ -117,4 +117,7 @@ public interface IAdMonitorTaskService {
 	void recycleMediaMonitorTask();
 	public void changeStatus();
 	public AdMonitorTask geAdMonitorTaskByFeedbackId(Integer adMonitorTaskFeedbackId);
+	//更新图片状态（通过 /驳回）
+	public boolean updatePicStatus(AdMonitorTaskFeedback feedback, Integer status);
+	public String selectUserNameByTaskId(Integer monitorTaskId);
 }

@@ -112,7 +112,7 @@ public class SysUserExecuteService implements ISysUserExecuteService {
      */
     @Override
     public void modify(SysUserExecute userExecute) {
-        sysUserExecuteMapper.updateByPrimaryKey(userExecute);
+        sysUserExecuteMapper.updateByPrimaryKeySelective(userExecute);
     }
 
     /**

@@ -2,6 +2,7 @@ package com.bt.om.service.impl;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,6 +46,7 @@ import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.enums.VerifyType;
 import com.bt.om.enums.UserTypeEnum;
 import com.bt.om.mapper.AdActivityAdseatMapper;
 import com.bt.om.mapper.AdActivityMapper;
@@ -278,6 +280,15 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	        AdMonitorTaskFeedback feedback = null;
 	        //如果监测反馈有问题，问题状态置为有问题，否则无问题
 	        List<AdMonitorTaskFeedback> feedbacks = adMonitorTaskFeedbackMapper.selectByTaskId(task.getId(), 1);
+	        //任务审核通过 feedback的四张图片的状态改为通过 status=1 
+	        for(AdMonitorTaskFeedback feedbackTask : feedbacks) {
+	        	feedbackTask.setPicUrl1Status(VerifyType.PASS_TYPE.getId());
+	        	feedbackTask.setPicUrl2Status(VerifyType.PASS_TYPE.getId());
+	        	feedbackTask.setPicUrl3Status(VerifyType.PASS_TYPE.getId());
+	        	feedbackTask.setPicUrl4Status(VerifyType.PASS_TYPE.getId());
+	        	adMonitorTaskFeedbackMapper.updateByPrimaryKey(feedbackTask);
+	        }
+	        
 	//        AdMonitorTaskFeedback feedback = adMonitorTaskFeedbackMapper.selectByTaskId(task.getId(), 1).get(0);
 	        if(feedbacks == null || feedbacks.size() == 0) {
 	        	task.setProblemStatus(TaskProblemStatus.NO_PROBLEM.getId());
@@ -461,7 +472,11 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	        for (AdMonitorTaskFeedback feedback : feedbacks) {
 	            feedback.setReason(reason);
 	            feedback.setUpdateTime(now);
-	            adMonitorTaskFeedbackMapper.updateByPrimaryKeySelective(feedback);
+	            feedback.setPicUrl1Status(VerifyType.REJECT_TYPE.getId());//status=2 图片被驳回
+	            feedback.setPicUrl2Status(VerifyType.REJECT_TYPE.getId());
+	            feedback.setPicUrl3Status(VerifyType.REJECT_TYPE.getId());
+	            feedback.setPicUrl4Status(VerifyType.REJECT_TYPE.getId());
+	            adMonitorTaskFeedbackMapper.updateByPrimaryKey(feedback);
 	        }
 	        
 	        //审核不通过修改站内信
@@ -532,7 +547,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         
         //获取监测任务
         AdMonitorTask task = adMonitorTaskMapper.selectByPrimaryKey(taskId);
-        
+
         //每次更新广告位经纬度
         if (feedback.getLat()!=null&feedback.getLon()!=null) {
         	AdActivityAdseatVo adseatVo = adActivityAdseatMapper.selectVoById(task.getActivityAdseatId());
@@ -543,8 +558,8 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             adSeatInfoMapper.updateByPrimaryKeySelective(adSeatInfo);
 		}
         
-        //上刊任务添加用户积分
-        if(task.getTaskType() == MonitorTaskType.UP_TASK.getId()) {
+        //第一次做任务时上刊任务添加用户积分
+        if(task.getStatus() == MonitorTaskStatus.TO_CARRY_OUT.getId() && task.getTaskType() == 5) {
 //        	AdPoint adPoint = adPointMapper.selectByPointType(4);//上刊任务
         	AdUserPoint userPoint = new AdUserPoint();
         	AdUserMoney userMoney = new AdUserMoney();
@@ -576,31 +591,12 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 //        	adSeatInfoMapper.updateByPrimaryKeySelective(seatInfo);
 //        }
         
-        //如果检测任务当前处于"待执行"或"审核未通过"
-        if (task.getStatus() == MonitorTaskStatus.TO_CARRY_OUT.getId() || task.getStatus() == MonitorTaskStatus.VERIFY_FAILURE.getId()) {
-            //获取之前提交的feedback，设置为无效，流程正常情况下只有一条
-            List<AdMonitorTaskFeedback> old_feed = adMonitorTaskFeedbackMapper.selectByTaskId(taskId, 1);
-            for (AdMonitorTaskFeedback old : old_feed) {
-                old.setStatus(2);
-                old.setUpdateTime(now);
-                adMonitorTaskFeedbackMapper.updateByPrimaryKeySelective(old);
-            }
+        if (task.getStatus() == MonitorTaskStatus.TO_CARRY_OUT.getId()) {
+        	//如果监测任务当前处于"待执行", 插入feedback
             feedback.setCreateTime(now);
             feedback.setUpdateTime(now);
             feedback.setMonitorTaskId(taskId);
             adMonitorTaskFeedbackMapper.insertSelective(feedback);
-            //现在又没有上刊安装任务了
-//            if(task.getTaskType()==MonitorTaskType.SET_UP_MONITOR.getId()){
-//                //上刊安装任务不提供未完成状态
-//                task.setStatus(MonitorTaskStatus.UNVERIFY.getId());
-//            }else {
-//                //如果本次提交的照片不足，任务状态设置为"未完成"，否则进入待审核
-//                if (feedback.getPicUrl1() == null || feedback.getPicUrl2() == null || feedback.getPicUrl3() == null || feedback.getPicUrl4() == null) {
-//                    task.setStatus(MonitorTaskStatus.UN_FINISHED.getId());
-//                } else {
-//                    task.setStatus(MonitorTaskStatus.UNVERIFY.getId());
-//                }
-//            }
             if(task.getTaskType() == MonitorTaskType.UP_TASK.getId()) {
             	//上刊任务, 不校验, 直接审核通过
             	task.setStatus(MonitorTaskStatus.VERIFIED.getId());
@@ -613,44 +609,65 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
                     task.setStatus(MonitorTaskStatus.UNVERIFY.getId());
                 }
             }
-            task.setUpdateTime(now);
-            adMonitorTaskMapper.updateByPrimaryKeySelective(task);
-
-            //上刊安装任务，判断是否二维码已绑定广告位
-            //现在又没有上刊安装任务了
-//            if (task.getTaskType()== MonitorTaskType.SET_UP_MONITOR.getId()) {
-//                AdSeatInfo seatInfo = adSeatInfoMapper.getAdSeatInfoByAdActivitySeatId(task.getActivityAdseatId());
-//                //如果广告位没绑定二维码，本次绑定激活
-//                if(StringUtil.isEmpty(seatInfo.getAdCode())){
-//                    if(StringUtil.isEmpty(adSeatCode)){
-//                        throw new RuntimeException("广告位未激活，需提供广告位二维码");
-//                    }
-//                    seatInfo.setAdCode(adSeatCode);
-//                    seatInfo.setUpdateTime(now);
-//                    adSeatInfoMapper.updateByPrimaryKeySelective(seatInfo);
-//                }
-//            }
-
+        } else if (task.getStatus() == MonitorTaskStatus.VERIFY_FAILURE.getId()) {
+        	//如果监测任务当前处于"审核不通过", 更新feedback
+        	//获取之前提交的feedback，更新feedback,流程正常情况下只有一条
+            List<AdMonitorTaskFeedback> old_feed = adMonitorTaskFeedbackMapper.selectByTaskId(taskId, 1);
+            for (AdMonitorTaskFeedback old : old_feed) {
+                if(feedback.getPicUrl1() != null) {
+                	old.setPicUrl1(feedback.getPicUrl1());
+                }
+                if(feedback.getPicUrl2() != null) {
+                	old.setPicUrl2(feedback.getPicUrl2());
+                }
+                if(feedback.getPicUrl3() != null) {
+                	old.setPicUrl3(feedback.getPicUrl3());
+                }
+                if(feedback.getPicUrl4() != null) {
+                	old.setPicUrl4(feedback.getPicUrl4());
+                }
+                old.setProblem(feedback.getProblem());
+                old.setProblemOther(feedback.getProblemOther());
+                old.setUpdateTime(now); 
+                adMonitorTaskFeedbackMapper.updateByPrimaryKeySelective(old);
+            }
+            
+            task.setStatus(MonitorTaskStatus.UNVERIFY.getId());
         } else if (task.getStatus() == MonitorTaskStatus.UN_FINISHED.getId()) {
-            //如果检测任务当前处于"未完成"
-            //获取未完成的feedback，流程正常情况下只有一条
+            //如果监测任务当前处于"未完成", 更新feedback
             List<AdMonitorTaskFeedback> old_feed = adMonitorTaskFeedbackMapper.selectByTaskId(taskId, 1);
             AdMonitorTaskFeedback old = old_feed.get(old_feed.size() - 1);
 
             //用本地feedback根据提供字段按需更新
-            feedback.setId(old.getId());
-            feedback.setUpdateTime(now);
-            feedback.setMonitorTaskId(taskId);
-            adMonitorTaskFeedbackMapper.updateByPrimaryKeySelective(feedback);
+//            feedback.setId(old.getId());
+//            feedback.setUpdateTime(now);
+//            feedback.setMonitorTaskId(taskId);
+            
+            old.setUpdateTime(now);
+            if(StringUtil.isNotBlank(feedback.getPicUrl1())) {
+            	old.setPicUrl1(feedback.getPicUrl1());
+            }
+            if(StringUtil.isNotBlank(feedback.getPicUrl2())) {
+            	old.setPicUrl2(feedback.getPicUrl2());
+            }
+            if(StringUtil.isNotBlank(feedback.getPicUrl3())) {
+            	old.setPicUrl3(feedback.getPicUrl3());
+            }
+            if(StringUtil.isNotBlank(feedback.getPicUrl4())) {
+            	old.setPicUrl4(feedback.getPicUrl4());
+            }
+            adMonitorTaskFeedbackMapper.updateByPrimaryKeySelective(old);
             //如果本次提交的照片+以前提交的照片仍不足，任务状态还是设置为"未完成"，否则进入待审核
-            if (feedback.getPicUrl1() == null && old.getPicUrl1() == null || feedback.getPicUrl2() == null && old.getPicUrl2() == null || feedback.getPicUrl3() == null && old.getPicUrl3() == null || feedback.getPicUrl4() == null && old.getPicUrl4() == null) {
+            if (old.getPicUrl1() == null|| old.getPicUrl2() == null || old.getPicUrl3() == null || old.getPicUrl4() == null) {
                 task.setStatus(MonitorTaskStatus.UN_FINISHED.getId());
             } else {
                 task.setStatus(MonitorTaskStatus.UNVERIFY.getId());
             }
-            task.setUpdateTime(now);
-            adMonitorTaskMapper.updateByPrimaryKeySelective(task);
         }
+        
+        //更新任务主表
+        task.setUpdateTime(now);
+        adMonitorTaskMapper.updateByPrimaryKeySelective(task);
         
         //如果任务到了待审核的状态【普通监测任务】/ 审核通过的状态【上刊任务】, 则需要插入站内信
         if(task.getStatus() == MonitorTaskStatus.UNVERIFY.getId() || task.getStatus() == MonitorTaskStatus.VERIFIED.getId()) {
@@ -1448,4 +1465,60 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 		AdMonitorTask adMonitorTask = adMonitorTaskMapper.selectByPrimaryKey(taskFeedback.getMonitorTaskId());
 		return adMonitorTask;
 	}
+
+	@Override
+	public boolean updatePicStatus(AdMonitorTaskFeedback feedback,Integer status) {
+		adMonitorTaskFeedbackMapper.updateByPrimaryKeySelective(feedback);
+		AdMonitorTaskFeedback feedback1 = adMonitorTaskFeedbackMapper.selectByPrimaryKey(feedback.getId());
+		AdMonitorTask task = adMonitorTaskMapper.selectByPrimaryKey(feedback1.getMonitorTaskId());//查询出当前任务的所有信息
+		
+		AdMonitorTask adMonitorTask = new AdMonitorTask();
+		//如果status=1   查看是否存在图片为空
+		if(status == 1) {
+			if(feedback1.getPicUrl1Status()==null || feedback1.getPicUrl2Status()==null || feedback1.getPicUrl3Status()==null || feedback1.getPicUrl4Status()==null) {
+				//存在图片为空  任务主表设为审核中 
+				adMonitorTask.setId(feedback1.getMonitorTaskId());
+				adMonitorTask.setStatus(3);//3 审核中
+				adMonitorTaskMapper.updateByPrimaryKeySelective(adMonitorTask);
+			}else if(feedback1.getPicUrl1Status()==VerifyType.PASS_TYPE.getId()  && feedback1.getPicUrl2Status()==VerifyType.PASS_TYPE.getId() && feedback1.getPicUrl3Status()==VerifyType.PASS_TYPE.getId() && feedback1.getPicUrl4Status()==VerifyType.PASS_TYPE.getId()) {
+				//都审核通过  任务主表设为通过
+				adMonitorTask.setId(feedback1.getMonitorTaskId());
+				adMonitorTask.setStatus(4);//4 审核通过
+				adMonitorTaskMapper.updateByPrimaryKeySelective(adMonitorTask);
+			}else {
+				//存在审核不通过  任务主表设为未通过
+				adMonitorTask.setId(feedback1.getMonitorTaskId());
+				adMonitorTask.setStatus(5);//5 审核未通过
+				adMonitorTaskMapper.updateByPrimaryKeySelective(adMonitorTask);
+			}
+		}else {
+			//status=2 查看是否存在图片为空
+			if(feedback1.getPicUrl1Status()==null || feedback1.getPicUrl2Status()==null || feedback1.getPicUrl3Status()==null || feedback1.getPicUrl4Status()==null ) {
+				//存在图片为空  任务主表设为审核中 
+				adMonitorTask.setId(feedback1.getMonitorTaskId());
+				adMonitorTask.setStatus(3);//3 审核中
+				adMonitorTaskMapper.updateByPrimaryKeySelective(adMonitorTask);
+			}else if(feedback1.getPicUrl1Status()==VerifyType.REJECT_TYPE.getId() || feedback1.getPicUrl2Status()==VerifyType.REJECT_TYPE.getId() || feedback1.getPicUrl3Status()==VerifyType.REJECT_TYPE.getId() || feedback1.getPicUrl4Status()==VerifyType.REJECT_TYPE.getId() ) {
+				//有一张图片审核不通过  任务主表设为未通过
+				adMonitorTask.setId(feedback1.getMonitorTaskId());
+				adMonitorTask.setStatus(5);//5 审核未通过
+				adMonitorTaskMapper.updateByPrimaryKeySelective(adMonitorTask);
+			}
+		}
+		
+		adMonitorTask = adMonitorTaskMapper.selectByPrimaryKey(feedback1.getMonitorTaskId());//获得更新后的任务信息
+		if(feedback1.getPicUrl1Status()!=null && feedback1.getPicUrl2Status()!=null && feedback1.getPicUrl3Status()!=null && feedback1.getPicUrl4Status()!=null ) {
+			if(task.getStatus()!=MonitorTaskStatus.VERIFY_FAILURE.getId() && adMonitorTask.getStatus()==MonitorTaskStatus.VERIFY_FAILURE.getId()) {
+				//上次不是审核不通过 这次是审核不通过 ，发送短信
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public String selectUserNameByTaskId(Integer monitorTaskId) {
+		return adMonitorTaskMapper.selectUserNameByTaskId(monitorTaskId);
+	}
+
 }

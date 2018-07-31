@@ -21,6 +21,10 @@
     <result column="lat" jdbcType="DOUBLE" property="lat" />
     <result column="status" jdbcType="INTEGER" property="status" />
     <result column="reason" jdbcType="VARCHAR" property="reason" />
+    <result column="pic_url1_status" jdbcType="INTEGER" property="picUrl1Status" />
+    <result column="pic_url2_status" jdbcType="INTEGER" property="picUrl2Status" />
+    <result column="pic_url3_status" jdbcType="INTEGER" property="picUrl3Status" />
+    <result column="pic_url4_status" jdbcType="INTEGER" property="picUrl4Status" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>
@@ -31,7 +35,7 @@
       This element was generated on Wed Jan 24 17:01:09 CST 2018.
     -->
     id, monitor_task_id, pic_url1, pic_url2, pic_url3, pic_url4, problem, problem_other, 
-    seat_lon, seat_lat,lon, lat, status, reason, create_time, update_time
+    seat_lon, seat_lat,lon, lat, status, reason,pic_url1_status,pic_url2_status,pic_url3_status,pic_url4_status, create_time, update_time
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     <!--
@@ -225,6 +229,18 @@
       <if test="reason != null">
         reason = #{reason,jdbcType=VARCHAR},
       </if>
+      <if test="picUrl1Status != null">
+        pic_url1_status = #{picUrl1Status,jdbcType=INTEGER},
+      </if>
+      <if test="picUrl2Status != null">
+        pic_url2_status = #{picUrl2Status,jdbcType=INTEGER},
+      </if>
+      <if test="picUrl3Status != null">
+        pic_url3_status = #{picUrl3Status,jdbcType=INTEGER},
+      </if>
+      <if test="picUrl4Status != null">
+        pic_url4_status = #{picUrl4Status,jdbcType=INTEGER},
+      </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=TIMESTAMP},
       </if>
@@ -254,6 +270,10 @@
       lat = #{lat,jdbcType=DOUBLE},
       status = #{status,jdbcType=INTEGER},
       reason = #{reason,jdbcType=VARCHAR},
+      pic_url1_status = #{picUrl1Status,jdbcType=INTEGER},
+      pic_url2_status = #{picUrl2Status,jdbcType=INTEGER},
+      pic_url3_status = #{picUrl3Status,jdbcType=INTEGER},
+      pic_url4_status = #{picUrl4Status,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}
@@ -325,5 +345,5 @@
   	from ad_monitor_task_feedback
   	where monitor_task_id = #{monitorTaskId,jdbcType=INTEGER}
   </select>
-  
+
 </mapper>

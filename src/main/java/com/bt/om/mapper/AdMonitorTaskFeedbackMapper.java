@@ -1,9 +1,11 @@
 package com.bt.om.mapper;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.RowBounds;
 
 import com.bt.om.entity.AdMonitorTaskFeedback;
 
@@ -69,4 +71,5 @@ public interface AdMonitorTaskFeedbackMapper {
     int updatePicUrl4(Map<String, Object> searchMap);
     
     int selectCountByMonitorTaskId(@Param("monitorTaskId") Integer monitorTaskId);
+
 }

@@ -157,29 +157,49 @@
                                 </p>
                                 <p>
                                     提交照片：</br>
+                                
                                 <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
+                                <input type="text" id="verifyPic1Result" disabled name="verifyPic1Result" style="width: 100px;" value="${vm.getVerifyTypeText(item.picUrl1Status!0)}" autocomplete="off" class="form-control" />
                                      <img style="vertical-align: top;width:350px" src="${item.picUrl1!""}"></img>
                                      <#if usertype?exists&&usertype==4>
                                      	<#if (vo.status?exists&&vo.status!=7&&vo.status!=8)>
                                       		<input type="button" id="changePic1" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/>
-                                      		 <#-- 
-                                      		<input type="button" id="verifyPic1" class="changePic btn btn-primary" value="　审核　" onclick="openverify(${item.feedbackId!""})"/>
-                                      		  -->
+                                      		<#if vo.status==3 || vo.status==5>
+                                      		<input type="button" id="verifyPic1" class="changePic btn btn-primary" value="　审核　" onclick="openverify1(${item.feedbackId!""})"/>
+                                      		</#if>
                                       	</#if>
                                      </#if>
                                 </div>
                                 <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
+                                <input type="text" id="verifyPic2Result" disabled name="verifyPic2Result" style="width: 100px;" value="${vm.getVerifyTypeText(item.picUrl2Status!0)}" autocomplete="off" class="form-control" />
                                     <img style="vertical-align: top;width:350px"" src="${item.picUrl2!""}"></img>
-                                    <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=7&&vo.status!=8)><input type="button" id="changePic2" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if></#if>
+                                    <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=7&&vo.status!=8)>
+                                    	<input type="button" id="changePic2" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if>
+                                    	<#if vo.status==3 || vo.status==5>
+                                      		<input type="button" id="verifyPic2" class="changePic btn btn-primary" value="　审核　" onclick="openverify2(${item.feedbackId!""})"/>
+                                      	</#if>
+                                    </#if>
                                 </div> 
                                 </br>
                                 <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
+                                <input type="text" id="verifyPic3Result" disabled name="verifyPic3Result" style="width: 100px;" value="${vm.getVerifyTypeText(item.picUrl3Status!0)}" autocomplete="off" class="form-control" />
                                     <img style="vertical-align: top;width:350px"" src="${item.picUrl3!""}"></img>
-                                    <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=7&&vo.status!=8)><input type="button" id="changePic3" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if></#if>
+                                    <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=7&&vo.status!=8)>
+                                    <input type="button" id="changePic3" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if>
+                                    	<#if vo.status==3 || vo.status==5>
+                                      		<input type="button" id="verifyPic3" class="changePic btn btn-primary" value="　审核　" onclick="openverify3(${item.feedbackId!""})"/>
+                                      	</#if>
+                                    </#if>
                                 </div> 
                                 <div style="width: 360px;margin-bottom: 10px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
+                                <input type="text" id="verifyPic4Result" disabled name="verifyPic4Result" style="width: 100px;" value="${vm.getVerifyTypeText(item.picUrl4Status!0)}" autocomplete="off" class="form-control" />
                                     <img style="vertical-align: top;width:350px"" src="${item.picUrl4!""}"></img>
-                                    <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=7&&vo.status!=8)><input type="button" id="changePic4" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if></#if>
+                                    <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=7&&vo.status!=8)>
+                                    <input type="button" id="changePic4" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if>
+                                      <#if vo.status==3 || vo.status==5>
+                                      	  <input type="button" id="verifyPic4" class="changePic btn btn-primary" value="　审核　" onclick="openverify4(${item.feedbackId!""})"/>
+                                      </#if>
+                                    </#if>
                                 </div> 
                                 </p>
                                 <p><br/>
@@ -322,15 +342,51 @@
 	function setFeedbackId(id){
 		$("#selectTaskFeedBackId").val(id);
 	}
-	
-	function openverify(id){
+	//审核图片1
+	function openverify1(id){
 		layer.open({
             type: 2,
             title: '审核详情',
             shadeClose: true,
             shade: 0.8,
             area: ['890px', '480px'],
-            content: '/task/verifyPic?id=' + id //iframe的url
+            content: '/task/verifyPic?id=' + id + '&index=1' //iframe的url
+        });
+	}
+	
+	//审核图片2
+	function openverify2(id){
+		layer.open({
+            type: 2,
+            title: '审核详情',
+            shadeClose: true,
+            shade: 0.8,
+            area: ['890px', '480px'],
+            content: '/task/verifyPic?id=' + id + '&index=2' //iframe的url
+        });
+	}
+	
+	//审核图片3
+	function openverify3(id){
+		layer.open({
+            type: 2,
+            title: '审核详情',
+            shadeClose: true,
+            shade: 0.8,
+            area: ['890px', '480px'],
+            content: '/task/verifyPic?id=' + id + '&index=3' //iframe的url
+        });
+	}
+	
+	//审核图片4
+	function openverify4(id){
+		layer.open({
+            type: 2,
+            title: '审核详情',
+            shadeClose: true,
+            shade: 0.8,
+            area: ['890px', '480px'],
+            content: '/task/verifyPic?id=' + id + '&index=4' //iframe的url
         });
 	}
 	function checkVal(that){

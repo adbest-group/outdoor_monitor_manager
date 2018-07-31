@@ -166,4 +166,6 @@ public interface AdMonitorTaskMapper {
 	boolean updateTaskStatus(Date nowDate);
 
 	List<AdMonitorTask> selectOverTimeTasks(Date now);
+
+	String selectUserNameByTaskId(Integer id);
 }

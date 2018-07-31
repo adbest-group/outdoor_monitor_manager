@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ import com.bt.om.entity.SysResources;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserRes;
 import com.bt.om.entity.vo.UserRoleVo;
+import com.bt.om.enums.DepartmentTypeEnum;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.ResultCode;
@@ -35,6 +37,7 @@ import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.UserRoleEnum;
 import com.bt.om.enums.UserTypeEnum;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
@@ -66,6 +69,8 @@ public class SysGroupController extends BasicController{
     private IAdJiucuoTaskService adJiucuoTaskService;
 	@Autowired
 	private IAdUserMessageService adUserMessageService;
+	private static final Logger logger = Logger.getLogger(LogFilter.class);
+	
 	/**
 	 * 部门管理员查询组列表
 	 */
@@ -87,11 +92,10 @@ public class SysGroupController extends BasicController{
         
         //获取当前登录的后台用户信息
         SysUser sysUser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-        if(sysUser.getUsertype() == 5) {
-        //部门领导登录, 查询部门领导账号一对一管理的部门信息
+        if(sysUser.getUsertype() == UserTypeEnum.DEPARTMENT_LEADER.getId()) {
+        	//部门领导登录, 查询部门领导账号一对一管理的部门信息
         	SysResources department = sysGroupService.getByUserId(sysUser.getId());
         	vo.putSearchParam("parentid", null, department.getId());
-        	
         }
         
         sysGroupService.getPageData(vo);
@@ -144,19 +148,20 @@ public class SysGroupController extends BasicController{
             	sysResources.setType("2"); //设置类型为组
             	//获取当前登录的后台用户id
                 SysUser sysUser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-                if(sysUser.getUsertype() == 5) {
+                if(sysUser.getUsertype() == UserTypeEnum.DEPARTMENT_LEADER.getId()) {
                 	if(sysResources.getParentid()==null) {
 	                	//部门领导登录, 查询部门领导账号一对一管理的部门信息
 	                	SysResources department = sysGroupService.getByUserId(sysUser.getId());
 	                	sysResources.setParentid(department.getId());
 	                	sysGroupService.insert(sysResources);
                 	}
-                }else if(sysUser.getUsertype() == 4 && sysResources.getParentid() != null) {
+                }else if(sysUser.getUsertype() == UserTypeEnum.SUPER_ADMIN.getId() && sysResources.getParentid() != null) {
                 	//超级管理员登录
                 	sysGroupService.insert(sysResources);
                 }
             } 
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -214,6 +219,7 @@ public class SysGroupController extends BasicController{
                 return model;
             }
         } catch (Exception e) {
+        	logger.error(e);
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("删除失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -265,7 +271,7 @@ public class SysGroupController extends BasicController{
             searchMap.put("groupIds", groupIds);
             
             List<SysUser> sysUserss = sysGroupService.selectNoCustomerName(searchMap); //查询出本部门所有组下的 广告商信息
-            List<SysUser> allCustomers = sysUserService.getIdNameByUserType(2); //查询出所有的广告商信息
+            List<SysUser> allCustomers = sysUserService.getIdNameByUserType(UserTypeEnum.CUSTOMER.getId()); //查询出所有的广告商信息
             allCustomers.removeAll(sysUserss);
             model.addAttribute("sysUserss", allCustomers);
             
@@ -322,18 +328,16 @@ public class SysGroupController extends BasicController{
             	Integer departmentType = department.getDepartmentType(
             			); //部门类型
             	
-            	Integer roleId = 100;
-            	if(departmentType == 1) {
+            	Integer roleId = UserRoleEnum.ADMIN.getId();
+            	if(departmentType == DepartmentTypeEnum.ACTIVITY.getId()) {
             		//活动审核部门
-            		roleId = 105;
-            	} else if(departmentType == 2) {
-            		
-            		
+            		roleId = UserRoleEnum.ACTIVITY_ADMIN.getId();
+            	} else if(departmentType == DepartmentTypeEnum.MONITOR_TASK.getId()) {
             		//任务审核、指派部门
-            		roleId = 106;
-            	} else if(departmentType == 3) {
+            		roleId = UserRoleEnum.TASK_ADMIN.getId();
+            	} else if(departmentType == DepartmentTypeEnum.JIUCUO_TASK.getId()) {
             		//纠错审核部门
-            		roleId = 107;
+            		roleId = UserRoleEnum.JIUCUO_ADMIN.getId();
             	}
             	
             	//[2] 更新还在组内的员工角色信息
@@ -345,7 +349,7 @@ public class SysGroupController extends BasicController{
             	//[3] 更新不在组内的员工角色信息
             	UserRoleVo userRoleVo2 = new UserRoleVo();
             	userRoleVo2.setUpdateTime(now);
-            	userRoleVo2.setRoleId(100); //100:admin
+            	userRoleVo2.setRoleId(UserRoleEnum.ADMIN.getId()); //100:admin
             	userRoleVo2.setUserIds(insideUserIds);
             	
             	//[4] 插入sys_user_res表
@@ -366,12 +370,13 @@ public class SysGroupController extends BasicController{
             	
             	UserRoleVo userRoleVo = new UserRoleVo();
             	userRoleVo.setUpdateTime(now);
-            	userRoleVo.setRoleId(100); //100:admin
+            	userRoleVo.setRoleId(UserRoleEnum.ADMIN.getId()); //100:admin
             	userRoleVo.setUserIds(insideUserIds);
             	
             	sysUserService.deleteUserRess(sysUserRes, userRoleVo);
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -421,6 +426,7 @@ public class SysGroupController extends BasicController{
             	sysUserService.deleteCustomerRess(sysUserRes);
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -474,6 +480,7 @@ public class SysGroupController extends BasicController{
             try {
                 vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         //查询活动名称
@@ -562,6 +569,7 @@ public class SysGroupController extends BasicController{
             try {
                 vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         if (endDate != null) {
@@ -644,12 +652,14 @@ public class SysGroupController extends BasicController{
             try {
                 vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         if (endDate != null) {
             try {
                 vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
        //查询媒体主
@@ -730,6 +740,7 @@ public class SysGroupController extends BasicController{
             try {
                 vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
        //查询媒体主
@@ -803,12 +814,14 @@ public class SysGroupController extends BasicController{
             try {
                 vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         if (endDate != null) {
             try {
                 vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
       //查询媒体主
@@ -857,6 +870,7 @@ public class SysGroupController extends BasicController{
     	 try {
 	         sysGroupService.deleteGroup(id);
     	}catch (Exception e) {
+    		logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("删除失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -957,6 +971,7 @@ public class SysGroupController extends BasicController{
         		sysUserService.addUser(sysUser, UserRoleEnum.PHONE_OPERATOR.getId());
         	}
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);

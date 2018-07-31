@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.subject.Subject;
@@ -82,6 +83,7 @@ import com.bt.om.entity.vo.ProvinceAndCity;
 import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.AdCodeFlagEnum;
 import com.bt.om.enums.AdMediaInfoStatus;
+import com.bt.om.enums.AdPointEnum;
 import com.bt.om.enums.AppTaskEnum;
 import com.bt.om.enums.AppUpdateTypeEnum;
 import com.bt.om.enums.AppUserTaskEnum;
@@ -89,10 +91,12 @@ import com.bt.om.enums.AppUserTypeEnum;
 import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.LoginLogTypeEnum;
 import com.bt.om.enums.MonitorTaskStatus;
+import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
 import com.bt.om.enums.VerifyType;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
@@ -204,6 +208,8 @@ public class ApiController extends BasicController {
 	private String file_upload_ip = ConfigUtil.getString("file.upload.ip");
 
     private static ThreadLocal<Boolean> useSession = new ThreadLocal<>();
+    
+    private static final Logger logger = Logger.getLogger(ApiController.class);
 
     static {
         useSession.set(true);
@@ -289,7 +295,7 @@ public class ApiController extends BasicController {
         model = new ExtendedModelMap();
 
         InputStream is = null;
-
+        saveLog(request, "");
         try {
             file = file.replaceAll("data:image/jpeg;base64,", "");
             is = new ByteArrayInputStream(Base64.getDecoder().decode(file));
@@ -312,11 +318,13 @@ public class ApiController extends BasicController {
 
         } catch (IOException e) {
             e.printStackTrace();
+            logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("二维码解析失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         } catch (Exception e) {
+        	logger.error(e);
             e.printStackTrace();
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("二维码解析失败！");
@@ -327,6 +335,7 @@ public class ApiController extends BasicController {
                 try {
                     is.close();
                 } catch (IOException e) {
+                	logger.error(e);
                     e.printStackTrace();
                 }
             }
@@ -345,6 +354,7 @@ public class ApiController extends BasicController {
         result.setResultDes("获取成功");
         result.setResult("");
         model = new ExtendedModelMap();
+        saveLog(request, "");
 
         InputStream is = null;
         String seatCode = null;
@@ -365,6 +375,7 @@ public class ApiController extends BasicController {
             title = obj==null||obj.get("title") == null ? null : obj.get("title").getAsString(); //[2] 通过经纬度调取接口
             memo = obj==null||obj.get("memo") == null ? null : obj.get("memo").getAsString();//[3] 通过memo调取接口
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -374,6 +385,7 @@ public class ApiController extends BasicController {
                 try {
                     is.close();
                 } catch (IOException e) {
+                	logger.error(e);
                     e.printStackTrace();
                 }
             }
@@ -518,6 +530,7 @@ public class ApiController extends BasicController {
             }
             result.setResult(qr);
         } catch (Exception e) {
+        	logger.error(e);
             e.printStackTrace();
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("获取失败！");
@@ -562,6 +575,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -655,6 +669,7 @@ public class ApiController extends BasicController {
         	sysUserExecute.setSystemVersion(systemVersion);
         	sysUserExecuteService.updatePhoneModel(sysUserExecute);
         }
+        saveLog(request, username);
         //登录日志
         AddressUtils addressUtils = new AddressUtils();
         String  address = addressUtils.getAddresses( getIp(), "utf-8");
@@ -716,18 +731,23 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
+        SysUserExecute user = getLoginUser(request, token);
+        saveLog(request, user==null?"":user.getUsername());
         if (useSession.get()) {
             HttpSession session = request.getSession();
+            
             session.removeAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         } else {
             this.sessionByRedis.remove();
         }
 
+        model.addAttribute(SysConst.RESULT_KEY, result);
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");
         return model;
@@ -737,6 +757,7 @@ public class ApiController extends BasicController {
     @RequestMapping(value = "/getCodeBase64")
     @ResponseBody
     public Model getCode(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	saveLog(request, "");
         ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("获取验证码成功");
@@ -776,6 +797,7 @@ public class ApiController extends BasicController {
             result.setResult(res);
             model.addAttribute(SysConst.RESULT_KEY, result);
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -785,6 +807,7 @@ public class ApiController extends BasicController {
                 baos.flush();
                 baos.close();
             } catch (IOException e) {
+            	logger.error(e);
             }
         }
 
@@ -828,12 +851,14 @@ public class ApiController extends BasicController {
                 pageSize = obj.get("page_size").getAsInt();
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
         
+        saveLog(request, userId+"");
         SearchDataVo vo = new SearchDataVo(null,null,(page-1)*pageSize,pageSize);
         vo.putSearchParam("userId",null,userId);
         vo.putSearchParam("updateTime", null, updateTime);
@@ -898,12 +923,14 @@ public class ApiController extends BasicController {
                 pageSize = obj.get("page_size").getAsInt();
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
         
+        saveLog(request, userId+"");
         SearchDataVo vo = new SearchDataVo(null,null,(page-1)*pageSize,pageSize);
         vo.putSearchParam("userId",null,userId);
         vo.putSearchParam("updateTime", null, updateTime);
@@ -971,6 +998,7 @@ public class ApiController extends BasicController {
                 pageSize = obj.get("page_size").getAsInt();
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -989,6 +1017,7 @@ public class ApiController extends BasicController {
         }
 
         SysUserExecute user = getLoginUser(request, token);
+        saveLog(request, user.getUsername());
         SearchDataVo datavo = new SearchDataVo(null,null,(page-1)*pageSize,pageSize);
         datavo.putSearchParam("userId",null,user.getId());
         
@@ -1203,12 +1232,14 @@ public class ApiController extends BasicController {
                 try {
                     adMonitorTaskService.feedback(taskId, feedback,adSeatCode, user);
                 } catch (Exception e) {
+                	logger.error(e);
                     result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
                     result.setResultDes("保存出错！");
                     model.addAttribute(SysConst.RESULT_KEY, result);
                     return model;
                 }
             } catch (IOException e) {
+            	logger.error(e);
                 result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
                 result.setResultDes("上传出错！");
                 model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1258,12 +1289,14 @@ public class ApiController extends BasicController {
                 try {
                     adJiucuoTaskService.feedback(task, feedback);
                 } catch (Exception e) {
+                	logger.error(e);
                     result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
                     result.setResultDes("保存出错！");
                     model.addAttribute(SysConst.RESULT_KEY, result);
                     return model;
                 }
             } catch (IOException e) {
+            	logger.error(e);
                 result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
                 result.setResultDes("上传出错！");
                 model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1323,7 +1356,7 @@ public class ApiController extends BasicController {
                 return model;
             }
         }
-
+        saveLog(request, user.getUsername());
         //参数不对
         if (type == null) {
             result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
@@ -1444,12 +1477,14 @@ public class ApiController extends BasicController {
                 try {
                     adMonitorTaskService.feedback(taskId, feedback,adSeatCode, user);
                 } catch (Exception e) {
+                	logger.error(e);
                     result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
                     result.setResultDes("保存出错！");
                     model.addAttribute(SysConst.RESULT_KEY, result);
                     return model;
                 }
             } catch (Exception e) {
+            	logger.error(e);
                 e.printStackTrace();
                 result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
                 result.setResultDes("上传出错！");
@@ -1523,12 +1558,14 @@ public class ApiController extends BasicController {
                 try {
                     adJiucuoTaskService.feedback(task, feedback);
                 } catch (Exception e) {
+                	logger.error(e);
                     result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
                     result.setResultDes("保存出错！");
                     model.addAttribute(SysConst.RESULT_KEY, result);
                     return model;
                 }
             } catch (Exception e) {
+            	logger.error(e);
                 result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
                 result.setResultDes("上传出错！");
                 model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1570,6 +1607,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1588,7 +1626,7 @@ public class ApiController extends BasicController {
         }
 
         SysUserExecute user = getLoginUser(request, token);
-
+        saveLog(request, user.getUsername());
         List<ActivityMobileReportVo> list = adActivityService.getMobileReport(user);
         List<ActivityReportVo> apiVoList = Lists.newArrayList();
         for (ActivityMobileReportVo vo : list) {
@@ -1633,6 +1671,7 @@ public class ApiController extends BasicController {
                 pageSize = obj.get("page_size").getAsInt();
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1651,7 +1690,7 @@ public class ApiController extends BasicController {
         }
 
         SysUserExecute user = getLoginUser(request, token);
-
+        saveLog(request, user.getUsername());
         List<AdMonitorReward> rewards = adMonitorRewardService.getByUserId(user.getId());
         RewardResultVo resultVo = new RewardResultVo();
         resultVo.setTotal_reward(adMonitorRewardService.getTotalRewardByUserId(user.getId()));
@@ -1670,6 +1709,7 @@ public class ApiController extends BasicController {
     @RequestMapping(value = "/getProvince")
     @ResponseBody
     public Model getProvince(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	saveLog(request, "");
         ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("获取成功");
@@ -1687,6 +1727,7 @@ public class ApiController extends BasicController {
     @RequestMapping(value = "/getCity")
     @ResponseBody
     public Model getCity(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	saveLog(request, "");
         ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("获取成功");
@@ -1700,6 +1741,7 @@ public class ApiController extends BasicController {
             JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
             provinceId = obj.get("provinceId") == null ? null : obj.get("provinceId").getAsLong();
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1729,6 +1771,7 @@ public class ApiController extends BasicController {
     @RequestMapping(value = "/getProvinceRegion")
     @ResponseBody
     public Model getProvinceRegion(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	saveLog(request, "");
         ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("获取成功");
@@ -1742,6 +1785,7 @@ public class ApiController extends BasicController {
             JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
             provinceId = obj.get("provinceId") == null ? null : obj.get("provinceId").getAsLong();
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1760,6 +1804,7 @@ public class ApiController extends BasicController {
     @RequestMapping(value = "/getRegion")
     @ResponseBody
     public Model getRegion(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	saveLog(request, "");
         ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("获取成功");
@@ -1773,6 +1818,7 @@ public class ApiController extends BasicController {
             JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
             cityId = obj.get("cityId") == null ? null : obj.get("cityId").getAsLong();
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1795,6 +1841,7 @@ public class ApiController extends BasicController {
     @RequestMapping(value = "/getStreet")
     @ResponseBody
     public Model getStreet(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	saveLog(request, "");
         ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("获取成功");
@@ -1808,6 +1855,7 @@ public class ApiController extends BasicController {
             JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
             regionId = obj.get("regionId") == null ? null : obj.get("regionId").getAsLong();
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1855,6 +1903,7 @@ public class ApiController extends BasicController {
                 pageSize = obj.get("page_size").getAsInt();
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1873,8 +1922,8 @@ public class ApiController extends BasicController {
         }
 
         SysUserExecute user = getLoginUser(request, token);
-
-        if(user.getUsertype()==3){
+        saveLog(request, user.getUsername());
+        if(user.getUsertype()==AppUserTypeEnum.MEDIA.getId()){
             result.setResult(adSeatService.getByStreetAndMediaUserId(street,user.getOperateId()));
         }else{
             result.setResult(Lists.newArrayList());
@@ -1911,6 +1960,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1936,7 +1986,7 @@ public class ApiController extends BasicController {
         }
 
         SysUserExecute user = getLoginUser(request, token);
-
+        saveLog(request, user.getUsername());
         SysUserVo operate = sysUserService.findUserinfoById(user.getOperateId());
         AdSeatCodeCheckInfo checkInfo = new AdSeatCodeCheckInfo();
 
@@ -1959,14 +2009,12 @@ public class ApiController extends BasicController {
     }
 
     /**
-     * APP一打开调用
-     * @param model
-     * @param request
-     * @param response
+     * APP一打开调用 检查版本号是否要更新
      */
     @RequestMapping(value = "/checkVersion")
     @ResponseBody
     public Model getLatestForceUpdateVersion(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	saveLog(request, "");
     	ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("操作成功");
@@ -1985,7 +2033,7 @@ public class ApiController extends BasicController {
             JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
             appVersion = obj.get("appVersion") == null ? null : obj.get("appVersion").getAsString();
             
-            //判断版本号比较, 提示是否需要强制更新
+            //【1】判断版本号比较, 提示是否需要强制更新
             if(version != null) {
             	String[] versionSplit = version.getAppVersion().split("\\.");
             	String[] appVersionSplit = appVersion.split("\\.");
@@ -1995,6 +2043,8 @@ public class ApiController extends BasicController {
         			if(appVersionInt < versionInt) {
         				//需要强制更新
         				needForceUpdate = AppUpdateTypeEnum.FORCE_UPDATE.getId();
+        				model.addAttribute("apkUrl", version.getApkUrl());
+                    	model.addAttribute("iosUrl", version.getIosUrl());
         				break;
         			} else if(appVersionInt > versionInt) {
         				//不需要强制更新
@@ -2005,7 +2055,7 @@ public class ApiController extends BasicController {
             	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
             }
             
-            //判断版本号比较, 提示是否更新
+            //【2】判断版本号比较, 提示是否更新
             if(nowVersion == null) {
             	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
                 result.setResultDes("版本号有误！");
@@ -2014,14 +2064,18 @@ public class ApiController extends BasicController {
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
             } else {
-            	if(needForceUpdate != 0) {
+            	if(needForceUpdate != AppUpdateTypeEnum.FORCE_UPDATE.getId()) {
+            		//不需要强制更新
             		String[] versionSplit = nowVersion.getAppVersion().split("\\.");
                 	String[] appVersionSplit = appVersion.split("\\.");
                 	for (int i = 0; i < appVersionSplit.length; i++) {
             			Integer versionInt = Integer.parseInt(versionSplit[i]);
             			Integer appVersionInt = Integer.parseInt(appVersionSplit[i]);
             			if(appVersionInt < versionInt) {
+            				//有新版本,可去更新
             				needForceUpdate = AppUpdateTypeEnum.CAN_UPDATE.getId();
+            				model.addAttribute("apkUrl", nowVersion.getApkUrl());
+                        	model.addAttribute("iosUrl", nowVersion.getIosUrl());
             				break;
             			} else if(appVersionInt == versionInt) {
             				needForceUpdate = AppUpdateTypeEnum.LATEEST_VERSION.getId();
@@ -2032,14 +2086,17 @@ public class ApiController extends BasicController {
 			}
             
             if(needForceUpdate == AppUpdateTypeEnum.LATEEST_VERSION.getId()) {
-        		result.setResultDes("有新版本，可去更新！");
+        		result.setResultDes("最新版本");
         	} else if(needForceUpdate == AppUpdateTypeEnum.FORCE_UPDATE.getId()) {
-        		result.setResultDes("有新版本，需要强制更新！");
+        		result.setResultDes("有新版本，需要强制更新！新版本号：" + version.getAppVersion());
+        	} else if(needForceUpdate == AppUpdateTypeEnum.CAN_UPDATE.getId()) {
+        		result.setResultDes("有新版本，可以更新！新版本号：" + version.getAppVersion());
         	} else {
         		result.setResultDes("最新版本！");
         	}
             result.setResult(needForceUpdate);
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2089,6 +2146,7 @@ public class ApiController extends BasicController {
                 pageSize = obj.get("page_size").getAsInt();
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2112,7 +2170,8 @@ public class ApiController extends BasicController {
                 return model;
             }
         }
-
+        SysUserExecute user = getLoginUser(request, token);
+        saveLog(request, user.getUsername());
         SearchDataVo vo = new SearchDataVo(null,null,(page-1)*pageSize,pageSize);
         vo.putSearchParam("lat",null,lat);
         vo.putSearchParam("lon",null,lon);
@@ -2175,6 +2234,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2198,7 +2258,6 @@ public class ApiController extends BasicController {
                 return model;
             }
         }
-        
         List<MonitorTaskArroundVo> list = Lists.newArrayList();
         SearchDataVo vo = new SearchDataVo(null,null,(page-1)*pageSize,pageSize);
         vo.putSearchParam("lon",null,lon);
@@ -2216,7 +2275,7 @@ public class ApiController extends BasicController {
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
-        
+        saveLog(request, user.getUsername());
         Integer status = MonitorTaskStatus.CAN_GRAB.getId();
         if(user.getUsertype().equals(AppUserTypeEnum.SOCIAL.getId())) {
         	//[1] 社会人员抢单
@@ -2311,6 +2370,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2368,6 +2428,7 @@ public class ApiController extends BasicController {
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
+        saveLog(request, user.getUsername());
         
         Integer status = null;
         if(user.getUsertype().equals(AppUserTypeEnum.SOCIAL.getId())) {
@@ -2425,6 +2486,7 @@ public class ApiController extends BasicController {
     @RequestMapping(value = "/getSMSCode")
     @ResponseBody
     public Model getSMSCode(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	saveLog(request, "");
         ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("获取成功");
@@ -2448,6 +2510,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2496,6 +2559,7 @@ public class ApiController extends BasicController {
         	//发送短信
             sendSmsService.sendSms(mobile, SMS_CHECKCODE_CONTENT_TEMPLATE.replaceAll("\\{\\{code\\}\\}",num));
         }catch (Exception e){
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2537,6 +2601,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2582,7 +2647,7 @@ public class ApiController extends BasicController {
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
-
+        saveLog(request, userExecute.getUsername());
         model.addAttribute(SysConst.RESULT_KEY, result);
 //        response.getHeaders().add("Access-Control-Allow-Credentials","true");
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
@@ -2627,6 +2692,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2687,9 +2753,9 @@ public class ApiController extends BasicController {
         	SysUserExecute sysUserExecute = sysUserExecuteService.getMobile(inviteAcc);
         	if(sysUserExecute!=null) {
         		//邀请码输入正确   ,获得邀请注册默认积分
-        		AdPoint adpoint = pointService.findPointValue(1);
+        		AdPoint adpoint = pointService.findPointValue(AdPointEnum.INVITE_REGIST.getId());
         		//正常注册，获得默认注册积分
-        		AdPoint adpointreg = pointService.findPointValue(9);
+        		AdPoint adpointreg = pointService.findPointValue(AdPointEnum.NORMAL_REGIST.getId());
         		
         		//正常注册
             	String md5Pwd = new Md5Hash(password, username).toString();
@@ -2712,6 +2778,7 @@ public class ApiController extends BasicController {
             		//注册人积分增加（正常注册+邀请码积分） 邀请方积分增加
             		userPointService.addByInvite(sysUser,adpoint,adpointreg,username,sysUserExecute);
                 }catch (Exception e){
+                	logger.error(e);
                     result.setCode(ResultCode.RESULT_FAILURE.getCode());
                     result.setResultDes("注册失败！");
                     model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2726,7 +2793,7 @@ public class ApiController extends BasicController {
         	}
         }else {
 	        //正常注册(注册的人添加的积分是"正常注册")
-        	AdPoint adpointreg = pointService.findPointValue(9); //正常注册
+        	AdPoint adpointreg = pointService.findPointValue(AdPointEnum.NORMAL_REGIST.getId()); //正常注册
 	    	String md5Pwd = new Md5Hash(password, username).toString();
 	
 	        userExecute = new SysUserExecute();
@@ -2747,6 +2814,7 @@ public class ApiController extends BasicController {
 	        	//正常注册积分增加
 	        	userPointService.addByReg(sysUser,adpointreg);
 	        }catch (Exception e){
+	        	logger.error(e);
 	            result.setCode(ResultCode.RESULT_FAILURE.getCode());
 	            result.setResultDes("注册失败！");
 	            model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2766,7 +2834,7 @@ public class ApiController extends BasicController {
         } else {
             sessionByRedis.setAttribute(SessionKey.SESSION_LOGIN_USER.toString(), userExecute);
         }
-
+        saveLog(request, username);
         result.setResult(new SysUserExecuteVo(userExecute));
         model.addAttribute(SysConst.RESULT_KEY, result);
 //        response.getHeaders().add("Access-Control-Allow-Credentials","true");
@@ -2805,6 +2873,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2887,6 +2956,7 @@ public class ApiController extends BasicController {
             sessionByRedis.setAttribute(SessionKey.SESSION_LOGIN_USER.toString(), userExecute);
         }
 
+        saveLog(request, username);
         result.setResult(new SysUserExecuteVo(userExecute));
         model.addAttribute(SysConst.RESULT_KEY, result);
 //        response.getHeaders().add("Access-Control-Allow-Credentials","true");
@@ -2923,6 +2993,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2983,6 +3054,7 @@ public class ApiController extends BasicController {
             userExecute.setUpdateTime(new Date());
             sysUserExecuteService.modify(userExecute);
         }catch (Exception e){
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("账户已停用！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2994,7 +3066,7 @@ public class ApiController extends BasicController {
         } else {
             sessionByRedis.setAttribute(SessionKey.SESSION_LOGIN_USER.toString(), userExecute);
         }
-
+        saveLog(request, username);
         result.setResult(new SysUserExecuteVo(userExecute));
         model.addAttribute(SysConst.RESULT_KEY, result);
 //        response.getHeaders().add("Access-Control-Allow-Credentials","true");
@@ -3028,6 +3100,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -3046,12 +3119,13 @@ public class ApiController extends BasicController {
         }
 
         SysUserExecute user = getLoginUser(request, token);
-
+        saveLog(request, user.getUsername());
         try{
             boolean flag = adMonitorTaskService.grabTask(user.getId(),taskId);
             //flag 即表示任务接取成功或失败，直接赋予 result
             result.setResult(flag);
         }catch (Exception e){
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -3123,6 +3197,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -3142,6 +3217,7 @@ public class ApiController extends BasicController {
 
         SysUserExecute user = getLoginUser(request, token); //APP登录的广告商
         SysUserVo sysUserVo = sysUserService.findByUsername(user.getUsername()); //通过APP和后台用户同一个用户名的关系去查后台customer用户的信息
+        saveLog(request, user.getUsername());
         List<Integer> activityIds = new ArrayList<>();
         //首先查询时间段以外的活动信息
         if(startDate != null && endDate != null) {
@@ -3241,6 +3317,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -3261,7 +3338,7 @@ public class ApiController extends BasicController {
         SysUserExecute user = getLoginUser(request, token);
         user = sysUserExecuteService.getById(user.getId());
         result.setResult(user);
-
+        saveLog(request, user.getUsername());
         model.addAttribute(SysConst.RESULT_KEY, result);
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");
@@ -3294,6 +3371,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -3326,7 +3404,7 @@ public class ApiController extends BasicController {
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
-        
+        saveLog(request, user.getUsername());
         //[1] 获取该条任务信息
         AdMonitorTask adMonitorTask = adMonitorTaskService.selectByPrimaryKey(monitorTaskId);
         
@@ -3334,11 +3412,11 @@ public class ApiController extends BasicController {
         vo.setId(monitorTaskId);
         vo.setAbandonTime(now);
         vo.setUpdateTime(now);
-        vo.setUserTaskStatus(2); //1.正常 2.主动放弃 3.超时回收
+        vo.setUserTaskStatus(AppUserTaskEnum.ABANDON.getId()); //1.正常 2.主动放弃 3.超时回收
         
-        if(user.getUsertype().equals(4)) {
+        if(user.getUsertype().equals(AppUserTypeEnum.SOCIAL.getId())) {
         	//[1] 社会人员抢单 放弃任务
-        	if(adMonitorTask.getStatus() == 2 || adMonitorTask.getStatus() == 6) {
+        	if(adMonitorTask.getStatus() == MonitorTaskStatus.TO_CARRY_OUT.getId() || adMonitorTask.getStatus() == MonitorTaskStatus.UN_FINISHED.getId()) {
             	//[2] 判断24+12小时的逻辑, 将状态改成 1：待指派 或 8：可抢单
                 /**
                  * monitor_date + monitor_last_days - 2天 + 12小时 < now
@@ -3347,14 +3425,14 @@ public class ApiController extends BasicController {
                 Date monitorDate = adMonitorTask.getMonitorDate();
                 Integer monitorLastDays = adMonitorTask.getMonitorLastDays();
                 if(monitorDate.getTime() <= now.getTime() - monitorLastDays*24*60*60*1000 + 2*24*60*60*1000 - 12*60*60*1000) {
-                	vo.setTaskStatus(1); //1：待指派
+                	vo.setTaskStatus(MonitorTaskStatus.UNASSIGN.getId()); //1：待指派
                 } else {
-                	vo.setTaskStatus(8); //8：可抢单
+                	vo.setTaskStatus(MonitorTaskStatus.CAN_GRAB.getId()); //8：可抢单
                 }
             }
-        } else if(user.getUsertype().equals(3)) {
+        } else if(user.getUsertype().equals(AppUserTypeEnum.MEDIA.getId())) {
         	//[1] 媒体监测人员抢单(自己媒体公司下的任务) 放弃任务直接改回待指派
-        	vo.setTaskStatus(1); //1：待指派
+        	vo.setTaskStatus(MonitorTaskStatus.UNASSIGN.getId()); //1：待指派
         }
         
         //[3] 联表更新
@@ -3419,7 +3497,8 @@ public class ApiController extends BasicController {
             }
 
             //获取登录的当前用户
-//            SysUserExecute user = getLoginUser(request, token);
+            SysUserExecute user = getLoginUser(request, token);
+            saveLog(request, user==null?"":user.getUsername());
             //查询媒体类型包括媒体大类媒体小类
     		List<AdMediaType> allAdMediaType = adMediaTypeService.getAll();
     		Map<Integer, String> mediaTypeMap = new HashMap<>();
@@ -3501,23 +3580,23 @@ public class ApiController extends BasicController {
 					if(pictureVo.getDate() != null) {
 						//代表有人做过该任务
 						pictureVo.setTime(DateUtil.dateFormate(pictureVo.getDate(), "yyyy-MM-dd HH:mm:ss"));
-						if(StringUtil.equals(pictureVo.getTaskType(), "1")) {
+						if(StringUtil.equals(pictureVo.getTaskType(), MonitorTaskType.UP_MONITOR.getId() + "")) {
 							//1：上刊监测
 							pictureVo.setTaskType("上刊监测");
 							upPics.add(pictureVo);
-						} else if(StringUtil.equals(pictureVo.getTaskType(), "2")) {
+						} else if(StringUtil.equals(pictureVo.getTaskType(), MonitorTaskType.DURATION_MONITOR.getId() + "")) {
 							//2：投放期间监测
 							pictureVo.setTaskType("投放期间监测");
 							durationPics.add(pictureVo);
-						} else if(StringUtil.equals(pictureVo.getTaskType(), "3")) {
+						} else if(StringUtil.equals(pictureVo.getTaskType(), MonitorTaskType.DOWNMONITOR.getId() + "")) {
 							//3：下刊监测
 							pictureVo.setTaskType("下刊监测");
 							downPics.add(pictureVo);
-						} else if(StringUtil.equals(pictureVo.getTaskType(), "5")) {
+						} else if(StringUtil.equals(pictureVo.getTaskType(), MonitorTaskType.UP_TASK.getId() + "")) {
 							//5：上刊任务
 							pictureVo.setTaskType("上刊任务");
 							upTaskPics.add(pictureVo);
-						} else if(StringUtil.equals(pictureVo.getTaskType(), "6")) {
+						} else if(StringUtil.equals(pictureVo.getTaskType(), MonitorTaskType.ZHUIJIA_MONITOR.getId() + "")) {
 							//6：追加监测任务
 							pictureVo.setTaskType("追加监测");
 							zhuijiaPics.add(pictureVo);
@@ -3565,6 +3644,7 @@ public class ApiController extends BasicController {
         	
         	model.addAttribute("totalCount", totalCount); //当次查询总页数
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -3611,7 +3691,8 @@ public class ApiController extends BasicController {
                     return model;
                 }
             }
-
+            SysUserExecute user = getLoginUser(request, token);
+            saveLog(request, user.getUsername());
             //查询媒体类型包括媒体大类媒体小类
     		List<AdMediaType> allAdMediaType = adMediaTypeService.getAll();
     		Map<Integer, String> mediaTypeMap = new HashMap<>();
@@ -3683,6 +3764,7 @@ public class ApiController extends BasicController {
         	model.addAttribute("provinceAndCities", provinceAndCities); //该活动下所有广告位的省市关联集合
         	model.addAttribute("parentMediaTypes", parentMediaTypes); //该活动下所有广告位的媒体大类集合
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -3699,6 +3781,7 @@ public class ApiController extends BasicController {
     @RequestMapping(value = "/getBranch")
     @ResponseBody
     public Model getBranch(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	saveLog(request, "");
     	ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("调用成功");
@@ -3721,6 +3804,7 @@ public class ApiController extends BasicController {
             AdApp adApp = appService.selectAppPicUrlAndTitleBySid(sid);
             result.setResult(adApp);
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -3794,5 +3878,18 @@ public class ApiController extends BasicController {
         System.out.println(new Md5Hash("admin123", "superadmin").toString());
 //        System.out.println("【浙江百泰】您的验证码为${code}".replaceAll("\\$\\{code\\}","122321"));
     }
-    
+    /**
+     * 保存日志信息
+     * 
+     * @param request
+     * @param userName 当前登录用户
+     */
+    private void saveLog(HttpServletRequest request,String userName) {
+    	String url = request.getRequestURI();
+    	String method = request.getMethod();
+    	if (!StringUtils.isEmpty(userName)) {
+			userName = "  userName:" + userName;
+		}
+    	logger.info(method + "  " + url + "  " + userName);
+    }
 }

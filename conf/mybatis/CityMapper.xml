@@ -96,6 +96,7 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
 
+  <!-- 查询所有的省市区街道 -->
   <select id="selectAll" resultMap="BaseResultMap" >
     select
     <include refid="Base_Column_List" />

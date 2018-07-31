@@ -1,12 +1,15 @@
 package com.bt.om.web.controller;
 
+import com.bt.om.cache.CityCache;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.City;
 import com.bt.om.entity.MonitorDailyReport;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.ResultCode;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.service.IMonitorDailyReportService;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.service.ISysUserService;
@@ -15,21 +18,30 @@ import com.bt.om.vo.web.ResultVo;
 import com.bt.om.web.BasicController;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,6 +55,11 @@ public class IndexController extends BasicController {
 
 	@Autowired
 	private ISysUserService userService;
+	
+	@Autowired
+	private CityCache cityCache;
+	
+	private static final Logger logger = Logger.getLogger(IndexController.class);
 	/**
 	 * 首页
 	 * 
@@ -131,6 +148,7 @@ public class IndexController extends BasicController {
 		 resultVo.setResultDes("修改失败");
 		 }
 		 } catch (Exception ex) {
+		 logger.error(ex);
 		 ex.printStackTrace();
 		 resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
 		 resultVo.setResultDes("服务忙，请稍后再试");
@@ -284,6 +302,7 @@ public class IndexController extends BasicController {
 			result.setResult(report);
 
 		} catch (Exception e) {
+			logger.error(e);
 			e.printStackTrace();
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("获取失败！");
@@ -294,5 +313,33 @@ public class IndexController extends BasicController {
 		model.addAttribute(SysConst.RESULT_KEY, result);
 		return model;
 
+	}
+	/**
+     * 获取地区二级联动数据
+     **/
+    @RequestMapping(value = "/api/city")
+    @ResponseBody
+    public Map getCityData(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = "provinceId", required = false)Long provinceId) {
+        Map<Long,String> map = null;
+        if (provinceId==null) {
+        	List<City> cities = cityCache.getAllProvince(); //获取全部省份
+        	map = citiesToMap(cities);
+		}else {
+			List<City> cities = cityCache.getCity(provinceId);
+			map = citiesToMap(cities);
+		}
+        return map;
+    }
+    /**
+	 * 将City集合转成以名称为Key, Id为Value的Map
+	 * @param cities
+	 * @return
+	 */
+	private Map<Long,String> citiesToMap(List<City> cities){
+		Map<Long,String> map = new LinkedHashMap<Long,String>();
+		for (City province : cities) {
+			map.put(province.getId(),province.getName());
+		}
+		return map;
 	}
 }

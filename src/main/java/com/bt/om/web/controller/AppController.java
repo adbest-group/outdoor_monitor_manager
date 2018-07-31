@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AdSeatInfoVo;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAppService;
 import com.bt.om.service.ISysUserService;
@@ -42,6 +44,8 @@ public class AppController {
 	private IAppService appService;
 	@Autowired
 	private ISysUserService sysUserService;
+	
+	private static final Logger logger = Logger.getLogger(AppController.class);
 	
 	@RequiresRoles(value = {"superadmin" , "phoneoperator"}, logical = Logical.OR)
 	@RequestMapping(value = "/list")
@@ -80,12 +84,14 @@ public class AppController {
 	        try {
 	            vo.putSearchParam("createDate", createDate, sdf.parse(createDate));
 	        } catch (ParseException e) {
+	        	logger.error(e);
 	        }
 	    }
 	    if (updateDate != null) {
 	        try {
 	           vo.putSearchParam("updateDate", updateDate, sdf.parse(updateDate));
 	        } catch (ParseException e) {
+	        	logger.error(e);
 	        }
 	    }
 	    
@@ -139,6 +145,7 @@ public class AppController {
         		appService.save(adapp);
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -171,6 +178,7 @@ public class AppController {
             	sysUserService.changeAppType(id);
             }
         } catch (Exception e) {
+        	logger.error(e);
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("删除失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);

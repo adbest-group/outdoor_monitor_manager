@@ -31,11 +31,13 @@ import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.entity.vo.AdSeatCount;
 import com.bt.om.entity.vo.TaskAdSeat;
 import com.bt.om.enums.ActivityStatus;
+import com.bt.om.enums.DepartmentTypeEnum;
 import com.bt.om.enums.MessageIsFinish;
 import com.bt.om.enums.MessageType;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.enums.UserTypeEnum;
 import com.bt.om.mapper.AdActivityAdseatMapper;
 import com.bt.om.mapper.AdActivityAreaMapper;
 import com.bt.om.mapper.AdActivityMapper;
@@ -53,7 +55,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
- * Created by caiting on 2018/1/18.
+ * 活动相关事务层
  */
 @Service
 public class AdActivityService implements IAdActivityService {
@@ -78,6 +80,9 @@ public class AdActivityService implements IAdActivityService {
     @Autowired
     AdUserMessageMapper adUserMessageMapper;
 
+    /**
+     * 插入一条活动信息(暂时没用使用)
+     */
     @Override
     public void save(AdActivity adActivity) {
         adActivityMapper.insert(adActivity);
@@ -157,8 +162,8 @@ public class AdActivityService implements IAdActivityService {
         //[3] 插入站内信
         SysUser sysUser = sysUserMapper.selectByPrimaryKey(adActivityVo.getUserId());
         List<Integer> list = new ArrayList<>();
-        list = sysUserMapper.getUserId(4);//4：超级管理员
-        Integer dep_id = sysResourcesMapper.getUserId(1);//1：活动审核部门
+        list = sysUserMapper.getUserId(UserTypeEnum.SUPER_ADMIN.getId());//4：超级管理员
+        Integer dep_id = sysResourcesMapper.getUserId(DepartmentTypeEnum.ACTIVITY.getId());//1：活动审核部门
         
         List<Integer> reslist = sysUserResMapper.getUserId(adActivityVo.getUserId(), 2);//获取广告商下面的组id集合
         Integer resId = null;
@@ -174,7 +179,7 @@ public class AdActivityService implements IAdActivityService {
         userIdList.addAll(list);
         userIdList.addAll(cuslist);
         list.removeAll(list);
-        list = sysUserMapper.getUserId(6);//6:呼叫中心人员
+        list = sysUserMapper.getUserId(UserTypeEnum.PHONE_OPERATOR.getId());//6:呼叫中心人员
         userIdList.addAll(list);
         userIdList.add(dep_id);
         
@@ -195,6 +200,9 @@ public class AdActivityService implements IAdActivityService {
         }
     }
 
+    /**
+     * 修改活动信息
+     */
     @Override
     public void modify(AdActivityVo adActivityVo, String activeSeat) {
     	Date now = new Date();
@@ -294,6 +302,9 @@ public class AdActivityService implements IAdActivityService {
 
     }
 
+    /**
+     * 分页查询活动信息
+     */
     @Override
     public void getPageData(SearchDataVo vo) {
         int count = adActivityMapper.getPageCount(vo.getSearchMap());
@@ -305,6 +316,9 @@ public class AdActivityService implements IAdActivityService {
         }
     }
 
+    /**
+     * 通过活动id查询活动、活动的广告位信息
+     */
     @Override
     public AdActivityVo getVoById(Integer id) {
     	if(id != null) {
@@ -334,9 +348,9 @@ public class AdActivityService implements IAdActivityService {
         List<Integer> userIds = new ArrayList<>();
         List<Integer> list = new ArrayList<>();
         //查询添加站内信的用户id集合
-		userIds = sysUserMapper.getUserId(4);//超级管理员id
-		Integer dep_id = sysResourcesMapper.getUserId(2);//2：任务审核、指派部门
-		list = sysUserMapper.getUserId(6);//6:呼叫中心人员
+		userIds = sysUserMapper.getUserId(UserTypeEnum.SUPER_ADMIN.getId());//超级管理员id
+		Integer dep_id = sysResourcesMapper.getUserId(DepartmentTypeEnum.MONITOR_TASK.getId());//2：任务审核、指派部门
+		list = sysUserMapper.getUserId(UserTypeEnum.PHONE_OPERATOR.getId());//6:呼叫中心人员
         for(Integer i : list) {
         	userIds.add(i);
         }
@@ -581,6 +595,9 @@ public class AdActivityService implements IAdActivityService {
         return adActivityMapper.selectByMap(MapUtils.EMPTY_MAP);
     }
 
+    /**
+     * 获取某一广告主下的所有活动信息
+     */
     @Override
     public List<AdActivity> getByUerId(Integer userId) {
         Map<String, Object> map = Maps.newHashMap();
@@ -588,21 +605,33 @@ public class AdActivityService implements IAdActivityService {
         return adActivityMapper.selectByMap(map);
     }
 
+    /**
+     * 通过活动-广告位关联表的id查询关联信息
+     */
     @Override
     public AdActivityAdseat getActivitySeatById(Integer id) {
         return adActivityAdseatMapper.selectVoById(id);
     }
 
+    /**
+     * 通过广告位id查询出所有的关联活动信息
+     */
     @Override
     public List<AdActivityAdseatVo> getActivitySeatBySeatId(Integer id) {
         return adActivityAdseatMapper.selectVoBySeatId(id);
     }
 	
+    /**
+     * 通过广告位经纬度查询出关联活动信息
+     */
 	@Override
     public List<AdActivityAdseatVo> selectVoByLonLatTitle(Double lon, Double lat, String title) {
         return adActivityAdseatMapper.selectVoByLonLatTitle(lon, lat, title);
     }
 
+	/**
+	 * 通过广告位二维码查询出关联活动信息
+	 */
     @Override
     public List<AdActivityAdseatVo> getActivitySeatBySeatCode(String adSeatCode) {
         return adActivityAdseatMapper.selectVoBySeatCode(adSeatCode);
@@ -630,6 +659,9 @@ public class AdActivityService implements IAdActivityService {
         return task;
     }
 
+    /**
+     * 通过活动id查询出活动信息
+     */
 	@Override
 	public AdActivity getById(Integer id) {
 		return adActivityMapper.selectByPrimaryKey(id);
@@ -809,6 +841,9 @@ public class AdActivityService implements IAdActivityService {
 		return atimeActivity;
 	}
 
+	/**
+	 * 撤销活动, 功能已废弃
+	 */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void offActivityByAssessorId(Integer id) {
@@ -899,7 +934,7 @@ public class AdActivityService implements IAdActivityService {
 	}
 
 	/**
-	 * 根据memo确定广告位信息
+	 * 根据广告位编号确定广告位信息
 	 * */
 	@Override
 	public List<AdActivityAdseatVo> getActivitySeatByMemo(String memo) {

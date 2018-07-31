@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +26,11 @@ import com.bt.om.entity.AdPoint;
 import com.bt.om.entity.SysResources;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.UserRoleVo;
+import com.bt.om.enums.DepartmentTypeEnum;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
+import com.bt.om.enums.UserRoleEnum;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IPointService;
 import com.bt.om.service.ISysResourcesService;
@@ -56,6 +60,8 @@ public class SysResourcesController extends BasicController {
 	
 	@Autowired
 	private IUserMoneyService usermoneyService;
+	
+	private static final Logger logger = Logger.getLogger(LogFilter.class);
 	
 	/**
 	 * 超级管理员查询部门列表
@@ -124,16 +130,16 @@ public class SysResourcesController extends BasicController {
                         	sysResourcesService.modify(sysResources);
                         	
                         	//修改领导的role从104：departmentadmin到
-                        	Integer roleId = 104;
-                        	if(department.getDepartmentType() == 1) {
+                        	Integer roleId = UserRoleEnum.DEPARTMENT_LEADER.getId();
+                        	if(department.getDepartmentType() == DepartmentTypeEnum.ACTIVITY.getId()) {
                         		//活动审核部门 depactivityadmin
-                        		roleId = 108;
-                        	} else if(department.getDepartmentType() == 2) {
+                        		roleId = UserRoleEnum.ACTIVITY_LEADER.getId();
+                        	} else if(department.getDepartmentType() == DepartmentTypeEnum.MONITOR_TASK.getId()) {
                         		//任务审核、指派部门 deptaskadmin 
-                        		roleId = 109;
-                        	} else if(department.getDepartmentType() == 3) {
+                        		roleId = UserRoleEnum.TASK_LEADER.getId();
+                        	} else if(department.getDepartmentType() == DepartmentTypeEnum.JIUCUO_TASK.getId()) {
                         		//纠错审核部门 depjiucuoadmin
-                        		roleId = 110;
+                        		roleId = UserRoleEnum.JIUCUO_LEADER.getId();
                         	}
                         	
                         	UserRoleVo userRoleVo = new UserRoleVo();
@@ -160,7 +166,7 @@ public class SysResourcesController extends BasicController {
                 	UserRoleVo userRoleVo = new UserRoleVo();
                 	List<Integer> userIds = new ArrayList<Integer>();
                 	userIds.add(department.getUserId());
-                	userRoleVo.setRoleId(104);
+                	userRoleVo.setRoleId(UserRoleEnum.DEPARTMENT_LEADER.getId());
                 	userRoleVo.setUserIds(userIds);
                 	userRoleVo.setUpdateTime(now);
                 	sysUserService.updateListUserRes(userRoleVo);
@@ -173,6 +179,7 @@ public class SysResourcesController extends BasicController {
             	sysResourcesService.save(sysResources);
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -259,6 +266,7 @@ public class SysResourcesController extends BasicController {
             	pointService.save(adpoint);
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);

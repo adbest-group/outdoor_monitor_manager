@@ -166,6 +166,7 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
   
+  <!-- 分页查询APP信息 -->
   <select id="getPageCount" parameterType="map" resultType="int">
 		select
 			count(id)
@@ -195,6 +196,7 @@
 		order by id asc
 	</select>
 
+  	<!-- 分页查询APP信息 -->
 	<select id="getPageData" parameterType="map" resultMap="BaseResultMap">
 		select
 			id,app_name, app_sid,app_picture_url, app_title,status, create_time, update_time
@@ -227,6 +229,7 @@
 		order by id asc
 	</select>
 
+    <!-- 查询所有可用的APP信息 -->
 	<select id="getAllAppType" resultMap="BaseResultMap" parameterType="java.lang.Integer">
 	  select 
 	  <include refid="Base_Column_List" />
@@ -234,6 +237,7 @@
 	  where status=1
 	</select>
   
+    <!-- 通过对应的app_sid获取APP信息 -->
   	<select id="getAppPicUrlAndTitleBySid" resultMap="BaseResultMap" parameterType="java.lang.String">
 	  select 
 	  	<include refid="Base_Column_List" />

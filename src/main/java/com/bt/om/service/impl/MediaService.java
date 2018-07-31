@@ -19,7 +19,7 @@ import com.bt.om.mapper.SysUserRoleMapper;
 import com.bt.om.service.IMediaService;
 
 /**
- * Created by caiting on 2018/2/27.
+ * 媒体主 相关事务层
  */
 @Service
 public class MediaService implements IMediaService {
@@ -44,6 +44,9 @@ public class MediaService implements IMediaService {
         return format;
     }
 
+    /**
+     * 新增媒体主
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void add(SysUserVo user) {
@@ -73,6 +76,9 @@ public class MediaService implements IMediaService {
         adMediaMapper.insertSelective(media);
     }
 
+    /**
+     * 修改媒体主
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void modify(SysUserVo user) {
@@ -94,16 +100,25 @@ public class MediaService implements IMediaService {
         }
     }
 
+    /**
+     * 通过后台用户id查询媒体信息
+     */
     @Override
     public AdMedia getMediaByUserId(Integer id) {
         return adMediaMapper.selectByUserId(id);
     }
 
+    /**
+     * 通过媒体id查询媒体信息
+     */
     @Override
     public AdMedia getById(Integer id) {
         return adMediaMapper.selectByPrimaryKey(id);
     }
 
+    /**
+     * 查询全部的媒体主
+     */
 	@Override
 	public List<AdMedia> selectAllMedia() {
 		return adMediaMapper.selectAllMedia();

@@ -3,6 +3,7 @@ package com.bt.om.web.controller;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import com.bt.om.entity.SysUser;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.UserRoleEnum;
 import com.bt.om.enums.UserTypeEnum;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -32,6 +34,7 @@ import com.bt.om.web.util.SearchUtil;
 public class ThirdCompanyController {
 	@Autowired
 	private ISysUserService sysUserService;
+	private static final Logger logger = Logger.getLogger(ThirdCompanyController.class);
 	
 	/**
 	 * 第三方监测公司 查询
@@ -95,6 +98,7 @@ public class ThirdCompanyController {
         		sysUserService.addUser(sysUser, UserRoleEnum.THIRD_COMPANY.getId());
         	}
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);

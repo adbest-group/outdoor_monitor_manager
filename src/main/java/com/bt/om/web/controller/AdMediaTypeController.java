@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,8 @@ import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdMediaType;
 import com.bt.om.entity.SysUser;
+import com.bt.om.enums.AllowMultiEnum;
+import com.bt.om.enums.MediaType;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.security.ShiroUtils;
@@ -39,6 +42,7 @@ public class AdMediaTypeController {
 	@Autowired
 	private IAdMediaTypeService adMediaTypeService;
 	
+	private static final Logger logger = Logger.getLogger(AdMediaTypeController.class);
 	/**
      * 媒体大类, 媒体小类展示
      */
@@ -93,7 +97,7 @@ public class AdMediaTypeController {
             @RequestParam(value = "mediaType", required = false) Integer mediaType) {
 		Map<String, Object> modelMap = new HashMap<String, Object>();
         try {
-        	if(mediaType == 2 && parentId == null) {
+        	if(mediaType == MediaType.SECOND_TYPE.getId() && parentId == null) {
         		//添加媒体小类, 但是没有选择媒体大类
         		modelMap.put("success", false);
         		modelMap.put("errMsg", "请选择媒体大类!");
@@ -111,6 +115,7 @@ public class AdMediaTypeController {
                 modelMap.put("success", true);
         	}
         } catch (Exception e) {
+        	logger.error(e);
         	modelMap.put("success", false);
             modelMap.put("errMsg", "请重新输入!");
             e.printStackTrace();
@@ -155,18 +160,18 @@ public class AdMediaTypeController {
         
         if(adMediaType.getMultiNum() == null) {
         	//默认不支持多个活动, 并且活动数量为1
-        	adMediaType.setAllowMulti(0);
+        	adMediaType.setAllowMulti(AllowMultiEnum.NOT_ALLOW.getId());
         	adMediaType.setMultiNum(1);
         } else {
         	if(adMediaType.getMultiNum().equals(1)) {
         		//活动数量等于1, 设置不允许同时支持多个活动
-        		adMediaType.setAllowMulti(0);
+        		adMediaType.setAllowMulti(AllowMultiEnum.NOT_ALLOW.getId());
         	} else if(adMediaType.getMultiNum() > 1) {
         		//活动数量大于1, 设置允许同时支持多个活动
-        		adMediaType.setAllowMulti(1);
+        		adMediaType.setAllowMulti(AllowMultiEnum.ALLOW.getId());
         	} else {
         		//活动数量小于1, 设置默认不支持多个活动, 并且活动数量为1
-            	adMediaType.setAllowMulti(0);
+            	adMediaType.setAllowMulti(AllowMultiEnum.NOT_ALLOW.getId());
             	adMediaType.setMultiNum(1);
         	}
         }
@@ -181,6 +186,7 @@ public class AdMediaTypeController {
             	adMediaTypeService.save(adMediaType);
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -211,6 +217,7 @@ public class AdMediaTypeController {
         	adMediaType.setMediaType(mediaType);
         	adMediaTypeService.updateStatusById(adMediaType);
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -241,6 +248,7 @@ public class AdMediaTypeController {
         	adMediaTypeService.updateNeedById(adMediaType);
         	
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);

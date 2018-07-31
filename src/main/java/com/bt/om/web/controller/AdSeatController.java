@@ -12,6 +12,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,7 @@ import com.bt.om.entity.vo.CountGroupByCityVo;
 import com.bt.om.entity.vo.HeatMapVo;
 import com.bt.om.entity.vo.ResourceVo;
 import com.bt.om.entity.vo.SysUserVo;
+import com.bt.om.enums.AllowMultiEnum;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.security.ShiroUtils;
@@ -75,6 +77,8 @@ public class AdSeatController extends BasicController {
 	private String file_upload_path = ConfigUtil.getString("file.upload.path");
 	
 	private String file_upload_ip = ConfigUtil.getString("file.upload.ip");
+	
+	private static final Logger logger = Logger.getLogger(AdSeatController.class);
 
     /**
      * 新增广告位跳转
@@ -175,6 +179,7 @@ public class AdSeatController extends BasicController {
             resourceService.insertAdSeatInfo(adSeatInfoVo);
             modelMap.put("success", true);
         } catch (Exception e) {
+        	logger.error(e);
             modelMap.put("errMsg", "请重新输入!");
             e.printStackTrace();
         }
@@ -227,13 +232,13 @@ public class AdSeatController extends BasicController {
             SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
             OperateLog operateLog = new OperateLog();
         	operateLog.setContent("删除" + adSeatInfoVo.getMediaName() + "媒体下的广告位：" + cityCache.getCityName(adSeatInfoVo.getProvince())
-        			+ cityCache.getCityName(adSeatInfoVo.getCity()) + cityCache.getCityName(adSeatInfoVo.getRegion())
-        			+ cityCache.getCityName(adSeatInfoVo.getStreet()) + adSeatInfoVo.getLocation());
+        			+ cityCache.getCityName(adSeatInfoVo.getCity()) + adSeatInfoVo.getLocation());
             operateLog.setCreateTime(now);
             operateLog.setUpdateTime(now);
             operateLog.setUserId(user.getId());
             operateLogService.save(operateLog);
         } catch (Exception e) {
+        	logger.error(e);
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("删除失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -360,7 +365,7 @@ public class AdSeatController extends BasicController {
         	if(adSeatInfo.getMultiNum() == 0) {
         		adSeatInfo.setMultiNum(1);
         	}
-        	if(adSeatInfo.getAllowMulti() == 0) {
+        	if(adSeatInfo.getAllowMulti() == AllowMultiEnum.NOT_ALLOW.getId()) {
         		adSeatInfo.setMultiNum(1); //0代表不允许同时有多个活动, 设置活动数量为1
         	}
             if (adSeatInfo.getId() != null) {
@@ -371,6 +376,7 @@ public class AdSeatController extends BasicController {
                 adSeatService.save(adSeatInfo, user.getId());
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -435,12 +441,12 @@ public class AdSeatController extends BasicController {
         	for (AdSeatCount adSeatCount : adSeatCounts) {
     			if(adSeatCount!= null && adSeatCount.getAdseatId() == infoVo.getId()) {
     				//判断是否要移除
-    				if(infoVo.getAllowMulti() == 0 && adSeatCount.getCount() >= 1) {
+    				if(infoVo.getAllowMulti() == AllowMultiEnum.NOT_ALLOW.getId() && adSeatCount.getCount() >= 1) {
     					//否：不允许同时有多个活动; 当前广告位正在参与活动的数量 大于等于 1
     					iterator.remove();
         				break;
     				}
-    				if(infoVo.getAllowMulti() == 1 && adSeatCount.getCount() >= infoVo.getMultiNum()) {
+    				if(infoVo.getAllowMulti() == AllowMultiEnum.ALLOW.getId() && adSeatCount.getCount() >= infoVo.getMultiNum()) {
     					//是: 允许同时有多个活动; 当前广告位正在参与活动的数量 大于等于 最大允许数量
     					iterator.remove();
         				break;
@@ -483,6 +489,7 @@ public class AdSeatController extends BasicController {
         	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
             result.setResult(groupByCity);
 		} catch (Exception e) {
+			logger.error(e);
 			logger.error(MessageFormat.format("查询热力图报表失败", new Object[] {}));
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());
         	result.setResultDes("查询热力图报表失败");

@@ -239,6 +239,7 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
 
+  <!-- 通过纠错主表id查询对应的纠错反馈信息 -->
   <select id="selectByTaskId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select
     <include refid="Base_Column_List" />
@@ -246,7 +247,8 @@
     where jiucuo_task_id = #{id,jdbcType=INTEGER}
   </select>
   
-    <update id="updatePicUrl1" parameterType="map">
+  <!-- 后台替换纠错图片 -->
+  <update id="updatePicUrl1" parameterType="map">
    	update ad_jiucuo_task_feedback
    	set
     	update_time = CURRENT_TIMESTAMP,

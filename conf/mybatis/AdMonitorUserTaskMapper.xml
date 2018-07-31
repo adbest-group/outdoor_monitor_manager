@@ -282,7 +282,7 @@
   	where monitor_task_id = #{monitorTaskId,jdbcType=INTEGER} and status = #{status,jdbcType=INTEGER}
   </update>
   
-   <!-- 超时任务 -->
+  <!-- 超时任务 -->
   <select id="selectOverTimeTaskIds" resultType="java.lang.Integer" parameterType="map">
   	select 
   		distinct monitor_task_id
@@ -295,7 +295,7 @@
   	and b.status in (2, 6)
   </select>
   
-    <!-- 超时任务回收,状态改为已超时 -->
+  <!-- 超时任务回收,状态改为已超时 -->
   <update id="recycleOverTimeUserTask" parameterType="com.bt.om.entity.AdMonitorUserTask">
 	update 
 		ad_monitor_user_task a, ad_monitor_task b

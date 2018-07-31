@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,22 +31,21 @@ import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdMonitorTask;
-import com.bt.om.entity.AdUserMessage;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.TaskDownload;
 import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdActivityVo;
+import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
+import com.bt.om.enums.UserTypeEnum;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
-
-import com.bt.om.service.IAdUserMessageService;
-
 import com.bt.om.service.IAdMonitorTaskService;
-
+import com.bt.om.service.IAdUserMessageService;
 import com.bt.om.service.IOperateLogService;
 import com.bt.om.service.ISysGroupService;
 import com.bt.om.service.ISysResourcesService;
@@ -88,6 +88,7 @@ public class ActivityController extends BasicController {
 	private IAdMonitorTaskService adMonitorTaskService;
 	@Autowired
 	protected RedisTemplate redisTemplate;
+	private static final Logger logger = Logger.getLogger(ActivityController.class);
 
 	// 活动审核人员查看活动列表
 	@RequiresRoles("activityadmin")
@@ -130,12 +131,14 @@ public class ActivityController extends BasicController {
 			try {
 				vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
 			} catch (ParseException e) {
+				logger.error(e);
 			}
 		}
 		if (endDate != null) {
 			try {
 				vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
 			} catch (ParseException e) {
+				logger.error(e);
 			}
 		}
 		//查询活动名称
@@ -279,7 +282,7 @@ public class ActivityController extends BasicController {
         
         if(user != null) {
         	model.addAttribute("usertype", user.getUsertype());
-        	if (user.getUsertype()==2&&user.getId().intValue()!=activity.getUserId().intValue()) {
+        	if (user.getUsertype() == UserTypeEnum.CUSTOMER.getId() && user.getId().intValue() != activity.getUserId().intValue()) {
         		return PageConst.NO_AUTHORITY;
 			}
         }
@@ -335,6 +338,7 @@ public class ActivityController extends BasicController {
  			//批量插入
 			adMonitorTaskService.insertMonitorTask(activityId, Arrays.asList(splitSeatIds), reportTime ,zhuijiaMonitorTaskPoint,zhuijiaMonitorTaskMoney);
  		} catch (Exception e) {
+ 			logger.error(e);
  			result.setCode(ResultCode.RESULT_FAILURE.getCode());
  			result.setResultDes("确认失败！");
  			model.addAttribute(SysConst.RESULT_KEY, result);
@@ -410,6 +414,7 @@ public class ActivityController extends BasicController {
 				System.out.println("pushResult:: " + pushResult);
 			}
 		} catch (Exception e) {
+			logger.error(e);
 			// [5] 异常情况, 循环删除redis
 			for (String actId : activityIds) {
 				String beginRedisStr = "activity_" + actId + "_begin";
@@ -467,6 +472,7 @@ public class ActivityController extends BasicController {
 				return model;
 			}
 		} catch (Exception e) {
+			logger.error(e);
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("撤销失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
@@ -496,6 +502,7 @@ public class ActivityController extends BasicController {
 			// 删除活动
 			adActivityService.delete(id, userObj.getId());
 		} catch (Exception e) {
+			logger.error(e);
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("删除失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
@@ -582,7 +589,8 @@ public class ActivityController extends BasicController {
 				StringBuffer stringBuffer = new StringBuffer();
 				if(now.compareTo(task.getReportTime())>0) {	//当前时间大于出报告时间
 					String nowDate = sdf.format(task.getReportTime());
-					if((userObj.getUsertype()==2 && task.getStatus()==4) || (userObj.getUsertype()!=2)) {	//登录用户是广告主且通过审核  或者登录用户是群邑
+					if((userObj.getUsertype()==UserTypeEnum.CUSTOMER.getId() && task.getStatus()==MonitorTaskStatus.VERIFIED.getId()) || (userObj.getUsertype()!=UserTypeEnum.CUSTOMER.getId())) {
+						//登录用户是广告主且通过审核  或者登录用户是群邑
 						TaskDownload durationMonitor = new TaskDownload();
 						stringBuffer.append(nowDate);
 						stringBuffer.append("	");
@@ -604,7 +612,8 @@ public class ActivityController extends BasicController {
 				StringBuffer stringBuffer = new StringBuffer();
 				if(now.compareTo(task.getReportTime())>0) {	//当前时间大于出报告时间
 					String nowDate = sdf.format(task.getReportTime());
-					if((userObj.getUsertype()==2 && task.getStatus()==4) || (userObj.getUsertype()!=2)) {	//登录用户是广告主且通过审核  或者登录用户是群邑
+					if((userObj.getUsertype()==UserTypeEnum.CUSTOMER.getId() && task.getStatus()==MonitorTaskStatus.VERIFIED.getId()) || (userObj.getUsertype()!=UserTypeEnum.CUSTOMER.getId())) {
+						//登录用户是广告主且通过审核  或者登录用户是群邑
 						TaskDownload zhuijiaMonitor = new TaskDownload();
 						stringBuffer.append(nowDate);
 						stringBuffer.append("	");
@@ -639,7 +648,8 @@ public class ActivityController extends BasicController {
 			StringBuffer stringBuffer = new StringBuffer();
 			if(now.compareTo(task.getReportTime())>0) {	//当前时间大于出报告时间
 				String nowDate = sdf.format(task.getReportTime());
-				if((userObj.getUsertype()==2 && task.getStatus()==4) || (userObj.getUsertype()!=2)) {	//登录用户是广告主且通过审核  或者登录用户是群邑
+				if((userObj.getUsertype()==UserTypeEnum.CUSTOMER.getId() && task.getStatus()==MonitorTaskStatus.VERIFIED.getId()) || (userObj.getUsertype()!=UserTypeEnum.CUSTOMER.getId())) {
+					//登录用户是广告主且通过审核  或者登录用户是群邑
 					if(task.getTaskType()==MonitorTaskType.UP_TASK.getId()) {	//5 上刊任务
 						TaskDownload upTask = new TaskDownload();
 						stringBuffer.append(nowDate);
@@ -683,7 +693,8 @@ public class ActivityController extends BasicController {
 				StringBuffer stringBuffer = new StringBuffer();
 				if(now.compareTo(task.getReportTime())>0) {	//当前时间大于出报告时间
 					String nowDate = sdf.format(task.getReportTime());
-					if((userObj.getUsertype()==2 && task.getStatus()==4) || (userObj.getUsertype()!=2)) {	//登录用户是广告主且通过审核  或者登录用户是群邑
+					if((userObj.getUsertype()==UserTypeEnum.CUSTOMER.getId() && task.getStatus()==MonitorTaskStatus.VERIFIED.getId()) || (userObj.getUsertype()!=UserTypeEnum.CUSTOMER.getId())) {
+						//登录用户是广告主且通过审核  或者登录用户是群邑
 						TaskDownload durationMonitor = new TaskDownload();
 						stringBuffer.append(nowDate);
 						stringBuffer.append("	");
@@ -705,7 +716,8 @@ public class ActivityController extends BasicController {
 				StringBuffer stringBuffer = new StringBuffer();
 				if(now.compareTo(task.getReportTime())>0) {	//当前时间大于出报告时间
 					String nowDate = sdf.format(task.getReportTime());
-					if((userObj.getUsertype()==2 && task.getStatus()==4) || (userObj.getUsertype()!=2)) {	//登录用户是广告主且通过审核  或者登录用户是群邑
+					if((userObj.getUsertype()==UserTypeEnum.CUSTOMER.getId() && task.getStatus()==MonitorTaskStatus.VERIFIED.getId()) || (userObj.getUsertype()!=UserTypeEnum.CUSTOMER.getId())) {
+						//登录用户是广告主且通过审核  或者登录用户是群邑
 						TaskDownload zhuijiaMonitor = new TaskDownload();
 						stringBuffer.append(nowDate);
 						stringBuffer.append("	");

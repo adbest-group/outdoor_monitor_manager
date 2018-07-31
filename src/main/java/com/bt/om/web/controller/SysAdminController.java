@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.crypto.hash.Md5Hash;
@@ -30,6 +31,9 @@ import com.bt.om.entity.SysUserRole;
 import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
+import com.bt.om.enums.UserRoleEnum;
+import com.bt.om.enums.UserTypeEnum;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.ISysGroupService;
 import com.bt.om.service.ISysResourcesService;
@@ -51,7 +55,7 @@ public class SysAdminController {
 	private ISysResourcesService sysResourcesService;
 	@Autowired
 	private ISysUserRoleService sysUserRoleService;
-	
+	private static final Logger logger = Logger.getLogger(SysAdminController.class);
 	/**
 	 * 查询admin账号列表
 	 */
@@ -71,12 +75,12 @@ public class SysAdminController {
         	name = "%" + name + "%";
             vo.putSearchParam("nameOrUsername", name, name);
         }
-        Integer usertype = 1;
+        Integer usertype = UserTypeEnum.ADMIN.getId();
         vo.putSearchParam("usertype", usertype.toString(), usertype);
         
-        if(user.getUsertype() == 4) {
+        if(user.getUsertype() == UserTypeEnum.SUPER_ADMIN.getId()) {
         	//超级管理员登录, 不做任何限制
-        } else if(user.getUsertype() == 5) {
+        } else if(user.getUsertype() == UserTypeEnum.DEPARTMENT_LEADER.getId()) {
         	//部门领导登录, 只能修改本部门下的所有员工信息
         	SysResources department = sysResourcesService.getByUserId(user.getId()); //通过部门领导账号的id查询出他管理的部门信息
         	List<Integer> groupIds = sysGroupService.selectGroupIdsByDepartmentId(department.getId()); //通过部门id查询出下面所有的组的id
@@ -94,7 +98,7 @@ public class SysAdminController {
     	List<?> list = vo.getList(); //查询到的所有员工
     	for (Object object : list) {
 			SysUserVo sysUserVo = (SysUserVo) object;
-			if(user.getUsertype() == 5) {
+			if(user.getUsertype() == UserTypeEnum.DEPARTMENT_LEADER.getId()) {
 				//[1] 设置是否是部门领导的专属员工
 				for (Integer userId : userIds) {
 					if(userId == sysUserVo.getId()) {
@@ -102,7 +106,7 @@ public class SysAdminController {
 						break;
 					}
 				}
-			} else if(user.getUsertype() == 4) {
+			} else if(user.getUsertype() == UserTypeEnum.SUPER_ADMIN.getId()) {
 				//[2] 超级管理员查询每个员工的组名称和部门名称
 				Map<String, Object> searchMap = new HashMap<>();
 				searchMap.put("type", 1);
@@ -119,7 +123,7 @@ public class SysAdminController {
 		}
     	model.addAttribute("user" ,user);
         SearchUtil.putToModel(model, vo);
-        if(user.getUsertype() == 4) {
+        if(user.getUsertype() == UserTypeEnum.SUPER_ADMIN.getId()) {
         	return PageConst.SUPERADMIN_ADMIN_USER_LIST;
         } else {
         	return PageConst.DEPARMENT_ADMIN_USER_LIST;
@@ -178,7 +182,7 @@ public class SysAdminController {
             	sysUser.setCreateTime(now);
             	sysUser.setUpdateTime(now);
             	sysUser.setPlatform(1);
-            	sysUser.setUsertype(1); //1：admin账户
+            	sysUser.setUsertype(UserTypeEnum.ADMIN.getId()); //1：admin账户
             	sysUser.setStatus(1); //1：可用（默认）
             	sysUser.setPassword(new Md5Hash(sysUser.getPassword(), sysUser.getUsername()).toString());
             	//[2] 插入sys_user_detail
@@ -191,13 +195,14 @@ public class SysAdminController {
             	SysUserRole sysUserRole = new SysUserRole();
             	sysUserRole.setPlatform(1);
             	sysUserRole.setUserId(sysUser.getId());
-            	sysUserRole.setRoleId(100); //100: admin的role, 刚创建的admin员工角色为admin
+            	sysUserRole.setRoleId(UserRoleEnum.ADMIN.getId()); //100: admin的role, 刚创建的admin员工角色为admin
             	
             	sysUserRole.setCreateTime(now);
             	sysUserRole.setUpdateTime(now);
             	sysUserService.createDepartmentLeader(sysUser, sysUserDetail, sysUserRole);
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -226,6 +231,7 @@ public class SysAdminController {
         	userType.setStatus(1);
         	sysUserService.updateStatus(status);
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);

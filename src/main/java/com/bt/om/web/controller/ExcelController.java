@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,13 +47,19 @@ import com.bt.om.entity.City;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
 import com.bt.om.entity.vo.AdMediaTypeVo;
+import com.bt.om.enums.AdCodeFlagEnum;
+import com.bt.om.enums.AdminImportAdSeatEnum;
 import com.bt.om.enums.ExcelImportFailEnum;
 import com.bt.om.enums.MapStandardEnum;
+import com.bt.om.enums.MediaImportAdSeatEnum;
 import com.bt.om.enums.MonitorTaskStatus;
+import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.enums.UserTypeEnum;
 import com.bt.om.exception.web.ExcelException;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.mapper.AdMediaMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
@@ -65,6 +72,7 @@ import com.bt.om.service.IMediaService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.util.ExcelTool;
 import com.bt.om.util.ImportExcelUtil;
+import com.bt.om.util.NumberUtil;
 import com.bt.om.util.pdf.AlternatingBackground;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.web.BasicController;
@@ -123,6 +131,8 @@ public class ExcelController extends BasicController {
 	
 	@Autowired
 	private IAdUserMessageService adUserMessageService;
+	
+	private static final Logger logger = Logger.getLogger(ExcelController.class);
 	
 	/**
 	 * 批量导入媒体监测人员
@@ -280,15 +290,15 @@ public class ExcelController extends BasicController {
 			reportTime = sdf.parse(reportTimeStr);
 			type = taskreport.substring(10,taskreport.length()-2);
 			if(type.contains("上刊任务")) {
-				taskType = 5;
+				taskType = MonitorTaskType.UP_TASK.getId();
 			} else if(type.contains("上刊监测")) {
-				taskType = 1;
+				taskType = MonitorTaskType.UP_MONITOR.getId();
 			} else if(type.contains("投放期间监测")) {
-				taskType = 2;
+				taskType = MonitorTaskType.DURATION_MONITOR.getId();
 			} else if(type.contains("下刊监测")) {
-				taskType = 3;
+				taskType = MonitorTaskType.DOWNMONITOR.getId();
 			} else if(type.contains("追加监测")) {
-				taskType = 6;
+				taskType = MonitorTaskType.ZHUIJIA_MONITOR.getId();
 			}
 			
 			searchMap.put("activityId", activityId);
@@ -499,7 +509,8 @@ public class ExcelController extends BasicController {
 //            List<AdMonitorTask> tasks = adMonitorTaskService.selectLatestMonitorTaskIds(activityId);
  			List<AdMonitorTask> tasks = adMonitorTaskService.newSelectLatestMonitorTaskIds(searchMap);
             for (AdMonitorTask task : tasks) {
-            	if((userObj.getUsertype()==2 && task.getStatus()==4) || (userObj.getUsertype()!=2)) { //登录方是广告主且任务当前状态是已审核  或者是群邑
+            	if((userObj.getUsertype()==UserTypeEnum.CUSTOMER.getId() && task.getStatus()==MonitorTaskStatus.VERIFIED.getId()) || (userObj.getUsertype()!=UserTypeEnum.CUSTOMER.getId())) {
+            		//登录方是广告主且任务当前状态是已审核  或者是群邑
             		ids.add(task.getId()); //ad_monitor_task的id
             		activityAdseatIds.add(task.getActivityAdseatId()); //ad_activity_adseat的id
             	}
@@ -650,16 +661,17 @@ public class ExcelController extends BasicController {
 			Integer taskType = null;
 			type = taskreport.substring(10,taskreport.length()-2);
 			if(type.contains("上刊任务")) {
-				taskType = 5;
+				taskType = MonitorTaskType.UP_TASK.getId();
 			} else if(type.contains("上刊监测")) {
-				taskType = 1;
+				taskType = MonitorTaskType.UP_MONITOR.getId();
 			} else if(type.contains("投放期间监测")) {
-				taskType = 2;
+				taskType = MonitorTaskType.DURATION_MONITOR.getId();
 			} else if(type.contains("下刊监测")) {
-				taskType = 3;
+				taskType = MonitorTaskType.DOWNMONITOR.getId();
 			} else if(type.contains("追加监测")) {
-				taskType = 6;
+				taskType = MonitorTaskType.ZHUIJIA_MONITOR.getId();
 			}
+			
 			searchMap.put("activityId", activityId);
 			searchMap.put("reportTime", reportTime);
 			searchMap.put("taskType", taskType);
@@ -686,7 +698,8 @@ public class ExcelController extends BasicController {
 			//查询每个广告位最新的一条监测任务
 			List<AdMonitorTask> tasks = adMonitorTaskService.newSelectLatestMonitorTaskIds(searchMap);
 	        for (AdMonitorTask task : tasks) {
-	        	if((userObj.getUsertype()==2 && task.getStatus()==4) || (userObj.getUsertype()!=2)) { //登录方是广告主且任务当前状态是已审核  或者是群邑
+	        	if((userObj.getUsertype()==UserTypeEnum.CUSTOMER.getId() && task.getStatus()==MonitorTaskStatus.VERIFIED.getId()) || (userObj.getUsertype()!=UserTypeEnum.CUSTOMER.getId())) {
+	        		//登录方是广告主且任务当前状态是已审核  或者是群邑
 	        		ids.add(task.getId()); //ad_monitor_task的id
 	        	}
 			}
@@ -697,7 +710,8 @@ public class ExcelController extends BasicController {
         	
         	List<AdActivityAdseatTaskVo> vos = adActivityService.newSelectAdActivityAdseatTaskReport(searchMap);
         	for (AdActivityAdseatTaskVo vo : vos) {
-        		if((userObj.getUsertype()==2 && vo.getStatus()==4) || (userObj.getUsertype()!=2)) { //登录方是广告主且任务当前状态是已审核  或者是群邑
+        		if((userObj.getUsertype()==UserTypeEnum.CUSTOMER.getId() && vo.getStatus()==MonitorTaskStatus.VERIFIED.getId()) || (userObj.getUsertype()!=UserTypeEnum.CUSTOMER.getId())) {
+        			//登录方是广告主且任务当前状态是已审核  或者是群邑
 					List<String> list = new ArrayList<>();
 					list.add(adActivity.getActivityName()); //活动名称 
 					list.add(sysUser.getRealname());//广告主名称
@@ -895,8 +909,8 @@ public class ExcelController extends BasicController {
             for (int i = 1; i < listob.size(); i++) {
                 List<Object> lo = listob.get(i);
                 //广告位名称, 所属媒体主, 媒体大类, 媒体小类, 省（直辖市）, 市,  主要路段, 
-                //详细位置, 媒体方广告位编号, 广告位长度, 广告位宽度, 面积, 经度, 纬度,面数, 地图标准（如百度，谷歌，高德）, 联系人姓名, 联系人电话, 导入结果, 导入错误信息
-                if(lo.size() <= 20){
+                //详细位置, 媒体方广告位编号, 广告位长度, 广告位宽度, 经度, 纬度,面数, 地图标准（如百度，谷歌，高德）, 联系人姓名, 联系人电话, 导入结果, 导入错误信息
+                if(lo.size() <= 19){
                 	AdSeatInfo info = new AdSeatInfo();
                 	Long provinceId = 0L;
                 	Long cityId = 0L;
@@ -906,30 +920,32 @@ public class ExcelController extends BasicController {
                 	AdMediaTypeVo adMediaTypeVo = null;
                 	
                 	//设置广告位名称
-                	if(lo.get(0) == null) {
-                		lo.set(18, IMPORT_FAIL);
-                		lo.set(19, ExcelImportFailEnum.ADNAME_NULL.getText());
+                	if(lo.get(AdminImportAdSeatEnum.ADSEAT_NAME.getId()) == null) {
+                		lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.ADNAME_NULL.getText());
                 		hasProblem = true;
                 	} else {
-                		info.setName(String.valueOf(lo.get(0)).trim()); //广告位名称
+                		info.setName(String.valueOf(lo.get(AdminImportAdSeatEnum.ADSEAT_NAME.getId())).trim().replaceAll("\n", "")); //广告位名称
+                		lo.set(AdminImportAdSeatEnum.ADSEAT_NAME.getId(),
+                				String.valueOf(lo.get(AdminImportAdSeatEnum.ADSEAT_NAME.getId())).trim().replaceAll("\n", ""));
                 	}
                 	
                 	//设置媒体主
                 	if(hasProblem == false) {
-                		if(lo.get(1) == null) {
-                    		lo.set(18, IMPORT_FAIL);
-                    		lo.set(19, ExcelImportFailEnum.MEDIA_NULL.getText());
+                		if(lo.get(AdminImportAdSeatEnum.MEDIA_NAME.getId()) == null) {
+                    		lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                    		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.MEDIA_NULL.getText());
                     		hasProblem = true;
                     	} else {
                     		for (AdMedia adMedia : allMedias) {
-                    			if(StringUtil.equals(adMedia.getMediaName(), String.valueOf(lo.get(1)).trim())) {
+                    			if(StringUtil.equals(adMedia.getMediaName(), String.valueOf(lo.get(AdminImportAdSeatEnum.MEDIA_NAME.getId())).trim())) {
                     				info.setMediaId(adMedia.getId());
                     				break;
                     			}
                     		}
                     		if(info.getMediaId() == null) {
-                    			lo.set(18, IMPORT_FAIL);
-                        		lo.set(19, ExcelImportFailEnum.MEDIA_INVAILD.getText());
+                    			lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                        		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.MEDIA_INVAILD.getText());
                         		hasProblem = true;
                     		}
                     	}
@@ -937,22 +953,22 @@ public class ExcelController extends BasicController {
                 	
                 	//设置媒体大类
                 	if(hasProblem == false) {
-                		if(lo.get(2) == null) {
-                    		lo.set(18, IMPORT_FAIL);
-                    		lo.set(19, ExcelImportFailEnum.PARENT_NULL.getText());
+                		if(lo.get(AdminImportAdSeatEnum.PARENT_NAME.getId()) == null) {
+                    		lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                    		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.PARENT_NULL.getText());
                     		hasProblem = true;
                     	}
                 	}
                 	
                 	//设置媒体小类
                 	if(hasProblem == false) {
-                		if(lo.get(3) == null) {
-                    		lo.set(18, IMPORT_FAIL);
-                    		lo.set(19, ExcelImportFailEnum.SECOND_NULL.getText());
+                		if(lo.get(AdminImportAdSeatEnum.SECOND_NAME.getId()) == null) {
+                    		lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                    		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.SECOND_NULL.getText());
                     		hasProblem = true;
                     	} else {
-                    		String parentName = String.valueOf(lo.get(2)).trim();
-                    		String secondName = String.valueOf(lo.get(3)).trim();
+                    		String parentName = String.valueOf(lo.get(AdminImportAdSeatEnum.PARENT_NAME.getId())).trim();
+                    		String secondName = String.valueOf(lo.get(AdminImportAdSeatEnum.SECOND_NAME.getId())).trim();
                     		adMediaTypeVo = table.get(parentName, secondName);
                     		if(adMediaTypeVo != null) {
                     			info.setMediaTypeParentId(adMediaTypeVo.getParentId());
@@ -961,8 +977,8 @@ public class ExcelController extends BasicController {
                     			info.setAllowMulti(adMediaTypeVo.getAllowMulti());
                     			info.setMultiNum(adMediaTypeVo.getMultiNum());
                     		} else {
-                    			lo.set(18, IMPORT_FAIL);
-                        		lo.set(19, ExcelImportFailEnum.MEDIA_TYPE_INVALID.getText());
+                    			lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                        		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.MEDIA_TYPE_INVALID.getText());
                         		hasProblem = true;
                     		}
     					}
@@ -970,12 +986,12 @@ public class ExcelController extends BasicController {
                 	
                 	//设置广告位所在省份(包括直辖市)
                 	if(hasProblem == false) {
-                		if(lo.get(4) == null) {
-                    		lo.set(18, IMPORT_FAIL);
-                    		lo.set(19, ExcelImportFailEnum.PROVINCE_NULL.getText());
+                		if(lo.get(AdminImportAdSeatEnum.PROVINCE.getId()) == null) {
+                    		lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                    		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.PROVINCE_NULL.getText());
                     		hasProblem = true;
                     	} else {
-                    		String provinceName = String.valueOf(lo.get(4)).trim(); //省
+                    		String provinceName = String.valueOf(lo.get(AdminImportAdSeatEnum.PROVINCE.getId())).trim(); //省
                     		//判断是否是直辖市
                     		if(provinceName.contains("北京") || provinceName.contains("上海") || provinceName.contains("天津")
                     				|| provinceName.contains("重庆")) {
@@ -1006,8 +1022,8 @@ public class ExcelController extends BasicController {
                     		}
                     		provinceId = provinceMap.get(provinceName);
                     		if(provinceId == null) {
-                    			lo.set(18, IMPORT_FAIL);
-                        		lo.set(19, ExcelImportFailEnum.PROVINCE_INVALID.getText());
+                    			lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                        		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.PROVINCE_INVALID.getText());
                         		hasProblem = true;
                     		}
                     		info.setProvince(provinceId);
@@ -1017,17 +1033,17 @@ public class ExcelController extends BasicController {
                 	
                 	//设置广告位所在市
                 	if(hasProblem == false) {
-                		if(lo.get(5) == null) {
+                		if(lo.get(AdminImportAdSeatEnum.CITY.getId()) == null) {
                     		if(zhiXiaShiFlag == false) {
-                    			lo.set(18, IMPORT_FAIL);
-                        		lo.set(19, ExcelImportFailEnum.CITY_NULL.getText());
+                    			lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                        		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.CITY_NULL.getText());
                         		hasProblem = true;
                     		}
                     	} else {
                     		if(zhiXiaShiFlag == true) {
                     			//直辖市的city字段不存库
                     		} else {
-                    			String cityName = String.valueOf(lo.get(5)).trim(); //市
+                    			String cityName = String.valueOf(lo.get(AdminImportAdSeatEnum.CITY.getId())).trim(); //市
                         		if(zhiXiaShiFlag == true) {
                         			info.setCity(info.getProvince());
                         			cityId = provinceId;
@@ -1043,8 +1059,8 @@ public class ExcelController extends BasicController {
         							}
                             		cityId = cityMap.get(cityName);
                             		if(cityId == null) {
-                            			lo.set(18, IMPORT_FAIL);
-                                		lo.set(19, ExcelImportFailEnum.CITY_INVALID.getText());
+                            			lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                                		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.CITY_INVALID.getText());
                                 		hasProblem = true;
                             		}
                             		info.setCity(cityId);
@@ -1056,12 +1072,12 @@ public class ExcelController extends BasicController {
                 	
                 	//设置广告位所在主要路段
                 	if(hasProblem == false) {
-                		if(lo.get(6) == null) {
-                    		lo.set(18, IMPORT_FAIL);
-                    		lo.set(19, ExcelImportFailEnum.STREET_NULL.getText());
+                		if(lo.get(AdminImportAdSeatEnum.ROAD.getId()) == null) {
+                    		lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                    		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.STREET_NULL.getText());
                     		hasProblem = true;
                     	} else {
-                    		String road = String.valueOf(lo.get(6)).trim(); //主要路段
+                    		String road = String.valueOf(lo.get(AdminImportAdSeatEnum.ROAD.getId())).trim(); //主要路段
                     		info.setRoad(road);
                     		buffer.append(road);
                     	}
@@ -1069,23 +1085,25 @@ public class ExcelController extends BasicController {
                 	
                 	//设置广告位详细地址
                 	if(hasProblem == false) {
-                		if(lo.get(7) == null) {
-                    		lo.set(18, IMPORT_FAIL);
-                    		lo.set(19, ExcelImportFailEnum.LOCATION_NULL.getText());
+                		if(lo.get(AdminImportAdSeatEnum.LOCATION.getId()) == null) {
+                    		lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                    		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOCATION_NULL.getText());
                     		hasProblem = true;
                     	} else {
-                    		info.setLocation(String.valueOf(lo.get(7)).trim()); //详细位置
-                    		buffer.append(String.valueOf(lo.get(7)).trim());
+                    		info.setLocation(String.valueOf(lo.get(AdminImportAdSeatEnum.LOCATION.getId())).trim().replaceAll("\n", "")); //详细位置
+                    		buffer.append(String.valueOf(lo.get(AdminImportAdSeatEnum.LOCATION.getId())).trim().replaceAll("\n", ""));
+                    		lo.set(AdminImportAdSeatEnum.LOCATION.getId(), 
+                    				String.valueOf(lo.get(AdminImportAdSeatEnum.LOCATION.getId())).trim().replaceAll("\n", ""));
                     	}
                 	}
                 	
                 	//设置媒体方广告位编号信息
                 	if(hasProblem == false) {
-                		if(lo.get(8) != null) {
-                			String memo = String.valueOf(lo.get(8)).trim();
+                		if(lo.get(AdminImportAdSeatEnum.MEMO.getId()) != null) {
+                			String memo = String.valueOf(lo.get(AdminImportAdSeatEnum.MEMO.getId())).trim();
                 			if(memoSet.contains(memo) == true) {
-                				lo.set(18, IMPORT_FAIL);
-                        		lo.set(19, ExcelImportFailEnum.MEMO_DUP.getText());
+                				lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                        		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.MEMO_DUP.getText());
                         		hasProblem = true;
                 			} else {
                 				info.setMemo(memo);
@@ -1096,64 +1114,66 @@ public class ExcelController extends BasicController {
                 	
                 	//设置广告位尺寸
                 	if(hasProblem == false) {
-                		if(lo.get(9) != null && lo.get(10) != null) {
+                		if(lo.get(AdminImportAdSeatEnum.LENGTH.getId()) != null && lo.get(AdminImportAdSeatEnum.WIDTH.getId()) != null) {
 //                    		DecimalFormat df = new DecimalFormat("0"); // 格式化number String字符
-                    		String length = String.valueOf(lo.get(9)).trim();
-                    		String width = String.valueOf(lo.get(10)).trim();
+                    		String length = String.valueOf(lo.get(AdminImportAdSeatEnum.LENGTH.getId())).trim();
+                    		String width = String.valueOf(lo.get(AdminImportAdSeatEnum.WIDTH.getId())).trim();
                     		info.setAdSize(length + "*" + width); //广告位长度*广告位宽度
-                    		lo.set(9, length);
-                    		lo.set(10, width);
-                    	} else if (lo.get(9) != null && lo.get(10) == null) {
-                    		lo.set(18, IMPORT_FAIL);
-                    		lo.set(19, ExcelImportFailEnum.SIZE_ONLYONE.getText());
+                    		lo.set(AdminImportAdSeatEnum.LENGTH.getId(), length);
+                    		lo.set(AdminImportAdSeatEnum.WIDTH.getId(), width);
+                    		double area = NumberUtil.divideInHalfUp(NumberUtil.multiply(width, length).toString(),"10000" , 3).doubleValue();
+                    		info.setAdArea(area + "");
+                    	} else if (lo.get(AdminImportAdSeatEnum.LENGTH.getId()) != null && lo.get(AdminImportAdSeatEnum.WIDTH.getId()) == null) {
+                    		lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                    		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.SIZE_ONLYONE.getText());
                     		hasProblem = true;
-    					} else if (lo.get(9) == null && lo.get(10) != null) {
-                    		lo.set(18, IMPORT_FAIL);
-                    		lo.set(19, ExcelImportFailEnum.SIZE_ONLYONE.getText());
+    					} else if (lo.get(AdminImportAdSeatEnum.LENGTH.getId()) == null && lo.get(AdminImportAdSeatEnum.WIDTH.getId()) != null) {
+                    		lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                    		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.SIZE_ONLYONE.getText());
                     		hasProblem = true;
     					} else {
     					}
                 	}
                 	
                 	//设置面积
-                	if(hasProblem == false) {
-                		if(lo.get(11) != null) {
-                    		info.setAdArea(String.valueOf(lo.get(11)).trim());
-                    	}
-                	}
+//                	if(hasProblem == false) {
+//                		if(lo.get(11) != null) {
+//                    		info.setAdArea(String.valueOf(lo.get(11)).trim());
+//                    	}
+//                	}
                 	
                 	//设置面数
                 	if(hasProblem == false) {
-                		if(lo.get(12) != null) {
-                			Double b = Double.parseDouble(String.valueOf(lo.get(12)).trim());
+                		if(lo.get(AdminImportAdSeatEnum.AD_NUM.getId()) != null) {
+                			Double b = Double.parseDouble(String.valueOf(lo.get(AdminImportAdSeatEnum.AD_NUM.getId())).trim());
                     		info.setAdNum((new Double(b)).intValue());
                     	}
                 	}
                 	
                 	//设置经纬度
                 	if(hasProblem == false) {
-                		if(lo.get(13) != null && lo.get(14) == null) {
-                    		lo.set(18, IMPORT_FAIL);
-                    		lo.set(19, ExcelImportFailEnum.LOC_ONLYONE.getText());
+                		if(lo.get(AdminImportAdSeatEnum.LON.getId()) != null && lo.get(AdminImportAdSeatEnum.LAT.getId()) == null) {
+                    		lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                    		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_ONLYONE.getText());
                     		hasProblem = true;
-                    	} else if (lo.get(13) == null && lo.get(14) != null) {
-                    		lo.set(18, IMPORT_FAIL);
-                    		lo.set(19, ExcelImportFailEnum.LOC_ONLYONE.getText());
+                    	} else if (lo.get(AdminImportAdSeatEnum.LON.getId()) == null && lo.get(AdminImportAdSeatEnum.LAT.getId()) != null) {
+                    		lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                    		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_ONLYONE.getText());
                     		hasProblem = true;
-    					} else if (lo.get(13) == null && lo.get(14) == null) {
+    					} else if (lo.get(AdminImportAdSeatEnum.LON.getId()) == null && lo.get(AdminImportAdSeatEnum.LAT.getId()) == null) {
     					} else {
     						//判断经度在-180-180之间
-    						double lon = Double.parseDouble(String.valueOf(lo.get(13)).trim());
+    						double lon = Double.parseDouble(String.valueOf(lo.get(AdminImportAdSeatEnum.LON.getId())).trim());
     						if(lon < -180 || lon > 180) {
-    							lo.set(18, IMPORT_FAIL);
-    	                		lo.set(19, ExcelImportFailEnum.LON_OVERFLOW.getText());
+    							lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+    	                		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LON_OVERFLOW.getText());
     	                		hasProblem = true;
     						}
     						//判断纬度在-90-90之间
-    						double lat = Double.parseDouble(String.valueOf(lo.get(14)).trim());
+    						double lat = Double.parseDouble(String.valueOf(lo.get(AdminImportAdSeatEnum.LAT.getId())).trim());
     						if(lat < -90 || lat > 90) {
-    	                		lo.set(18, IMPORT_FAIL);
-    	                		lo.set(19, ExcelImportFailEnum.LAT_OVERFLOW.getText());
+    	                		lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+    	                		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LAT_OVERFLOW.getText());
     	                		hasProblem = true;
     						}
     						info.setLon(lon); //经度
@@ -1161,17 +1181,17 @@ public class ExcelController extends BasicController {
     	                	
     	                	//地图标准
     	                	if(hasProblem == false) {
-    	                		if(lo.get(15) != null) {
-    	                			if(String.valueOf(lo.get(15)).trim().contains("百度")) {
+    	                		if(lo.get(AdminImportAdSeatEnum.MAP_STANDARD.getId()) != null) {
+    	                			if(String.valueOf(lo.get(AdminImportAdSeatEnum.MAP_STANDARD.getId())).trim().contains("百度")) {
     	                				info.setMapStandard(MapStandardEnum.getId("百度"));
-    	                			} else if(String.valueOf(lo.get(15)).trim().contains("高德")) {
+    	                			} else if(String.valueOf(lo.get(AdminImportAdSeatEnum.MAP_STANDARD.getId())).trim().contains("高德")) {
     	                				info.setMapStandard(MapStandardEnum.getId("高德"));
-    	                			} else if(String.valueOf(lo.get(15)).trim().contains("谷歌")) {
+    	                			} else if(String.valueOf(lo.get(AdminImportAdSeatEnum.MAP_STANDARD.getId())).trim().contains("谷歌")) {
     	                				info.setMapStandard(MapStandardEnum.getId("谷歌"));
     	                			}
         	                	} else {
-        	                		lo.set(18, IMPORT_FAIL);
-        	                		lo.set(19, ExcelImportFailEnum.NONE_MAP.getText());
+        	                		lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+        	                		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.NONE_MAP.getText());
         	                		hasProblem = true;
         						}
     	                	}
@@ -1180,15 +1200,15 @@ public class ExcelController extends BasicController {
                 	
                 	//设置联系人信息
                 	if(hasProblem == false) {
-                		if(lo.get(16) != null) {
-                    		info.setContactName(String.valueOf(lo.get(16)).trim());
+                		if(lo.get(AdminImportAdSeatEnum.CONTACT_NAME.getId()) != null) {
+                    		info.setContactName(String.valueOf(lo.get(AdminImportAdSeatEnum.CONTACT_NAME.getId())).trim());
                     	}
                 	}
                 	
                 	//联系人电话
                 	if(hasProblem == false) {
-                		if(lo.get(17) != null) {
-                    		info.setContactCell(String.valueOf(lo.get(17)).trim());
+                		if(lo.get(AdminImportAdSeatEnum.CONTANT_CELL.getId()) != null) {
+                    		info.setContactCell(String.valueOf(lo.get(AdminImportAdSeatEnum.CONTANT_CELL.getId())).trim());
                     	}
                 	}
                 	
@@ -1198,8 +1218,8 @@ public class ExcelController extends BasicController {
                 	//检查是否重复
                 	if(hasProblem == false) {
                 		if(keySet.contains(buffer.toString())) {
-                    		lo.set(18, IMPORT_FAIL);
-                    		lo.set(19, ExcelImportFailEnum.LOC_DUP.getText());
+                    		lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                    		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_DUP.getText());
                     		hasProblem = true;
                     		//重复的广告位放入临时表id集合中
                     		tmpSeatIds.add(databaseAdseatMap.get(buffer.toString()));
@@ -1208,11 +1228,11 @@ public class ExcelController extends BasicController {
                     	}
                 	}
                 	
-                	if(!(StringUtils.equals(String.valueOf(lo.get(18)), IMPORT_FAIL))) {
+                	if(!(StringUtils.equals(String.valueOf(lo.get(AdminImportAdSeatEnum.IMPORT_RESULT.getId())), IMPORT_FAIL))) {
                 		//导入成功
-                		lo.set(19, IMPORT_SUCC);
+                		lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_SUCC);
                 		//默认没有贴上二维码
-                		info.setCodeFlag(0);
+                		info.setCodeFlag(AdCodeFlagEnum.NO.getId());
                 		
 //                		//生成广告位对应的二维码
 //                		String adCodeInfo = mediaUser.getPrefix() + UUID.randomUUID(); //二维码存的值（媒体前缀比如media3- 加上UUID随机数）
@@ -1245,7 +1265,7 @@ public class ExcelController extends BasicController {
             List<List<String>> listString = objToString(listob);
             listob.clear();
             String[] titleArray = { "广告位名称", "所属媒体主", "媒体大类", "媒体小类", "省(直辖市)", "市", "主要路段", "详细位置", 
-            		"广告位编号", "广告位长度", "广告位宽度", "面积", "面数","经度", "纬度",
+            		"广告位编号", "广告位长度", "广告位宽度", "面数","经度", "纬度",
             		"地图标准（如百度，谷歌，高德）", "联系人姓名", "联系人电话", "导入结果", "导入错误信息"};
             ExcelTool<List<String>> excelTool = new ExcelTool<List<String>>("importResult");
             String path = request.getSession().getServletContext().getRealPath("/");
@@ -1293,11 +1313,11 @@ public class ExcelController extends BasicController {
     	AdMedia media = new AdMedia();
 //    	SysUserVo mediaUser = new SysUserVo();
 		Integer usertype = user.getUsertype();
-		if(usertype == 4 || usertype == 5 || usertype == 1) {
+		if(usertype == UserTypeEnum.SUPER_ADMIN.getId() || usertype == UserTypeEnum.DEPARTMENT_LEADER.getId() || UserTypeEnum.ADMIN.getId() == 1) {
 			//后台管理人员帮助媒体导入
 			media = adMediaMapper.selectByPrimaryKey(mediaId);
 //			mediaUser = sysUserService.findUserinfoById(media.getUserId());
-		} else if (usertype == 3) {
+		} else if (usertype == UserTypeEnum.MEDIA.getId()) {
 			//媒体人员自行导入
 			media = adMediaMapper.selectByUserId(user.getId());
 //			mediaUser = sysUserService.findUserinfoById(media.getUserId());
@@ -1351,8 +1371,8 @@ public class ExcelController extends BasicController {
             for (int i = 1; i < listob.size(); i++) {
                 List<Object> lo = listob.get(i);
                 //广告位名称, 媒体大类, 媒体小类, 省（直辖市）, 市, 主要路段, 
-                //详细位置, 广告位编号， 广告位长度, 广告位宽度, 面积, 面数, 经度, 纬度, 地图标准（如百度，谷歌，高德）, 联系人姓名, 联系人电话, 导入结果, 导入错误信息
-                if(lo.size() <= 19){
+                //详细位置, 广告位编号， 广告位长度, 广告位宽度, 经度, 纬度, 地图标准（如百度，谷歌，高德）, 联系人姓名, 联系人电话, 导入结果, 导入错误信息
+                if(lo.size() <= 18){
                 	AdSeatInfo info = new AdSeatInfo();
                 	Long provinceId = 0L;
                 	Long cityId = 0L;
@@ -1362,12 +1382,14 @@ public class ExcelController extends BasicController {
                 	AdMediaTypeVo adMediaTypeVo = null;
                 	
                 	//设置广告位名称
-                	if(lo.get(0) == null) {
-                		lo.set(17, IMPORT_FAIL);
-                		lo.set(18, ExcelImportFailEnum.ADNAME_NULL.getText());
+                	if(lo.get(MediaImportAdSeatEnum.ADSEAT_NAME.getId()) == null) {
+                		lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.ADNAME_NULL.getText());
                 		hasProblem = true;
                 	} else {
-                		info.setName(String.valueOf(lo.get(0)).trim()); //广告位名称
+                		info.setName(String.valueOf(lo.get(MediaImportAdSeatEnum.ADSEAT_NAME.getId())).trim().replaceAll("\n", "")); //广告位名称
+                		lo.set(MediaImportAdSeatEnum.ADSEAT_NAME.getId(), 
+                				String.valueOf(lo.get(MediaImportAdSeatEnum.ADSEAT_NAME.getId())).trim().replaceAll("\n", ""));
                 	}
                 	
                 	//设置媒体主
@@ -1375,22 +1397,22 @@ public class ExcelController extends BasicController {
                 	
                 	//设置媒体大类
                 	if(hasProblem == false) {
-                		if(lo.get(1) == null) {
-                    		lo.set(17, IMPORT_FAIL);
-                    		lo.set(18, ExcelImportFailEnum.PARENT_NULL.getText());
+                		if(lo.get(MediaImportAdSeatEnum.PARENT_NAME.getId()) == null) {
+                    		lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                    		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.PARENT_NULL.getText());
                     		hasProblem = true;
                     	}
                 	}
                 	
                 	//设置媒体小类
                 	if(hasProblem == false) {
-                		if(lo.get(2) == null) {
-                    		lo.set(17, IMPORT_FAIL);
-                    		lo.set(18, ExcelImportFailEnum.SECOND_NULL.getText());
+                		if(lo.get(MediaImportAdSeatEnum.SECOND_NAME.getId()) == null) {
+                    		lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                    		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.SECOND_NULL.getText());
                     		hasProblem = true;
                     	} else {
-                    		String parentName = String.valueOf(lo.get(1)).trim();
-                    		String secondName = String.valueOf(lo.get(2)).trim();
+                    		String parentName = String.valueOf(lo.get(MediaImportAdSeatEnum.PARENT_NAME.getId())).trim();
+                    		String secondName = String.valueOf(lo.get(MediaImportAdSeatEnum.SECOND_NAME.getId())).trim();
                     		adMediaTypeVo = table.get(parentName, secondName);
                     		if(adMediaTypeVo != null) {
                     			info.setMediaTypeParentId(adMediaTypeVo.getParentId());
@@ -1399,8 +1421,8 @@ public class ExcelController extends BasicController {
                     			info.setAllowMulti(adMediaTypeVo.getAllowMulti());
                     			info.setMultiNum(adMediaTypeVo.getMultiNum());
                     		} else {
-                    			lo.set(17, IMPORT_FAIL);
-                        		lo.set(18, ExcelImportFailEnum.MEDIA_TYPE_INVALID.getText());
+                    			lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                        		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.MEDIA_TYPE_INVALID.getText());
                         		hasProblem = true;
                     		}
     					}
@@ -1446,12 +1468,12 @@ public class ExcelController extends BasicController {
                 	
                 	//设置广告位所在省份(包括直辖市)
                 	if(hasProblem == false) {
-                		if(lo.get(3) == null) {
-                    		lo.set(17, IMPORT_FAIL);
-                    		lo.set(18, ExcelImportFailEnum.PROVINCE_NULL.getText());
+                		if(lo.get(MediaImportAdSeatEnum.PROVINCE.getId()) == null) {
+                    		lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                    		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.PROVINCE_NULL.getText());
                     		hasProblem = true;
                     	} else {
-                    		String provinceName = String.valueOf(lo.get(3)).trim(); //省
+                    		String provinceName = String.valueOf(lo.get(MediaImportAdSeatEnum.PROVINCE.getId())).trim(); //省
                     		//判断是否是直辖市
                     		if(provinceName.contains("北京") || provinceName.contains("上海") || provinceName.contains("天津")
                     				|| provinceName.contains("重庆")) {
@@ -1482,8 +1504,8 @@ public class ExcelController extends BasicController {
                     		}
                     		provinceId = provinceMap.get(provinceName);
                     		if(provinceId == null) {
-                    			lo.set(17, IMPORT_FAIL);
-                        		lo.set(18, ExcelImportFailEnum.PROVINCE_INVALID.getText());
+                    			lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                        		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.PROVINCE_INVALID.getText());
                         		hasProblem = true;
                     		}
                     		info.setProvince(provinceId);
@@ -1493,17 +1515,17 @@ public class ExcelController extends BasicController {
                 	
                 	//设置广告位所在市
                 	if(hasProblem == false) {
-                		if(lo.get(4) == null) {
+                		if(lo.get(MediaImportAdSeatEnum.CITY.getId()) == null) {
                     		if(zhiXiaShiFlag == false) {
-                    			lo.set(17, IMPORT_FAIL);
-                        		lo.set(18, ExcelImportFailEnum.CITY_NULL.getText());
+                    			lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                        		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.CITY_NULL.getText());
                         		hasProblem = true;
                     		}
                     	} else {
                     		if(zhiXiaShiFlag == true) {
                     			//直辖市的city字段不存库
                     		} else {
-                    			String cityName = String.valueOf(lo.get(4)).trim(); //市
+                    			String cityName = String.valueOf(lo.get(MediaImportAdSeatEnum.CITY.getId())).trim(); //市
                         		/*if(!cityName.endsWith("市")) {
                         			cityName = cityName + "市";
                         		}*/
@@ -1522,8 +1544,8 @@ public class ExcelController extends BasicController {
         							}
                             		cityId = cityMap.get(cityName);
                             		if(cityId == null) {
-                            			lo.set(17, IMPORT_FAIL);
-                                		lo.set(18, ExcelImportFailEnum.CITY_INVALID.getText());
+                            			lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                                		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.CITY_INVALID.getText());
                                 		hasProblem = true;
                             		}
                             		info.setCity(cityId);
@@ -1586,12 +1608,12 @@ public class ExcelController extends BasicController {
 //                	
                 	//设置广告位所在主要路段
                 	if(hasProblem == false) {
-                		if(lo.get(5) == null) {
-                    		lo.set(17, IMPORT_FAIL);
-                    		lo.set(18, ExcelImportFailEnum.STREET_NULL.getText());
+                		if(lo.get(MediaImportAdSeatEnum.ROAD.getId()) == null) {
+                    		lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                    		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.STREET_NULL.getText());
                     		hasProblem = true;
                     	} else {
-                    		String road = String.valueOf(lo.get(5)).trim(); //主要路段
+                    		String road = String.valueOf(lo.get(MediaImportAdSeatEnum.ROAD.getId())).trim(); //主要路段
                     		info.setRoad(road);
                     		buffer.append(road);
                     	}
@@ -1599,23 +1621,25 @@ public class ExcelController extends BasicController {
                 	
                 	//设置广告位详细地址
                 	if(hasProblem == false) {
-                		if(lo.get(6) == null) {
-                    		lo.set(17, IMPORT_FAIL);
-                    		lo.set(18, ExcelImportFailEnum.LOCATION_NULL.getText());
+                		if(lo.get(MediaImportAdSeatEnum.LOCATION.getId()) == null) {
+                    		lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                    		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOCATION_NULL.getText());
                     		hasProblem = true;
                     	} else {
-                    		info.setLocation(String.valueOf(lo.get(6)).trim()); //详细位置
-                    		buffer.append(String.valueOf(lo.get(6)).trim());
+                    		info.setLocation(String.valueOf(lo.get(MediaImportAdSeatEnum.LOCATION.getId())).trim().replaceAll("\n", "")); //详细位置
+                    		buffer.append(String.valueOf(lo.get(MediaImportAdSeatEnum.LOCATION.getId())).trim().replaceAll("\n", ""));
+                    		lo.set(MediaImportAdSeatEnum.LOCATION.getId(), 
+                    				String.valueOf(lo.get(MediaImportAdSeatEnum.LOCATION.getId())).trim().replaceAll("\n", ""));
                     	}
                 	}
                 	
                 	//设置媒体方广告位编号信息
                 	if(hasProblem == false) {
-                		if(lo.get(7) != null) {
-                			String memo = String.valueOf(lo.get(7)).trim();
+                		if(lo.get(MediaImportAdSeatEnum.MEMO.getId()) != null) {
+                			String memo = String.valueOf(lo.get(MediaImportAdSeatEnum.MEMO.getId())).trim();
                 			if(memoSet.contains(memo) == true) {
-                				lo.set(18, IMPORT_FAIL);
-                        		lo.set(19, ExcelImportFailEnum.MEMO_DUP.getText());
+                				lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                        		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.MEMO_DUP.getText());
                         		hasProblem = true;
                 			} else {
                 				info.setMemo(memo);
@@ -1642,64 +1666,66 @@ public class ExcelController extends BasicController {
                 	
                 	//设置广告位尺寸
                 	if(hasProblem == false) {
-                		if(lo.get(8) != null && lo.get(9) != null) {
+                		if(lo.get(MediaImportAdSeatEnum.LENGTH.getId()) != null && lo.get(MediaImportAdSeatEnum.WIDTH.getId()) != null) {
 //                    		DecimalFormat df = new DecimalFormat("0"); // 格式化number String字符
-                    		String length = String.valueOf(lo.get(8)).trim();
-                    		String width = String.valueOf(lo.get(9)).trim();
+                    		String length = String.valueOf(lo.get(MediaImportAdSeatEnum.LENGTH.getId())).trim();
+                    		String width = String.valueOf(lo.get(MediaImportAdSeatEnum.WIDTH.getId())).trim();
                     		info.setAdSize(length + "*" + width); //广告位长度*广告位宽度
-                    		lo.set(8, length);
-                    		lo.set(9, width);
-                    	} else if (lo.get(8) != null && lo.get(9) == null) {
-                    		lo.set(17, IMPORT_FAIL);
-                    		lo.set(18, ExcelImportFailEnum.SIZE_ONLYONE.getText());
+                    		lo.set(MediaImportAdSeatEnum.LENGTH.getId(), length);
+                    		lo.set(MediaImportAdSeatEnum.WIDTH.getId(), width);
+                    		double area = NumberUtil.divideInHalfUp(NumberUtil.multiply(width, length).toString(),"10000" , 3).doubleValue();
+                    		info.setAdArea(area + "");
+                    	} else if (lo.get(MediaImportAdSeatEnum.LENGTH.getId()) != null && lo.get(MediaImportAdSeatEnum.WIDTH.getId()) == null) {
+                    		lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                    		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.SIZE_ONLYONE.getText());
                     		hasProblem = true;
-    					} else if (lo.get(8) == null && lo.get(9) != null) {
-                    		lo.set(17, IMPORT_FAIL);
-                    		lo.set(18, ExcelImportFailEnum.SIZE_ONLYONE.getText());
+    					} else if (lo.get(MediaImportAdSeatEnum.LENGTH.getId()) == null && lo.get(MediaImportAdSeatEnum.WIDTH.getId()) != null) {
+                    		lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                    		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.SIZE_ONLYONE.getText());
                     		hasProblem = true;
     					} else {
     					}
                 	}
                 	
                 	//设置面积
-                	if(hasProblem == false) {
-                		if(lo.get(10) != null) {
-                    		info.setAdArea(String.valueOf(lo.get(10)).trim());
-                    	}
-                	}
+//                	if(hasProblem == false) {
+//                		if(lo.get(10) != null) {
+//                    		info.setAdArea(String.valueOf(lo.get(10)).trim());
+//                    	}
+//                	}
                 	
                 	//设置面数
                 	if(hasProblem == false) {
-                		if(lo.get(11) != null) {
-                			Double b = Double.parseDouble(String.valueOf(lo.get(11)).trim());
+                		if(lo.get(MediaImportAdSeatEnum.AD_NUM.getId()) != null) {
+                			Double b = Double.parseDouble(String.valueOf(lo.get(MediaImportAdSeatEnum.AD_NUM.getId())).trim());
                     		info.setAdNum((new Double(b)).intValue());
                     	}
                 	}
                 	
                 	//设置经纬度
                 	if(hasProblem == false) {
-                		if(lo.get(12) != null && lo.get(13) == null) {
-                    		lo.set(17, IMPORT_FAIL);
-                    		lo.set(18, ExcelImportFailEnum.LOC_ONLYONE.getText());
+                		if(lo.get(MediaImportAdSeatEnum.LON.getId()) != null && lo.get(MediaImportAdSeatEnum.LAT.getId()) == null) {
+                    		lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                    		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_ONLYONE.getText());
                     		hasProblem = true;
-                    	} else if (lo.get(12) == null && lo.get(13) != null) {
-                    		lo.set(17, IMPORT_FAIL);
-                    		lo.set(18, ExcelImportFailEnum.LOC_ONLYONE.getText());
+                    	} else if (lo.get(MediaImportAdSeatEnum.LON.getId()) == null && lo.get(MediaImportAdSeatEnum.LAT.getId()) != null) {
+                    		lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                    		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_ONLYONE.getText());
                     		hasProblem = true;
-    					} else if (lo.get(12) == null && lo.get(13) == null) {
+    					} else if (lo.get(MediaImportAdSeatEnum.LON.getId()) == null && lo.get(MediaImportAdSeatEnum.LAT.getId()) == null) {
     					} else {
     						//判断经度在-180-180之间
-    						double lon = Double.parseDouble(String.valueOf(lo.get(12)).trim());
+    						double lon = Double.parseDouble(String.valueOf(lo.get(MediaImportAdSeatEnum.LON.getId())).trim());
     						if(lon < -180 || lon > 180) {
-    							lo.set(17, IMPORT_FAIL);
-    	                		lo.set(18, ExcelImportFailEnum.LON_OVERFLOW.getText());
+    							lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+    	                		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LON_OVERFLOW.getText());
     	                		hasProblem = true;
     						}
     						//判断纬度在-90-90之间
-    						double lat = Double.parseDouble(String.valueOf(lo.get(13)).trim());
+    						double lat = Double.parseDouble(String.valueOf(lo.get(MediaImportAdSeatEnum.LAT.getId())).trim());
     						if(lat < -90 || lat > 90) {
-    	                		lo.set(17, IMPORT_FAIL);
-    	                		lo.set(18, ExcelImportFailEnum.LAT_OVERFLOW.getText());
+    	                		lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+    	                		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LAT_OVERFLOW.getText());
     	                		hasProblem = true;
     						}
     						info.setLon(lon); //经度
@@ -1707,17 +1733,17 @@ public class ExcelController extends BasicController {
     	                	
     	                	//地图标准
     	                	if(hasProblem == false) {
-    	                		if(lo.get(14) != null) {
-    	                			if(String.valueOf(lo.get(14)).trim().contains("百度")) {
+    	                		if(lo.get(MediaImportAdSeatEnum.MAP_STANDARD.getId()) != null) {
+    	                			if(String.valueOf(lo.get(MediaImportAdSeatEnum.MAP_STANDARD.getId())).trim().contains("百度")) {
     	                				info.setMapStandard(MapStandardEnum.getId("百度"));
-    	                			} else if(String.valueOf(lo.get(14)).trim().contains("高德")) {
+    	                			} else if(String.valueOf(lo.get(MediaImportAdSeatEnum.MAP_STANDARD.getId())).trim().contains("高德")) {
     	                				info.setMapStandard(MapStandardEnum.getId("高德"));
-    	                			} else if(String.valueOf(lo.get(14)).trim().contains("谷歌")) {
+    	                			} else if(String.valueOf(lo.get(MediaImportAdSeatEnum.MAP_STANDARD.getId())).trim().contains("谷歌")) {
     	                				info.setMapStandard(MapStandardEnum.getId("谷歌"));
     	                			}
         	                	} else {
-        	                		lo.set(17, IMPORT_FAIL);
-        	                		lo.set(18, ExcelImportFailEnum.NONE_MAP.getText());
+        	                		lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+        	                		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.NONE_MAP.getText());
         	                		hasProblem = true;
         						}
     	                	}
@@ -1726,15 +1752,15 @@ public class ExcelController extends BasicController {
                 	
                 	//设置联系人信息
                 	if(hasProblem == false) {
-                		if(lo.get(15) != null) {
-                    		info.setContactName(String.valueOf(lo.get(15)).trim());
+                		if(lo.get(MediaImportAdSeatEnum.CONTACT_NAME.getId()) != null) {
+                    		info.setContactName(String.valueOf(lo.get(MediaImportAdSeatEnum.CONTACT_NAME.getId())).trim());
                     	}
                 	}
                 	
                 	//联系人电话
                 	if(hasProblem == false) {
-                		if(lo.get(16) != null) {
-                    		info.setContactCell(String.valueOf(lo.get(16)).trim());
+                		if(lo.get(MediaImportAdSeatEnum.CONTANT_CELL.getId()) != null) {
+                    		info.setContactCell(String.valueOf(lo.get(MediaImportAdSeatEnum.CONTANT_CELL.getId())).trim());
                     	}
                 	}
                 	
@@ -1744,19 +1770,19 @@ public class ExcelController extends BasicController {
                 	//检查是否重复
                 	if(hasProblem == false) {
                 		if(keySet.contains(buffer.toString())) {
-                    		lo.set(17, IMPORT_FAIL);
-                    		lo.set(18, ExcelImportFailEnum.LOC_DUP.getText());
+                    		lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                    		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_DUP.getText());
                     		hasProblem = true;
                     	} else {
                     		keySet.add(buffer.toString());
                     	}
                 	}
                 	
-                	if(!(StringUtils.equals(String.valueOf(lo.get(17)), IMPORT_FAIL))) {
+                	if(!(StringUtils.equals(String.valueOf(lo.get(MediaImportAdSeatEnum.IMPORT_RESULT.getId())), IMPORT_FAIL))) {
                 		//导入成功
-                		lo.set(17, IMPORT_SUCC);
+                		lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_SUCC);
                 		//默认没有贴上二维码
-                		info.setCodeFlag(0);
+                		info.setCodeFlag(AdCodeFlagEnum.NO.getId());
                 		
 //                		//生成广告位对应的二维码
 //                		String adCodeInfo = mediaUser.getPrefix() + UUID.randomUUID(); //二维码存的值（媒体前缀比如media3- 加上UUID随机数）
@@ -1788,7 +1814,7 @@ public class ExcelController extends BasicController {
             List<List<String>> listString = objToString(listob);
             listob.clear();
             String[] titleArray = { "广告位名称", "媒体大类", "媒体小类", "省（直辖市）", "市",  "主要路段", "详细位置", 
-            		"广告位编号", "广告位长度", "广告位宽度", "面积", "面数","经度", "纬度",
+            		"广告位编号", "广告位长度", "广告位宽度", "面数","经度", "纬度",
             		"地图标准（如百度，谷歌，高德）", "联系人姓名", "联系人电话", "导入结果", "导入错误信息"};
             ExcelTool<List<String>> excelTool = new ExcelTool<List<String>>("importResult");
 //          excelTool.exportExcel(listString, titleArray, response);

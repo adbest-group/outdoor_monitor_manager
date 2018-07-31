@@ -89,6 +89,7 @@ public class PageConst {
 	/*** 客户类型管理  ***/
 	public static final String CUSTOMER_TYPE_LIST = "adcustomer/type/list";
 	public static final String CUSTOMER_TYPE_EDIT = "adcustomer/type/edit";
+	public static final String CUSTOMER_TYPE_DETAILS = "adcustomer/type/details";
 
 	/*** 超级管理员下的部门管理 ***/
 	public static final String SUPER_ADMIN_DEPT_LIST = "resources/departmentList";

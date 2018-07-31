@@ -1994,7 +1994,7 @@ public class ExcelController extends BasicController {
 		
 		String path = request.getSession().getServletContext().getRealPath("/");
 		if(!StringUtils.isEmpty(feedback.getPicUrl1())) {
-			Image image1 = Image.getInstance(path + feedback.getPicUrl1());
+			Image image1 = Image.getInstance(feedback.getPicUrl1());
 			image1.setAlignment(Image.ALIGN_CENTER);
 //			image1.scalePercent(40);//依照比例缩放
 			image1.scaleAbsolute(330,262);//控制图片大小
@@ -2003,7 +2003,7 @@ public class ExcelController extends BasicController {
 		}
 		
 		if(!StringUtils.isEmpty(feedback.getPicUrl2())) {
-			Image image2 = Image.getInstance(path + feedback.getPicUrl2());
+			Image image2 = Image.getInstance(feedback.getPicUrl2());
 			image2.setAlignment(Image.ALIGN_CENTER);
 //			image2.scalePercent(40);//依照比例缩放
 			image2.scaleAbsolute(330,262);//控制图片大小
@@ -2012,7 +2012,7 @@ public class ExcelController extends BasicController {
 		}
 		
 		if(!StringUtils.isEmpty(feedback.getPicUrl3())) {
-			Image image3 = Image.getInstance(path + feedback.getPicUrl3());
+			Image image3 = Image.getInstance(feedback.getPicUrl3());
 			image3.setAlignment(Image.ALIGN_CENTER);
 //			image3.scalePercent(40);//依照比例缩放
 			image3.scaleAbsolute(330,262);//控制图片大小
@@ -2021,7 +2021,7 @@ public class ExcelController extends BasicController {
 		}
 		
 		if(!StringUtils.isEmpty(feedback.getPicUrl4())) {
-			Image image4 = Image.getInstance(path + feedback.getPicUrl4());
+			Image image4 = Image.getInstance(feedback.getPicUrl4());
 			image4.setAlignment(Image.ALIGN_CENTER);
 //			image4.scalePercent(40);//依照比例缩放
 			image4.scaleAbsolute(330,262);//控制图片大小

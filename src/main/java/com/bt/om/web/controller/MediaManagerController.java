@@ -739,11 +739,12 @@ public class MediaManagerController {
                 model.addAttribute("pjTask",adJiucuoTaskService.getVoById(vo.getParentId()));
             }
         }
-
+        SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         if (vo != null && list != null) {
             model.addAttribute("vo", vo);
             model.addAttribute("list", list);
             model.addAttribute("taskId", taskId);
+            model.addAttribute("usertype", user.getUsertype());
         }
         return PageConst.MEDIA_TASK_DETAIL;
     }

@@ -30,8 +30,11 @@
                             <td>${partnerUser.username?if_exists}</td>
                             <td>${partnerUser.telephone?if_exists}</td>
                             <td>${partnerUser.appTypeName?if_exists}</td>
-                            <td><span onclick="updStatus('${partnerUser.id}', '${partnerUser.status}');"
-                                      class="switch<#if partnerUser.status?exists && partnerUser.status == 1> current</#if>"><s></s><b></b></span>
+                            <td>
+                            	<#if partnerUser.status?exists && partnerUser.status == 1> 可用
+                            	<#else>
+                            	不可用
+                            	</#if>
                             </td>
                         </tr>
                         </#list>

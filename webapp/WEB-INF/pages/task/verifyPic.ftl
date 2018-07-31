@@ -12,13 +12,14 @@
 	<div class="bd">
 		<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter">
 			<tbody>
-			     <input type="hidden" name="id" id="id" value="${(obj.id)?if_exists}"/>
+			     <input type="hidden" name="id" id="id" value="${id?if_exists}"/>
+			     <input type="hidden" name="index" id="index" value="${index?if_exists}"/>
 				<tr>
 					<div class="layui-form-item">
 					    <label class="layui-form-label">审核状态</label>
 					    <div class="layui-input-block">
-					      <input name="status" value="1" title="通过" checked="" type="radio">通过
-					      <input name="status" value="0" title="驳回" type="radio">驳回
+					      <input  type="radio" name="status" value="1" checked="">通过
+					      <input  type="radio" name="status" value="2" >驳回
 					    </div>
 					 </div>
 				</tr>
@@ -45,7 +46,7 @@
 <script>
 $(function() {
     $('.select').searchableSelect();
-	$('#mediaId').next().find('.searchable-select-input').css('display', 'block');
+	var index = $("#index").val();
     
     var id = $("#id").val();
     // 图片状态处理
@@ -56,13 +57,14 @@ $(function() {
         submitOnce: true,
         errorFocus: false,
         onSuccess: function(){
-	        var status = $(".status").val();
-
+	        var status = $("input[type='radio']:checked").val();
+			console.log(status);
             $.ajax({
                 url: "/task/savePicStatus",
                 type: "post",
                 data: {
                 	"id": id,
+                	"index" : index,
                 	"status" : status
                 },
                 cache: false,

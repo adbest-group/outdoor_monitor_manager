@@ -37,6 +37,7 @@ import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
 import com.bt.om.enums.UserTypeEnum;
+import com.bt.om.enums.VerifyType;
 //import com.bt.om.mapper.SysDictMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
@@ -242,6 +243,13 @@ public class VMComponent {
      **/
     public String getUserMessageTypeText(int id) {	
         return MessageType.getText(id);
+    }
+    
+    /**
+     * 获取任务状态的名称
+     **/
+    public String getVerifyTypeText(int id) {	
+        return VerifyType.getText(id);
     }
     
     /**

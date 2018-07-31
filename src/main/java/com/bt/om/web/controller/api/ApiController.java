@@ -92,6 +92,7 @@ import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.enums.VerifyType;
 import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
@@ -1046,6 +1047,13 @@ public class ApiController extends BasicController {
                     	vo.setAd_seat_code(null);
                     	vo.setAdCode(null);
                     }
+                    
+                    if(task.getStatus() == MonitorTaskStatus.VERIFY_FAILURE.getId()) {
+                    	vo.setPicUrl1Status(task.getPicUrl1Status());
+                    	vo.setPicUrl2Status(task.getPicUrl2Status());
+                    	vo.setPicUrl3Status(task.getPicUrl3Status());
+                    	vo.setPicUrl4Status(task.getPicUrl4Status());
+                    }
                     resultVo.getChecked().add(vo);
                 } else if (task.getStatus() == MonitorTaskStatus.UN_FINISHED.getId()) {
                 	MonitorTaskUnFinishedVo vo = new MonitorTaskUnFinishedVo(task);
@@ -1091,7 +1099,6 @@ public class ApiController extends BasicController {
         }
         //设置总页数
         int totalCount = (int) ((datavo.getCount() + pageSize - 1) / pageSize);
-
         model.addAttribute("totalCount", totalCount);
         model.addAttribute(SysConst.RESULT_KEY, result);
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
@@ -1329,6 +1336,7 @@ public class ApiController extends BasicController {
         Calendar date = Calendar.getInstance();
         String timePath = date.get(Calendar.YEAR)+ File.separator + (date.get(Calendar.MONTH)+1) + File.separator+ date.get(Calendar.DAY_OF_MONTH) + File.separator;
         path = path + (path.endsWith(File.separator) ? "" : File.separatorChar) + "activity" + File.separatorChar;
+        
         if (type == AppTaskEnum.MONITOR_TASK.getId()) {
         	AdMonitorTask adMonitorTask = adMonitorTaskService.selectByPrimaryKey(taskId);
         	path = path + adMonitorTask.getActivityId() + File.separatorChar + "monitor" + File.separator + timePath;
@@ -1341,17 +1349,23 @@ public class ApiController extends BasicController {
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
             }
+            
             //不是以data:image/jpeg;base64,开头的说明并没有重新拍照
-            if (file1!=null&&!file1.startsWith("data:image/jpeg;base64,")) {
+            /**
+             * 审核不通过重新执行的任务反馈中: 
+             * 1、base64串 → 代表审核不通过的图片重新拍照执行
+             * 2、null → 代表审核不通过但是照片没替换  或者  审核通过的图片
+             */
+            if (StringUtil.isNotBlank(file1) && !file1.startsWith("data:image/jpeg;base64,")) {
                 file1 = null;
             }
-            if (file2!=null&&!file2.startsWith("data:image/jpeg;base64,")) {
+            if (StringUtil.isNotBlank(file2) && !file2.startsWith("data:image/jpeg;base64,")) {
                 file2 = null;
             }
-            if (file3!=null&&!file3.startsWith("data:image/jpeg;base64,")) {
+            if (StringUtil.isNotBlank(file3) && !file3.startsWith("data:image/jpeg;base64,")) {
                 file3 = null;
             }
-            if (file4!=null&&!file4.startsWith("data:image/jpeg;base64,")) {
+            if (StringUtil.isNotBlank(file4) && !file4.startsWith("data:image/jpeg;base64,")) {
                 file4 = null;
             }
 

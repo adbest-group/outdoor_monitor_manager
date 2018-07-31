@@ -368,6 +368,10 @@
         <result column="media_type_id" jdbcType="INTEGER" property="mediaTypeId"/>
         <result column="parentName" jdbcType="VARCHAR" property="parentName"/>
 		<result column="secondName" jdbcType="VARCHAR" property="secondName"/>
+		<result column="pic_url1_status" jdbcType="INTEGER" property="picUrl1Status" />
+    	<result column="pic_url2_status" jdbcType="INTEGER" property="picUrl2Status" />
+    	<result column="pic_url3_status" jdbcType="INTEGER" property="picUrl3Status" />
+   		<result column="pic_url4_status" jdbcType="INTEGER" property="picUrl4Status" />
     </resultMap>
 
     <resultMap id="MobileResultMap" extends="BaseResultMap" type="com.bt.om.entity.vo.AdMonitorTaskMobileVo">
@@ -410,6 +414,10 @@
 	    <result column="no_qualified_text2" property="noQualifiedText2" jdbcType="VARCHAR" />
 	    <result column="no_qualified_text3" property="noQualifiedText3" jdbcType="VARCHAR" />
 	    <result column="notification" property="notification" jdbcType="VARCHAR"/>
+	    <result column="pic_url1_status" jdbcType="INTEGER" property="picUrl1Status" />
+    	<result column="pic_url2_status" jdbcType="INTEGER" property="picUrl2Status" />
+    	<result column="pic_url3_status" jdbcType="INTEGER" property="picUrl3Status" />
+   		<result column="pic_url4_status" jdbcType="INTEGER" property="picUrl4Status" />
     </resultMap>
 
 	<!-- 批量插入任务 -->
@@ -776,7 +784,7 @@
     		d.`name` as ad_seat_name, d.location as ad_seat_location, d.ad_code as ad_seat_code, d.lon, d.lat, d.region, d.street, d.province, d.city, d.road,
     		d.ad_code_flag, d.memo,
     		e.reason,e.pic_url1,e.pic_url2,e.pic_url3,e.pic_url4,e.create_time as feedback_time,
-    		e.problem,e.problem_other,e.lon as feedback_lon,e.lat as feedback_lat,
+    		e.problem,e.problem_other,e.lon as feedback_lon,e.lat as feedback_lat,e.pic_url1_status,e.pic_url2_status,e.pic_url3_status,e.pic_url4_status,
     		f.start_time, f.end_time, f.assign_type
         from ad_monitor_task a
 	        left join ad_activity b on a.activity_id = b.id
@@ -906,7 +914,11 @@
 			feedback.seat_lat as lat,
             feedback.lon as feedback_lon,
             feedback.lat as feedback_lat,
-            feedback.id as feedback_id
+            feedback.id as feedback_id,
+            feedback.pic_url1_status,
+            feedback.pic_url2_status,
+            feedback.pic_url3_status,
+            feedback.pic_url4_status
 		from
 			ad_monitor_task_feedback feedback
             left join `ad_monitor_task` as task on task.id=feedback.monitor_task_id
@@ -1564,5 +1576,18 @@
 		WHERE 
 		a.status in (1,2,6,8)
 		and DATE_FORMAT(date_add(a.monitor_date,interval (a.monitor_last_days) day),'%Y-%m-%d %H:%i:%s') &lt;= DATE_FORMAT(#{now,jdbcType=TIMESTAMP},'%Y-%m-%d %H:%i:%s')
+    </select>
+    
+    <!-- 通过任务id去查询APP执行人员手机号 -->
+    <select id="selectUserNameByTaskId" parameterType="java.lang.Integer" resultType="java.lang.String">
+    	select
+    		distinct b.username
+    	from 
+    		ad_monitor_task a
+    	LEFT JOIN sys_user_execute b ON a.user_id = b.id
+    	where 1=1
+    	<if test="id != null">
+     		 and a.id =#{id,jdbcType=INTEGER}
+    	</if>
     </select>
 </mapper>

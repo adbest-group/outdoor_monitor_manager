@@ -2,7 +2,6 @@ package com.bt.om.service.impl;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,6 +24,7 @@ import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.AdMonitorUserTask;
 import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.AdSystemPush;
 import com.bt.om.entity.AdUserMessage;
 import com.bt.om.entity.AdUserMoney;
 import com.bt.om.entity.AdUserPoint;
@@ -36,6 +36,7 @@ import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.entity.vo.AllAdMonitorTaskVo;
 import com.bt.om.entity.vo.PictureVo;
+import com.bt.om.entity.vo.PushInfoVo;
 import com.bt.om.entity.vo.TaskAdSeat;
 import com.bt.om.enums.AssignTypeEnum;
 import com.bt.om.enums.DepartmentTypeEnum;
@@ -46,8 +47,8 @@ import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
-import com.bt.om.enums.VerifyType;
 import com.bt.om.enums.UserTypeEnum;
+import com.bt.om.enums.VerifyType;
 import com.bt.om.mapper.AdActivityAdseatMapper;
 import com.bt.om.mapper.AdActivityMapper;
 import com.bt.om.mapper.AdJiucuoTaskMapper;
@@ -57,6 +58,7 @@ import com.bt.om.mapper.AdMonitorTaskMapper;
 import com.bt.om.mapper.AdMonitorUserTaskMapper;
 import com.bt.om.mapper.AdPointMapper;
 import com.bt.om.mapper.AdSeatInfoMapper;
+import com.bt.om.mapper.AdSystemPushMapper;
 import com.bt.om.mapper.AdUserMessageMapper;
 import com.bt.om.mapper.AdUserMoneyMapper;
 import com.bt.om.mapper.AdUserPointMapper;
@@ -107,6 +109,8 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	private AdPointMapper adPointMapper;
 	@Autowired
 	private AdUserMoneyMapper adUserMoneyMapper;
+    @Autowired
+    private AdSystemPushMapper adSystemPushMapper;
     
 	/**
 	 * 分页查询监测任务信息
@@ -596,10 +600,15 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             feedback.setCreateTime(now);
             feedback.setUpdateTime(now);
             feedback.setMonitorTaskId(taskId);
-            adMonitorTaskFeedbackMapper.insertSelective(feedback);
+           
             if(task.getTaskType() == MonitorTaskType.UP_TASK.getId()) {
             	//上刊任务, 不校验, 直接审核通过
             	task.setStatus(MonitorTaskStatus.VERIFIED.getId());
+            	//将反馈的四张图片的状态设为审核通过
+            	feedback.setPicUrl1Status(VerifyType.PASS_TYPE.getId());
+            	feedback.setPicUrl2Status(VerifyType.PASS_TYPE.getId());
+            	feedback.setPicUrl3Status(VerifyType.PASS_TYPE.getId());
+            	feedback.setPicUrl4Status(VerifyType.PASS_TYPE.getId());
             } else {
             	//非上刊任务做校验
             	//如果本次提交的照片不足，任务状态设置为"未完成"，否则进入待审核
@@ -609,6 +618,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
                     task.setStatus(MonitorTaskStatus.UNVERIFY.getId());
                 }
             }
+            adMonitorTaskFeedbackMapper.insertSelective(feedback);
         } else if (task.getStatus() == MonitorTaskStatus.VERIFY_FAILURE.getId()) {
         	//如果监测任务当前处于"审核不通过", 更新feedback
         	//获取之前提交的feedback，更新feedback,流程正常情况下只有一条
@@ -1135,13 +1145,16 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	@Override
 	public String getTaskWillEnd(Integer duration) {
 		List<AdMonitorUserTask> adMonitorUserTasks = adMonitorUserTaskMapper.getTaskWillEnd(duration);
+		Date now = new Date();
 		List<Integer> ids = new ArrayList<>();
+		List<Integer> userIds = new ArrayList<>();
 		//==========任务即将结束之后根据接取任务的用户id进行app消息推送==============
 		//用set存储避免一个用户创建多个活动，进行多次推送 
         Set<String> aliases = new HashSet<String>();
         for(AdMonitorUserTask adMonitorUserTask : adMonitorUserTasks) {
         	aliases.add(String.valueOf(adMonitorUserTask.getUserId())); //把userId列表转成String类型，极光推送api需要
         	ids.add(adMonitorUserTask.getId());
+        	userIds.add(adMonitorUserTask.getUserId());//获取所有推送的用户Id
         }
         Map<String, Object> param = new HashMap<>();
         Map<String, String> extras = new HashMap<>();
@@ -1155,6 +1168,17 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         //消息推送之后将任务is_push状态更新为1（已推送）
         if(ids != null && ids.size() > 0) {
         	adMonitorUserTaskMapper.updateIsPush(ids);
+        	
+        	for(Integer id : userIds) {
+        		PushInfoVo info = adMonitorUserTaskMapper.getInfoById(id);
+        		AdSystemPush push = new AdSystemPush();
+        		push.setUserId(id);
+        		push.setActivityName(info.getActivityName());
+        		push.setTitle("任务即将结束");
+        		push.setContent("【"+info.getProvince()+info.getCity()+info.getRoad()+info.getLocation()+"】广告位的【"+info.getActivityName()+"】活动的任务即将结束");
+        		push.setCreateTime(now);
+        		adSystemPushMapper.insertSelective(push);
+        	}
         }
 		return pushResult;
 	}
@@ -1467,7 +1491,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	}
 
 	@Override
-	public boolean updatePicStatus(AdMonitorTaskFeedback feedback,Integer status) {
+	public Integer updatePicStatus(AdMonitorTaskFeedback feedback,Integer status) {
 		adMonitorTaskFeedbackMapper.updateByPrimaryKeySelective(feedback);
 		AdMonitorTaskFeedback feedback1 = adMonitorTaskFeedbackMapper.selectByPrimaryKey(feedback.getId());
 		AdMonitorTask task = adMonitorTaskMapper.selectByPrimaryKey(feedback1.getMonitorTaskId());//查询出当前任务的所有信息
@@ -1509,11 +1533,11 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 		adMonitorTask = adMonitorTaskMapper.selectByPrimaryKey(feedback1.getMonitorTaskId());//获得更新后的任务信息
 		if(feedback1.getPicUrl1Status()!=null && feedback1.getPicUrl2Status()!=null && feedback1.getPicUrl3Status()!=null && feedback1.getPicUrl4Status()!=null ) {
 			if(task.getStatus()!=MonitorTaskStatus.VERIFY_FAILURE.getId() && adMonitorTask.getStatus()==MonitorTaskStatus.VERIFY_FAILURE.getId()) {
-				//上次不是审核不通过 这次是审核不通过 ，发送短信
-				return true;
+				//上次不是审核不通过 这次是审核不通过 ，返回任务主表id 
+				return feedback1.getMonitorTaskId();
 			}
 		}
-		return false;
+		return null;
 	}
 
 	@Override

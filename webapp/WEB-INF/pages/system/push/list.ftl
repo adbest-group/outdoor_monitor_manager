@@ -7,17 +7,20 @@
 <div class="main-container" style="height: auto;">
     <div class="main-box ott-market">
         <div class="title clearfix">
-            <a href="javascript:;" class="add-new-btn ll" id="add_push"><i></i> 新建系统消息推送</a>
+            <#-- <a href="javascript:;" class="add-new-btn ll" id="add_push"><i></i> 新建系统消息推送</a> -->
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
-                <div class="select-box select-box-100 un-inp-select ll">
+                <#-- <div class="select-box select-box-100 un-inp-select ll">
                     <select name="searchType" class="select" id="searchType">
                     	<option value="" selected>请选择</option>
             			<option value="1" <#if (searchType?exists&&searchType == '1')>selected</#if>>版本更新</option>
                         <option value="2" <#if (searchType?exists&&searchType == '2')>selected</#if>>免责声明更新</option>
                     </select>
+                </div> -->
+                <div class="inp">
+                    <input type="text" placeholder="请输入用户名称" value="${username?if_exists}" id="searchName" name="username">
                 </div>
                 <div class="inp">
-                    <input type="text" placeholder="请输入推送内容" value="${searchContent?if_exists}" id="searchContent" name="searchContent">
+                    <input type="text" placeholder="请输入推送内容" value="${push?if_exists}" id="searchPush" name="push">
                 </div>
                 <button type="button" class="btn btn-red" autocomplete="off" id="searchBtn">查询</button>
             </div>
@@ -30,7 +33,8 @@
                     <thead>
                     <tr>
                         <th>序号</th>
-                        <th>推送类型</th>
+                        <th>推送用户</th>
+                        <th>推送标题</th>
                         <th>推送内容</th>
                         <th>创建日期</th>
                     </tr>
@@ -40,12 +44,14 @@
                         <#list bizObj.list as push>
                         <tr>
                             <td width="30">${(bizObj.page.currentPage-1)*20+1}</td>
-                            <td>
+                           <#--  <td>
                             	<#if push.type?exists && push.type == '1'>版本更新</#if>
                             	<#if push.type?exists && push.type == '2'>免责声明更新</#if>
-                            </td>
+                            </td> -->
+                            <td>${push.username?if_exists}</td>
+                            <td>${push.title?if_exists}</td>
                             <td>${push.content?if_exists}</td>
-                            <td>${push.create_time?string('yyyy-MM-dd HH:mm:ss')}</td>
+                            <td>${push.createTime?string('yyyy-MM-dd HH:mm:ss')}</td>
                         </tr>
                         </#list>
                     </#if>
@@ -76,7 +82,7 @@
 
 	$('.select').searchableSelect();
     
-    // 查询
+    <#-- // 查询
     $("#searchBtn").on("click", function () {
         var strParam = "";
         var searchType = $("#searchType").val();
@@ -94,10 +100,29 @@
         }
 
         window.location.href = "/systempush/list" + strParam;
+    }); -->
+	// 查询
+    $("#searchBtn").on("click", function () {
+        var strParam = "";
+        var push = $("#searchPush").val();
+        var username = $("#searchName").val();
+        
+        if (push != null && $.trim(push).length) {
+            strParam = strParam + "?push=" + push;
+        }
+		
+        if (username != null && $.trim(username).length) {
+        	if(strParam.indexOf('?') != -1) {
+        		strParam = strParam + "&username=" + username;
+        	}else {
+        		strParam = strParam + "?username=" + username;
+        	}
+        }
+        window.location.href = "/systempush/list" + strParam;
     });
-
-    //跳转到添加页面
-    $("#add_push").on("click", function () {
+    
+    <#--//跳转到添加页面
+     $("#add_push").on("click", function () {
         //iframe层
         layer.open({
             type: 2,
@@ -108,6 +133,6 @@
             content: '/systempush/add' //iframe的url
         });
     });
-
+ -->
 </script>
 <@model.webend />

@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 
 import com.bt.om.entity.AdMonitorUserTask;
 import com.bt.om.entity.vo.AbandonTaskVo;
+import com.bt.om.entity.vo.PushInfoVo;
 
 public interface AdMonitorUserTaskMapper {
     /**
@@ -74,5 +75,7 @@ public interface AdMonitorUserTaskMapper {
 	List<Integer> selectOverTimeTaskIds(Map<String, Object> searchMap);
 
 	void recycleOverTimeUserTask(AdMonitorUserTask task);
+
+	PushInfoVo getInfoById(Integer userId);
 
 }

@@ -123,6 +123,7 @@ public class PageConst {
 	
 	/*** 超级管理员下的金额设置管理***/
 	public static final String SUPER_ADMIN_USERMONEY_LIST = "resources/moneyList";
+	
 	/*** 超级管理员下的站内信管理 ***/
 	public static final String RESOURCES_MESSAGE_LIST = "resources/messageList";
 	

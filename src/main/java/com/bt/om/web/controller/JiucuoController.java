@@ -40,6 +40,9 @@ import com.bt.om.entity.AdActivityAdseat;
 import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.entity.AdJiucuoTaskFeedback;
 import com.bt.om.entity.AdMonitorTask;
+import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.AdSystemPush;
+import com.bt.om.entity.City;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
@@ -54,7 +57,10 @@ import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
 import com.bt.om.service.IAdMonitorTaskService;
+import com.bt.om.service.IAdSeatService;
+import com.bt.om.service.IAdSystemPushService;
 import com.bt.om.service.IAdUserMessageService;
+import com.bt.om.service.ICityService;
 import com.bt.om.service.IMediaService;
 import com.bt.om.service.ISysGroupService;
 import com.bt.om.service.ISysResourcesService;
@@ -96,6 +102,12 @@ public class JiucuoController extends BasicController {
 	private SysUserResMapper sysUserResMapper;
     @Autowired
 	private IAdUserMessageService adUserMessageService;
+    @Autowired
+    private IAdSeatService adSeatInfoService;
+    @Autowired
+    private IAdSystemPushService systemPushService;
+    @Autowired
+    private ICityService cityService;
     
     private String file_upload_path = ConfigUtil.getString("file.upload.path");
 	
@@ -386,6 +398,8 @@ public class JiucuoController extends BasicController {
 				adJiucuoTaskService.reject(jiucuoIds, reason, userObj.getId(),status);
 			}
 
+			AdActivity adactivity = new AdActivity();
+			AdSeatInfo info = new AdSeatInfo();
 			// 循环推送消息
 			for (String jcId : jiucuoIds) {
 				task = adJiucuoTaskService.getById(Integer.parseInt(jcId));
@@ -401,6 +415,34 @@ public class JiucuoController extends BasicController {
 				param.put("extras", extras);
 				String pushResult = JPushUtils.pushAllByAlias(param);
 				System.out.println("pushResult:: " + pushResult);
+				
+				info = adSeatInfoService.getById(task.getAdSeatId());
+				City province = cityService.getName(info.getProvince());//获取省
+				City city = cityService.getName(info.getCity());//获取市
+				adactivity = adActivityService.getActivityName(task.getActivityId());//获取活动名
+				AdSystemPush push = new AdSystemPush();
+				push.setUserId(task.getUserId());
+				push.setActivityName(adactivity.getActivityName());
+				push.setTitle(JiucuoTaskStatus.getText(task.getStatus()));
+				String proName = "";
+				String cityName = "";
+				String location = "";
+				String road = "";
+				if(province != null) {
+					proName = province.getName();
+				}
+				if(city != null) {
+					cityName = city.getName();
+				}
+				if(info.getLocation() != null) {
+					location = info.getLocation();
+				}
+				if(info.getRoad() != null) {
+					road = info.getRoad();
+				}
+				push.setContent("【"+proName+cityName+location+road+"】广告位的【"+adactivity.getActivityName()+"】活动");
+				push.setCreateTime(now);
+				systemPushService.add(push);
 			}
 		} catch (Exception e) {
 			logger.error(e);

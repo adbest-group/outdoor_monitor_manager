@@ -24,4 +24,9 @@ public class CityService implements ICityService {
     public List<City> getAll() {
         return cityMapper.selectAll();
     }
+
+	@Override
+	public City getName(Long id) {
+		return cityMapper.selectByPrimaryKey(id);
+	}
 }

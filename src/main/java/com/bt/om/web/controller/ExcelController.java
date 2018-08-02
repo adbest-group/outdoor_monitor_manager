@@ -49,6 +49,7 @@ import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
 import com.bt.om.entity.vo.AdMediaTypeVo;
 import com.bt.om.enums.AdCodeFlagEnum;
 import com.bt.om.enums.AdminImportAdSeatEnum;
+import com.bt.om.enums.AppUserTypeEnum;
 import com.bt.om.enums.ExcelImportFailEnum;
 import com.bt.om.enums.MapStandardEnum;
 import com.bt.om.enums.MediaImportAdSeatEnum;
@@ -143,6 +144,8 @@ public class ExcelController extends BasicController {
 	public Model insertMediaAppUserByExcel(Model model, HttpServletRequest request, HttpServletResponse response,
             @RequestParam(value = "excelFile", required = false) MultipartFile file,
             @RequestParam(value = "mediaId", required = false) Integer mediaId,
+            @RequestParam(value = "companyId", required = false) Integer companyId,
+            @RequestParam(value = "usertype", required = false) Integer usertype,
             @RequestParam(value = "password", required = false) String password) {
 		//相关返回结果
 		ResultVo result = new ResultVo();
@@ -156,13 +159,19 @@ public class ExcelController extends BasicController {
         		throw new ExcelException("批量导入文件不能为空, 导入失败");
 			}
   			
-  			if(mediaId == null) {
+  			if(usertype == AppUserTypeEnum.MEDIA.getId() && mediaId == null) {
   				result.setCode(ResultCode.RESULT_FAILURE.getCode());
                 result.setResultDes("媒体不能为空！");
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
   			}
   			
+  			if(usertype == AppUserTypeEnum.THIRD_COMPANY.getId() && companyId == null) {
+  				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes("第三方监测公司不能为空！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+  			}
   			if(StringUtil.isBlank(password)) {
   				result.setCode(ResultCode.RESULT_FAILURE.getCode());
                 result.setResultDes("密码不能为空！");
@@ -187,7 +196,13 @@ public class ExcelController extends BasicController {
             listob = new ImportExcelUtil().getBankListByExcel(in, file.getOriginalFilename());
 
             //业务层操作
-            adUserMessageService.insertBatchByExcel(listob, mediaId, password);
+            Integer operateId = null;
+            if(usertype == AppUserTypeEnum.MEDIA.getId()) {
+            	operateId = mediaId;
+            }else if(usertype == AppUserTypeEnum.THIRD_COMPANY.getId()) {
+            	operateId = companyId;
+            }
+            adUserMessageService.insertBatchByExcel(listob, operateId, usertype, password);
             
             //导出到excel, 返回导入媒体监测人员信息结果
             List<List<String>> listString = objToString(listob);
@@ -257,7 +272,7 @@ public class ExcelController extends BasicController {
 	 * 具体活动的pdf导出
 	 * @throws ParseException 
 	 */
-	@RequiresRoles(value = {"superadmin", "activityadmin", "depactivityadmin", "admin" , "customer"}, logical = Logical.OR)
+	@RequiresRoles(value = {"superadmin", "activityadmin", "depactivityadmin", "admin" , "customer","phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/exportAdMediaPdf")
 	@ResponseBody
 	public Model exportPdf(Model model, HttpServletRequest request, HttpServletResponse response,
@@ -1995,41 +2010,70 @@ public class ExcelController extends BasicController {
 		String path = request.getSession().getServletContext().getRealPath("/");
 		if(!StringUtils.isEmpty(feedback.getPicUrl1())) {
 			Image image1 = Image.getInstance(feedback.getPicUrl1());
+			float width = image1.getWidth();
+			float height = image1.getHeight();
+ 	    	//合理压缩，height>width，按width压缩，否则按width压缩
+ 	    	float percent = getPercent(height, width);
 			image1.setAlignment(Image.ALIGN_CENTER);
-//			image1.scalePercent(40);//依照比例缩放
-			image1.scaleAbsolute(330,262);//控制图片大小
-			image1.setAbsolutePosition(950,530);//控制图片位置
+			image1.scalePercent(percent);//依照比例缩放
+			image1.scaleAbsolute(width*percent,percent*height);//控制图片大小
+			image1.setAbsolutePosition(760,583);//控制图片位置
 			document.add(image1);
 		}
 		
 		if(!StringUtils.isEmpty(feedback.getPicUrl2())) {
 			Image image2 = Image.getInstance(feedback.getPicUrl2());
 			image2.setAlignment(Image.ALIGN_CENTER);
-//			image2.scalePercent(40);//依照比例缩放
-			image2.scaleAbsolute(330,262);//控制图片大小
-			image2.setAbsolutePosition(1350,530);//控制图片位置
+			float width = image2.getWidth();
+			float height = image2.getHeight();
+			//合理压缩，height>width，按width压缩，否则按width压缩
+ 	    	float percent = getPercent(height, width);
+			image2.scalePercent(percent);//依照比例缩放
+			image2.scaleAbsolute(width*percent,percent*height);//控制图片大小
+			image2.setAbsolutePosition(1280,583);//控制图片位置
 			document.add(image2);
 		}
 		
 		if(!StringUtils.isEmpty(feedback.getPicUrl3())) {
 			Image image3 = Image.getInstance(feedback.getPicUrl3());
 			image3.setAlignment(Image.ALIGN_CENTER);
-//			image3.scalePercent(40);//依照比例缩放
-			image3.scaleAbsolute(330,262);//控制图片大小
-			image3.setAbsolutePosition(950,230);//控制图片位置
+			float width = image3.getWidth();
+			float height = image3.getHeight();
+			//合理压缩，height>width，按width压缩，否则按width压缩
+ 	    	float percent = getPercent(height, width);
+			image3.scalePercent(percent);//依照比例缩放
+			image3.scaleAbsolute(width*percent,percent*height);//控制图片大小
+			image3.setAbsolutePosition(760,180);//控制图片位置
 			document.add(image3);
 		}
 		
 		if(!StringUtils.isEmpty(feedback.getPicUrl4())) {
 			Image image4 = Image.getInstance(feedback.getPicUrl4());
 			image4.setAlignment(Image.ALIGN_CENTER);
-//			image4.scalePercent(40);//依照比例缩放
-			image4.scaleAbsolute(330,262);//控制图片大小
-			image4.setAbsolutePosition(1350,230);//控制图片位置
+			float width = image4.getWidth();
+			float height = image4.getHeight();
+			//合理压缩，height>width，按width压缩，否则按width压缩
+ 	    	float percent = getPercent(height, width);
+			image4.scalePercent(percent);//依照比例缩放
+			image4.scaleAbsolute(width*percent,percent*height);//控制图片大小
+			image4.setAbsolutePosition(1280,180);//控制图片位置
 			document.add(image4);
 		}
 	}
 	
+	public static float getPercent(float h,float w)
+	{
+		float p=0.0f;
+		if(h>w)
+		{
+			p=330/h;
+		}
+		else
+		{
+			p=430/w;
+		}
+		return p;
+	}
 	/**
 	 * 生成表格
 	 * @return

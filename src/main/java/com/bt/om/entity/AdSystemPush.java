@@ -11,9 +11,12 @@ public class AdSystemPush extends ID {
 	
 	private Integer id;   //主键
 	private String type; //消息类型 1.版本更新 2.免责声明更新
+	private Integer userId;//推送的用户id
+	private String title;//推送标题
 	private String content; //内容，显示在通知栏里
-	private Date create_time; //创建日期
-	
+	private String activityName;//活动名称
+	private Date createTime; //创建日期
+	private String createTimeStr;
 	public Integer getId() {
 		return id;
 	}
@@ -26,16 +29,41 @@ public class AdSystemPush extends ID {
 	public void setType(String type) {
 		this.type = type;
 	}
+	public Integer getUserId() {
+		return userId;
+	}
+	public void setUserId(Integer userId) {
+		this.userId = userId;
+	}
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
 	public String getContent() {
 		return content;
 	}
 	public void setContent(String content) {
 		this.content = content;
 	}
-	public Date getCreate_time() {
-		return create_time;
+	public String getActivityName() {
+		return activityName;
 	}
-	public void setCreate_time(Date create_time) {
-		this.create_time = create_time;
+	public void setActivityName(String activityName) {
+		this.activityName = activityName;
 	}
+	public Date getCreateTime() {
+		return createTime;
+	}
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+	public String getCreateTimeStr() {
+		return createTimeStr;
+	}
+	public void setCreateTimeStr(String createTimeStr) {
+		this.createTimeStr = createTimeStr;
+	}
+	
 }

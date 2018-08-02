@@ -83,7 +83,87 @@
         <div id="mediaSelCV" style="display:none">
         	<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter">
 				<tbody>
-					<tr>
+					<tr style="margin-bottom:20px">
+						<td class="a-title">用户类型：</td>
+						<td style="padding-bottom:20px;">
+						<#if (obj?exists&&obj.id?exists)>
+						   <#if (obj.usertype?exists&&obj.usertype==2)>客户人员</#if>
+						   <#if (obj.usertype?exists&&obj.usertype==3 || obj.usertype?exists&&obj.usertype==4 || obj.usertype?exists&&obj.usertype==5)>
+						   <div class="select-box select-box-100 un-inp-select ll">
+	                            <select class="select" name="usertype" id="usertype">
+	                            	<#-- <@model.showUserExecuteTypeList value="${(obj.usertype)?if_exists}" /> -->
+	                            	<#-- <option value="2" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==2)>selected</#if> >客户人员</option> -->
+	                            	<option value="3" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==3)>selected</#if> >媒体人员</option>
+	                            	<option value="4" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==4)>selected</#if> >社会人员</option>
+	                            	<option value="5" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==5)>selected</#if> >第三方监测人员</option>
+	                            </select>
+	                        </div>
+	                        </#if>
+						   <#-- <#if (obj.usertype?exists&&obj.usertype==3)>媒体人员</#if>
+						   <#if (obj.usertype?exists&&obj.usertype==4)>社会人员</#if> -->
+						   <input type="hidden" id="usertype" name="usertype" value="${(obj.usertype)?if_exists}"/>
+						<#else>
+						   <div class="select-box select-box-110 un-inp-select ll">
+	                            <select class="select" name="usertype" id="usertype">
+	                            	<#-- <@model.showUserExecuteTypeList value="${(obj.usertype)?if_exists}" /> -->
+	                            	<#-- <option value="2" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==2)>selected</#if> >客户人员</option> -->
+	                            	<option value="3" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==3)>selected</#if> >媒体人员</option>
+	                            	<option value="4" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==4)>selected</#if> >社会人员</option>
+	                            	<option value="5" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==5)>selected</#if> >第三方监测人员</option>
+	                            </select>
+	                        </div>
+							<br/>
+							<span id="usertypeTip">&nbsp;</span>
+						</td>
+						</#if>
+					</tr>
+					
+					<#-- 选择添加媒体人员, 所属媒体 -->
+					<tr id="mediaTr" style="<#if (obj?exists)>
+												<#if (obj?exists&&obj.usertype?exists&&obj.usertype==3)>
+													display:auto;
+												<#else>
+													display:none;
+												</#if>
+											<#else>
+												display:auto;
+											</#if>">
+											
+						<td class="a-title">所属媒体：</td>
+						<td style="padding-bottom:20px;">
+							<div class="select-box select-box-110 un-inp-select ll">
+		                        <select class="select" name="mediaId" id="mediaId">
+									<@model.showAllMediaOps value="${mediaId?if_exists}" />
+		                        </select>
+		                    </div>
+							<br/>
+							<span id="mediaIdTip">&nbsp;</span>
+						</td>
+					</tr>
+					
+					<#-- 选择添加第三方监测人员, 所属公司 -->
+					<tr id="companyTr" style="<#if (obj?exists)>
+												<#if (obj?exists&&obj.usertype?exists&&obj.usertype==5)>
+													display:auto;
+												<#else>
+													display:none;
+												</#if>
+											<#else>
+												display:none;
+											</#if>">
+						<td class="a-title">所属公司：</td>
+						<td style="padding-bottom:20px;">
+							<div class="select-box select-box-110 un-inp-select ll">
+		                        <select class="select" name="companyId" id="companyId">
+									<@model.showAllThirdCompanyOps value="${operateId?if_exists}" />
+		                        </select>
+		                    </div>
+							<br/>
+							<span id="companyIdTip">&nbsp;</span>
+						</td>
+					</tr>
+				
+					<#-- <tr>
 						<td class="a-title">媒体：</td>
 						<td>
 						    <div class="select-box select-box-100 un-inp-select ll">
@@ -94,7 +174,7 @@
 							<br/>
 							<span id="importMediaIdTip">&nbsp;</span>
 	                    </td>
-					</tr>
+					</tr> -->
 					<tr>
 						<td class="a-title">登录密码：</td>
 						<td>
@@ -146,6 +226,21 @@ $(window).resize(function() {
 
 	$('.select').searchableSelect();
 	$('#importMediaId').next().find('.searchable-select-input').css('display', 'block');
+	$('#mediaId').next().find('.searchable-select-input').css('display', 'block');
+	$('#companyId').next().find('.searchable-select-input').css('display', 'block');
+	
+	 $("#usertype").siblings().find(".searchable-select-item").click(function(){
+        if($("#usertype").val()==3){
+            $("#mediaTr").show();
+            $("#companyTr").hide();
+		} else if($("#usertype").val()==5) {
+			$("#mediaTr").hide();
+            $("#companyTr").show();
+		} else {
+            $("#mediaTr").hide();
+            $("#companyTr").hide();
+		}
+    });
 
     $("#add_media").on("click", function () {
         //iframe层
@@ -301,16 +396,26 @@ $(window).resize(function() {
     }
     
     function checkVal(that){
-	   var mediaId = $('#importMediaId').val();
+    	var usertype = $("#usertype").val();
+        var mediaId = $("#mediaId").val();
+        var companyId = $("#companyId").val();
+	   <#-- var mediaId = $('#importMediaId').val(); -->
   	   var password = $('#password').val();
-  	  
-  	   if(mediaId == null || mediaId == "" || mediaId.length <= 0){
+  	   
+  	   if(usertype==3 && (mediaId == null || mediaId == "" || mediaId.length <= 0)){
   	  	layer.confirm("请选择媒体", {
   			icon: 2,
   			btn: ['确定'] //按钮
   		});
   	  	return false;
   	   }
+  	  if(usertype==5 && (companyId == null || companyId == "" || companyId.length <= 0) ){
+  	    layer.confirm("请选择第三方监测公司", {
+  			icon: 2,
+  			btn: ['确定'] //按钮
+  		});
+  	  	return false;
+  	  }
   	  
   	  if(password == null || password == "" || password.length <= 0){
   	  	layer.confirm("请填写密码", {
@@ -341,11 +446,20 @@ $(window).resize(function() {
 	  var uploadInst = upload.render({
 	    elem: '#insertBatchSubmit' //绑定元素 
 	    ,data: {
-		  mediaId: function() {
+		  <#-- mediaId: function() {
 		  	return $('#importMediaId').val()
+		  }, -->
+		  mediaId:function(){
+		  	return $("#mediaId").val();
+		  },
+		  companyId:function(){
+		  	return $("#companyId").val();
+		  },
+		  usertype:function(){
+		  	return $("#usertype").val();
 		  },
 		  password: function() {
-		  	return $('#password').val()
+		  	return $('#password').val();
 		  }
 		}
 	    ,accept: 'file' //指定只允许上次文件

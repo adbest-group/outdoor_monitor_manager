@@ -63,6 +63,7 @@ import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.AdPoint;
 import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.AdSystemPush;
 import com.bt.om.entity.AdUserMoney;
 import com.bt.om.entity.AdUserPoint;
 import com.bt.om.entity.AdVersion;
@@ -104,6 +105,7 @@ import com.bt.om.service.IAdMediaTypeService;
 import com.bt.om.service.IAdMonitorRewardService;
 import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.service.IAdSeatService;
+import com.bt.om.service.IAdSystemPushService;
 import com.bt.om.service.IAdUserMessageService;
 import com.bt.om.service.IAppService;
 import com.bt.om.service.ILoginLogService;
@@ -197,6 +199,8 @@ public class ApiController extends BasicController {
 	private ILoginLogService loginLogService;
     @Autowired
     private IUserMoneyService userMoneyService;
+    @Autowired
+	private IAdSystemPushService adSystemPushService;
     
     @Value("${sms.checkcode.content.template}")
     private String SMS_CHECKCODE_CONTENT_TEMPLATE;
@@ -960,6 +964,72 @@ public class ApiController extends BasicController {
         return model;
     }
     
+    //请求推送消息列表
+    @RequestMapping(value = "/getpushlist")
+    @ResponseBody
+    public Model pushList(Model model, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    	ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("获取成功");
+        model = new ExtendedModelMap();
+    	
+        Integer userId = null;
+        String token = null;
+        Integer page = 1;
+        Integer pageSize = 10;
+        String createTime = null;
+        
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            userId = obj.get("userId").getAsInt();
+            createTime = obj.get("createTime") == null ? null : obj.get("createTime").getAsString();
+            if (token != null) {
+                useSession.set(Boolean.FALSE);
+                this.sessionByRedis.setToken(token);
+            } else {
+                useSession.set(Boolean.TRUE);
+            }
+            if(obj.get("page") != null){
+                page = obj.get("page").getAsInt();
+            }
+            if(obj.get("page_size") != null){
+                pageSize = obj.get("page_size").getAsInt();
+            }
+        } catch (IOException e) {
+        	logger.error(e);
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        
+        saveLog(request, userId+"");
+        SearchDataVo vo = new SearchDataVo(null,null,(page-1)*pageSize,pageSize);
+        vo.putSearchParam("userId",null,userId);
+        vo.putSearchParam("createTime", null, createTime);
+        //通过用户id查找该用户的所有推送数据
+        adSystemPushService.getPageData(vo);
+        List<?> list = vo.getList();
+     
+        List<AdSystemPush> pushlist = new ArrayList<>();
+        for(Object obj : list) {
+        	AdSystemPush userPush = (AdSystemPush) obj;
+        	userPush.setCreateTimeStr(DateUtil.dateFormate(userPush.getCreateTime(), "MM-dd HH:mm"));
+        	pushlist.add(userPush);
+        }
+        //设置总页数
+        int totalCount = (int) ((vo.getCount() + pageSize - 1) / pageSize);
+        result.setResult(pushlist);
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        model.addAttribute("totalCount", totalCount);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+    
     //请求监测任务 或 纠错任务列表
     @RequestMapping(value = "/gettasklist")
     @ResponseBody
@@ -1378,7 +1448,7 @@ public class ApiController extends BasicController {
             //参数不对
             if (type == null || taskId == null || (file1 == null && file2 == null && file3 == null && file4 == null)) {
                 result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
-                result.setResultDes("参数有误！");
+                result.setResultDes("参数有误！");                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
             }
@@ -1449,7 +1519,7 @@ public class ApiController extends BasicController {
                 feedback.setSeatLon(seatLon);
                 feedback.setLat(lat);
                 feedback.setLon(lon);
-                path = path.substring(path.indexOf(":")+1, path.length()).replaceAll("\\\\", "/");
+                //path = path.substring(path.indexOf(":")+1, path.length()).replaceAll("\\\\", "/");
                 if (filename1 != null) {
                 	int index = filename1.indexOf('.');
                     MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename1, path, filename1.substring(0, index), "jpg", null);

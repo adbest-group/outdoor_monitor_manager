@@ -133,13 +133,13 @@
                 assignor_id,
             </if>
             <if test="assignorTime != null">
-            	assignor_time
+            	assignor_time,
             </if>
             <if test="reportTime != null">
-            	report_time
+            	report_time,
             </if>
             <if test="taskPoint != null">
-            	task_point
+            	task_point,
             </if>
             <if test="taskMoney != null">
             	task_money
@@ -1367,7 +1367,7 @@
     
     <!-- 查询某一活动某种任务类型某一报告时间的最新的监测任务 -->
     <select id="newSelectLatestMonitorTaskIds" resultType="com.bt.om.entity.AdMonitorTask" parameterType="map">
-    	select a.id id, a.activity_adseat_id activityAdseatId
+    	select a.id id, a.activity_adseat_id activityAdseatId,a.status
 		from (
 			select id, activity_id, activity_adseat_id, monitor_date,status,problem_status
 			from ad_monitor_task
@@ -1408,13 +1408,13 @@
 	<select id="getWaitToActivateIds" parameterType="java.util.Date" resultType="com.bt.om.entity.vo.TaskAdSeat">
 		SELECT
 			a.id,
-			c.`name` as adSeatName
+			c.name  as adSeatName
 		FROM
 			ad_monitor_task a
 		LEFT JOIN ad_activity_adseat b ON a.activity_adseat_id = b.id
 		LEFT JOIN ad_seat_info c ON b.ad_seat_id = c.id
 		WHERE
-			a.STATUS = 7
+			a.STATUS = 7 and
 	    	a.monitor_date &lt;= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
 	</select>
     
@@ -1615,7 +1615,7 @@
     	LEFT JOIN sys_user_execute b ON a.user_id = b.id
     	where 1=1
     	<if test="id != null">
-     		 and a.id =#{id,jdbcType=INTEGER}
+     		 and a.id = #{id,jdbcType=INTEGER}
     	</if>
     </select>
 </mapper>

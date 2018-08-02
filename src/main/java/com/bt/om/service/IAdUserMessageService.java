@@ -11,6 +11,6 @@ public interface IAdUserMessageService {
 
 	void insertMessage(List<AdUserMessage> message);
 
-	void insertBatchByExcel(List<List<Object>> listob, Integer mediaId, String password);
+	void insertBatchByExcel(List<List<Object>> listob, Integer operateId, Integer usertype,String password);
 
 }

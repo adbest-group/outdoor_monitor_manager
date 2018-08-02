@@ -1098,7 +1098,7 @@
                             });
                         } else {
                             var msg = "新增成功";
-                            if (id != null && id != "") {
+                            if ($("#id").val()) {
                                 msg = "编辑成功";
                             }
                             layer.confirm(msg, {

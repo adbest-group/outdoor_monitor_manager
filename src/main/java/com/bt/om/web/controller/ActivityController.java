@@ -31,6 +31,7 @@ import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdMonitorTask;
+import com.bt.om.entity.AdSystemPush;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.TaskDownload;
 import com.bt.om.entity.vo.AdActivityAdseatVo;
@@ -45,6 +46,7 @@ import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdMonitorTaskService;
+import com.bt.om.service.IAdSystemPushService;
 import com.bt.om.service.IAdUserMessageService;
 import com.bt.om.service.IOperateLogService;
 import com.bt.om.service.ISysGroupService;
@@ -86,6 +88,8 @@ public class ActivityController extends BasicController {
 	private IAdUserMessageService adUserMessageService;
 	@Autowired
 	private IAdMonitorTaskService adMonitorTaskService;
+    @Autowired
+    private IAdSystemPushService systemPushService;
 	@Autowired
 	protected RedisTemplate redisTemplate;
 	private static final Logger logger = Logger.getLogger(ActivityController.class);
@@ -357,6 +361,7 @@ public class ActivityController extends BasicController {
 			@RequestParam(value = "ids", required = false) String ids,
 			@RequestParam(value = "userId", required = false) Integer userId) {
 		ResultVo<String> result = new ResultVo<String>();
+		Date now = new Date();
 		// [1] ids拆分成id集合
 		String[] activityIds = ids.split(",");
 		// [2] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
@@ -412,6 +417,14 @@ public class ActivityController extends BasicController {
 				param.put("extras", extras);
 				String pushResult = JPushUtils.pushAllByAlias(param);
 				System.out.println("pushResult:: " + pushResult);
+				
+				AdSystemPush push = new AdSystemPush();
+				push.setUserId(adActivity.getUserId());
+				push.setActivityName(adActivity.getActivityName());
+				push.setTitle("活动确认");
+				push.setContent("您创建的【"+adActivity.getActivityName()+"】活动已被确认");
+				push.setCreateTime(now);
+				systemPushService.add(push);
 			}
 		} catch (Exception e) {
 			logger.error(e);

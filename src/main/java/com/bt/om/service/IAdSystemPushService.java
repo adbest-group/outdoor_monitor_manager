@@ -9,4 +9,5 @@ public interface IAdSystemPushService {
 
 	public void getPageData(SearchDataVo vo);
     public void save(AdSystemPush adSystemPush);
+	public void add(AdSystemPush push);
 }

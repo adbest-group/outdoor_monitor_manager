@@ -14,6 +14,7 @@ import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.entity.vo.AllAdMonitorTaskVo;
 import com.bt.om.entity.vo.PictureVo;
+import com.bt.om.entity.vo.PushInfoVo;
 import com.bt.om.entity.vo.TaskAdSeat;
 
 public interface AdMonitorTaskMapper {
@@ -167,5 +168,6 @@ public interface AdMonitorTaskMapper {
 
 	List<AdMonitorTask> selectOverTimeTasks(Date now);
 
-	String selectUserNameByTaskId(Integer id);
+	String selectUserNameByTaskId(@Param("id") Integer id);
+
 }

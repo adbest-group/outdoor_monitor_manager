@@ -349,7 +349,7 @@
             title: '审核详情',
             shadeClose: true,
             shade: 0.8,
-            area: ['890px', '480px'],
+            area: ['480px', '240px'],
             content: '/task/verifyPic?id=' + id + '&index=1' //iframe的url
         });
 	}
@@ -361,7 +361,7 @@
             title: '审核详情',
             shadeClose: true,
             shade: 0.8,
-            area: ['890px', '480px'],
+            area: ['480px', '240px'],
             content: '/task/verifyPic?id=' + id + '&index=2' //iframe的url
         });
 	}
@@ -373,7 +373,7 @@
             title: '审核详情',
             shadeClose: true,
             shade: 0.8,
-            area: ['890px', '480px'],
+            area: ['480px', '240px'],
             content: '/task/verifyPic?id=' + id + '&index=3' //iframe的url
         });
 	}
@@ -385,7 +385,7 @@
             title: '审核详情',
             shadeClose: true,
             shade: 0.8,
-            area: ['890px', '480px'],
+            area: ['480px', '240px'],
             content: '/task/verifyPic?id=' + id + '&index=4' //iframe的url
         });
 	}

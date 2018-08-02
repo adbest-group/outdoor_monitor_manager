@@ -87,9 +87,11 @@ public interface AdActivityMapper {
 	List<Integer> selectActivityReportByTime1(Map<String, Object> searchMap);
 	List<Integer> selectActivityReportByTime2(Map<String, Object> searchMap);
 	
-	List<Integer> getEndActivityList(Date nowDate);
+	List<AdActivity> getEndActivityList(Date nowDate);
 	
 	List<Integer> getDeadLineAuditActivity(Date endDate);
 	
 	List<Integer> getEndActivity(Date endDate);
+
+	AdActivity getInfoById(Integer activityId);
 }

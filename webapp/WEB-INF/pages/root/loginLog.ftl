@@ -1,7 +1,7 @@
-<#assign webTitle="登录日志管理" in model> <#assign webHead in model> </#assign>
+<#assign webTitle="系统管理" in model> <#assign webHead in model> </#assign>
 <@model.webhead />
 <!-- 头部 -->
-<@model.webMenu current="登录日志管理" child="登录日志管理" />
+<@model.webMenu current="系统管理" child="登录日志管理" />
 <!-- 特色内容 -->
 <div class="main-container" style="height: auto;">
 	<div class="main-box">

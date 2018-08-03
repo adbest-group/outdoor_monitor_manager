@@ -1,6 +1,7 @@
 package com.bt.om.mapper;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -8,6 +9,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
 import com.bt.om.entity.AdActivity;
+import com.bt.om.entity.HistoryAdActivity;
 import com.bt.om.entity.vo.ActivityMobileReportVo;
 import com.bt.om.entity.vo.AdActivityVo;
 import com.bt.om.entity.vo.AdActivityVo2;
@@ -93,5 +95,9 @@ public interface AdActivityMapper {
 	
 	List<Integer> getEndActivity(Date endDate);
 
+
+	List<HistoryAdActivity> selectActivityAllByEndTime(HashMap<String, Object> searchMap);
+
 	AdActivity getInfoById(Integer activityId);
+
 }

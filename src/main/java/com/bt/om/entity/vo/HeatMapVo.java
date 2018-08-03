@@ -2,14 +2,19 @@ package com.bt.om.entity.vo;
 
 import java.util.List;
 
+/**
+ * 热力图报表查询参数
+ */
 public class HeatMapVo {
-	private Integer activityId;
-	private Integer mediaId;
-	private Long province;
-	private Long city;
-	private Long region;
-	private List<Integer> infoIds;
-	private Integer userId;
+	private Integer activityId; // 活动id
+	private Integer mediaId; // 媒体主id
+	private Long province; // 省
+	private Long city; // 市
+	private Long region; // 区
+	private List<Integer> infoIds; // 广告位id集合
+	private Integer userId; // 广告主id
+	private Integer mediaTypeId; // 媒体小类id
+	private Integer mediaTypeParentId; // 媒体大类id
 	
 	public Integer getActivityId() {
 		return activityId;
@@ -52,5 +57,17 @@ public class HeatMapVo {
 	}
 	public void setUserId(Integer userId) {
 		this.userId = userId;
+	}
+	public Integer getMediaTypeId() {
+		return mediaTypeId;
+	}
+	public void setMediaTypeId(Integer mediaTypeId) {
+		this.mediaTypeId = mediaTypeId;
+	}
+	public Integer getMediaTypeParentId() {
+		return mediaTypeParentId;
+	}
+	public void setMediaTypeParentId(Integer mediaTypeParentId) {
+		this.mediaTypeParentId = mediaTypeParentId;
 	}
 }

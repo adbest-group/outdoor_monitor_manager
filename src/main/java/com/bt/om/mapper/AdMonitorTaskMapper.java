@@ -10,6 +10,7 @@ import org.apache.ibatis.session.RowBounds;
 
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.HistoryAdMonitorTask;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.entity.vo.AllAdMonitorTaskVo;
@@ -167,6 +168,11 @@ public interface AdMonitorTaskMapper {
 	boolean updateTaskStatus(Date nowDate);
 
 	List<AdMonitorTask> selectOverTimeTasks(Date now);
+
+
+	String selectUserNameByTaskId(Integer id);
+	
+	List<HistoryAdMonitorTask> selectByActivityIds(@Param("activityId") Integer activityId);
 
 	String selectUserNameByTaskId(@Param("id") Integer id);
 

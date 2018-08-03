@@ -63,6 +63,7 @@
 		<property name="exposeSessionAttributes" value="true" /><!--request属性支持 -->
 		<property name="requestContextAttribute" value="request" /><!--request属性引用名称 -->
 		<property name="contentType" value="text/html;charset=UTF-8" />
+		<property name="allowSessionOverride" value="true" /><!-- 允许session覆盖旧值 -->
 	</bean>
 
 	<!-- for file upload -->

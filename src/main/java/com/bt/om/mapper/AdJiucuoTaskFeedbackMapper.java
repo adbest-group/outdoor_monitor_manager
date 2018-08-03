@@ -1,8 +1,13 @@
 package com.bt.om.mapper;
 
+import java.util.List;
 import java.util.Map;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.bt.om.entity.AdJiucuoTaskFeedback;
+import com.bt.om.entity.HistoryAdJiucuoTask;
+import com.bt.om.entity.HistoryAdJiucuoTaskFeedback;
 
 public interface AdJiucuoTaskFeedbackMapper {
     /**
@@ -61,4 +66,8 @@ public interface AdJiucuoTaskFeedbackMapper {
     int updatePicUrl3(Map<String, Object> searchMap);
     
     int updatePicUrl4(Map<String, Object> searchMap);
+
+	List<HistoryAdJiucuoTaskFeedback> selectAllByTaskIds(@Param("adJiucuoTasks") List<HistoryAdJiucuoTask> adJiucuoTasks);
+
+	int deleteByIds(@Param("adJiucuoTaskFeedbacks") List<HistoryAdJiucuoTaskFeedback> adJiucuoTaskFeedbacks);
 }

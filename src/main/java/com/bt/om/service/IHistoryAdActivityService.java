@@ -88,7 +88,8 @@ public interface IHistoryAdActivityService {
 	List<AdSeatInfo> selectSeatInfoByActivityId(Integer activityId);
 
 	public List<AdActivityAdseatVo> getActivitySeatByMemo(String memo);
-	List<Integer> getEndActivityList(Date nowDate);
+	
+	List<AdActivity> getEndActivityList(Date nowDate);
 
 	void deadLineAuditActivity(Date endDate);
 

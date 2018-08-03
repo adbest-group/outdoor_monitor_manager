@@ -507,23 +507,24 @@ public class AdActivityService implements IAdActivityService {
             searchMap.put("updateTime", now); //修改时间
             adUserMessageMapper.updateUserMessage(searchMap);
             
+            //发送站内信的所有用户id
+            List<Integer> reslist = sysUserResMapper.getUserId(sysUser.getId(), 2);//获取广告商下面的组id集合
+	        Integer resId = null;
+	        for(Integer i:reslist) {
+	        	resId = sysResourcesMapper.getResId(i,2);//找到任务审核的组id
+	        	if(resId != null) {
+	        		break;
+	        	}
+	        }
+	        List<Integer> cuslist = sysUserResMapper.getAnotherUserId(resId, 1);//获取组下面的员工id集合
+	        
+	        List<Integer> userIdList = new ArrayList<>();
+	        userIdList.addAll(userIds);
+	        userIdList.addAll(cuslist);
+	        
             //【2】添加上刊任务的站内信
             List<TaskAdSeat> taskAdSeats = adMonitorTaskMapper.selectUpTaskIds(id); //通过活动id查询出对应的上刊任务id集合
             for (TaskAdSeat taskAdSeat : taskAdSeats) {
-				List<Integer> reslist = sysUserResMapper.getUserId(sysUser.getId(), 2);//获取广告商下面的组id集合
-		        Integer resId = null;
-		        for(Integer i:reslist) {
-		        	resId = sysResourcesMapper.getResId(i,2);//找到任务审核的组id
-		        	if(resId != null) {
-		        		break;
-		        	}
-		        }
-		        List<Integer> cuslist = sysUserResMapper.getAnotherUserId(resId, 1);//获取组下面的员工id集合
-		        
-		        List<Integer> userIdList = new ArrayList<>();
-		        userIdList.addAll(userIds);
-		        userIdList.addAll(cuslist);
-		        
 		        StringBuffer stringBufferTask = new StringBuffer();
 		        stringBufferTask.append("【");
 		        stringBufferTask.append(sysUser.getRealname());
@@ -545,11 +546,10 @@ public class AdActivityService implements IAdActivityService {
 	            	message.add(mess);
 	            }
             }
+            if(message != null && message.size() > 0) {
+            	adUserMessageMapper.insertMessage(message);
+            }
 		}
-    	
-    	if(message != null && message.size() > 0) {
-        	adUserMessageMapper.insertMessage(message);
-        }
     }
 
     /**
@@ -806,7 +806,7 @@ public class AdActivityService implements IAdActivityService {
 	 * 获取所有当前日期已经结束状态的活动创建者列表
 	 */
 	@Override
-	public List<Integer> getEndActivityList(Date nowDate) {
+	public List<AdActivity> getEndActivityList(Date nowDate) {
 		return adActivityMapper.getEndActivityList(nowDate);
 	}
 

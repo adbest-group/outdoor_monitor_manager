@@ -9,24 +9,28 @@
 	</style>
 
 <div class="basic-info">
+	
+     <input type="hidden" name="id" id="id" value="${id?if_exists}"/>
+     <input type="hidden" name="index" id="index" value="${index?if_exists}"/>
 	<div class="bd">
 		<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter">
 			<tbody>
-			     <input type="hidden" name="id" id="id" value="${id?if_exists}"/>
-			     <input type="hidden" name="index" id="index" value="${index?if_exists}"/>
 				<tr>
-					<div class="layui-form-item">
-					    <label class="layui-form-label">审核状态</label>
-					    <div class="layui-input-block">
-					      <input  type="radio" name="status" value="1" checked="">通过
-					      <input  type="radio" name="status" value="2" >驳回
-					    </div>
-					 </div>
+					<td>
+						<form class="layui-form" action="">
+							<div class="layui-form-item">
+							    <label class="layui-form-label">审核状态</label>
+							    <div class="layui-input-block">
+							      <input  type="radio" name="status" value="1" title="通过" checked>
+							      <input  type="radio" name="status" value="2" title="驳回" >
+							    </div>
+							 </div>
+						</form>
+					</td>
 				</tr>
 			
 				<tr>
-					<td class="a-title">&nbsp;</td>
-					<td>
+					<td style="padding-left: 110px">
 						<button type="button" class="btn btn-red" autocomplete="off" id="statusSubmit">提　交</button>
 					</td>
 				</tr>
@@ -43,12 +47,19 @@
 <!-- formValidator -->
 <link type="text/css" rel="stylesheet" href="${model.static_domain}/js/formValidator/style/validator.css"></link>
 <script type="text/javascript" src="${model.static_domain}/js/formValidator/formValidator-4.0.1.js"></script>
+
+<link rel="stylesheet" type="text/css" href="/static/js/layer/layui.css">
+<script type="text/javascript" src="/static/js/layer/layui.js"></script>
+
 <script>
 $(function() {
     $('.select').searchableSelect();
 	var index = $("#index").val();
     
     var id = $("#id").val();
+    
+    layui.use('form');
+    
     // 图片状态处理
 	$.formValidator.initConfig({
 		validatorGroup:"2",

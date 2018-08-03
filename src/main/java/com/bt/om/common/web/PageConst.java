@@ -67,6 +67,8 @@ public class PageConst {
 
 	/*** 资源管理 ***/
 	public static final String RESOURCE_ADD = "resource/add_ad_seat";
+	public static final String SUPER_ADMIN_THERMAL_MAP = "resources/thermalMap";
+	public static final String MEDIA_THERMAL_MAP = "media/thermalMap";
 	public static final String ADSEAT_LIST = "adseat/list";
 	public static final String RESOURCE_DETAILS = "resource/detail";
 	public static final String ADSEAT_EDIT = "adseat/edit";
@@ -123,6 +125,7 @@ public class PageConst {
 	
 	/*** 超级管理员下的金额设置管理***/
 	public static final String SUPER_ADMIN_USERMONEY_LIST = "resources/moneyList";
+	
 	/*** 超级管理员下的站内信管理 ***/
 	public static final String RESOURCES_MESSAGE_LIST = "resources/messageList";
 	

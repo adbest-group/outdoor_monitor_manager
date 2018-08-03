@@ -486,7 +486,7 @@
   	from sys_user_execute
   </select>
   
-  <!-- 批量导入媒体监测人员 -->
+  <!-- 批量导入APP人员 -->
   <insert id="insertBatch" parameterType="com.bt.om.entity.SysUserExecute">
   	insert into sys_user_execute(
         	username,

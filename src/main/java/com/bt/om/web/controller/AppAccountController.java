@@ -160,7 +160,7 @@ public class AppAccountController extends BasicController {
                       @RequestParam(value = "usertype", required = true) Integer usertype,
                       @RequestParam(value = "mediaId", required = true) Integer mediaId,
                       @RequestParam(value = "companyId", required = true) Integer companyId) {
-
+    	Date now = new Date();
         ResultVo resultVo = new ResultVo();
         SysUser loginuser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         try {
@@ -173,6 +173,8 @@ public class AppAccountController extends BasicController {
                 user.setUsertype(usertype);
                 user.setStatus(1);
                 user.setCompany(loginuser.getRealname());
+                user.setCreateTime(now);
+                user.setUpdateTime(now);
                 if(usertype == AppUserTypeEnum.MEDIA.getId()){
                 	//添加媒体监测人员
                     AdMedia media = mediaService.getById(mediaId);
@@ -194,8 +196,8 @@ public class AppAccountController extends BasicController {
                 userHistory.setOperateIdOld(user.getOperateId());
                 userHistory.setUsertypeNew(usertype);
                 userHistory.setLoginId(loginuser.getId());
-                userHistory.setCreateTime(new Date());
-                userHistory.setUpdateTime(new Date());
+                userHistory.setCreateTime(now);
+                userHistory.setUpdateTime(now);
                 
 //                user.setId(id);
 //                user.setUsername(username);
@@ -205,6 +207,7 @@ public class AppAccountController extends BasicController {
                 user.setRealname(name);
                 user.setMobile(username);
                 user.setUsertype(usertype);
+                user.setUpdateTime(now);
                 if(usertype == AppUserTypeEnum.MEDIA.getId()){
                 	//3：媒体监测人员
                     AdMedia media = mediaService.getById(mediaId);

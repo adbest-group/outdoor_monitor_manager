@@ -91,4 +91,6 @@ public interface AdSeatInfoMapper {
 	List<Integer> selectNewSeatIds(Date createTime);
 	
 	List<AdSeatInfoVo> selectSeatByIds(Map<String, Object> searchMap);
+
+	List<Integer> selectAdSeatIdsByMedia(Map<String, Object> searchMap);
 }

@@ -9,4 +9,6 @@ import java.util.List;
  */
 public interface ICityService {
     public List<City> getAll();
+
+	public City getName(Long province);
 }

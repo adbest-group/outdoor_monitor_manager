@@ -10,6 +10,7 @@ import com.bt.om.entity.HistoryAdMonitorTask;
 import com.bt.om.entity.HistoryAdMonitorTaskFeedback;
 import com.bt.om.entity.HistoryAdMonitorUserTask;
 import com.bt.om.entity.vo.AbandonTaskVo;
+import com.bt.om.entity.vo.PushInfoVo;
 
 public interface AdMonitorUserTaskMapper {
     /**
@@ -81,5 +82,7 @@ public interface AdMonitorUserTaskMapper {
 	List<HistoryAdMonitorUserTask> selectAllByMonitorTaskIds(@Param("adMonitorTasks") List<HistoryAdMonitorTask> adMonitorTasks);
 
 	int deleteByIds(@Param("adMonitorUserTasks") List<HistoryAdMonitorUserTask> adMonitorUserTasks);
+
+	PushInfoVo getInfoById(Integer userId);
 
 }

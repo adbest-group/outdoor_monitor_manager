@@ -38,4 +38,9 @@ public class AdSystemPushService implements IAdSystemPushService {
 		adSystemPushMapper.insert(adSystemPush);
 	}
 
+	@Override
+	public void add(AdSystemPush push) {
+		adSystemPushMapper.insertSelective(push);
+	}
+
 }

@@ -1286,14 +1286,12 @@ public class MonitorTaskController extends BasicController {
 					feedback.setPicUrl4Status(status);
 				}
 				feedback.setId(id);
-				boolean result = adMonitorTaskService.updatePicStatus(feedback,status);
-				if(result) {
-					//驳回发送短信
-					if(feedback.getMonitorTaskId() != null) {
-						String username = adMonitorTaskService.selectUserNameByTaskId(feedback.getMonitorTaskId());
-						if(StringUtil.isNotBlank(username)) {
-							sendSmsService.sendSms(username, SMS_REJECT_CONTENT_TEMPLATE);
-						}
+				Integer monitorTaskId = adMonitorTaskService.updatePicStatus(feedback,status);
+				//驳回发送短信
+				if(monitorTaskId != null) {
+					String username = adMonitorTaskService.selectUserNameByTaskId(monitorTaskId);
+					if(StringUtil.isNotBlank(username)) {
+						sendSmsService.sendSms(username, SMS_REJECT_CONTENT_TEMPLATE);
 					}
 				}
 			}

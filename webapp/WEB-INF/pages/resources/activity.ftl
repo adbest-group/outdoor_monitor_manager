@@ -89,7 +89,7 @@
                      <th width="30"><#if user.usertype !=6><input type="checkbox" style="visibility: hidden" id='thead-checkbox' name="ck-alltask" value=""/></#if></th>
                         <th>序号</th>
                         <th>活动名称</th>
-                        <th>广告商</th>                        
+                        <th>广告主</th>                        
                         <th>投放周期</th>
                         <th>活动状态</th>
                         <th>审核人</th>

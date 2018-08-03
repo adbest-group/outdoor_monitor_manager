@@ -740,10 +740,10 @@
 		where media_id = #{mediaId,jdbcType=INTEGER}
 	</select>
 	
-	<!-- 筛选条件查询广告位的所在城市 -->
+	<!-- 筛选条件查询广告位的所在城市, 用于查询广告位热力图 -->
 	<select id="getCountGroupByCity" resultType="com.bt.om.entity.vo.CountGroupByCityVo" parameterType="com.bt.om.entity.vo.HeatMapVo">
 		select 
-			count(1) count, city
+			count(1) count, city, province
 		from ad_seat_info
 		where 1=1
 	    <if test="mediaId != null" >
@@ -767,7 +767,7 @@
 		group by city
 	</select>
 	
-	<!-- 筛选条件查询广告位的经纬度和名称 -->
+	<!-- 筛选条件查询广告位的经纬度和名称, 用于查询广告位百度地图 -->
 	<select id="getAllLonLat" parameterType="com.bt.om.entity.vo.HeatMapVo" resultMap="BaseResultMap">
 		select
 			lon, lat, name
@@ -784,6 +784,15 @@
 	    </if>
 	    <if test="region != null" >
 	      and region = #{region,jdbcType=BIGINT}
+	    </if>
+	    <if test="mediaId != null" >
+	      and media_id = #{mediaId,jdbcType=INTEGER}
+	    </if>
+	    <if test="mediaTypeParentId != null" >
+	      and media_type_parent_id = #{mediaTypeParentId,jdbcType=INTEGER}
+	    </if>
+	    <if test="mediaTypeId != null" >
+	      and media_type_id = #{mediaTypeId,jdbcType=INTEGER}
 	    </if>
 		<if test="infoIds != null">
 	    	and id in
@@ -905,6 +914,30 @@
 		    	#{id}
 		    </foreach>
 		</if>
+	</select>
+	
+	<!-- 查询某媒体主下的所有广告位id集合 -->
+	<select id="selectAdSeatIdsByMedia" parameterType="map" resultType="java.lang.Integer">
+		select 
+			id
+		from
+			ad_seat_info
+		where 1=1
+		<if test="province != null" >
+	      and province = #{province,jdbcType=BIGINT}
+	    </if>
+	    <if test="city != null" >
+	      and city = #{city,jdbcType=BIGINT}
+	    </if>
+	    <if test="mediaId != null" >
+	      and media_id = #{mediaId,jdbcType=INTEGER}
+	    </if>
+	    <if test="mediaTypeParentId != null" >
+	      and media_type_parent_id = #{mediaTypeParentId,jdbcType=INTEGER}
+	    </if>
+	    <if test="mediaTypeId != null" >
+	      and media_type_id = #{mediaTypeId,jdbcType=INTEGER}
+	    </if>
 	</select>
 	
 </mapper>

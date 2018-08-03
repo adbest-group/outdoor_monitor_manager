@@ -150,5 +150,15 @@ public class PageConst {
 	/*** 超级管理员下的第三方监测公司管理  ***/
 	public static final String THIRD_COMPANY_LIST = "resources/thirdCompanyList";
 	public static final String THIRD_COMPANY_EDIT = "resources/thirdCompanyEdit";
+	
+	/*** 超级管理员下的历史数据查看  ***/
+	public static final String HISTORY_ACTIVITY = "history/activity/activity";
+	public static final String HISTORY_ACTIVITY_EDIT = "history/activity/edit";
+	public static final String HISTORY_SELECT_ALL_TASKS = "history/task/selectTaskToExcel";
+	public static final String HISTORY_SELECT_TASKPDF = "history/task/selectTaskToPdf";
+	public static final String HISTORY_JIUCUO_LIST = "history/jiucuo/jiucuoList";
+	public static final String HISTORY_JIUCUO_DETAIL = "history/jiucuo/detail";
+	public static final String HISTORY_MONITOR_TASK_LIST = "history/monitor/taskList";
+	public static final String HISTORY_MONITOR_DETAILS_PAGE = "history/monitor/detailsPage";
 
 }

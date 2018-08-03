@@ -169,9 +169,6 @@ public interface AdMonitorTaskMapper {
 
 	List<AdMonitorTask> selectOverTimeTasks(Date now);
 
-
-	String selectUserNameByTaskId(Integer id);
-	
 	List<HistoryAdMonitorTask> selectByActivityIds(@Param("activityId") Integer activityId);
 
 	String selectUserNameByTaskId(@Param("id") Integer id);

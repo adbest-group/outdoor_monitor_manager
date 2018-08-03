@@ -83,7 +83,7 @@ public class AdUserMessageService implements IAdUserMessageService{
 	 */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public void insertBatchByExcel(List<List<Object>> listob, Integer operateId, Integer usertype,String password) {
+	public void insertBatchByExcel(List<List<Object>> listob, Integer operateId, Integer usertype, String password) {
 		Date now = new Date();
 		//待导入数据
 		List<SysUserExecute> sysUserExecutes = new ArrayList<>();

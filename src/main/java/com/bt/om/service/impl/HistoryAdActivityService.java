@@ -28,7 +28,6 @@ import com.bt.om.entity.HistoryAdJiucuoTaskFeedback;
 import com.bt.om.entity.HistoryAdMonitorTask;
 import com.bt.om.entity.HistoryAdMonitorTaskFeedback;
 import com.bt.om.entity.HistoryAdMonitorUserTask;
-import com.bt.om.entity.ID;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.ActivityMobileReportVo;
@@ -47,7 +46,6 @@ import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.TaskProblemStatus;
 import com.bt.om.enums.UserTypeEnum;
-import com.bt.om.exception.web.ExcelException;
 import com.bt.om.mapper.AdActivityAdseatMapper;
 import com.bt.om.mapper.AdActivityAreaMapper;
 import com.bt.om.mapper.AdActivityMapper;
@@ -69,15 +67,11 @@ import com.bt.om.mapper.HistoryAdMonitorUserTaskMapper;
 import com.bt.om.mapper.SysResourcesMapper;
 import com.bt.om.mapper.SysUserMapper;
 import com.bt.om.mapper.SysUserResMapper;
-import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IHistoryAdActivityService;
 import com.bt.om.util.ConfigUtil;
 import com.bt.om.vo.web.SearchDataVo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.zxing.common.StringUtils;
-import com.sun.accessibility.internal.resources.accessibility;
-import com.sun.glass.ui.Size;
 
 /**
  * 活动相关事务层
@@ -852,7 +846,7 @@ public class HistoryAdActivityService implements IHistoryAdActivityService {
 	 * 获取所有当前日期已经结束状态的活动创建者列表
 	 */
 	@Override
-	public List<Integer> getEndActivityList(Date nowDate) {
+	public List<AdActivity> getEndActivityList(Date nowDate) {
 		return adActivityMapper.getEndActivityList(nowDate);
 	}
 

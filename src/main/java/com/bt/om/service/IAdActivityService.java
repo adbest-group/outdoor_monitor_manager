@@ -1,12 +1,14 @@
 package com.bt.om.service;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdActivityAdseat;
 import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.HistoryAdActivity;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.ActivityMobileReportVo;
 import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
@@ -96,5 +98,7 @@ public interface IAdActivityService {
 	public AdActivity getUserId(Integer activityId);
 
 	List<AdActivityAdseatTaskVo> newSelectAdActivityAdseatTaskReport(Map<String, Object> searchMap);
+
+	public List<HistoryAdActivity> selectActivityAllByEndTime(HashMap<String, Object> searchMap);
 
 }

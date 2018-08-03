@@ -8,6 +8,7 @@ import org.apache.ibatis.session.RowBounds;
 
 import com.bt.om.entity.AdActivityAdseat;
 import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.HistoryAdActivityAdseat;
 import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
 import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdSeatCount;
@@ -101,4 +102,6 @@ public interface AdActivityAdseatMapper {
 	List<Integer> selectByActivityIdAndSeatIds(Map<String, Object> searchMap);
 	
 	List<AdActivityAdseatTaskVo> newSelectAdActivityAdseatTaskReport(Map<String, Object> searchMap);
+	
+	List<HistoryAdActivityAdseat> selectActivityAdseatByActivityId(@Param("activityId") Integer activityId);
 }

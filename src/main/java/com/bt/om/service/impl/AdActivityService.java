@@ -20,6 +20,7 @@ import com.bt.om.entity.AdActivityAdseat;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.AdUserMessage;
+import com.bt.om.entity.HistoryAdActivity;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.ActivityMobileReportVo;
@@ -954,6 +955,11 @@ public class AdActivityService implements IAdActivityService {
 	@Override
 	public List<AdActivityAdseatTaskVo> newSelectAdActivityAdseatTaskReport(Map<String, Object> searchMap) {
 		return adActivityAdseatMapper.newSelectAdActivityAdseatTaskReport(searchMap);
+	}
+
+	@Override
+	public List<HistoryAdActivity> selectActivityAllByEndTime(HashMap<String, Object> searchMap) {
+		return adActivityMapper.selectActivityAllByEndTime(searchMap);
 	}
 
 }

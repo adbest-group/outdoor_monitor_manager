@@ -2,6 +2,7 @@ package com.bt.om.mapper;
 
 import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.entity.AdMonitorTask;
+import com.bt.om.entity.HistoryAdJiucuoTask;
 import com.bt.om.entity.vo.AdJiucuoTaskMobileVo;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import org.apache.ibatis.annotations.Param;
@@ -83,4 +84,9 @@ public interface AdJiucuoTaskMapper {
 	int getJiucuoPageCount(HashMap<String, Object> searchMap);
 
 	List<?> getJiucuoPageData(HashMap<String, Object> searchMap, RowBounds rowBounds);
+	
+	List<HistoryAdJiucuoTask> selectByActivityId(@Param("activityId")Integer activityId);
+
+	int deleteByActivityId(@Param("activityId") Integer activityId);
+	
 }

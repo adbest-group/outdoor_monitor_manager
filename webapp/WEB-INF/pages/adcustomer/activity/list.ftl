@@ -30,6 +30,7 @@
                         <@model.showActivityStatusOps value="${bizObj.queryMap.status?if_exists}" />
                         </select>
                     </div>
+                    <#-- 
                     <div class="select-box select-box-100 un-inp-select ll">
 	                    <select style="width: 120px;height:31px;" name="mediaTypeParentId" id="mediaTypeParentId" onchange="changeMediaTypeId();">
 	                    <option value="">所有媒体大类</option>
@@ -41,7 +42,9 @@
 	                    	<option value="">所有媒体小类</option>
 	                    </select>
 	                </div><br/><br/>
+	                 -->
 	                <#-- 城市 -->
+	                <#-- 
 					<div id="demo3" class="citys" style="float: left; font-size: 12px">
                         <p>
                                                城市： <select style="height: 30px" id="adSeatInfo-province" name="province">
@@ -51,14 +54,17 @@
                         </p>
                     </div>
                     <div class="ll inputs-date">
+                     -->
                         <#--<input class="ui-date-button" type="button" value="昨天" alt="-1" name="">-->
                         <#--<input class="ui-date-button" type="button" value="近7天" alt="-6" name="">-->
                         <#--<input class="ui-date-button on" type="button" value="近30天" alt="-29" name="">-->
+                    <#-- 
                         <div class="date">
                             <input id="dts" class="Wdate" type="text" name="startDate" value="${bizObj.queryMap.startDate?if_exists}"> -
                             <input id="dt" class="Wdate" type="text" name="endDate" value="${bizObj.queryMap.endDate?if_exists}">
                         </div>
                     </div>
+                     -->
                     <button type="button" class="btn btn-red" style="margin-left:10px;" autocomplete="off" id="searchBtn">查询</button>
                 </form>
             </div>
@@ -72,11 +78,11 @@
                     <tr>
                         <th>序号</th>
                         <th>活动名称</th>
+                        <th>广告主</th>                        
                         <th>投放周期</th>
-                        <th>媒体大类</th>
-					    <th>媒体小类</th>
-					    <th>地区</th>
                         <th>活动状态</th>
+                        <th>审核人</th>
+                        <th>审核时间</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -87,11 +93,11 @@
                             <td width="30">${(bizObj.page.currentPage-1)*20+activity_index+1}</td>
                             <td>
                                 <div class="data-title w200" data-title="${activity.activityName}" data-id="${activity.id}">${activity.activityName?if_exists}</div></td>
+                            <td>${activity.customerName?if_exists}</td>
                             <td>${activity.startTime?string('yyyy-MM-dd')} 至 ${activity.endTime?string('yyyy-MM-dd')}</td>
-                            <td>${activity.parentName!""}</td>
-                            <td>${activity.secondName!""}</td>
-                            <td>${vm.getCityName(activity.province!"")!""} ${vm.getCityName(activity.city!"")}</td>
                             <td>${vm.getActivityStatusTextWithColor(activity.status)}</td>
+                            <td>${activity.realName?if_exists}</td>
+                            <td>${activity.updateTime?string('yyyy-MM-dd HH:mm:ss')}</td>
                             <td>
                                 <#if activity.status==1><a href="/customer/activity/edit?id=${activity.id}">修改</a></#if>
                                 <#if activity.status==2||activity.status==3><a href="/customer/activity/edit?id=${activity.id}">详情</a></#if>

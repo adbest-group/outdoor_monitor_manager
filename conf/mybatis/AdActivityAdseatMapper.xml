@@ -600,10 +600,10 @@
 	WHERE a.activity_id = #{activityId,jdbcType=INTEGER}
   </select>
   
-  <!-- 通过活动id查询出 本次活动所有参与的广告位id集合 -->
+  <!-- 通过活动id和广告主id查询出 本次活动所有参与的广告位id集合 -->
   <select id="selectSeatIdByActivityId" parameterType="map" resultType="java.lang.Integer">
     select
-    	a.ad_seat_id
+    	distinct a.ad_seat_id
     from ad_activity_adseat a
     left join ad_activity b on a.activity_id = b.id
     where 1=1

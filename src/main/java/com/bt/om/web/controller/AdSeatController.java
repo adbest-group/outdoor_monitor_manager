@@ -462,12 +462,29 @@ public class AdSeatController extends BasicController {
     }
     
     /**
+     * 超级管理员 查看热力图报表 页面跳转
+     */
+    @RequestMapping("/superadmin/thermalMap")
+	public String superAdminToThermalMap(Model model) {
+		return PageConst.SUPER_ADMIN_THERMAL_MAP;
+	}
+    
+    /**
+     * 媒体主 查看热力图报表 页面跳转
+     */
+    @RequestMapping("/media/thermalMap")
+	public String mediaToThermalMap(Model model) {
+		return PageConst.MEDIA_THERMAL_MAP;
+	}
+    
+    /**
      * 查询热力图报表
      */
-    @RequiresRoles("customer")
+    @RequiresRoles(value = {"superadmin", "media", "customer"}, logical = Logical.OR)
     @RequestMapping(value = "/getCountGroupByCity")
     @ResponseBody
-    public Model getCountGroupByCity(Model model, HttpServletRequest request, Integer activityId, Integer mediaId, Long province, Long city, Long region) {
+    public Model getCountGroupByCity(Model model, HttpServletRequest request, Integer activityId, Integer mediaId, Long province, 
+    		Long city, Long region, Integer mediaTypeParentId, Integer mediaTypeId) {
     	ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("查询成功");
@@ -482,18 +499,28 @@ public class AdSeatController extends BasicController {
         	heatMapVo.setMediaId(mediaId);
         	heatMapVo.setProvince(province);
         	heatMapVo.setRegion(region);
-        	List<CountGroupByCityVo> groupByCity = adSeatService.getCountGroupByCity(heatMapVo, user.getId());
+        	heatMapVo.setMediaTypeId(mediaTypeId);
+        	heatMapVo.setMediaTypeParentId(mediaTypeParentId);
+        	List<CountGroupByCityVo> groupByCity = adSeatService.getCountGroupByCity(heatMapVo, user);
         	for (CountGroupByCityVo countGroupByCityVo : groupByCity) {
-        		countGroupByCityVo.setCityName(cityCache.getCityName(countGroupByCityVo.getCity()));
+        		//北京市：110000  天津市：120000  上海市：310000  重庆市：500000  香港: 810000  澳门: 820000
+        		if(countGroupByCityVo.getProvince().longValue() == 110000
+        				|| countGroupByCityVo.getProvince().longValue() == 120000
+        				|| countGroupByCityVo.getProvince().longValue() == 310000
+        				|| countGroupByCityVo.getProvince().longValue() == 500000
+        				|| countGroupByCityVo.getProvince().longValue() == 810000
+        				|| countGroupByCityVo.getProvince().longValue() == 820000) {
+        			countGroupByCityVo.setCityName(cityCache.getCityName(countGroupByCityVo.getProvince()));
+        		} else {
+        			countGroupByCityVo.setCityName(cityCache.getCityName(countGroupByCityVo.getCity()));
+        		}
 			}
         	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
             result.setResult(groupByCity);
 		} catch (Exception e) {
-			logger.error(e);
-			logger.error(MessageFormat.format("查询热力图报表失败", new Object[] {}));
+			logger.error(MessageFormat.format("查询热力图报表失败", new Object[] {e}));
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());
         	result.setResultDes("查询热力图报表失败");
-            e.printStackTrace();
 		}
         
         model.addAttribute(SysConst.RESULT_KEY, result);
@@ -506,7 +533,8 @@ public class AdSeatController extends BasicController {
     @RequiresRoles("customer")
     @RequestMapping(value = "/getAllLonLat")
     @ResponseBody
-    public Model getAllLonLat(Model model, HttpServletRequest request, Integer activityId, Integer mediaId, Long province, Long city, Long region) {
+    public Model getAllLonLat(Model model, HttpServletRequest request, Integer activityId, Integer mediaId, Long province, 
+    		Long city, Long region, Integer mediaTypeParentId, Integer mediaTypeId) {
     	ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("查询成功");
@@ -521,7 +549,9 @@ public class AdSeatController extends BasicController {
         	heatMapVo.setMediaId(mediaId);
         	heatMapVo.setProvince(province);
         	heatMapVo.setRegion(region);
-        	List<AdSeatInfo> adSeatInfos = adSeatService.getAllLonLat(heatMapVo, user.getId());
+        	heatMapVo.setMediaTypeId(mediaTypeId);
+        	heatMapVo.setMediaTypeParentId(mediaTypeParentId);
+        	List<AdSeatInfo> adSeatInfos = adSeatService.getAllLonLat(heatMapVo, user);
         	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
             result.setResult(adSeatInfos);
 		} catch (Exception e) {

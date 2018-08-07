@@ -81,7 +81,7 @@ $(window).resize(function() {
             title: '编辑客户账号',
             shadeClose: true,
             shade: 0.8,
-            area: ['600px', '480px'],
+            area: ['600px', '580px'],
             content: '/customer/edit' //iframe的url
         });
     });
@@ -92,7 +92,7 @@ $(window).resize(function() {
             title: '编辑客户账号',
             shadeClose: true,
             shade: 0.8,
-            area: ['600px', '480px'],
+            area: ['600px', '580px'],
             content: '/customer/edit?id=' + id //iframe的url
         });
     }

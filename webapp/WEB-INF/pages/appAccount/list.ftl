@@ -11,12 +11,17 @@
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
             	<form id="form" method="get" action="/appAccount/list">
 	            	<div class="select-box select-box-100 un-inp-select ll">
-	                    <select name="searchUserType" class="select" id="searchUserType">
+	                    <select name="searchUserType" class="select" id="searchUserType" onchange="changeUserTypeId()">
 	            			<option value="">所有类型</option>
 	                        <option value="2" <#if (bizObj.queryMap.usertype?exists&&bizObj.queryMap.usertype == '2')>selected</#if>>客户人员</option>
 	                    	<option value="3" <#if (bizObj.queryMap.usertype?exists&&bizObj.queryMap.usertype == '3')>selected</#if>>媒体人员</option>
 	                    	<option value="4" <#if (bizObj.queryMap.usertype?exists&&bizObj.queryMap.usertype == '4')>selected</#if>>社会人员</option>
 	                    	<option value="5" <#if (bizObj.queryMap.usertype?exists&&bizObj.queryMap.usertype == '5')>selected</#if>>第三方监测人员</option>
+	                    </select>
+	                </div>
+                    <div class="select-box select-box-100 un-inp-select ll" id="firmSelect">
+	                    <select style="width: 120px;height:31px;display: none" name="firmId" id="firmId">
+	                    	<option value="">所属公司</option>
 	                    </select>
 	                </div>
 	                <div class="inp">
@@ -217,6 +222,7 @@
 <script type="text/javascript">
 $(function(){
     $(window).resize();
+    $('#firmId').next().find('.searchable-select-input').css('display', 'block');
 });
 
 $(window).resize(function() {
@@ -224,7 +230,7 @@ $(window).resize(function() {
     $('.main-container').css('height', h);
 });
 
-	$('.select').searchableSelect();
+	$('#usertype,#mediaId,#companyId,#firmId').searchableSelect();
 	$('#importMediaId').next().find('.searchable-select-input').css('display', 'block');
 	$('#mediaId').next().find('.searchable-select-input').css('display', 'block');
 	$('#companyId').next().find('.searchable-select-input').css('display', 'block');
@@ -509,6 +515,51 @@ $(window).resize(function() {
     		}
     	})
     })
+    
+    $('#searchUserType').searchableSelect({
+		afterSelectItem: function(){
+			if(this.holder.data("value") == 3 || this.holder.data("value") == 5){
+				changeUserTypeId(this.holder.data("value"))
+				$('#firmId').css('display', 'inline-block')
+			}else{
+				$('#firmId').parent().html('<select style="width: 120px;height:31px;display:none" name="firmId" id="firmId"><option value="">请选择所属公司</option></select>')
+			}
+		}
+	})
+
+	function changeUserTypeId(userTypeId){
+		if(!userTypeId) {
+			var option = '<option value="">请选择所属公司</option>';
+			$("#firmSelect").html(option);
+			return ;
+		}
+		$.ajax({
+			url : '/sysUser/searchFirmUser',
+			type : 'POST',
+			data : {"userType":userTypeId},
+			dataType : "json",
+			traditional : true,
+			success : function(data) {
+				var result = data.ret;
+				if (result.code == 100) {
+					var firms = result.result;
+					var htmlOption = '<select style="width: 120px;height:31px;" name="firmId" id="firmId"><option value="">请选择所属公司</option>';
+					for (var i=0; i < firms.length;i++) { 
+						var firm = firms[i];
+						htmlOption = htmlOption + '<option value="' + firm.id + '">' + firm.realname + '</option>';
+					}
+					htmlOption += '</select>'
+					$("#firmSelect").html(htmlOption);
+					$("#firmId").searchableSelect()
+					$('#firmId').next().find('.searchable-select-input').css('display', 'block');
+				} else {
+					alert('修改失败!');
+				}
+			}
+		});
+		
 	
+		// /sysUser/searchFirmUser
+	};
 </script>
 <@model.webend />

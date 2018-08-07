@@ -175,37 +175,8 @@
             $("#city,#region,#street").empty().hide();
         });
 
-        /*获取城市  */
-        var $town = $('#demo3 select[name="street"]');
-        var townFormat = function (info) {
-            $town.hide().empty();
-            if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
-                $.ajax({
-                    url: '/api/city?provinceId=' + info['code'],
-                    dataType: 'json',
-                    success: function (town) {
-                        $town.show();
-                        $town.append('<option value> - 请选择 - </option>');
-                        for (i in town) {
-                            $town.append('<option value="' + i + '" <#if (street?exists&&street?length>0)>'+ (i ==${street!0} ? "selected" : "")+'</#if>>' + town[i]
-                                    + '</option>');
-                        }
-                    }
-                });
-            }
-        };
-        $('#demo3').citys({
-            required: false,
-            province: '${province!"所有城市"}',
-            city: '${city!""}',
-            region: '${region!""}',
-            onChange: function (info) {
-                townFormat(info);
-            }
-        }, function (api) {
-            var info = api.getInfo();
-            townFormat(info);
-        });
+
+
 
         // 基于准备好的dom，初始化echarts实例
         var myChart = echarts.init(document.getElementById('chart'));
@@ -731,5 +702,58 @@
 		// 使用刚指定的配置项和数据显示图表
         // myChart.setOption(option);
     })
+    
+    /*获取城市  */
+    var $town = $('#demo3 select[name="street"]');
+    var townFormat = function(info) {
+        $town.hide().empty();
+        if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
+            $.ajax({
+                url : '/api/city?provinceId=' + info['code'],
+                dataType : 'json',
+                success : function(town) {
+                    $town.show();
+                    $town.append('<option value> - 请选择 - </option>');
+                    for (i in town) {
+                        $town.append('<option value="'+i+'" <#if (street?exists&&street?length>0)>'+(i==${street!0}?"selected":"")+'</#if>>' + town[i]
+                                + '</option>');
+                    }
+                }
+            });
+        }
+    };
+       var currentCity = ""
+	<#if city?exists && city != ""> currentCity = ${city!""} </#if>
+	var currentProvince = ""
+	<#if province?exists && province != ""> currentProvince = ${province!""} </#if>
+    $('#demo3').citys({
+        required:false,
+        province : '${province!"所有城市"}',
+        city : '${city!""}',
+        onChange : function(info) {
+            townFormat(info);
+            var str = '110000,120000,310000,500000,810000,820000'
+            if(str.indexOf(info.code) === -1){
+            	$('#city').val(currentCity)
+	            $('#city').searchableSelect()
+	            $('#city').next().css('width', '130px')
+            }
+        }
+    }, function(api) {
+        var info = api.getInfo();
+        townFormat(info);
+        $('#province').val(currentProvince)
+        $('#province').searchableSelect({
+			afterSelectItem: function(){
+				
+				$('#city').next().remove()
+				if(this.holder.data("value")){
+					$('#province').val(this.holder.data("value")).trigger("change");
+					currentCity = ""
+				}
+			}
+		})
+        $('#province').next().css('width', '130px')
+    });
 </script>
 		

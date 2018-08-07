@@ -294,44 +294,9 @@ function changeMediaTypeId() {
     	})
     })
 
-    
-    /*获取城市  */
-    var $town = $('#demo3 select[name="street"]');
-    var townFormat = function(info) {
-        $town.hide().empty();
-        if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
-            $.ajax({
-                url : '/api/city?provinceId=' + info['code'],
-                dataType : 'json',
-                success : function(town) {
-                    $town.show();
-                    $town.append('<option value> - 请选择 - </option>');
-                    for (i in town) {
-                        $town.append('<option value="'+i+'" <#if (street?exists&&street?length>0)>'+(i==${street!0}?"selected":"")+'</#if>>' + town[i]
-                                + '</option>');
-                    }
-                }
-            });
-        }
-    };
-    $('#demo3').citys({
-        required:false,
-        province : '${province!"所有城市"}',
-        city : '${city!""}',
-        region : '${region!""}',
-        onChange : function(info) {
-            townFormat(info);
-        }
-    }, function(api) {
-        var info = api.getInfo();
-        townFormat(info);
-        console.log(info)
-        if(!info.province){
-        	$("#adSeatInfo-province option:first").prop("selected", 'selected');  
-        }
-    });
     var assign_ids;
     $(function() {
+    	$('#selectMediaId,#mediaTypeId,#mediaTypeParentId').searchableSelect();
         $(window).resize(function() {
             var h = $(document.body).height() - 115;
             $('.main-container').css('height', h);
@@ -518,6 +483,60 @@ function changeMediaTypeId() {
             }
         });   
     }
+    
+    /*获取城市  */
+    var $town = $('#demo3 select[name="street"]');
+    var townFormat = function(info) {
+        $town.hide().empty();
+        if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
+            $.ajax({
+                url : '/api/city?provinceId=' + info['code'],
+                dataType : 'json',
+                success : function(town) {
+                    $town.show();
+                    $town.append('<option value> - 请选择 - </option>');
+                    for (i in town) {
+                        $town.append('<option value="'+i+'" <#if (street?exists&&street?length>0)>'+(i==${street!0}?"selected":"")+'</#if>>' + town[i]
+                                + '</option>');
+                    }
+                }
+            });
+        }
+    };
+    
+    var currentCity = ""
+	<#if city?exists && city != ""> currentCity = ${city!""} </#if>
+	var currentProvince = ""
+	<#if province?exists && province != ""> currentProvince = ${province!""} </#if>
+    $('#demo3').citys({
+        required:false,
+        province : '${province!"所有城市"}',
+        city : '${city!""}',
+        onChange : function(info) {
+            townFormat(info);
+            var str = '110000,120000,310000,500000,810000,820000'
+            if(str.indexOf(info.code) === -1){
+            	$('#adSeatInfo-city').val(currentCity)
+	            $('#adSeatInfo-city').searchableSelect()
+	            $('#adSeatInfo-city').next().css('width', '130px')
+            }
+        }
+    }, function(api) {
+        var info = api.getInfo();
+        townFormat(info);
+        $('#adSeatInfo-province').val(currentProvince)
+        $('#adSeatInfo-province').searchableSelect({
+			afterSelectItem: function(){
+				
+				$('#adSeatInfo-city').next().remove()
+				if(this.holder.data("value")){
+					$('#adSeatInfo-province').val(this.holder.data("value")).trigger("change");
+					currentCity = ""
+				}
+			}
+		})
+        $('#adSeatInfo-province').next().css('width', '130px')
+    });
     
 </script>
 <!-- 特色内容 -->

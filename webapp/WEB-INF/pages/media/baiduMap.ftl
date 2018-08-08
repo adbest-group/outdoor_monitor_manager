@@ -1,15 +1,17 @@
-<#assign webTitle="首页" in model>
+<#assign webTitle="广告位管理" in model>
 <#assign webHead in model>
 </#assign>
 <@model.webhead />
 <!-- 头部 -->
-<@model.webMenu current="资源管理" child="资源管理" />
+<@model.webMenu current="广告位管理" child="广告位百度地图" />
+<!-- 特色内容 -->
 <div class="main-container">
     <div class="main-box">
         <div class="title clearfix" style="display: block;">
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <form id="form" method="get" action="/adseat/list">
                     <div>
+                    	<#-- 
                         <div style="float:left;height:30px;line-height:30px;" class="mr-10">
                            	 活动名称:
                         </div>
@@ -19,21 +21,11 @@
                             	<@model.showOwnActivityOps value=""/>
                             </select>
                         </div>
+                         -->
                         
+                        <#-- 
                         <div style="float:left;height:30px;line-height:30px;" class="mr-10">
-                           	 城市: 
-                        </div>
-                        <div id="demo3" class="citys" style="float: left; font-size: 12px">
-	                        <p>
-	                        <select style="height: 30px" id="adSeatInfo-province" name="province">
-	                            <option value=""></option>
-	                        </select> <select style="height: 30px" id="adSeatInfo-city" name="city"></select>
-	                        </p>
-	                    </div>
-                        
-                        &nbsp;
-                        <div style="float:left;height:30px;line-height:30px;" class="mr-10">
-                           	 &nbsp;&nbsp;媒体主: 
+                           	 媒体主: 
                         </div>
                         <div class="select-box select-box-140 un-inp-select ll">
                         	<select class="select" name="mediaId" id="mediaId">
@@ -41,30 +33,45 @@
 	                            <@model.showAllMediaOps value="" />
 	                        </select>
                         </div>
+                         -->
+                        
+                        <div style="float:left;height:30px;line-height:30px;" class="mr-10">
+                           	 媒体类型: 
+                        </div>
+                        <div class="select-box select-box-100 un-inp-select ll">
+		                    <select style="width: 120px;height:31px;" name="mediaTypeParentId" id="mediaTypeParentId" onchange="changeMediaTypeId();">
+		                    <option value="">所有媒体大类</option>
+		                    <@model.showAllAdMediaTypeAvailableOps value=""/>
+		                     </select>
+	                	</div>
+	                    <div class="select-box select-box-100 un-inp-select ll" id="mediaTypeSelect">
+		                    <select style="width: 120px;height:31px;display: none" name="mediaTypeId" id="mediaTypeId">
+		                    	<option value="">所有媒体小类</option>
+		                    </select>
+		                </div>
+
+						<div id="demo3" class="citys" style="float: left; font-size: 12px">
+                            <p>
+                                投放地区： <select style="height: 30px" id="province"
+                                              name="province">
+                                <option value=""></option>
+                            </select> <select style="height: 30px" id="city" name="city"></select>
+                        	<!--
+                            <select style="height: 30px" id="region" name="region"></select>
+                            <select style="height: 30px" id="street" name="street"></select>
+                            -->
+                            </p>
+                        </div>
 
                         <button type="button" class="btn btn-red"
                                 style="margin-left: 10px;" autocomplete="off" id="searchBtn">筛选
                         </button>
-                        
                         <#-- 
                         <button type="button" class="btn btn-primary"
                                 style="margin-left: 10px;" autocomplete="off" id="clear">清除条件
                         </button>
                          -->
                     </div>
-               		<!--
-                    <div style="clear:both;padding-top:10px;">
-                        <div id="demo3" class="citys" style="float: left; font-size: 12px">
-                            <p>
-                                                        投放地区： <select style="height: 30px" id="province" name="province">
-                                <option value=""></option>
-                            </select> <select style="height: 30px" id="city" name="city"></select>
-                                <select style="height: 30px" id="region" name="region"></select>
-                                <select style="height: 30px" id="street" name="street"></select>
-                            </p>
-                        </div>
-                    </div>
-                 	-->
                 </form>
             </div>
         </div>
@@ -100,6 +107,61 @@
 
 
 <script type="text/javascript">
+
+	$('#mediaTypeParentId').searchableSelect({
+		afterSelectItem: function(){
+			if(this.holder.data("value")){
+				
+				changeMediaTypeId(this.holder.data("value"))
+				$('#mediaTypeId').css('display', 'inline-block')
+			}else{
+				$('#mediaTypeId').parent().html('<select style="width: 120px;height:31px;display:none" name="mediaTypeId" id="mediaTypeId"><option value="">请选择媒体小类</option></select>')
+			}
+		}
+	})
+	
+	$('#mediaTypeParentId').next().find('.searchable-select-input').css('display', 'block')
+
+	function changeMediaTypeId(mediaTypeParentId) {	
+		// var mediaTypeParentId = $("#mediaTypeParentId").val();
+		if(!mediaTypeParentId) {
+			var option = '<option value="">请选择媒体小类</option>';
+			$("#mediaTypeId").html(option);
+			return ;
+		}
+		$.ajax({
+			url : '/platmedia/adseat/searchMediaType',
+			type : 'POST',
+			data : {"parentId":mediaTypeParentId},
+			dataType : "json",
+			traditional : true,
+			success : function(data) {
+				var mediaTypeIdSelect = ""
+				<#if mediaTypeId?exists && mediaTypeId != ""> mediaTypeIdSelect = ${mediaTypeId!""} </#if>
+				var isSelect = false;
+				var result = data.ret;
+				if (result.code == 100) {
+					var adMediaTypes = result.result;
+					var htmlOption = '<select style="width: 120px;height:31px;" name="mediaTypeId" id="mediaTypeId"><option value="">请选择媒体小类</option>';
+					for (var i=0; i < adMediaTypes.length;i++) { 
+						var type = adMediaTypes[i];
+						htmlOption = htmlOption + '<option value="' + type.id + '">' + type.name + '</option>';
+						if(mediaTypeIdSelect === type.id){
+							isSelect = true
+						}
+					}
+					htmlOption += '</select>'
+					$("#mediaTypeSelect").html(htmlOption);
+					$("#mediaTypeId").val(isSelect ? mediaTypeIdSelect : "");
+					$("#mediaTypeId").searchableSelect()
+					$('#mediaTypeId').next().find('.searchable-select-input').css('display', 'block')
+				} else {
+					alert('修改失败!');
+				}
+			}
+		});
+	}
+
     $(function () {
         $(window).resize(function () {
             var h = $(document.body).height() - 115;
@@ -151,26 +213,26 @@
 	            townFormat(info);
 	            var str = '110000,120000,310000,500000,810000,820000'
 	            if(str.indexOf(info.code) === -1){
-	            	$('#adSeatInfo-city').val(currentCity)
-		            $('#adSeatInfo-city').searchableSelect()
-		            $('#adSeatInfo-city').next().css('width', '130px')
+	            	$('#city').val(currentCity)
+		            $('#city').searchableSelect()
+		            $('#city').next().css('width', '130px')
 	            }
 	        }
 	    }, function(api) {
 	        var info = api.getInfo();
 	        townFormat(info);
-	        $('#adSeatInfo-province').val(currentProvince)
-	        $('#adSeatInfo-province').searchableSelect({
+	        $('#province').val(currentProvince)
+	        $('#province').searchableSelect({
 				afterSelectItem: function(){
 					
-					$('#adSeatInfo-city').next().remove()
+					$('#city').next().remove()
 					if(this.holder.data("value")){
-						$('#adSeatInfo-province').val(this.holder.data("value")).trigger("change");
+						$('#province').val(this.holder.data("value")).trigger("change");
 						currentCity = ""
 					}
 				}
 			})
-	        $('#adSeatInfo-province').next().css('width', '130px')
+	        $('#province').next().css('width', '130px')
 	    });
 
 		// 百度地图API功能
@@ -191,10 +253,12 @@
                 data: {
                     activityId:$("#activityId").val(),
                     mediaId:$("#mediaId").val(),
-                    province:$("#adSeatInfo-province").val(),
-                    city:$("#adSeatInfo-city").val(),
+                    province:$("#province").val(),
+                    city:$("#city").val(),
                     region:$("#region").val(),
-                    street:$("#street").val()
+                    street:$("#street").val(),
+                    mediaTypeParentId:$("#mediaTypeParentId").val(),
+                    mediaTypeId:$("#mediaTypeId").val()
                 },
                 cache: false,
                 dataType: "json",

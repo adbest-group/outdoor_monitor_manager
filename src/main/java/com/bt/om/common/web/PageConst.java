@@ -67,8 +67,12 @@ public class PageConst {
 
 	/*** 资源管理 ***/
 	public static final String RESOURCE_ADD = "resource/add_ad_seat";
+	
 	public static final String SUPER_ADMIN_THERMAL_MAP = "resources/thermalMap";
 	public static final String MEDIA_THERMAL_MAP = "media/thermalMap";
+	public static final String SUPER_ADMIN_BAIDU_MAP = "resources/baiduMap";
+	public static final String MEDIA_BAIDU_MAP = "media/baiduMap";
+	
 	public static final String ADSEAT_LIST = "adseat/list";
 	public static final String RESOURCE_DETAILS = "resource/detail";
 	public static final String ADSEAT_EDIT = "adseat/edit";

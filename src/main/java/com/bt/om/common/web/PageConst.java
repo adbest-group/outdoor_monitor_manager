@@ -40,11 +40,14 @@ public class PageConst {
 	public static final String MEDIA_TASK_LIST = "admedia/task/list";
 	public static final String MEDIA_PROBLEM_TASK_LIST = "admedia/task/problemList";
 	public static final String MEDIA_TASK_DETAIL = "admedia/task/detail";
+	public static final String MEDIA_USER_EXECUTE = "admedia/task/selectExeUser";
+	public static final String MEDIA_TASK_ASSIGN = "admedia/task/assignList";
 	public static final String MEDIA_JIUCUO_LIST = "admedia/jiucuo/list";
 	public static final String MEDIA_ADSEAT_LIST = "admedia/adseat/list";
 	public static final String MEDIA_ADSEAT_EDIT = "admedia/adseat/edit";
 	public static final String MEDIA_WORKER_LIST = "admedia/worker/list";
 	public static final String MEDIA_WORKER_EDIT = "admedia/worker/edit";
+	
 
 	/*** 活动管理 ***/
 	public static final String ACTIVITY_LIST = "activity/list";
@@ -155,6 +158,16 @@ public class PageConst {
 	public static final String THIRD_COMPANY_LIST = "resources/thirdCompanyList";
 	public static final String THIRD_COMPANY_EDIT = "resources/thirdCompanyEdit";
 	
+	/*** 第三方监测公司下的人员管理***/
+	public static final String THIRD_COMPANY_USER_LIST = "thirdcompany/userlist";
+	public static final String THIRD_COMPANY_USER_EDIT = "thirdcompany/userEdit";
+	
+	/*** 第三方监测公司下的任务管理***/
+	public static final String THIRDCOMPANY_UP_TASK_UNASSIGN = "thirdcompany/upTaskList";
+	public static final String THIRDCOMPANY_TASK_UNASSIGN = "thirdcompany/taskUnassign";
+	public static final String THIRDCOMPANY_TASK_LIST = "thirdcompany/taskList";
+	public static final String SELECT_COMPANY_USER_EXECUTE = "thirdcompany/selectExeUser";
+
 	/*** 超级管理员下的历史数据查看  ***/
 	public static final String HISTORY_ACTIVITY = "history/activity/activity";
 	public static final String HISTORY_ACTIVITY_EDIT = "history/activity/edit";
@@ -164,5 +177,4 @@ public class PageConst {
 	public static final String HISTORY_JIUCUO_DETAIL = "history/jiucuo/detail";
 	public static final String HISTORY_MONITOR_TASK_LIST = "history/monitor/taskList";
 	public static final String HISTORY_MONITOR_DETAILS_PAGE = "history/monitor/detailsPage";
-
 }

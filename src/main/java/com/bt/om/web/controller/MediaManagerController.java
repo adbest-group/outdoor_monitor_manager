@@ -44,6 +44,7 @@ import com.bt.om.enums.AllowMultiEnum;
 import com.bt.om.enums.AppUserTypeEnum;
 import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.MonitorTaskStatus;
+import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.SessionKey;
@@ -226,6 +227,81 @@ public class MediaManagerController {
     }
 
     /**
+     * 查看 被指派任务管理页面
+     */
+    @RequiresRoles("media")
+    @RequestMapping(value = "/task/assignList")
+    public String getUpTaskList(Model model, HttpServletRequest request,
+              @RequestParam(value = "activityId", required = false) Integer activityId,
+              @RequestParam(value = "startDate", required = false) String startDate,
+              @RequestParam(value = "status", required = false) Integer status,
+              @RequestParam(value = "endDate", required = false) String endDate,
+              @RequestParam(value = "mediaId", required = false) Integer mediaId,
+              @RequestParam(value = "name", required = false) String name,
+              @RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
+              @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
+              @RequestParam(value = "province", required = false) Long province,
+              @RequestParam(value = "city", required = false) Long city) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        SearchDataVo vo = SearchUtil.getVo();
+
+        //获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        if (status == null) {
+            vo.putSearchParam("statuses", null,
+                    new Integer[]{MonitorTaskStatus.UNASSIGN.getId(), MonitorTaskStatus.TO_CARRY_OUT.getId(), MonitorTaskStatus.CAN_GRAB.getId()});
+        } else {
+            vo.putSearchParam("status", String.valueOf(status), String.valueOf(status));
+        }
+
+        if (activityId != null) {
+            vo.putSearchParam("activityId", activityId.toString(), activityId);
+        }
+        if (startDate != null) {
+            try {
+                vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
+            } catch (ParseException e) {
+            }
+        }
+        if (endDate != null) {
+            try {
+                vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
+            } catch (ParseException e) {
+            	logger.error(e);
+            }
+        }
+       //查询媒体主
+        if (mediaId != null) {
+            vo.putSearchParam("mediaId", mediaId.toString(), mediaId);
+        }
+        //查询活动名称
+        if (name != null) {
+        	name = "%" + name + "%";
+            vo.putSearchParam("activityName", name, name);
+        }
+        //媒体大类
+        if (mediaTypeParentId != null) {
+            vo.putSearchParam("mediaTypeParentId", mediaTypeParentId.toString(), mediaTypeParentId);
+        }
+        //媒体小类
+        if (mediaTypeId != null) {
+        	vo.putSearchParam("mediaTypeId", mediaTypeId.toString(), mediaTypeId);
+        }
+        //省
+        if (province != null) {
+        	vo.putSearchParam("province", province.toString(), province);
+        }
+        //城市
+        if (city != null) {
+            vo.putSearchParam("city", city.toString(), city);
+        }
+        vo.putSearchParam("companyId", userObj.getId().toString(), userObj.getId());
+    	adMonitorTaskService.getPageData(vo);
+        SearchUtil.putToModel(model, vo);
+        model.addAttribute("user",userObj);
+        return PageConst.MEDIA_TASK_ASSIGN;
+    }
+    /**
      * 选择监测人员页面
      **/
     @RequiresRoles("media")
@@ -239,8 +315,8 @@ public class MediaManagerController {
 
         List<SysUserExecute> ues = sysUserExecuteService.getByConditionMap(condition);
         model.addAttribute("userList", ues);
-
-        return PageConst.SELECT_USER_EXECUTE;
+        model.addAttribute("mediaId",user.getId());
+        return PageConst.MEDIA_USER_EXECUTE;
     }
 
     //处理问题，只是标示该任务的问题已被处理

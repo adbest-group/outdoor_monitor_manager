@@ -17,7 +17,7 @@
                     </select>
                 </div> -->
                 <div class="inp">
-                    <input type="text" placeholder="请输入用户名称" value="${username?if_exists}" id="searchName" name="username">
+                    <input type="text" placeholder="请输入用户名称" value="${name?if_exists}" id="searchName" name="name">
                 </div>
                 <div class="inp">
                     <input type="text" placeholder="请输入推送内容" value="${push?if_exists}" id="searchPush" name="push">
@@ -105,17 +105,17 @@
     $("#searchBtn").on("click", function () {
         var strParam = "";
         var push = $("#searchPush").val();
-        var username = $("#searchName").val();
+        var name = $("#searchName").val();
         
         if (push != null && $.trim(push).length) {
             strParam = strParam + "?push=" + push;
         }
 		
-        if (username != null && $.trim(username).length) {
+        if (name != null && $.trim(name).length) {
         	if(strParam.indexOf('?') != -1) {
-        		strParam = strParam + "&username=" + username;
+        		strParam = strParam + "&name=" + name;
         	}else {
-        		strParam = strParam + "?username=" + username;
+        		strParam = strParam + "?name=" + name;
         	}
         }
         window.location.href = "/systempush/list" + strParam;

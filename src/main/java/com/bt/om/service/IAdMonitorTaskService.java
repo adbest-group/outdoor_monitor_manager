@@ -120,4 +120,5 @@ public interface IAdMonitorTaskService {
 	//更新图片状态（通过 /驳回）
 	public Integer updatePicStatus(AdMonitorTaskFeedback feedback, Integer status);
 	public String selectUserNameByTaskId(Integer id);
+	public void assign(String[] taskIds, Integer mediaId, Integer companyId, Integer mediaUser, Integer companyUser,Integer id);
 }

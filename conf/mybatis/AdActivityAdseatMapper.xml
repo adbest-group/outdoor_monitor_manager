@@ -700,7 +700,7 @@
       and e.monitor_end > DATE_FORMAT(#{startDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
     </if>
 	<if test="endDate != null" >
-      and e.monitor_end > DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
+      and e.monitor_end >= DATE_FORMAT(#{endDate,jdbcType=TIMESTAMP},'%Y-%m-%d')
     </if>
     <if test="seatIds != null" >
     	and e.ad_seat_id in

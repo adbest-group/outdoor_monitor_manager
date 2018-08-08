@@ -138,7 +138,7 @@ public class ExcelController extends BasicController {
 	/**
 	 * 批量导入媒体监测人员
 	 */
-	@RequiresRoles(value = {"superadmin"}, logical = Logical.OR)
+	@RequiresRoles(value = {"superadmin","thirdcompany"}, logical = Logical.OR)
     @RequestMapping(value = "/insertMediaAppUserByExcel")
 	@ResponseBody
 	public Model insertMediaAppUserByExcel(Model model, HttpServletRequest request, HttpServletResponse response,
@@ -153,6 +153,7 @@ public class ExcelController extends BasicController {
         result.setResultDes("操作成功");
         model = new ExtendedModelMap();
         
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
   		try {
   			if (file.isEmpty()) {
 				logger.error(MessageFormat.format("批量导入文件不能为空, 导入失败", new Object[] {}));
@@ -201,6 +202,9 @@ public class ExcelController extends BasicController {
             	operateId = mediaId;
             }else if(usertype == AppUserTypeEnum.THIRD_COMPANY.getId()) {
             	operateId = companyId;
+            }else if(usertype == null) {	//第三方监测公司账号批量导入
+            	operateId = userObj.getId();
+            	usertype = AppUserTypeEnum.THIRD_COMPANY.getId();
             }
             adUserMessageService.insertBatchByExcel(listob, operateId, usertype, password);
             
@@ -1929,6 +1933,24 @@ public class ExcelController extends BasicController {
         return model;
 	}
 	
+    /**
+	 * 导入第三方监测人员模板下载
+	 */
+    @RequestMapping(value = "/downloadThirdCompanyUserBatch")
+	@ResponseBody
+	public Model downloadThirdCompanyUserBatch(Model model, HttpServletRequest request, HttpServletResponse response) {
+		//相关返回结果
+		ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("查询成功");
+        model = new ExtendedModelMap();
+        
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResult("/static/excel/" + "template3.zip");
+        
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+	}
 	/**
 	 * 设置以媒体大类名称, 媒体小类名称为Key, AdMediaTypeVo为Value的集合
 	 * @param adMediaTypeVos

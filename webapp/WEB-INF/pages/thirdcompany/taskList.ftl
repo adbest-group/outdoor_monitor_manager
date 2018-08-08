@@ -14,22 +14,9 @@
                     <div class="inp">
                     	<input type="text" placeholder="请输入活动名称" value="${name?if_exists}" id="searchName" name="name">
                 	</div>
-                	<#-- 销售下拉框
-                    <div class="select-box select-box-140 un-inp-select ll">
-                        <select name="activityId" class="select" id="activityId">
-                            <option value="">所有活动</option>
-                        <@model.showAllActivityOps value="${bizObj.queryMap.activityId?if_exists}"/>
-                        </select>
-                    </div>
-                     -->
                     <div class="select-box select-box-100 un-inp-select ll">
                         <select class="select" name="taskType">
                             <option value="">所有任务类型</option>
-                            <#-- 
-                            <option value="1">上刊监测</option>
-                            <option value="2">投放期间监测</option>
-                            <option value="3">下刊监测</option>
-                             -->
                         	<@model.showMonitorTaskTypeOps value="${bizObj.queryMap.taskType?if_exists}" />
                         </select>
                     </div>
@@ -82,20 +69,6 @@
                         </p>
                     </div>
 
-					<#-- <div class="ll inputs-date"> -->
-                    <#--<input class="ui-date-button" type="button" value="昨天" alt="-1" name="">-->
-                    <#--<input class="ui-date-button" type="button" value="近7天" alt="-6" name="">-->
-                    <#--<input class="ui-date-button on" type="button" value="近30天" alt="-29" name="">-->
-                    <#-- 
-                        <div class="date">
-                            <input id="dts" class="Wdate" type="text" name="startDate"
-                                   value="${bizObj.queryMap.startDate?if_exists}"> -
-                            <input id="dt" class="Wdate" type="text" name="endDate"
-                                   value="${bizObj.queryMap.endDate?if_exists}">
-                        </div>
-                    </div> 
-                     -->
-                    
                     <button type="button" class="btn btn-red" style="margin-left:10px;" autocomplete="off"
                             id="searchBtn">查询
                     </button>
@@ -123,7 +96,6 @@
                         <th>媒体大类</th>
 					    <th>媒体小类</th>
                         <th>广告位</th>
-                        <th>执行公司</th>
                         <th>执行人员</th>
                         <th>任务类型</th>
                         <th>状态</th>
@@ -152,35 +124,22 @@
                             <td>${task.parentName!""}</td>
                             <td>${task.secondName!""}</td>
                             <td>${task.adSeatName!""}</td>
-                            <td>${task.companyName!""}</td>
                             <td>${task.realname!""}</td>
                             <td>${vm.getMonitorTaskTypeText(task.taskType)!""}</td>
-                            <td>${vm.getMonitorTaskStatusText(task.status)!""}</td>
+                            <td><#if task.status==3&& task.firstVerify?exists>${vm.getVerifyTypeText(task.firstVerify)!""}<#else>${vm.getMonitorTaskStatusText(task.status)!""}</#if></td>
                             <td>${vm.getProblemStatusText(task.problemStatus!0)}</td>
                             <td>${task.assessorName!""}</td>
                             <td>${task.updateTime?string('yyyy-MM-dd HH:mm:ss')}</td>
                             <td>${task.assignorName!""}</td>
                             <td>${(task.assignorTime?string('yyyy-MM-dd HH:mm:ss'))!""}</td>
                             <td>
-                            <#--<#if task.status==1><a href="javascript:assign('${task.id}')">指派</a></#if>-->
-                            <#--<#if task.status==2><a href="javascript:assign('${task.id}')">重新指派</a></#if>-->
                                 <#if (task.status==4&&task.problemStatus?exists&&task.problemStatus==4&&(!task.subCreated?exists||task.subCreated==2))>
                                     <a href="javascript:createTask('${task.id}');">创建复查</a></#if>
-                                <#-- 
-                                <#if (task.parentId?exists&&task.parentType=1)>
-                                    <a href="/task/list?pid=${task.parentId}&ptype=1">复查配对</a></#if> -->
                                 <#if (task.parentId?exists&&task.parentType=2)>
                                     <a href="/jiucuo/list?id=${task.parentId}">查看纠错</a></#if>
-                                <#-- 
-                                <#if (task.status==4&&task.problemStatus?exists&&task.problemStatus==4&&task.subCreated?exists&&task.subCreated==1)>
-                                    <a href="/task/list?pid=${task.id}&ptype=1">复查配对</a></#if> -->
-                                <#-- 
-                                <#if (task.status==4 && task.problemStatus?exists&&task.problemStatus==4)><a
-                                        href="javascript:close('${task.id}')">关闭</a></#if> -->
-                                <#if task.status==3><a href="javascript:pass('${task.id}')">通过</a></#if>
-                                <#if task.status==3><a href="javascript:reject('${task.id}')">拒绝</a></#if>
+                                <#if !task.firstVerify?exists><#if task.status==3><a href="javascript:pass('${task.id}')">通过</a></#if></#if>
+                                <#if !task.firstVerify?exists><#if task.status==3><a href="javascript:reject('${task.id}')">拒绝</a></#if></#if>
                                 <a href="/task/details?task_Id=${task.id}">详情</a>
-                            <#--<#if task.status==1><a href="javascript:del('${task.id}')">删除</a></#if>-->
                             </td>
                         </tr>
                         </#list>
@@ -545,17 +504,7 @@
             layer.alert("并没有指定执行人员");
             return;
         }
-		isLoading = true;
-    	layer.msg('正在操作中...', {
-    		icon: 16,
-    		shade: [0.5, '#f5f5f5'],
-    		scrollbar: false,
-    		time: 150000
-    	}, function(){
-    		if(isLoading){
-    			layer.alert('操作超时', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
-    		}
-    	})
+
         $.ajax({
             url: "/task/assign",
             type: "post",
@@ -566,8 +515,6 @@
             cache: false,
             dataType: "json",
             success: function (datas) {
-            	isLoading = false;
-                layer.closeAll('msg');
                 var resultRet = datas.ret;
                 if (resultRet.code == 101) {
                     layer.confirm(resultRet.resultDes, {
@@ -623,6 +570,17 @@
 
     //发起审核请求
     verify = function (id, status, reason) {
+    	isLoading = true;
+    	layer.msg('正在操作中...', {
+    		icon: 16,
+    		shade: [0.5, '#f5f5f5'],
+    		scrollbar: false,
+    		time: 150000
+    	}, function(){
+    		if(isLoading){
+    			layer.alert('操作超时', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+    		}
+    	})
         $.ajax({
             url: "/task/verify",
             type: "post",

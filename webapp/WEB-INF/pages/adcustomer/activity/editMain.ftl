@@ -634,19 +634,19 @@
 	    var activity_seats = [];
 	    var activity_meias = [];
 	    
-	    $("#img-qualified-img").attr("src","/static/images/jflogo.png");//合格样例画面图片地址
-		$("#img-qualified-bak").attr("src","/static/images/jflogo.png");//合格样例画面图片地址
+	    $("#img-qualified-img").attr("src","/static/images/pass.jpg");//合格样例画面图片地址
+		$("#img-qualified-bak").attr("src","/static/images/pass.jpg");//合格样例画面图片地址
 		
-	    $("#img-noQualified1-img").attr({src: "/static/images/jflogo.png", style: {display: 'block'}});//不合格样例画面图片地址
-		$("#img-noQualified1-bak").attr("src","/static/images/jflogo.png");//不合格样例画面图片地址
+	    $("#img-noQualified1-img").attr({src: "/static/images/reject1.png", style: {display: 'block'}});//不合格样例画面图片地址
+		$("#img-noQualified1-bak").attr("src","/static/images/reject1.png");//不合格样例画面图片地址
 		$("#img-noQualified1-tip").hide();
 		
-		$("#img-noQualified2-img").attr({src: "/static/images/jflogo.png", style: {display: 'block'}});//不合格样例画面图片地址
-		$("#img-noQualified2-bak").attr("src","/static/images/jflogo.png");//不合格样例画面图片地址
+		$("#img-noQualified2-img").attr({src: "/static/images/reject2.png", style: {display: 'block'}});//不合格样例画面图片地址
+		$("#img-noQualified2-bak").attr("src","/static/images/reject2.png");//不合格样例画面图片地址
 		$("#img-noQualified2-tip").hide();
 		
-		$("#img-noQualified3-img").attr({src: "/static/images/jflogo.png", style: {display: 'block'}});//不合格样例画面图片地址
-		$("#img-noQualified3-bak").attr("src","/static/images/jflogo.png");//不合格样例画面图片地址
+		$("#img-noQualified3-img").attr({src: "/static/images/reject3.png", style: {display: 'block'}});//不合格样例画面图片地址
+		$("#img-noQualified3-bak").attr("src","/static/images/reject3.png");//不合格样例画面图片地址
 		$("#img-noQualified3-tip").hide();
 	</#if>
 	$(function () {

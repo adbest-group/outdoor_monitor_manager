@@ -406,6 +406,9 @@
     from sys_user_execute a 
     left join sys_user b on a.operate_id = b.id
     where 1=1
+    <if test="id != null">
+      and id = #{id,jdbcType=INTEGER}
+    </if>
     <if test="operateId != null" >
       and a.operate_id = #{operateId,jdbcType=INTEGER}
     </if>
@@ -435,6 +438,9 @@
     left join sys_user c on a.operate_id = c.id
     left join ad_media b on b.user_id = c.id
     where 1=1
+    <if test="id != null">
+      and a.id = #{id,jdbcType=INTEGER}
+    </if>
     <if test="operateId != null" >
       and a.operate_id = #{operateId,jdbcType=INTEGER}
     </if>

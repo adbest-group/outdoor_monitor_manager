@@ -3,30 +3,37 @@
     <div class="main-box">
         <div class="title clearfix" style="display: block;">
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
-                <form id="form" method="get" action="/adseat/list">
-                    <!--所有活动下拉框-->
+                <form id="form" method="get" action="">
                     <div>
                         <div style="float:left;height:30px;line-height:30px;" class="mr-10">
-                            活动名称:
+                           	 活动名称:
                         </div>
                         <div class="select-box select-box-140 un-inp-select ll">
                             <select name="activityId" class="select" id="activityId">
-                                <option value="">所有活动</option>
-                            <@model.showOwnActivityOps value=""/>
+                            	<option value="">所有活动</option>
+                            	<@model.showOwnActivityOps value=""/>
                             </select>
                         </div>
-                        <div style="float: left; font-size: 12px;">
-                            媒体: <select style="height: 30px" name="mediaId" id="mediaId">
-                            <option value="">所有媒体</option> <@model.showAllAvailableMediaOps value="" />
-                        </select>
+                        
+                        <div style="float:left;height:30px;line-height:30px;" class="mr-10">
+                           	 媒体主: 
+                        </div>
+                        <div class="select-box select-box-140 un-inp-select ll">
+                        	<select class="select" name="mediaId" id="mediaId">
+	                            <option value="">所有媒体</option> 
+	                            <@model.showAllMediaOps value="" />
+	                        </select>
                         </div>
 
                         <button type="button" class="btn btn-red"
                                 style="margin-left: 10px;" autocomplete="off" id="searchBtn">筛选
                         </button>
+                        
+                        <#-- 
                         <button type="button" class="btn btn-primary"
                                 style="margin-left: 10px;" autocomplete="off" id="clear">清除条件
                         </button>
+                         -->
                     </div>
                     <div style="clear:both;padding-top:10px;">
                         <div id="demo3" class="citys" style="float: left; font-size: 12px">
@@ -80,6 +87,9 @@
         $(window).resize();
 
         $('.select').searchableSelect();
+        $('#activityId').next().find('.searchable-select-input').css('display', 'block');
+        $('#mediaId').next().find('.searchable-select-input').css('display', 'block');
+        
         $("#searchBtn").click(function () {
             loadBarData();
         });

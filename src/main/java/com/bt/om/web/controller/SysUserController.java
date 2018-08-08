@@ -1,6 +1,7 @@
 package com.bt.om.web.controller;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -24,6 +25,7 @@ import com.bt.om.entity.AdMediaType;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserDetail;
 import com.bt.om.entity.SysUserRole;
+import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.UserRoleEnum;
@@ -180,6 +182,32 @@ public class SysUserController extends BasicController{
         }
 
         model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+    }
+    /**
+     * 通过用户类型查询所有公司用户
+     */
+    @RequestMapping(value = {"/searchFirmUser"}, method = {RequestMethod.POST})
+    @ResponseBody
+    public Model searchFirmUser(Model model, @RequestParam(value = "userType", required = true) Integer userType) {
+    	ResultVo resultVo = new ResultVo();
+        try {
+        	if (userType == 3) {
+        	}else if (userType == 5) {//第三方监测
+        		userType = 7;
+			}else {
+				
+			}
+        	List<SysUserVo> users = sysUserService.getAllByUserType(userType);
+        	resultVo.setResult(users);
+        	resultVo.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        } catch (Exception ex) {
+        	logger.error(ex);
+            ex.printStackTrace();
+            resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
+            resultVo.setResultDes("服务忙，请稍后再试");
+        }
+        model.addAttribute(SysConst.RESULT_KEY, resultVo);
         return model;
     }
 }

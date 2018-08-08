@@ -59,7 +59,8 @@ public class AppAccountController extends BasicController {
     @RequestMapping(value = "/list")
     public String getWorkerList(Model model, HttpServletRequest request,
                                 @RequestParam(value = "nameOrUsername", required = false) String name,
-                                @RequestParam(value = "searchUserType", required = false) String usertype) {
+                                @RequestParam(value = "searchUserType", required = false) String usertype,
+    	 						@RequestParam(value = "firmId", required = false) String firmId) {
         SearchDataVo vo = SearchUtil.getVo();
 
         //vo.putSearchParam("usertypes", null, new Integer[]{UserExecuteType.CUSTOMER.getId(), UserExecuteType.MONITOR.getId(),UserExecuteType.MEDIA_WORKER.getId(),UserExecuteType.Social.getId()});
@@ -71,6 +72,9 @@ public class AppAccountController extends BasicController {
         }
         if (StringUtils.isNotBlank(usertype)) {
         	vo.putSearchParam("usertype", usertype, usertype);
+        }
+        if (StringUtils.isNotBlank(firmId)) {
+        	vo.putSearchParam("firmId", firmId, firmId);
         }
         
         sysUserExecuteService.getPageData(vo);

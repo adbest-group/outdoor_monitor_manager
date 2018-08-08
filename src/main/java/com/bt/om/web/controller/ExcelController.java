@@ -1234,17 +1234,15 @@ public class ExcelController extends BasicController {
                 	info.setCreateTime(now);
                 	info.setUpdateTime(now);
                 	
-                	//检查是否重复
-                	if(hasProblem == false) {
-                		if(keySet.contains(buffer.toString())) {
-                    		lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
-                    		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_DUP.getText());
-                    		hasProblem = true;
-                    		//重复的广告位放入临时表id集合中
-                    		tmpSeatIds.add(databaseAdseatMap.get(buffer.toString()));
-                    	} else {
-                    		keySet.add(buffer.toString());
-                    	}
+                	//检查是否重复(去除hasProblem校验, 之前的导入失败原因会被这个覆盖, 这是为了适配最近一次导入的问题)
+            		if(keySet.contains(buffer.toString())) {
+                		lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_DUP.getText());
+                		hasProblem = true;
+                		//重复的广告位放入临时表id集合中
+                		tmpSeatIds.add(databaseAdseatMap.get(buffer.toString()));
+                	} else {
+                		keySet.add(buffer.toString());
                 	}
                 	
                 	if(!(StringUtils.equals(String.valueOf(lo.get(AdminImportAdSeatEnum.IMPORT_RESULT.getId())), IMPORT_FAIL))) {

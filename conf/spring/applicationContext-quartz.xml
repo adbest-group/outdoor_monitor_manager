@@ -28,6 +28,9 @@
      
      <!-- 活动超时未确认定时 -->
      <bean id="activityTimeOutTask" class="com.bt.om.web.quartz.ActivityTimeOutTask" />
+     
+     <!-- 活动旧数据移动 -->
+     <bean id="activateDataTransferTask" class="com.bt.om.web.quartz.ActivateDataTransferTask" />
       
      <!-- 开启任务调度: -->
      <task:scheduled-tasks>
@@ -36,5 +39,6 @@
      	<task:scheduled ref="activityTimeOutTask" method="execute" cron="0 1 0 * * ?" /> <!-- 每日00:01分跑一次 -->
      	<task:scheduled ref="recycleTaskTask" method="execute" cron="0 0/5 * * * ?" /> <!-- 每5分钟跑一次 -->
      	<!-- <task:scheduled ref="forceAssignTask" method="execute" cron="0 0/5 * * * ?" /> --> <!-- 每5分钟跑一次 -->
+     	<task:scheduled ref="activateDataTransferTask" method="execute" cron="0 15 16 * * ?" /> <!-- 每周一凌晨1点跑一次0 0 1 ? * 1 -->
      </task:scheduled-tasks>
 </beans>

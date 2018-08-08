@@ -1,7 +1,7 @@
-<#assign webTitle="资源管理" in model> <#assign webHead in model> </#assign>
+<#assign webTitle="广告位管理" in model> <#assign webHead in model> </#assign>
 <@model.webhead />
 <!-- 头部 -->
-<@model.webMenu current="广告位管理" child="" />
+<@model.webMenu current="广告位管理" child="广告位管理" />
 <!-- 特色内容 -->
 <div class="main-container" style="height: auto;">
 	<div class="main-box">

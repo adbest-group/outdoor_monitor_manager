@@ -68,7 +68,7 @@ public class AdSystemPushController {
 	 @RequestMapping(value = "/list")
 	 public String userPushList(Model model, HttpServletRequest request,
 	         @RequestParam(value = "push", required = false) String push,
-	         @RequestParam(value = "username", required = false) String username) {
+	         @RequestParam(value = "name", required = false) String name) {
 	    SearchDataVo vo = SearchUtil.getVo();
 	    //查询指定推送消息
 	    if (push != null) {
@@ -76,9 +76,9 @@ public class AdSystemPushController {
 	        vo.putSearchParam("content", push, push);
 	    }
 	    //查询指定用户
-	    if (username != null) {
-	    	username = "%" + username + "%";
-	        vo.putSearchParam("username", username, username);
+	    if (name != null) {
+	    	name = "%" + name + "%";
+	        vo.putSearchParam("username", name, name);
 	    }
 	    //查询用户积分列表
 	    adSystemPushService.getPageData(vo);

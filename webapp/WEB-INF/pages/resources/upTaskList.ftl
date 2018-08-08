@@ -13,14 +13,6 @@
                 	<div class="inp">
                     	<input type="text" placeholder="请输入活动名称" value="${name?if_exists}" id="searchName" name="name">
                 	</div>
-                    <#-- <!--活动下拉框
-                    <div class="select-box select-box-140 un-inp-select ll">
-                        <select name="activityId" class="select" id="activityId">
-                            <option value="">所有活动</option>
-                        <@model.showAllActivityOps value="${bizObj.queryMap.activityId?if_exists}"/>
-                        </select>
-                    </div>
-                     -->
                     <!--任务状态下拉框-->
                     <div class="select-box select-box-140 un-inp-select ll">
                         <select name="status" class="select" id="status">
@@ -90,6 +82,7 @@
                         <th>媒体大类</th>
 					    <th>媒体小类</th>
                         <th>广告位</th>
+                        <th>执行公司</th>
                         <th>执行人员</th>
                         <th>任务类型</th>
                         <th>状态</th>
@@ -113,6 +106,7 @@
                             <td>${task.parentName!""}</td>
                             <td>${task.secondName!""}</td>
                             <td>${task.adSeatName!""}</td>
+                            <td>${task.companyName!""}</td>
                             <td>${task.realname!""}</td>
                             <td>${vm.getMonitorTaskTypeText(task.taskType)!""}</td>
                             <td>${vm.getMonitorTaskStatusText(task.status)!""}</td>
@@ -406,7 +400,7 @@
     }
 
     //打开选择执行者
-    openSelect = function(mediaId) {
+    <#-- openSelect = function(mediaId) {
         layer.open({
             type: 2,
             title: '选择监测人员',
@@ -414,19 +408,45 @@
             area: ['600px', '420px'],
             content: '/task/selectUserExecute?mediaId=' + mediaId //iframe的url
         });
+    } -->
+    //打开选择执行者
+    openSelect = function(mediaId) {
+        layer.open({
+            type: 2,
+            title: '选择监测人员',
+            shade: 0.8,
+            area: ['600px', '420px'],
+            content: '/task/selectUserMemberExecute' //iframe的url
+        });
     }
     //选择执行人后的回调
-    selectUserExecuteHandle = function (userId) {
+    selectUserExecuteHandle = function (mediaId,mediaUser,companyId,companyUser) {
+    	isLoading = true;
+    	layer.msg('正在操作中...', {
+    		icon: 16,
+    		shade: [0.5, '#f5f5f5'],
+    		scrollbar: false,
+    		time: 150000
+    	}, function(){
+    		if(isLoading){
+    			layer.alert('操作超时', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+    		}
+    	})
         $.ajax({
             url: "/task/assign",
             type: "post",
             data: {
                 "ids": assign_ids,
-                "userId":userId
+                "mediaId":mediaId,
+                "companyId":companyId,
+                "mediaUser":mediaUser,
+                "companyUser":companyUser
             },
             cache: false,
             dataType: "json",
             success: function(datas) {
+            	isLoading = false;
+                layer.closeAll('msg');
                 var resultRet = datas.ret;
                 if (resultRet.code == 101) {
                     layer.confirm(resultRet.resultDes, {

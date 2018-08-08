@@ -2351,11 +2351,10 @@ public class ApiController extends BasicController {
         	//[1] 社会人员抢单
         	status = MonitorTaskStatus.CAN_GRAB.getId(); //8：可抢单
         	vo.putSearchParam("status", null, status);
-        } else if(user.getUsertype().equals(AppUserTypeEnum.MEDIA.getId())) {
-        	//[2] 媒体监测人员抢单(自己媒体公司下的任务)
-        	Integer mediaSysUserId = user.getOperateId();
-        	AdMedia adMedia = mediaService.getMediaByUserId(mediaSysUserId);
-        	vo.putSearchParam("mediaId", null, adMedia.getId());
+        } else {
+        	//[2] 媒体公司/第三方监测公司人员抢单（只抢属于自己公司下的任务）
+        	Integer companyId = user.getOperateId();
+        	vo.putSearchParam("companyId", null, companyId);
         	
         	status = MonitorTaskStatus.UNASSIGN.getId(); //1：待指派
         	vo.putSearchParam("status", null, status);
@@ -2510,6 +2509,13 @@ public class ApiController extends BasicController {
         	Integer mediaSysUserId = user.getOperateId();
         	AdMedia adMedia = mediaService.getMediaByUserId(mediaSysUserId);
         	vo.putSearchParam("mediaId", null, adMedia.getId());
+        	
+        	status = MonitorTaskStatus.UNASSIGN.getId(); //1：待指派
+        	vo.putSearchParam("status", null, status);
+        } else if(user.getUsertype().equals(AppUserTypeEnum.THIRD_COMPANY.getId())) {
+        	//[3] 第三方监测公司人员抢单（只抢属于自己公司下的任务）
+        	Integer companyId = user.getOperateId();
+        	vo.putSearchParam("companyId", null, companyId);
         	
         	status = MonitorTaskStatus.UNASSIGN.getId(); //1：待指派
         	vo.putSearchParam("status", null, status);

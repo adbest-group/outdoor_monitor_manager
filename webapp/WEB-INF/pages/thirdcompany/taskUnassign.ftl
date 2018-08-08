@@ -91,7 +91,6 @@
                         <th>媒体大类</th>
 					    <th>媒体小类</th>
                         <th>广告位</th>
-                        <th>执行公司</th>
                         <th>执行人员</th>
                         <th>任务类型</th>
                         <th>状态</th>
@@ -115,13 +114,12 @@
                             <td>${task.parentName!""}</td>
                             <td>${task.secondName!""}</td>
                             <td>${task.adSeatName!""}</td>
-                            <td>${task.companyName!""}</td>
                             <td>${task.realname!""}</td>
                             <td>${vm.getMonitorTaskTypeText(task.taskType)!""}</td>
                             <td>${vm.getMonitorTaskStatusText(task.status)!""}</td>
                             <td>
                             	<#if user.usertype !=6>
-                            		<#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status==1 || task.status==8 || task.status==2)><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if></#if>
+                            		<#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status==1 || task.status==8 || task.status==2)><a href="javascript:assign('${task.id}',${task.companyId})">指派</a></#if></#if>
                                 </#if>
                                 <a href="/task/details?task_Id=${task.id}">详情</a>
                             </td>
@@ -402,86 +400,21 @@
     });
 
     //指派
-    assign = function (id,mediaId) {
+    assign = function (id,companyId) {
         assign_ids = id;
-        openSelect(mediaId);
+        openSelect(companyId);
     }
-    
-	//打开选择执行者
-    openSelect = function(mediaId) {
-        layer.open({
-            type: 2,
-            title: '选择监测人员',
-            shade: 0.8,
-            area: ['600px', '420px'],
-            content: '/task/selectUserMemberExecute' //iframe的url
-        });
-    }
-    
-    //选择执行人后的回调
-    selectUserExecuteHandle = function (mediaId,mediaUser,companyId,companyUser) {
-    	isLoading = true;
-    	layer.msg('正在操作中...', {
-    		icon: 16,
-    		shade: [0.5, '#f5f5f5'],
-    		scrollbar: false,
-    		time: 150000
-    	}, function(){
-    		if(isLoading){
-    			layer.alert('操作超时', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
-    		}
-    	})
-        $.ajax({
-            url: "/task/assign",
-            type: "post",
-            data: {
-                "ids": assign_ids,
-                "mediaId":mediaId,
-                "companyId":companyId,
-                "mediaUser":mediaUser,
-                "companyUser":companyUser
-            },
-            cache: false,
-            dataType: "json",
-            success: function(datas) {
-            	isLoading = false;
-                layer.closeAll('msg');
-                var resultRet = datas.ret;
-                if (resultRet.code == 101) {
-                    layer.confirm(resultRet.resultDes, {
-                        icon: 2,
-                        btn: ['确定'] //按钮
-                    }, function(){
-                        window.location.reload();
-                    });
-                } else {
-                    layer.confirm("指派成功", {
-                        icon: 1,
-                        btn: ['确定'] //按钮
-                    },function () {
-                        window.location.reload();
-                    });
-                }
-            },
-            error: function(e) {
-                layer.confirm("服务忙，请稍后再试", {
-                    icon: 5,
-                    btn: ['确定'] //按钮
-                });
-            }
-        });
-    }
-    <#-- 
+
     //打开选择执行者
-    openSelect = function(mediaId) {
+    openSelect = function(companyId) {
         layer.open({
             type: 2,
             title: '选择监测人员',
             shade: 0.8,
             area: ['600px', '420px'],
-            content: '/task/selectUserExecute?mediaId=' + mediaId //iframe的url
+            content: '/task/selectUserExecute?companyId=' + companyId //iframe的url
         });
-    } 
+    }
     //选择执行人后的回调
     selectUserExecuteHandle = function (userId) {
         $.ajax({
@@ -519,7 +452,7 @@
             }
         });
     }
--->
+
 
 </script>
 <!-- 特色内容 -->

@@ -2,6 +2,7 @@ package com.bt.om.enums;
 
 /**
  * Created by caiting on 2018/1/20.
+ * 审核类型
  */
 public enum VerifyType {
 	WAITVERITY_TYPE(0,"待审核"),

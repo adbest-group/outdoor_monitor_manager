@@ -50,7 +50,16 @@ public class AdMonitorTaskVo extends AdMonitorTask {
     private Integer picUrl2Status;
     private Integer picUrl3Status;
     private Integer picUrl4Status;
-    
+    private String companyName;
+
+	public String getCompanyName() {
+		return companyName;
+	}
+
+	public void setCompanyName(String companyName) {
+		this.companyName = companyName;
+	}
+
 	public Integer getPicUrl1Status() {
 		return picUrl1Status;
 	}

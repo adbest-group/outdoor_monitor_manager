@@ -3,7 +3,7 @@
 </#assign>
 <@model.webhead />
     <!-- 头部 -->
-    <@model.webMenu current="任务管理" child="任务管理" />
+    <@model.webMenu current="任务管理" child="被指派任务管理" />
 
 	<!-- 特色内容 -->
 <div class="main-container" style="height: auto;">
@@ -77,7 +77,6 @@
                         <th>媒体大类</th>
 					    <th>媒体小类</th>
                         <th>广告位</th>
-                        <th>执行公司</th>
                         <th>执行人员</th>
                         <th>监测类型</th>
                         <th>状态</th>
@@ -101,14 +100,13 @@
                             <td>${task.parentName!""}</td>
                             <td>${task.secondName!""}</td>
                             <td>${task.adSeatName!""}</td>
-                            <td>${task.companyName!""}</td>
                             <td>${task.realname!""}</td>
                             <td>${vm.getMonitorTaskTypeText(task.taskType)!""}</td>
                             <td>${vm.getMonitorTaskStatusText(task.status)!""}</td>
                             <td>${task.assignorName!""}</td>
                             <td>${(task.assignorTime?string('yyyy-MM-dd HH:mm:ss'))!""}</td>
                             <td>
-                            	<#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status==1 || task.status==8 || task.status==2)><#if task.companyId?exists><#else><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if></#if></#if>
+                            	<#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status==1 || task.status==8 || task.status==2)><#if task.isAssign?exists><#else><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if></#if></#if>
                                <#--   <#if task.status==1><a href="javascript:assign('${task.id}')">指派</a></#if>
                                 <#--<#if task.status==2><a href="javascript:assign('${task.id}')">重新指派</a></#if>-->
                                <#--   <#if task.status==3><a href="javascript:pass('${task.id}')">通过</a></#if>
@@ -155,6 +153,7 @@
 			}
 		}
 	})
+	
 	$('#mediaTypeParentId').next().find('.searchable-select-input').css('display', 'block')
 
 	function changeMediaTypeId(mediaTypeParentId) {	
@@ -340,7 +339,7 @@
             }
             //选择执行人后的回调
             selectUserExecuteHandle = function (userId,mediaId) {
-           		isLoading = true;
+            	isLoading = true;
                 layer.closeAll();
                 if(!userId){
                     layer.alert("并没有指定执行人员");
@@ -367,7 +366,7 @@
                     cache: false,
                     dataType: "json",
                     success: function(datas) {
-                    	isLoading = false;
+                    isLoading = false;
                 		layer.closeAll('msg');
                         var resultRet = datas.ret;
                         if (resultRet.code == 100) {

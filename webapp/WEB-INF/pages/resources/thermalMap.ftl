@@ -2,9 +2,9 @@
 <#assign webHead in model>
 </#assign>
 <@model.webhead />
-    <!-- 头部 -->
-    <@model.webMenu current="资源管理" child="广告位热力图" />
-	<!-- 特色内容 -->
+<!-- 头部 -->
+<@model.webMenu current="资源管理" child="广告位热力图" />
+<!-- 特色内容 -->
 <div class="main-container">
     <div class="main-box">
         <div class="title clearfix" style="display: block;">

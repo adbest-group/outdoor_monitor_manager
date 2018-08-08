@@ -462,7 +462,7 @@ public class AdSeatController extends BasicController {
     }
     
     /**
-     * 超级管理员 查看热力图报表 页面跳转
+     * 超级管理员 查看广告位热力图 页面跳转
      */
     @RequestMapping("/superadmin/thermalMap")
 	public String superAdminToThermalMap(Model model) {
@@ -470,7 +470,7 @@ public class AdSeatController extends BasicController {
 	}
     
     /**
-     * 媒体主 查看热力图报表 页面跳转
+     * 媒体主 查看广告位热力图 页面跳转
      */
     @RequestMapping("/media/thermalMap")
 	public String mediaToThermalMap(Model model) {
@@ -528,9 +528,25 @@ public class AdSeatController extends BasicController {
     }
     
     /**
+     * 超级管理员 查看广告位百度地图 页面跳转
+     */
+    @RequestMapping("/superadmin/baiduMap")
+	public String superAdminToBaiduMap(Model model) {
+		return PageConst.SUPER_ADMIN_BAIDU_MAP;
+	}
+    
+    /**
+     * 媒体主 查看广告位百度地图 页面跳转
+     */
+    @RequestMapping("/media/baiduMap")
+	public String mediaToBaiduMap(Model model) {
+		return PageConst.MEDIA_BAIDU_MAP;
+	}
+    
+    /**
      * 查询百度地图报表
      */
-    @RequiresRoles("customer")
+    @RequiresRoles(value = {"superadmin", "media", "customer"}, logical = Logical.OR)
     @RequestMapping(value = "/getAllLonLat")
     @ResponseBody
     public Model getAllLonLat(Model model, HttpServletRequest request, Integer activityId, Integer mediaId, Long province, 

@@ -775,9 +775,6 @@
 		where 1=1
 		and lon is not null
 		and lat is not null
-	    <if test="mediaId != null" >
-	      and media_id = #{mediaId,jdbcType=INTEGER}
-	    </if>
 	    <if test="province != null" >
 	      and province = #{province,jdbcType=BIGINT}
 	    </if>

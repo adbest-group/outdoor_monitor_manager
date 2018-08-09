@@ -297,6 +297,7 @@ public class AdSeatService implements IAdSeatService {
 	public List<AdSeatInfo> getAllLonLat(HeatMapVo heatMapVo, SysUser user) {
 		Map<String, Object> searchMap = new HashMap<>();
 		List<Integer> seatIds = new ArrayList<>();
+		List<AdSeatInfo> adSeatInfos = new ArrayList<>();
 		
 		if(user.getUsertype() == UserTypeEnum.CUSTOMER.getId()) {
 			// 广告主登录查看广告位百度地图
@@ -306,52 +307,25 @@ public class AdSeatService implements IAdSeatService {
 				searchMap.put("activityId", heatMapVo.getActivityId());
 			}
 			seatIds = adActivityAdseatMapper.selectSeatIdByActivityId(searchMap);
+			//[2] 查询广告位百度地图
+			if(seatIds.size() > 0) {
+				heatMapVo.setInfoIds(seatIds);
+				adSeatInfos = adSeatInfoMapper.getAllLonLat(heatMapVo);
+			} else {
+				heatMapVo.setInfoIds(null);
+				return new ArrayList<AdSeatInfo>();
+			}
 		} else if(user.getUsertype() == UserTypeEnum.MEDIA.getId()) {
 			// 媒体主登录查看广告位百度地图
 			AdMedia adMedia = adMediaMapper.selectByUserId(user.getId());
-			searchMap.put("mediaId", adMedia.getId());
-			
-			if(heatMapVo.getProvince() != null) {
-				searchMap.put("province", heatMapVo.getProvince());
-			}
-			if(heatMapVo.getCity() != null) {
-				searchMap.put("city", heatMapVo.getCity());
-			}
-			if(heatMapVo.getMediaTypeId() != null) {
-				searchMap.put("mediaTypeId", heatMapVo.getMediaTypeId());
-			}
-			if(heatMapVo.getMediaTypeParentId() != null) {
-				searchMap.put("mediaTypeParentId", heatMapVo.getMediaTypeParentId());
-			}
-			seatIds = adSeatInfoMapper.selectAdSeatIdsByMedia(searchMap);
+			heatMapVo.setMediaId(adMedia.getId());
+			adSeatInfos = adSeatInfoMapper.getAllLonLat(heatMapVo);
 		} else if(user.getUsertype() == UserTypeEnum.SUPER_ADMIN.getId()) {
 			// 超级管理员登录查看广告位热力图
-			if(heatMapVo.getProvince() != null) {
-				searchMap.put("province", heatMapVo.getProvince());
-			}
-			if(heatMapVo.getCity() != null) {
-				searchMap.put("city", heatMapVo.getCity());
-			}
-			if(heatMapVo.getMediaId() != null) {
-				searchMap.put("mediaId", heatMapVo.getMediaId());
-			}
-			if(heatMapVo.getMediaTypeId() != null) {
-				searchMap.put("mediaTypeId", heatMapVo.getMediaTypeId());
-			}
-			if(heatMapVo.getMediaTypeParentId() != null) {
-				searchMap.put("mediaTypeParentId", heatMapVo.getMediaTypeParentId());
-			}
-			seatIds = adSeatInfoMapper.selectAdSeatIdsByMedia(searchMap);
+			adSeatInfos = adSeatInfoMapper.getAllLonLat(heatMapVo);
 		}
-
-		//[2] 查询广告位百度地图
-		if(seatIds.size() > 0) {
-			heatMapVo.setInfoIds(seatIds);
-			return adSeatInfoMapper.getAllLonLat(heatMapVo);
-		} else {
-			heatMapVo.setInfoIds(null);
-			return new ArrayList<AdSeatInfo>();
-		}
+		
+		return adSeatInfos;
 	}
 
 	/**

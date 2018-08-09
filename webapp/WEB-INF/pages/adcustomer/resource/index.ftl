@@ -173,7 +173,7 @@
 	        $('#adSeatInfo-province').next().css('width', '130px')
 	    });
 
-		// 百度地图API功能
+	 	// 百度地图API功能
         var map = new BMap.Map("map");    // 创建Map实例
         map.centerAndZoom(new BMap.Point(116.413624, 39.910837), 5);  // 初始化地图,设置中心点坐标和地图级别
         //添加地图类型控件
@@ -183,6 +183,8 @@
             ]}));
         map.setCurrentCity("杭州市");		 //设置地图显示的城市 此项是必须设置的
         map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
+        var markers = [];
+        var markerClusterer = new BMapLib.MarkerClusterer(map, {markers:markers});
 		
         var loadBarData = function () {
             $.ajax({
@@ -191,10 +193,12 @@
                 data: {
                     activityId:$("#activityId").val(),
                     mediaId:$("#mediaId").val(),
-                    province:$("#adSeatInfo-province").val(),
-                    city:$("#adSeatInfo-city").val(),
+                    province:$("#province").val(),
+                    city:$("#city").val(),
                     region:$("#region").val(),
-                    street:$("#street").val()
+                    street:$("#street").val(),
+                    mediaTypeParentId:$("#mediaTypeParentId").val(),
+                    mediaTypeId:$("#mediaTypeId").val()
                 },
                 cache: false,
                 dataType: "json",
@@ -203,9 +207,11 @@
                     if (resultRet.code == 100) {
                     	//先清空坐标点
                     	map.clearOverlays();
+                    	markerClusterer.clearMarkers(markers);
                     	//再设置坐标点
                     	var groupByCity = resultRet.result;
-                    	var markers = [];
+                    	
+                    	markers = [];
                     	groupByCity.forEach((i)=>{
                     		if(i.lon != null && i.lat != null) {
                     			var lon = i.lon;
@@ -215,17 +221,16 @@
 	                    		var point = new BMap.Point(lon, lat);
 	                    		var marker = new BMap.Marker(point, {});
 	                    		markers.push(marker)
-	                    		map.addOverlay(marker);
+	                    		// map.addOverlay(marker);
 	                    		//设置打开窗口的信息，其中point也可以写成marker.getPosition()
 	                    		var info = new BMap.InfoWindow("经度：" + lon + "，纬度："+ lat + "，名称：" + name);
 	                    		marker.addEventListener("click", function() {
-	                    			map.centerAndZoom(point, 15);  //修改设置新的中心点坐标和地图级别
+	                    			map.centerAndZoom(point, 20);  //修改设置新的中心点坐标和地图级别
 									map.openInfoWindow(info, this.getPosition());
 								});
                     		}
                     	})
-
-                		var markerClusterer = new BMapLib.MarkerClusterer(map, {markers:markers});
+                    	markerClusterer.addMarkers(markers)
                     }
                 },
                 error: function (e) {

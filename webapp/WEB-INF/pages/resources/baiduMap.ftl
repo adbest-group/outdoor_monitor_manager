@@ -28,7 +28,6 @@
                         </div>
                         <div class="select-box select-box-140 un-inp-select ll">
                         	<select class="select" name="mediaId" id="mediaId">
-	                            <option value="">所有媒体</option> 
 	                            <@model.showAllMediaOps value="" />
 	                        </select>
                         </div>

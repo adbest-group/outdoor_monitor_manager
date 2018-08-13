@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
@@ -21,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 import java.util.Random;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -37,6 +39,7 @@ import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -201,6 +204,8 @@ public class ApiController extends BasicController {
     private IUserMoneyService userMoneyService;
     @Autowired
 	private IAdSystemPushService adSystemPushService;
+    @Autowired
+	protected RedisTemplate redisTemplate;
     
     @Value("${sms.checkcode.content.template}")
     private String SMS_CHECKCODE_CONTENT_TEMPLATE;
@@ -1147,12 +1152,12 @@ public class ApiController extends BasicController {
                     	vo.setAdCode(null);
                     }
                     
-                    if(task.getStatus() == MonitorTaskStatus.VERIFY_FAILURE.getId()) {
-                    	vo.setPicUrl1Status(task.getPicUrl1Status());
-                    	vo.setPicUrl2Status(task.getPicUrl2Status());
-                    	vo.setPicUrl3Status(task.getPicUrl3Status());
-                    	vo.setPicUrl4Status(task.getPicUrl4Status());
-                    }
+//                    if(task.getStatus() == MonitorTaskStatus.VERIFY_FAILURE.getId()) {
+//                    	vo.setPicUrl1Status(task.getPicUrl1Status());
+//                    	vo.setPicUrl2Status(task.getPicUrl2Status());
+//                    	vo.setPicUrl3Status(task.getPicUrl3Status());
+//                    	vo.setPicUrl4Status(task.getPicUrl4Status());
+//                    }
                     resultVo.getChecked().add(vo);
                 } else if (task.getStatus() == MonitorTaskStatus.UN_FINISHED.getId()) {
                 	MonitorTaskUnFinishedVo vo = new MonitorTaskUnFinishedVo(task);
@@ -1300,7 +1305,7 @@ public class ApiController extends BasicController {
                 feedback.setProblemOther(other);
                 feedback.setStatus(1);
                 try {
-                    adMonitorTaskService.feedback(taskId, feedback,adSeatCode, user);
+                    adMonitorTaskService.feedback(taskId, feedback,adSeatCode, user,new ArrayList<>());
                 } catch (Exception e) {
                 	logger.error(e);
                     result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
@@ -1403,7 +1408,7 @@ public class ApiController extends BasicController {
                                 @RequestParam(value = "pic1", required = false) String file1,
                                 @RequestParam(value = "pic2", required = false) String file2,
                                 @RequestParam(value = "pic3", required = false) String file3,
-                                @RequestParam(value = "pic4", required = false) String file4) {
+                                @RequestParam(value = "picUrls", required = false) String picUrls) {
         ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("提交成功");
@@ -1442,11 +1447,8 @@ public class ApiController extends BasicController {
         
         if (type == AppTaskEnum.MONITOR_TASK.getId()) {
         	AdMonitorTask adMonitorTask = adMonitorTaskService.selectByPrimaryKey(taskId);
-        	path = path + adMonitorTask.getActivityId() + File.separatorChar + "monitor" + File.separator + timePath;
-        	String servicePath = path.substring(path.indexOf(":")+1, path.length()).replaceAll("\\\\", "/");
-        	servicePath = servicePath.replaceFirst("/opt/", "/");
             //参数不对
-            if (type == null || taskId == null || (file1 == null && file2 == null && file3 == null && file4 == null)) {
+            if (taskId == null || picUrls == null) {
                 result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
                 result.setResultDes("参数有误！");                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
                 model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1459,108 +1461,31 @@ public class ApiController extends BasicController {
              * 1、base64串 → 代表审核不通过的图片重新拍照执行
              * 2、null → 代表审核不通过但是照片没替换  或者  审核通过的图片
              */
-            if (StringUtil.isNotBlank(file1) && !file1.startsWith("data:image/jpeg;base64,")) {
-                file1 = null;
-            }
-            if (StringUtil.isNotBlank(file2) && !file2.startsWith("data:image/jpeg;base64,")) {
-                file2 = null;
-            }
-            if (StringUtil.isNotBlank(file3) && !file3.startsWith("data:image/jpeg;base64,")) {
-                file3 = null;
-            }
-            if (StringUtil.isNotBlank(file4) && !file4.startsWith("data:image/jpeg;base64,")) {
-                file4 = null;
-            }
-
-            InputStream is1 = null;
-            InputStream is2 = null;
-            InputStream is3 = null;
-            InputStream is4 = null;
-            String filename1 = null;
-            String filename2 = null;
-            String filename3 = null;
-            String filename4 = null;
-
+            AdMonitorTaskFeedback feedback = new AdMonitorTaskFeedback();
+            feedback.setSeatLat(seatLat);
+            feedback.setSeatLon(seatLon);
+            feedback.setLat(lat);
+            feedback.setLon(lon);
+            feedback.setProblem(problem);
+            feedback.setProblemOther(other);
+            feedback.setStatus(1);
+            List<String> urls = Arrays.asList(picUrls.split(","));
+            if (urls.size()>adMonitorTask.getMonitorPicMaxNum()) {
+            	result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
+                result.setResultDes("超出最大图片数量！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+			}
             try {
-                if (file1 != null) {
-                    file1 = file1.replaceAll("data:image/jpeg;base64,", "");
-//                    is1 = new ByteArrayInputStream(Base64.getDecoder().decode(file1));
-                    is1 = new ByteArrayInputStream(org.apache.commons.codec.binary.Base64.decodeBase64(file1));
-                    
-                    filename1 = UploadFileUtil.saveFile(path, "image.jpg", is1);
-                }
-                if (file2 != null) {
-                    file2 = file2.replaceAll("data:image/jpeg;base64,", "");
-//                    is2 = new ByteArrayInputStream(Base64.getDecoder().decode(file2));
-                    is2 = new ByteArrayInputStream(org.apache.commons.codec.binary.Base64.decodeBase64(file2));
-
-                    filename2 = UploadFileUtil.saveFile(path, "image.jpg", is2);
-                }
-                if (file3 != null) {
-                    file3 = file3.replaceAll("data:image/jpeg;base64,", "");
-//                    is3 = new ByteArrayInputStream(Base64.getDecoder().decode(file3));
-                    is3 = new ByteArrayInputStream(org.apache.commons.codec.binary.Base64.decodeBase64(file3));
-                    filename3 = UploadFileUtil.saveFile(path, "image.jpg", is3);
-                }
-                if (file4 != null) {
-                    file4 = file4.replaceAll("data:image/jpeg;base64,", "");
-//                    is4 = new ByteArrayInputStream(Base64.getDecoder().decode(file4));
-                    is4 = new ByteArrayInputStream(org.apache.commons.codec.binary.Base64.decodeBase64(file4));
-                    filename4 = UploadFileUtil.saveFile(path, "image.jpg", is4);
-                }
-                if (filename1 == null && filename2 == null && filename3 == null && filename4 == null) {
-                    result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
-                    result.setResultDes("上传图片失败，请稍后再试！");
-                    model.addAttribute(SysConst.RESULT_KEY, result);
-                    return model;
-                }
-                AdMonitorTaskFeedback feedback = new AdMonitorTaskFeedback();
-                feedback.setSeatLat(seatLat);
-                feedback.setSeatLon(seatLon);
-                feedback.setLat(lat);
-                feedback.setLon(lon);
-                //path = path.substring(path.indexOf(":")+1, path.length()).replaceAll("\\\\", "/");
-                if (filename1 != null) {
-                	int index = filename1.indexOf('.');
-                    MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename1, path, filename1.substring(0, index), "jpg", null);
-                    feedback.setPicUrl1(file_upload_ip + servicePath + filename1);    
-                }
-                if (filename2 != null) {
-                	int index = filename2.indexOf('.');
-                    MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename2, path, filename2.substring(0, index), "jpg", null);
-                    feedback.setPicUrl2(file_upload_ip + servicePath + filename2);
-                }
-                if (file3 != null) {
-                	int index = filename3.indexOf('.');
-                    MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename3, path, filename3.substring(0, index), "jpg", null);
-                    feedback.setPicUrl3(file_upload_ip + servicePath + filename3);
-                }
-                if (file4 != null) {
-                	int index = filename4.indexOf('.');
-                    MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename4, path, filename4.substring(0, index), "jpg", null);
-                    feedback.setPicUrl4(file_upload_ip + servicePath + filename4);
-                }
-                feedback.setProblem(problem);
-                feedback.setProblemOther(other);
-                feedback.setStatus(1);
-                
-                try {
-                    adMonitorTaskService.feedback(taskId, feedback,adSeatCode, user);
-                } catch (Exception e) {
-                	logger.error(e);
-                    result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
-                    result.setResultDes("保存出错！");
-                    model.addAttribute(SysConst.RESULT_KEY, result);
-                    return model;
-                }
+                adMonitorTaskService.feedback(taskId, feedback,adSeatCode, user,urls);
             } catch (Exception e) {
             	logger.error(e);
-                e.printStackTrace();
                 result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
-                result.setResultDes("上传出错！");
+                result.setResultDes("保存出错！");
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
             }
+            
         } else if (type == AppTaskEnum.JIUCUO_TASK.getId()) {
             //参数不对
             if (type == null || adActivitySeatId == null || file1 == null) {
@@ -1579,7 +1504,6 @@ public class ApiController extends BasicController {
             path = path + seat.getActivityId() + File.separator + "jiucuo" + File.separator + timePath;
         	String servicePath = path.substring(path.indexOf(":")+1, path.length()).replaceAll("\\\\", "/");
         	servicePath = servicePath.replaceFirst("/opt/", "/");
-        	
             //查询是否有人正在做这个广告位这个活动的纠错任务(即待审核的纠错任务)
             Map<String, Object> searchMap = new HashMap<>();
             searchMap.put("activityId", seat.getActivityId()); //活动id
@@ -2383,6 +2307,8 @@ public class ApiController extends BasicController {
         	arroundVo.setNoQualifiedText2(task.getNoQualifiedText2());
         	arroundVo.setNoQualifiedText3(task.getNoQualifiedText3());
         	arroundVo.setNotification(task.getNotification());
+        	arroundVo.setMonitorPicMinNum(task.getMonitorPicMinNum());
+        	arroundVo.setMonitorPicMaxNum(task.getMonitorPicMaxNum());
         	list.add(arroundVo);
         }
 
@@ -2538,6 +2464,8 @@ public class ApiController extends BasicController {
         	arroundVo.setNoQualifiedText2(task.getNoQualifiedText2());
         	arroundVo.setNoQualifiedText3(task.getNoQualifiedText3());
         	arroundVo.setNotification(task.getNotification());
+        	arroundVo.setMonitorPicMinNum(task.getMonitorPicMinNum());
+        	arroundVo.setMonitorPicMaxNum(task.getMonitorPicMaxNum());
         	list.add(arroundVo);
         }
 
@@ -3961,5 +3889,126 @@ public class ApiController extends BasicController {
 			userName = "  userName:" + userName;
 		}
     	logger.info(method + "  " + url + "  " + userName);
+    }
+    
+    @RequestMapping(value = "/uploadTaskPic")
+    @ResponseBody
+    public Model uploadTaskPic(Model model, HttpServletRequest request, HttpServletResponse response,
+                                @RequestParam(value = "token", required = false) String token,
+                                @RequestParam(value = "task_id", required = false) Integer taskId,
+                                @RequestParam(value = "index", required = false) Integer picOrder,
+                                @RequestParam(value = "pic", required = false) String file) {
+        ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("上传成功");
+        model = new ExtendedModelMap();
+        Date now = new Date();
+        SysUserExecute user = getLoginUser(request, token);
+        if (token != null) {
+            useSession.set(Boolean.FALSE);
+            this.sessionByRedis.setToken(token);
+        } else {
+            useSession.set(Boolean.TRUE);
+        }
+        if (useSession.get()) {
+            if (!checkLogin(model, result, request)) {
+                return model;
+            }
+        } else {
+            if (!checkLogin(model, result, token)) {
+                return model;
+            }
+        }
+        saveLog(request, user.getUsername());
+        AdMonitorTask adMonitorTask = adMonitorTaskService.selectByPrimaryKey(taskId);
+        if (adMonitorTask == null) {
+        	result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
+            result.setResultDes("任务不存在！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+		}
+        if (adMonitorTask.getStatus()!=MonitorTaskStatus.TO_CARRY_OUT.getId() && adMonitorTask.getStatus()!=MonitorTaskStatus.UNVERIFY.getId() 
+        		&& adMonitorTask.getStatus()!=MonitorTaskStatus.VERIFY_FAILURE.getId() && adMonitorTask.getStatus()!=MonitorTaskStatus.UN_FINISHED.getId()) {
+        	result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
+            result.setResultDes("该任务不能上传图片！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+		}
+        //判断该任务是否是该用户的
+        int monitorTaskNum = adMonitorTaskService.selectByIdAndUserId(taskId,user.getId());
+        if (monitorTaskNum<=0) {
+        	result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
+            result.setResultDes("没有权限！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+		}
+        
+        if (adMonitorTask.getMonitorPicMaxNum()<=picOrder && adMonitorTask.getMonitorPicMinNum()>picOrder+1) {
+        	result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
+            result.setResultDes("下标错误！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+		}
+        //放入缓存防止重复调用
+		// [1] 判断是否已经在redis中. 存在一个即返回错误信息
+		String beginRedisStr = "uploadtaskpic_" + taskId + user.getId() + picOrder;
+		if (redisTemplate.opsForValue().get(beginRedisStr) != null
+				&& StringUtil.equals(redisTemplate.opsForValue().get(beginRedisStr) + "", "true")) {
+			result.setCode(ResultCode.RESULT_FAILURE.getCode());
+			result.setResultDes("操作过于频繁！");
+			model.addAttribute(SysConst.RESULT_KEY, result);
+			return model;
+		}
+
+		// [2] 放入redis中
+		// 放入Redis缓存处理并发
+		//设置10秒超时时间
+		redisTemplate.opsForValue().set(beginRedisStr, "true", 10, TimeUnit.SECONDS);
+        
+        String path = file_upload_path;
+        Calendar date = Calendar.getInstance();
+        String timePath = date.get(Calendar.YEAR)+ File.separator + (date.get(Calendar.MONTH)+1) + File.separator+ date.get(Calendar.DAY_OF_MONTH) + File.separator;
+        path = path + (path.endsWith(File.separator) ? "" : File.separatorChar) + "activity" + File.separatorChar;
+    	path = path + adMonitorTask.getActivityId() + File.separatorChar + "monitor" + File.separator + timePath;
+    	String servicePath = path.substring(path.indexOf(":")+1, path.length()).replaceAll("\\\\", "/");
+    	servicePath = servicePath.replaceFirst("/opt/", "/");
+        if (StringUtil.isNotBlank(file) && !file.startsWith("data:image/jpeg;base64,")) {
+            file = null;
+        }
+
+        InputStream is = null;
+        //每个任务对应的图片名称是不变的，防止恶意上传文件到服务器
+//        String filename = new Md5Hash(new StringBuilder().append(user.getId()).append(adMonitorTask.getActivityId()).append(taskId).append(picOrder).toString()).toString();
+        String filename = "";
+        try {
+            if (file != null) {
+                file = file.replaceAll("data:image/jpeg;base64,", "");
+                is = new ByteArrayInputStream(org.apache.commons.codec.binary.Base64.decodeBase64(file));
+                filename = UploadFileUtil.saveFile(path, filename + "image.jpg", is);
+            }
+            if (filename == null) {
+                result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
+                result.setResultDes("上传图片失败，请稍后再试！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+                return model;
+            }
+            if (filename != null) {
+            	int index = filename.indexOf('.');
+                MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, index), "jpg", null);
+                System.out.println(file_upload_ip + servicePath + filename);
+                model.addAttribute("picUrl", file_upload_ip + servicePath + filename);
+            }
+        } catch (Exception e) {
+        	logger.error(e);
+            e.printStackTrace();
+            result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
+            result.setResultDes("上传出错！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
     }
 }

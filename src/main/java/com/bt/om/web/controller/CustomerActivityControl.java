@@ -82,6 +82,8 @@ public class CustomerActivityControl extends BasicController {
 	private SysUserResMapper sysUserResMapper;
 	@Autowired
 	private CityCache cityCache;
+	private String monitorPicMinNum = ConfigUtil.getString("monitor.pic.min.num");
+	private String monitorPicMaxNum = ConfigUtil.getString("monitor.pic.max.num");
 	private static final Logger logger = Logger.getLogger(CustomerActivityControl.class);
 	
 	/**
@@ -169,7 +171,7 @@ public class CustomerActivityControl extends BasicController {
         if(user != null) {
         	model.addAttribute("user", user);
         	model.addAttribute("usertype", user.getUsertype());
-        	if (user.getUsertype()==UserTypeEnum.CUSTOMER.getId() &&user.getId().intValue()!=activity.getUserId().intValue()) {
+        	if (user.getUsertype()==UserTypeEnum.CUSTOMER.getId() && activity!=null && user.getId().intValue()!=activity.getUserId().intValue()) {
         		return PageConst.NO_AUTHORITY;
 			}
         }
@@ -183,6 +185,8 @@ public class CustomerActivityControl extends BasicController {
         
         model.addAttribute("monitorTime", monitorTime);
         model.addAttribute("auditTime", auditTime);
+        model.addAttribute("monitorPicMinNum", monitorPicMinNum);
+        model.addAttribute("monitorPicMaxNum", monitorPicMaxNum);
 
         return PageConst.CUSTOMER_ACTIVITY_EDIT;
     }
@@ -432,7 +436,9 @@ public class CustomerActivityControl extends BasicController {
                       @RequestParam(value = "noQualifiedText1", required = false) String noQualifiedText1,
                       @RequestParam(value = "noQualifiedText2", required = false) String noQualifiedText2,
                       @RequestParam(value = "noQualifiedText3", required = false) String noQualifiedText3,
-                      @RequestParam(value = "notification", required = false) String notification) {
+                      @RequestParam(value = "notification", required = false) String notification,
+                      @RequestParam(value = "picMinNum", required = false) Integer picMinNum,
+                      @RequestParam(value = "picMaxNum", required = false) Integer picMaxNum) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date now = new Date();
         ResultVo<String> result = new ResultVo<String>();
@@ -462,6 +468,28 @@ public class CustomerActivityControl extends BasicController {
         adActivityVo.setNoQualifiedText2(noQualifiedText2);
         adActivityVo.setNoQualifiedText3(noQualifiedText3);
         adActivityVo.setNotification(notification);
+        if (picMinNum == null) {
+        	picMinNum = Integer.valueOf(monitorPicMinNum);
+		}else {
+			if (picMinNum<Integer.valueOf(monitorPicMinNum)) {
+				result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
+	            result.setResult("监测任务最小图片数量不能小于"+ monitorPicMinNum +"张！");
+	            model.addAttribute(SysConst.RESULT_KEY, result);
+	    		return model;
+			}
+		}
+        if (picMaxNum == null) {
+			picMaxNum = Integer.valueOf(monitorPicMaxNum);
+		}else {
+			if (picMaxNum>Integer.valueOf(monitorPicMaxNum)) {
+				result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
+	            result.setResult("监测任务最大图片数量不能大于"+ monitorPicMinNum +"张！");
+	            model.addAttribute(SysConst.RESULT_KEY, result);
+	    		return model;
+			}
+		}
+        adActivityVo.setMonitorPicMinNum(picMinNum);
+        adActivityVo.setMonitorPicMaxNum(picMaxNum);
 //        String[] str = media.split(",");
 //        for(String i : str) {
 //        	AdActivityMedia aam = new AdActivityMedia();

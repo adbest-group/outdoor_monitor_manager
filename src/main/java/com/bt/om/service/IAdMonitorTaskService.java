@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
+import com.bt.om.entity.AdMonitorTaskFeedbackResources;
 import com.bt.om.entity.AdMonitorUserTask;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.SysUserExecute;
@@ -48,7 +49,7 @@ public interface IAdMonitorTaskService {
 
     public List<AdMonitorTaskMobileVo> getByUserIdForMobile(Integer userId);
 
-    public void feedback(Integer taskId, AdMonitorTaskFeedback feedback,String adSeatCode, SysUserExecute user);
+    public void feedback(Integer taskId, AdMonitorTaskFeedback feedback,String adSeatCode, SysUserExecute user,List<String> urls) throws Exception ;
 
     /**
 	 * 根据当前任务编号生成子任务
@@ -108,7 +109,7 @@ public interface IAdMonitorTaskService {
 
 	Integer selectCountByMonitorTaskId(int monitorTaskId);
 	AdSeatInfo selectLonLatByMonitorTaskId(int monitorTaskId);
-	int insertMonitorTaskFeedback(AdMonitorTaskFeedback feedback, Integer userId, Integer assessorId);
+	int insertMonitorTaskFeedback(AdMonitorTaskFeedback feedback, Integer userId, Integer assessorId,String picUrl,Integer index);
 
 	//查询所有任务列表
 	public List<AdMonitorTask> getAllTasksByActivityId(Integer activityId);
@@ -118,6 +119,8 @@ public interface IAdMonitorTaskService {
 	public void changeStatus();
 	public AdMonitorTask geAdMonitorTaskByFeedbackId(Integer adMonitorTaskFeedbackId);
 	//更新图片状态（通过 /驳回）
-	public Integer updatePicStatus(AdMonitorTaskFeedback feedback, Integer status);
+	public Integer updatePicStatus(AdMonitorTaskFeedback feedback, AdMonitorTaskFeedbackResources resources);
 	public String selectUserNameByTaskId(Integer id);
+	
+	public int selectByIdAndUserId(Integer taskId, Integer id);
 }

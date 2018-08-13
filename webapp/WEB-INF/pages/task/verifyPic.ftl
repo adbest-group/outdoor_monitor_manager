@@ -12,6 +12,7 @@
 	
      <input type="hidden" name="id" id="id" value="${id?if_exists}"/>
      <input type="hidden" name="index" id="index" value="${index?if_exists}"/>
+     <input type="hidden" name="feedbackId" id="feedbackId" value="${feedbackId?if_exists}"/>
 	<div class="bd">
 		<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter">
 			<tbody>
@@ -57,6 +58,7 @@ $(function() {
 	var index = $("#index").val();
     
     var id = $("#id").val();
+    var feedbackId = $("#feedbackId").val();
     
     layui.use('form');
     
@@ -76,7 +78,8 @@ $(function() {
                 data: {
                 	"id": id,
                 	"index" : index,
-                	"status" : status
+                	"status" : status,
+                	"feedbackId": feedbackId
                 },
                 cache: false,
                 dataType: "json",

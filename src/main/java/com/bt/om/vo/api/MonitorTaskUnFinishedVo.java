@@ -1,6 +1,7 @@
 package com.bt.om.vo.api;
 
 import com.bt.om.common.DateUtil;
+import com.bt.om.entity.AdMonitorTaskFeedbackResources;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.enums.MonitorTaskType;
 
@@ -24,7 +25,7 @@ public class MonitorTaskUnFinishedVo extends BasicVo {
     private String ad_seat_code;
     private String ad_location;
     private Integer ad_status;
-    private List<String> img_url_list;
+    private List<AdMonitorTaskFeedbackResources> pics;
     private String problem;
     private String problem_other;
     private String sample_url;
@@ -52,6 +53,8 @@ public class MonitorTaskUnFinishedVo extends BasicVo {
     private String noQualifiedText2;
     private String noQualifiedText3;
     private String notification;
+    private Integer monitorPicMinNum;
+    private Integer monitorPicMaxNum;
 
     public MonitorTaskUnFinishedVo(AdMonitorTaskMobileVo task){
         this.task_id = task.getId();
@@ -72,11 +75,7 @@ public class MonitorTaskUnFinishedVo extends BasicVo {
         this.ad_seat_code = task.getAdSeatCode();
         this.ad_location = task.getAdSeatLocation();
         this.ad_status = task.getStatus();
-        this.img_url_list = new ArrayList<>();
-        this.img_url_list.add(task.getPicUrl1());
-        this.img_url_list.add(task.getPicUrl2());
-        this.img_url_list.add(task.getPicUrl3());
-        this.img_url_list.add(task.getPicUrl4());
+        this.pics = task.getPics();
         this.problem = task.getProblem();
         this.problem_other = task.getProblemOther();
         this.sample_url = task.getSamplePicUrl();
@@ -103,8 +102,31 @@ public class MonitorTaskUnFinishedVo extends BasicVo {
 		this.noQualifiedText2 = task.getNoQualifiedText2();
 		this.noQualifiedText3 = task.getNoQualifiedText3();
 		this.notification = task.getNotification();
+		this.monitorPicMinNum = task.getMonitorPicMinNum();
+		this.monitorPicMaxNum = task.getMonitorPicMaxNum();
     }
-    public String getQualifiedPicUrl() {
+    
+    public Integer getMonitorPicMinNum() {
+		return monitorPicMinNum;
+	}
+
+
+	public void setMonitorPicMinNum(Integer monitorPicMinNum) {
+		this.monitorPicMinNum = monitorPicMinNum;
+	}
+
+
+	public Integer getMonitorPicMaxNum() {
+		return monitorPicMaxNum;
+	}
+
+
+	public void setMonitorPicMaxNum(Integer monitorPicMaxNum) {
+		this.monitorPicMaxNum = monitorPicMaxNum;
+	}
+
+
+	public String getQualifiedPicUrl() {
 		return qualifiedPicUrl;
 	}
 
@@ -327,15 +349,15 @@ public class MonitorTaskUnFinishedVo extends BasicVo {
         this.ad_status = ad_status;
     }
 
-    public List<String> getImg_url_list() {
-        return img_url_list;
-    }
+	public List<AdMonitorTaskFeedbackResources> getPics() {
+		return pics;
+	}
 
-    public void setImg_url_list(List<String> img_url_list) {
-        this.img_url_list = img_url_list;
-    }
+	public void setPics(List<AdMonitorTaskFeedbackResources> pics) {
+		this.pics = pics;
+	}
 
-    public String getMonitor_start() {
+	public String getMonitor_start() {
         return monitor_start;
     }
 

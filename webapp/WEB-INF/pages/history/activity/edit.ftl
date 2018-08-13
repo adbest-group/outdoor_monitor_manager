@@ -5,6 +5,6 @@
     <!-- 头部 -->
     <@model.webMenu current="活动查看" child="活动查看" />
 
-<#include "../../adcustomer/activity/editMain.ftl"/>
+<#include "./editMain.ftl"/>
 
 <@model.webend />

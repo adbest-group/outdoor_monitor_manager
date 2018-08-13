@@ -809,8 +809,8 @@ public class HistoryAdMonitorTaskService implements IHistoryAdMonitorTaskService
      * 通过任务id查询任务信息
      */
     @Override
-    public AdMonitorTaskVo getTaskVoById(Integer id) {
-        return adMonitorTaskMapper.selectVoByPrimaryKey(id);
+    public AdMonitorTaskVo getTaskVoById(SearchDataVo svo) {
+        return historyAdMonitorTaskMapper.selectVoByPrimaryKey(svo.getSearchMap());
     }
 
     /**

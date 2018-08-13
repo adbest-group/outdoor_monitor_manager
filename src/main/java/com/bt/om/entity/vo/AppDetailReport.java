@@ -27,10 +27,10 @@ public class AppDetailReport {
 	private String memo; //备注
 	private String demoPic; //活动预览图
 	private List<PictureVo> upPics; //上刊监测图片集合
-	private List<PictureVo> durationPics; //投放期间监测图片集合
-	private List<PictureVo> downPics; //下刊监测图片集合
-	private List<PictureVo> upTaskPics; //上刊任务图片集合
-	private List<PictureVo> zhuijiaPics; //追加监测图片集合
+	private List<PictureVo> durationPics = new ArrayList<>(); //投放期间监测图片集合
+	private List<PictureVo> downPics = new ArrayList<>();; //下刊监测图片集合
+	private List<PictureVo> upTaskPics = new ArrayList<>();; //上刊任务图片集合
+	private List<PictureVo> zhuijiaPics = new ArrayList<>();; //追加监测图片集合
     
 	public String getSeatInfoName() {
 		return seatInfoName;

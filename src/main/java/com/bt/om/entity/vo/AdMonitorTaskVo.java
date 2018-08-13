@@ -1,8 +1,10 @@
 package com.bt.om.entity.vo;
 
 import com.bt.om.entity.AdMonitorTask;
+import com.bt.om.entity.AdMonitorTaskFeedbackResources;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by caiting on 2018/1/20.
@@ -50,7 +52,16 @@ public class AdMonitorTaskVo extends AdMonitorTask {
     private Integer picUrl2Status;
     private Integer picUrl3Status;
     private Integer picUrl4Status;
+    private List<AdMonitorTaskFeedbackResources> pics;
     
+	public List<AdMonitorTaskFeedbackResources> getPics() {
+		return pics;
+	}
+
+	public void setPics(List<AdMonitorTaskFeedbackResources> pics) {
+		this.pics = pics;
+	}
+
 	public Integer getPicUrl1Status() {
 		return picUrl1Status;
 	}

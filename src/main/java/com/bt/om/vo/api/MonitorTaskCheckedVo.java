@@ -4,11 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.bt.om.common.DateUtil;
+import com.bt.om.entity.AdMonitorTaskFeedbackResources;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.enums.MonitorTaskType;
 
 /**
  * Created by caiting on 2018/1/24.
+ */
+/**
+ * @author bt1
+ *
  */
 public class MonitorTaskCheckedVo extends BasicVo {
 	private static final long serialVersionUID = 3526615844925388784L;
@@ -23,7 +28,6 @@ public class MonitorTaskCheckedVo extends BasicVo {
     private String ad_location;
     private Integer ad_status;
     private String reason;
-    private List<String> img_url_list;
     private String problem;
     private String problem_other;
     private Double lat;
@@ -50,11 +54,9 @@ public class MonitorTaskCheckedVo extends BasicVo {
     private String noQualifiedText2;
     private String noQualifiedText3;
     private String notification;
-    
-    private Integer picUrl1Status;
-    private Integer picUrl2Status;
-    private Integer picUrl3Status;
-    private Integer picUrl4Status;
+    private Integer monitorPicMinNum;
+    private Integer monitorPicMaxNum;
+    private List<AdMonitorTaskFeedbackResources> pics = new ArrayList<>();
 
     public MonitorTaskCheckedVo(AdMonitorTaskMobileVo task){
         this.task_id = task.getId();
@@ -70,11 +72,6 @@ public class MonitorTaskCheckedVo extends BasicVo {
         this.ad_location = task.getAdSeatLocation();
         this.ad_status = task.getStatus();
         this.reason = task.getReason();
-        this.img_url_list = new ArrayList<>();
-        this.img_url_list.add(task.getPicUrl1());
-        this.img_url_list.add(task.getPicUrl2());
-        this.img_url_list.add(task.getPicUrl3());
-        this.img_url_list.add(task.getPicUrl4());
         this.problem = task.getProblem();
         this.problem_other = task.getProblemOther();
         this.lat = task.getLat();
@@ -101,52 +98,34 @@ public class MonitorTaskCheckedVo extends BasicVo {
 		this.noQualifiedText2 = task.getNoQualifiedText2();
 		this.noQualifiedText3 = task.getNoQualifiedText3();
 		this.notification = task.getNotification();
-		this.picUrl1Status = task.getPicUrl1Status();
-		this.picUrl2Status = task.getPicUrl2Status();
-		this.picUrl3Status = task.getPicUrl3Status();
-		this.picUrl4Status = task.getPicUrl4Status();
+		this.monitorPicMinNum = task.getMonitorPicMinNum();
+		this.monitorPicMaxNum = task.getMonitorPicMaxNum();
+		this.pics = task.getPics();
     }
     
-    
-    public Integer getPicUrl1Status() {
-		return picUrl1Status;
+	public Integer getMonitorPicMinNum() {
+		return monitorPicMinNum;
 	}
 
-
-	public void setPicUrl1Status(Integer picUrl1Status) {
-		this.picUrl1Status = picUrl1Status;
+	public void setMonitorPicMinNum(Integer monitorPicMinNum) {
+		this.monitorPicMinNum = monitorPicMinNum;
 	}
 
-
-	public Integer getPicUrl2Status() {
-		return picUrl2Status;
+	public Integer getMonitorPicMaxNum() {
+		return monitorPicMaxNum;
 	}
 
-
-	public void setPicUrl2Status(Integer picUrl2Status) {
-		this.picUrl2Status = picUrl2Status;
+	public void setMonitorPicMaxNum(Integer monitorPicMaxNum) {
+		this.monitorPicMaxNum = monitorPicMaxNum;
 	}
 
-
-	public Integer getPicUrl3Status() {
-		return picUrl3Status;
+	public List<AdMonitorTaskFeedbackResources> getPics() {
+		return pics;
 	}
 
-
-	public void setPicUrl3Status(Integer picUrl3Status) {
-		this.picUrl3Status = picUrl3Status;
+	public void setPics(List<AdMonitorTaskFeedbackResources> pics) {
+		this.pics = pics;
 	}
-
-
-	public Integer getPicUrl4Status() {
-		return picUrl4Status;
-	}
-
-
-	public void setPicUrl4Status(Integer picUrl4Status) {
-		this.picUrl4Status = picUrl4Status;
-	}
-
 
 	public String getQualifiedPicUrl() {
 		return qualifiedPicUrl;
@@ -371,14 +350,6 @@ public class MonitorTaskCheckedVo extends BasicVo {
 
     public void setReason(String reason) {
         this.reason = reason;
-    }
-
-    public List<String> getImg_url_list() {
-        return img_url_list;
-    }
-
-    public void setImg_url_list(List<String> img_url_list) {
-        this.img_url_list = img_url_list;
     }
 
 	public String getRegion() {

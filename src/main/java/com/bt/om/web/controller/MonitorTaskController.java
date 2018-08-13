@@ -40,6 +40,7 @@ import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
+import com.bt.om.entity.AdMonitorTaskFeedbackResources;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
@@ -51,11 +52,13 @@ import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.enums.VerifyType;
 import com.bt.om.filter.LogFilter;
 import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
+import com.bt.om.service.IAdMonitorTaskFeedbackResourcesService;
 import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.service.IAdUserMessageService;
 import com.bt.om.service.IMediaService;
@@ -73,6 +76,7 @@ import com.bt.om.web.BasicController;
 import com.bt.om.web.util.JPushUtils;
 import com.bt.om.web.util.SearchUtil;
 import com.google.common.collect.Maps;
+import com.sun.accessibility.internal.resources.accessibility;
 
 /**
  * Created by caiting on 2018/1/20.
@@ -106,6 +110,8 @@ public class MonitorTaskController extends BasicController {
 	private IAdUserMessageService adUserMessageService;
 	@Autowired
 	private ISendSmsService sendSmsService;
+	@Autowired
+	private IAdMonitorTaskFeedbackResourcesService adMonitorTaskFeedbackResourcesService;
 	
 	@Value("${sms.reject.content.template}")
 	private String SMS_REJECT_CONTENT_TEMPLATE;
@@ -1152,7 +1158,8 @@ public class MonitorTaskController extends BasicController {
 									@RequestParam(value = "monitorTaskId", required = false) Integer monitorTaskId,
 									@RequestParam(value = "lon", required = false) Double lon,
 									@RequestParam(value = "lat", required = false) Double lat,
-									@RequestParam(value = "userId", required = false) Integer userId) {
+									@RequestParam(value = "userId", required = false) Integer userId,
+									@RequestParam(value = "taskFeedBackResourcesId", required = false) Integer taskFeedBackResourcesId) {
 		ResultVo<String> result = new ResultVo<String>();
 		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
 		result.setResultDes("替换成功");
@@ -1204,9 +1211,31 @@ public class MonitorTaskController extends BasicController {
 			int nameindex = filename.indexOf('.');
 			if(monitorTaskId == null) {
                 MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
-                
 				//[2] 已有feedback的时候替换的图片
-				adMonitorTaskService.updatePicUrl(id, file_upload_ip + filepath, index);
+                AdMonitorTaskFeedbackResources resources = null;
+                if (taskFeedBackResourcesId==null) {
+                	int picNum = adMonitorTaskFeedbackResourcesService.selectCountByMonitorTaskFeedbackId(id);
+                	if (picNum>=adMonitorTask.getMonitorPicMaxNum()) {
+                		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            			result.setResultDes("监测图片已经达到最大上传数量！");
+            			model.addAttribute(SysConst.RESULT_KEY, result);
+            			return model;
+					}
+                	resources = new AdMonitorTaskFeedbackResources();
+                	resources.setCreateTime(new Date());
+                	resources.setMonitorTaskFeedbackId(id);
+                	resources.setPicOrder(index+1);
+				}else {
+					resources = adMonitorTaskFeedbackResourcesService.selectById(taskFeedBackResourcesId);
+				}
+                resources.setPicStatus(VerifyType.PASS_TYPE.getId());
+                resources.setPicUrl(file_upload_ip + filepath);
+                resources.setUpdateTime(new Date());
+                if (resources.getId()==null) {
+                	adMonitorTaskFeedbackResourcesService.insertSelective(resources);
+				}else {
+					adMonitorTaskFeedbackResourcesService.updatePicUrl(resources);
+				}
 			} else {
 				//[3] 没有feedback的时候新增feedback
 				AdMonitorTaskFeedback feedback = new AdMonitorTaskFeedback();
@@ -1218,26 +1247,14 @@ public class MonitorTaskController extends BasicController {
 				feedback.setStatus(1); //1：反馈信息有效
 				feedback.setLon(lon); //做任务时的经度
 				feedback.setLat(lat); //做任务时的纬度
-				if(index == 1) {
-					MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
-					feedback.setPicUrl1(file_upload_ip + filepath);
-				} else if (index == 2) {
-					MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
-					feedback.setPicUrl2(file_upload_ip + filepath);
-				} else if (index == 3) {
-					MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
-					feedback.setPicUrl3(file_upload_ip + filepath);
-				} else if (index == 4) {
-					MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
-					feedback.setPicUrl4(file_upload_ip + filepath);
-				}
+
 				AdSeatInfo seatInfo = adMonitorTaskService.selectLonLatByMonitorTaskId(monitorTaskId);
 				if(seatInfo != null) {
 					feedback.setSeatLon(seatInfo.getLon()); //做任务时的广告位经度
 					feedback.setSeatLat(seatInfo.getLat()); //做任务时的广告位纬度
 				}
 				//插入新的feedback
-				adMonitorTaskService.insertMonitorTaskFeedback(feedback, userId, sysUser.getId());
+				adMonitorTaskService.insertMonitorTaskFeedback(feedback, userId, sysUser.getId(),file_upload_ip + filepath,index+1);
 			}
 		} catch (IOException e) {
 			logger.error(e);
@@ -1269,24 +1286,18 @@ public class MonitorTaskController extends BasicController {
 	@RequiresRoles("superadmin")
 	@RequestMapping(value = "/savePicStatus")
 	@ResponseBody
-	public Model verifyPic(@RequestParam("id") Integer id, Model model, HttpServletRequest request,
+	public Model verifyPic(@RequestParam("feedbackId") Integer id, Model model, HttpServletRequest request,
 			@RequestParam(value = "status",required = false) Integer status,
-			@RequestParam(value = "index",required = false) Integer index) {
+			@RequestParam(value = "index",required = false) Integer index,
+			@RequestParam(value = "id", required = false) Integer taskFeedBackResourcesId) {
 		ResultVo resultVo = new ResultVo();
 		AdMonitorTaskFeedback feedback = new AdMonitorTaskFeedback();
 		try {
 			if(id != null) {
-				if(index == 1) {
-					feedback.setPicUrl1Status(status);
-				}else if(index == 2){
-					feedback.setPicUrl2Status(status);
-				}else if(index == 3) {
-					feedback.setPicUrl3Status(status);
-				}else if(index == 4) {
-					feedback.setPicUrl4Status(status);
-				}
 				feedback.setId(id);
-				Integer monitorTaskId = adMonitorTaskService.updatePicStatus(feedback,status);
+				AdMonitorTaskFeedbackResources resources = adMonitorTaskFeedbackResourcesService.selectById(taskFeedBackResourcesId);
+				resources.setPicStatus(status);
+				Integer monitorTaskId = adMonitorTaskService.updatePicStatus(feedback,resources);
 				//驳回发送短信
 				if(monitorTaskId != null) {
 					String username = adMonitorTaskService.selectUserNameByTaskId(monitorTaskId);

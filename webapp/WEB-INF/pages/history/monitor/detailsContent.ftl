@@ -63,15 +63,13 @@
                         </p>
                         <p>
                             提交照片：</br>
-                        <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
-                            <img style="vertical-align: top;width:350px" src="${pmTask.picUrl1!""}"></img></div>
-                        <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
-                            <img style="vertical-align: top;width:350px"" src="${pmTask.picUrl2!""}"></img></div>
-                        </br>
-                        <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
-                            <img style="vertical-align: top;width:350px"" src="${pmTask.picUrl3!""}"></img></div>
-                        <div style="width: 360px;margin-bottom: 10px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
-                            <img style="vertical-align: top;width:350px"" src="${pmTask.picUrl4!""}"></img></div>
+                        <#if (pmTask.pics?exists && item.pics?size>0) >
+                        	<#list item.pics as pic>
+                        		<div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
+                           			<img style="vertical-align: top;width:350px" src="${pic.picUrl!""}"></img></div>
+                        		<#if pic_index%2!=0 ></br></#if> 
+                        	</#list>
+                        </#if>
                         </p>
                         <div style="border-bottom: 1px solid #ddd;padding-top: 20px"></div>
                         
@@ -158,49 +156,19 @@
                                 <p>
                                     提交照片：</br>
                                 
-                                <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
-                                <input type="text" id="verifyPic1Result" disabled name="verifyPic1Result" style="width: 100px;" value="${vm.getVerifyTypeText(item.picUrl1Status!0)}" autocomplete="off" class="form-control" />
-                                     <img style="vertical-align: top;width:350px" src="${item.picUrl1!""}"></img>
-                                </div>
-                                <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
-                                <input type="text" id="verifyPic2Result" disabled name="verifyPic2Result" style="width: 100px;" value="${vm.getVerifyTypeText(item.picUrl2Status!0)}" autocomplete="off" class="form-control" />
-                                    <img style="vertical-align: top;width:350px"" src="${item.picUrl2!""}"></img>
-                                </div> 
-                                </br>
-                                <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
-                                <input type="text" id="verifyPic3Result" disabled name="verifyPic3Result" style="width: 100px;" value="${vm.getVerifyTypeText(item.picUrl3Status!0)}" autocomplete="off" class="form-control" />
-                                    <img style="vertical-align: top;width:350px"" src="${item.picUrl3!""}"></img>
-                                </div> 
-                                <div style="width: 360px;margin-bottom: 10px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
-                                <input type="text" id="verifyPic4Result" disabled name="verifyPic4Result" style="width: 100px;" value="${vm.getVerifyTypeText(item.picUrl4Status!0)}" autocomplete="off" class="form-control" />
-                                    <img style="vertical-align: top;width:350px"" src="${item.picUrl4!""}"></img>
-                                </div> 
+                                <#if (item.pics?exists && item.pics?size>0) >
+                                	<#list item.pics as pic>
+                                		<div class="monitor-pic" style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
+		                                <input type="text" id="verifyPic1Result" disabled name="verifyPic1Result" style="width: 100px;" value="${vm.getVerifyTypeText(pic.picStatus!0)}" autocomplete="off" class="form-control" />
+		                                     <img style="vertical-align: top;width:350px" src="${pic.picUrl!""}"></img>
+		                                </div><#if pic_index%2!=0 ></br></#if> 
+                                	</#list>
+                                </#if>
                                 </p>
                                 <p><br/>
                                     <#setting number_format="#0.######" />
                                     <div class="feedbackMap" id="feedback-item.id" data-location="{lon:${item.lon!"null"},lat:${item.lat!"null"},feedbackLon:${item.feedbackLon!"null"},feedbackLat:${item.feedbackLat!"null"}}" style="width:400px;height:275px;"></div>
                                 </p>
-                                <@shiro.hasRole name="admin">
-                                    <p style="text-align: center;">
-                                        <#if (item.status==3 && item.feedbackStatus==1)>
-                                            <button style="margin-top: 10px" type="button"
-                                                    onclick="javascript:pass('${Request.taskId!""}')" class="btn btn-red"
-                                                    style="margin-left:10px;" autocomplete="off" id="searchBtn"
-                                                    onclick="">
-                                                通过
-                                            </button>
-                                        </#if>
-
-
-                                        <#if (item.status==3 && item.feedbackStatus==1)>
-                                            <button style="margin-top: 10px" type="button"
-                                                    onclick="javascript:reject('${Request.taskId!""}')" class="btn btn-red"
-                                                    style="margin-left:10px;" autocomplete="off" id="searchBtn">
-                                                拒绝
-                                            </button>
-                                        </#if>
-                                    </p>
-                                </@shiro.hasRole>
                                 <div style="border-bottom: 1px solid #ddd;padding-top: 20px"></div>
                             </#if>
                         </#list>

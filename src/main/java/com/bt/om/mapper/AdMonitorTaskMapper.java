@@ -173,4 +173,6 @@ public interface AdMonitorTaskMapper {
 
 	String selectUserNameByTaskId(@Param("id") Integer id);
 
+	int selectByIdAndUserId(@Param("id")Integer id,@Param("userId") Integer userId);
+
 }

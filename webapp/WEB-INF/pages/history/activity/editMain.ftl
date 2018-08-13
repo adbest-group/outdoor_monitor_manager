@@ -708,20 +708,11 @@
 	                    return '';
 	            },
 	            setValue: function (s, s1, s2) {
-	            	if($('#dts').val() != s1 || $('#dt').val() != s2){
-
-		            	
-		                $('#dts').val(s1);
-		                $('#dt').val(s2);
-						$('.activityTime-Wdate').blur()
-						$('#upTaskTime').val(s1);
-		                $('#downMonitorTaskTime').val(s2);
-
-	        			checkArr = [];
-	        			delDataArr = [];
-	        			modDataArr = [];
-	        			$('#plan').html('')
-	            	}
+	                $('#dts').val(s1);
+	                $('#dt').val(s2);
+					$('.activityTime-Wdate').blur()
+					$('#upTaskTime').val(s1);
+	                $('#downMonitorTaskTime').val(s2);
 	            }
 	        });
 	        
@@ -1556,7 +1547,27 @@
 	        max: 60,
 	        onError: "金额数值不能为空，请输入"
 	    });
-	    
+	  /*  $(".point").focus(function(){
+	    	if(Number($(this).val()) === 0){
+	    		$(this).val('')
+	    	}
+	    })
+	    $(".money").focus(function(){
+	    	if(Number($(this).val()) === 0){
+	    		$(this).val('')
+	    	}
+	    })
+	    */
+	    /*$(".point").blur(function(){
+	    	if($(this).val() === '') {
+	    		$(this).val('0')
+	    	}
+	    })
+	    $(".money").blur(function(){
+	    	if($(this).val() === '') {
+	    		$(this).val('0.00')
+	    	}
+	    })*/
 	    //下刊任务积分值
 	    $("#downMonitorTaskMoney").formValidator({
 	        validatorGroup:"2",
@@ -1573,41 +1584,7 @@
 	        onError: "金额数值不能为空，请输入"
 	    });
 	    
-
-        // 监测任务图片数量的校验
-        $("#picMinNum").formValidator({
-            validatorGroup: "2",
-            onShow: "　",
-            onCorrect: "",
-            onFocus:"请填写${monitorPicMinNum?if_exists}-${monitorPicMaxNum?if_exists}的数字"
-        }).functionValidator({
-            fun:function(val){
-            	if(!/^[${monitorPicMinNum?if_exists}-${monitorPicMaxNum?if_exists}]$/.test(val)){
-            		return "只允许填写${monitorPicMinNum?if_exists}-${monitorPicMaxNum?if_exists}的数字"
-            	}else if ($("#picMaxNum").val() && val >= $("#picMaxNum").val()){
-            		return "最小上传数量必须小于最大上传数量"
-            	}else{
-            		return true
-            	}
-            }
-        });
-        
-        $("#picMaxNum").formValidator({
-            validatorGroup: "2",
-            onShow: "　",
-            onCorrect: "",
-            onFocus:"请填写${monitorPicMinNum?if_exists}-${monitorPicMaxNum?if_exists}的数字"
-        }).functionValidator({
-        	fun:function(val){
-            	if(!/^[${monitorPicMinNum?if_exists}-${monitorPicMaxNum?if_exists}]$/.test(val)){
-            		return "只允许填写${monitorPicMinNum?if_exists}-${monitorPicMaxNum?if_exists}的数字"
-            	}else if ($("#picMinNum").val() && val <= $("#picMinNum").val()){
-            		return "最大上传数量必须大于最小上传数量"
-            	}else{
-            		return true
-            	}
-            }
-        });
+	    
         
         function getDate(date) {
         	var month = (date.getMonth() + 1).toString().length < 2 ? '0' + (date.getMonth() + 1).toString() : (date.getMonth() + 1).toString()
@@ -2099,4 +2076,16 @@
             onError: "只允许填写1-3的数字"
         });
         
+        // 监测任务图片数量的校验
+        $("#picMinNum").formValidator({
+            validatorGroup: "2",
+            onShow: "　",
+            onCorrect: "",
+            onFocus:"请填写${monitorPicMinNum?if_exists}-${monitorPicMaxNum?if_exists}的数字"
+        }).functionValidator({
+            fun:function(val){
+                return ($("#picMinNum:checked").length<1) || /^[${monitorPicMinNum?if_exists}-${monitorPicMaxNum?if_exists}]$/.test(val);
+            },
+            onError: "只允许填写${monitorPicMinNum?if_exists}-${monitorPicMaxNum?if_exists}的数字"
+        });
 </script>

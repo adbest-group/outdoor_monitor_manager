@@ -101,7 +101,7 @@
                         <#list bizObj.list as task>
                         <tr>
                         	<td width="30"><#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status?exists&&task.status == 1||task.status == 2)>
-                        	<#if user.usertype !=6><input type="checkbox" data-status='${task.status}'  name="ck-task" value="${task.id}"/></#if><div style='display:none;' data-id='${task.mediaId}'></div></#if></#if></td>
+                        	<#if user.usertype !=6><input type="checkbox" data-status='${task.status}'  name="ck-task" value="${task.id}"/></#if><div style='display:none;' data-id='${task.mediaId?if_exists}'></div></#if></#if></td>
                             <td width="30">${(bizObj.page.currentPage-1)*20+task_index+1}</td>
                             <td>
                                 <div class="data-title w200" data-title="${task.activityName!""}" data-id="${task.id}">${task.activityName?if_exists}</div>

@@ -1,6 +1,10 @@
 package com.bt.om.vo.api;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.bt.om.common.DateUtil;
+import com.bt.om.entity.AdMonitorTaskFeedbackResources;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.enums.MonitorTaskType;
 
@@ -44,6 +48,9 @@ public class MonitorTaskWaitToExecutedVo extends BasicVo{
     private String noQualifiedText2;
     private String noQualifiedText3;
     private String notification;
+    private Integer monitorPicMinNum;
+    private Integer monitorPicMaxNum;
+    private List<AdMonitorTaskFeedbackResources> pics = new ArrayList<>();
     
     public MonitorTaskWaitToExecutedVo(AdMonitorTaskMobileVo task) {
         this.task_id = task.getId();
@@ -81,6 +88,8 @@ public class MonitorTaskWaitToExecutedVo extends BasicVo{
 		this.noQualifiedText2 = task.getNoQualifiedText2();
 		this.noQualifiedText3 = task.getNoQualifiedText3();
 		this.notification = task.getNotification();
+		this.monitorPicMinNum = task.getMonitorPicMinNum();
+		this.monitorPicMaxNum = task.getMonitorPicMaxNum();
     }
 	
     public String getQualifiedPicUrl() {
@@ -378,6 +387,27 @@ public class MonitorTaskWaitToExecutedVo extends BasicVo{
 		this.task_money = task_money;
 	}
 
+	public Integer getMonitorPicMinNum() {
+		return monitorPicMinNum;
+	}
 
-	
+	public void setMonitorPicMinNum(Integer monitorPicMinNum) {
+		this.monitorPicMinNum = monitorPicMinNum;
+	}
+
+	public Integer getMonitorPicMaxNum() {
+		return monitorPicMaxNum;
+	}
+
+	public void setMonitorPicMaxNum(Integer monitorPicMaxNum) {
+		this.monitorPicMaxNum = monitorPicMaxNum;
+	}
+
+	public List<AdMonitorTaskFeedbackResources> getPics() {
+		return pics;
+	}
+
+	public void setPics(List<AdMonitorTaskFeedbackResources> pics) {
+		this.pics = pics;
+	}
 }

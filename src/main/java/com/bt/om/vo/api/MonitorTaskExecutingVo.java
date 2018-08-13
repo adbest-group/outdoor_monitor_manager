@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.bt.om.common.DateUtil;
+import com.bt.om.entity.AdMonitorTaskFeedbackResources;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.enums.MonitorTaskType;
 
@@ -21,7 +22,6 @@ public class MonitorTaskExecutingVo extends BasicVo {
     private Integer ad_seat_id;
     private String ad_location;
     private Integer ad_status;
-    private List<String> img_url_list;
     private String problem;
     private String problem_other;
     private Double lat;
@@ -48,6 +48,9 @@ public class MonitorTaskExecutingVo extends BasicVo {
     private String noQualifiedText2;
     private String noQualifiedText3;
     private String notification;
+    private Integer monitorPicMinNum;
+    private Integer monitorPicMaxNum;
+    private List<AdMonitorTaskFeedbackResources> pics = new ArrayList<>();
     
     public MonitorTaskExecutingVo(AdMonitorTaskMobileVo task){
         this.task_id = task.getId();
@@ -61,11 +64,6 @@ public class MonitorTaskExecutingVo extends BasicVo {
         this.ad_seat_id = task.getAdSeatId();
         this.ad_location = task.getAdSeatLocation();
         this.ad_status = task.getStatus();
-        this.img_url_list = new ArrayList<>();
-        this.img_url_list.add(task.getPicUrl1());
-        this.img_url_list.add(task.getPicUrl2());
-        this.img_url_list.add(task.getPicUrl3());
-        this.img_url_list.add(task.getPicUrl4());
         this.problem = task.getProblem();
         this.problem_other = task.getProblemOther();
         this.lon = task.getLon();
@@ -92,6 +90,9 @@ public class MonitorTaskExecutingVo extends BasicVo {
 		this.noQualifiedText2 = task.getNoQualifiedText2();
 		this.noQualifiedText3 = task.getNoQualifiedText3();
 		this.notification = task.getNotification();
+		this.monitorPicMinNum = task.getMonitorPicMinNum();
+		this.monitorPicMaxNum = task.getMonitorPicMaxNum();
+		this.pics = task.getPics();
     }
     public String getQualifiedPicUrl() {
 		return qualifiedPicUrl;
@@ -301,14 +302,6 @@ public class MonitorTaskExecutingVo extends BasicVo {
     public void setAd_status(Integer ad_status) {
         this.ad_status = ad_status;
     }
-
-    public List<String> getImg_url_list() {
-        return img_url_list;
-    }
-
-    public void setImg_url_list(List<String> img_url_list) {
-        this.img_url_list = img_url_list;
-    }
     
     public String getRegion() {
 		return region;
@@ -397,7 +390,22 @@ public class MonitorTaskExecutingVo extends BasicVo {
 	public void setTask_money(Double task_money) {
 		this.task_money = task_money;
 	}
-
-
-	
+	public Integer getMonitorPicMinNum() {
+		return monitorPicMinNum;
+	}
+	public void setMonitorPicMinNum(Integer monitorPicMinNum) {
+		this.monitorPicMinNum = monitorPicMinNum;
+	}
+	public Integer getMonitorPicMaxNum() {
+		return monitorPicMaxNum;
+	}
+	public void setMonitorPicMaxNum(Integer monitorPicMaxNum) {
+		this.monitorPicMaxNum = monitorPicMaxNum;
+	}
+	public List<AdMonitorTaskFeedbackResources> getPics() {
+		return pics;
+	}
+	public void setPics(List<AdMonitorTaskFeedbackResources> pics) {
+		this.pics = pics;
+	}
 }

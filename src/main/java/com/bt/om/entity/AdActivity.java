@@ -116,6 +116,25 @@ public class AdActivity extends ID{
     private String noQualifiedText3;
     private String notification;
     
+    private Integer monitorPicMinNum;
+    private Integer monitorPicMaxNum;
+    
+	public Integer getMonitorPicMinNum() {
+		return monitorPicMinNum;
+	}
+
+	public void setMonitorPicMinNum(Integer monitorPicMinNum) {
+		this.monitorPicMinNum = monitorPicMinNum;
+	}
+
+	public Integer getMonitorPicMaxNum() {
+		return monitorPicMaxNum;
+	}
+
+	public void setMonitorPicMaxNum(Integer monitorPicMaxNum) {
+		this.monitorPicMaxNum = monitorPicMaxNum;
+	}
+
 	public String getNoQualifiedText1() {
 		return noQualifiedText1;
 	}

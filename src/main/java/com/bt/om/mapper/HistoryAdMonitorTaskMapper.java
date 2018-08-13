@@ -101,7 +101,7 @@ public interface HistoryAdMonitorTaskMapper {
 	/**
 	 * 根据父id和父类型查询子任务和有效的监测反馈
 	 **/
-	AdMonitorTaskVo selectVoByPrimaryKey(@Param("id") Integer id);
+	AdMonitorTaskVo selectVoByPrimaryKey(HashMap<String, Object> searchMap);
 
 	/**
 	 * 上刊任务的活动广告位关联id，激活该id所有监测任务

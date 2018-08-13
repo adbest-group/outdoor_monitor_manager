@@ -53,6 +53,7 @@ import com.bt.om.mapper.AdActivityMediaMapper;
 import com.bt.om.mapper.AdJiucuoTaskFeedbackMapper;
 import com.bt.om.mapper.AdJiucuoTaskMapper;
 import com.bt.om.mapper.AdMonitorTaskFeedbackMapper;
+import com.bt.om.mapper.AdMonitorTaskFeedbackResourcesMapper;
 import com.bt.om.mapper.AdMonitorTaskMapper;
 import com.bt.om.mapper.AdMonitorUserTaskMapper;
 import com.bt.om.mapper.AdSeatInfoMapper;
@@ -62,6 +63,7 @@ import com.bt.om.mapper.HistoryAdActivityMapper;
 import com.bt.om.mapper.HistoryAdJiucuoTaskFeedbackMapper;
 import com.bt.om.mapper.HistoryAdJiucuoTaskMapper;
 import com.bt.om.mapper.HistoryAdMonitorTaskFeedbackMapper;
+import com.bt.om.mapper.HistoryAdMonitorTaskFeedbackResourcesMapper;
 import com.bt.om.mapper.HistoryAdMonitorTaskMapper;
 import com.bt.om.mapper.HistoryAdMonitorUserTaskMapper;
 import com.bt.om.mapper.SysResourcesMapper;
@@ -120,6 +122,10 @@ public class HistoryAdActivityService implements IHistoryAdActivityService {
     HistoryAdMonitorTaskFeedbackMapper historyAdMonitorTaskFeedbackMapper;
     @Autowired
     HistoryAdMonitorUserTaskMapper historyAdMonitorUserTaskMapper;
+    @Autowired
+    HistoryAdMonitorTaskFeedbackResourcesMapper historyAdMonitorTaskFeedbackResourcesMapper;
+    @Autowired
+    AdMonitorTaskFeedbackResourcesMapper adMonitorTaskFeedbackResourcesMapper;
     
     /**
      * 插入一条活动信息(暂时没用使用)
@@ -1047,6 +1053,8 @@ public class HistoryAdActivityService implements IHistoryAdActivityService {
 		if (adMonitorTaskFeedbacks.size()>0) {
 			historyAdMonitorTaskFeedbackMapper.insertBatch(tableName,adMonitorTaskFeedbacks);
 			adMonitorTaskFeedbackMapper.deleteByIds(adMonitorTaskFeedbacks);
+			historyAdMonitorTaskFeedbackResourcesMapper.insertBatchByBackIds(adMonitorTaskFeedbacks,tableName);
+			adMonitorTaskFeedbackResourcesMapper.deleteByBackIds(adMonitorTaskFeedbacks);
 		}
 		if (adMonitorUserTasks.size()>0) {
 			historyAdMonitorUserTaskMapper.insertBatch(tableName,adMonitorUserTasks);

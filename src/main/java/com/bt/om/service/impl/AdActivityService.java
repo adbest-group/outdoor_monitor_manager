@@ -380,6 +380,8 @@ public class AdActivityService implements IAdActivityService {
             	upTask.setStatus(MonitorTaskStatus.UNASSIGN.getId()); //直接就是待指派
             	upTask.setTaskType(MonitorTaskType.UP_TASK.getId());
             	upTask.setMonitorDate(DateUtil.getDayBegin(new Date()));
+            	upTask.setMonitorPicMinNum(adActivity.getMonitorPicMinNum());
+            	upTask.setMonitorPicMaxNum(adActivity.getMonitorPicMaxNum());
             	if(StringUtil.isNotBlank(adActivity.getUpTaskTime())) {
             		Date upTaskTime = DateUtil.parseStrDate(adActivity.getUpTaskTime(), "yyyy-MM-dd"); //页面上的上刊任务出报告时间
             		Date beforeDays = DateUtil.addDays(upTaskTime, -auditTime); //提前两天
@@ -409,6 +411,8 @@ public class AdActivityService implements IAdActivityService {
                 		task.setReportTime(upMonitorTask);
                 		task.setTaskPoint(adActivity.getUpMonitorTaskPoint());
                 		task.setTaskMoney(adActivity.getUpMonitorTaskMoney());
+                		task.setMonitorPicMinNum(adActivity.getMonitorPicMinNum());
+                		task.setMonitorPicMaxNum(adActivity.getMonitorPicMaxNum());
                         tasks.add(task);
                 	}
                 }
@@ -430,6 +434,8 @@ public class AdActivityService implements IAdActivityService {
                 		task.setReportTime(downMonitorTask);
                 		task.setTaskPoint(adActivity.getDownMonitorTaskPoint());
                 		task.setTaskMoney(adActivity.getDownMonitorTaskMoney());
+                		task.setMonitorPicMinNum(adActivity.getMonitorPicMinNum());
+                		task.setMonitorPicMaxNum(adActivity.getMonitorPicMaxNum());
                         tasks.add(task);
                 	}
                 }
@@ -466,6 +472,8 @@ public class AdActivityService implements IAdActivityService {
                     		task.setReportTime(durationMonitorTask);
                     		task.setTaskPoint(adActivity.getDurationMonitorTaskPoint());
                     		task.setTaskMoney(adActivity.getDurationMonitorTaskMoney());
+                    		task.setMonitorPicMinNum(adActivity.getMonitorPicMinNum());
+                    		task.setMonitorPicMaxNum(adActivity.getMonitorPicMaxNum());
                             tasks.add(task);
 						}
                 	}

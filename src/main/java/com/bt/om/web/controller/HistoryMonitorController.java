@@ -217,12 +217,12 @@ public class HistoryMonitorController extends BasicController{
 		
 		// 获取父任务信息，分监测和纠错
 		if (vo.getParentId() != null) {
+				svo.putSearchParam("id", null, vo.getParentId());
 			if (vo.getParentType() == RewardTaskType.MONITOR.getId()) {
 				// 父任务是监测
-				model.addAttribute("pmTask", historyAdMonitorTaskService.getTaskVoById(vo.getParentId()));
+				model.addAttribute("pmTask", historyAdMonitorTaskService.getTaskVoById(svo));
 			} else if (vo.getParentType() == RewardTaskType.JIUCUO.getId()) {
 				// 父任务是纠错
-				svo.putSearchParam("id", null, vo.getParentId());
 				model.addAttribute("pjTask", historyAdJiucuoTaskService.getVoById(svo));
 			}
 		}

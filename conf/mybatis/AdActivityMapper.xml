@@ -41,6 +41,8 @@
     <result column="no_qualified_text2" property="noQualifiedText2" jdbcType="VARCHAR" />
     <result column="no_qualified_text3" property="noQualifiedText3" jdbcType="VARCHAR" />
     <result column="notification" property="notification" jdbcType="VARCHAR"/>
+    <result column="monitor_pic_min_num" property="monitorPicMinNum" jdbcType="INTEGER"/>
+    <result column="monitor_pic_max_num" property="monitorPicMaxNum" jdbcType="INTEGER"/>
   </resultMap>
   <sql id="Base_Column_List" >
     <!--
@@ -52,7 +54,7 @@
     up_task_time, up_monitor_task_time, duration_monitor_task_time, down_monitor_task_time, zhuijia_monitor_task_time,up_task_point,
     up_monitor_task_point,duration_monitor_task_point,down_monitor_task_point,zhuijia_monitor_task_point,up_task_money,up_monitor_task_money,duration_monitor_task_money,
     down_monitor_task_money,zhuijia_monitor_task_money,qualified_pic_url,no_qualified_pic_url1,no_qualified_pic_url2,no_qualified_pic_url3,no_qualified_text1,no_qualified_text2,
-    no_qualified_text3,notification
+    no_qualified_text3,notification,monitor_pic_min_num,monitor_pic_max_num
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     <!--
@@ -86,7 +88,8 @@
       up_task_time, up_monitor_task_time, duration_monitor_task_time, down_monitor_task_time, zhuijia_monitor_task_time,
       up_task_point,up_monitor_task_point,duration_monitor_task_point,down_monitor_task_point,zhuijia_monitor_task_point,up_task_money,
       up_monitor_task_money,duration_monitor_task_money,down_monitor_task_money,zhuijia_monitor_task_money,qualified_pic_url,
-      no_qualified_pic_url1,no_qualified_pic_url2,no_qualified_pic_url3,no_qualified_text1,no_qualified_text2,no_qualified_text3,notification
+      no_qualified_pic_url1,no_qualified_pic_url2,no_qualified_pic_url3,no_qualified_text1,no_qualified_text2,no_qualified_text3,notification,
+      monitor_pic_min_num,monitor_pic_max_num
       )
     values (#{id,jdbcType=INTEGER}, #{activityName,jdbcType=VARCHAR}, #{startTime,jdbcType=TIMESTAMP}, 
       #{endTime,jdbcType=TIMESTAMP}, #{status,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{customerTypeId,jdbcType=INTEGER},
@@ -96,7 +99,7 @@
       #{downMonitorTaskPoint,jdbcType=INTEGER},#{zhuijiaMonitorTaskPoint,jdbcType=INTEGER},#{upTaskMoney,jdbcType=INTEGER}, #{upMonitorTaskMoney,jdbcType=INTEGER},
       #{durationMonitorTaskMoney,jdbcType=INTEGER}, #{downMonitorTaskMoney,jdbcType=INTEGER} , #{zhuijiaMonitorTaskMoney,jdbcType=DOUBLE} , #{qualifiedPicUrl,jdbcType=VARCHAR},
       #{noQualifiedPicUrl1,jdbcType=VARCHAR},#{noQualifiedPicUrl2,jdbcType=VARCHAR},#{noQualifiedPicUrl3,jdbcType=VARCHAR},#{noQualifiedText1,jdbcType=VARCHAR},#{noQualifiedText2,jdbcType=VARCHAR},
-      #{noQualifiedText3,jdbcType=VARCHAR},#{notification,jdbcType=VARCHAR})
+      #{noQualifiedText3,jdbcType=VARCHAR},#{notification,jdbcType=VARCHAR}, #{monitorPicMinNum,jdbcType=INTEGER}, #{monitorPicMaxNum,jdbcType=INTEGER})
   </insert>
   <insert id="insertSelective" parameterType="com.bt.om.entity.AdActivity" useGeneratedKeys="true" keyProperty="id" >
     <!--
@@ -208,6 +211,12 @@
       <if test="notification != null">
       	notification
       </if>
+      <if test="monitorPicMinNum != null" >
+        monitorPicMinNum
+      </if>
+       <if test="monitorPicMaxNum != null" >
+        monitorPicMaxNum
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -311,6 +320,12 @@
       </if>
        <if test="notification != null" >
         #{notification,jdbcType=VARCHAR}
+      </if>
+       <if test="monitorPicMinNum != null" >
+        #{monitorPicMinNum,jdbcType=INTEGER},
+      </if>
+       <if test="monitorPicMaxNum != null" >
+        #{monitorPicMaxNum,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>

@@ -356,10 +356,6 @@
         <result column="reason" jdbcType="VARCHAR" property="reason"/>
         <result column="problem" jdbcType="VARCHAR" property="problem"/>
         <result column="problem_other" jdbcType="VARCHAR" property="problemOther"/>
-        <result column="pic_url1" jdbcType="VARCHAR" property="picUrl1"/>
-        <result column="pic_url2" jdbcType="VARCHAR" property="picUrl2"/>
-        <result column="pic_url3" jdbcType="VARCHAR" property="picUrl3"/>
-        <result column="pic_url4" jdbcType="VARCHAR" property="picUrl4"/>
         <result column="feedbackstatus" jdbcType="INTEGER" property="feedbackStatus"/>
         <result column="feedbackcreatetime" jdbcType="TIMESTAMP" property="feedbackCreateTime"/>
         <result column="lat" jdbcType="DOUBLE" property="lat"/>
@@ -373,10 +369,6 @@
         <result column="media_type_id" jdbcType="INTEGER" property="mediaTypeId"/>
         <result column="parentName" jdbcType="VARCHAR" property="parentName"/>
 		<result column="secondName" jdbcType="VARCHAR" property="secondName"/>
-		<result column="pic_url1_status" jdbcType="INTEGER" property="picUrl1Status" />
-    	<result column="pic_url2_status" jdbcType="INTEGER" property="picUrl2Status" />
-    	<result column="pic_url3_status" jdbcType="INTEGER" property="picUrl3Status" />
-   		<result column="pic_url4_status" jdbcType="INTEGER" property="picUrl4Status" />
     </resultMap>
 
     <resultMap id="MobileResultMap" extends="BaseResultMap" type="com.bt.om.entity.vo.AdMonitorTaskMobileVo">
@@ -892,7 +884,9 @@
 			`seatinfo`.`location`,
 			seatinfo.name,
 			`media`.`media_name`,
-			adseat.media_id
+			adseat.media_id,
+			task.monitor_pic_min_num,
+			task.monitor_pic_max_num
 		from 
 			history_ad_monitor_task_${tableName} as task 
 			left join `history_ad_activity_${tableName}` as activity on task.`activity_id`=`activity`.id
@@ -905,7 +899,7 @@
 	</select>
 
 	<!-- 通过任务主表id查询任务及反馈信息 -->
-    <select id="getSubmitDetails" resultMap="ExtResultMap">
+    <select id="getSubmitDetails" resultMap="DetailsResultMap">
 		select
 			task.status,
 			activity.activity_name,
@@ -915,10 +909,6 @@
 			seatinfo.street,
 			adseat.monitor_start,
 			feedback.problem,
-			feedback.pic_url1,
-			feedback.pic_url2,
-			feedback.pic_url3,
-			feedback.pic_url4,
 			feedback.problem_other,
 			feedback.create_time feedbackcreatetime,
 			feedback.status feedbackstatus,
@@ -929,10 +919,7 @@
             feedback.lon as feedback_lon,
             feedback.lat as feedback_lat,
             feedback.id as feedback_id,
-            feedback.pic_url1_status,
-            feedback.pic_url2_status,
-            feedback.pic_url3_status,
-            feedback.pic_url4_status
+            #{tableName} as table_name
 		from
 			history_ad_monitor_task_feedback_${tableName} feedback
             left join `history_ad_monitor_task_${tableName}` as task on task.id=feedback.monitor_task_id
@@ -964,10 +951,10 @@
         select a.id, a.activity_id, a.activity_adseat_id, a.task_type,a.monitor_date,a.monitor_last_days, a.user_id,
         a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type,
         a.verify_time,a.create_time, a.update_time,a.assessor_id,a.assignor_id,a.assignor_time,
-        b.pic_url1,b.pic_url2,b.pic_url3,b.pic_url4,b.create_time as feedbackcreatetime,b.reason,
-        b.problem,b.problem_other,b.lon,b.lat,c.realname
-        from ad_monitor_task a
-        inner join ad_monitor_task_feedback b on a.id = b.monitor_task_id and b.`status` = 1
+        b.id as feedback_id,b.create_time as feedbackcreatetime,b.reason,
+        b.problem,b.problem_other,b.lon,b.lat,c.realname,${tableName} as table_name
+        from history_ad_monitor_task_${tableName} a
+        inner join historyad_monitor_task_feedback_${tableName} b on a.id = b.monitor_task_id and b.`status` = 1
         left join sys_user_execute c on a.user_id = c.id
         where a.id = #{id,jdbcType=INTEGER}
 
@@ -1640,4 +1627,10 @@
     	)
     	</foreach>
     </insert>
+    
+        <resultMap id="DetailsResultMap" extends="ExtResultMap"
+               type="com.bt.om.entity.vo.AdMonitorTaskVo">
+   		<collection property="pics" column="{table_name=table_name,feedback_id=feedback_id}" select="com.bt.om.mapper.HistoryAdMonitorTaskFeedbackResourcesMapper.selectByMonitorTaskFeedbackId" javaType="list">
+		</collection>
+    </resultMap>
 </mapper>

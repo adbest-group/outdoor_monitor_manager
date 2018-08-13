@@ -63,15 +63,15 @@
                         </p>
                         <p>
                             提交照片：</br>
-                        <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
-                            <img style="vertical-align: top;width:350px" src="${pmTask.picUrl1!""}"></img></div>
-                        <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
-                            <img style="vertical-align: top;width:350px"" src="${pmTask.picUrl2!""}"></img></div>
-                        </br>
-                        <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
-                            <img style="vertical-align: top;width:350px"" src="${pmTask.picUrl3!""}"></img></div>
-                        <div style="width: 360px;margin-bottom: 10px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
-                            <img style="vertical-align: top;width:350px"" src="${pmTask.picUrl4!""}"></img></div>
+                        <#if (pmTask.pics?exists && item.pics?size>0) >
+                        	<#list item.pics as pic>
+                        		<div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
+                           			<img style="vertical-align: top;width:350px" src="${pic.picUrl!""}"></img></div>
+                        		<#if pic_index%2!=0 ></br></#if> 
+                        	</#list>
+                        </#if>
+                            
+                            
                         </p>
                         <div style="border-bottom: 1px solid #ddd;padding-top: 20px"></div>
                         
@@ -133,7 +133,6 @@
                         <#list list as item>
                           <#if item.status!=1>
                             	<input type="hidden" id="selectTaskFeedBackId" value="">
-                            
                                 <p>广告活动名称：${item.activityName!""}</p>
                                 <p>提交时间：${(item.feedbackCreateTime?string('yyyy-MM-dd HH:mm'))!""}</p>
                             <#--<p>提交地区：${item.province}-${item.city}-${item.region}-${item.street}</p>-->
@@ -158,49 +157,27 @@
                                 <p>
                                     提交照片：</br>
                                 
-                                <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
-                                <input type="text" id="verifyPic1Result" disabled name="verifyPic1Result" style="width: 100px;" value="${vm.getVerifyTypeText(item.picUrl1Status!0)}" autocomplete="off" class="form-control" />
-                                     <img style="vertical-align: top;width:350px" src="${item.picUrl1!""}"></img>
-                                     <#if usertype?exists&&usertype==4>
-                                     	<#if (vo.status?exists&&vo.status!=7&&vo.status!=8)>
-                                      		<input type="button" id="changePic1" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/>
-                                      		<#if vo.status==3 || vo.status==5>
-                                      		<input type="button" id="verifyPic1" class="changePic btn btn-primary" value="　审核　" onclick="openverify1(${item.feedbackId!""})"/>
-                                      		</#if>
-                                      	</#if>
-                                     </#if>
-                                </div>
-                                <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
-                                <input type="text" id="verifyPic2Result" disabled name="verifyPic2Result" style="width: 100px;" value="${vm.getVerifyTypeText(item.picUrl2Status!0)}" autocomplete="off" class="form-control" />
-                                    <img style="vertical-align: top;width:350px"" src="${item.picUrl2!""}"></img>
-                                    <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=7&&vo.status!=8)>
-                                    	<input type="button" id="changePic2" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if>
-                                    	<#if vo.status==3 || vo.status==5>
-                                      		<input type="button" id="verifyPic2" class="changePic btn btn-primary" value="　审核　" onclick="openverify2(${item.feedbackId!""})"/>
-                                      	</#if>
-                                    </#if>
-                                </div> 
-                                </br>
-                                <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
-                                <input type="text" id="verifyPic3Result" disabled name="verifyPic3Result" style="width: 100px;" value="${vm.getVerifyTypeText(item.picUrl3Status!0)}" autocomplete="off" class="form-control" />
-                                    <img style="vertical-align: top;width:350px"" src="${item.picUrl3!""}"></img>
-                                    <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=7&&vo.status!=8)>
-                                    <input type="button" id="changePic3" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if>
-                                    	<#if vo.status==3 || vo.status==5>
-                                      		<input type="button" id="verifyPic3" class="changePic btn btn-primary" value="　审核　" onclick="openverify3(${item.feedbackId!""})"/>
-                                      	</#if>
-                                    </#if>
-                                </div> 
-                                <div style="width: 360px;margin-bottom: 10px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
-                                <input type="text" id="verifyPic4Result" disabled name="verifyPic4Result" style="width: 100px;" value="${vm.getVerifyTypeText(item.picUrl4Status!0)}" autocomplete="off" class="form-control" />
-                                    <img style="vertical-align: top;width:350px"" src="${item.picUrl4!""}"></img>
-                                    <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=7&&vo.status!=8)>
-                                    <input type="button" id="changePic4" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if>
-                                      <#if vo.status==3 || vo.status==5>
-                                      	  <input type="button" id="verifyPic4" class="changePic btn btn-primary" value="　审核　" onclick="openverify4(${item.feedbackId!""})"/>
-                                      </#if>
-                                    </#if>
-                                </div> 
+                                <#if (item.pics?exists && item.pics?size>0) >
+                                	<#list item.pics as pic>
+                                		<div class="monitor-pic" style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
+		                                <input type="text" id="verifyPic1Result" disabled name="verifyPic1Result" style="width: 100px;" value="${vm.getVerifyTypeText(pic.picStatus!0)}" autocomplete="off" class="form-control" />
+		                                     <img style="vertical-align: top;width:350px" src="${pic.picUrl!""}"></img>
+		                                     <#if usertype?exists&&usertype==4>
+		                                     	<#if (vo.status?exists&&vo.status!=7&&vo.status!=8)>
+		                                      		<input type="button" id="changePic${pic_index}" class="changePic btn btn-primary" value="　更换　" data-resourceid='${pic.id!""}' data-feedbackid='${pic.monitorTaskFeedbackId!""}' onclick="setFeedbackId(${pic.monitorTaskFeedbackId!""},${pic.id!""})"/>
+		                                      		<#if vo.status==3 || vo.status==5>
+		                                      		<input type="button" id="verifyPic" class="changePic btn btn-primary" value="　审核　" onclick="openverify(${pic.monitorTaskFeedbackId!""},${pic.id!""}, ${pic_index})"/>
+		                                      		</#if>
+		                                      	</#if>
+		                                     </#if>
+		                                </div><#if pic_index%2!=0 ></br></#if> 
+                                	</#list>
+                                </#if>
+                                <#if usertype?exists&&usertype==4>
+		                        	<#if item.pics?size<vo.monitorPicMaxNum >
+                                		<div id="add-monitor-pic" onclick="setFeedbackId(${item.feedbackId!""},0)">+</div>
+                                	</#if>
+                                </#if>
                                 </p>
                                 <p><br/>
                                     <#setting number_format="#0.######" />
@@ -284,36 +261,11 @@
                             
                             </br></br>
                             <p>提交照片：</p>
-                            <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
-                                 <img style="vertical-align: top;width:350px" src=""></img>
-                                 <#if usertype !=6>
-                                 <input type="button" class="changePic btn btn-primary" value="　更换　" onclick="checkVal(this);"/>
-                                 <input type="button" id="changePic11" style="visibility: hidden" class="changePic btn btn-primary" value="　更换　"/>
-                                 </#if>
-                            </div>
-                            <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
-                                <img style="vertical-align: top;width:350px"" src=""></img>
-                                <#if usertype !=6>
-                                <input type="button" class="changePic btn btn-primary" value="　更换　" onclick="checkVal(this);"/>
-                                <input type="button" id="changePic22" style="visibility: hidden" class="changePic btn btn-primary" value="　更换　"/>
-                                </#if>
-                            </div> 
-                            </br>
-                            <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
-                                <img style="vertical-align: top;width:350px"" src=""></img>
-                                <#if usertype !=6>
-                                <input type="button" class="changePic btn btn-primary" value="　更换　" onclick="checkVal(this);"/>
-                                <input type="button" id="changePic33" style="visibility: hidden" class="changePic btn btn-primary" value="　更换　"/>
-                                </#if>
-                            </div> 
-                            <div style="width: 360px;margin-bottom: 10px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
-                                <img style="vertical-align: top;width:350px"" src=""></img>
-                                <#if usertype !=6>
-                                <input type="button" class="changePic btn btn-primary" value="　更换　" onclick="checkVal(this);"/>
-                                <input type="button" id="changePic44" style="visibility: hidden" class="changePic btn btn-primary" value="　更换　"/>
-                                </#if>
-                            </div> 
-                        
+                        	 <#if usertype?exists&&usertype!=6>
+                                	<div id="new-add-monitor-pic" onclick="checkVal(this);">+</div>
+                                	<input type="button" id="add-pic" style="visibility: hidden" class="changePic btn btn-primary" value="　更换　"/>
+                              </#if>
+                        	
                             <div style="border-bottom: 1px solid #ddd;padding-top: 20px"></div>
                     </div>
                 </div>
@@ -323,7 +275,7 @@
 </#if>
 </#if>
 
-</div
+</div>
 <script type="text/javascript"
         src="${model.static_domain}/js/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=T8nSZc6XXTiu1vm5pCwdYu1D5AIb2F1w"></script>
@@ -334,61 +286,87 @@
 <!-- 下拉 -->
 <link href="${model.static_domain}/js/select/jquery.searchableSelect.css" rel="stylesheet">
 <script src="${model.static_domain}/js/select/jquery.searchableSelect.js"></script>
+<style>
+	#add-monitor-pic,#new-add-monitor-pic{
+		width: 100px;
+		height: 100px;
+		line-height: 100px;
+		text-align: center;
+		font-weight: bold;
+		font-size: 30px;
+		border:5px solid #000;
+		cursor: pointer;
+	}
+</style>
+
 <script type="text/javascript">
+
+	var monitorPicMinNum = ${vo.monitorPicMinNum};
+	var monitorPicMaxNum = ${vo.monitorPicMaxNum};
+	console.log(monitorPicMinNum, monitorPicMaxNum)
 
 	$('.select').searchableSelect();
 	$('#selectMediaName').next().find('.searchable-select-input').css('display', 'block');
 
-	function setFeedbackId(id){
+	function setFeedbackId(id,taskFeedBackResourcesId){
 		$("#selectTaskFeedBackId").val(id);
 	}
+	
+	// 如果上传的图片大于最大数量则隐藏添加按钮
+	if($('.monitor-pic').length >= monitorPicMaxNum){
+		$('#add-monitor-pic,#new-add-monitor-pic').hide()
+	}
+	
+	// 添加上传图片
+	layui.use('upload', function(){
+	  var upload = layui.upload;
+	  //执行实例
+	  var uploadInst = upload.render({
+	    elem: '#add-monitor-pic,#add-pic' //绑定元素
+	    ,data: {
+	    	userId: function() {
+			  	return $('#selectMediaName').val()
+			},  
+	   		taskFeedBackId: function() {
+		  	  return $('#selectTaskFeedBackId').val()
+		 	},
+			monitorTaskId: function() {
+		  		return $('#selectMonitorTaskId').val()
+		    },
+			index: $('.monitor-pic').length
+		}
+	    ,accept: 'images' //指定只允许上次文件
+	    ,exts: 'jpg|jpeg|png' //指定只允许上次jpg和png格式的图片
+	    ,field: 'picFile' //设置字段名
+	    ,url: '/task/changePic' //上传接口
+	    ,done: function(res){
+	   		if(res.ret.code == 100){
+	    		layer.alert('上传成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
+	    		window.location.reload();
+	    	} else if (res.ret.code == 101){
+	    		layer.alert(res.ret.resultDes, {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	} else if (res.ret.code == 105){
+	    		layer.alert('没有上传权限', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	}
+	    }
+	    ,error: function(res){
+	       layer.alert('上传失败', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    }
+	  });
+	});   
+	
 	//审核图片1
-	function openverify1(id){
+	function openverify(feedbackId, id, index){
 		layer.open({
             type: 2,
             title: '审核详情',
             shadeClose: true,
             shade: 0.8,
             area: ['480px', '240px'],
-            content: '/task/verifyPic?id=' + id + '&index=1' //iframe的url
+            content: '/task/verifyPic?feedbackId=' + feedbackId + '&id=' + id + '&index=' + (index + 1) //iframe的url
         });
 	}
 	
-	//审核图片2
-	function openverify2(id){
-		layer.open({
-            type: 2,
-            title: '审核详情',
-            shadeClose: true,
-            shade: 0.8,
-            area: ['480px', '240px'],
-            content: '/task/verifyPic?id=' + id + '&index=2' //iframe的url
-        });
-	}
-	
-	//审核图片3
-	function openverify3(id){
-		layer.open({
-            type: 2,
-            title: '审核详情',
-            shadeClose: true,
-            shade: 0.8,
-            area: ['480px', '240px'],
-            content: '/task/verifyPic?id=' + id + '&index=3' //iframe的url
-        });
-	}
-	
-	//审核图片4
-	function openverify4(id){
-		layer.open({
-            type: 2,
-            title: '审核详情',
-            shadeClose: true,
-            shade: 0.8,
-            area: ['480px', '240px'],
-            content: '/task/verifyPic?id=' + id + '&index=4' //iframe的url
-        });
-	}
 	function checkVal(that){
 	   var lon = $('#lontitude').val();
   	   var lat = $('#latitude').val();
@@ -516,22 +494,73 @@
             }
         });
     }
+    bindUpload()
+    function bindUpload(){
+    	var len = $('.monitor-pic').length;
+    	for(var i = 0; i < len; i++) {
+    		(function(i){
+    				var index = i + 1;
+	                layui.use('upload', function(){
+					  var upload = layui.upload;
+					  //执行实例
+					  var uploadInst = upload.render({
+					    elem: '#changePic' + i //绑定元素
+					    ,data: {
+							  
+					   		taskFeedBackId: function() {
+						  	  return $('#selectTaskFeedBackId').val()
+						 	},
+				
+							 index: index,
+							 monitorTaskFeedbackId: function(){
+							 console.log($('#changePic' + i))
+							 	return $('#changePic' + i).data('feedbackid')
+							 },
+							 taskFeedBackResourcesId: function(){
+							 	return $('#changePic' + i).data('resourceid')
+							 }
+						}
+					    ,accept: 'images' //指定只允许上次文件
+					    ,exts: 'jpg|jpeg|png' //指定只允许上次jpg和png格式的图片
+					    ,field: 'picFile' //设置字段名
+					    ,url: '/task/changePic' //上传接口
+					    ,done: function(res){
+					   		if(res.ret.code == 100){
+					    		layer.alert('替换成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
+					    		window.location.reload();
+					    	} else if (res.ret.code == 101){
+					    		layer.alert(res.ret.resultDes, {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+					    	} else if (res.ret.code == 105){
+					    		layer.alert('没有替换权限', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+					    	}
+					    }
+					    ,error: function(res){
+					       layer.alert('替换失败', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+					    }
+					  });
+					});                                                        
+	        })(i)
+    		
+    	}
+    }
 
 
     //更换详情图片1
-	layui.use('upload', function(){
+	/*layui.use('upload', function(){
 	  var upload = layui.upload;
-
+		console.log(1, $('.changePic'))
 	  //执行实例
 	  var uploadInst = upload.render({
-	    elem: '#changePic1' //绑定元素
+	    elem: '.changePic' //绑定元素
 	    ,data: {
-
+			  
 	    	  taskFeedBackId: function() {
 		  	  return $('#selectTaskFeedBackId').val()
 		 	 },
 
-		  index : 1
+		  index : function() {
+		  	console.log($(this))
+		  }
 		}
 	    ,accept: 'images' //指定只允许上次文件
 	    ,exts: 'jpg|jpeg|png' //指定只允许上次jpg和png格式的图片
@@ -651,7 +680,7 @@
 	       layer.alert('替换失败', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
 	    }
 	  });
-	});
+	});*/
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	

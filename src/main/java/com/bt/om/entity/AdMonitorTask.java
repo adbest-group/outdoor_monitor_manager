@@ -275,7 +275,26 @@ public class AdMonitorTask extends ID{
     private Date reportTime;
     private Integer taskPoint;
     private Double taskMoney;
-    public Double getTaskMoney() {
+    private Integer monitorPicMinNum;
+    private Integer monitorPicMaxNum;
+    
+    public Integer getMonitorPicMinNum() {
+		return monitorPicMinNum;
+	}
+
+	public void setMonitorPicMinNum(Integer monitorPicMinNum) {
+		this.monitorPicMinNum = monitorPicMinNum;
+	}
+
+	public Integer getMonitorPicMaxNum() {
+		return monitorPicMaxNum;
+	}
+
+	public void setMonitorPicMaxNum(Integer monitorPicMaxNum) {
+		this.monitorPicMaxNum = monitorPicMaxNum;
+	}
+
+	public Double getTaskMoney() {
 		return taskMoney;
 	}
 

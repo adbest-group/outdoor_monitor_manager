@@ -421,7 +421,7 @@
       </foreach>
     </if>
     <if test="nameOrUsername != null" >
-      and (a.username like #{nameOrUsername,jdbcType=VARCHAR} or realname like #{nameOrUsername,jdbcType=VARCHAR})
+      and (a.username like #{nameOrUsername,jdbcType=VARCHAR} or a.realname like #{nameOrUsername,jdbcType=VARCHAR})
     </if>
     <if test="firmId != null" >
       and b.id = #{firmId,jdbcType=INTEGER}

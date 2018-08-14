@@ -8,6 +8,7 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,6 +38,7 @@ import com.bt.om.cache.CityCache;
 import com.bt.om.common.DateUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.entity.AdActivity;
+import com.bt.om.entity.AdActivityAdseat;
 import com.bt.om.entity.AdApp;
 import com.bt.om.entity.AdMedia;
 import com.bt.om.entity.AdMediaType;
@@ -46,6 +48,7 @@ import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.City;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
+import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdMediaTypeVo;
 import com.bt.om.enums.AdCodeFlagEnum;
 import com.bt.om.enums.AdminImportAdSeatEnum;
@@ -71,6 +74,7 @@ import com.bt.om.service.IAdUserMessageService;
 import com.bt.om.service.IAppService;
 import com.bt.om.service.IMediaService;
 import com.bt.om.service.ISysUserService;
+import com.bt.om.util.ConfigUtil;
 import com.bt.om.util.ExcelTool;
 import com.bt.om.util.ImportExcelUtil;
 import com.bt.om.util.NumberUtil;
@@ -134,7 +138,6 @@ public class ExcelController extends BasicController {
 	private IAdUserMessageService adUserMessageService;
 	
 	private static final Logger logger = Logger.getLogger(ExcelController.class);
-	
 	/**
 	 * 批量导入媒体监测人员
 	 */
@@ -1293,6 +1296,80 @@ public class ExcelController extends BasicController {
             result.setResult("/static/excel/" + fileName);
             listString.clear();
         } catch (Exception e) {
+        	logger.error(MessageFormat.format("批量导入文件有误, 导入失败", new Object[] {}));
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+        	result.setResultDes("导入失败");
+            e.printStackTrace();
+        }
+		
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+	}
+	
+	/**
+	 * 批量导入广告位编号和广告位图片
+	 * */
+    @RequestMapping(value = "/insertMemoByExcel")
+	@ResponseBody
+	public Model insertMemoByExcel(Model model, HttpServletRequest request, HttpServletResponse response,
+			@RequestParam(value = "filepath", required = false) String filepath,
+			@RequestParam(value = "excelFile", required = false) MultipartFile file) {
+    	//相关返回结果
+		ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("查询成功");
+        model = new ExtendedModelMap();
+        try {
+        	if (file.isEmpty()) {
+				logger.error(MessageFormat.format("批量导入文件不能为空, 导入失败", new Object[] {}));
+        		throw new ExcelException("批量导入文件不能为空, 导入失败");
+			}
+			
+	        InputStream in = file.getInputStream();
+	        List<List<Object>> listob = new ArrayList<List<Object>>();
+	       
+            //excel上传支持
+            listob = new ImportExcelUtil().getBankListByExcel(in, file.getOriginalFilename());
+            //导出文件相关
+	 		final String fileName = "导入结果-" + System.currentTimeMillis() + ".xls"; //导出文件名
+	 		
+            //excel列表
+            Map<String,String> memoMap = new HashMap<String,String>();
+            List<String> memoList = new ArrayList<>();
+            for (int i = 1; i < listob.size(); i++) {
+            	List<Object> lo = listob.get(i);
+            	memoMap.put((String) lo.get(0),(String) lo.get(1));
+            }
+            for(Map.Entry<String, String> entry : memoMap.entrySet()){
+            	memoList.add(entry.getKey()); //获取所有广告位编号
+            }
+            //业务层操作
+            //【1】查出所有指定广告位编号的广告位信息
+            List<AdActivityAdseatVo> adSeat = adActivityService.findAllMemo(memoList);
+            //【2】删除所有指定广告位-活动的信息
+            Map<String, Object> searchMap = new HashMap<>();
+            //获取所有的活动id
+            for(AdActivityAdseatVo vo : adSeat) {
+            	searchMap.put("activityIds", vo.getActivityId());
+            }
+//            if(!filepath.startsWith("/")) {
+//            	filepath = "/" + filepath;
+//            }
+//            if(!filepath.endsWith("/")) {
+//            	filepath = filepath + "/";
+//            }
+            adActivityService.deleteSeats(searchMap,adSeat,memoMap,filepath,listob);
+            
+            //导出到excel, 返回导入媒体监测人员信息结果
+            List<List<String>> listString = objToString(listob);
+            String[] titleArray = { "广告位编号", "图片名称", "导入结果", "导入错误信息"};
+            ExcelTool<List<String>> excelTool = new ExcelTool<List<String>>("importResult");
+            String path = request.getSession().getServletContext().getRealPath("/");
+    		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"excel"+File.separatorChar+fileName;
+    		excelTool.generateExcel(listString, titleArray, path);
+            result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+            result.setResult("/static/excel/" + fileName);
+        }  catch (Exception e) {
         	logger.error(MessageFormat.format("批量导入文件有误, 导入失败", new Object[] {}));
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());
         	result.setResultDes("导入失败");

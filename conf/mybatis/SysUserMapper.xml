@@ -529,5 +529,11 @@
   	</set>
   	where app_type_id = #{appTypeId,jdbcType=INTEGER}
   </update>
-  
+  <!-- 查找是否有该邀请码(公司邮箱) -->	
+  <select id="getUserName" parameterType="string" resultMap="BaseResultMap">
+  	select 
+  	<include refid="Base_Column_List" />
+  	from sys_user
+  	where username = #{username ,jdbcType=VARCHAR}
+  </select>
 </mapper>

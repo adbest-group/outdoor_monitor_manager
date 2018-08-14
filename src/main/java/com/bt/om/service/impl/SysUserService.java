@@ -311,4 +311,9 @@ public class SysUserService implements ISysUserService {
 		}
 	}
 
+	@Override
+	public SysUser getUserName(String inviteAcc) {
+		return sysUserMapper.getUserName(inviteAcc);
+	}
+
 }

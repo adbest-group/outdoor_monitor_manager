@@ -94,14 +94,14 @@
                         <#list bizObj.list as task>
                         <tr>
                         	<td width="30"><#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status?exists&&task.status == 1||task.status == 2)>
-                        	<#if user.usertype !=6><input type="checkbox" data-status='${task.status}'  name="ck-task" value="${task.id}"/></#if><div style='display:none;' data-id='${task.mediaId}'></div></#if></#if></td>
+                        	<#if user.usertype !=6><input type="checkbox" data-status='${task.status}'  name="ck-task" value="${task.id}"/></#if><div style='display:none;' data-id='${task.mediaId!""}'></div></#if></#if></td>
                             <td width="30">${(bizObj.page.currentPage-1)*20+task_index+1}</td>
                             <td>
                                 <div class="data-title w200" data-title="${task.activityName!""}" data-id="${task.id}">${task.activityName?if_exists}</div>
                             </td>
                             <td><img width="50" src="${task.samplePicUrl!""}"/> </td>
                             <td>${task.startTime?string('yyyy-MM-dd')}<br/>${task.endTime?string('yyyy-MM-dd')}</td>
-                           <td>${vm.getCityName(task.province)!""} ${vm.getCityName(task.city!"")}</td>
+                           <td>${vm.getCityName(task.province!"")!""} ${vm.getCityName(task.city!"")}</td>
                             <td  id="media_${task.id}">${task.mediaName!""}</td>
                             <td>${task.parentName!""}</td>
                             <td>${task.secondName!""}</td>
@@ -112,7 +112,7 @@
                             <td>${vm.getMonitorTaskStatusText(task.status)!""}</td>
                             <td>
                             <#if user.usertype !=6>
-                            	<#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status==1 || task.status==8 || task.status==2)><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if></#if>
+                            	<#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status==1 || task.status==8 || task.status==2)><a href="javascript:assign('${task.id}',${task.mediaId!""})">指派</a></#if></#if>
                              </#if>
                                 <a href="/task/details?task_Id=${task.id}">详情</a>
                             </td>

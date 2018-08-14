@@ -152,7 +152,7 @@
                             </td>
                             <td><img width="50" src="${task.samplePicUrl!""}"/></td>
                             <td>${task.startTime?string('yyyy-MM-dd')}<br/>${task.endTime?string('yyyy-MM-dd')}</td>
-                            <td>${vm.getCityName(task.province)!""} ${vm.getCityName(task.city!"")}</td>
+                            <td>${vm.getCityName(task.province!"")!""} ${vm.getCityName(task.city!"")}</td>
                             <td>${task.mediaName!""}</td>
                             <td>${task.parentName!""}</td>
                             <td>${task.secondName!""}</td>

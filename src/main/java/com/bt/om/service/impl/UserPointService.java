@@ -80,28 +80,29 @@ public class UserPointService implements IUserPointService {
 			SysUserExecute sysUserExecute) {
 		AdUserPoint adUserPoint = new AdUserPoint();
 		Date now = new Date();
-		// 被邀请人积分增加
-		adUserPoint.setUserId(sysUser.getId());
-		adUserPoint.setPoint(adpoint.getPoint());
-		adUserPoint.setResult("恭喜邀请注册成功！");
-		adUserPoint.setCreateTime(now);
-		adUserPoint.setUpdateTime(now);
-		adUserPointMapper.insert(adUserPoint);
-
+		if(adpoint != null) {
+			// 被邀请人积分增加
+			adUserPoint.setUserId(sysUser.getId());
+			adUserPoint.setPoint(adpoint.getPoint());
+			adUserPoint.setResult("恭喜邀请注册成功！");
+			adUserPoint.setCreateTime(now);
+			adUserPoint.setUpdateTime(now);
+			adUserPointMapper.insert(adUserPoint);
+	
+			// 邀请人积分增加
+			adUserPoint.setUserId(sysUserExecute.getId());
+			adUserPoint.setPoint(adpoint.getPoint());
+			adUserPoint.setResult("邀请用户" + username + "成功！");
+			adUserPoint.setCreateTime(now);
+			adUserPoint.setUpdateTime(now);
+			adUserPointMapper.insert(adUserPoint);
+		}
 		adUserPoint.setUserId(sysUser.getId());
 		adUserPoint.setPoint(adpointreg.getPoint());
 		adUserPoint.setResult("恭喜注册成功！");
 		adUserPoint.setCreateTime(now);
 		adUserPoint.setUpdateTime(now);
 		adUserPointMapper.insert(adUserPoint);
-		// 邀请人积分增加
-		adUserPoint.setUserId(sysUserExecute.getId());
-		adUserPoint.setPoint(adpoint.getPoint());
-		adUserPoint.setResult("邀请用户" + username + "成功！");
-		adUserPoint.setCreateTime(now);
-		adUserPoint.setUpdateTime(now);
-		adUserPointMapper.insert(adUserPoint);
-
 	}
 
 	/**

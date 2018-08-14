@@ -82,4 +82,5 @@ public interface SysUserExecuteMapper {
 	List<String> getAllMobile();
 	
 	void insertBatch(@Param("sysUserExecutes") List<SysUserExecute> sysUserExecutes);
+
 }

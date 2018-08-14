@@ -727,7 +727,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	        userIdList.addAll(list);
 	        userIdList.add(dep_id);
 	        if(user.getUsertype() == SysUserExecuteType.THIRDCOMPANY.getId()) {
-	        	//执行人员是第三方监测公司的员工 , 发送站内信
+	        	//执行人员是第三方监测公司的员工  第三方监测公司 收到站内信
 	        	userIdList.add(user.getOperateId());
 	        }
 	        

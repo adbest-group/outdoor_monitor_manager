@@ -102,4 +102,8 @@ public interface IAdActivityService {
 
 	public List<HistoryAdActivity> selectActivityAllByEndTime(HashMap<String, Object> searchMap);
 
+	public List<AdActivityAdseatVo> findAllMemo(List<String> memoList);
+
+	public void deleteSeats(Map<String, Object> searchMap, List<AdActivityAdseatVo> adSeat, Map<String, String> memoMap, String filepath, List<List<Object>> listob);
+
 }

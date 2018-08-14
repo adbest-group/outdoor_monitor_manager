@@ -81,23 +81,25 @@ img.demo {
 							<tr>
 								<td class="a-title"><font class="s-red">*</font>媒体大类：</td>
 								<td>
+								<div style="float: left; font-size: 12px" class="select-box select-box-100 un-inp-select ll">
 									<select style="width: 156px;" name="mediaTypeParentId" id="mediaTypeParentId" class="form-control" onchange="changeMediaTypeId();">
 										<option value="">请选择媒体大类</option>
 										<@model.showAllAdMediaTypeAvailableOps value="<#if (adSeatInfo?exists&&adSeatInfo.mediaTypeParentId?exists)>adSeatInfo.mediaTypeParentId</#if>"/>
 				                    </select>
-									
                                     <span id="mediaTypeParentIdIdTip"></span>
+                                </div>
 								</td>
 							</tr>
 							
 							<tr>
 								<td class="a-title"><font class="s-red">*</font>媒体小类：</td>
 								<td>
-									<select style="width: 156px;" name="mediaTypeId" id="mediaTypeId" class="form-control">
-										<option value="">请选择媒体小类</option>
-				                    </select>
-									
-                                    <span id="mediaTypeIdIdTip"></span>
+									<div style="float: left; font-size: 12px" class="select-box select-box-100 un-inp-select ll">
+										<select style="width: 156px;" name="mediaTypeId" id="mediaTypeId" class="form-control">
+											<option value="">请选择媒体小类</option>
+					                    </select>
+	                                    <span id="mediaTypeIdIdTip"></span>
+	                                </div>
 								</td>
 							</tr>
 							
@@ -304,9 +306,22 @@ img.demo {
 
 <script type="text/javascript" src="/static/js/jquery.citys.js"></script>
 <script type="text/javascript">
-	function changeMediaTypeId() {
-		var mediaTypeParentId = $("#mediaTypeParentId").val();
-		if(mediaTypeParentId == "" || mediaTypeParentId.length <= 0) {
+	$('#mediaTypeParentId').searchableSelect({
+		afterSelectItem: function(){
+			if(this.holder.data("value")){
+				
+				changeMediaTypeId(this.holder.data("value"))
+				$('#mediaTypeId').css('display', 'inline-block')
+			}else{
+				$('#mediaTypeId').parent().html('<select style="width: 120px;height:31px;display:none" name="mediaTypeId" id="mediaTypeId"><option value="">请选择媒体小类</option></select>')
+			}
+		}
+	})
+	
+	$('#mediaTypeParentId').next().find('.searchable-select-input').css('display', 'block')
+	function changeMediaTypeId(mediaTypeParentId) {	
+		// var mediaTypeParentId = $("#mediaTypeParentId").val();
+		if(!mediaTypeParentId) {
 			var option = '<option value="">请选择媒体小类</option>';
 			$("#mediaTypeId").html(option);
 			return ;
@@ -318,16 +333,27 @@ img.demo {
 			dataType : "json",
 			traditional : true,
 			success : function(data) {
+				var mediaTypeIdSelect = ""
+				<#if mediaTypeId?exists && mediaTypeId != ""> mediaTypeIdSelect = ${mediaTypeId!""} </#if>
+				var isSelect = false;
 				var result = data.ret;
 				if (result.code == 100) {
+				
 					var adMediaTypes = result.result;
-					var htmlOption = '<option value="">请选择媒体小类</option>';
+					var htmlOption = '<select style="width: 120px;height:31px;" name="mediaTypeId" id="mediaTypeId"><option value="">请选择媒体小类</option>';
 					for (var i=0; i < adMediaTypes.length;i++) { 
 						var type = adMediaTypes[i];
 						htmlOption = htmlOption + '<option value="' + type.id + '">' + type.name + '</option>';
+						if(mediaTypeIdSelect === type.id){
+							isSelect = true
+						}
 					}
-					
+					htmlOption += '</select>'
 					$("#mediaTypeId").html(htmlOption);
+					$("#mediaTypeId").next().remove()
+					$("#mediaTypeId").val(isSelect ? mediaTypeIdSelect : "");
+					$("#mediaTypeId").searchableSelect()
+					$('#mediaTypeId').next().find('.searchable-select-input').css('display', 'block')
 				} else {
 					alert('修改失败!');
 				}
@@ -352,7 +378,7 @@ img.demo {
 	};
 
 	$(function() {
-        $('.select,#mediaTypeParentId,#mediaTypeId,#mapStandard,#allowMulti').searchableSelect();
+        $('.select,#mapStandard,#allowMulti,#mediaTypeId').searchableSelect();
         $('#mediaId').next().find('.searchable-select-input').css('display', 'block');
         
 		$('#form').submit(function() {
@@ -643,24 +669,6 @@ img.demo {
 	 });
 	 } */
 
-	/*获取城市  */
-	var $town = $('#demo3 select[name="street"]');
-	var townFormat = function(info) {
-		$town.hide().empty();
-		if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
-			$.ajax({
-				url : '/api/city?provinceId=' + info['code'],
-				dataType : 'json',
-				success : function(town) {
-					$town.show();
-					for (i in town) {
-						$town.append('<option value="'+i+'" <#if adSeatInfo?exists&&adSeatInfo.street?exists>'+(i==${adSeatInfo.street}?"selected":"")+'</#if>>' + town[i]
-								+ '</option>');
-					}
-				}
-			});
-		}
-	};
 	$('#demo3').citys({
         "province" : '<#if adSeatInfo?exists>${adSeatInfo.province!""}</#if>',
 		"city" : '<#if adSeatInfo?exists>${adSeatInfo.city!""}</#if>',

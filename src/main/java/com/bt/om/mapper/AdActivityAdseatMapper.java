@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
+import com.beust.jcommander.Parameter;
 import com.bt.om.entity.AdActivityAdseat;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.HistoryAdActivityAdseat;
@@ -97,11 +98,15 @@ public interface AdActivityAdseatMapper {
 	
 	int insertBatch(@Param("adActivityAdseats") List<AdActivityAdseat> adActivityAdseats);
 
-	int deleteByActivityIds(Map<String, Object> searchMap);
+	int deleteByActivityIds(@Param("activityIds") Map<String, Object> searchMap);
 	
 	List<Integer> selectByActivityIdAndSeatIds(Map<String, Object> searchMap);
 	
 	List<AdActivityAdseatTaskVo> newSelectAdActivityAdseatTaskReport(Map<String, Object> searchMap);
 	
 	List<HistoryAdActivityAdseat> selectActivityAdseatByActivityId(@Param("activityId") Integer activityId);
+
+	List<AdActivityAdseatVo> findAllMemo(@Param("memoList") List<String> memoList);
+
+	void insetAdSeat(@Param("adSeat") List<AdActivityAdseatVo> adSeat);
 }

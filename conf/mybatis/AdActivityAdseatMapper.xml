@@ -809,4 +809,39 @@
 		from ad_activity_adseat
 		where activity_id = #{activityId,jdbcType=INTEGER}
   </select>
+  <!-- 查询所有指定的广告位编号 -->
+  <select id="findAllMemo" parameterType="java.lang.String" resultMap="ExtResultMap">
+  		select 
+	  		a.id, a.activity_id, a.media_id, a.ad_seat_id, a.brand, a.monitor_start, a.monitor_end, a.monitor_count,
+		    a.up_monitor_last_days,a.down_monitor_last_days,a.duration_monitor_last_days,a.up_monitor, a.down_monitor, 
+		    a.duration_monitor, a.sample_pic_url, a.task_create, a.create_time, a.update_time,b.memo
+	    from 
+	    ad_activity_adseat a 
+		LEFT JOIN ad_seat_info b ON a.ad_seat_id=b.id
+		WHERE 1=1 
+		<if test="memoList != null">
+			and b.memo IN 
+			<foreach collection="memoList" separator="," open="(" close=")" item="memo">#{memo,jdbcType=VARCHAR}</foreach>
+		</if>
+  </select>
+  
+  <!-- 批量插入活动的广告位信息 -->
+  <insert id="insetAdSeat" parameterType="com.bt.om.entity.vo.AdActivityAdseatVo">
+    insert into ad_activity_adseat (
+      	activity_id, media_id, ad_seat_id, brand, monitor_start, monitor_end, monitor_count,
+    	up_monitor_last_days,down_monitor_last_days,duration_monitor_last_days,
+    	up_monitor, down_monitor, duration_monitor, sample_pic_url, task_create, create_time,update_time
+    )
+    values 
+    <foreach collection="adSeat" item="as" separator=",">  
+    (
+    	  #{as.activityId,jdbcType=INTEGER}, #{as.mediaId,jdbcType=INTEGER}, 
+	      #{as.adSeatId,jdbcType=INTEGER}, #{as.brand,jdbcType=VARCHAR}, #{as.monitorStart,jdbcType=TIMESTAMP}, 
+	      #{as.monitorEnd,jdbcType=TIMESTAMP}, #{as.monitorCount,jdbcType=INTEGER}, #{as.upMonitor,jdbcType=INTEGER}, 
+	      #{as.downMonitor,jdbcType=INTEGER}, #{as.durationMonitor,jdbcType=INTEGER},
+	      #{as.upMonitorLastDays,jdbcType=INTEGER}, #{as.downMonitorLastDays,jdbcType=INTEGER}, #{as.durationMonitorLastDays,jdbcType=INTEGER},
+	      #{as.samplePicUrl,jdbcType=VARCHAR}, #{as.taskCreate,jdbcType=INTEGER}, #{as.createTime,jdbcType=TIMESTAMP}, #{as.updateTime,jdbcType=TIMESTAMP}
+     )
+    </foreach>
+  </insert>
 </mapper>

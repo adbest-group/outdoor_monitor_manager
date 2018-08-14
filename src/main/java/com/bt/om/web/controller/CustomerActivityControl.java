@@ -443,7 +443,7 @@ public class CustomerActivityControl extends BasicController {
         SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         if (StringUtil.isNotEmpty(id)) {
         	AdActivityVo activity = adActivityService.getVoById(Integer.valueOf(id));
-        	if (user.getUsertype()==UserTypeEnum.CUSTOMER.getId()&&user.getId().intValue()!=activity.getUserId().intValue()) {
+        	if (user.getUsertype()==UserTypeEnum.CUSTOMER.getId() && activity!=null && user.getId().intValue()!=activity.getUserId().intValue()) {
         		result.setCode(ResultCode.RESULT_NOAUTH.getCode());
                 result.setResult("没有权限！");
                 model.addAttribute(SysConst.RESULT_KEY, result);

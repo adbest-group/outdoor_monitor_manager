@@ -52,7 +52,7 @@ public class PageConst {
 	/*** 活动管理 ***/
 	public static final String ACTIVITY_LIST = "activity/list";
 	public static final String ACTIVITY_EDIT = "activity/edit";
-
+	public static final String CHANGE_ADSEAT_PIC = "activity/changePic";
 	/*** 任务管理 ***/
 	public static final String TASK_LIST = "task/list";
 	public static final String UNASSIGN_TASK_LIST = "task/unassignList";

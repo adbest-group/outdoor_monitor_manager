@@ -30,6 +30,7 @@ import com.bt.om.entity.vo.AdActivityVo;
 import com.bt.om.entity.vo.AdActivityVo2;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.entity.vo.AdSeatCount;
+import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.entity.vo.TaskAdSeat;
 import com.bt.om.enums.ActivityStatus;
 import com.bt.om.enums.DepartmentTypeEnum;
@@ -37,8 +38,10 @@ import com.bt.om.enums.MessageIsFinish;
 import com.bt.om.enums.MessageType;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
+import com.bt.om.enums.SysUserExecuteType;
 import com.bt.om.enums.TaskProblemStatus;
 import com.bt.om.enums.UserTypeEnum;
+import com.bt.om.exception.web.ExcelException;
 import com.bt.om.mapper.AdActivityAdseatMapper;
 import com.bt.om.mapper.AdActivityAreaMapper;
 import com.bt.om.mapper.AdActivityMapper;
@@ -80,7 +83,11 @@ public class AdActivityService implements IAdActivityService {
     SysResourcesMapper sysResourcesMapper;
     @Autowired
     AdUserMessageMapper adUserMessageMapper;
-
+    private String file_upload_ip = ConfigUtil.getString("file.upload.ip");
+    private String file_changepic_path = ConfigUtil.getString("file.changepic.path");
+	private static final String IMPORT_SUCC = "导入成功";
+	private static final String IMPORT_FAIL = "导入失败";
+	private static final String MEMO_NULL = "广告位编号为空";
     /**
      * 插入一条活动信息(暂时没用使用)
      */
@@ -183,6 +190,9 @@ public class AdActivityService implements IAdActivityService {
         list = sysUserMapper.getUserId(UserTypeEnum.PHONE_OPERATOR.getId());//6:呼叫中心人员
         userIdList.addAll(list);
         userIdList.add(dep_id);
+        list.removeAll(list);
+        list = sysUserMapper.getUserId(UserTypeEnum.THIRD_COMPANY.getId());//7:第三方监测公司人员
+        userIdList.addAll(list);
         
         List<AdUserMessage> message = new ArrayList<>();
         for(Integer i: userIdList) {
@@ -520,6 +530,10 @@ public class AdActivityService implements IAdActivityService {
 	        
 	        List<Integer> userIdList = new ArrayList<>();
 	        userIdList.addAll(userIds);
+	        userIdList.addAll(cuslist);
+	        cuslist.removeAll(cuslist);
+	        //发送站内信到第三方监测公司
+	        cuslist = sysUserMapper.getUserId(UserTypeEnum.THIRD_COMPANY.getId());//获取第三方监测公司id
 	        userIdList.addAll(cuslist);
 	        
             //【2】添加上刊任务的站内信
@@ -960,6 +974,48 @@ public class AdActivityService implements IAdActivityService {
 	@Override
 	public List<HistoryAdActivity> selectActivityAllByEndTime(HashMap<String, Object> searchMap) {
 		return adActivityMapper.selectActivityAllByEndTime(searchMap);
+	}
+
+	@Override
+	public List<AdActivityAdseatVo> findAllMemo(List<String> memoList) {
+		return adActivityAdseatMapper.findAllMemo(memoList);
+	}
+
+	@Override
+	public void deleteSeats(Map<String, Object> searchMap, List<AdActivityAdseatVo> adSeat, Map<String, String> memoMap, String filepath,List<List<Object>> listob) {
+		Boolean hasProblem = false;
+		 for (int i = 1; i < listob.size(); i++) {
+         	List<Object> lo = listob.get(i);
+         	if(lo.size() <= 4){
+         		//获取广告位编号
+            	if(lo.get(0) == null) {
+            		lo.set(2, IMPORT_FAIL);
+            		lo.set(3, MEMO_NULL);
+            		hasProblem = true;
+            	}
+         	}
+		 }
+		
+		if(hasProblem == false) {
+    		//导入成功
+//    		lo.set(2, IMPORT_SUCC);
+//    		sysUserExecutes.add(sysUserExecute);
+    	} else {
+        throw new ExcelException("批量导入文件有误, 导入失败");
+    	}
+		adActivityAdseatMapper.deleteByActivityIds(searchMap);
+		//【3】更换ad_activity_adseat中的图片地址
+	    for(AdActivityAdseatVo vo : adSeat) {
+	    	for(Map.Entry<String, String> entry : memoMap.entrySet()){
+            	//判断广告位编号对应广告位名称
+	    		if(vo.getMemo().equals(entry.getKey())) {
+	    			vo.setSamplePicUrl(file_upload_ip+file_changepic_path+entry.getValue());
+	    			break;
+	    		}
+            }
+	    }
+	    //【4】批量插入修改后的广告位-活动信息
+	    adActivityAdseatMapper.insetAdSeat(adSeat);
 	}
 
 }

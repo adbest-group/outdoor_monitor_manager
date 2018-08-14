@@ -1,9 +1,11 @@
 package com.bt.om.web.controller;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +32,7 @@ import com.adtime.common.lang.StringUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdActivity;
+import com.bt.om.entity.AdActivityAdseat;
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdSystemPush;
 import com.bt.om.entity.SysUser;
@@ -93,7 +96,7 @@ public class ActivityController extends BasicController {
 	@Autowired
 	protected RedisTemplate redisTemplate;
 	private static final Logger logger = Logger.getLogger(ActivityController.class);
-
+	private String file_upload_path = ConfigUtil.getString("file.upload.path");
 	// 活动审核人员查看活动列表
 	@RequiresRoles("activityadmin")
 	@RequestMapping(value = "/list")
@@ -745,5 +748,11 @@ public class ActivityController extends BasicController {
 			model.addAttribute("zhuijiaMonitor_show",zhuijiaPdf);
 		}
 		return PageConst.SELECT_TASKPDF;
+	}
+	
+	@RequestMapping(value = "/changePic")
+	public String changePic(Model model,HttpServletRequest request, HttpServletResponse response) {
+		
+		return PageConst.CHANGE_ADSEAT_PIC;
 	}
 }

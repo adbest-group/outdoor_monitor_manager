@@ -69,6 +69,7 @@ import com.bt.om.entity.AdUserPoint;
 import com.bt.om.entity.AdVersion;
 import com.bt.om.entity.City;
 import com.bt.om.entity.LoginLog;
+import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AbandonTaskVo;
 import com.bt.om.entity.vo.ActivityMobileReportVo;
@@ -2351,15 +2352,19 @@ public class ApiController extends BasicController {
         	//[1] 社会人员抢单
         	status = MonitorTaskStatus.CAN_GRAB.getId(); //8：可抢单
         	vo.putSearchParam("status", null, status);
-        } else {
-        	//[2] 媒体公司/第三方监测公司人员抢单（只抢属于自己公司下的任务）
-        	Integer companyId = user.getOperateId();
-        	vo.putSearchParam("companyId", null, companyId);
+        }  else {
+        	if(user.getUsertype().equals(AppUserTypeEnum.MEDIA.getId())) {
+            	//[2] 媒体公司员工抢单  
+        		AdMedia media = mediaService.getMediaByUserId(user.getOperateId());
+        		vo.putSearchParam("mediaId", null, media.getId());
+            }
+
+        	//[3] 媒体公司/第三方监测公司人员抢单（只抢属于自己公司下的任务）
+        	vo.putSearchParam("companyId", null, user.getOperateId());
         	
         	status = MonitorTaskStatus.UNASSIGN.getId(); //1：待指派
         	vo.putSearchParam("status", null, status);
         }
-        
         adMonitorTaskService.getByPointAroundPageData(vo);
         
         for(Object obj : vo.getList()){
@@ -2747,7 +2752,7 @@ public class ApiController extends BasicController {
         String inviteAcc = null;
         String deviceId = null;
         String systemVersion = null;
-        
+        String isJoin = null;
         Date now = new Date();
         try {
             InputStream is = request.getInputStream();
@@ -2761,6 +2766,7 @@ public class ApiController extends BasicController {
             inviteAcc = obj.get("inviteAcc") == null ? null : obj.get("inviteAcc").getAsString();
             deviceId = obj.get("deviceId") == null ? null : obj.get("deviceId").getAsString();
             systemVersion = obj.get("systemVersion") == null ? null : obj.get("systemVersion").getAsString();
+            isJoin = obj.get("isJoin") == null ? null : obj.get("isJoin").getAsString();
             if (token != null) {
                 useSession.set(Boolean.FALSE);
                 this.sessionByRedis.setToken(token);
@@ -2825,17 +2831,18 @@ public class ApiController extends BasicController {
         
         //邀请码验证(注册的人添加的积分是"正常注册"+"邀请码注册", 邀请方添加的积分是"邀请码注册")
         if(!StringUtils.isEmpty(inviteAcc)) {
-        	//有邀请码的情况
-        	SysUserExecute sysUserExecute = sysUserExecuteService.getMobile(inviteAcc);
+        	//有邀请码的情况 
+        	//[1] 输入的是手机号
+         	SysUserExecute sysUserExecute = sysUserExecuteService.getMobile(inviteAcc);
+         	//[2] 输入的是公司邮箱
+         	SysUser sysUser = sysUserService.getUserName(inviteAcc);
         	if(sysUserExecute!=null) {
-        		//邀请码输入正确   ,获得邀请注册默认积分
-        		AdPoint adpoint = pointService.findPointValue(AdPointEnum.INVITE_REGIST.getId());
+        	    //邀请码输入正确   ,获得邀请注册默认积分
+        		AdPoint	adpoint = pointService.findPointValue(AdPointEnum.INVITE_REGIST.getId());
         		//正常注册，获得默认注册积分
         		AdPoint adpointreg = pointService.findPointValue(AdPointEnum.NORMAL_REGIST.getId());
-        		
         		//正常注册
             	String md5Pwd = new Md5Hash(password, username).toString();
-
                 userExecute = new SysUserExecute();
                 userExecute.setUsername(username);
                 userExecute.setRealname(username);
@@ -2850,9 +2857,39 @@ public class ApiController extends BasicController {
                 userExecute.setSystemVersion(systemVersion);
                 try{
                 	sysUserExecuteService.add(userExecute);
-            		SysUserExecute sysUser = sysUserExecuteService.getByUsername(username);
+            		SysUserExecute sysUserExe = sysUserExecuteService.getByUsername(username);
             		//注册人积分增加（正常注册+邀请码积分） 邀请方积分增加
-            		userPointService.addByInvite(sysUser,adpoint,adpointreg,username,sysUserExecute);
+            		userPointService.addByInvite(sysUserExe,adpoint,adpointreg,username,sysUserExecute);
+                }catch (Exception e){
+                	logger.error(e);
+                    result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                    result.setResultDes("注册失败！");
+                    model.addAttribute(SysConst.RESULT_KEY, result);
+                    return model;
+                }
+        	} else if(isJoin.equals("true")) {
+        		//正常注册，获得默认注册积分
+        		AdPoint adpointreg = pointService.findPointValue(AdPointEnum.NORMAL_REGIST.getId());
+        		//正常注册
+            	String md5Pwd = new Md5Hash(password, username).toString();
+                userExecute = new SysUserExecute();
+                userExecute.setUsername(username);
+                userExecute.setRealname(username);
+                userExecute.setPassword(md5Pwd);
+                userExecute.setUsertype(AppUserTypeEnum.SOCIAL.getId());
+                userExecute.setStatus(1);
+                userExecute.setMobile(username);
+                userExecute.setMac(mac);
+                userExecute.setCreateTime(now);
+                userExecute.setUpdateTime(now);
+                userExecute.setDeviceId(deviceId);
+                userExecute.setSystemVersion(systemVersion);
+                userExecute.setOperateId(sysUser.getId());
+                try{
+                	sysUserExecuteService.add(userExecute);
+            		SysUserExecute sysUserExe = sysUserExecuteService.getByUsername(username);
+            		//注册人积分增加（正常注册） 
+            		userPointService.addByInvite(sysUserExe,null,adpointreg,username,sysUserExecute);
                 }catch (Exception e){
                 	logger.error(e);
                     result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -2867,7 +2904,7 @@ public class ApiController extends BasicController {
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
         	}
-        }else {
+        } else {
 	        //正常注册(注册的人添加的积分是"正常注册")
         	AdPoint adpointreg = pointService.findPointValue(AdPointEnum.NORMAL_REGIST.getId()); //正常注册
 	    	String md5Pwd = new Md5Hash(password, username).toString();
@@ -2919,6 +2956,44 @@ public class ApiController extends BasicController {
         return model;
     }
 
+    //邀请码为公司邮箱时 返回公司名
+    @RequestMapping(value = "/getCompanyName", method = RequestMethod.POST)
+    @ResponseBody
+    public Model getCompanyName(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	ResultVo<SysUser> result = new ResultVo<>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        model = new ExtendedModelMap();
+        String inviteAcc = null;
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            inviteAcc = obj.get("inviteAcc") == null ? null : obj.get("inviteAcc").getAsString();
+        } catch (IOException e) {
+        	logger.error(e);
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        SysUser sysUser = null;
+        if(!StringUtils.isEmpty(inviteAcc)) {
+        	//输入的是公司邮箱
+         	sysUser = sysUserService.getUserName(inviteAcc);
+        }
+        //未查询到该公司
+        if(sysUser == null) {
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+        	result.setResultDes("未查询到该公司,请输入正确的公司邮箱！");
+        }else {
+        	model.addAttribute("companyName" , sysUser.getRealname());
+        }
+        
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
     //app端手机号验证码登录
     @RequestMapping(value = "/smsLogin", method = RequestMethod.POST)
     @ResponseBody

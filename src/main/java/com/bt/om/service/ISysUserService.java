@@ -142,4 +142,6 @@ public interface ISysUserService {
 
 	void addUser(SysUser sysUser, Integer roleId);
 
+	SysUser getUserName(String inviteAcc);
+
 }

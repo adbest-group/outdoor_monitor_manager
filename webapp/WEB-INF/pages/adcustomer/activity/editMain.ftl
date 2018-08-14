@@ -45,7 +45,10 @@
     	word-break: break-all;
     	word-wrap: break-word;
     }
-    
+    .sampleImg{
+		width: 50px;
+		height: 50px;
+	}
     
 </style>
 <#assign editMode=false/>
@@ -304,9 +307,12 @@
                     		<td class="a-title">&nbsp;</td>
                     		<td colspan="2">
                     			<img src="" id="img-demo-img" width="280" alt="请上传图片"/>
+                    			<#-- <#if (editMode && activity.status==1)!false>
+									<a class="addBtn" href="javascript:;" id="change-adseat">替换广告位活动画面</a>
+								</#if> -->
                     		</td>
                 		</tr>
-
+						
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>广告位监测：</td>
                             <td colspan="2">
@@ -472,9 +478,9 @@
                             <td class="a-title">&nbsp;</td>
                             <td colspan="2">
                                 <#if editMode>
-                                <#if user.usertype !=6>
-                                    <input type="button" id="btnSave" class="btn btn-red" value="　保 存　"/>
-                                </#if>
+	                                <#if user.usertype !=6>
+	                                    <input type="button" id="btnSave" class="btn btn-red" value="　保 存　"/>
+	                                </#if>
                                 </#if>
                                     <input type="button" id="btnBack" class="btn btn-primary" value="　返 回　"/>
 
@@ -486,6 +492,25 @@
             </div>
         </div>
     </div>
+    <div id="seatSelCV" style="display:none">
+		<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter">
+			<tbody>
+			<#-- <tr>
+				<span class="a-title" style="padding-left:50px">替换路径地址：</span>
+				<div class="select-box select-box-140 un-inp-select" id="companyUserSelect">
+                    <input type="text" name="filepath" id="filepath" style="width:180px;height:20px"autocomplete="off" class="form-control"/>
+                </div>
+			</tr> -->
+			<tr>
+				<td class="a-title">&nbsp;</td>
+				<td>
+					<button type="button" class="btn btn-red" autocomplete="off" onclick="checkVal(this)" style="margin-left:80px;margin-top:20px">导  入</button>
+					<button type="button" class="btn btn-red" autocomplete="off" id="insertBatchSubmit" style="visibility: hidden;">批量导入</button>
+				</td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
 </div>
 </div>
 </div>
@@ -785,7 +810,6 @@
 	    });
 	    
 	    var isLoading = true;
-	    
 	    // 导入最近一次导入广告位
 	    $("#import-adseat").click(function () {
 	        <#-- if($("#dts").val().length<1||$("#province").val().length<1||$("input:checkbox:checked").length<1){ -->
@@ -1870,7 +1894,7 @@
 	
 	// 新建活动时广告位数据  列表渲染
 	function getCheckboxData(isEdit) {
-		var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>操作</th> </tr></thead><tbody>'
+		var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>广告位图片样例</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>操作</th> </tr></thead><tbody>'
 		console.log('save', checkArr)
 		if(!isEdit){ // 如果是创建的时候
 			activity_seats = []
@@ -1926,9 +1950,9 @@
         	$('#clear-adseat').show();
         	$('#problem-table').show();
         	
-        	var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>状态</th><th>操作</th> </tr></thead><tbody>'
+        	var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>广告位图片样例</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>状态</th><th>操作</th> </tr></thead><tbody>'
    			for(var i = 0; i < problemLen; i++){
-   				var str = '<tr class="problemTr"><td>' + problemAdSeatInfos[i].name + '</td><td>' + problemAdSeatInfos[i].provinceName + (problemAdSeatInfos[i].cityName ? problemAdSeatInfos[i].cityName : "") + '</td><td>' + problemAdSeatInfos[i].road + '</td><td>' + problemAdSeatInfos[i].location + '</td><td>' + problemAdSeatInfos[i].mediaName + '</td> <td>' + problemAdSeatInfos[i].parentName + '</td><td>' + problemAdSeatInfos[i].secondName + '</td><td style="color:red">已占用</td><td><a style="cursor:pointer" class="deleteQuesBtn" data-id='+ problemAdSeatInfos[i].id + '>删除</a></td></td> </tr>'
+   				var str = '<tr class="problemTr"><td>' + problemAdSeatInfos[i].name + '</td><td>'+ (problemAdSeatInfos[i].samplePicUrl?"<img class='sampleImg' src="+ problemAdSeatInfos[i].samplePicUrl +">":"") +'</td><td>' + problemAdSeatInfos[i].provinceName + (problemAdSeatInfos[i].cityName ? problemAdSeatInfos[i].cityName : "") + '</td><td>' + problemAdSeatInfos[i].road + '</td><td>' + problemAdSeatInfos[i].location + '</td><td>' + problemAdSeatInfos[i].mediaName + '</td> <td>' + problemAdSeatInfos[i].parentName + '</td><td>' + problemAdSeatInfos[i].secondName + '</td><td style="color:red">已占用</td><td><a style="cursor:pointer" class="deleteQuesBtn" data-id='+ problemAdSeatInfos[i].id + '>删除</a></td></td> </tr>'
    				html += str
    			}
    			html += '</thbody>'
@@ -1944,9 +1968,9 @@
         }
         
         if(len >0){
-        	var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>操作</th> </tr></thead><tbody>'
+        	var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>广告位图片样例</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>操作</th> </tr></thead><tbody>'
    			for(var i = 0; i < len; i++){
-   				var str = '<tr><td>' + adSeatInfoVos[i].name + '</td><td>' + adSeatInfoVos[i].provinceName + (adSeatInfoVos[i].cityName ? adSeatInfoVos[i].cityName : "") + '</td><td>' + adSeatInfoVos[i].road + '</td><td>' + adSeatInfoVos[i].location + '</td><td>' + adSeatInfoVos[i].mediaName + '</td> <td>' + adSeatInfoVos[i].parentName + '</td><td>' + adSeatInfoVos[i].secondName + '</td><td><a style="cursor:pointer" class="deleteCheckBtn" data-id='+ adSeatInfoVos[i].id + '>删除</a></td></td> </tr>'
+   				var str = '<tr><td>' + adSeatInfoVos[i].name + '</td><td>'+ (adSeatInfoVos[i].samplePicUrl?"<img class='sampleImg' src="+ adSeatInfoVos[i].samplePicUrl +">":"") +'</td><td>' + adSeatInfoVos[i].provinceName + (adSeatInfoVos[i].cityName ? adSeatInfoVos[i].cityName : "") + '</td><td>' + adSeatInfoVos[i].road + '</td><td>' + adSeatInfoVos[i].location + '</td><td>' + adSeatInfoVos[i].mediaName + '</td> <td>' + adSeatInfoVos[i].parentName + '</td><td>' + adSeatInfoVos[i].secondName + '</td><td><a style="cursor:pointer" class="deleteCheckBtn" data-id='+ adSeatInfoVos[i].id + '>删除</a></td></td> </tr>'
    				addCheck({
    					id: adSeatInfoVos[i].id,
    					html: str
@@ -1968,9 +1992,9 @@
 	function ModCheckboxData() {
 		var len = activity_seats.length
 		if(len > 0){
-			var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><#if user.usertype !=6><th>操作</th></#if> </tr></thead><tbody>'
+			var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>广告位图片样例</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><#if user.usertype !=6><th>操作</th></#if> </tr></thead><tbody>'
 			for(var i = 0; i < len; i++){
-				var str = '<tr><td>' + activity_seats[i].seatName + '</td><td>' + activity_seats[i].area + '</td><td>' + activity_seats[i].road + '</td><td>' + activity_seats[i].location + '</td><td>' + activity_seats[i].mediaName + '</td> <td>' + activity_seats[i].parentName + '</td><td>' + activity_seats[i].secondName + '</td><td><#if user.usertype !=6><#if (activity?exists&&activity.status?exists&&activity.status==1)><a style="cursor:pointer" class="deleteCheckBtn" data-id='+ activity_seats[i].seatId + '>删除</a></#if> <#if usertype?exists && usertype != 2><#if (activity?exists&&activity.status?exists&&activity.status==2)><a style="cursor:pointer" class="addMonitorTask" data-id='+ activity_seats[i].seatId + '>追加监测</a></#if></#if></#if></td></td> </tr>'
+				var str = '<tr><td>' + activity_seats[i].seatName + '</td><td>'+ (activity_seats[i].samplePicUrl?"<img class='sampleImg' src="+ activity_seats[i].samplePicUrl +">":"") +'</td><td>' + activity_seats[i].area + '</td><td>' + activity_seats[i].road + '</td><td>' + activity_seats[i].location + '</td><td>' + activity_seats[i].mediaName + '</td> <td>' + activity_seats[i].parentName + '</td><td>' + activity_seats[i].secondName + '</td><td><#if user.usertype !=6><#if (activity?exists&&activity.status?exists&&activity.status==1)><a style="cursor:pointer" class="deleteCheckBtn" data-id='+ activity_seats[i].seatId + '>删除</a></#if> <#if usertype?exists && usertype != 2><#if (activity?exists&&activity.status?exists&&activity.status==2)><a style="cursor:pointer" class="addMonitorTask" data-id='+ activity_seats[i].seatId + '>追加监测</a></#if></#if></#if></td></td> </tr>'
 				checkArr.push({
 					id: activity_seats[i].seatId,
 					html: str
@@ -2011,46 +2035,74 @@
 		}
 		return seatIds.join(',')
 	}
-	
-	
-        //上刊监测持续天数
-        $("#upMonitorLastDays").formValidator({
-            validatorGroup: "2",
-            onShow: "　",
-            onCorrect: "",
-            onFocus:"请填写1-2的数字"
-        }).functionValidator({
-            fun:function(val){
-                return ($("#durationMonitor:checked").length<1) || /^[1-2]$/.test(val);
-            },
-            onError: "只允许填写1-2的数字"
-        });
-
-        //投放期间监测持续天数
-        $("#durationMonitorLastDays").formValidator({
-            validatorGroup: "2",
-            onShow: "　",
-            onCorrect: "",
-            onFocus:"请填写1-2的数字"
-        }).functionValidator({
-            fun:function(val){
-                return ($("#durationMonitor:checked").length<1) || /^[1-2]$/.test(val);
-            },
-            onError: "只允许填写1-2的数字"
-        });
-
-        //下刊监测持续天数
-        $("#downMonitorLastDays").formValidator({
-            validatorGroup: "2",
-            onShow: "　",
-            onCorrect: "",
-            onFocus:"请填写1-3的数字"
-        }).functionValidator({
-            fun:function(val){
-                return ($("#downMonitor:checked").length<1) || /^[1-3]$/.test(val);
-            },
-            onError: "只允许填写1-3的数字"
-        });
-        
-
+       
+       $('#change-adseat').on('click',function(){
+    	 layer.open({
+    		 type: 1,
+    		 title:"更换广告投放画面",
+             shift: 2,
+             shade: 0.8,
+             area: ['300px', '200px'], 
+             shadeClose: false,
+             content: $("#seatSelCV")
+    	 });
+       }); 
+       
+       function checkVal(that){
+    	var filepath = $("#filepath").val();
+  	    <#-- if(filepath == null || filepath == "" || filepath.length <= 0){
+	  	  	layer.confirm("请填写图片更换地址", {
+	  			icon: 2,
+	  			btn: ['确定'] //按钮
+	  			});
+	  	 	 	return false;
+	  	  	} -->
+  	  		$(that).next().click()
+		}  
+		//批量导入
+	   layui.use('upload', function(){
+		  var upload = layui.upload;
+		  var filepath = $("#filepath").val();
+		  
+		  //执行实例
+		  var uploadInst = upload.render({
+		    elem: '#insertBatchSubmit' //绑定元素 
+		    ,data: {
+		    	filepath:function(){
+		  		return $("#filepath").val();
+		  		}
+			}
+		    ,accept: 'file' //指定只允许上次文件
+		    ,exts: 'xlsx|xls' //指定只允许上次xlsx和xls格式的excel文件
+		    ,field: 'excelFile' //设置字段名
+		    ,url: '/excel/insertMemoByExcel' //上传接口
+		    ,before: function() {
+		    	layer.msg('正在努力上传中...', {
+		    		icon: 16,
+		    		shade: [0.5, '#f5f5f5'],
+		    		scrollbar: false,
+		    		time: 300000,
+		    		end: function(){
+		    			layer.alert('上传超时', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+		    		}
+		    	})
+		    }
+		    ,done: function(res){
+		    	layer.closeAll('msg')
+		    	if(res.ret.code == 100){
+		    		layer.alert('导入成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
+		    		window.open(res.ret.result);
+		    		window.location.reload();
+		    	} else if (res.ret.code == 101){
+		    		layer.alert(res.ret.resultDes, {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+		    	} else if (res.ret.code == 105){
+		    		layer.alert('没有导入权限', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+		    	}
+		    }
+		    ,error: function(res){
+		       layer.closeAll('msg')
+		       layer.alert('导入失败', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+		    }
+		  });
+		}); 
 </script>

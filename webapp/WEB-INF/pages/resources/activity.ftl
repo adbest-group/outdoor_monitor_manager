@@ -598,6 +598,16 @@ function changeMediaTypeId() {
         });
     }
     
+    function writeBrand(activityId){
+    	layer.open({
+    		type : 2,
+    		title: '填写品牌及标题',
+    		shade: 0.8,
+            area: ['600px', '420px'],
+            content: '/activity/writeBrand?activityId=' + activityId //iframe的url
+    	});
+    }
+    
     function openActivityPdf(activityId){
     	layer.open({
             type: 2,

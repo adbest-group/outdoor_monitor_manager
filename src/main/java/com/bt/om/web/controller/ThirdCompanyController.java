@@ -241,7 +241,7 @@ public class ThirdCompanyController {
     /**
      * 查看 上刊任务指派页面
      */
-    @RequiresRoles(value = {"thirdcompany"}, logical = Logical.OR)
+    @RequiresRoles(value = {"thirdcompany" ,"taskadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/upTaskList")
     public String getUpTaskList(Model model, HttpServletRequest request,
               @RequestParam(value = "activityId", required = false) Integer activityId,
@@ -403,7 +403,7 @@ public class ThirdCompanyController {
     /**
      * 查看 监测任务审核页面
      */
-    @RequiresRoles(value = {"thirdcompany"}, logical = Logical.OR)
+    @RequiresRoles(value = {"thirdcompany","taskadmin"}, logical = Logical.OR)
     @RequestMapping(value = "/taskList")
     public String getTaskList(Model model, HttpServletRequest request,
                               @RequestParam(value = "activityId", required = false) Integer activityId,

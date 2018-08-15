@@ -22,7 +22,7 @@
 				<tbody>
 				
 				<tr>
-					<span class="a-title">监测人员：</span>
+					<span class="a-title" style="padding:10px">监测人员：</span>
 						<div class="select-box select-box-140 un-inp-select" id="companyUserSelect">
                             <select name="user" class="select" id="user">
 								<#if (userList?exists&&userList?size >0)>
@@ -36,7 +36,7 @@
 				<tr>
 					<td class="a-title">&nbsp;</td>
 					<td>
-						<button type="button" class="btn btn-red" autocomplete="off" id="btnSave">确定</button>
+						<button type="button" class="btn btn-red" autocomplete="off" id="btnSave" style="margin-top:10px">确定</button>
 					</td>
 				</tr>
 			</tbody>

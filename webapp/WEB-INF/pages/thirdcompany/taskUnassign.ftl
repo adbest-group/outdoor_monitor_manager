@@ -411,8 +411,8 @@
             type: 2,
             title: '选择监测人员',
             shade: 0.8,
-            area: ['600px', '420px'],
-            content: '/task/selectUserExecute?companyId=' + companyId //iframe的url
+            area: ['450px', '300px'],
+            content: '/task/selectComanyUserExecute?companyId=' + companyId //iframe的url
         });
     }
     //选择执行人后的回调

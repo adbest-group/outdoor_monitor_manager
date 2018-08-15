@@ -726,21 +726,21 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	        list = sysUserMapper.getUserId(UserTypeEnum.PHONE_OPERATOR.getId());//6:呼叫中心人员
 	        userIdList.addAll(list);
 	        userIdList.add(dep_id);
-	        if(user.getUsertype() == SysUserExecuteType.THIRDCOMPANY.getId()) {
+	        if(user.getUsertype().equals(SysUserExecuteType.THIRDCOMPANY.getId())) {
 	        	//执行人员是第三方监测公司的员工  第三方监测公司 收到站内信
 	        	userIdList.add(user.getOperateId());
 	        }
 	        
 	        String taskType = null;
-	        if(task.getTaskType()==MonitorTaskType.UP_MONITOR.getId()) {
+	        if(task.getTaskType().equals(MonitorTaskType.UP_MONITOR.getId())) {
 	        	taskType = "上刊监测";
-	        }else if(task.getTaskType()==MonitorTaskType.DURATION_MONITOR.getId()) {
+	        }else if(task.getTaskType().equals(MonitorTaskType.DURATION_MONITOR.getId())) {
 	        	taskType = "投放期间监测";
-	        }else if(task.getTaskType()==MonitorTaskType.DOWNMONITOR.getId()) {
+	        }else if(task.getTaskType().equals(MonitorTaskType.DOWNMONITOR.getId())) {
 	        	taskType = "下刊监测";
-	        }else if(task.getTaskType()==MonitorTaskType.UP_TASK.getId()) {
+	        }else if(task.getTaskType().equals(MonitorTaskType.UP_TASK.getId())) {
 	        	taskType = "上刊";
-	        }else if(task.getTaskType()==MonitorTaskType.ZHUIJIA_MONITOR.getId()) {
+	        }else if(task.getTaskType().equals(MonitorTaskType.ZHUIJIA_MONITOR.getId())) {
 	        	taskType = "追加监测";
 	        }
 	        

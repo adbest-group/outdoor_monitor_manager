@@ -885,18 +885,18 @@ public class ExcelController extends BasicController {
 		Set<String> memoSet = new HashSet<>();
 		for (AdSeatInfo adSeatInfo : adSeats) {
 			// 拼接详细描述 保证唯一性
-			StringBuffer buffer = new StringBuffer();
-			if(adSeatInfo.getProvince() != null) {
-				buffer.append(cityCache.getCityName(adSeatInfo.getProvince())); //省
-			}
-			if(adSeatInfo.getCity() != null) {
-				buffer.append(cityCache.getCityName(adSeatInfo.getCity())); //市
-			}
-			if(adSeatInfo.getRoad() != null) {
-				buffer.append(adSeatInfo.getRoad());//主要路段
-			}
-			buffer.append(adSeatInfo.getLocation()); //详细位置
-			databaseAdseatMap.put(buffer.toString(), adSeatInfo.getId());
+//			StringBuffer buffer = new StringBuffer();
+//			if(adSeatInfo.getProvince() != null) {
+//				buffer.append(cityCache.getCityName(adSeatInfo.getProvince())); //省
+//			}
+//			if(adSeatInfo.getCity() != null) {
+//				buffer.append(cityCache.getCityName(adSeatInfo.getCity())); //市
+//			}
+//			if(adSeatInfo.getRoad() != null) {
+//				buffer.append(adSeatInfo.getRoad());//主要路段
+//			}
+//			buffer.append(adSeatInfo.getLocation()); //详细位置
+//			databaseAdseatMap.put(buffer.toString(), adSeatInfo.getId());
 			
 			// 记录广告位编号 保证唯一性
 			if(StringUtil.isNotBlank(adSeatInfo.getMemo())) {
@@ -1243,7 +1243,6 @@ public class ExcelController extends BasicController {
                 		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_DUP.getText());
                 		hasProblem = true;
                 		//重复的广告位放入临时表id集合中
-                		tmpSeatIds.add(databaseAdseatMap.get(buffer.toString()));
                 		if (databaseAdseatMap.get(buffer.toString())!=null) {
                 			tmpSeatIds.add(databaseAdseatMap.get(buffer.toString()));
 						}

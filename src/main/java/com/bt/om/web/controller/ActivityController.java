@@ -646,6 +646,13 @@ public class ActivityController extends BasicController {
 		return PageConst.SELECT_ALL_TASKS;
 	}
 	
+	//输入品牌和PDF导出标题
+	@RequestMapping(value="/writeBrand")
+	public String writeBrand(Model model,HttpServletRequest request,
+			@RequestParam(value = "activityId", required = false) Integer activityId) {
+		model.addAttribute("activityId" ,activityId);
+		return PageConst.THIRD_COMPANY_USER_EDIT;
+	}
 	//Pdf导出任务列表报告
 	@RequestMapping(value="/selectTasksToPdf")
 	public String selectTasksToPdf(Model model,HttpServletRequest request, HttpServletResponse response,

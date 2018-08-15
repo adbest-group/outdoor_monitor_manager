@@ -45,10 +45,6 @@
     	word-break: break-all;
     	word-wrap: break-word;
     }
-    .sampleImg{
-		width: 50px;
-		height: 50px;
-	}
     
 </style>
 <#assign editMode=false/>
@@ -1894,7 +1890,7 @@
 	
 	// 新建活动时广告位数据  列表渲染
 	function getCheckboxData(isEdit) {
-		var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>广告位图片样例</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>操作</th> </tr></thead><tbody>'
+		var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>操作</th> </tr></thead><tbody>'
 		console.log('save', checkArr)
 		if(!isEdit){ // 如果是创建的时候
 			activity_seats = []
@@ -1950,9 +1946,9 @@
         	$('#clear-adseat').show();
         	$('#problem-table').show();
         	
-        	var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>广告位图片样例</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>状态</th><th>操作</th> </tr></thead><tbody>'
+        	var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>状态</th><th>操作</th> </tr></thead><tbody>'
    			for(var i = 0; i < problemLen; i++){
-   				var str = '<tr class="problemTr"><td>' + problemAdSeatInfos[i].name + '</td><td>'+ (problemAdSeatInfos[i].samplePicUrl?"<img class='sampleImg' src="+ problemAdSeatInfos[i].samplePicUrl +">":"") +'</td><td>' + problemAdSeatInfos[i].provinceName + (problemAdSeatInfos[i].cityName ? problemAdSeatInfos[i].cityName : "") + '</td><td>' + problemAdSeatInfos[i].road + '</td><td>' + problemAdSeatInfos[i].location + '</td><td>' + problemAdSeatInfos[i].mediaName + '</td> <td>' + problemAdSeatInfos[i].parentName + '</td><td>' + problemAdSeatInfos[i].secondName + '</td><td style="color:red">已占用</td><td><a style="cursor:pointer" class="deleteQuesBtn" data-id='+ problemAdSeatInfos[i].id + '>删除</a></td></td> </tr>'
+   				var str = '<tr class="problemTr"><td>' + problemAdSeatInfos[i].name + '</td><td>' + problemAdSeatInfos[i].provinceName + (problemAdSeatInfos[i].cityName ? problemAdSeatInfos[i].cityName : "") + '</td><td>' + problemAdSeatInfos[i].road + '</td><td>' + problemAdSeatInfos[i].location + '</td><td>' + problemAdSeatInfos[i].mediaName + '</td> <td>' + problemAdSeatInfos[i].parentName + '</td><td>' + problemAdSeatInfos[i].secondName + '</td><td style="color:red">已占用</td><td><a style="cursor:pointer" class="deleteQuesBtn" data-id='+ problemAdSeatInfos[i].id + '>删除</a></td></td> </tr>'
    				html += str
    			}
    			html += '</thbody>'
@@ -1968,9 +1964,9 @@
         }
         
         if(len >0){
-        	var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>广告位图片样例</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>操作</th> </tr></thead><tbody>'
+        	var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>操作</th> </tr></thead><tbody>'
    			for(var i = 0; i < len; i++){
-   				var str = '<tr><td>' + adSeatInfoVos[i].name + '</td><td>'+ (adSeatInfoVos[i].samplePicUrl?"<img class='sampleImg' src="+ adSeatInfoVos[i].samplePicUrl +">":"") +'</td><td>' + adSeatInfoVos[i].provinceName + (adSeatInfoVos[i].cityName ? adSeatInfoVos[i].cityName : "") + '</td><td>' + adSeatInfoVos[i].road + '</td><td>' + adSeatInfoVos[i].location + '</td><td>' + adSeatInfoVos[i].mediaName + '</td> <td>' + adSeatInfoVos[i].parentName + '</td><td>' + adSeatInfoVos[i].secondName + '</td><td><a style="cursor:pointer" class="deleteCheckBtn" data-id='+ adSeatInfoVos[i].id + '>删除</a></td></td> </tr>'
+   				var str = '<tr><td>' + adSeatInfoVos[i].name + '</td><td>' + adSeatInfoVos[i].provinceName + (adSeatInfoVos[i].cityName ? adSeatInfoVos[i].cityName : "") + '</td><td>' + adSeatInfoVos[i].road + '</td><td>' + adSeatInfoVos[i].location + '</td><td>' + adSeatInfoVos[i].mediaName + '</td> <td>' + adSeatInfoVos[i].parentName + '</td><td>' + adSeatInfoVos[i].secondName + '</td><td><a style="cursor:pointer" class="deleteCheckBtn" data-id='+ adSeatInfoVos[i].id + '>删除</a></td></td> </tr>'
    				addCheck({
    					id: adSeatInfoVos[i].id,
    					html: str
@@ -1992,9 +1988,9 @@
 	function ModCheckboxData() {
 		var len = activity_seats.length
 		if(len > 0){
-			var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>广告位图片样例</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><#if user.usertype !=6><th>操作</th></#if> </tr></thead><tbody>'
+			var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><#if user.usertype !=6><th>操作</th></#if> </tr></thead><tbody>'
 			for(var i = 0; i < len; i++){
-				var str = '<tr><td>' + activity_seats[i].seatName + '</td><td>'+ (activity_seats[i].samplePicUrl?"<img class='sampleImg' src="+ activity_seats[i].samplePicUrl +">":"") +'</td><td>' + activity_seats[i].area + '</td><td>' + activity_seats[i].road + '</td><td>' + activity_seats[i].location + '</td><td>' + activity_seats[i].mediaName + '</td> <td>' + activity_seats[i].parentName + '</td><td>' + activity_seats[i].secondName + '</td><td><#if user.usertype !=6><#if (activity?exists&&activity.status?exists&&activity.status==1)><a style="cursor:pointer" class="deleteCheckBtn" data-id='+ activity_seats[i].seatId + '>删除</a></#if> <#if usertype?exists && usertype != 2><#if (activity?exists&&activity.status?exists&&activity.status==2)><a style="cursor:pointer" class="addMonitorTask" data-id='+ activity_seats[i].seatId + '>追加监测</a></#if></#if></#if></td></td> </tr>'
+				var str = '<tr><td>' + activity_seats[i].seatName + '</td><td>' + activity_seats[i].area + '</td><td>' + activity_seats[i].road + '</td><td>' + activity_seats[i].location + '</td><td>' + activity_seats[i].mediaName + '</td> <td>' + activity_seats[i].parentName + '</td><td>' + activity_seats[i].secondName + '</td><td><#if user.usertype !=6><#if (activity?exists&&activity.status?exists&&activity.status==1)><a style="cursor:pointer" class="deleteCheckBtn" data-id='+ activity_seats[i].seatId + '>删除</a></#if> <#if usertype?exists && usertype != 2><#if (activity?exists&&activity.status?exists&&activity.status==2)><a style="cursor:pointer" class="addMonitorTask" data-id='+ activity_seats[i].seatId + '>追加监测</a></#if></#if></#if></td></td> </tr>'
 				checkArr.push({
 					id: activity_seats[i].seatId,
 					html: str

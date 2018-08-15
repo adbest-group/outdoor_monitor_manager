@@ -885,18 +885,18 @@ public class ExcelController extends BasicController {
 		Set<String> memoSet = new HashSet<>();
 		for (AdSeatInfo adSeatInfo : adSeats) {
 			// 拼接详细描述 保证唯一性
-//			StringBuffer buffer = new StringBuffer();
-//			if(adSeatInfo.getProvince() != null) {
-//				buffer.append(cityCache.getCityName(adSeatInfo.getProvince())); //省
-//			}
-//			if(adSeatInfo.getCity() != null) {
-//				buffer.append(cityCache.getCityName(adSeatInfo.getCity())); //市
-//			}
-//			if(adSeatInfo.getRoad() != null) {
-//				buffer.append(adSeatInfo.getRoad());//主要路段
-//			}
-//			buffer.append(adSeatInfo.getLocation()); //详细位置
-//			databaseAdseatMap.put(buffer.toString(), adSeatInfo.getId());
+			StringBuffer buffer = new StringBuffer();
+			if(adSeatInfo.getProvince() != null) {
+				buffer.append(cityCache.getCityName(adSeatInfo.getProvince())); //省
+			}
+			if(adSeatInfo.getCity() != null) {
+				buffer.append(cityCache.getCityName(adSeatInfo.getCity())); //市
+			}
+			if(adSeatInfo.getRoad() != null) {
+				buffer.append(adSeatInfo.getRoad());//主要路段
+			}
+			buffer.append(adSeatInfo.getLocation()); //详细位置
+			databaseAdseatMap.put(buffer.toString(), adSeatInfo.getId());
 			
 			// 记录广告位编号 保证唯一性
 			if(StringUtil.isNotBlank(adSeatInfo.getMemo())) {
@@ -1238,17 +1238,17 @@ public class ExcelController extends BasicController {
                 	info.setUpdateTime(now);
                 	
                 	//检查是否重复(去除hasProblem校验, 之前的导入失败原因会被这个覆盖, 这是为了适配最近一次导入的问题)
-            		if(keySet.contains(buffer.toString())) {
-                		lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
-                		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_DUP.getText());
-                		hasProblem = true;
-                		//重复的广告位放入临时表id集合中
-                		if (databaseAdseatMap.get(buffer.toString())!=null) {
-                			tmpSeatIds.add(databaseAdseatMap.get(buffer.toString()));
-						}
-                	} else {
-                		keySet.add(buffer.toString());
-                	}
+//            		if(keySet.contains(buffer.toString())) {
+//                		lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+//                		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_DUP.getText());
+//                		hasProblem = true;
+//                		//重复的广告位放入临时表id集合中
+//                		if (databaseAdseatMap.get(buffer.toString())!=null) {
+//                			tmpSeatIds.add(databaseAdseatMap.get(buffer.toString()));
+//						}
+//                	} else {
+//                		keySet.add(buffer.toString());
+//                	}
                 	
                 	if(!(StringUtils.equals(String.valueOf(lo.get(AdminImportAdSeatEnum.IMPORT_RESULT.getId())), IMPORT_FAIL))) {
                 		//导入成功
@@ -1426,16 +1426,16 @@ public class ExcelController extends BasicController {
 		List<String> databaseAdSeats = new ArrayList<>();
 		Set<String> memoSet = new HashSet<>();
 		for (AdSeatInfo adSeatInfo : adSeats) {
-//			StringBuffer buffer = new StringBuffer();
-//			if(adSeatInfo.getProvince() != null) {
-//				buffer.append(cityCache.getCityName(adSeatInfo.getProvince())); //省
-//			}
-//			if(adSeatInfo.getCity() != null) {
-//				buffer.append(cityCache.getCityName(adSeatInfo.getCity())); //市
-//			}
-//			buffer.append(adSeatInfo.getRoad());//主要路段
-//			buffer.append(adSeatInfo.getLocation()); //详细位置
-//			databaseAdSeats.add(buffer.toString());
+			StringBuffer buffer = new StringBuffer();
+			if(adSeatInfo.getProvince() != null) {
+				buffer.append(cityCache.getCityName(adSeatInfo.getProvince())); //省
+			}
+			if(adSeatInfo.getCity() != null) {
+				buffer.append(cityCache.getCityName(adSeatInfo.getCity())); //市
+			}
+			buffer.append(adSeatInfo.getRoad());//主要路段
+			buffer.append(adSeatInfo.getLocation()); //详细位置
+			databaseAdSeats.add(buffer.toString());
 			
 			// 记录广告位编号 保证唯一性
 			if(StringUtil.isNotBlank(adSeatInfo.getMemo())) {
@@ -1864,15 +1864,15 @@ public class ExcelController extends BasicController {
                 	info.setUpdateTime(now);
                 	
                 	//检查是否重复 广告位地址重复
-//                	if(hasProblem == false) {
-//                		if(keySet.contains(buffer.toString())) {
-//                    		lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
-//                    		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_DUP.getText());
-//                    		hasProblem = true;
-//                    	} else {
-//                    		keySet.add(buffer.toString());
-//                    	}
-//                	}
+                	if(hasProblem == false) {
+                		if(keySet.contains(buffer.toString())) {
+                    		lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+                    		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_DUP.getText());
+                    		hasProblem = true;
+                    	} else {
+                    		keySet.add(buffer.toString());
+                    	}
+                	}
                 	
                 	if(!(StringUtils.equals(String.valueOf(lo.get(MediaImportAdSeatEnum.IMPORT_RESULT.getId())), IMPORT_FAIL))) {
                 		//导入成功

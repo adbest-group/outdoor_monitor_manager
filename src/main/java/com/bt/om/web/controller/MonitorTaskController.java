@@ -732,7 +732,7 @@ public class MonitorTaskController extends BasicController {
 	 * 群邑方选择监测人员页面
 	 **/
 	@ResponseBody
-	@RequiresRoles(value = {"taskadmin", "media", "deptaskadmin", "superadmin"}, logical = Logical.OR)
+	@RequiresRoles(value = {"taskadmin", "media", "deptaskadmin", "superadmin" ,"thirdcompany"}, logical = Logical.OR)
 	@RequestMapping(value = "/selectUserExecute")
 	public Model toSelectUserExecute(Model model, HttpServletRequest request,
 			@RequestParam(value = "mediaId", required = false) Integer mediaId,

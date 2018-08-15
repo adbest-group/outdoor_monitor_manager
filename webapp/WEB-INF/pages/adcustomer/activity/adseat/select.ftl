@@ -12,10 +12,6 @@
 		.file-upload input{position: absolute;left: 0; top: 0; opacity: 0;font-size: 50px; width: 60px;}
 		.interaction-bac-big img{width: 296px;height: 194px;float: left}
 		.interaction-bac-big label{height: 194px;line-height: 194px;display: block;float: left;padding-left: 15px}
-		.sampleImg{
-			width: 50px;
-			height: 50px;
-		}
 </style>
 <div class="main-container" style="height: auto; overflow-x:auto">
     <div class="main-box">
@@ -71,7 +67,6 @@
                    	     <th width="30"><input type="checkbox" id='thead-checkbox' name="ck-alltask" value=""/></th>                    
                         <th width="30">序号</th>
                         <th>广告位名称</th>
-                        <th>广告位图片样例</th>
                         <th>区域</th>
                         <th>主要路段</th>
                         <th>详细位置</th>
@@ -189,7 +184,7 @@
 			html += '<tr><td colspan="20">没有相应结果。</td></tr>'
 		}else{
 			for(var i = 0; i < len; i++){
-				html += '<tr><td width="30"><input  type="checkbox"  name="ck-task" value="'+ data[i].id +'"/></td><td>'+((currentPage-1)*20 + i + 1)+'</td><td>'+(data[i].name?data[i].name:"")+'</td><td>'+ (data[i].samplePicUrl?"<img class='sampleImg' src="+ data[i].samplePicUrl +">":"") +'</td><td>'+(data[i].provinceName?data[i].provinceName:"") + (data[i].cityName?data[i].cityName:"")+'</td><td>'+(data[i].road?data[i].road:"")+'</td><td>'+(data[i].location?data[i].location:"")+'</td><td>'+(data[i].mediaName?data[i].mediaName:"")+'</td><td>'+(data[i].parentName?data[i].parentName:"")+'</td><td>'+(data[i].secondName?data[i].secondName:"")+'</td></tr>';
+				html += '<tr><td width="30"><input  type="checkbox"  name="ck-task" value="'+ data[i].id +'"/></td><td>'+((currentPage-1)*20 + i + 1)+'</td><td>'+(data[i].name?data[i].name:"")+'</td><td>'+(data[i].provinceName?data[i].provinceName:"") + (data[i].cityName?data[i].cityName:"")+'</td><td>'+(data[i].road?data[i].road:"")+'</td><td>'+(data[i].location?data[i].location:"")+'</td><td>'+(data[i].mediaName?data[i].mediaName:"")+'</td><td>'+(data[i].parentName?data[i].parentName:"")+'</td><td>'+(data[i].secondName?data[i].secondName:"")+'</td></tr>';
 			}
 		}
 		$('#tbody').html(html);

@@ -1424,17 +1424,17 @@ public class ExcelController extends BasicController {
 		List<String> databaseAdSeats = new ArrayList<>();
 		Set<String> memoSet = new HashSet<>();
 		for (AdSeatInfo adSeatInfo : adSeats) {
-			StringBuffer buffer = new StringBuffer();
-			if(adSeatInfo.getProvince() != null) {
-				buffer.append(cityCache.getCityName(adSeatInfo.getProvince())); //省
-			}
-			if(adSeatInfo.getCity() != null) {
-				buffer.append(cityCache.getCityName(adSeatInfo.getCity())); //市
-			}
-			buffer.append(adSeatInfo.getRoad());//主要路段
-			buffer.append(adSeatInfo.getLocation()); //详细位置
-			databaseAdSeats.add(buffer.toString());
-			
+//			StringBuffer buffer = new StringBuffer();
+//			if(adSeatInfo.getProvince() != null) {
+//				buffer.append(cityCache.getCityName(adSeatInfo.getProvince())); //省
+//			}
+//			if(adSeatInfo.getCity() != null) {
+//				buffer.append(cityCache.getCityName(adSeatInfo.getCity())); //市
+//			}
+//			buffer.append(adSeatInfo.getRoad());//主要路段
+//			buffer.append(adSeatInfo.getLocation()); //详细位置
+//			databaseAdSeats.add(buffer.toString());
+//			
 			// 记录广告位编号 保证唯一性
 			if(StringUtil.isNotBlank(adSeatInfo.getMemo())) {
 				memoSet.add(adSeatInfo.getMemo());
@@ -1861,16 +1861,16 @@ public class ExcelController extends BasicController {
                 	info.setCreateTime(now);
                 	info.setUpdateTime(now);
                 	
-                	//检查是否重复
-                	if(hasProblem == false) {
-                		if(keySet.contains(buffer.toString())) {
-                    		lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
-                    		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_DUP.getText());
-                    		hasProblem = true;
-                    	} else {
-                    		keySet.add(buffer.toString());
-                    	}
-                	}
+                	//检查是否重复 广告位地址重复
+//                	if(hasProblem == false) {
+//                		if(keySet.contains(buffer.toString())) {
+//                    		lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+//                    		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_DUP.getText());
+//                    		hasProblem = true;
+//                    	} else {
+//                    		keySet.add(buffer.toString());
+//                    	}
+//                	}
                 	
                 	if(!(StringUtils.equals(String.valueOf(lo.get(MediaImportAdSeatEnum.IMPORT_RESULT.getId())), IMPORT_FAIL))) {
                 		//导入成功

@@ -2876,7 +2876,7 @@ public class ApiController extends BasicController {
                 userExecute.setUsername(username);
                 userExecute.setRealname(username);
                 userExecute.setPassword(md5Pwd);
-                userExecute.setUsertype(AppUserTypeEnum.SOCIAL.getId());
+                userExecute.setUsertype(AppUserTypeEnum.THIRD_COMPANY.getId());
                 userExecute.setStatus(1);
                 userExecute.setMobile(username);
                 userExecute.setMac(mac);

@@ -1244,6 +1244,9 @@ public class ExcelController extends BasicController {
                 		hasProblem = true;
                 		//重复的广告位放入临时表id集合中
                 		tmpSeatIds.add(databaseAdseatMap.get(buffer.toString()));
+                		if (databaseAdseatMap.get(buffer.toString())!=null) {
+                			tmpSeatIds.add(databaseAdseatMap.get(buffer.toString()));
+						}
                 	} else {
                 		keySet.add(buffer.toString());
                 	}
@@ -1434,7 +1437,7 @@ public class ExcelController extends BasicController {
 //			buffer.append(adSeatInfo.getRoad());//主要路段
 //			buffer.append(adSeatInfo.getLocation()); //详细位置
 //			databaseAdSeats.add(buffer.toString());
-//			
+			
 			// 记录广告位编号 保证唯一性
 			if(StringUtil.isNotBlank(adSeatInfo.getMemo())) {
 				memoSet.add(adSeatInfo.getMemo());

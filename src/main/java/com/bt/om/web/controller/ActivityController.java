@@ -651,7 +651,7 @@ public class ActivityController extends BasicController {
 	public String writeBrand(Model model,HttpServletRequest request,
 			@RequestParam(value = "activityId", required = false) Integer activityId) {
 		model.addAttribute("activityId" ,activityId);
-		return PageConst.THIRD_COMPANY_USER_EDIT;
+		return PageConst.WRITE_BRAND_TITLE_PDF;
 	}
 	//Pdf导出任务列表报告
 	@RequestMapping(value="/selectTasksToPdf")

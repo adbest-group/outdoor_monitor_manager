@@ -49,7 +49,6 @@
 	<script type="text/javascript" src="${model.static_domain}/js/formValidator/formValidator-4.0.1.js"></script>
 	<script src="${model.static_domain}/js/ajaxfileupload.js"></script>
 	<script>	
- 
 		var id = $("#id").val();
 	    //批量导入
 		layui.use('upload', function(){

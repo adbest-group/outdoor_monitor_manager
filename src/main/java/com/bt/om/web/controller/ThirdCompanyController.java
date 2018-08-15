@@ -137,11 +137,13 @@ public class ThirdCompanyController {
     public String userList(Model model ,HttpServletRequest request,
     		@RequestParam(value = "nameOrUsername", required = false) String nameOrUsername) {
     	 SearchDataVo vo = SearchUtil.getVo();
+    	 SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
          // 名称或登录账号
          if (StringUtils.isNotBlank(nameOrUsername)) {
              vo.putSearchParam("nameOrUsername", nameOrUsername, "%" + nameOrUsername + "%");
          }
          vo.putSearchParam("usertype", "usertype", SysUserExecuteType.THIRDCOMPANY.getId());
+         vo.putSearchParam("operateId", null, userObj.getId());
          sysUserExecuteService.getPageData(vo);
          SearchUtil.putToModel(model, vo);
 

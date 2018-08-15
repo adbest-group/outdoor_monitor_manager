@@ -10,7 +10,7 @@
     <div class="main-box">
         <div class="title clearfix" style="display:block;">
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
-                <form id="form" method="get" action="/sysResources/taskUnassign">
+                <form id="form" method="get" action="/thirdCompany/taskUnassign">
                 	<div class="inp">
                     	<input type="text" placeholder="请输入活动名称" value="${name?if_exists}" id="searchName" name="name">
                 	</div>

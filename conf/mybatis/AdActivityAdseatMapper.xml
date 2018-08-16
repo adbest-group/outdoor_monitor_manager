@@ -551,6 +551,7 @@
 		a.id id,
 		a.monitor_start monitorStart,
 		a.monitor_end monitorEnd,
+		a.sample_pic_url samplePicUrl,
 		b.id monitorTaskId,
 		b.status,
 		b.problem_status problemStatus,

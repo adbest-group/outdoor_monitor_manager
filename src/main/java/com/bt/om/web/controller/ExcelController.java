@@ -284,7 +284,9 @@ public class ExcelController extends BasicController {
 	@ResponseBody
 	public Model exportPdf(Model model, HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(value = "activityId", required = false) Integer activityId,
-			@RequestParam(value = "taskreport", required = false) String taskreport) throws ParseException {
+			@RequestParam(value = "taskreport", required = false) String taskreport,
+			@RequestParam(value = "brandName", required = false) String brandName,
+			@RequestParam(value = "titleName", required = false) String titleName)  throws ParseException {
 		System.setProperty("sun.jnu.encoding", "utf-8");
 		SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
 		
@@ -363,46 +365,46 @@ public class ExcelController extends BasicController {
 		    
 		    //拼接title
 		    StringBuffer stringBuffer = new StringBuffer();
-		    stringBuffer.append(adActivity.getActivityName());
+//		    stringBuffer.append(adActivity.getActivityName());
 		    stringBuffer.append(taskreport.substring(10));
 		    
-		    Image image1 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/cover.jpg");
-			image1.setAlignment(Image.ALIGN_CENTER);
-			image1.scaleAbsolute(1920,1080);//控制图片大小
-			image1.setAbsolutePosition(0,0);//控制图片位置
-			document.add(image1);
+//		    Image image1 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/cover.jpg");
+//			image1.setAlignment(Image.ALIGN_CENTER);
+//			image1.scaleAbsolute(1920,1080);//控制图片大小
+//			image1.setAbsolutePosition(0,0);//控制图片位置
+//			document.add(image1);
 			
 		    //Header  
-	        float y = document.top(380); 
-			cb.beginText();  
-			cb.setFontAndSize(secfont, 53);  
-//			cb.showTextAligned(PdfContentByte.ALIGN_CENTER, stringBuffer.toString(), (document.right() + document.left())/2, y, 0);
-			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, stringBuffer.toString(), 180, y, 0);
-			cb.endText();
-			
-			cb = writer.getDirectContent();
-			cb.beginText();  
-			cb.setFontAndSize(secfont, 26);  
-//			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "报告时间 "+taskreport.substring(0, 10), 1500, 200, 0);
-			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "报告时间  "+sdf.format(now) , 1500, 200, 0);
-			cb.endText();
-			Image image = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/grouplogo.png");
-			image.setAlignment(Image.ALIGN_CENTER);
-			image.scaleAbsolute(140,50);//控制图片大小
-			image.setAbsolutePosition(1620,80);//控制图片位置
-			document.add(image);
-			
-			Image image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
-			image2.setAlignment(Image.ALIGN_CENTER);
-			image2.scaleAbsolute(200,50);//控制图片大小
-			image2.setAbsolutePosition(200,80);//控制图片位置
-			document.add(image2);
-			
-			Image image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
-			image3.setAlignment(Image.ALIGN_CENTER);
-			image3.scaleAbsolute(65,60);//控制图片大小
-			image3.setAbsolutePosition(1650,950);//控制图片位置
-			document.add(image3);
+//	        float y = document.top(380); 
+//			cb.beginText();  
+//			cb.setFontAndSize(secfont, 53);  
+////			cb.showTextAligned(PdfContentByte.ALIGN_CENTER, stringBuffer.toString(), (document.right() + document.left())/2, y, 0);
+//			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, stringBuffer.toString(), 180, y, 0);
+//			cb.endText();
+//			
+//			cb = writer.getDirectContent();
+//			cb.beginText();  
+//			cb.setFontAndSize(secfont, 26);  
+////			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "报告时间 "+taskreport.substring(0, 10), 1500, 200, 0);
+//			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "报告时间  "+sdf.format(now) , 1500, 200, 0);
+//			cb.endText();
+//			Image image = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/grouplogo.png");
+//			image.setAlignment(Image.ALIGN_CENTER);
+//			image.scaleAbsolute(140,50);//控制图片大小
+//			image.setAbsolutePosition(1620,80);//控制图片位置
+//			document.add(image);
+//			
+//			Image image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
+//			image2.setAlignment(Image.ALIGN_CENTER);
+//			image2.scaleAbsolute(200,50);//控制图片大小
+//			image2.setAbsolutePosition(200,80);//控制图片位置
+//			document.add(image2);
+//			
+//			Image image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
+//			image3.setAlignment(Image.ALIGN_CENTER);
+//			image3.scaleAbsolute(65,60);//控制图片大小
+//			image3.setAbsolutePosition(1650,950);//控制图片位置
+//			document.add(image3);
 			
 //        	List<AdActivityAdseatTaskVo> vos = adActivityService.selectAdActivityAdseatTaskReport(activityId);
 			List<AdActivityAdseatTaskVo> vos = adActivityService.newSelectAdActivityAdseatTaskReport(searchMap);
@@ -490,42 +492,62 @@ public class ExcelController extends BasicController {
 				}else if(taskStatus == MonitorTaskStatus.VERIFY.getId()) {
 					status = MonitorTaskStatus.VERIFY.getText();
 				}
-				list.add(status);//26 任务状态
-				list.add(vo.getExe_realname());//27 任务执行人
+				list.add(status);//23 任务状态
+				list.add(vo.getExe_realname());//24 任务执行人
+				list.add(vo.getSamplePicUrl());//25 活动示例图
+				if(taskreport != null) {
+					String reportTimeStr = taskreport.substring(0, 10); 
+					reportTime = sdf.parse(reportTimeStr);
+					list.add(reportTimeStr);//26 报告时间
+				}
+				list.add(brandName);//27 品牌名
 				map.put(vo.getId(), list); //ad_activity_adseat的id
 				listString.add(list);
 			}
         	
-        	document.setMargins(-70f, 100f, 250f, 50f);
+//        	document.setMargins(-70f, 100f, 250f, 50f);
+        	document.setMargins(122f, 100f, 300f, 50f);
         	document.newPage();
         	//[2] 点位信息生成
         	cb = writer.getDirectContent();
 			cb.beginText();  
 			cb.setFontAndSize(secfont, 53);  
-			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "广告位信息 ", 120, 860, 0);
+			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, titleName+stringBuffer.toString(), 120, 860, 0);
 			cb.endText();
 			
 			PdfPTable table1 = createTable2(listString);
 			document.add(table1);
-			image = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/grouplogo.png");
+			Image image = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/grouplogo.png");
 			image.setAlignment(Image.ALIGN_CENTER);
 			image.scaleAbsolute(140,50);//控制图片大小
 			image.setAbsolutePosition(1620,80);//控制图片位置
 			document.add(image);
 			
-			image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
+			Image image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
 			image2.setAlignment(Image.ALIGN_CENTER);
 			image2.scaleAbsolute(200,50);//控制图片大小
 			image2.setAbsolutePosition(200,80);//控制图片位置
 			document.add(image2);
 			
-			image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
+//			Image image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
+			Image image3 = Image.getInstance(adapp.getAppPictureUrl());
 			image3.setAlignment(Image.ALIGN_CENTER);
-			image3.scaleAbsolute(65,60);//控制图片大小
+			image3.scaleAbsolute(125,60);//控制图片大小
 			image3.setAbsolutePosition(1650,950);//控制图片位置
 			document.add(image3);
-        	            
-			//生成pdf图片页
+        	
+			for (List<String> list : listString) {
+				if(list.get(25)!=null) {
+					//获取活动示例图
+					Image image4 = Image.getInstance(list.get(25));
+					image4.setAlignment(Image.ALIGN_CENTER);
+					image4.scaleAbsolute(440,330);//控制图片大小
+					image4.setAbsolutePosition(1280,403);//控制图片位置
+					document.add(image4);
+				}
+			}
+			
+			//【3】生成pdf图片页
 			List<Integer> ids = new ArrayList<>();
 			List<Integer> activityAdseatIds = new ArrayList<>();
 			//查询每个广告位最新的一条监测任务
@@ -577,50 +599,58 @@ public class ExcelController extends BasicController {
         			image2.setAbsolutePosition(200,80);//控制图片位置
         			document.add(image2);
         			
-        			image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
+//        			image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
+        			image3 = Image.getInstance(adapp.getAppPictureUrl());        			
         			image3.setAlignment(Image.ALIGN_CENTER);
-        			image3.scaleAbsolute(65,60);//控制图片大小
+//        			image3.scaleAbsolute(65,60);//控制图片大小
+        			image3.scaleAbsolute(125,60);
         			image3.setAbsolutePosition(1650,950);//控制图片位置
         			document.add(image3);
+        			
+        			Image image5 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/gongzhang.png");
+        			image5.setAlignment(Image.ALIGN_CENTER);
+        			image5.scaleAbsolute(250,180);//控制图片大小
+        			image5.setAbsolutePosition(1150,5);//控制图片位置
+        			document.add(image5);
 				}
             }
             
-            document.newPage();
-            cb = writer.getDirectContent();
-			cb.beginText();  
-			cb.setFontAndSize(secfont, 53);  
-			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "甲方： ",320, 560, 0);
-//			cb.endText(); 
-//			
-//			cb = writer.getDirectContent();
+//            document.newPage();
+//            cb = writer.getDirectContent();
 //			cb.beginText();  
-			cb.setFontAndSize(secfont, 53);  
-			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "乙方： ", 1100, 560, 0);
-			cb.endText(); 
-            
-			image = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/grouplogo.png");
-			image.setAlignment(Image.ALIGN_CENTER);
-			image.scaleAbsolute(140,50);//控制图片大小
-			image.setAbsolutePosition(1620,80);//控制图片位置
-			document.add(image);
-			
-			image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
-			image2.setAlignment(Image.ALIGN_CENTER);
-			image2.scaleAbsolute(200,50);//控制图片大小
-			image2.setAbsolutePosition(200,80);//控制图片位置
-			document.add(image2);
-			
-			image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
-			image3.setAlignment(Image.ALIGN_CENTER);
-			image3.scaleAbsolute(65,60);//控制图片大小
-			image3.setAbsolutePosition(1650,950);//控制图片位置
-			document.add(image3);
+//			cb.setFontAndSize(secfont, 53);  
+//			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "甲方： ",320, 560, 0);
+////			cb.endText(); 
+////			
+////			cb = writer.getDirectContent();
+////			cb.beginText();  
+//			cb.setFontAndSize(secfont, 53);  
+//			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "乙方： ", 1100, 560, 0);
+//			cb.endText(); 
+//            
+//			image = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/grouplogo.png");
+//			image.setAlignment(Image.ALIGN_CENTER);
+//			image.scaleAbsolute(140,50);//控制图片大小
+//			image.setAbsolutePosition(1620,80);//控制图片位置
+//			document.add(image);
+//			
+//			image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
+//			image2.setAlignment(Image.ALIGN_CENTER);
+//			image2.scaleAbsolute(200,50);//控制图片大小
+//			image2.setAbsolutePosition(200,80);//控制图片位置
+//			document.add(image2);
+//			
+//			image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
+//			image3.setAlignment(Image.ALIGN_CENTER);
+//			image3.scaleAbsolute(65,60);//控制图片大小
+//			image3.setAbsolutePosition(1650,950);//控制图片位置
+//			document.add(image3);
 //			cb = writer.getDirectContent();
 //			cb.beginText();  
 //			cb.setFontAndSize(secfont, 30);  
 //			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "群邑上海广告有限公司 ", 1300, 410, 0);
 //			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "玖凤监测广告有限公司 ", 1300, 360, 0);
-			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, sysUser.getRealname(), 450, 420, 0);
+//			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, sysUser.getRealname(), 450, 420, 0);
 //			cb.endText();
 			
 //			Image image4 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/gongsi.png");
@@ -629,11 +659,6 @@ public class ExcelController extends BasicController {
 //			image4.setAbsolutePosition(1260,300);//控制图片位置
 //			document.add(image4);
 			
-			Image image5 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/gongzhang.png");
-			image5.setAlignment(Image.ALIGN_CENTER);
-			image5.scaleAbsolute(250,180);//控制图片大小
-			image5.setAbsolutePosition(1300,350);//控制图片位置
-			document.add(image5);
 		} catch (Exception e) {
 			logger.error(MessageFormat.format("批量导出pdf失败", new Object[] {}));
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -2116,7 +2141,7 @@ public class ExcelController extends BasicController {
 			image1.setAlignment(Image.ALIGN_CENTER);
 			image1.scalePercent(percent);//依照比例缩放
 			image1.scaleAbsolute(width*percent,percent*height);//控制图片大小
-			image1.setAbsolutePosition(760,583);//控制图片位置
+			image1.setAbsolutePosition(760,590);//控制图片位置
 			document.add(image1);
 		}
 		
@@ -2129,7 +2154,7 @@ public class ExcelController extends BasicController {
  	    	float percent = getPercent(height, width);
 			image2.scalePercent(percent);//依照比例缩放
 			image2.scaleAbsolute(width*percent,percent*height);//控制图片大小
-			image2.setAbsolutePosition(1280,583);//控制图片位置
+			image2.setAbsolutePosition(1280,590);//控制图片位置
 			document.add(image2);
 		}
 		
@@ -2142,7 +2167,7 @@ public class ExcelController extends BasicController {
  	    	float percent = getPercent(height, width);
 			image3.scalePercent(percent);//依照比例缩放
 			image3.scaleAbsolute(width*percent,percent*height);//控制图片大小
-			image3.setAbsolutePosition(760,180);//控制图片位置
+			image3.setAbsolutePosition(760,190);//控制图片位置
 			document.add(image3);
 		}
 		
@@ -2155,7 +2180,7 @@ public class ExcelController extends BasicController {
  	    	float percent = getPercent(height, width);
 			image4.scalePercent(percent);//依照比例缩放
 			image4.scaleAbsolute(width*percent,percent*height);//控制图片大小
-			image4.setAbsolutePosition(1280,180);//控制图片位置
+			image4.setAbsolutePosition(1280,190);//控制图片位置
 			document.add(image4);
 		}
 	}
@@ -2210,18 +2235,15 @@ public class ExcelController extends BasicController {
 //        table.addCell(new Paragraph("任务类型", subBoldFontChinese));
 //        table.addCell(new Paragraph("广告位编号", fontChinese));
 
-        	table.addCell(new Paragraph("媒体主", fontChinese));
-        	table.addCell(new Paragraph(list.get(20), fontChinese));//媒体主
+//        	table.addCell(new Paragraph("媒体主", fontChinese));
+//        	table.addCell(new Paragraph(list.get(20), fontChinese));//媒体主
+			table.addCell(new Paragraph("品牌", fontChinese));
+    		table.addCell(new Paragraph(list.get(27), fontChinese));//品牌名
+    		table.addCell(new Paragraph("媒体类型",fontChinese));//媒体类型
+        	table.addCell(new Paragraph(list.get(18)+"-"+list.get(19),fontChinese)); //媒体类型
         	table.addCell(new Paragraph("广告位编号", fontChinese));
         	table.addCell(new Paragraph(list.get(6), fontChinese));//广告位编号
-        	table.addCell(new Paragraph("广告位名称", fontChinese));
-        	table.addCell(new Paragraph(list.get(1), fontChinese)); //广告位名称
-        	table.addCell(new Paragraph("广告位尺寸", fontChinese));
-        	table.addCell(new Paragraph(list.get(10)+"(cm²)",fontChinese));//广告位尺寸
-        	table.addCell(new Paragraph("媒体类型",fontChinese));//媒体类型
-        	table.addCell(new Paragraph(list.get(18)+"-"+list.get(19),fontChinese)); //媒体类型
-        	table.addCell(new Paragraph("地理位置", fontChinese));
-        	
+        	table.addCell(new Paragraph("地址(位置)", fontChinese));
         	StringBuffer location = new StringBuffer();
         	if(StringUtil.isNotBlank(list.get(2))) {
         		location.append(list.get(2));  //省
@@ -2236,7 +2258,9 @@ public class ExcelController extends BasicController {
         		location.append(list.get(5));
         	}
             table.addCell(new Paragraph(location.toString(), fontChinese));//具体位置
-            
+        	table.addCell(new Paragraph("发布期", fontChinese));
+        	table.addCell(new Paragraph(list.get(7)+"-"+list.get(8) , fontChinese));//起止日期
+        	
 //            table.addCell(new Paragraph(list.get(7), fontChinese));//开始监测时间
 //            table.addCell(new Paragraph(list.get(8), fontChinese));//结束监测时间
 		
@@ -2255,14 +2279,15 @@ public class ExcelController extends BasicController {
 	    Font subBoldFontChinese = new Font(bfChinese, 15, Font.BOLD); 
 
 		PdfPTable table = new PdfPTable(4);
-		table.getDefaultCell().setBorder(PdfPCell.NO_BORDER);  
-		table.setTotalWidth(1500f);
-		table.setLockedWidth(true);
 		
+		table.getDefaultCell().setBorder(PdfPCell.NO_BORDER);  
+		table.setTotalWidth(1100f);
+		table.setLockedWidth(true);
+		table.setHorizontalAlignment(50);
 		table.setSpacingAfter(20.0f);
 		table.setSpacingBefore(20.0f);
 		table.setWidths(new int[] { 1, 1 ,1 ,1});
-//		table.getDefaultCell().setMinimumHeight(500f);
+		
 		PdfPCell cell = new PdfPCell(new Paragraph("点位名称", fontChinese)); 
 		cell.setBackgroundColor(new BaseColor(211,211,211));
 		cell.setBorder(0);
@@ -2270,19 +2295,22 @@ public class ExcelController extends BasicController {
 		cell.setVerticalAlignment(Element.ALIGN_MIDDLE); 
 		cell.setMinimumHeight(50f);
 		table.addCell(cell);
-		cell = new PdfPCell(new Paragraph("媒体主", fontChinese));
+//		cell = new PdfPCell(new Paragraph("媒体主", fontChinese));
+		cell = new PdfPCell(new Paragraph("城市", fontChinese));
+		cell.setBackgroundColor(new BaseColor(211,211,211));
+		cell.setBorder(0);
+		cell.setHorizontalAlignment(1);
+		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+		table.addCell(cell);
+//		cell = new PdfPCell(new Paragraph("广告位编号", fontChinese));
+		cell = new PdfPCell(new Paragraph("上刊日期", fontChinese));
 		cell.setBackgroundColor(new BaseColor(211,211,211));
 		cell.setBorder(0);
 		cell.setHorizontalAlignment(1);
 		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 		table.addCell(cell);
 		cell = new PdfPCell(new Paragraph("广告位编号", fontChinese));
-		cell.setBackgroundColor(new BaseColor(211,211,211));
-		cell.setBorder(0);
-		cell.setHorizontalAlignment(1);
-		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-		table.addCell(cell);
-		cell = new PdfPCell(new Paragraph("投放日期", fontChinese));
+//		cell = new PdfPCell(new Paragraph("投放日期", fontChinese));
 		cell.setBackgroundColor(new BaseColor(211,211,211));
 		cell.setBorder(0);
 		cell.setHorizontalAlignment(1);
@@ -2296,17 +2324,19 @@ public class ExcelController extends BasicController {
 			cell.setMinimumHeight(30f);
 			cell.setBorder(0);
 			table.addCell(cell);
-			cell = new PdfPCell(new Paragraph(list.get(20), fontChinese));//媒体主
+//			cell = new PdfPCell(new Paragraph(list.get(20), fontChinese));//媒体主
+			cell = new PdfPCell(new Paragraph(list.get(2), fontChinese));//省
+			cell.setHorizontalAlignment(1);
+			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			cell.setBorder(0);
+			table.addCell(cell);
+//			cell = new PdfPCell(new Paragraph(list.get(7)+" - "+list.get(8), fontChinese));//投放日期
+			cell = new PdfPCell(new Paragraph(list.get(26), fontChinese));// 报告日期
 			cell.setHorizontalAlignment(1);
 			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			cell.setBorder(0);
 			table.addCell(cell);
 			cell = new PdfPCell(new Paragraph(list.get(6), fontChinese));//广告位编号
-			cell.setHorizontalAlignment(1);
-			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-			cell.setBorder(0);
-			table.addCell(cell);
-			cell = new PdfPCell(new Paragraph(list.get(7)+" - "+list.get(8), fontChinese));//投放日期
 			cell.setHorizontalAlignment(1);
 			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			cell.setBorder(0);

@@ -47,189 +47,49 @@
 	
 <script type="text/javascript">
 	function upTaskShow(activityId,taskreport) { //上刊任务
-    	$.ajax({
-            url: "/excel/exportAdMediaPdf",
-            type: "post",
-            data: {
-                "activityId" : activityId,
-                "taskreport": taskreport
-            },
-            cache: false,
-            dataType: "json",
-            success: function(datas) {
-                var resultRet = datas.ret;
-                if (resultRet.code == 101) {
-                    layer.confirm(resultRet.resultDes, {
-                        icon: 2,
-                        btn: ['确定'] //按钮
-                    });
-                } else {
-                    layer.alert('导出成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
-		    		//window.open(resultRet.result);
-		    		var newA = document.createElement("a");
-			        newA.id = 'gg'
-			        newA.target = '_blank';
-			        newA.href = resultRet.result;
-			        document.body.appendChild(newA);
-			        newA.click();
-			        document.body.removeChild(newA);
-                }
-            },
-            error: function(e) {
-                layer.confirm("服务忙，请稍后再试", {
-                    icon: 5,
-                    btn: ['确定'] //按钮
-                });
-            }
-        });
+		layer.open({
+    		type : 2,
+    		title: '',
+    		shade: 0.8,
+            area: ['600px', '420px'],
+            content: '/activity/writeBrand?activityId=' + activityId +'&taskreport=' +taskreport
+    	});
     }
 	
 	function upmonitorShow(activityId,taskreport) { //上刊监测
-    	$.ajax({
-            url: "/excel/exportAdMediaPdf",
-            type: "post",
-            data: {
-                "activityId" : activityId,
-                "taskreport": taskreport
-            },
-            cache: false,
-            dataType: "json",
-            success: function(datas) {
-                var resultRet = datas.ret;
-                if (resultRet.code == 101) {
-                    layer.confirm(resultRet.resultDes, {
-                        icon: 2,
-                        btn: ['确定'] //按钮
-                    });
-                } else {
-                    layer.alert('导出成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
-		    		//window.open(resultRet.result);
-		    		var newA = document.createElement("a");
-			        newA.id = 'gg'
-			        newA.target = '_blank';
-			        newA.href = resultRet.result;
-			        document.body.appendChild(newA);
-			        newA.click();
-			        document.body.removeChild(newA);
-                }
-            },
-            error: function(e) {
-                layer.confirm("服务忙，请稍后再试", {
-                    icon: 5,
-                    btn: ['确定'] //按钮
-                });
-            }
-        });
+    	layer.open({
+    		type : 2,
+    		title: '',
+    		shade: 0.8,
+            area: ['600px', '420px'],
+            content: '/activity/writeBrand?activityId=' + activityId +'&taskreport=' +taskreport
+    	});
     }
     function durationMonitorShow(activityId,taskreport) { //投放期间监测
-    	$.ajax({
-            url: "/excel/exportAdMediaPdf",
-            type: "post",
-            data: {
-                "activityId" : activityId,
-                "taskreport": taskreport
-            },
-            cache: false,
-            dataType: "json",
-            success: function(datas) {
-                var resultRet = datas.ret;
-                if (resultRet.code == 101) {
-                    layer.confirm(resultRet.resultDes, {
-                        icon: 2,
-                        btn: ['确定'] //按钮
-                    });
-                } else {
-                    layer.alert('导出成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
-		    		//window.open(resultRet.result);
-		    		var newA = document.createElement("a");
-			        newA.id = 'gg'
-			        newA.target = '_blank';
-			        newA.href = resultRet.result;
-			        document.body.appendChild(newA);
-			        newA.click();
-			        document.body.removeChild(newA);
-                }
-            },
-            error: function(e) {
-                layer.confirm("服务忙，请稍后再试", {
-                    icon: 5,
-                    btn: ['确定'] //按钮
-                });
-            }
-        });
+    	layer.open({
+    		type : 2,
+    		title: '',
+    		shade: 0.8,
+            area: ['600px', '420px'],
+            content: '/activity/writeBrand?activityId=' + activityId +'&taskreport=' +taskreport
+    	});
     }
     function zhuijiaMonitorShow(activityId,taskreport) { //追加监测
-    	$.ajax({
-            url: "/excel/exportAdMediaPdf",
-            type: "post",
-            data: {
-                "activityId" : activityId,
-                "taskreport": taskreport
-            },
-            cache: false,
-            dataType: "json",
-            success: function(datas) {
-                var resultRet = datas.ret;
-                if (resultRet.code == 101) {
-                    layer.confirm(resultRet.resultDes, {
-                        icon: 2,
-                        btn: ['确定'] //按钮
-                    });
-                } else {
-                    layer.alert('导出成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
-		    		//window.open(resultRet.result);
-		    		var newA = document.createElement("a");
-			        newA.id = 'gg'
-			        newA.target = '_blank';
-			        newA.href = resultRet.result;
-			        document.body.appendChild(newA);
-			        newA.click();
-			        document.body.removeChild(newA);
-                }
-            },
-            error: function(e) {
-                layer.confirm("服务忙，请稍后再试", {
-                    icon: 5,
-                    btn: ['确定'] //按钮
-                });
-            }
-        });
+    	layer.open({
+    		type : 2,
+    		title: '',
+    		shade: 0.8,
+            area: ['600px', '420px'],
+            content: '/activity/writeBrand?activityId=' + activityId +'&taskreport=' +taskreport
+    	});
     }
     function downMonitorShow(activityId,taskreport) { //下刊监测
-    	$.ajax({
-            url: "/excel/exportAdMediaPdf",
-            type: "post",
-            data: {
-                "activityId" : activityId,
-                "taskreport": taskreport
-            },
-            cache: false,
-            dataType: "json",
-            success: function(datas) {
-                var resultRet = datas.ret;
-                if (resultRet.code == 101) {
-                    layer.confirm(resultRet.resultDes, {
-                        icon: 2,
-                        btn: ['确定'] //按钮
-                    });
-                } else {
-                    layer.alert('导出成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
-		    		//window.open(resultRet.result);
-		    		var newA = document.createElement("a");
-			        newA.id = 'gg'
-			        newA.target = '_blank';
-			        newA.href = resultRet.result;
-			        document.body.appendChild(newA);
-			        newA.click();
-			        document.body.removeChild(newA);
-                }
-            },
-            error: function(e) {
-                layer.confirm("服务忙，请稍后再试", {
-                    icon: 5,
-                    btn: ['确定'] //按钮
-                });
-            }
-        });
+    	layer.open({
+    		type : 2,
+    		title: '',
+    		shade: 0.8,
+            area: ['600px', '420px'],
+            content: '/activity/writeBrand?activityId=' + activityId +'&taskreport=' +taskreport
+    	});
     }
 </script>

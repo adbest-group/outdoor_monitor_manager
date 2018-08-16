@@ -649,10 +649,13 @@ public class ActivityController extends BasicController {
 	//输入品牌和PDF导出标题
 	@RequestMapping(value="/writeBrand")
 	public String writeBrand(Model model,HttpServletRequest request,
-			@RequestParam(value = "activityId", required = false) Integer activityId) {
+			@RequestParam(value = "activityId", required = false) Integer activityId,
+			@RequestParam(value = "taskreport", required = false) String taskreport) {
 		model.addAttribute("activityId" ,activityId);
+		model.addAttribute("taskreport" , taskreport);
 		return PageConst.WRITE_BRAND_TITLE_PDF;
 	}
+	
 	//Pdf导出任务列表报告
 	@RequestMapping(value="/selectTasksToPdf")
 	public String selectTasksToPdf(Model model,HttpServletRequest request, HttpServletResponse response,

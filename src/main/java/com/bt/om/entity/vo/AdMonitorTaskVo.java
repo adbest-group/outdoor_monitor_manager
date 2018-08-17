@@ -51,6 +51,25 @@ public class AdMonitorTaskVo extends AdMonitorTask {
     private Integer picUrl3Status;
     private Integer picUrl4Status;
     private String companyName;
+    private String memo;
+    private Integer mediaUserId;
+    private String mobile;
+
+	public String getMobile() {
+		return mobile;
+	}
+
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
+	}
+
+	public Integer getMediaUserId() {
+		return mediaUserId;
+	}
+
+	public void setMediaUserId(Integer mediaUserId) {
+		this.mediaUserId = mediaUserId;
+	}
 
 	public String getCompanyName() {
 		return companyName;
@@ -413,5 +432,13 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 
 	public void setAssignorName(String assignorName) {
 		this.assignorName = assignorName;
+	}
+
+	public String getMemo() {
+		return memo;
+	}
+
+	public void setMemo(String memo) {
+		this.memo = memo;
 	}
 }

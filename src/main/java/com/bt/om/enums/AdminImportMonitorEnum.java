@@ -1,21 +1,25 @@
 package com.bt.om.enums;
 
 /**
- * Created by caiting on 2018/1/26.
+ * 群邑方批量导入监测任务 枚举
  */
-public enum SysUserExecuteType {
-    WORKER(1,"监测人员"),CUSTOMER(2,"客户"),SOCIAL(4,"社会人员"),MEDIA_WORKER(3,"媒体监测人员"),THIRDCOMPANY(5,"第三方监测公司");
+public enum AdminImportMonitorEnum {
+    ADSEAT_MEMO(0, "广告位编号"),
+    TASK_USER(1, "任务执行人"),
+    TASK_TYPE(2, "任务类型"),
+    IMPORT_RESULT(3, "导入结果"),
+    IMPORT_DES(4, "导入错误信息");
 
     private Integer id;
     private String text;
 
-    SysUserExecuteType(int id, String text) {
+    AdminImportMonitorEnum(int id,String text) {
         this.id = id;
         this.text = text;
     }
 
     public static String getText(int id){
-        for(SysUserExecuteType e : SysUserExecuteType.values()){
+        for(AdminImportMonitorEnum e : AdminImportMonitorEnum.values()){
             if(e.getId() == id){
                 return e.getText();
             }
@@ -24,7 +28,7 @@ public enum SysUserExecuteType {
     }
 
     public static Integer getId(String text){
-        for(SysUserExecuteType e : SysUserExecuteType.values()){
+        for(AdminImportMonitorEnum e : AdminImportMonitorEnum.values()){
             if(e.getText().equals(text)){
                 return e.getId();
             }

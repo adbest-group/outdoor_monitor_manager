@@ -96,5 +96,7 @@ public interface SysUserMapper {
 	SysUser getUserName(@Param("username") String inviteAcc);
 
 	List<Integer> getAllByUserTypeId(@Param("usertype") Integer id);
+
+	List<SysUserVo> selectUserVoByActivityId(@Param("activityId")Integer activityId);
 	 
 }

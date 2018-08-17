@@ -121,4 +121,9 @@ public interface IAdMonitorTaskService {
 	public Integer updatePicStatus(AdMonitorTaskFeedback feedback, Integer status);
 	public String selectUserNameByTaskId(Integer id);
 	public void assign(String[] taskIds, Integer mediaId, Integer companyId, Integer mediaUser, Integer companyUser,Integer id);
+	/**
+	 *获取监测任务
+	 */
+	public List<AdMonitorTaskVo> findAllMemo(Integer activityId,List<AdMonitorTaskVo> memos);
+	public void updateBatch(List<AdMonitorTaskVo> tasks);
 }

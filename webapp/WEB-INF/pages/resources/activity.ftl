@@ -75,6 +75,7 @@
                     <button type="button" class="btn btn-red" style="margin-left:10px;" autocomplete="off" id="searchBtn">查询</button>
                     <#if user.usertype !=6>
                      <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">批量确认</button> 
+                     <button style="margin-left: 10px" type="button" class="btn" id="downloadBatch" autocomplete="off" onclick="">监测任务模板下载</button>
                     </#if>
                 </form>
             </div>
@@ -123,6 +124,11 @@
                                 </#if>
                                 <#if activity.status!=1&&activity.status!=4><a id="openActivityExcel" href="javascript:openActivityExcel('${activity.id}')">导出excel</a></#if>
                                 <#if activity.status!=1&&activity.status!=4><a id="openActivityPdf" href="javascript:openActivityPdf('${activity.id}')">导出pdf</a></#if>
+                                <#if user.usertype !=6>
+                                	<#if activity.status==2>
+                                		<button style="margin-left: 10px" type="button" class="btn batchInsert" autocomplete="off" ai=${activity.id}>导入监测任务</button>
+                                	</#if>
+                                </#if>
                                  <#-- <#if activity.status!=1&&activity.status!=4><a id="exportExcel" href="javascript:exportExcel('${activity.id}')">导出excel</a></#if> -->
                                 <#-- <#if activity.status!=1&&activity.status!=4><a id="exportPdf" href="javascript:exportPdf('${activity.id}')">导出pdf</a></#if> --> 
                             </td>
@@ -654,7 +660,66 @@ function changeMediaTypeId() {
             }
         });
 	}
-
+	// 下载模板
+    $('#downloadBatch').click(function(){
+    	$.get('/excel/downMonitorBatch', function(data){
+    		if(data.ret.code === 100) {
+    			window.open(data.ret.result)
+    		}else{
+    			layer.confirm("下载失败", {
+                    icon: 5,
+                    btn: ['确定'] //按钮
+                });
+    		}
+    	})
+    })
+       //批量导入
+	layui.use('upload', function(){
+	  var upload = layui.upload;
+	  
+	  //执行实例
+	  var uploadInst = upload.render({
+	    elem: '.batchInsert' //绑定元素 
+	    ,data: {
+	    	activityId:"";
+		}
+	    ,accept: 'file' //指定只允许上次文件
+	    ,exts: 'xlsx|xls' //指定只允许上次xlsx和xls格式的excel文件
+	    ,field: 'excelFile' //设置字段名
+	    ,url: '/excel/insertTaskBatchByExcel' //上传接口
+	    ,before: function() {
+	    	isLoading = true;
+	    	layer.msg('正在努力上传中...', {
+	    		icon: 16,
+	    		shade: [0.5, '#f5f5f5'],
+	    		scrollbar: false,
+	    		time: 300000
+	    	}, function(){
+	    		if(isLoading){
+	    			layer.alert('上传超时', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    		}
+    		})
+	    }
+	    ,done: function(res){
+	    	isLoading = false;
+	    	layer.closeAll('msg')
+	    	if(res.ret.code == 100){
+	    		layer.alert('导入成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
+	    		window.open(res.ret.result);
+	    		window.location.reload();
+	    	} else if (res.ret.code == 101){
+	    		layer.alert(res.ret.resultDes, {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	} else if (res.ret.code == 105){
+	    		layer.alert('没有导入权限', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	}
+	    }
+	    ,error: function(res){
+	    	isLoading = false
+	       layer.closeAll('msg')
+	       layer.alert('导入失败', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    }
+	  });
+	});
 </script>
 <!-- 特色内容 -->
 

@@ -536,4 +536,22 @@
   	from sys_user
   	where username = #{username ,jdbcType=VARCHAR}
   </select>
+  
+  <resultMap id="MediaResultMap" extends="BaseResultMap" type="com.bt.om.entity.vo.SysUserVo">
+    <collection property="userExecutes" column="id" select="com.bt.om.mapper.SysUserExecuteMapper.selectMediaNameByUserId"></collection>
+  </resultMap>
+  <!-- 查询活动相关的媒体用户 -->
+  <select id="selectUserVoByActivityId" parameterType="int" resultMap="MediaResultMap">
+	SELECT
+		b.id, b.username, b.password, b.platform, b.realname, b.mobile, b.usertype, b.customer_type_id, b.status, b.remark, b.login_ip, b.login_time,
+    	b.default_page,b.app_type_id, b.create_time, b.update_time
+	FROM
+		ad_media a
+	LEFT JOIN sys_user b ON b.id = a.user_id
+	LEFT JOIN ad_activity_adseat c ON a.id = c.media_id
+	WHERE
+		c.activity_id = #{activityId,jdbcType=INTEGER}
+	GROUP BY
+		b.id
+  </select>
 </mapper>

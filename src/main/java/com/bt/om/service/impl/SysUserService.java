@@ -315,5 +315,12 @@ public class SysUserService implements ISysUserService {
 	public SysUser getUserName(String inviteAcc) {
 		return sysUserMapper.getUserName(inviteAcc);
 	}
+	/**
+	 * 通过活动id获取所媒体用户及媒体监测人员
+	 */
+	@Override
+	public List<SysUserVo> selectUserVoByActivityId(Integer activityId) {
+		return sysUserMapper.selectUserVoByActivityId(activityId);
+	}
 
 }

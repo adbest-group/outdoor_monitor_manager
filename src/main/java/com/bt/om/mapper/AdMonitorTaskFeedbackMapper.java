@@ -10,6 +10,7 @@ import org.apache.ibatis.session.RowBounds;
 import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.HistoryAdMonitorTask;
 import com.bt.om.entity.HistoryAdMonitorTaskFeedback;
+import com.bt.om.entity.vo.AdMonitorTaskVo;
 
 public interface AdMonitorTaskFeedbackMapper {
     /**
@@ -77,5 +78,7 @@ public interface AdMonitorTaskFeedbackMapper {
 	List<HistoryAdMonitorTaskFeedback> selectAllByMonitorTaskIds(@Param("adMonitorTasks") List<HistoryAdMonitorTask> adMonitorTasks);
 
 	int deleteByIds(@Param("adMonitorTaskFeedbacks") List<HistoryAdMonitorTaskFeedback> adMonitorTaskFeedbacks);
+
+	int insertBatch(@Param("tasks")List<AdMonitorTaskVo> tasks);
 
 }

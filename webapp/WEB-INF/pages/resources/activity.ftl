@@ -664,6 +664,7 @@ function changeMediaTypeId() {
     		}
     	})
     })
+
     // 批量导入监听
     $(".batchInsert").on("click", function (e) {
         $("#upload_file").val($(this).attr("ai"));
@@ -680,15 +681,6 @@ function changeMediaTypeId() {
 	    	activityId: function () {
 	    	    return $("#upload_file").val()
             }
-       //批量导入
-	layui.use('upload', function(){
-	  var upload = layui.upload;
-	  
-	  //执行实例
-	  var uploadInst = upload.render({
-	    elem: '.batchInsert' //绑定元素 
-	    ,data: {
-	    	activityId:"";
 		}
 	    ,accept: 'file' //指定只允许上次文件
 	    ,exts: 'xlsx|xls' //指定只允许上次xlsx和xls格式的excel文件
@@ -709,17 +701,16 @@ function changeMediaTypeId() {
 	    }
 	    ,done: function(res){
 	    	isLoading = false;
-	    	console.log("res", res);
-	    	// layer.closeAll('msg')
-	    	// if(res.ret.code == 100){
-	    	// 	layer.alert('导入成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
-	    	// 	window.open(res.ret.result);
-	    	// 	window.location.reload();
-	    	// } else if (res.ret.code == 101){
-	    	// 	layer.alert(res.ret.resultDes, {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
-	    	// } else if (res.ret.code == 105){
-	    	// 	layer.alert('没有导入权限', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
-	    	// }
+	    	layer.closeAll('msg')
+	    	if(res.ret.code == 100){
+	    	layer.alert('导入成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
+	    	window.open(res.ret.result);
+	    	window.location.reload();
+	    	} else if (res.ret.code == 101){
+	    	layer.alert(res.ret.resultDes, {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	} else if (res.ret.code == 105){
+	    	layer.alert('没有导入权限', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	}
 	    }
 	    ,error: function(res){
 	    	isLoading = false

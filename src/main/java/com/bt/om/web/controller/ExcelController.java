@@ -2441,6 +2441,7 @@ public class ExcelController extends BasicController {
 	        List<AdMonitorTaskVo> tasks = new ArrayList<>();
 	        Map<String, List<FileInfoVo>> imgs = null;
 	        Table<String, String, Integer> tableData = HashBasedTable.create();
+	        List<String> memos = adSeatService.selectAllSeatMemoByActivityId(activity.getId());
 	        //excel表格任务对应文件夹图片   
 	        for (int i = 1; i < listob.size(); i++) {
 	            List<Object> lo = listob.get(i);
@@ -2471,6 +2472,11 @@ public class ExcelController extends BasicController {
 	            if (tableData.get(seatName, task_type)!=null) {
 	            	lo.set(AdminImportMonitorEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
 	            	lo.set(AdminImportMonitorEnum.IMPORT_DES.getId(), ExcelImportFailEnum.TASK_DUP.getText());
+					continue;
+				}
+	            if (!memos.contains(seatName)) {
+	            	lo.set(AdminImportMonitorEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+	            	lo.set(AdminImportMonitorEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_INVALID.getText());
 					continue;
 				}
 	            tableData.put(seatName, task_type, i);
@@ -2528,7 +2534,7 @@ public class ExcelController extends BasicController {
 					SysUserExecute userExecute = sysUserExecuteService.getByUsername(adMonitorTaskVo.getMobile());
 					if (userExecute==null) {
 						Integer index = tableData.get(taskVo.getMemo(),MonitorTaskType.getText(taskVo.getTaskType()));
-		        		excelInfo.put(index, ExcelImportFailEnum.TASK_VERIFY.getText());
+		        		excelInfo.put(index, ExcelImportFailEnum.TASK_USER_INVALID.getText());
 						continue;
 					}
 					taskVo.setUserId(userExecute.getId());

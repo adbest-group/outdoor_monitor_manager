@@ -39,7 +39,8 @@ public enum ExcelImportFailEnum {
 	TASK_USER_INVALID(32,"任务执行人不存在"),
 	TASK_VERIFY(33,"该任务已经通过审核"),
 	PIC_INVALID(34,"图片不存在"),
-	TASK_DUP(35,"任务重复");
+	TASK_DUP(35,"任务重复"),
+	LOC_INVALID(36,"该广告位没有参与本活动");
     private Integer id;
     private String text;
 

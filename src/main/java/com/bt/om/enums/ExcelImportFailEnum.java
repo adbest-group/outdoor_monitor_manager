@@ -31,7 +31,16 @@ public enum ExcelImportFailEnum {
 	MEDIA_NUM_INVAILD(24,"媒体方广告位编号不能为空"),
 	MEDIA_NULL(25,"媒体主不能为空"),
 	MEDIA_INVAILD(26,"媒体主名称无效"),
-	MEMO_DUP(27,"广告位编号重复");
+	MEMO_DUP(27,"广告位编号重复"),
+	ADNAME_MEMO_NULL(28,"广告位编号不能为空"),
+	TASK_USER_NULL(29,"任务执行人不能为空"),
+	TASK_TYPE_NULL(30,"任务类型不能为空"),
+	TASK_TYPE_INVALID(31,"任务类型不存在"),
+	TASK_USER_INVALID(32,"任务执行人不存在"),
+	TASK_VERIFY(33,"该任务已经通过审核"),
+	PIC_INVALID(34,"图片不存在"),
+	TASK_DUP(35,"任务重复"),
+	LOC_INVALID(36,"该广告位没有参与本活动");
     private Integer id;
     private String text;
 

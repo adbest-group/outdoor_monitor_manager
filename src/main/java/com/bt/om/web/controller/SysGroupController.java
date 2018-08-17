@@ -1,5 +1,10 @@
 package com.bt.om.web.controller;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -980,5 +985,43 @@ public class SysGroupController extends BasicController{
         model.addAttribute(SysConst.RESULT_KEY, result);
 		return model;
     	
+    }
+    //保存文件，不改变文件名
+    public static String saveFileNoChangeName(String path,String filename,InputStream is){
+        FileOutputStream fos = null;
+        try {
+        	File file = new File(path);
+        	if(!file.exists()){
+                file.mkdirs();
+            }
+            fos = new FileOutputStream(path+filename);
+            int len = 0;
+            byte[] buff = new byte[1024];
+            while((len=is.read(buff))>0){
+                fos.write(buff);
+            }
+            return filename;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            if(fos!=null){
+                try {
+                    fos.flush();
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(is!=null){
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
     }
 }

@@ -48,21 +48,28 @@ import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.City;
 import com.bt.om.entity.SysUser;
+import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
 import com.bt.om.entity.vo.AdActivityAdseatVo;
+import com.bt.om.entity.vo.AdActivityVo;
 import com.bt.om.entity.vo.AdMediaTypeVo;
+import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.entity.vo.FileInfoVo;
 import com.bt.om.enums.AdCodeFlagEnum;
 import com.bt.om.enums.AdminImportAdSeatEnum;
+import com.bt.om.enums.AdminImportMonitorEnum;
 import com.bt.om.enums.AppUserTypeEnum;
 import com.bt.om.enums.ExcelImportFailEnum;
 import com.bt.om.enums.MapStandardEnum;
 import com.bt.om.enums.MediaImportAdSeatEnum;
+import com.bt.om.enums.MonitorTaskFeedBackStatus;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
 import com.bt.om.enums.UserTypeEnum;
+import com.bt.om.enums.VerifyType;
 import com.bt.om.exception.web.ExcelException;
 import com.bt.om.filter.LogFilter;
 import com.bt.om.mapper.AdMediaMapper;
@@ -74,6 +81,7 @@ import com.bt.om.service.IAdSeatService;
 import com.bt.om.service.IAdUserMessageService;
 import com.bt.om.service.IAppService;
 import com.bt.om.service.IMediaService;
+import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.util.ConfigUtil;
 import com.bt.om.util.ExcelTool;
@@ -138,6 +146,13 @@ public class ExcelController extends BasicController {
 	
 	@Autowired
 	private IAdUserMessageService adUserMessageService;
+	
+	@Autowired
+	private ISysUserExecuteService sysUserExecuteService;
+	
+	private String fileUploadPath = ConfigUtil.getString("file.upload.path");
+	
+	private String fileUploadIp = ConfigUtil.getString("file.upload.ip");
 	
 	private static final Logger logger = Logger.getLogger(ExcelController.class);
 	private String file_upload_path = ConfigUtil.getString("file.upload.path");
@@ -2369,5 +2384,281 @@ public class ExcelController extends BasicController {
 		}
 		return table;
 	}
+	/**
+	 * 【群邑方】 导入监测任务模板下载
+	 */
+	@RequiresRoles(value = {"superadmin"}, logical = Logical.OR)
+    @RequestMapping(value = "/downMonitorBatch")
+	@ResponseBody
+	public Model downMonitorBatch(Model model, HttpServletRequest request, HttpServletResponse response) {
+		//相关返回结果
+		ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("查询成功");
+        model = new ExtendedModelMap();
+        
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResult("/static/excel/" + "template5.zip");
+        
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+	}
 	
+	/**
+	 * 批量导入监测任务
+	 * @param activityId 活动id
+	 */
+	@RequiresRoles(value = {"superadmin"})
+    @RequestMapping(value = "/insertTaskBatchByExcel")
+	@ResponseBody
+	public Model insertTaskBatchByExcel(Model model, HttpServletRequest request, HttpServletResponse response,
+                                     @RequestParam(value = "excelFile", required = false) MultipartFile file,
+                                     @RequestParam(value = "activityId", required = false) Integer activityId) throws Exception {
+    	ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("查询成功");
+        model = new ExtendedModelMap();
+        AdActivityVo activity = adActivityService.getVoById(activityId);
+        if (activity==null) {
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("活动不存在");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+			return model;
+		}
+        //获取登录用户信息
+        SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    	InputStream in = file.getInputStream();
+    	try {
+			if (file.isEmpty()) {
+        		throw new ExcelException("批量导入文件不能为空, 导入失败");
+			}
+	        List<List<Object>> listob = new ArrayList<List<Object>>();
+	        //excel上传支持
+	        listob = new ImportExcelUtil().getBankListByExcel(in, file.getOriginalFilename());
+	        //文件夹图片
+	        Map<String, Map<String, List<FileInfoVo>>> pics = getPics(activityId);
+	        List<AdMonitorTaskVo> tasks = new ArrayList<>();
+	        Map<String, List<FileInfoVo>> imgs = null;
+	        Table<String, String, Integer> tableData = HashBasedTable.create();
+	        List<String> memos = adSeatService.selectAllSeatMemoByActivityId(activity.getId());
+	        //excel表格任务对应文件夹图片   
+	        for (int i = 1; i < listob.size(); i++) {
+	            List<Object> lo = listob.get(i);
+	            String seatName = (String) lo.get(AdminImportMonitorEnum.ADSEAT_MEMO.getId());
+	            String mobile = (String) lo.get(AdminImportMonitorEnum.TASK_USER.getId());
+	            String task_type = (String) lo.get(AdminImportMonitorEnum.TASK_TYPE.getId());
+	            Integer id = MonitorTaskType.getId(task_type);
+	            if (seatName==null) {
+	            	lo.set(AdminImportMonitorEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+	            	lo.set(AdminImportMonitorEnum.IMPORT_DES.getId(), ExcelImportFailEnum.ADNAME_MEMO_NULL.getText());
+	            	continue;
+				}
+	            if (mobile==null) {
+	            	lo.set(AdminImportMonitorEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+	            	lo.set(AdminImportMonitorEnum.IMPORT_DES.getId(), ExcelImportFailEnum.TASK_USER_NULL.getText());
+	            	continue;
+				}
+	            if (task_type==null) {
+	            	lo.set(AdminImportMonitorEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+	            	lo.set(AdminImportMonitorEnum.IMPORT_DES.getId(), ExcelImportFailEnum.TASK_TYPE_NULL.getText());
+	            	continue;
+				}
+	            if (id==null) {
+	            	lo.set(AdminImportMonitorEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+	            	lo.set(AdminImportMonitorEnum.IMPORT_DES.getId(), ExcelImportFailEnum.TASK_TYPE_INVALID.getText());
+					continue;
+				}
+	            if (tableData.get(seatName, task_type)!=null) {
+	            	lo.set(AdminImportMonitorEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+	            	lo.set(AdminImportMonitorEnum.IMPORT_DES.getId(), ExcelImportFailEnum.TASK_DUP.getText());
+					continue;
+				}
+	            if (!memos.contains(seatName)) {
+	            	lo.set(AdminImportMonitorEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+	            	lo.set(AdminImportMonitorEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_INVALID.getText());
+					continue;
+				}
+	            tableData.put(seatName, task_type, i);
+	            imgs = pics.get(id.toString());
+	            if (imgs!=null&&imgs.size()>0) {
+					List<FileInfoVo> list = imgs.get(seatName);
+					if (list!=null&&list.size()>0) {
+						AdMonitorTaskVo adMonitorTaskVo = new AdMonitorTaskVo();
+						adMonitorTaskVo.setMemo(seatName);
+						adMonitorTaskVo.setTaskType(id);
+						adMonitorTaskVo.setMobile(mobile);
+						adMonitorTaskVo.setVerifyTime(list.get(0).getTime());
+						for (int j = 0; j < list.size(); j++) {
+							String path = list.get(j).getPath().substring(list.get(j).getPath().indexOf(":")+1, list.get(j).getPath().length()).replaceAll("\\\\", "/");
+							path = path.replaceFirst("/opt/", "/");
+							if (j==0) {
+								adMonitorTaskVo.setPicUrl1(fileUploadIp + path);
+							}else if (j==1) {
+								adMonitorTaskVo.setPicUrl2(fileUploadIp + path);
+							}else if (j==2) {
+								adMonitorTaskVo.setPicUrl3(fileUploadIp + path);
+							}else if (j==3) {
+								adMonitorTaskVo.setPicUrl4(fileUploadIp + path);
+							}
+						}
+						tasks.add(adMonitorTaskVo);
+					}else {
+						lo.set(AdminImportMonitorEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+		            	lo.set(AdminImportMonitorEnum.IMPORT_DES.getId(), ExcelImportFailEnum.PIC_INVALID.getText());
+					}
+				}else {
+					lo.set(AdminImportMonitorEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+	            	lo.set(AdminImportMonitorEnum.IMPORT_DES.getId(), ExcelImportFailEnum.PIC_INVALID.getText());
+				}
+	        }
+	        Table<String, Integer, AdMonitorTaskVo> table = getTaskTable(tasks);
+	        List<AdMonitorTaskVo> TaskVos = new ArrayList<>();
+	        if (tasks.size()>0) {
+	        	TaskVos = adMonitorTaskService.findAllMemo(activity.getId(),tasks);
+			}
+	        List<AdMonitorTaskVo> Tasks = new ArrayList<>();
+	        Map<Integer, String> excelInfo = new HashMap<>();
+	        for (int j = 0; j < TaskVos.size(); j++) {
+	        		AdMonitorTaskVo taskVo = TaskVos.get(j);
+	        	if (taskVo.getStatus()==MonitorTaskStatus.VERIFIED.getId()) {
+	        		Integer index = tableData.get(taskVo.getMemo(),MonitorTaskType.getText(taskVo.getTaskType()));
+	        		excelInfo.put(index, ExcelImportFailEnum.TASK_VERIFY.getText());
+					continue;
+				}
+				AdMonitorTaskVo adMonitorTaskVo = table.get(taskVo.getMemo(), taskVo.getTaskType());
+				if (adMonitorTaskVo!=null) {
+					taskVo = replaceTaskAttr(taskVo,adMonitorTaskVo);
+					taskVo.setAssignorId(user.getId());
+					taskVo.setFeedbackStatus(MonitorTaskFeedBackStatus.VALID_FEEDBACK.getId());
+					SysUserExecute userExecute = sysUserExecuteService.getByUsername(adMonitorTaskVo.getMobile());
+					if (userExecute==null) {
+						Integer index = tableData.get(taskVo.getMemo(),MonitorTaskType.getText(taskVo.getTaskType()));
+		        		excelInfo.put(index, ExcelImportFailEnum.TASK_USER_INVALID.getText());
+						continue;
+					}
+					taskVo.setUserId(userExecute.getId());
+					Tasks.add(taskVo);
+				}
+			}
+	        if (Tasks.size()>0) {
+	        	adMonitorTaskService.updateBatch(Tasks);
+			}
+	        
+	        for (Integer index : excelInfo.keySet()) {
+	        	List<Object> lo = listob.get(index);
+	        	lo.set(AdminImportMonitorEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+	        	lo.set(AdminImportMonitorEnum.IMPORT_DES.getId(), excelInfo.get(index));
+			}
+	        
+	        for (int i = 1; i < listob.size(); i++) {
+	        	List<Object> lo = listob.get(i);
+	        	if (excelInfo.get(i)!=null) {
+	        		lo.set(AdminImportMonitorEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+	            	lo.set(AdminImportMonitorEnum.IMPORT_DES.getId(), excelInfo.get(i));
+				}
+	        	if (!(StringUtils.equals(String.valueOf(lo.get(AdminImportMonitorEnum.IMPORT_RESULT.getId())), IMPORT_FAIL))) {
+	        		lo.set(AdminImportMonitorEnum.IMPORT_RESULT.getId(), IMPORT_SUCC);
+				}
+	        }
+	        
+	        
+	        final String fileName = "导入监测任务结果-" + System.currentTimeMillis() + ".xls"; //导出文件名
+	        //导出到excel, 返回导入广告位信息结果
+	        List<List<String>> listString = objToString(listob);
+	        listob.clear();
+	        String[] titleArray = { "广告位编号", "任务执行人", "任务类型", "导入结果", "导入错误信息"};
+	        ExcelTool<List<String>> excelTool = new ExcelTool<List<String>>("importResult");
+	        String path = request.getSession().getServletContext().getRealPath("/");
+			path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"excel"+File.separatorChar+fileName;
+			excelTool.generateExcel(listString, titleArray, path);
+	        
+	        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+	        result.setResult("/static/excel/" + fileName);
+	        listString.clear();
+	        model.addAttribute(SysConst.RESULT_KEY, result);
+    	}catch (Exception e) {
+    		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+        	result.setResultDes("导入失败");
+            e.printStackTrace();
+		}
+        return model;
+	}
+	/**
+	 * 读取文件夹图片
+	 */
+    private Map<String, Map<String, List<FileInfoVo>>> getPics(Integer activityId){
+    	File file=new File(fileUploadPath + "\\activity\\" + activityId + "\\temporary");
+		File[] Files = file.listFiles();
+		Map<String, Map<String, List<FileInfoVo>>> monitors = new HashMap<>();
+		String regex = ".+(.JPEG|.jpeg|.JPG|.jpg|.png|.PNG)$";
+		for (int i = 0; i < Files.length; i++) {
+			File file2 = Files[i];
+			if (file2.isDirectory()) {
+				File[] fileList = file2.listFiles();
+				Map<String, List<FileInfoVo>> fileNames = new HashMap<>();
+				for (int k = 0; k < fileList.length; k++) {
+					File file3 = fileList[k];
+					if (file3.isDirectory()) {
+						File[] listFiles = file3.listFiles();
+						List<FileInfoVo> names = new ArrayList<>();
+						for (int j = 0; j < listFiles.length; j++) {
+							if (!listFiles[j].isDirectory()) {
+								if (Pattern.compile(regex).matcher(listFiles[j].getName().toString()).matches()) {
+									try {
+										FileInfoVo fileInfoVo = new FileInfoVo();
+										fileInfoVo.setPath(listFiles[j].getCanonicalPath());
+										long lastModified = file.lastModified();
+										fileInfoVo.setTime(new Date(lastModified));
+										names.add(fileInfoVo);
+									} catch (IOException e) {
+										e.printStackTrace();
+									}
+								}
+							}
+						}
+						if (names.size()>0) {
+							fileNames.put(file3.getName(), names);
+						}
+					}
+				}
+				if (fileNames.size()>0) {
+					monitors.put(file2.getName(), fileNames);
+				}
+			}
+		}
+		return monitors;
+    }
+    /**
+     * 替换监测任务属性
+     */
+    private AdMonitorTaskVo replaceTaskAttr(AdMonitorTaskVo taskVo,AdMonitorTaskVo newTaskVo) {
+    	taskVo.setPicUrl1(newTaskVo.getPicUrl1());
+    	taskVo.setPicUrl2(newTaskVo.getPicUrl2());
+    	taskVo.setPicUrl3(newTaskVo.getPicUrl3());
+    	taskVo.setPicUrl4(newTaskVo.getPicUrl4());
+    	taskVo.setPicUrl1Status(VerifyType.PASS_TYPE.getId());
+    	taskVo.setPicUrl2Status(VerifyType.PASS_TYPE.getId());
+    	taskVo.setPicUrl3Status(VerifyType.PASS_TYPE.getId());
+    	taskVo.setPicUrl4Status(VerifyType.PASS_TYPE.getId());
+    	taskVo.setStatus(MonitorTaskStatus.VERIFIED.getId());
+    	taskVo.setProblemStatus(TaskProblemStatus.NO_PROBLEM.getId());
+    	taskVo.setVerifyTime(newTaskVo.getVerifyTime());
+    	taskVo.setCreateTime(newTaskVo.getVerifyTime());
+    	taskVo.setUpdateTime(newTaskVo.getVerifyTime());
+    	taskVo.setFeedbackStatus(MonitorTaskFeedBackStatus.VALID_FEEDBACK.getId());
+    	return taskVo;
+    }
+	/**
+	 * 设置以广告位编号, 任务类型为Key, AdMonitorTaskVo为Value的集合
+	 * @param taskVos
+	 * @return
+	 */
+	private Table<String, Integer, AdMonitorTaskVo> getTaskTable(List<AdMonitorTaskVo> taskVos) {
+		Table<String, Integer, AdMonitorTaskVo> table = HashBasedTable.create();
+		for (AdMonitorTaskVo adMonitorTaskVo : taskVos) {
+			table.put(adMonitorTaskVo.getMemo(), adMonitorTaskVo.getTaskType(), adMonitorTaskVo);
+		}
+		return table;
+	}
 }

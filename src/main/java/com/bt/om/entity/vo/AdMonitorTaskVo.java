@@ -51,9 +51,19 @@ public class AdMonitorTaskVo extends AdMonitorTask {
     private Integer picUrl3Status;
     private Integer picUrl4Status;
     private String companyName;
-    private String memo;
+
+   private Integer activityAdseatId;
+  private String memo;
     private Integer mediaUserId;
     private String mobile;
+	public Integer getActivityAdseatId() {
+		return activityAdseatId;
+	}
+
+	public void setActivityAdseatId(Integer activityAdseatId) {
+		this.activityAdseatId = activityAdseatId;
+  }
+    
 
 	public String getMobile() {
 		return mobile;

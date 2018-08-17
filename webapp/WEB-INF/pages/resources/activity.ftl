@@ -664,7 +664,6 @@ function changeMediaTypeId() {
     		}
     	})
     })
-
     // 批量导入监听
     $(".batchInsert").on("click", function (e) {
         $("#upload_file").val($(this).attr("ai"));
@@ -681,6 +680,15 @@ function changeMediaTypeId() {
 	    	activityId: function () {
 	    	    return $("#upload_file").val()
             }
+       //批量导入
+	layui.use('upload', function(){
+	  var upload = layui.upload;
+	  
+	  //执行实例
+	  var uploadInst = upload.render({
+	    elem: '.batchInsert' //绑定元素 
+	    ,data: {
+	    	activityId:"";
 		}
 	    ,accept: 'file' //指定只允许上次文件
 	    ,exts: 'xlsx|xls' //指定只允许上次xlsx和xls格式的excel文件

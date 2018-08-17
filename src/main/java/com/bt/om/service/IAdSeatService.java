@@ -44,4 +44,5 @@ public interface IAdSeatService {
 	List<AdSeatInfoVo> selectSeatByIds(Map<String, Object> searchMap);
 	List<CountGroupByCityVo> getCountGroupByCity(HeatMapVo heatMapVo, SysUser user);
 	List<AdSeatInfo> getAllLonLat(HeatMapVo heatMapVo, SysUser user);
+	List<String> selectAllSeatMemoByActivityId(Integer activityId);
 }

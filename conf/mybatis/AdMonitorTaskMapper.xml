@@ -416,6 +416,8 @@
    		<result column="pic_url4_status" jdbcType="INTEGER" property="picUrl4Status" />
    		<result column="activity_adseat_id" jdbcType="INTEGER" property="activityAdseatId" />
    		<result column="companyName" jdbcType="VARCHAR" property="companyName"/>
+   		<result column="memo" jdbcType="VARCHAR" property="memo"/>
+   		<result column="media_user_id" jdbcType="VARCHAR" property="mediaUserId"/>
     </resultMap>
 
     <resultMap id="MobileResultMap" extends="BaseResultMap" type="com.bt.om.entity.vo.AdMonitorTaskMobileVo">
@@ -1686,6 +1688,7 @@
 			ad_monitor_task 
 		where activity_id = #{activityId,jdbcType=INTEGER}
     </select>
+
     <select id="selectMonitorTaskIdsByActicityId" parameterType="int" resultMap="ExtResultMap">
     	SELECT
 			b.activity_adseat_id,
@@ -1697,4 +1700,56 @@
 		WHERE
 			c.activity_id = #{acticityId,jdbcType=INTEGER}
     </select>
+    
+    <!-- 查询所有指定的广告位编号 -->
+  <select id="findAllMemo" resultMap="ExtResultMap">
+  		select 
+	  		a.id, a.activity_id, a.activity_adseat_id, a.task_type, a.monitor_date,a.monitor_last_days,a.user_id,
+        a.status,a.problem_status,a.sub_created,a.parent_id,a.parent_type,
+        a.verify_time,a.create_time, a.update_time,a.assessor_id,a.assignor_id,a.assignor_time,a.report_time,a.task_point,a.task_money,a.company_id,a.first_verify,a.is_assign,
+        b.memo,b.lon,b.lat,c.user_id as media_user_id
+	    from 
+	    ad_monitor_task a 
+		LEFT JOIN ad_activity_adseat d on d.id = a.activity_adseat_id
+		LEFT JOIN ad_seat_info b ON d.ad_seat_id=b.id
+		LEFT JOIN ad_media c on c.id = b.media_id
+		WHERE 1=1 
+		<if test="tasks != null">
+			and b.memo IN 
+			<foreach collection="tasks" separator="," open="(" close=")" item="task">#{task.memo,jdbcType=VARCHAR}</foreach>
+		</if>
+		<if test="activityId != null">
+			and a.activity_id = #{activityId,jdbcType=INTEGER}
+		</if>
+  </select>
+  
+  <insert id="insertBatch" parameterType="com.bt.om.entity.vo.AdMonitorTaskVo">
+  	insert into ad_monitor_task (id, activity_id, activity_adseat_id,
+        task_type,monitor_date,monitor_last_days, user_id, status,problem_status,sub_created,parent_id,parent_type,
+        verify_time,create_time, update_time,assessor_id,assignor_id,assignor_time,report_time,task_point,task_money,company_id,first_verify,is_assign)
+        values
+        <foreach collection="tasks" item="task" separator=",">  
+        (
+        #{task.id,jdbcType=INTEGER}, #{task.activityId,jdbcType=INTEGER},
+        #{task.activityAdseatId,jdbcType=INTEGER},
+        #{task.taskType,jdbcType=INTEGER},
+        #{task.monitorDate,jdbcType=TIMESTAMP},
+        #{task.monitorLastDays,jdbcType=INTEGER},
+        #{task.userId,jdbcType=INTEGER}, #{task.status,jdbcType=INTEGER},
+        #{task.problemStatus,jdbcType=INTEGER},#{task.subCreated,jdbcType=INTEGER},
+        #{task.parentId,jdbcType=INTEGER}, #{task.parentType,jdbcType=INTEGER},
+        #{task.verifyTime,jdbcType=TIMESTAMP},#{task.createTime,jdbcType=TIMESTAMP},
+        #{task.updateTime,jdbcType=TIMESTAMP},#{task.assessorId,jdbcType=INTEGER},
+        #{task.assignorId,jdbcType=INTEGER},#{task.assignorTime,jdbcType=TIMESTAMP},
+        #{task.reportTime,jdbcType=TIMESTAMP},#{task.taskPoint,jdbcType=INTEGER},
+        #{task.taskMoney,jdbcType=DOUBLE},#{task.companyId,jdbcType=INTEGER},#{task.firstVerify,jdbcType=INTEGER},#{task.isAssign,jdbcType=INTEGER}
+    	)
+    	</foreach>
+  </insert>
+  
+  <delete id="deleteBatch" parameterType="com.bt.om.entity.vo.AdMonitorTaskVo">
+  	delete from ad_monitor_task
+        where id in 
+        <foreach collection="tasks" separator="," open="(" close=")" item="task"> #{task.id,jdbcType=INTEGER}</foreach>
+  </delete>
 </mapper>

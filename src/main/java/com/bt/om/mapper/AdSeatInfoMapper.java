@@ -93,4 +93,6 @@ public interface AdSeatInfoMapper {
 	List<AdSeatInfoVo> selectSeatByIds(Map<String, Object> searchMap);
 
 	List<Integer> selectAdSeatIdsByMedia(Map<String, Object> searchMap);
+	
+	List<String> selectAllSeatMemoByActivityId(@Param("activityId")Integer activityId);
 }

@@ -1737,6 +1737,26 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
         }
 		
 	}
+	/**
+	 * 获取某个活动的监测任务
+	 */
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public List<AdMonitorTaskVo> findAllMemo(Integer activityId,List<AdMonitorTaskVo> memos) {
+		return adMonitorTaskMapper.findAllMemo(activityId,memos);
+	}
+	/**
+	 * 批量修改监测任务并创建监测任务反馈表
+	 */
+	@Override
+	public void updateBatch(List<AdMonitorTaskVo> tasks) {
+		//批量删除
+		adMonitorTaskMapper.deleteBatch(tasks);
+		//批量修改监测任务
+		adMonitorTaskMapper.insertBatch(tasks);
+		//批量插入监测反馈
+		adMonitorTaskFeedbackMapper.insertBatch(tasks);
+	}
 
 	@Override
 	public List<AdMonitorTaskVo> selectMonitorTaskIdsByActicityId(Integer acticityId) {

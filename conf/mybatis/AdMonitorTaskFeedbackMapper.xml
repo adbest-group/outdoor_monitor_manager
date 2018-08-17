@@ -390,4 +390,20 @@
     where id in
     <foreach collection="adMonitorTaskFeedbacks" separator="," open="(" close=")" item="adMonitorTaskFeedback">#{adMonitorTaskFeedback.id,jdbcType=INTEGER}</foreach>
   </delete>	
+  <insert id="insertBatch" parameterType="com.bt.om.entity.vo.AdMonitorTaskVo">
+  	insert into ad_monitor_task_feedback (monitor_task_id, pic_url1, 
+      pic_url2, pic_url3, pic_url4, 
+      problem, seat_lon,seat_lat,lon,
+      lat, status, reason, 
+      create_time, update_time,pic_url1_status,pic_url2_status,pic_url3_status,pic_url4_status)
+    values 
+    <foreach collection="tasks" item="task" separator=",">  
+      (#{task.id,jdbcType=INTEGER}, #{task.picUrl1,jdbcType=VARCHAR}, 
+      #{task.picUrl2,jdbcType=VARCHAR}, #{task.picUrl3,jdbcType=VARCHAR}, #{task.picUrl4,jdbcType=VARCHAR}, 
+      #{task.problem,jdbcType=VARCHAR}, #{task.lon,jdbcType=DOUBLE}, #{task.lat,jdbcType=DOUBLE}, #{task.lon,jdbcType=DOUBLE},
+      #{task.lat,jdbcType=DOUBLE}, #{task.feedbackStatus,jdbcType=INTEGER}, #{task.reason,jdbcType=VARCHAR}, 
+      #{task.verifyTime,jdbcType=TIMESTAMP}, #{task.verifyTime,jdbcType=TIMESTAMP},#{task.picUrl1Status,jdbcType=INTEGER},
+      #{task.picUrl2Status,jdbcType=INTEGER},#{task.picUrl3Status,jdbcType=INTEGER},#{task.picUrl4Status,jdbcType=INTEGER})
+ 	</foreach>
+  </insert>
 </mapper>

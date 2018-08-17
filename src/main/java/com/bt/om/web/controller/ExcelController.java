@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -77,6 +78,7 @@ import com.bt.om.service.ISysUserService;
 import com.bt.om.util.ConfigUtil;
 import com.bt.om.util.ExcelTool;
 import com.bt.om.util.ImportExcelUtil;
+import com.bt.om.util.MapUtil;
 import com.bt.om.util.NumberUtil;
 import com.bt.om.util.pdf.AlternatingBackground;
 import com.bt.om.vo.web.ResultVo;
@@ -138,6 +140,9 @@ public class ExcelController extends BasicController {
 	private IAdUserMessageService adUserMessageService;
 	
 	private static final Logger logger = Logger.getLogger(ExcelController.class);
+	private String file_upload_path = ConfigUtil.getString("file.upload.path");
+	
+	private String file_upload_ip = ConfigUtil.getString("file.upload.ip");
 	/**
 	 * 批量导入媒体监测人员
 	 */
@@ -501,6 +506,7 @@ public class ExcelController extends BasicController {
 					list.add(reportTimeStr);//26 报告时间
 				}
 				list.add(brandName);//27 品牌名
+				list.add(vo.getMapPic());//28 广告位点位图
 				map.put(vo.getId(), list); //ad_activity_adseat的id
 				listString.add(list);
 			}
@@ -536,16 +542,16 @@ public class ExcelController extends BasicController {
 			image3.setAbsolutePosition(1650,950);//控制图片位置
 			document.add(image3);
         	
-			for (List<String> list : listString) {
-				if(list.get(25)!=null) {
-					//获取活动示例图
-					Image image4 = Image.getInstance(list.get(25));
-					image4.setAlignment(Image.ALIGN_CENTER);
-					image4.scaleAbsolute(440,330);//控制图片大小
-					image4.setAbsolutePosition(1280,403);//控制图片位置
-					document.add(image4);
-				}
-			}
+//			for (List<String> list : listString) {
+//				if(list.get(25)!=null) {
+//					//获取活动示例图
+//					Image image4 = Image.getInstance(list.get(25));
+//					image4.setAlignment(Image.ALIGN_CENTER);
+//					image4.scaleAbsolute(440,330);//控制图片大小
+//					image4.setAbsolutePosition(1280,403);//控制图片位置
+//					document.add(image4);
+//				}
+//			}
 			
 			//【3】生成pdf图片页
 			List<Integer> ids = new ArrayList<>();
@@ -612,6 +618,7 @@ public class ExcelController extends BasicController {
         			image5.scaleAbsolute(250,180);//控制图片大小
         			image5.setAbsolutePosition(1150,5);//控制图片位置
         			document.add(image5);
+        			
 				}
             }
             
@@ -2130,7 +2137,6 @@ public class ExcelController extends BasicController {
 //		Paragraph pt = new Paragraph(list.get(1), fontChinese);//设置字体样式pt.setAlignment(1);//设置文字居中 0靠左   1，居中     2，靠右
 //		pt.setAlignment(1);
 //		document.add(pt);
-		
 		String path = request.getSession().getServletContext().getRealPath("/");
 		if(!StringUtils.isEmpty(feedback.getPicUrl1())) {
 			Image image1 = Image.getInstance(feedback.getPicUrl1());
@@ -2141,7 +2147,7 @@ public class ExcelController extends BasicController {
 			image1.setAlignment(Image.ALIGN_CENTER);
 			image1.scalePercent(percent);//依照比例缩放
 			image1.scaleAbsolute(width*percent,percent*height);//控制图片大小
-			image1.setAbsolutePosition(760,590);//控制图片位置
+			image1.setAbsolutePosition(760,600);//控制图片位置
 			document.add(image1);
 		}
 		
@@ -2154,7 +2160,7 @@ public class ExcelController extends BasicController {
  	    	float percent = getPercent(height, width);
 			image2.scalePercent(percent);//依照比例缩放
 			image2.scaleAbsolute(width*percent,percent*height);//控制图片大小
-			image2.setAbsolutePosition(1280,590);//控制图片位置
+			image2.setAbsolutePosition(1280,600);//控制图片位置
 			document.add(image2);
 		}
 		
@@ -2167,7 +2173,7 @@ public class ExcelController extends BasicController {
  	    	float percent = getPercent(height, width);
 			image3.scalePercent(percent);//依照比例缩放
 			image3.scaleAbsolute(width*percent,percent*height);//控制图片大小
-			image3.setAbsolutePosition(760,190);//控制图片位置
+			image3.setAbsolutePosition(760,200);//控制图片位置
 			document.add(image3);
 		}
 		
@@ -2180,9 +2186,15 @@ public class ExcelController extends BasicController {
  	    	float percent = getPercent(height, width);
 			image4.scalePercent(percent);//依照比例缩放
 			image4.scaleAbsolute(width*percent,percent*height);//控制图片大小
-			image4.setAbsolutePosition(1280,190);//控制图片位置
+			image4.setAbsolutePosition(1280,200);//控制图片位置
 			document.add(image4);
 		}
+		
+		Image image6 = Image.getInstance(file_upload_path+"/"+list.get(13)+list.get(14)+".jpg");
+		image6.setAlignment(Image.ALIGN_CENTER);
+		image6.scaleAbsolute(400,300);//控制图片大小
+		image6.setAbsolutePosition(130,180);//控制图片位置
+		document.add(image6);
 	}
 	
 	public static float getPercent(float h,float w)
@@ -2201,10 +2213,9 @@ public class ExcelController extends BasicController {
 	/**
 	 * 生成表格
 	 * @return
-	 * @throws DocumentException
-	 * @throws IOException
+	 * @throws Exception 
 	 */
-	private PdfPTable createTable1(List<String> list) throws DocumentException, IOException {
+	private PdfPTable createTable1(List<String> list) throws Exception {
 		//设置字体  
 	    BaseFont bfChinese = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
 	    Font fontChinese = new Font(bfChinese, 20, Font.NORMAL);// 创建字体，设置family，size，style,还可以设置color 
@@ -2240,7 +2251,7 @@ public class ExcelController extends BasicController {
 			table.addCell(new Paragraph("品牌", fontChinese));
     		table.addCell(new Paragraph(list.get(27), fontChinese));//品牌名
     		table.addCell(new Paragraph("媒体类型",fontChinese));//媒体类型
-        	table.addCell(new Paragraph(list.get(18)+"-"+list.get(19),fontChinese)); //媒体类型
+        	table.addCell(new Paragraph(list.get(18),fontChinese)); //媒体类型
         	table.addCell(new Paragraph("广告位编号", fontChinese));
         	table.addCell(new Paragraph(list.get(6), fontChinese));//广告位编号
         	table.addCell(new Paragraph("地址(位置)", fontChinese));
@@ -2257,18 +2268,32 @@ public class ExcelController extends BasicController {
         	if(StringUtil.isNotBlank(list.get(5))) { //详细位置
         		location.append(list.get(5));
         	}
-            table.addCell(new Paragraph(location.toString(), fontChinese));//具体位置
+//            table.addCell(new Paragraph(location.toString(), fontChinese));//具体位置
+        	table.addCell(new Paragraph(list.get(4) , fontChinese));//主要路段
         	table.addCell(new Paragraph("发布期", fontChinese));
         	table.addCell(new Paragraph(list.get(7)+"-"+list.get(8) , fontChinese));//起止日期
         	
 //            table.addCell(new Paragraph(list.get(7), fontChinese));//开始监测时间
 //            table.addCell(new Paragraph(list.get(8), fontChinese));//结束监测时间
-		
         
         //加入隔行换色事件
         PdfPTableEvent event = new AlternatingBackground();
         table.setTableEvent(event);
         table.addCell(table.getDefaultCell());
+        
+        String url = "http://api.map.baidu.com/staticimage?width=400&height=300&center=";
+        String lon = null;
+        String lat = null;
+        if(list.get(13) != null && list.get(14) != null) {
+        	lon = list.get(13);//广告位经度
+        	lat = list.get(14);//广告位纬度
+        }else {
+        	lon = list.get(2);//省
+        	lat = list.get(3);//市
+        }
+        String urlString =  url + lon + "," + lat + "&markers=" + lon + "," + lat + "&zoom=11";
+        String filename = lon + lat + ".jpg";
+        MapUtil.download(urlString, filename, file_upload_path);
 		return table;
 	}
 	
@@ -2318,14 +2343,14 @@ public class ExcelController extends BasicController {
 		table.addCell(cell);
 		
 		for (List<String> list : listString) {
-			cell = new PdfPCell(new Paragraph(list.get(1), fontChinese));//点位名称
-			cell.setHorizontalAlignment(1);
+			cell = new PdfPCell(new Paragraph(list.get(5), fontChinese));//点位名称 现在取的是 详细位置
+			cell.setHorizontalAlignment(1); 
 			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			cell.setMinimumHeight(30f);
 			cell.setBorder(0);
 			table.addCell(cell);
 //			cell = new PdfPCell(new Paragraph(list.get(20), fontChinese));//媒体主
-			cell = new PdfPCell(new Paragraph(list.get(2), fontChinese));//省
+			cell = new PdfPCell(new Paragraph(list.get(3), fontChinese));//城市
 			cell.setHorizontalAlignment(1);
 			cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 			cell.setBorder(0);

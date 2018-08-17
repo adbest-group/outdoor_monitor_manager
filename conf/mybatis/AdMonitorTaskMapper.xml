@@ -414,6 +414,7 @@
     	<result column="pic_url2_status" jdbcType="INTEGER" property="picUrl2Status" />
     	<result column="pic_url3_status" jdbcType="INTEGER" property="picUrl3Status" />
    		<result column="pic_url4_status" jdbcType="INTEGER" property="picUrl4Status" />
+   		<result column="activity_adseat_id" jdbcType="INTEGER" property="activityAdseatId" />
    		<result column="companyName" jdbcType="VARCHAR" property="companyName"/>
    		<result column="memo" jdbcType="VARCHAR" property="memo"/>
    		<result column="media_user_id" jdbcType="VARCHAR" property="mediaUserId"/>
@@ -1686,6 +1687,18 @@
 		from 
 			ad_monitor_task 
 		where activity_id = #{activityId,jdbcType=INTEGER}
+    </select>
+
+    <select id="selectMonitorTaskIdsByActicityId" parameterType="int" resultMap="ExtResultMap">
+    	SELECT
+			b.activity_adseat_id,
+			b.id
+		FROM
+			ad_monitor_task_feedback a
+			left join ad_monitor_task b on b.id = a.monitor_task_id
+			left join ad_activity_adseat c on c.id = b.activity_adseat_id
+		WHERE
+			c.activity_id = #{acticityId,jdbcType=INTEGER}
     </select>
     
     <!-- 查询所有指定的广告位编号 -->

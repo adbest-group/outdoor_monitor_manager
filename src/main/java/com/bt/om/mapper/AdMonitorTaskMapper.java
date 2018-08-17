@@ -173,6 +173,9 @@ public interface AdMonitorTaskMapper {
 
 	String selectUserNameByTaskId(@Param("id") Integer id);
 	
+
+	List<AdMonitorTaskVo> selectMonitorTaskIdsByActicityId(@Param("acticityId")Integer acticityId);
+
 	List<AdMonitorTaskVo> findAllMemo(@Param("activityId") Integer activityId,@Param("tasks") List<AdMonitorTaskVo> memos);
 
 	int insertBatch(@Param("tasks")List<AdMonitorTaskVo> tasks);

@@ -6,7 +6,7 @@ package com.bt.om.enums;
  */
 public enum MonitorTaskType {
     //SET_UP_MONITOR(5,"上刊安装"),
-	UP_TASK(5,"上刊任务"),
+	UP_TASK(5,"上刊"),
     UP_MONITOR(1,"上刊监测"),
     DURATION_MONITOR(2,"投放期间监测"),
     DOWNMONITOR(3,"下刊监测"),

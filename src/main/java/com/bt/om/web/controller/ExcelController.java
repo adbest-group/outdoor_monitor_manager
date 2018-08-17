@@ -2490,6 +2490,7 @@ public class ExcelController extends BasicController {
 		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 		cell.setBorder(0);
 		table.addCell(cell);
+		return table;
   }
 	/**
 	 * 【群邑方】 导入监测任务模板下载

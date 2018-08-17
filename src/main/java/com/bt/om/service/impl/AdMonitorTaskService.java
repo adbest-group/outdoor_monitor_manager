@@ -1738,4 +1738,9 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 		
 	}
 
+	@Override
+	public List<AdMonitorTaskVo> selectMonitorTaskIdsByActicityId(Integer acticityId) {
+		return adMonitorTaskMapper.selectMonitorTaskIdsByActicityId(acticityId);
+	}
+
 }

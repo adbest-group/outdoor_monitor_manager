@@ -172,5 +172,7 @@ public interface AdMonitorTaskMapper {
 	List<HistoryAdMonitorTask> selectByActivityIds(@Param("activityId") Integer activityId);
 
 	String selectUserNameByTaskId(@Param("id") Integer id);
+	
+	List<AdMonitorTaskVo> selectMonitorTaskIdsByActicityId(@Param("acticityId")Integer acticityId);
 
 }

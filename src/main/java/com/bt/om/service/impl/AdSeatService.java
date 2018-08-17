@@ -368,4 +368,9 @@ public class AdSeatService implements IAdSeatService {
 		return adSeatInfoMapper.selectSeatByIds(searchMap);
 	}
 
+	@Override
+	public List<String> selectAllSeatMemoByActivityId(Integer activityId) {
+		return adSeatInfoMapper.selectAllSeatMemoByActivityId(activityId);
+	}
+
 }

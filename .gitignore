@@ -10,6 +10,10 @@ webapp/static/pdf/*
 webapp/static/images/*
 webapp/static/qrcode/*
 webapp/static/upload/*
+tmp/
+webapp/static/apk/
+webapp/static/bc/
+webapp/static/logo/
 .idea/
 *.iml
 target/

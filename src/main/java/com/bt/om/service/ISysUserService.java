@@ -144,4 +144,6 @@ public interface ISysUserService {
 
 	SysUser getUserName(String inviteAcc);
 
+	List<SysUserVo> selectUserVoByActivityId(Integer activityId);
+
 }

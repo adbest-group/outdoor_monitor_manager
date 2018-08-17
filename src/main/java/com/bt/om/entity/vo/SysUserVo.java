@@ -2,6 +2,7 @@ package com.bt.om.entity.vo;
 
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserDetail;
+import com.bt.om.entity.SysUserExecute;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class SysUserVo extends SysUser {
     private String groupName;
     private String departmentName;
     private String appTypeName;
+    private List<SysUserExecute> userExecutes;
     
     public String getAppTypeName() {
 		return appTypeName;
@@ -90,5 +92,13 @@ public class SysUserVo extends SysUser {
     
     public void setDepartmentName(String departmentName) {
 		this.departmentName = departmentName;
+	}
+
+	public List<SysUserExecute> getUserExecutes() {
+		return userExecutes;
+	}
+
+	public void setUserExecutes(List<SysUserExecute> userExecutes) {
+		this.userExecutes = userExecutes;
 	}
 }

@@ -486,8 +486,17 @@ public class AdActivityAdseat extends ID{
     private Integer upMonitorLastDays;
     private Integer durationMonitorLastDays;
     private Integer downMonitorLastDays;
+    private String mapPic;
+    
+    public String getMapPic() {
+		return mapPic;
+	}
 
-    public Integer getUpMonitorLastDays() {
+	public void setMapPic(String mapPic) {
+		this.mapPic = mapPic;
+	}
+
+	public Integer getUpMonitorLastDays() {
         return upMonitorLastDays;
     }
 

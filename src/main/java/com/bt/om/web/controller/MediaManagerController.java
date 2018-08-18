@@ -581,7 +581,12 @@ public class MediaManagerController {
 //                return model;
 //        	}
         	if(adSeatInfo.getLon() == null || adSeatInfo.getLat() == null) {
-        		String cityName = cityCache.getCityName(city);
+        		String cityName = "";
+        		if (city==null) {
+        			cityName = cityCache.getCityName(province);
+				}else {
+					cityName = cityCache.getCityName(city);
+				}
         		List<Double> lonLatByAddress = AddressUtils.getLonLatByAddress(road+location, cityName);
         		if (lonLatByAddress.size()<=0) {
         			lonLatByAddress = AddressUtils.getLonLatByAddress(road, cityName);

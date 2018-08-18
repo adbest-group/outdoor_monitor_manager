@@ -211,12 +211,18 @@ public class AddressUtils {
 		System.out.println(address);
 		// 输出结果为：广东省,广州市,越秀区
 	}*/
+	/**
+	 * 通过详细地址和城市获取百度地图经纬度
+	 * @param address 详细地址
+	 * @param city 城市
+	 * @return list(0) 经度,list(1) 纬度
+	 */
 	public static List<Double> getLonLatByAddress(String address,String city) {
 		List<Double> lonlat = new ArrayList<>();
 		BufferedReader in = null;  
         try {  
             address = URLEncoder.encode(address, "UTF-8");  
-            URL tirc = new URL("http://api.map.baidu.com/geocoder?address="+ address +"&city="+city+"&output=json&key="+"7d9fbeb43e975cd1e9477a7e5d5e192a");  
+            URL tirc = new URL("http://api.map.baidu.com/geocoder?address="+ address +"&city="+city+"&output=json&ak="+"urqnx4u977HclIGgSsvpBk9sjjXLCKdg");  
             in = new BufferedReader(new InputStreamReader(tirc.openStream(),"UTF-8"));  
             String res;  
             StringBuilder sb = new StringBuilder("");  

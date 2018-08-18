@@ -212,7 +212,6 @@ public class AddressUtils {
 		// 输出结果为：广东省,广州市,越秀区
 	}*/
 	public static List<Double> getLonLatByAddress(String address,String city) {
-		System.out.println(address);
 		List<Double> lonlat = new ArrayList<>();
 		BufferedReader in = null;  
         try {  

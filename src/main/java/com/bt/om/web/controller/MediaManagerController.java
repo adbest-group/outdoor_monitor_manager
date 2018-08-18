@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.adtime.common.lang.StringUtil;
+import com.bt.om.cache.CityCache;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdActivity;
@@ -43,6 +44,8 @@ import com.bt.om.enums.AdCodeFlagEnum;
 import com.bt.om.enums.AllowMultiEnum;
 import com.bt.om.enums.AppUserTypeEnum;
 import com.bt.om.enums.JiucuoTaskStatus;
+import com.bt.om.enums.MapStandardEnum;
+import com.bt.om.enums.MediaImportAdSeatEnum;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.ResultCode;
@@ -61,6 +64,7 @@ import com.bt.om.service.IAdSeatService;
 import com.bt.om.service.IResourceService;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.service.ISysUserService;
+import com.bt.om.util.AddressUtils;
 import com.bt.om.util.NumberUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -91,6 +95,8 @@ public class MediaManagerController {
 	private AdMediaMapper adMediaMapper;
 	@Autowired
 	private IAdMediaTypeService adMediaTypeService;
+	@Autowired
+	private CityCache cityCache;
 	private static final Logger logger = Logger.getLogger(MediaManagerController.class);
 
     /**
@@ -561,18 +567,33 @@ public class MediaManagerController {
         		searchMap.put("city", city);
         	}
         	
-        	if(adSeatInfo.getLon() != null && adSeatInfo.getLat() == null) {
-        		result.setCode(ResultCode.RESULT_FAILURE.getCode());
-                result.setResultDes("经纬度填写不完整！");
-                model.addAttribute(SysConst.RESULT_KEY, result);
-                return model;
-        	}
-        	
-        	if(adSeatInfo.getLat() != null && adSeatInfo.getLon() == null) {
-        		result.setCode(ResultCode.RESULT_FAILURE.getCode());
-                result.setResultDes("经纬度填写不完整！");
-                model.addAttribute(SysConst.RESULT_KEY, result);
-                return model;
+//        	if(adSeatInfo.getLon() != null && adSeatInfo.getLat() == null) {
+//        		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+//                result.setResultDes("经纬度填写不完整！");
+//                model.addAttribute(SysConst.RESULT_KEY, result);
+//                return model;
+//        	}
+//        	
+//        	if(adSeatInfo.getLat() != null && adSeatInfo.getLon() == null) {
+//        		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+//                result.setResultDes("经纬度填写不完整！");
+//                model.addAttribute(SysConst.RESULT_KEY, result);
+//                return model;
+//        	}
+        	if(adSeatInfo.getLon() == null || adSeatInfo.getLat() == null) {
+        		String cityName = cityCache.getCityName(city);
+        		List<Double> lonLatByAddress = AddressUtils.getLonLatByAddress(road+location, cityName);
+        		if (lonLatByAddress.size()<=0) {
+        			lonLatByAddress = AddressUtils.getLonLatByAddress(road, cityName);
+        			if (lonLatByAddress.size()<=0) {
+        				lonLatByAddress = AddressUtils.getLonLatByAddress(cityName, cityName);
+					}
+				}
+        		if (lonLatByAddress.size()>=2) {
+        			adSeatInfo.setLon(lonLatByAddress.get(0));
+        			adSeatInfo.setLat(lonLatByAddress.get(1));
+        			adSeatInfo.setMapStandard(MapStandardEnum.getId("百度"));
+				}
         	}
         	
 //        	searchMap.put("region", region);

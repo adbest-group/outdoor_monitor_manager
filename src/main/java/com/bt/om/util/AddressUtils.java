@@ -7,6 +7,11 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.adtime.common.lang.StringUtil;
 
 public class AddressUtils {
 	/**
@@ -206,4 +211,40 @@ public class AddressUtils {
 		System.out.println(address);
 		// 输出结果为：广东省,广州市,越秀区
 	}*/
+	public static List<Double> getLonLatByAddress(String address,String city) {
+		System.out.println(address);
+		List<Double> lonlat = new ArrayList<>();
+		BufferedReader in = null;  
+        try {  
+            address = URLEncoder.encode(address, "UTF-8");  
+            URL tirc = new URL("http://api.map.baidu.com/geocoder?address="+ address +"&city="+city+"&output=json&key="+"7d9fbeb43e975cd1e9477a7e5d5e192a");  
+            in = new BufferedReader(new InputStreamReader(tirc.openStream(),"UTF-8"));  
+            String res;  
+            StringBuilder sb = new StringBuilder("");  
+            while((res = in.readLine())!=null){  
+                sb.append(res.trim());  
+            }  
+            String str = sb.toString();  
+            if(StringUtil.isNotEmpty(str)){  
+                int lngStart = str.indexOf("lng\":");  
+                int lngEnd = str.indexOf(",\"lat");  
+                int latEnd = str.indexOf("},\"precise");  
+                if(lngStart > 0 && lngEnd > 0 && latEnd > 0){  
+                    String lon = str.substring(lngStart+5, lngEnd);  
+                    String lat = str.substring(lngEnd+7, latEnd);  
+                    lonlat.add(Double.valueOf(lon));
+                    lonlat.add(Double.valueOf(lat));
+                }  
+            }  
+        }catch (Exception e) {  
+            e.printStackTrace();  
+        }finally{  
+            try {  
+                in.close();  
+            } catch (IOException e) {  
+                e.printStackTrace();  
+            }  
+        }
+        return lonlat;
+	}
 }

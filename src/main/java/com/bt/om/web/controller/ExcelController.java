@@ -85,6 +85,7 @@ import com.bt.om.service.IAppService;
 import com.bt.om.service.IMediaService;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.service.ISysUserService;
+import com.bt.om.util.AddressUtils;
 import com.bt.om.util.ConfigUtil;
 import com.bt.om.util.ExcelTool;
 import com.bt.om.util.ImportExcelUtil;
@@ -1255,18 +1256,35 @@ public class ExcelController extends BasicController {
                     		info.setAdNum((new Double(b)).intValue());
                     	}
                 	}
-                	
                 	//设置经纬度
                 	if(hasProblem == false) {
-                		if(lo.get(AdminImportAdSeatEnum.LON.getId()) != null && lo.get(AdminImportAdSeatEnum.LAT.getId()) == null) {
-                    		lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
-                    		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_ONLYONE.getText());
-                    		hasProblem = true;
-                    	} else if (lo.get(AdminImportAdSeatEnum.LON.getId()) == null && lo.get(AdminImportAdSeatEnum.LAT.getId()) != null) {
-                    		lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
-                    		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_ONLYONE.getText());
-                    		hasProblem = true;
-    					} else if (lo.get(AdminImportAdSeatEnum.LON.getId()) == null && lo.get(AdminImportAdSeatEnum.LAT.getId()) == null) {
+//                		if(lo.get(AdminImportAdSeatEnum.LON.getId()) != null && lo.get(AdminImportAdSeatEnum.LAT.getId()) == null) {
+//                    		lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+//                    		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_ONLYONE.getText());
+//                    		hasProblem = true;
+//                    	} else if (lo.get(AdminImportAdSeatEnum.LON.getId()) == null && lo.get(AdminImportAdSeatEnum.LAT.getId()) != null) {
+//                    		lo.set(AdminImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+//                    		lo.set(AdminImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_ONLYONE.getText());
+//                    		hasProblem = true;
+//    					} else 
+    					if (lo.get(AdminImportAdSeatEnum.LON.getId()) == null || lo.get(AdminImportAdSeatEnum.LAT.getId()) == null) {
+    						String address = String.valueOf(lo.get(AdminImportAdSeatEnum.LOCATION.getId())).trim().replaceAll("\n", ""); //详细位置
+                    		String street = String.valueOf(lo.get(AdminImportAdSeatEnum.ROAD.getId())).trim(); //街道
+                    		String city = String.valueOf(lo.get(AdminImportAdSeatEnum.CITY.getId()));
+                    		List<Double> lonLatByAddress = AddressUtils.getLonLatByAddress(street+address, city);
+                    		if (lonLatByAddress.size()<=0) {
+                    			lonLatByAddress = AddressUtils.getLonLatByAddress(street, city);
+                    			if (lonLatByAddress.size()<=0) {
+                    				lonLatByAddress = AddressUtils.getLonLatByAddress(city, city);
+								}
+    						}
+                    		if (lonLatByAddress.size()>=2) {
+                    			lo.set(AdminImportAdSeatEnum.LON.getId(), lonLatByAddress.get(0));
+                        		lo.set(AdminImportAdSeatEnum.LAT.getId(), lonLatByAddress.get(1));
+                        		info.setLon(lonLatByAddress.get(0)); //经度
+        	                	info.setLat(lonLatByAddress.get(1)); //纬度
+        	                	info.setMapStandard(MapStandardEnum.getId("百度"));
+							}
     					} else {
     						//判断经度在-180-180之间
     						double lon = Double.parseDouble(String.valueOf(lo.get(AdminImportAdSeatEnum.LON.getId())).trim());
@@ -1884,15 +1902,33 @@ public class ExcelController extends BasicController {
                 	
                 	//设置经纬度
                 	if(hasProblem == false) {
-                		if(lo.get(MediaImportAdSeatEnum.LON.getId()) != null && lo.get(MediaImportAdSeatEnum.LAT.getId()) == null) {
-                    		lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
-                    		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_ONLYONE.getText());
-                    		hasProblem = true;
-                    	} else if (lo.get(MediaImportAdSeatEnum.LON.getId()) == null && lo.get(MediaImportAdSeatEnum.LAT.getId()) != null) {
-                    		lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
-                    		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_ONLYONE.getText());
-                    		hasProblem = true;
-    					} else if (lo.get(MediaImportAdSeatEnum.LON.getId()) == null && lo.get(MediaImportAdSeatEnum.LAT.getId()) == null) {
+//                		if(lo.get(MediaImportAdSeatEnum.LON.getId()) != null && lo.get(MediaImportAdSeatEnum.LAT.getId()) == null) {
+//                    		lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+//                    		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_ONLYONE.getText());
+//                    		hasProblem = true;
+//                    	} else if (lo.get(MediaImportAdSeatEnum.LON.getId()) == null && lo.get(MediaImportAdSeatEnum.LAT.getId()) != null) {
+//                    		lo.set(MediaImportAdSeatEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
+//                    		lo.set(MediaImportAdSeatEnum.IMPORT_DES.getId(), ExcelImportFailEnum.LOC_ONLYONE.getText());
+//                    		hasProblem = true;
+//    					} else 
+    					if (lo.get(MediaImportAdSeatEnum.LON.getId()) == null || lo.get(MediaImportAdSeatEnum.LAT.getId()) == null) {
+    						String address = String.valueOf(lo.get(MediaImportAdSeatEnum.LOCATION.getId())).trim().replaceAll("\n", ""); //详细位置
+                    		String street = String.valueOf(lo.get(MediaImportAdSeatEnum.ROAD.getId())).trim(); //街道
+                    		String city = String.valueOf(lo.get(MediaImportAdSeatEnum.CITY.getId()));
+                    		List<Double> lonLatByAddress = AddressUtils.getLonLatByAddress(street+address, city);
+                    		if (lonLatByAddress.size()<=0) {
+                    			lonLatByAddress = AddressUtils.getLonLatByAddress(street, city);
+                    			if (lonLatByAddress.size()<=0) {
+                    				lonLatByAddress = AddressUtils.getLonLatByAddress(city, city);
+								}
+    						}
+                    		if (lonLatByAddress.size()>=2) {
+                    			lo.set(MediaImportAdSeatEnum.LON.getId(), lonLatByAddress.get(0));
+                        		lo.set(MediaImportAdSeatEnum.LAT.getId(), lonLatByAddress.get(1));
+                        		info.setLon(lonLatByAddress.get(0)); //经度
+        	                	info.setLat(lonLatByAddress.get(1)); //纬度
+        	                	info.setMapStandard(MapStandardEnum.getId("百度"));
+							}
     					} else {
     						//判断经度在-180-180之间
     						double lon = Double.parseDouble(String.valueOf(lo.get(MediaImportAdSeatEnum.LON.getId())).trim());
@@ -2535,7 +2571,6 @@ public class ExcelController extends BasicController {
 		}
         //获取登录用户信息
         SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     	InputStream in = file.getInputStream();
     	try {
 			if (file.isEmpty()) {

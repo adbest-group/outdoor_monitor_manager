@@ -2740,7 +2740,7 @@ public class ExcelController extends BasicController {
 	 * 读取文件夹图片
 	 */
     private Map<String, Map<String, List<FileInfoVo>>> getPics(Integer activityId){
-    	File file=new File(fileUploadPath + "\\activity\\" + activityId + "\\temporary");
+    	File file=new File(fileUploadPath + File.separator +"activity" + File.separator + activityId + File.separator + "temporary");
     	if(!file.exists()){
             file.mkdirs();
         }

@@ -68,9 +68,8 @@
                         </div>
                     </div> -->
                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="searchBtn">查询</button>
-                    <#if user.usertype !=6>
-                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">批量指派</button> 
-                    </#if> 
+                    <#-- <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">批量指派</button> 
+                     -->
                 </form>
             </div>
         </div>
@@ -283,7 +282,7 @@
             strParam = strParam + "?name=" + name;
         }
 
-        window.location.href = "/sysResources/taskUnassign" + strParam;
+        window.location.href = "/thirdCompany/taskUnassign" + strParam;
     });
     function importEnabled(){
     	var mediaId = $('#selectMediaId').val();

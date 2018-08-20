@@ -306,7 +306,7 @@
             strParam = strParam + "?name=" + name;
         }
 
-        window.location.href = "/sysResources/taskList" + strParam;
+        window.location.href = "/thirdCompany/taskList" + strParam;
     });
     function importEnabled(){
     	var mediaId = $('#selectMediaId').val();

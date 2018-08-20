@@ -677,7 +677,7 @@ public class ApiController extends BasicController {
         saveLog(request, username);
         //登录日志
         AddressUtils addressUtils = new AddressUtils();
-        String  address = addressUtils.getAddresses( getIp(), "utf-8");
+        String  address = addressUtils.getAddressesByBaidu( getIp(), "utf-8");
         Date now = new Date();	           
         LoginLog loginlog=new LoginLog();   
         loginlog.setUserId(userExecute.getId());

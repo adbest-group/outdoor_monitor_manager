@@ -2651,6 +2651,7 @@ public class ExcelController extends BasicController {
 						lo.set(AdminImportMonitorEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
 		            	lo.set(AdminImportMonitorEnum.IMPORT_DES.getId(), ExcelImportFailEnum.PIC_INVALID.getText());
 					}
+					imgs.clear();
 				}else {
 					lo.set(AdminImportMonitorEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
 	            	lo.set(AdminImportMonitorEnum.IMPORT_DES.getId(), ExcelImportFailEnum.PIC_INVALID.getText());
@@ -2724,7 +2725,6 @@ public class ExcelController extends BasicController {
 	        listob.clear();
 	        pics.clear();
 	        tasks.clear();
-	        imgs.clear();
 	        TaskVos.clear();
 	        Tasks.clear();
 	        table.clear();

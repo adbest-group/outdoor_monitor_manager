@@ -2656,7 +2656,8 @@ public class ExcelController extends BasicController {
 	            	lo.set(AdminImportMonitorEnum.IMPORT_DES.getId(), ExcelImportFailEnum.PIC_INVALID.getText());
 				}
 	        }
-	        Table<String, Integer, AdMonitorTaskVo> table = getTaskTable(tasks);
+	        Table<String, Integer, AdMonitorTaskVo> table = HashBasedTable.create();
+	        table = getTaskTable(tasks);
 	        List<AdMonitorTaskVo> TaskVos = new ArrayList<>();
 	        if (tasks.size()>0) {
 	        	TaskVos = adMonitorTaskService.findAllMemo(activity.getId(),tasks);
@@ -2721,6 +2722,13 @@ public class ExcelController extends BasicController {
 	        result.setResult("/static/excel/" + fileName);
 	        listString.clear();
 	        model.addAttribute(SysConst.RESULT_KEY, result);
+	        listob.clear();
+	        pics.clear();
+	        tasks.clear();
+	        imgs.clear();
+	        TaskVos.clear();
+	        Tasks.clear();
+	        table.clear();
     	}catch (Exception e) {
     		result.setCode(ResultCode.RESULT_FAILURE.getCode());
         	result.setResultDes("导入失败");

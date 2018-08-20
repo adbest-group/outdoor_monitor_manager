@@ -2721,7 +2721,6 @@ public class ExcelController extends BasicController {
 	        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
 	        result.setResult("/static/excel/" + fileName);
 	        listString.clear();
-	        model.addAttribute(SysConst.RESULT_KEY, result);
 	        listob.clear();
 	        pics.clear();
 	        tasks.clear();
@@ -2734,6 +2733,7 @@ public class ExcelController extends BasicController {
         	result.setResultDes("导入失败");
             e.printStackTrace();
 		}
+    	model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
 	}
 	/**

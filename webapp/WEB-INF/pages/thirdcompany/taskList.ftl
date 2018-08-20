@@ -592,6 +592,7 @@
             cache: false,
             dataType: "json",
             success: function (datas) {
+            	isLoading = false;
                 var resultRet = datas.ret;
                 if (resultRet.code == 101) {
                     layer.confirm(resultRet.resultDes, {

@@ -2580,9 +2580,10 @@ public class ExcelController extends BasicController {
 	        //excel上传支持
 	        listob = new ImportExcelUtil().getBankListByExcel(in, file.getOriginalFilename());
 	        //文件夹图片
-	        Map<String, Map<String, List<FileInfoVo>>> pics = getPics(activityId);
+	        Map<String, Map<String, List<FileInfoVo>>> pics = new HashMap<>();
+	        pics = getPics(activityId);
 	        List<AdMonitorTaskVo> tasks = new ArrayList<>();
-	        Map<String, List<FileInfoVo>> imgs = null;
+	        Map<String, List<FileInfoVo>> imgs = new HashMap<>();
 	        Table<String, String, Integer> tableData = HashBasedTable.create();
 	        List<String> memos = adSeatService.selectAllSeatMemoByActivityId(activity.getId());
 	        //excel表格任务对应文件夹图片   
@@ -2732,6 +2733,9 @@ public class ExcelController extends BasicController {
 	 */
     private Map<String, Map<String, List<FileInfoVo>>> getPics(Integer activityId){
     	File file=new File(fileUploadPath + "\\activity\\" + activityId + "\\temporary");
+    	if(!file.exists()){
+            file.mkdirs();
+        }
 		File[] Files = file.listFiles();
 		Map<String, Map<String, List<FileInfoVo>>> monitors = new HashMap<>();
 		String regex = ".+(.JPEG|.jpeg|.JPG|.jpg|.png|.PNG)$";

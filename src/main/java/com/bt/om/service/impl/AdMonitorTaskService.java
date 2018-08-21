@@ -897,7 +897,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             if(sysUserExecute.getUsertype().equals(4)) {
             	//[1] 社会人员抢单
             	userTask.setAssignType(2); //2.自助抢单（社会人员）
-            } else if(sysUserExecute.getUsertype().equals(3)) {
+            } else if(sysUserExecute.getUsertype().equals(3)||sysUserExecute.getUsertype().equals(5)) {
             	//[2] 媒体监测人员抢单
             	userTask.setAssignType(3); //3.自助接取（媒体监测人员）
             }

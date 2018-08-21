@@ -138,7 +138,7 @@
                               	<#if activity.status==1><a href="javascript:del('${activity.id}')">删除</a></#if>
                                 <#-- <#if activity.status!=1&&activity.status!=4><a id="exportExcel" href="javascript:exportExcel('${activity.id}')">导出excel</a></#if>
                                 <#if activity.status!=1&&activity.status!=4><a id="exportPdf" href="javascript:exportPdf('${activity.id}')">导出pdf</a></#if> -->
-                                <#if activity.status!=1&&activity.status!=4><a id="openActivityExcel" href="javascript:openActivityExcel('${activity.id}')">导出excel</a></#if>
+                                <#-- <#if activity.status!=1&&activity.status!=4><a id="openActivityExcel" href="javascript:openActivityExcel('${activity.id}')">导出excel</a></#if> -->
                                 <#if activity.status!=1&&activity.status!=4><a id="openActivityPdf" href="javascript:openActivityPdf('${activity.id}')">导出pdf</a></#if>
                             </td>
                         </tr>

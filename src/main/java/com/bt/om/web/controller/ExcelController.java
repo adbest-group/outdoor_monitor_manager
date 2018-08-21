@@ -2626,7 +2626,7 @@ public class ExcelController extends BasicController {
 	            tableData.put(seatName, task_type, i);
 	            imgs = pics.get(id.toString());
 	            if (imgs!=null&&imgs.size()>0) {
-					List<FileInfoVo> list = imgs.get(seatName);
+					List<FileInfoVo> list = imgs.get(seatName.trim());
 					if (list!=null&&list.size()>0) {
 						AdMonitorTaskVo adMonitorTaskVo = new AdMonitorTaskVo();
 						adMonitorTaskVo.setMemo(seatName);
@@ -2651,12 +2651,15 @@ public class ExcelController extends BasicController {
 						lo.set(AdminImportMonitorEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
 		            	lo.set(AdminImportMonitorEnum.IMPORT_DES.getId(), ExcelImportFailEnum.PIC_INVALID.getText());
 					}
-					imgs.clear();
+					
 				}else {
 					lo.set(AdminImportMonitorEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
 	            	lo.set(AdminImportMonitorEnum.IMPORT_DES.getId(), ExcelImportFailEnum.PIC_INVALID.getText());
 				}
 	        }
+	        if (imgs.size()>0) {
+		        imgs.clear();
+			}
 	        Table<String, Integer, AdMonitorTaskVo> table = HashBasedTable.create();
 	        table = getTaskTable(tasks);
 	        List<AdMonitorTaskVo> TaskVos = new ArrayList<>();

@@ -216,6 +216,7 @@
   <resultMap extends="BaseResultMap" id="ExtResultMap" type="com.bt.om.entity.vo.SysMenuVo">
   </resultMap>
 
+  <!-- 通过登录用户名查询菜单列表 -->
   <select id="findMenuListByUsername" parameterType="map" resultMap="ExtResultMap">
     select
     distinct t1.*

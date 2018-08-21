@@ -14,4 +14,6 @@ public interface AdSystemPushMapper {
     int getPageCount(Map<String, Object> searchMap);
 
     List<AdSystemPush> getPageData(Map<String, Object> searchMap, RowBounds rowBounds);
+
+	void insertSelective(AdSystemPush push);
 }

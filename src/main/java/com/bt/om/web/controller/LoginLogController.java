@@ -2,6 +2,7 @@ package com.bt.om.web.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -10,14 +11,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.bt.om.common.web.PageConst;
-import com.bt.om.entity.SysUser;
-import com.bt.om.enums.SessionKey;
-import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.ILoginLogService;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.util.SearchUtil;
 
-import cn.jiguang.common.connection.IHttpClient.RequestMethod;
+/**
+ * 登录日志 控制类
+ */
 @Controller
 @RequestMapping("/root")
 public class LoginLogController {
@@ -27,7 +27,7 @@ public class LoginLogController {
     /**
      * 登录日志展示
      */
-    @RequiresRoles("superadmin")
+    @RequiresRoles(value = {"superadmin" , "phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/loginLog" )
     public String resourceDetailPage(Model model, HttpServletRequest request,
     		@RequestParam(value = "begin", required = false) String begin,

@@ -3,18 +3,16 @@ package com.bt.om.web.controller;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,22 +30,19 @@ import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdActivityAdseat;
-import com.bt.om.entity.AdActivityArea;
-import com.bt.om.entity.AdActivityMedia;
 import com.bt.om.entity.AdJiucuoTaskFeedback;
-import com.bt.om.entity.AdSeatInfo;
-import com.bt.om.entity.AdUserMessage;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AdActivityVo;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.entity.vo.AdSeatCount;
 import com.bt.om.entity.vo.AdSeatInfoVo;
-import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.ActivityStatus;
+import com.bt.om.enums.AllowMultiEnum;
 import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
+import com.bt.om.enums.UserTypeEnum;
 import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
@@ -57,13 +52,11 @@ import com.bt.om.service.IAdUserMessageService;
 import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.util.ConfigUtil;
-import com.bt.om.util.GsonUtil;
 import com.bt.om.util.StringUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
 import com.bt.om.web.util.SearchUtil;
-import com.google.gson.JsonObject;
 
 /**
  * Created by caiting on 2018/1/17.
@@ -88,6 +81,8 @@ public class CustomerActivityControl extends BasicController {
 	private SysUserResMapper sysUserResMapper;
 	@Autowired
 	private CityCache cityCache;
+	private static final Logger logger = Logger.getLogger(CustomerActivityControl.class);
+	
 	/**
      * 查询活动列表
      */
@@ -120,12 +115,14 @@ public class CustomerActivityControl extends BasicController {
             try {
                 vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         if (endDate != null) {
             try {
                 vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         //查询活动名称
@@ -164,16 +161,20 @@ public class CustomerActivityControl extends BasicController {
     public String customerEdit(Model model, HttpServletRequest request,
                                @RequestParam(value = "id", required = false) Integer id) {
         AdActivityVo activity = adActivityService.getVoById(id);
-
-        if (activity != null) {
-            model.addAttribute("activity", activity);
-        }
         
         //获取登录用户信息
         SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         
         if(user != null) {
+        	model.addAttribute("user", user);
         	model.addAttribute("usertype", user.getUsertype());
+        	if (user.getUsertype()==UserTypeEnum.CUSTOMER.getId() &&user.getId().intValue()!=activity.getUserId().intValue()) {
+        		return PageConst.NO_AUTHORITY;
+			}
+        }
+        
+        if (activity != null) {
+            model.addAttribute("activity", activity);
         }
         
         Integer monitorTime = ConfigUtil.getInt("monitor_time"); //允许任务执行天数
@@ -254,11 +255,11 @@ public class CustomerActivityControl extends BasicController {
         for (AdSeatCount adSeatCount : adSeatCounts) {
 			if(adSeatCount != null) {
 				//判断是否要移除
-				if(adSeatCount.getAllowMulti() == 0 && adSeatCount.getCount() >= 1) {
+				if(adSeatCount.getAllowMulti() == AllowMultiEnum.NOT_ALLOW.getId() && adSeatCount.getCount() >= 1) {
 					//否：不允许同时有多个活动; 当前广告位正在参与活动的数量 大于等于 1
 					adseatInfoIds.add(adSeatCount.getAdseatId());
 				}
-				if(adSeatCount.getAllowMulti() == 1 && adSeatCount.getCount() >= adSeatCount.getMultiNum()) {
+				if(adSeatCount.getAllowMulti() == AllowMultiEnum.ALLOW.getId() && adSeatCount.getCount() >= adSeatCount.getMultiNum()) {
 					//是: 允许同时有多个活动; 当前广告位正在参与活动的数量 大于等于 最大允许数量
 					adseatInfoIds.add(adSeatCount.getAdseatId());
 				}
@@ -299,6 +300,95 @@ public class CustomerActivityControl extends BasicController {
         model.addAttribute("start", vo.getStart()); //当前页
         
         model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+    }
+    
+    /**
+     * 选择导入临时表中的广告位
+     */
+    @RequestMapping(value = "/activity/adseat/selectTmp")
+    @ResponseBody
+    public Model getAdSeatTmps(Model model, HttpServletRequest request,
+            @RequestParam(value = "startDate", required = false) String startDate,
+            @RequestParam(value = "endDate", required = false) String endDate,
+            @RequestParam(value = "activityId", required = false) Integer activityId) {
+    	ResultVo<String> result = new ResultVo<String>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResult("查询成功");
+        model = new ExtendedModelMap();
+    	
+        if(StringUtil.isEmpty(startDate) || StringUtil.isEmpty(endDate)) {
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("请先选择活动时间！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        
+        //[1] 查询临时表中的id集合
+        List<Integer> tmpSeatIds = adSeatService.selectSeatIds();
+        
+        List<AdSeatInfoVo> problemAdSeatInfos = new ArrayList<>();
+        List<AdSeatInfoVo> adSeatInfoVos = new ArrayList<>();
+        
+        if(tmpSeatIds != null && tmpSeatIds.size() > 0) {
+        	//[2] 查询上述id集合在传递的时间段内正在参与活动的广告位id及参与活动数量
+            Map<String, Object> searchMap = new HashMap<>();
+            searchMap.put("startDate", DateUtil.parseStrDate(startDate, "yyyy-MM-dd"));
+            searchMap.put("endDate", DateUtil.parseStrDate(endDate, "yyyy-MM-dd"));
+            if(tmpSeatIds != null && tmpSeatIds.size() > 0) {
+            	searchMap.put("seatIds", tmpSeatIds);
+            }
+            // 编辑活动页面点击的"最近一次导入", 排除掉这个活动
+            if(activityId != null) {
+            	searchMap.put("removeActivityId", activityId);
+            }
+            List<AdSeatCount> adSeatCounts = adActivityService.selectActiveActivityCount(searchMap);
+            
+            List<Integer> problemInfoIds = new ArrayList<Integer>(); //已有足够的活动占用的广告位id集合
+            for (AdSeatCount adSeatCount : adSeatCounts) {
+    			if(adSeatCount != null) {
+    				//判断是否要移除
+    				if(adSeatCount.getAllowMulti() == AllowMultiEnum.NOT_ALLOW.getId() && adSeatCount.getCount() >= 1) {
+    					//否：不允许同时有多个活动; 当前广告位正在参与活动的数量 大于等于 1
+    					problemInfoIds.add(adSeatCount.getAdseatId());
+    				}
+    				if(adSeatCount.getAllowMulti() == AllowMultiEnum.ALLOW.getId() && adSeatCount.getCount() >= adSeatCount.getMultiNum()) {
+    					//是: 允许同时有多个活动; 当前广告位正在参与活动的数量 大于等于 最大允许数量
+    					problemInfoIds.add(adSeatCount.getAdseatId());
+    				}
+    			}
+    		}
+            
+            //[3] 查询出有问题广告位
+            searchMap.clear();
+            searchMap.put("adseatInfoIds", problemInfoIds);
+            if(problemInfoIds.size() > 0) {
+            	 problemAdSeatInfos = adSeatService.selectSeatByIds(searchMap);
+            	 for (AdSeatInfoVo adSeatInfoVo : problemAdSeatInfos) {
+                 	adSeatInfoVo.setProvinceName(cityCache.getCityName(adSeatInfoVo.getProvince()));
+                 	adSeatInfoVo.setCityName(cityCache.getCityName(adSeatInfoVo.getCity()));
+         		}
+            }
+            
+            //[4] 查询出正常的广告位
+            searchMap.clear();
+            tmpSeatIds.removeAll(problemInfoIds);
+            searchMap.put("adseatInfoIds", tmpSeatIds);
+            if(tmpSeatIds.size() > 0) {
+            	adSeatInfoVos = adSeatService.selectSeatByIds(searchMap);
+                for (AdSeatInfoVo adSeatInfoVo : adSeatInfoVos) {
+                	adSeatInfoVo.setProvinceName(cityCache.getCityName(adSeatInfoVo.getProvince()));
+                	adSeatInfoVo.setCityName(cityCache.getCityName(adSeatInfoVo.getCity()));
+        		}
+            }
+            problemInfoIds.clear();
+        }
+        
+        model.addAttribute("problemAdSeatInfos", problemAdSeatInfos);
+        model.addAttribute("adSeatInfoVos", adSeatInfoVos);
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        
+        tmpSeatIds.clear();
         return model;
     }
     
@@ -350,6 +440,15 @@ public class CustomerActivityControl extends BasicController {
         model = new ExtendedModelMap();
 
         SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        if (StringUtil.isNotEmpty(id)) {
+        	AdActivityVo activity = adActivityService.getVoById(Integer.valueOf(id));
+        	if (user.getUsertype()==UserTypeEnum.CUSTOMER.getId() && activity!=null && user.getId().intValue()!=activity.getUserId().intValue()) {
+        		result.setCode(ResultCode.RESULT_NOAUTH.getCode());
+                result.setResult("没有权限！");
+                model.addAttribute(SysConst.RESULT_KEY, result);
+        		return model;
+    		}
+		}
 
         AdActivityVo adActivityVo = new AdActivityVo();
         adActivityVo.setActivityName(activityName);
@@ -381,6 +480,7 @@ public class CustomerActivityControl extends BasicController {
         try {
             adActivityVo.setEndTime(sdf.parse(endDate));
         } catch (ParseException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("日期格式有误！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -556,12 +656,14 @@ public class CustomerActivityControl extends BasicController {
             try {
                 vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         if (endDate != null) {
             try {
                 vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         //查询活动名称

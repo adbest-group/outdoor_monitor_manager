@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -42,12 +45,16 @@ import com.bt.om.entity.AdSeatInfo;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.enums.AppUserTypeEnum;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.enums.UserTypeEnum;
+import com.bt.om.enums.VerifyType;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
@@ -61,6 +68,7 @@ import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.service.ISysUserRoleService;
 import com.bt.om.service.ISysUserService;
+import com.bt.om.util.ConfigUtil;
 import com.bt.om.util.MarkLogoUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -106,6 +114,12 @@ public class MonitorTaskController extends BasicController {
 	private String SMS_REJECT_CONTENT_TEMPLATE;
 	@Value("${sms.zhipai.content.template}")
     private String SMS_ZHIPAI_CONTENT_TEMPLATE;
+	
+	private String file_upload_path = ConfigUtil.getString("file.upload.path");
+	
+	private String file_upload_ip = ConfigUtil.getString("file.upload.ip");
+	
+	private static final Logger logger = Logger.getLogger(MonitorTaskController.class);
 
 	/**
 	 * 监测任务管理（任务审核指派部员工登录）
@@ -153,7 +167,7 @@ public class MonitorTaskController extends BasicController {
 		
 		List<Integer> statuses = new ArrayList<>();
 		if (status == null) {
-			status = 3; // 如果没有传参status, 默认取3：待审核
+			status = MonitorTaskStatus.UNVERIFY.getId(); // 如果没有传参status, 默认取3：待审核
 		}
 		statuses.add(status);
 		vo.putSearchParam("statuses", null, statuses);
@@ -177,12 +191,14 @@ public class MonitorTaskController extends BasicController {
 			try {
 				vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
 			} catch (ParseException e) {
+				logger.error(e);
 			}
 		}
 		if (endDate != null) {
 			try {
 				vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
 			} catch (ParseException e) {
+				logger.error(e);
 			}
 		}
 		//查询活动名称
@@ -390,12 +406,14 @@ public class MonitorTaskController extends BasicController {
 			try {
 				vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
 			} catch (ParseException e) {
+				logger.error(e);
 			}
 		}
 		if (endDate != null) {
 			try {
 				vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
 			} catch (ParseException e) {
+				logger.error(e);
 			}
 		}
 		 //查询活动名称
@@ -581,6 +599,7 @@ public class MonitorTaskController extends BasicController {
 			try {
 				vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
 			} catch (ParseException e) {
+				logger.error(e);
 			}
 		}
 		 //查询活动名称
@@ -702,23 +721,69 @@ public class MonitorTaskController extends BasicController {
 	}
 	
 	/**
-	 * 选择监测人员页面
+	 * 群邑方选择监测人员页面
+	 * */
+	@RequiresRoles(value = {"taskadmin", "media", "deptaskadmin", "superadmin"}, logical = Logical.OR)
+	@RequestMapping(value = "/selectUserMemberExecute")
+	public String selectUserMemberExecute(Model model, HttpServletRequest request) {
+		return PageConst.SELECT_USER_EXECUTE;
+	}
+	/**
+	 * 群邑方选择监测人员页面
 	 **/
-	@RequiresRoles(value = { "taskadmin", "media", "deptaskadmin", "superadmin" }, logical = Logical.OR)
+	@ResponseBody
+	@RequiresRoles(value = {"taskadmin", "media", "deptaskadmin", "superadmin" ,"thirdcompany"}, logical = Logical.OR)
 	@RequestMapping(value = "/selectUserExecute")
-	public String toSelectUserExecute(Model model, HttpServletRequest request,
-			@RequestParam(value = "mediaId", required = false) Integer mediaId) {
+	public Model toSelectUserExecute(Model model, HttpServletRequest request,
+			@RequestParam(value = "mediaId", required = false) Integer mediaId,
+			@RequestParam(value = "companyId", required = false) Integer companyId) {
+		ResultVo resultVo = new ResultVo();
 		Map condition = Maps.newHashMap();
 		// 指派人员改成指派给媒体人员
-		condition.put("usertype", 3); // 3: 媒体监测人员
 		if (mediaId != null) {
 			AdMedia media = mediaService.getById(mediaId);
 			condition.put("operateId", media.getUserId());
+			condition.put("usertype", AppUserTypeEnum.MEDIA.getId()); // 3: 媒体监测人员
+		}
+		//第三方监测公司指派给本公司下的员工
+		if(companyId != null) {
+			condition.put("operateId", companyId);
+			condition.put("usertype", AppUserTypeEnum.THIRD_COMPANY.getId()); // 5: 第三方监测公司人员
+		}
+		List<SysUserExecute> ues = null;
+		try {
+			ues = sysUserExecuteService.getByConditionMap(condition);
+			resultVo.setResult(ues);
+	    	resultVo.setCode(ResultCode.RESULT_SUCCESS.getCode());
+		}catch(Exception e) {
+			logger.error(e);
+            e.printStackTrace();
+            resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
+            resultVo.setResultDes("服务忙，请稍后再试");
+		}
+		//model.addAttribute("userList", ues);
+		model.addAttribute(SysConst.RESULT_KEY, resultVo);
+		return model;
+	}
+	
+	/**
+	 * 第三方监测公司指派 选择监测人员
+	 * */
+	@RequiresRoles(value = {"thirdcompany" }, logical = Logical.OR)
+	@RequestMapping(value = "/selectComanyUserExecute")
+	public String SelectUserExecute(Model model, HttpServletRequest request,
+			@RequestParam(value = "companyId", required = false) Integer companyId) {
+		Map condition = Maps.newHashMap();
+		
+		//第三方监测公司指派给本公司下的员工
+		if(companyId != null) {
+			condition.put("operateId", companyId);
+			condition.put("usertype", AppUserTypeEnum.THIRD_COMPANY.getId()); // 5: 第三方监测公司人员
 		}
 		List<SysUserExecute> ues = sysUserExecuteService.getByConditionMap(condition);
 		model.addAttribute("userList", ues);
-
-		return PageConst.SELECT_USER_EXECUTE;
+		model.addAttribute("companyId", companyId);
+		return PageConst.SELECT_COMPANY_USER_EXECUTE;
 	}
 	
     /**
@@ -739,6 +804,7 @@ public class MonitorTaskController extends BasicController {
         	resultVo.setCode(ResultCode.RESULT_SUCCESS.getCode());
         	}
         } catch (Exception ex) {
+        	logger.error(ex);
             ex.printStackTrace();
             resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
             resultVo.setResultDes("服务忙，请稍后再试");
@@ -750,55 +816,105 @@ public class MonitorTaskController extends BasicController {
 	/**
 	 * 指派任务, 发送短信
 	 **/
-	@RequiresRoles(value = { "taskadmin", "media", "deptaskadmin", "superadmin" }, logical = Logical.OR)
+	@RequiresRoles(value = { "taskadmin", "media", "deptaskadmin", "superadmin" ,"thirdcompany"}, logical = Logical.OR)
 	@RequestMapping(value = "/assign")
 	@ResponseBody
 	public Model assign(Model model, HttpServletRequest request,
 			@RequestParam(value = "ids", required = false) String ids,
-			@RequestParam(value = "userId", required = false) Integer userId) {
+			@RequestParam(value = "userId", required = false) Integer userId,
+			@RequestParam(value = "mediaId", required = false) Integer mediaId,
+			@RequestParam(value = "companyId", required = false) Integer companyId,
+			@RequestParam(value = "mediaUser", required = false) Integer mediaUser,
+			@RequestParam(value = "companyUser", required = false) Integer companyUser) {
 		ResultVo<String> result = new ResultVo<String>();
+		// 获取登录的审核人(员工/部门领导/超级管理员)
+		SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
 		Date now = new Date();
 		// [1] ids拆分成id集合
 		String[] taskIds = ids.split(",");
-		// [2] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
-		for (String taskId : taskIds) {
-			// 注意：这里没有考虑批量指派的问题. 如果批量指派, 需要循环放入Redis
-			String beginRedisStr = "zhipai_" + taskId + "_begin";
-			String finishRedisStr = "zhipai_" + taskId + "_finish";
-			if (redisTemplate.opsForValue().get(finishRedisStr) != null
-					&& StringUtil.equals(redisTemplate.opsForValue().get(finishRedisStr) + "", "true")) {
-				result.setCode(ResultCode.RESULT_FAILURE.getCode());
-				result.setResultDes("任务已被指派，请刷新再试！");
-				model.addAttribute(SysConst.RESULT_KEY, result);
-				return model;
+		if(userObj.getUsertype() == UserTypeEnum.THIRD_COMPANY.getId() || userObj.getUsertype() == UserTypeEnum.MEDIA.getId()) {
+			// [2] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
+			for (String taskId : taskIds) {
+				// 注意：这里没有考虑批量指派的问题. 如果批量指派, 需要循环放入Redis
+				String beginRedisStr = "company_zhipai_" + taskId + "_begin";
+				String finishRedisStr = "company_zhipai_" + taskId + "_finish";
+				if (redisTemplate.opsForValue().get(finishRedisStr) != null
+						&& StringUtil.equals(redisTemplate.opsForValue().get(finishRedisStr) + "", "true")) {
+					result.setCode(ResultCode.RESULT_FAILURE.getCode());
+					result.setResultDes("任务已被指派，请刷新再试！");
+					model.addAttribute(SysConst.RESULT_KEY, result);
+					return model;
+				}
+				if (redisTemplate.opsForValue().get(beginRedisStr) != null
+						&& StringUtil.equals(redisTemplate.opsForValue().get(beginRedisStr) + "", "true")) {
+					result.setCode(ResultCode.RESULT_FAILURE.getCode());
+					result.setResultDes("任务正被指派中，请刷新再试！");
+					model.addAttribute(SysConst.RESULT_KEY, result);
+					return model;
+				}
 			}
-			if (redisTemplate.opsForValue().get(beginRedisStr) != null
-					&& StringUtil.equals(redisTemplate.opsForValue().get(beginRedisStr) + "", "true")) {
-				result.setCode(ResultCode.RESULT_FAILURE.getCode());
-				result.setResultDes("任务正被指派中，请刷新再试！");
-				model.addAttribute(SysConst.RESULT_KEY, result);
-				return model;
+		}else {
+			// [2] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
+			for (String taskId : taskIds) {
+				// 注意：这里没有考虑批量指派的问题. 如果批量指派, 需要循环放入Redis
+				String beginRedisStr = "zhipai_" + taskId + "_begin";
+				String finishRedisStr = "zhipai_" + taskId + "_finish";
+				if (redisTemplate.opsForValue().get(finishRedisStr) != null
+						&& StringUtil.equals(redisTemplate.opsForValue().get(finishRedisStr) + "", "true")) {
+					result.setCode(ResultCode.RESULT_FAILURE.getCode());
+					result.setResultDes("任务已被指派，请刷新再试！");
+					model.addAttribute(SysConst.RESULT_KEY, result);
+					return model;
+				}
+				if (redisTemplate.opsForValue().get(beginRedisStr) != null
+						&& StringUtil.equals(redisTemplate.opsForValue().get(beginRedisStr) + "", "true")) {
+					result.setCode(ResultCode.RESULT_FAILURE.getCode());
+					result.setResultDes("任务正被指派中，请刷新再试！");
+					model.addAttribute(SysConst.RESULT_KEY, result);
+					return model;
+				}
 			}
 		}
-		// [3] 循环放入redis中
-		for (String taskId : taskIds) {
-			String beginRedisStr = "zhipai_" + taskId + "_begin";
-			// 放入Redis缓存处理并发
-			redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 1, TimeUnit.SECONDS); // 设置1分钟超时时间（为了待执行的也可以修改指派）
+		if(userObj.getUsertype() == UserTypeEnum.THIRD_COMPANY.getId() || userObj.getUsertype() == UserTypeEnum.MEDIA.getId()) {
+			// [3] 循环放入redis中
+			for (String taskId : taskIds) {
+				String beginRedisStr = "company_zhipai_" + taskId + "_begin";
+				// 放入Redis缓存处理并发
+				redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 1, TimeUnit.SECONDS); // 设置1分钟超时时间（为了待执行的也可以修改指派）
+			}
+		}else {
+			// [3] 循环放入redis中
+			for (String taskId : taskIds) {
+				String beginRedisStr = "zhipai_" + taskId + "_begin";
+				// 放入Redis缓存处理并发
+				redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 1, TimeUnit.SECONDS); // 设置1分钟超时时间（为了待执行的也可以修改指派）
+			}
 		}
 		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
 		result.setResultDes("指派成功");
 		model = new ExtendedModelMap();
 
 		try {
-			// 获取登录的审核人(员工/部门领导/超级管理员)
-			SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-
-			adMonitorTaskService.assign(taskIds, userId, userObj.getId());
-			
+			//第三方监测公司指派给本公司下的员工
+			if(userObj.getUsertype() == UserTypeEnum.THIRD_COMPANY.getId()) {
+				companyUser = userId;
+			}else if(userObj.getUsertype() == UserTypeEnum.MEDIA.getId()) {
+				//媒体公司指派给本公司下的员工
+				mediaUser = userId;
+			}
+//			adMonitorTaskService.assign(taskIds, userId, userObj.getId());
+			adMonitorTaskService.assign(taskIds, mediaId, companyId, mediaUser,companyUser, userObj.getId());
 			//发送短信
-			SysUserExecute sysUserExecute = sysUserExecuteService.getById(userId);
-	        sendSmsService.sendSms(sysUserExecute.getUsername(), SMS_ZHIPAI_CONTENT_TEMPLATE);
+			SysUserExecute sysUserExecute = null;
+			if(mediaUser != null) {
+				//指派给媒体公司人员
+				sysUserExecute = sysUserExecuteService.getById(mediaUser);
+				sendSmsService.sendSms(sysUserExecute.getUsername(), SMS_ZHIPAI_CONTENT_TEMPLATE);
+			}else if(companyUser != null) {
+				//指派给第三方监测公司人员
+				sysUserExecute = sysUserExecuteService.getById(companyUser);
+				sendSmsService.sendSms(sysUserExecute.getUsername(), SMS_ZHIPAI_CONTENT_TEMPLATE);
+			}
 			
 			// ==========web端指派成功之后根据userId进行app消息推送==============
 //			Map<String, Object> param = new HashMap<>();
@@ -813,24 +929,42 @@ public class MonitorTaskController extends BasicController {
 //			String pushResult = JPushUtils.pushAllByAlias(param);
 //			System.out.println("pushResult:: " + pushResult);
 		} catch (Exception e) {
-			// [5] 异常情况, 循环删除redis
-			for (String taskId : taskIds) {
-				String beginRedisStr = "zhipai_" + taskId + "_begin";
-				// 异常情况, 移除Redis缓存处理并发
-				redisTemplate.delete(beginRedisStr);
+			logger.error(e);
+			if(userObj.getUsertype() == UserTypeEnum.THIRD_COMPANY.getId() || userObj.getUsertype() == UserTypeEnum.MEDIA.getId()) {
+				// [5] 异常情况, 循环删除redis
+				for (String taskId : taskIds) {
+					String beginRedisStr = "company_zhipai_" + taskId + "_begin";
+					// 异常情况, 移除Redis缓存处理并发
+					redisTemplate.delete(beginRedisStr);
+				}
+			}else {
+				// [5] 异常情况, 循环删除redis
+				for (String taskId : taskIds) {
+					String beginRedisStr = "zhipai_" + taskId + "_begin";
+					// 异常情况, 移除Redis缓存处理并发
+					redisTemplate.delete(beginRedisStr);
+				}
 			}
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("指派失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
 			return model;
 		}
-		// [6] 处理成功, 循环放入redis
-		for (String taskId : taskIds) {
-			// 放入Redis缓存处理并发
-			String finishRedisStr = "zhipai_" + taskId + "_finish";
-			redisTemplate.opsForValue().set(finishRedisStr, "true", 60 * 1, TimeUnit.SECONDS); // 设置1分钟超时时间（为了待执行的也可以修改指派）
+		if(userObj.getUsertype() == UserTypeEnum.THIRD_COMPANY.getId() || userObj.getUsertype() == UserTypeEnum.MEDIA.getId()) {
+			// [6] 处理成功, 循环放入redis
+			for (String taskId : taskIds) {
+				// 放入Redis缓存处理并发
+				String finishRedisStr = "company_zhipai_" + taskId + "_finish";
+				redisTemplate.opsForValue().set(finishRedisStr, "true", 60 * 1, TimeUnit.SECONDS); // 设置1分钟超时时间（为了待执行的也可以修改指派）
+			}
+		}else {
+			// [6] 处理成功, 循环放入redis
+			for (String taskId : taskIds) {
+				// 放入Redis缓存处理并发
+				String finishRedisStr = "zhipai_" + taskId + "_finish";
+				redisTemplate.opsForValue().set(finishRedisStr, "true", 60 * 1, TimeUnit.SECONDS); // 设置1分钟超时时间（为了待执行的也可以修改指派）
+			}
 		}
-		
 		model.addAttribute(SysConst.RESULT_KEY, result);
 		return model;
 	}
@@ -838,7 +972,7 @@ public class MonitorTaskController extends BasicController {
 	/**
 	 * 审核任务, 驳回发送短信
 	 **/
-	@RequiresRoles(value = { "taskadmin", "deptaskadmin", "superadmin" }, logical = Logical.OR)
+	@RequiresRoles(value = { "taskadmin", "deptaskadmin", "superadmin","thirdcompany" }, logical = Logical.OR)
 	@RequestMapping(value = "/verify")
 	@ResponseBody
 	public Model verify(Model model, HttpServletRequest request,
@@ -849,31 +983,63 @@ public class MonitorTaskController extends BasicController {
 		Date now = new Date();
 		// [1] ids拆分成id集合
 		String[] taskIds = ids.split(",");
-		// [2] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
-		for (String taskId : taskIds) {
-			String beginRedisStr = "monitorTask_" + taskId + "_begin";
-			String finishRedisStr = "monitorTask_" + taskId + "_finish";
-			if (redisTemplate.opsForValue().get(finishRedisStr) != null
-					&& StringUtil.equals(redisTemplate.opsForValue().get(finishRedisStr) + "", "true")) {
-				result.setCode(ResultCode.RESULT_FAILURE.getCode());
-				result.setResultDes("任务已被审核，请刷新再试！");
-				model.addAttribute(SysConst.RESULT_KEY, result);
-				return model;
+		// [2] 判断是否为第三方监测公司登录
+		// 获取登录的审核人(员工/部门领导/超级管理员)
+		SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+		if(userObj.getUsertype() == UserTypeEnum.THIRD_COMPANY.getId()) {
+			// [3] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
+			for (String taskId : taskIds) {
+				String beginRedisStr = "third_monitorTask_" + taskId + "_begin";
+				String finishRedisStr = "third_monitorTask_" + taskId + "_finish";
+				if (redisTemplate.opsForValue().get(finishRedisStr) != null
+						&& StringUtil.equals(redisTemplate.opsForValue().get(finishRedisStr) + "", "true")) {
+					result.setCode(ResultCode.RESULT_FAILURE.getCode());
+					result.setResultDes("任务已被审核，请刷新再试！");
+					model.addAttribute(SysConst.RESULT_KEY, result);
+					return model;
+				}
+				if (redisTemplate.opsForValue().get(beginRedisStr) != null
+						&& StringUtil.equals(redisTemplate.opsForValue().get(beginRedisStr) + "", "true")) {
+					result.setCode(ResultCode.RESULT_FAILURE.getCode());
+					result.setResultDes("任务正被审核中，请刷新再试！");
+					model.addAttribute(SysConst.RESULT_KEY, result);
+					return model;
+				}
 			}
-			if (redisTemplate.opsForValue().get(beginRedisStr) != null
-					&& StringUtil.equals(redisTemplate.opsForValue().get(beginRedisStr) + "", "true")) {
-				result.setCode(ResultCode.RESULT_FAILURE.getCode());
-				result.setResultDes("任务正被审核中，请刷新再试！");
-				model.addAttribute(SysConst.RESULT_KEY, result);
-				return model;
+			// [4] 循环放入redis中
+			for (String taskId : taskIds) {
+				String beginRedisStr = "third_monitorTask_" + taskId + "_begin";
+				// 放入Redis缓存处理并发
+				redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
+			}
+		}else {
+			// [3] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
+			for (String taskId : taskIds) {
+				String beginRedisStr = "monitorTask_" + taskId + "_begin";
+				String finishRedisStr = "monitorTask_" + taskId + "_finish";
+				if (redisTemplate.opsForValue().get(finishRedisStr) != null
+						&& StringUtil.equals(redisTemplate.opsForValue().get(finishRedisStr) + "", "true")) {
+					result.setCode(ResultCode.RESULT_FAILURE.getCode());
+					result.setResultDes("任务已被审核，请刷新再试！");
+					model.addAttribute(SysConst.RESULT_KEY, result);
+					return model;
+				}
+				if (redisTemplate.opsForValue().get(beginRedisStr) != null
+						&& StringUtil.equals(redisTemplate.opsForValue().get(beginRedisStr) + "", "true")) {
+					result.setCode(ResultCode.RESULT_FAILURE.getCode());
+					result.setResultDes("任务正被审核中，请刷新再试！");
+					model.addAttribute(SysConst.RESULT_KEY, result);
+					return model;
+				}
+			}
+			// [4] 循环放入redis中
+			for (String taskId : taskIds) {
+				String beginRedisStr = "monitorTask_" + taskId + "_begin";
+				// 放入Redis缓存处理并发
+				redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
 			}
 		}
-		// [3] 循环放入redis中
-		for (String taskId : taskIds) {
-			String beginRedisStr = "monitorTask_" + taskId + "_begin";
-			// 放入Redis缓存处理并发
-			redisTemplate.opsForValue().set(beginRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
-		}
+		
 		result.setCode(ResultCode.RESULT_SUCCESS.getCode());
 		result.setResultDes("审核成功");
 		model = new ExtendedModelMap();
@@ -881,9 +1047,6 @@ public class MonitorTaskController extends BasicController {
 //		 task.setId(taskId);
 		task.setStatus(status);
 		try {
-			// 获取登录的审核人(员工/部门领导/超级管理员)
-			SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-
 			if (task.getStatus() == MonitorTaskStatus.VERIFIED.getId()) {
 				// adMonitorTaskService.update(task);
 				adMonitorTaskService.pass(taskIds, userObj.getId(), status);
@@ -922,22 +1085,45 @@ public class MonitorTaskController extends BasicController {
 //				System.out.println("pushResult:: " + pushResult);
 //			}
 		} catch (Exception e) {
-			// [5] 异常情况, 循环删除redis
-			for (String taskId : taskIds) {
-				String beginRedisStr = "monitorTask_" + taskId + "_begin";
-				// 异常情况, 移除Redis缓存处理并发
-				redisTemplate.delete(beginRedisStr);
+			logger.error(e);
+			if(userObj.getUsertype() == UserTypeEnum.THIRD_COMPANY.getId()) {
+				// [5] 异常情况, 循环删除redis
+				for (String taskId : taskIds) {
+					String beginRedisStr = "third_monitorTask_" + taskId + "_begin";
+					// 异常情况, 移除Redis缓存处理并发
+					redisTemplate.delete(beginRedisStr);
+				}
+				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+				result.setResultDes("审核失败！");
+				model.addAttribute(SysConst.RESULT_KEY, result);
+				return model;
+			}else {
+				// [5] 异常情况, 循环删除redis
+				for (String taskId : taskIds) {
+					String beginRedisStr = "monitorTask_" + taskId + "_begin";
+					// 异常情况, 移除Redis缓存处理并发
+					redisTemplate.delete(beginRedisStr);
+				}
+				result.setCode(ResultCode.RESULT_FAILURE.getCode());
+				result.setResultDes("审核失败！");
+				model.addAttribute(SysConst.RESULT_KEY, result);
+				return model;
 			}
-			result.setCode(ResultCode.RESULT_FAILURE.getCode());
-			result.setResultDes("审核失败！");
-			model.addAttribute(SysConst.RESULT_KEY, result);
-			return model;
 		}
-		// [6] 处理成功, 循环放入redis
-		for (String taskId : taskIds) {
-			// 放入Redis缓存处理并发
-			String finishRedisStr = "monitorTask_" + taskId + "_finish";
-			redisTemplate.opsForValue().set(finishRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
+		if(userObj.getUsertype() == UserTypeEnum.THIRD_COMPANY.getId()) {
+			// [6] 处理成功, 循环放入redis
+			for (String taskId : taskIds) {
+				// 放入Redis缓存处理并发
+				String finishRedisStr = "third_monitorTask_" + taskId + "_finish";
+				redisTemplate.opsForValue().set(finishRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
+			}
+		}else {
+			// [6] 处理成功, 循环放入redis
+			for (String taskId : taskIds) {
+				// 放入Redis缓存处理并发
+				String finishRedisStr = "monitorTask_" + taskId + "_finish";
+				redisTemplate.opsForValue().set(finishRedisStr, "true", 60 * 30, TimeUnit.SECONDS); // 设置半小时超时时间
+			}
 		}
 		model.addAttribute(SysConst.RESULT_KEY, result);
 		return model;
@@ -975,6 +1161,7 @@ public class MonitorTaskController extends BasicController {
 				return model;
 			}
 		} catch (Exception e) {
+			logger.error(e);
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("撤消失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1003,6 +1190,7 @@ public class MonitorTaskController extends BasicController {
 		try {
 			adMonitorTaskService.update(task);
 		} catch (Exception e) {
+			logger.error(e);
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("关闭失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1032,6 +1220,7 @@ public class MonitorTaskController extends BasicController {
 		try {
 			adMonitorTaskService.createSubTask(id);
 		} catch (Exception e) {
+			logger.error(e);
 			e.printStackTrace();
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("创建失败！");
@@ -1052,7 +1241,7 @@ public class MonitorTaskController extends BasicController {
 	 * @return 详情页面
 	 */
 	@RequiresRoles(value = { "superadmin", "taskadmin", "customer", "media", "deptaskadmin", "activityadmin",
-			"depactivityadmin" }, logical = Logical.OR)
+			"depactivityadmin" ,"phoneoperator" ,"thirdcompany"}, logical = Logical.OR)
 	@RequestMapping(value = "/details")
 	public String gotoDetailsPage(@RequestParam("task_Id") String taskId, Model model, HttpServletRequest request) {
 		AdMonitorTaskVo vo = adMonitorTaskService.getTaskDetails(taskId);
@@ -1146,9 +1335,17 @@ public class MonitorTaskController extends BasicController {
 			model.addAttribute(SysConst.RESULT_KEY, result);
 			return model;
 		}*/
+		AdMonitorTask adMonitorTask = null;
+		if (id != null) {
+			adMonitorTask = adMonitorTaskService.geAdMonitorTaskByFeedbackId(id);
+		}else {
+			adMonitorTask = adMonitorTaskService.selectByPrimaryKey(monitorTaskId);
+		}
+		String path = file_upload_path;
+		Calendar date = Calendar.getInstance();
+	    String timePath = date.get(Calendar.YEAR)+ File.separator + (date.get(Calendar.MONTH)+1) + File.separator+ date.get(Calendar.DAY_OF_MONTH) + File.separator;
+	    path = path + (path.endsWith(File.separator) ? "" : File.separatorChar) + "activity" + File.separatorChar + adMonitorTask.getActivityId() + File.separatorChar + "monitor" + File.separator + timePath;
 		
-		String path = request.getRealPath("/");
-		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"upload"+File.separatorChar;
 		String imageName = file.getOriginalFilename();
 		InputStream is;
 		String filepath;
@@ -1174,12 +1371,11 @@ public class MonitorTaskController extends BasicController {
 			int nameindex = filename.indexOf('.');
 			if(monitorTaskId == null) {
                 MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
-                
 				//[2] 已有feedback的时候替换的图片
-				adMonitorTaskService.updatePicUrl(id, filepath, index);
+				adMonitorTaskService.updatePicUrl(id, file_upload_ip + filepath, index);
 			} else {
 				//[3] 没有feedback的时候新增feedback
-				AdMonitorTaskFeedback feedback = new AdMonitorTaskFeedback();
+				AdMonitorTaskFeedback feedback = new AdMonitorTaskFeedback();  
 				feedback.setCreateTime(now);
 				feedback.setUpdateTime(now);
 				feedback.setMonitorTaskId(monitorTaskId);
@@ -1188,18 +1384,41 @@ public class MonitorTaskController extends BasicController {
 				feedback.setStatus(1); //1：反馈信息有效
 				feedback.setLon(lon); //做任务时的经度
 				feedback.setLat(lat); //做任务时的纬度
+				if(adMonitorTask.getTaskType().equals(MonitorTaskType.UP_TASK.getId())) {
+					//如果替换的是上刊任务 图片直接通过
+					feedback.setPicUrl1Status(VerifyType.PASS_TYPE.getId());
+					feedback.setPicUrl2Status(VerifyType.PASS_TYPE.getId());
+					feedback.setPicUrl3Status(VerifyType.PASS_TYPE.getId());
+					feedback.setPicUrl4Status(VerifyType.PASS_TYPE.getId());
+				}
 				if(index == 1) {
 					MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
-					feedback.setPicUrl1(filepath);
+					feedback.setPicUrl1(file_upload_ip + filepath);
+//					if(adMonitorTask.getTaskType().equals(MonitorTaskType.UP_TASK.getId())) {
+//						//如果替换的是上刊任务 图片直接通过
+//						feedback.setPicUrl1Status(VerifyType.PASS_TYPE.getId());
+//					}
 				} else if (index == 2) {
 					MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
-					feedback.setPicUrl2(filepath);
+					feedback.setPicUrl2(file_upload_ip + filepath);
+					if(adMonitorTask.getTaskType().equals(MonitorTaskType.UP_TASK.getId())) {
+						//如果替换的是上刊任务 图片直接通过
+						feedback.setPicUrl2Status(VerifyType.PASS_TYPE.getId());
+					}
 				} else if (index == 3) {
 					MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
-					feedback.setPicUrl3(filepath);
+					feedback.setPicUrl3(file_upload_ip + filepath);
+					if(adMonitorTask.getTaskType().equals(MonitorTaskType.UP_TASK.getId())) {
+						//如果替换的是上刊任务 图片直接通过
+						feedback.setPicUrl3Status(VerifyType.PASS_TYPE.getId());
+					}
 				} else if (index == 4) {
 					MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
-					feedback.setPicUrl4(filepath);
+					feedback.setPicUrl4(file_upload_ip + filepath);
+					if(adMonitorTask.getTaskType().equals(MonitorTaskType.UP_TASK.getId())) {
+						//如果替换的是上刊任务 图片直接通过
+						feedback.setPicUrl4Status(VerifyType.PASS_TYPE.getId());
+					}
 				}
 				AdSeatInfo seatInfo = adMonitorTaskService.selectLonLatByMonitorTaskId(monitorTaskId);
 				if(seatInfo != null) {
@@ -1210,6 +1429,7 @@ public class MonitorTaskController extends BasicController {
 				adMonitorTaskService.insertMonitorTaskFeedback(feedback, userId, sysUser.getId());
 			}
 		} catch (IOException e) {
+			logger.error(e);
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("替换失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1220,22 +1440,84 @@ public class MonitorTaskController extends BasicController {
 		return model;
 	}
 	
+	/**
+	 * 编辑图片的状态
+	 * */
+	@RequiresRoles("superadmin")
+	@RequestMapping(value = "/verifyPic")
+	public String editPicStatus(@RequestParam("id") String id, Model model, HttpServletRequest request,
+			@RequestParam(value = "index", required = false) Integer index) {
+		model.addAttribute("index", index);
+		model.addAttribute("id", id);
+		return PageConst.VERIFYPIC_PAGE;
+	}
+	
+	/**
+	 * 保存单条审核图片的状态
+	 * */
+	@RequiresRoles("superadmin")
+	@RequestMapping(value = "/savePicStatus")
+	@ResponseBody
+	public Model verifyPic(@RequestParam("id") Integer id, Model model, HttpServletRequest request,
+			@RequestParam(value = "status",required = false) Integer status,
+			@RequestParam(value = "index",required = false) Integer index) {
+		ResultVo resultVo = new ResultVo();
+		AdMonitorTaskFeedback feedback = new AdMonitorTaskFeedback();
+		try {
+			if(id != null) {
+				if(index == 1) {
+					feedback.setPicUrl1Status(status);
+				}else if(index == 2){
+					feedback.setPicUrl2Status(status);
+				}else if(index == 3) {
+					feedback.setPicUrl3Status(status);
+				}else if(index == 4) {
+					feedback.setPicUrl4Status(status);
+				}
+				feedback.setId(id);
+				Integer monitorTaskId = adMonitorTaskService.updatePicStatus(feedback,status);
+				//驳回发送短信
+				if(monitorTaskId != null) {
+					String username = adMonitorTaskService.selectUserNameByTaskId(monitorTaskId);
+					if(StringUtil.isNotBlank(username)) {
+						sendSmsService.sendSms(username, SMS_REJECT_CONTENT_TEMPLATE);
+					}
+				}
+			}
+		}catch (Exception ex) {
+			logger.error(ex);
+            ex.printStackTrace();
+            resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
+            resultVo.setResultDes("服务忙，请稍后再试");
+        }
+		model.addAttribute(SysConst.RESULT_KEY, resultVo);
+		return model;
+	}
+	
 	//保存在本服务器
 	private String saveFile(String path,String filename,InputStream is){
 		String ext = filename.substring(filename.lastIndexOf(".") + 1);
 		filename = UUID.randomUUID().toString().toLowerCase()+"."+ext.toLowerCase();
 		FileOutputStream fos = null;
 		try {
+			File file = new File(path);
+	        if(!file.exists()){
+	            file.mkdirs();
+	        }
 			 fos = new FileOutputStream(path+filename);
 			int len = 0;
 			byte[] buff = new byte[1024];
 			while((len=is.read(buff))>0){
 				fos.write(buff);
 			}
-			return "/static/upload/"+filename;
+			path = path.substring(path.indexOf(":")+1, path.length()).replaceAll("\\\\", "/");
+			path = path.replaceFirst("/opt/", "/");
+			return path + filename;
 		} catch (FileNotFoundException e) {
+			logger.error(e);
 			e.printStackTrace();
 		} catch (IOException e) {
+			logger.error(e);
 			e.printStackTrace();
 		}finally {
 			if(fos!=null){
@@ -1243,6 +1525,7 @@ public class MonitorTaskController extends BasicController {
 					fos.flush();
 					fos.close();
 				} catch (IOException e) {
+					logger.error(e);
 					e.printStackTrace();
 				}
 			}
@@ -1250,6 +1533,7 @@ public class MonitorTaskController extends BasicController {
 				try {
 					is.close();
 				} catch (IOException e) {
+					logger.error(e);
 					e.printStackTrace();
 				}
 			}

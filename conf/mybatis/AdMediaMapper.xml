@@ -132,10 +132,12 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
   
+  <!-- 获取所有的媒体主信息 -->
   <select id="getAll" resultMap="BaseResultMap">
   	select * from ad_media
   </select>
 
+  <!-- 获取所有可用的媒体主信息 -->
   <select id="getAvailableAll" resultMap="BaseResultMap">
   	select 
   		a.* 
@@ -144,11 +146,19 @@
   	where b.status = 1
   </select>
 
+  <!-- 通过后台用户id查询对应的媒体主信息 -->
   <select id="selectByUserId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select
     <include refid="Base_Column_List" />
     from ad_media
     where user_id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <!-- 获取所有的媒体主信息 -->
+  <select id="selectAllMedia" resultMap="BaseResultMap">
+  	select
+    <include refid="Base_Column_List" />
+    from ad_media
   </select>
 
 </mapper>

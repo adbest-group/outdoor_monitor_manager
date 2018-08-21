@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,9 @@ import com.bt.om.entity.AdActivityAdseat;
 import com.bt.om.entity.AdJiucuoTask;
 import com.bt.om.entity.AdJiucuoTaskFeedback;
 import com.bt.om.entity.AdMonitorTask;
+import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.AdSystemPush;
+import com.bt.om.entity.City;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
@@ -45,17 +50,24 @@ import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.enums.UserTypeEnum;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
 import com.bt.om.service.IAdMonitorTaskService;
+import com.bt.om.service.IAdSeatService;
+import com.bt.om.service.IAdSystemPushService;
 import com.bt.om.service.IAdUserMessageService;
+import com.bt.om.service.ICityService;
 import com.bt.om.service.IMediaService;
 import com.bt.om.service.ISysGroupService;
 import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserRoleService;
 import com.bt.om.service.ISysUserService;
+import com.bt.om.util.ConfigUtil;
+import com.bt.om.util.MarkLogoUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.BasicController;
@@ -90,6 +102,18 @@ public class JiucuoController extends BasicController {
 	private SysUserResMapper sysUserResMapper;
     @Autowired
 	private IAdUserMessageService adUserMessageService;
+    @Autowired
+    private IAdSeatService adSeatInfoService;
+    @Autowired
+    private IAdSystemPushService systemPushService;
+    @Autowired
+    private ICityService cityService;
+    
+    private String file_upload_path = ConfigUtil.getString("file.upload.path");
+	
+	private String file_upload_ip = ConfigUtil.getString("file.upload.ip");
+	
+	private static final Logger logger = Logger.getLogger(JiucuoController.class);
 
 	/**
 	 * 查看纠错审核列表
@@ -143,12 +167,14 @@ public class JiucuoController extends BasicController {
 			try {
 				vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
 			} catch (ParseException e) {
+				logger.error(e);
 			}
 		}
 		if (endDate != null) {
 			try {
 				vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
 			} catch (ParseException e) {
+				logger.error(e);
 			}
 		}
 		 //查询活动名称
@@ -156,7 +182,7 @@ public class JiucuoController extends BasicController {
         	name = "%" + name + "%";
             vo.putSearchParam("activityName", name, name);
         }
-		if (userObj.getUsertype() != 4 && userObj.getUsertype() != 5) {
+		if (userObj.getUsertype() != UserTypeEnum.SUPER_ADMIN.getId() && userObj.getUsertype() != UserTypeEnum.DEPARTMENT_LEADER.getId()) {
 			List<Integer> customerIds = sysUserService.getCustomerIdsByAdminId(userObj.getId()); // 根据员工id查询所属组对应的所有广告商id集合
 			if (customerIds != null && customerIds.size() == 0) {
 				// 员工对应的广告商id集合为空, 不需要再去查询纠错审核列表
@@ -289,9 +315,6 @@ public class JiucuoController extends BasicController {
 	/**
 	 * 查看纠错详情
 	 */
-	// @RequiresRoles(value =
-	// {"jiucuoadmin","superadmin","depjiucuoadmin","deptaskadmin","taskadmin"},logical
-	// = Logical.OR)
 	@RequestMapping(value = "/detail")
 	public String showDetail(Model model, HttpServletRequest request,
 			@RequestParam(value = "id", required = false) Integer id) {
@@ -375,6 +398,8 @@ public class JiucuoController extends BasicController {
 				adJiucuoTaskService.reject(jiucuoIds, reason, userObj.getId(),status);
 			}
 
+			AdActivity adactivity = new AdActivity();
+			AdSeatInfo info = new AdSeatInfo();
 			// 循环推送消息
 			for (String jcId : jiucuoIds) {
 				task = adJiucuoTaskService.getById(Integer.parseInt(jcId));
@@ -390,8 +415,37 @@ public class JiucuoController extends BasicController {
 				param.put("extras", extras);
 				String pushResult = JPushUtils.pushAllByAlias(param);
 				System.out.println("pushResult:: " + pushResult);
+				
+				info = adSeatInfoService.getById(task.getAdSeatId());
+				City province = cityService.getName(info.getProvince());//获取省
+				City city = cityService.getName(info.getCity());//获取市
+				adactivity = adActivityService.getActivityName(task.getActivityId());//获取活动名
+				AdSystemPush push = new AdSystemPush();
+				push.setUserId(task.getUserId());
+				push.setActivityName(adactivity.getActivityName());
+				push.setTitle(JiucuoTaskStatus.getText(task.getStatus()));
+				String proName = "";
+				String cityName = "";
+				String location = "";
+				String road = "";
+				if(province != null) {
+					proName = province.getName();
+				}
+				if(city != null) {
+					cityName = city.getName();
+				}
+				if(info.getLocation() != null) {
+					location = info.getLocation();
+				}
+				if(info.getRoad() != null) {
+					road = info.getRoad();
+				}
+				push.setContent("【"+proName+cityName+location+road+"】广告位的【"+adactivity.getActivityName()+"】活动");
+				push.setCreateTime(now);
+				systemPushService.add(push);
 			}
 		} catch (Exception e) {
+			logger.error(e);
 			// [5] 异常情况, 循环删除redis
 			for (String jcId : jiucuoIds) {
 				String beginRedisStr = "jiucuo_" + jcId + "_begin";
@@ -447,6 +501,7 @@ public class JiucuoController extends BasicController {
 				return model;
 			}
 		} catch (Exception e) {
+			logger.error(e);
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("撤消失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
@@ -459,8 +514,6 @@ public class JiucuoController extends BasicController {
 	/**
 	 * 关闭纠错问题任务
 	 */
-	// @RequiresRoles(value = {"jiucuoadmin", "depjiucuoadmin", "superadmin"},
-	// logical = Logical.OR)
 	@RequestMapping(value = "/close")
 	@ResponseBody
 	public Model close(Model model, HttpServletRequest request,
@@ -476,6 +529,7 @@ public class JiucuoController extends BasicController {
 		try {
 			adJiucuoTaskService.update(task);
 		} catch (Exception e) {
+			logger.error(e);
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("关闭失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
@@ -489,8 +543,6 @@ public class JiucuoController extends BasicController {
 	/**
 	 * 创建复查子任务
 	 */
-	// @RequiresRoles(value = {"jiucuoadmin", "depjiucuoadmin", "superadmin"},
-	// logical = Logical.OR)
 	@RequestMapping(value = "/createTask")
 	@ResponseBody
 	public Model newSub(Model model, HttpServletRequest request,
@@ -506,6 +558,7 @@ public class JiucuoController extends BasicController {
 		try {
 			adJiucuoTaskService.createSubTask(id);
 		} catch (Exception e) {
+			logger.error(e);
 			e.printStackTrace();
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("创建失败！");
@@ -537,9 +590,12 @@ public class JiucuoController extends BasicController {
 			return model;
 		}
 		
-		String path = request.getRealPath("/");
-		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"upload"+File.separatorChar;
-		String imageName = file.getOriginalFilename();
+		AdJiucuoTask jiucuoTask = adJiucuoTaskService.getById(id);
+		String path = file_upload_path;
+		Calendar date = Calendar.getInstance();
+		String timePath = date.get(Calendar.YEAR)+ File.separator + (date.get(Calendar.MONTH)+1) + File.separator+ date.get(Calendar.DAY_OF_MONTH) + File.separator;
+		path = path + (path.endsWith(File.separator) ? "" : File.separatorChar) + "activity" + File.separatorChar + jiucuoTask.getActivityId() + File.separatorChar + "jiucuo" + File.separator + timePath;
+        String imageName = file.getOriginalFilename();
 		InputStream is;
 		String filepath;
 		try {
@@ -559,9 +615,15 @@ public class JiucuoController extends BasicController {
 			}
 			//[1] 上传图片
 			filepath = saveFile(path,imageName,is);
+			int picindex = filepath.lastIndexOf('/')+1;
+			String filename = filepath.substring(picindex);
+			int nameindex = filename.indexOf('.');
+			MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename, path, filename.substring(0, nameindex), "jpg", null);
+            
 			//[2] 更改数据库
-			adJiucuoTaskService.updatePicUrl(id, filepath, index);
+			adJiucuoTaskService.updatePicUrl(id, file_upload_ip + filepath, index);
 		} catch (IOException e) {
+			logger.error(e);
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("替换失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
@@ -578,16 +640,24 @@ public class JiucuoController extends BasicController {
 		filename = UUID.randomUUID().toString().toLowerCase()+"."+ext.toLowerCase();
 		FileOutputStream fos = null;
 		try {
-			 fos = new FileOutputStream(path+filename);
+			File file = new File(path);
+	        if(!file.exists()){
+	            file.mkdirs();
+	        }
+			fos = new FileOutputStream(path+filename);
 			int len = 0;
 			byte[] buff = new byte[1024];
 			while((len=is.read(buff))>0){
 				fos.write(buff);
 			}
-			return "/static/upload/"+filename;
+			path = path.substring(path.indexOf(":")+1, path.length()).replaceAll("\\\\", "/");
+			path = path.replaceFirst("/opt/", "/");
+			return path+filename;
 		} catch (FileNotFoundException e) {
+			logger.error(e);
 			e.printStackTrace();
 		} catch (IOException e) {
+			logger.error(e);
 			e.printStackTrace();
 		}finally {
 			if(fos!=null){
@@ -595,6 +665,7 @@ public class JiucuoController extends BasicController {
 					fos.flush();
 					fos.close();
 				} catch (IOException e) {
+					logger.error(e);
 					e.printStackTrace();
 				}
 			}
@@ -602,6 +673,7 @@ public class JiucuoController extends BasicController {
 				try {
 					is.close();
 				} catch (IOException e) {
+					logger.error(e);
 					e.printStackTrace();
 				}
 			}

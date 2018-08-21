@@ -4,7 +4,7 @@ package com.bt.om.enums;
  * Created by caiting on 2018/1/26.
  */
 public enum SysUserExecuteType {
-    WORKER(1,"监测人员"),CUSTOMER(2,"客户"),SOCIAL(3,"社会人员");
+    WORKER(1,"监测人员"),CUSTOMER(2,"客户"),SOCIAL(4,"社会人员"),MEDIA_WORKER(3,"媒体监测人员"),THIRDCOMPANY(5,"第三方监测公司");
 
     private Integer id;
     private String text;

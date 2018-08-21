@@ -70,9 +70,10 @@
                         </div>
                     </div> -->
                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="searchBtn">查询</button>
-                    <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">批量审核</button> 
+                    <#if user.usertype !=6>
+                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">批量审核</button> 
                      <button type="button" class="btn btn-red" style="margin-left:10px;" id="batchRefuse">批量拒绝</button>
-
+					</#if>
                 </form>
             </div>
         </div>
@@ -83,7 +84,7 @@
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan">
                     <thead>
                     <tr>
-                     <th width="30"><input type="checkbox" style="visibility: hidden" id='thead-checkbox' name="ck-alltask" value=""/></th>
+                     <th width="30"><#if user.usertype !=6><input type="checkbox" style="visibility: hidden" id='thead-checkbox' name="ck-alltask" value=""/></#if></th>
                         <th>序号</th>
                         <th>活动名称</th>
                         <th>纠错照片</th>
@@ -104,7 +105,8 @@
                     <#if (bizObj.list?exists && bizObj.list?size>0) >
                         <#list bizObj.list as task>
                         <tr id="task_${task.id}">
-                        	<td width="30"><#if (task.status?exists&&task.status == 1)><input type="checkbox" data-status='${task.status}'  name="ck-task" value="${task.id}"/></#if></td> 
+                        	<td width="30"><#if (task.status?exists&&task.status == 1)>
+                        	<#if user.usertype !=6><input type="checkbox" data-status='${task.status}'  name="ck-task" value="${task.id}"/></#if></#if></td> 
                             <td width="30">${(bizObj.page.currentPage-1)*20+task_index+1}</td>
                             <td>
                                 <div class="data-title w200" data-title="${task.activityName!""}"
@@ -122,6 +124,7 @@
                             <td>${task.assessorName!""}</td>
                             <td>${task.updateTime?string('yyyy-MM-dd HH:mm:ss')}</td>
                             <td>
+                            <#if user.usertype !=6>
                             	<#if task.status==1><a href="javascript:pass('${task.id}');">通过</a></#if>
                                 <#if task.status==1><a href="javascript:reject('${task.id}');">拒绝</a></#if>
                                 <#if (task.status==2&&task.problemStatus?exists&&task.problemStatus==4&&(!task.subCreated?exists||task.subCreated==2))>
@@ -130,6 +133,7 @@
                                     <a href="/task/list?pid=${task.id}&ptype=2">查看监测</a></#if>
                                 <#if (task.status==2&&task.problemStatus?exists&&task.problemStatus==4)><a
                                         href="javascript:close('${task.id}');">关闭</a></#if>
+                            </#if>
                                 <a href="/jiucuo/detail?id=${task.id}">详情</a>
                             </td>
                         </tr>
@@ -246,8 +250,7 @@
         $town.hide().empty();
         if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
             $.ajax({
-                url : 'http://passer-by.com/data_location/town/' + info['code']
-                + '.json',
+                url : '/api/city?provinceId=' + info['code'],
                 dataType : 'json',
                 success : function(town) {
                     $town.show();

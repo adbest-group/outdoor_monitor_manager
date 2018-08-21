@@ -42,7 +42,7 @@
 				<tr>
 					<td style="padding-bottom:20px;" class="a-title">客户行业：</td>
 					<td style="padding-bottom:20px;">
-                        <select name="customerTypeId" class="searchable-select-holder" id="customerTypeId">
+                        <select style="width: 156px;" name="customerTypeId" class="searchable-select-holder" id="customerTypeId" >
                             <option value="">请选择</option>
                             <@model.showAllCustomerTypeOps value="${(obj.customerTypeId)?if_exists}"/>
                         </select>
@@ -75,9 +75,27 @@
 <!-- formValidator -->
 <link type="text/css" rel="stylesheet" href="${model.static_domain}/js/formValidator/style/validator.css"></link>
 <script type="text/javascript" src="${model.static_domain}/js/formValidator/formValidator-4.0.1.js"></script>
+<!-- 下拉 -->
+<link
+	href="${model.static_domain}/js/select/jquery.searchableSelect.css"
+	rel="stylesheet">
+
+<!-- 下拉 -->
+<link
+	href="${model.static_domain}/js/select/jquery.searchableSelect.css"
+	rel="stylesheet">
+<script
+	src="${model.static_domain}/js/select/jquery.searchableSelect.js"></script>
+<script src="${model.static_domain}/js/ajaxfileupload.js"></script>
+<style>
+	.searchable-select{
+		width: 150px;
+	}
+</style>
 <script>
 $(function() {
-
+	$("#customerTypeId,#appTypeId").searchableSelect();
+	
 	<#if !((obj.id)?exists)>
 	   $("")
 	</#if>

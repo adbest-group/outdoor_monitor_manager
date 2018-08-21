@@ -1,10 +1,13 @@
 package com.bt.om.web.controller;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +25,13 @@ import com.bt.om.entity.AdMediaType;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserDetail;
 import com.bt.om.entity.SysUserRole;
+import com.bt.om.entity.vo.SysUserVo;
 import com.bt.om.enums.ResultCode;
+import com.bt.om.enums.SessionKey;
+import com.bt.om.enums.UserRoleEnum;
+import com.bt.om.enums.UserTypeEnum;
+import com.bt.om.filter.LogFilter;
+import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.ISysUserService;
 import com.bt.om.service.impl.SysUserService;
 import com.bt.om.vo.web.ResultVo;
@@ -36,15 +45,18 @@ public class SysUserController extends BasicController{
 
 	@Autowired
 	private ISysUserService sysUserService;
+	private static final Logger logger = Logger.getLogger(SysUserController.class);
 	
 	/**
 	 * 查询部门领导账号列表
 	 */
-	@RequiresRoles("superadmin")
+	@RequiresRoles(value = {"superadmin" , "phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/leaderList")
     public String departmentLeaderList(Model model, HttpServletRequest request,
                                @RequestParam(value = "name", required = false) String name) {
         SearchDataVo vo = SearchUtil.getVo();
+        //获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         //查询领导名称
         if (name != null) {
         	model.addAttribute("seachName", name);
@@ -52,11 +64,12 @@ public class SysUserController extends BasicController{
             vo.putSearchParam("nameOrUsername", name, name);
         }
         
-        Integer usertype = 5;
+        Integer usertype = UserTypeEnum.DEPARTMENT_LEADER.getId();
         vo.putSearchParam("usertype", usertype.toString(), usertype);
         sysUserService.getPageData(vo);
         
         SearchUtil.putToModel(model, vo);
+        model.addAttribute("user",userObj);
         return PageConst.SUPER_ADMIN_LEAD_LIST;
     }
 	
@@ -112,7 +125,7 @@ public class SysUserController extends BasicController{
             	sysUser.setCreateTime(now);
             	sysUser.setUpdateTime(now);
             	sysUser.setPlatform(1);
-            	sysUser.setUsertype(5); //5：部门领导
+            	sysUser.setUsertype(UserTypeEnum.DEPARTMENT_LEADER.getId()); //5：部门领导
             	sysUser.setStatus(1); //1：可用（默认）
             	sysUser.setPassword(new Md5Hash(sysUser.getPassword(), sysUser.getUsername()).toString());
             	//[2] 插入sys_user_detail
@@ -125,12 +138,13 @@ public class SysUserController extends BasicController{
             	SysUserRole sysUserRole = new SysUserRole();
             	sysUserRole.setPlatform(1);
             	sysUserRole.setUserId(sysUser.getId());
-            	sysUserRole.setRoleId(104); //104: 部门领导role
+            	sysUserRole.setRoleId(UserRoleEnum.DEPARTMENT_LEADER.getId()); //104: 部门领导role
             	sysUserRole.setCreateTime(now);
             	sysUserRole.setUpdateTime(now);
             	sysUserService.createDepartmentLeader(sysUser, sysUserDetail, sysUserRole);
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -140,6 +154,7 @@ public class SysUserController extends BasicController{
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
     }
+    
     /**
      * 修改领导账号状态： 可用, 不可用
      **/
@@ -159,6 +174,7 @@ public class SysUserController extends BasicController{
         	userType.setStatus(1);
         	sysUserService.updateStatus(status);
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -166,6 +182,32 @@ public class SysUserController extends BasicController{
         }
 
         model.addAttribute(SysConst.RESULT_KEY, result);
+        return model;
+    }
+    /**
+     * 通过用户类型查询所有公司用户
+     */
+    @RequestMapping(value = {"/searchFirmUser"}, method = {RequestMethod.POST})
+    @ResponseBody
+    public Model searchFirmUser(Model model, @RequestParam(value = "userType", required = true) Integer userType) {
+    	ResultVo resultVo = new ResultVo();
+        try {
+        	if (userType == 3) {
+        	}else if (userType == 5) {//第三方监测
+        		userType = 7;
+			}else {
+				
+			}
+        	List<SysUserVo> users = sysUserService.getAllByUserType(userType);
+        	resultVo.setResult(users);
+        	resultVo.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        } catch (Exception ex) {
+        	logger.error(ex);
+            ex.printStackTrace();
+            resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
+            resultVo.setResultDes("服务忙，请稍后再试");
+        }
+        model.addAttribute(SysConst.RESULT_KEY, resultVo);
         return model;
     }
 }

@@ -40,16 +40,20 @@ public class PageConst {
 	public static final String MEDIA_TASK_LIST = "admedia/task/list";
 	public static final String MEDIA_PROBLEM_TASK_LIST = "admedia/task/problemList";
 	public static final String MEDIA_TASK_DETAIL = "admedia/task/detail";
+	public static final String MEDIA_USER_EXECUTE = "admedia/task/selectExeUser";
+	public static final String MEDIA_TASK_ASSIGN = "admedia/task/assignList";
 	public static final String MEDIA_JIUCUO_LIST = "admedia/jiucuo/list";
 	public static final String MEDIA_ADSEAT_LIST = "admedia/adseat/list";
 	public static final String MEDIA_ADSEAT_EDIT = "admedia/adseat/edit";
 	public static final String MEDIA_WORKER_LIST = "admedia/worker/list";
 	public static final String MEDIA_WORKER_EDIT = "admedia/worker/edit";
+	
 
 	/*** 活动管理 ***/
 	public static final String ACTIVITY_LIST = "activity/list";
 	public static final String ACTIVITY_EDIT = "activity/edit";
-
+	public static final String CHANGE_ADSEAT_PIC = "activity/changePic";
+	public static final String WRITE_BRAND_TITLE_PDF = "activity/writeBrand";
 	/*** 任务管理 ***/
 	public static final String TASK_LIST = "task/list";
 	public static final String UNASSIGN_TASK_LIST = "task/unassignList";
@@ -60,13 +64,19 @@ public class PageConst {
 	public static final String ADD_ZHUIJIA = "task/addZhuijia";
 	public static final String SELECT_ALL_TASKS = "task/selectTaskToExcel";
 	public static final String SELECT_TASKPDF = "task/selectTaskToPdf";
-	
+	public static final String VERIFYPIC_PAGE = "task/verifyPic";
 	/*** 纠错管理 ***/
 	public static final String JIUCUO_LIST = "jiucuo/list";
 	public static final String JIUCUO_DETAIL = "jiucuo/detail";
 
 	/*** 资源管理 ***/
 	public static final String RESOURCE_ADD = "resource/add_ad_seat";
+	
+	public static final String SUPER_ADMIN_THERMAL_MAP = "resources/thermalMap";
+	public static final String MEDIA_THERMAL_MAP = "media/thermalMap";
+	public static final String SUPER_ADMIN_BAIDU_MAP = "resources/baiduMap";
+	public static final String MEDIA_BAIDU_MAP = "media/baiduMap";
+	
 	public static final String ADSEAT_LIST = "adseat/list";
 	public static final String RESOURCE_DETAILS = "resource/detail";
 	public static final String ADSEAT_EDIT = "adseat/edit";
@@ -89,6 +99,7 @@ public class PageConst {
 	/*** 客户类型管理  ***/
 	public static final String CUSTOMER_TYPE_LIST = "adcustomer/type/list";
 	public static final String CUSTOMER_TYPE_EDIT = "adcustomer/type/edit";
+	public static final String CUSTOMER_TYPE_DETAILS = "adcustomer/type/details";
 
 	/*** 超级管理员下的部门管理 ***/
 	public static final String SUPER_ADMIN_DEPT_LIST = "resources/departmentList";
@@ -120,6 +131,9 @@ public class PageConst {
 	public static final String SUPER_ADMIN_POINT_EDIT = "resources/pointEdit";
 	public static final String SUPER_ADMIN_USERPOINT_LIST = "resources/userpointList";
 	
+	/*** 超级管理员下的金额设置管理***/
+	public static final String SUPER_ADMIN_USERMONEY_LIST = "resources/moneyList";
+	
 	/*** 超级管理员下的站内信管理 ***/
 	public static final String RESOURCES_MESSAGE_LIST = "resources/messageList";
 	
@@ -136,4 +150,32 @@ public class PageConst {
 	/*** 系统管理下的系统消息推送管理  ***/
 	public static final String SYSTRM_PUSH_LIST = "system/push/list";
 	public static final String SYSTRM_PUSH_EDIT = "system/push/edit";
+	
+	/*** 超级管理员下的呼叫中心人员管理  ***/
+	public static final String RESOURCES_PHONEOPERATOR_LIST = "resources/phoneoperatorList";
+	public static final String PHONEOPERATOR_EDIT = "resources/phoneoperatorEdit";
+	
+	/*** 超级管理员下的第三方监测公司管理  ***/
+	public static final String THIRD_COMPANY_LIST = "resources/thirdCompanyList";
+	public static final String THIRD_COMPANY_EDIT = "resources/thirdCompanyEdit";
+	
+	/*** 第三方监测公司下的人员管理***/
+	public static final String THIRD_COMPANY_USER_LIST = "thirdcompany/userlist";
+	public static final String THIRD_COMPANY_USER_EDIT = "thirdcompany/userEdit";
+	
+	/*** 第三方监测公司下的任务管理***/
+	public static final String THIRDCOMPANY_UP_TASK_UNASSIGN = "thirdcompany/upTaskList";
+	public static final String THIRDCOMPANY_TASK_UNASSIGN = "thirdcompany/taskUnassign";
+	public static final String THIRDCOMPANY_TASK_LIST = "thirdcompany/taskList";
+	public static final String SELECT_COMPANY_USER_EXECUTE = "thirdcompany/selectExeUser";
+
+	/*** 超级管理员下的历史数据查看  ***/
+	public static final String HISTORY_ACTIVITY = "history/activity/activity";
+	public static final String HISTORY_ACTIVITY_EDIT = "history/activity/edit";
+	public static final String HISTORY_SELECT_ALL_TASKS = "history/task/selectTaskToExcel";
+	public static final String HISTORY_SELECT_TASKPDF = "history/task/selectTaskToPdf";
+	public static final String HISTORY_JIUCUO_LIST = "history/jiucuo/jiucuoList";
+	public static final String HISTORY_JIUCUO_DETAIL = "history/jiucuo/detail";
+	public static final String HISTORY_MONITOR_TASK_LIST = "history/monitor/taskList";
+	public static final String HISTORY_MONITOR_DETAILS_PAGE = "history/monitor/detailsPage";
 }

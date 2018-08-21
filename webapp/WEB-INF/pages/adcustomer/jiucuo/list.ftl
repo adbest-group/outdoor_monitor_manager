@@ -31,7 +31,7 @@
                     </div>
                     <div class="select-box select-box-100 un-inp-select ll">
                        	 <select class="select" name="mediaId" onchange="importEnabled()" id="selectMediaId">
-                        <option value="">所有媒体</option> <@model.showAllMediaOps
+                        <option value="">所有媒体主</option> <@model.showAllMediaOps
                     value="${bizObj.queryMap.mediaId?if_exists}" />
                     </select>
                     </div>
@@ -46,7 +46,8 @@
 	                    <select style="width: 120px;height:31px;display: none" name="mediaTypeId" id="mediaTypeId">
 	                    	<option value="">所有媒体小类</option>
 	                    </select>
-	                </div><br/><br/>
+	                </div>
+	                <br/><br/>
 	                <#-- 城市 -->
 					<div id="demo3" class="citys" style="float: left; font-size: 12px">
                         <p>
@@ -137,26 +138,26 @@
 <script type="text/javascript" src="${model.static_domain}/js/date.js"></script>
 
 <script type="text/javascript">
-$('#mediaTypeParentId').searchableSelect({
+	$('#mediaTypeParentId').searchableSelect({
 		afterSelectItem: function(){
 			if(this.holder.data("value")){
-				
 				changeMediaTypeId(this.holder.data("value"))
 				$('#mediaTypeId').css('display', 'inline-block')
 			}else{
 				$('#mediaTypeId').parent().html('<select style="width: 120px;height:31px;display:none" name="mediaTypeId" id="mediaTypeId"><option value="">请选择媒体小类</option></select>')
 			}
 		}
-	})
+	});
 	
-	$('#mediaTypeParentId').next().find('.searchable-select-input').css('display', 'block')
+	$('#mediaTypeParentId').next().find('.searchable-select-input').css('display', 'block');
+	$('#selectMediaId').next().find('.searchable-select-input').css('display', 'block');
 
-            $(function(){
-                $(".nav-sidebar>ul>li").on("click",function(){
-                    $(".nav-sidebar>ul>li").removeClass("on");
-                    $(this).addClass("on");
-                });
-            });
+    $(function(){
+        $(".nav-sidebar>ul>li").on("click",function(){
+            $(".nav-sidebar>ul>li").removeClass("on");
+            $(this).addClass("on");
+        });
+    });
 
     $(function(){
         $(window).resize();
@@ -212,8 +213,7 @@ $('#mediaTypeParentId').searchableSelect({
         $town.hide().empty();
         if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
             $.ajax({
-                url : 'http://passer-by.com/data_location/town/' + info['code']
-                + '.json',
+                url : '/api/city?provinceId=' + info['code'],
                 dataType : 'json',
                 success : function(town) {
                     $town.show();

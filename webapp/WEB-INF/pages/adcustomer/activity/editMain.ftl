@@ -31,6 +31,21 @@
     	width: 280px;
 		text-align: center;
     }
+    
+    .data-report{
+    	max-height: 500px;
+    	overflow-y: auto;
+    }
+    
+    #as-container table, #as-container-question table{
+    	table-layout: fixed;
+    }
+    #as-container table td, #as-container-question table td{
+    	white-space: pre-line;
+    	word-break: break-all;
+    	word-wrap: break-word;
+    }
+    
 </style>
 <#assign editMode=false/>
 <#-- <@shiro.hasRole name="customer"> -->
@@ -69,7 +84,7 @@
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>广告活动名称：</td>
                             <td colspan="2">
-                                <input type="text" id="activityName" ${editMode?string("","disabled")} name="activityName" value="" autocomplete="off" class="form-control" style="float:left">
+                                <input type="text" id="activityName" ${editMode?string("","disabled")} name="activityName" value="" <#if user.usertype ==6>disabled</#if> autocomplete="off" class="form-control" style="float:left">
                                 <span id="activityNameTip"></span>
                                 <#-- <input type="button" id="btnDemo" class="btn btn-green" value="演示专用"/> -->
                             </td>
@@ -94,8 +109,8 @@
                             <td colspan="2">
                                 <div class="ll inputs-date" id="activityTime">
                                     <div class="date">
-                                        <input id="dts" ${editMode?string("","disabled")} class="activityTime-Wdate Wdate" type="text"> -
-                                        <input id="dt" ${editMode?string("","disabled")} class="activityTime-Wdate Wdate" type="text">
+                                        <input id="dts" ${editMode?string("","disabled")} <#if user.usertype ==6>disabled</#if> class="activityTime-Wdate Wdate" type="text"> -
+                                        <input id="dt" ${editMode?string("","disabled")} <#if user.usertype ==6>disabled</#if> class="activityTime-Wdate Wdate" type="text">
                                     </div>
                                 </div>
                                 <span style="margin-left:10px;" id="dateTip"></span>
@@ -106,9 +121,9 @@
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>上刊报告时间：</td>
                             <td style="width:200px">
-                                <div class="ll inputs-date">
+                                <div class="ll inputs-date" id="upTaskTimeWrap">
                                     <div class="date">
-                                        <input id="upTaskTime" disabled class="Wdate" type="text">
+                                        <input id="upTaskTime" ${editMode?string("","disabled")} <#if user.usertype ==6>disabled</#if> class="upTask-Wdate Wdate" type="text">
                                     </div>
                                 </div>
                                 <span style="margin-left:10px;" id="upTaskTimeTip"></span>
@@ -116,12 +131,12 @@
 	                        <td class='clearfix'>
 	                        	<div>
 	                        		<font class="s-red">*</font>积分：
-	                        		<input type="text" id="upTaskPoint" ${editMode?string("","disabled")} name="upTaskPoint" value="0" style="width: 100px;" autocomplete="off" class="form-control point"> 
+	                        		<input type="text" id="upTaskPoint" ${editMode?string("","disabled")} name="upTaskPoint" value="0" <#if user.usertype ==6>disabled</#if> style="width: 100px;" autocomplete="off" class="form-control point"> 
 	                        		<span id="upTaskPointTip"></span>
 	                        	</div>
 	                        	<div>
 	                        		<font class="s-red">*</font>金额：
-	        						<input type="text" id="upTaskMoney" ${editMode?string("","disabled")} name="upTaskMoney" value="0.00" style="width: 100px;" autocomplete="off" class="form-control money"> 
+	        						<input type="text" id="upTaskMoney" ${editMode?string("","disabled")} name="upTaskMoney" value="0.00" <#if user.usertype ==6>disabled</#if> style="width: 100px;" autocomplete="off" class="form-control money"> 
 	                        		<span id="upTaskMoneyTip"></span>
 	                        	</div>
 	        				</td>
@@ -133,7 +148,7 @@
                             <td  style="width:200px">
                                 <div class="ll inputs-date" id="upMonitorTaskTime" >
                                     <div class="date">
-                                        <input id="upMonitor-Wdate" ${editMode?string("","disabled")} class="upMonitor-Wdate Wdate" type="text">
+                                        <input id="upMonitor-Wdate" ${editMode?string("","disabled")} <#if user.usertype ==6>disabled</#if> class="upMonitor-Wdate Wdate" type="text">
                                     </div>
                                 </div>
                                 <span style="margin-left:10px;" id="upMonitorTaskTimeTip"></span>
@@ -141,12 +156,12 @@
                             <td class='clearfix'>
                             	<div>
                             		<font class="s-red">*</font>积分：
-                            		<input type="text" id="upMonitorTaskPoint" ${editMode?string("","disabled")} name="upMonitorTaskPoint" value="0" style="width: 100px;" autocomplete="off" class="form-control point"> 
+                            		<input type="text" id="upMonitorTaskPoint" ${editMode?string("","disabled")} name="upMonitorTaskPoint" value="0" <#if user.usertype ==6>disabled</#if> style="width: 100px;" autocomplete="off" class="form-control point"> 
                             		<span id="upMonitorTaskPointTip"></span>
                             	</div>
                             	<div>
 									<font class="s-red">*</font>金额：
-                            		<input type="text" id="upMonitorTaskMoney" ${editMode?string("","disabled")} name="upMonitorTaskMoney" value="0.00" style="width: 100px;" autocomplete="off" class="form-control money"> 
+                            		<input type="text" id="upMonitorTaskMoney" ${editMode?string("","disabled")} name="upMonitorTaskMoney" value="0.00" <#if user.usertype ==6>disabled</#if> style="width: 100px;" autocomplete="off" class="form-control money"> 
                             		<span id="upMonitorTaskMoneyTip"></span>
                             	</div>
                             </td>
@@ -158,21 +173,21 @@
                             <td  style="width:200px">
                                 <div class="ll inputs-date durationMonitorTaskTime" id="durationTime0">
                                     <div class="date">
-                                        <input id="durationMonitorTaskTime0" ${editMode?string("","disabled")} class="durationMonitor-Wdate Wdate" type="text">
+                                        <input id="durationMonitorTaskTime0" ${editMode?string("","disabled")} <#if user.usertype ==6>disabled</#if> class="durationMonitor-Wdate Wdate" type="text">
                                     </div>
                                 </div>
-                                <span style="margin-left:10px;" id="durationMonitorTaskTimeTip0"></span> &nbsp;&nbsp;<#if editMode><input class="btn btn-primary" type='button' id="addDurationMonitor" value='添加'></#if>
+                                <span style="margin-left:10px;" id="durationMonitorTaskTimeTip0"></span> &nbsp;&nbsp;<#if editMode><#if user.usertype !=6><input class="btn btn-primary" type='button' id="addDurationMonitor" value='添加'></#if></#if>
 
                             </td>
                            	<td class='clearfix'>
                            		<div>
                            			<font class="s-red">*</font>积分：
-	                           		<input type="text" id="durationMonitorTaskPoint" ${editMode?string("","disabled")} name="durationMonitorTaskPoint" value="0" style="width: 100px;" autocomplete="off" class="form-control point"> 
+	                           		<input type="text" id="durationMonitorTaskPoint" ${editMode?string("","disabled")} name="durationMonitorTaskPoint" value="0" <#if user.usertype ==6>disabled</#if> style="width: 100px;" autocomplete="off" class="form-control point"> 
 	                           		<span id="durationMonitorTaskPointTip"></span>
                            		</div>
                            		<div>
                            			<font class="s-red">*</font>金额：
-                           			<input type="text" id="durationMonitorTaskMoney" ${editMode?string("","disabled")} name="durationMonitorTaskMoney" value="0.00" style="width: 100px;" autocomplete="off" class="form-control money"> 
+                           			<input type="text" id="durationMonitorTaskMoney" ${editMode?string("","disabled")} name="durationMonitorTaskMoney" value="0.00" <#if user.usertype ==6>disabled</#if> style="width: 100px;" autocomplete="off" class="form-control money"> 
                            			<span id="durationMonitorTaskMoneyTip"></span>
                            		</div>
                            	</td>
@@ -182,9 +197,9 @@
                         <tr class='down'>
                             <td class="a-title"><font class="s-red">*</font>下刊监测报告时间：</td>
                             <td  style="width:200px">
-                                <div class="ll inputs-date">
+                                <div class="ll inputs-date" id="downMonitorTaskTimeWrap">
                                     <div class="date">
-                                        <input id="downMonitorTaskTime" disabled class="Wdate" type="text">
+                                        <input id="downMonitorTaskTime" ${editMode?string("","disabled")} <#if user.usertype ==6>disabled</#if> class="downMonitor-Wdate Wdate" type="text">
                                     </div>
                                 </div>
                                 <span style="margin-left:10px;" id="downMonitorTaskTimeTip"></span>
@@ -192,12 +207,12 @@
                             <td class='clearfix'>
                             	<div>
                             		<font class="s-red">*</font>积分：
-	                            	<input type="text" id="downMonitorTaskPoint" ${editMode?string("","disabled")} name="downMonitorTaskPoint" style="width: 100px;" value="0" autocomplete="off" class="form-control point"> 
+	                            	<input type="text" id="downMonitorTaskPoint" ${editMode?string("","disabled")} name="downMonitorTaskPoint" style="width: 100px;" value="0" <#if user.usertype ==6>disabled</#if> autocomplete="off" class="form-control point"> 
 	                				<span id="downMonitorTaskPointTip"></span>
                             	</div>
                             	<div>
                             		<font class="s-red">*</font>金额：
-                            		<input type="text" id="downMonitorTaskMoney" ${editMode?string("","disabled")} name="downMonitorTaskMoney" value="0.00" style="width: 100px;" autocomplete="off" class="form-control money"> 
+                            		<input type="text" id="downMonitorTaskMoney" ${editMode?string("","disabled")} name="downMonitorTaskMoney" value="0.00" <#if user.usertype ==6>disabled</#if> style="width: 100px;" autocomplete="off" class="form-control money"> 
                             		<span id="downMonitorTaskMoneyTip"></span>
                             	</div>
                             </td>
@@ -275,10 +290,12 @@
 							<td colspan="2">
 								<#if (editMode && activity.status==1)!true>
 									<input type="hidden" id="img-demo-bak"/>
+									<#if user.usertype !=6>
                        					<div class="btn-file addBtn" id="resource_sel" style="width:74px;height:28px;top:0px;cursor:pointer;line-height:28px;padding:0px;color:#fff">
 										上传
 										<input type="file" id="img-demo" name="file" unselectable="on" onchange="uploadPic('img-demo')">
-									</div> <span id="img-demoTip"></span>
+									</div>
+									</#if> <span id="img-demoTip"></span>
 								</#if>
                    			</td>
 						</tr>
@@ -286,15 +303,32 @@
                     		<td class="a-title">&nbsp;</td>
                     		<td colspan="2">
                     			<img src="" id="img-demo-img" width="280" alt="请上传图片"/>
+                    			<#-- <#if (editMode && activity.status==1)!false>
+									<a class="addBtn" href="javascript:;" id="change-adseat">替换广告位活动画面</a>
+								</#if> -->
                     		</td>
                 		</tr>
-
+						
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>广告位监测：</td>
                             <td colspan="2">
                                 <#if editMode>
+                                <#if user.usertype !=6>
                                     <a class="addBtn" href="javascript:;" id="add-adseat">选择广告位</a>
+                                    <a class="btn btn-orange" href="javascript:;" id="import-adseat">最近一次导入</a>
+                                    <a class="btn btn-red" href="javascript:;" id="clear-adseat" style="display: none;">清空已占用</a>
                                 </#if>
+                                </#if>
+                            </td>
+                        </tr>
+                        <tr id="problem-table" style="display: none;">
+                            <td colspan="3" >
+                                <div class="data-report" style="margin: 0px;">
+                                    <div id="as-container-question" class="bd" style="padding:0px;">
+                                    
+                                    </div>
+                                </div>
+
                             </td>
                         </tr>
 
@@ -345,10 +379,12 @@
 							<td colspan="2">
 								<#if (editMode && activity.status==1)!true>
 									<input type="hidden" id="img-qualified-bak"/>
+									<#if user.usertype !=6>
                        					<div class="btn-file addBtn" id="resource_sel" style="width:74px;height:28px;top:0px;cursor:pointer;line-height:28px;padding:0px;color:#fff">
 										上传
 										<input type="file" id="img-qualified" name="file" unselectable="on" onchange="uploadPic('img-qualified')">
-									</div> <span id="img-demo-qualifiedTip"></span>
+									</div>
+									</#if> <span id="img-demo-qualifiedTip"></span>
 								</#if>
                    			</td>
 						</tr>
@@ -364,13 +400,13 @@
                 			<td class="a-title">不合格示例：</td>
 							<td colspan="2">
 								<div class="uploadContainer">
-									<input type="text" id="noQualifiedText1" ${editMode?string("","disabled")} placeholder="不合格原因" name="noQualified1" style="width:100px" value="" autocomplete="off" class="form-control">
+									<input type="text" id="noQualifiedText1" ${editMode?string("","disabled")}  name="noQualified1" style="width:100px" value="未拍正面照" autocomplete="off" class="form-control">
 								</div>
 								<div class="uploadContainer">
-									<input type="text" id="noQualifiedText2" ${editMode?string("","disabled")} placeholder="不合格原因" name="noQualified2" style="width:100px" value="" autocomplete="off" class="form-control">
+									<input type="text" id="noQualifiedText2" ${editMode?string("","disabled")}  name="noQualified2" style="width:100px" value="有遮挡" autocomplete="off" class="form-control">
 								</div>
 								<div class="uploadContainer">
-									<input type="text" id="noQualifiedText3" ${editMode?string("","disabled")} placeholder="不合格原因" name="noQualified3" style="width:100px" value="" autocomplete="off" class="form-control">
+									<input type="text" id="noQualifiedText3" ${editMode?string("","disabled")}  name="noQualified3" style="width:100px" value="图片模糊" autocomplete="off" class="form-control">
 								</div>
 							</td>
 						</tr>
@@ -380,28 +416,34 @@
 								<#if (editMode && activity.status==1)!true>
 									<div class="uploadContainer">
 										<input type="hidden" id="img-noQualified1-bak"/>
+										<#if user.usertype !=6>
 	                       					<div class="btn-file addBtn" id="resource_sel" style="width:74px;height:28px;top:0px;cursor:pointer;line-height:28px;padding:0px;color:#fff">
 											上传
 											<input type="file" id="img-noQualified1" name="file" unselectable="on" onchange="uploadPic('img-noQualified1')">
-										</div> <span id="img-demoTip"></span>
+											</div>
+										</#if> <span id="img-demoTip"></span>
 									</div>
 								</#if>
 								<#if (editMode && activity.status==1)!true>
 									<div class="uploadContainer">
 										<input type="hidden" id="img-noQualified2-bak"/>
+										<#if user.usertype !=6>
 	                       					<div class="btn-file addBtn" id="resource_sel" style="width:74px;height:28px;top:0px;cursor:pointer;line-height:28px;padding:0px;color:#fff">
 											上传
 											<input type="file" id="img-noQualified2" name="file" unselectable="on" onchange="uploadPic('img-noQualified2')">
-										</div> <span id="img-demoTip"></span>
+										</div>
+										</#if> <span id="img-demoTip"></span>
 									</div>
 								</#if>
 								<#if (editMode && activity.status==1)!true>
 									<div class="uploadContainer">
 										<input type="hidden" id="img-noQualified3-bak"/>
+										<#if user.usertype !=6>
 	                       					<div class="btn-file addBtn" id="resource_sel" style="width:74px;height:28px;top:0px;cursor:pointer;line-height:28px;padding:0px;color:#fff">
 											上传
 											<input type="file" id="img-noQualified3" name="file" unselectable="on" onchange="uploadPic('img-noQualified3')">
-										</div> <span id="img-demoTip"></span>
+										</div>
+										</#if> <span id="img-demoTip"></span>
 									</div>
 								</#if>
                    			</td>
@@ -423,7 +465,7 @@
                 		<tr>
                 			<td class="a-title">注意事项：</td>
                 			<td colspan="2">
-                				<textarea id="notification" class="layui-textarea" style="width: 840px;"></textarea>
+                				<textarea id="notification"<#if user.usertype ==6>disabled</#if> class="layui-textarea" style="width: 840px;"></textarea>
                 			</td>
                 		</tr>
                 		
@@ -432,7 +474,9 @@
                             <td class="a-title">&nbsp;</td>
                             <td colspan="2">
                                 <#if editMode>
-                                    <input type="button" id="btnSave" class="btn btn-red" value="　保 存　"/>
+	                                <#if user.usertype !=6>
+	                                    <input type="button" id="btnSave" class="btn btn-red" value="　保 存　"/>
+	                                </#if>
                                 </#if>
                                     <input type="button" id="btnBack" class="btn btn-primary" value="　返 回　"/>
 
@@ -444,6 +488,25 @@
             </div>
         </div>
     </div>
+    <div id="seatSelCV" style="display:none">
+		<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter">
+			<tbody>
+			<#-- <tr>
+				<span class="a-title" style="padding-left:50px">替换路径地址：</span>
+				<div class="select-box select-box-140 un-inp-select" id="companyUserSelect">
+                    <input type="text" name="filepath" id="filepath" style="width:180px;height:20px"autocomplete="off" class="form-control"/>
+                </div>
+			</tr> -->
+			<tr>
+				<td class="a-title">&nbsp;</td>
+				<td>
+					<button type="button" class="btn btn-red" autocomplete="off" onclick="checkVal(this)" style="margin-left:80px;margin-top:20px">导  入</button>
+					<button type="button" class="btn btn-red" autocomplete="off" id="insertBatchSubmit" style="visibility: hidden;">批量导入</button>
+				</td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
 </div>
 </div>
 </div>
@@ -465,12 +528,11 @@
 <link type="text/css" rel="stylesheet" href="${model.static_domain}/js/formValidator/style/validator.css"></link>
 <script type="text/javascript" src="${model.static_domain}/js/formValidator/formValidator-4.0.1.js"></script>
 <script type="text/javascript" src="/static/js/jquery.citys.js"></script>
-
 <script type="text/javascript">
-    var editMode = ${editMode?string("true","false")}
-    var mod_activity_seat = null;
-    var del_activity_seats = [];
-    <#if activity?exists>
+	var editMode = ${editMode?string("true","false")}
+	var mod_activity_seat = null;
+	var del_activity_seats = [];
+	<#if activity?exists>
 	    var activity = {
 	        "id":${activity.id},
 	        "activityName": '${activity.activityName}',
@@ -588,86 +650,113 @@
 	            ${media.mediaId}<#if media_has_next>,</#if>
 	            </#list>
 	        </#if>]
-    <#else>
+	<#else>
 	    var activity = null;
 	    var activity_seats = [];
 	    var activity_meias = [];
-    </#if>
-    $(function () {
-        $(".nav-sidebar>ul>li").on("click", function () {
-            $(".nav-sidebar>ul>li").removeClass("on");
-            $(this).addClass("on");
-        });
-    });
-
-    $(function () {
-        $(window).resize();
-    });
-
-    $(window).resize(function () {
-        var h = $(document.body).height() - 115;
-        $('.main-container').css('height', h);
-    });
-
-    $(function () {
-        window.$province = $("#province");
-        window.$city = $("#city");
-        window.$region = $("#region");
-        window.$street = $("#street");
-        window.$dts = $("#dts");
-        window.$dt = $("#dt");
-
-        // 下拉
-        $('.select').searchableSelect();
-        $('#customerId').next().find('.searchable-select-input').css('display', 'block');
-
-        if(editMode) {
-            //日期
-            $('#activityTime').dateRangePicker({
-                separator: ' 至 ',
-                showShortcuts: false,
-                getValue: function () {
-                    if ($('#dts').val() && $('#dt').val())
-                        return $('#dts').val() + ' 至 ' + $('#dt').val();
-                    else
-                        return '';
-                },
-                setValue: function (s, s1, s2) {
-                    $('#dts').val(s1);
-                    $('#dt').val(s2);
+	    
+	    $("#img-qualified-img").attr("src","/static/images/pass.jpg");//合格样例画面图片地址
+		$("#img-qualified-bak").attr("src","/static/images/pass.jpg");//合格样例画面图片地址
+		
+	    $("#img-noQualified1-img").attr({src: "/static/images/reject1.png", style: {display: 'block'}});//不合格样例画面图片地址
+		$("#img-noQualified1-bak").attr("src","/static/images/reject1.png");//不合格样例画面图片地址
+		$("#img-noQualified1-tip").hide();
+		
+		$("#img-noQualified2-img").attr({src: "/static/images/reject2.png", style: {display: 'block'}});//不合格样例画面图片地址
+		$("#img-noQualified2-bak").attr("src","/static/images/reject2.png");//不合格样例画面图片地址
+		$("#img-noQualified2-tip").hide();
+		
+		$("#img-noQualified3-img").attr({src: "/static/images/reject3.png", style: {display: 'block'}});//不合格样例画面图片地址
+		$("#img-noQualified3-bak").attr("src","/static/images/reject3.png");//不合格样例画面图片地址
+		$("#img-noQualified3-tip").hide();
+	</#if>
+	$(function () {
+	    $(".nav-sidebar>ul>li").on("click", function () {
+	        $(".nav-sidebar>ul>li").removeClass("on");
+	        $(this).addClass("on");
+	    });
+	});
+	
+	$(function () {
+	    $(window).resize();
+	});
+	
+	$(window).resize(function () {
+	    var h = $(document.body).height() - 115;
+	    $('.main-container').css('height', h);
+	});
+	
+	$(function () {
+	    window.$province = $("#province");
+	    window.$city = $("#city");
+	    window.$region = $("#region");
+	    window.$street = $("#street");
+	    window.$dts = $("#dts");
+	    window.$dt = $("#dt");
+	
+	    // 下拉
+	    $('.select').searchableSelect();
+	    $('#customerId').next().find('.searchable-select-input').css('display', 'block');
+	
+	    if(editMode) {
+	        //日期
+	        $('#activityTime').dateRangePicker({
+	            separator: ' 至 ',
+	            showShortcuts: false,
+	            getValue: function () {
+	                if ($('#dts').val() && $('#dt').val())
+	                    return $('#dts').val() + ' 至 ' + $('#dt').val();
+	                else
+	                    return '';
+	            },
+	            setValue: function (s, s1, s2) {
+	                $('#dts').val(s1);
+	                $('#dt').val(s2);
 					$('.activityTime-Wdate').blur()
 					$('#upTaskTime').val(s1);
-                    $('#downMonitorTaskTime').val(s2);
-                }
-            });
-            
-            $('#upMonitorTaskTime').dateRangePicker({
-            	   singleDate: true,
-            	   showShortcuts: false,
-                   getValue: function () {
-                       return $(this).find('.upMonitor-Wdate').val()
-                   },
-                   setValue: function (s) {
-                      $(this).find('.upMonitor-Wdate').val(s)
-   					  $(this).find('.upMonitor-Wdate').blur()
-                   }
-              });
-            
-            <#-- 
-            $('#durationTime0').dateRangePicker({
-           	   singleDate: true,
-           	   showShortcuts: false,
-                  getValue: function () {
-                      return $(this).find('#durationMonitorTaskTime0').val()
-                  },
-                  setValue: function (s) {
-                     $(this).find('#durationMonitorTaskTime0').val(s)
-  					  $(this).find('#durationMonitorTaskTime0').blur()
-                  }
-             });
-            -->
-            
-            $('.durationMonitor-Wdate').each(function(index){
+	                $('#downMonitorTaskTime').val(s2);
+	            }
+	        });
+	        
+	        $('#upTaskTimeWrap').dateRangePicker({
+	        	   singleDate: true,
+	        	   showShortcuts: false,
+	               getValue: function () {
+	                   return $(this).find('.upTask-Wdate').val()
+	               },
+	               setValue: function (s) {
+	                  $('#upTaskTime').val(s);
+						  $('#upTaskTime').blur()
+	               }
+	        });
+	          
+	        $('#upMonitorTaskTime').dateRangePicker({
+	        	   singleDate: true,
+	        	   showShortcuts: false,
+	               getValue: function () {
+	                   return $(this).find('.upMonitor-Wdate').val()
+	               },
+	               setValue: function (s) {
+	                  $(this).find('.upMonitor-Wdate').val(s)
+						  $(this).find('.upMonitor-Wdate').blur()
+	               }
+	          });
+	        
+	        <#-- 
+	        $('#durationTime0').dateRangePicker({
+	       	   singleDate: true,
+	       	   showShortcuts: false,
+	              getValue: function () {
+	                  return $(this).find('#durationMonitorTaskTime0').val()
+	              },
+	              setValue: function (s) {
+	                 $(this).find('#durationMonitorTaskTime0').val(s)
+						  $(this).find('#durationMonitorTaskTime0').blur()
+	              }
+	         });
+	        -->
+	        
+	        $('.durationMonitor-Wdate').each(function(index){
 	    		var topId = "durationTime" + index;
 	    		var lastId = "durationMonitorTaskTime" + index;
 	    		$('#' + topId).dateRangePicker({
@@ -681,74 +770,131 @@
 	   					  $(this).find('#' + lastId).blur()
 	                   }
 	             });
-	    	})
-        }
-
-        $("#add-adseat").click(function () {
-            <#-- if($("#dts").val().length<1||$("#province").val().length<1||$("input:checkbox:checked").length<1){ -->
-            if($("#dts").val().length<1){
-                layer.alert("请先确认活动时间");
-                return;
-            }
-            mod_activity_seat = null;
-
-            delDataArr = []
-            modDataArr = []
-            
-            layer.open({
-                type: 2,
-                title: '新增广告位监测',
-                shade: 0.8,
-                area: ['1020px', '600px'],
-                content: '/customer/activity/adseat/toSelect'
-            });
-        });
-
-        /*获取城市  */
-        var $town = $('#demo3 select[name="street"]');
-        var townFormat = function (info) {
-            $town.hide().empty();
-            if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
-                $.ajax({
-                    url: 'http://passer-by.com/data_location/town/' + info['code']
-                    + '.json',
-                    dataType: 'json',
-                    success: function (town) {
-                        $town.show();
-                        for (i in town) {
-                            $town.append('<option value="' + i + '" <#if adSeatInfo?exists&&adSeatInfo.street?exists>'+ (i ==${adSeatInfo.street} ? "selected" : "")+'</#if>>' + town[i]
-                                    + '</option>');
-                        }
-                    }
-                });
-            }
-        };
-        $('#demo3').citys({
-            "province": '330000',
-            "city": '330100',
-            "region": '330108',
-            "required":false,
-            onChange: function (info) {
-                townFormat(info);
-            }
-        }, function (api) {
-            var info = api.getInfo();
-            townFormat(info);
-        });
-        
-        if(!localStorage.getItem('fromUrl')){
-        	localStorage.setItem('fromUrl', document.referrer)
-        }
-        $("#btnBack").click(function(){
-        	location = localStorage.getItem('fromUrl')
-        	localStorage.removeItem('fromUrl')
-        });
-    });
+	    	});
+	    	
+	    	$('#downMonitorTaskTimeWrap').dateRangePicker({
+	        	   singleDate: true,
+	        	   showShortcuts: false,
+	               getValue: function () {
+	                   return $(this).find('.downMonitor-Wdate').val()
+	               },
+	               setValue: function (s) {
+	                  $('#downMonitorTaskTime').val(s);
+						  $('#downMonitorTaskTime').blur()
+	               }
+	        });
+	    }
 	
+	    $("#add-adseat").click(function () {
+	        <#-- if($("#dts").val().length<1||$("#province").val().length<1||$("input:checkbox:checked").length<1){ -->
+	        if($("#dts").val().length<1){
+	            layer.alert("请先确认活动时间");
+	            return;
+	        }
+	        mod_activity_seat = null;
 	
-</script>
+	        delDataArr = []
+	        modDataArr = []
+	        
+	        layer.open({
+	            type: 2,
+	            title: '新增广告位监测',
+	            shade: 0.8,
+	            area: ['1020px', '600px'],
+	            content: '/customer/activity/adseat/toSelect'
+	        });
+	    });
+	    
+	    var isLoading = true;
+	    // 导入最近一次导入广告位
+	    $("#import-adseat").click(function () {
+	        <#-- if($("#dts").val().length<1||$("#province").val().length<1||$("input:checkbox:checked").length<1){ -->
+	        if($("#dts").val().length<1){
+	            layer.alert("请先确认活动时间");
+	            return;
+	        }else{
+	        	var startDate = $("#dts").val(); //投放开始时间
+	            var endDate = $("#dt").val(); //投放结束时间
+	            var activityId = $("#id").val();
+	            
+	            isLoading = true;
+	        	layer.msg('正在操作中...', {
+		    		icon: 16,
+		    		shade: [0.5, '#f5f5f5'],
+		    		scrollbar: false,
+		    		time: 150000
+		    	}, function(){
+		    		if(isLoading){
+		    			layer.alert('操作超时', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+		    		}
+	    		})
+	        	
+	        	$.ajax({
+	        		url: "/customer/activity/adseat/selectTmp",
+	                type: "post",
+	                data: {
+	                    "startDate": startDate,
+	                    "endDate": endDate,
+	                    "activityId": activityId
+	                },
+	                dataType: 'json',
+	                success: function (res) {
+	                	isLoading = false;
+	                    ImportLastData(res);
+	                    layer.closeAll();
+	                },
+		            error: function(e) {
+		            	isLoading = false;
+		            	layer.closeAll();
+		                layer.confirm("服务忙，请稍后再试", {
+		                    icon: 5,
+		                    btn: ['确定'] //按钮
+		                });
+		            }
+	            });
+	        }
+	    });
+	
+	    /*获取城市  */
+	    var $town = $('#demo3 select[name="street"]');
+	    var townFormat = function (info) {
+	        $town.hide().empty();
+	        if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
+	            $.ajax({
+	                url: '/api/city?provinceId=' + info['code'],
+	                dataType: 'json',
+	                success: function (town) {
+	                    $town.show();
+	                    for (i in town) {
+	                        $town.append('<option value="' + i + '" <#if adSeatInfo?exists&&adSeatInfo.street?exists>'+ (i ==${adSeatInfo.street} ? "selected" : "")+'</#if>>' + town[i]
+	                                + '</option>');
+	                    }
+	                }
+	            });
+	        }
+	    };
+	    $('#demo3').citys({
+	        "province": '330000',
+	        "city": '330100',
+	        "region": '330108',
+	        "required":false,
+	        onChange: function (info) {
+	            townFormat(info);
+	        }
+	    }, function (api) {
+	        var info = api.getInfo();
+	        townFormat(info);
+	    });
+	    
+	    if(!localStorage.getItem('fromUrl')){
+	    	localStorage.setItem('fromUrl', document.referrer)
+	    }
+	    $("#btnBack").click(function(){
+	    	location = localStorage.getItem('fromUrl')
+	    	localStorage.removeItem('fromUrl')
+	    });
+	});
 
-<script type="text/javascript">
     $("#date_val").click(function () {
         if ($(".dsp-select").hasClass("hover")) {
             $(".dsp-select").removeClass("hover")
@@ -762,6 +908,7 @@
 
     //以下演示数据
     $(function () {
+		<#--     	
         //加载所有媒体
         $.each(media_seats,function(i,n){
             $("#mediaTd").append("<label><input type=\"checkbox\" "+(editMode?"":"disabled")+" id=\"media_"+n.id+"\" name=\"media\" value=\""+n.id+"\"> "+n.name+"</label>");
@@ -777,6 +924,7 @@
                 });
             });
         });
+        -->
 
         $("#btnDemo").click(function () {
             var demo_data = {
@@ -897,6 +1045,18 @@
 				var noQualifiedText3 = $("#noQualifiedText3").val();//不合格原因3
 				var notification = $("#notification").val();//注意事项
 				
+				isLoading = true;
+            	layer.msg('正在操作中...', {
+    	    		icon: 16,
+    	    		shade: [0.5, '#f5f5f5'],
+    	    		scrollbar: false,
+    	    		time: 150000
+    	    	}, function(){
+    	    		if(isLoading){
+    	    			layer.alert('操作超时', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+    	    		}
+        		})
+				
                 $.ajax({
                     url: "/customer/activity/save",
                     type: "post",
@@ -947,6 +1107,9 @@
                     cache: false,
                     dataType: "json",
                     success: function (datas) {
+                    	isLoading = false;
+    	            	layer.closeAll();
+    	            	
                         var resultRet = datas.ret;
                         if (resultRet.code == 101) {
                             layer.confirm(resultRet.resultDes, {
@@ -955,7 +1118,7 @@
                             });
                         } else {
                             var msg = "新增成功";
-                            if (id != null && id != "") {
+                            if ($("#id").val()) {
                                 msg = "编辑成功";
                             }
                             layer.confirm(msg, {
@@ -985,6 +1148,8 @@
                         }
                     },
                     error: function (e) {
+                    	isLoading = false;
+    	            	layer.closeAll();
                         layer.confirm("服务忙，请稍后再试", {
                             icon: 5,
                             btn: ['确定'] //按钮
@@ -1057,8 +1222,33 @@
         	}
         })
         
+        // 上刊任务报告时间的校验
+        $('.upTask-Wdate').formValidator({
+        	   empty:true,
+               validatorGroup: '2',
+               tipID:"upTaskTimeTip",
+               onShow:"",
+               onFocus:"请选择上刊报告时间",
+               onCorrect:""
+           }).regexValidator({
+               regExp:"^\\S+$",
+               onError:"请输入上刊报告时间"
+           }).functionValidator({
+	           	fun: function(val, ele){
+	           		// 必须是活动开始时间
+	           		if(!$('#dts').val() || !$('#dt').val()){
+	           			return '请先选择活动时间'
+	           		}else if($('#dts').val() != val) {
+	           			return '出报告时间必须是活动开始时间'
+	           		}else{
+	           			return true
+	           		}
+	           	}
+          })
+        
         // 上刊监测报告时间的校验
         $('.upMonitor-Wdate').formValidator({
+        	   empty:true,
                validatorGroup: '2',
                tipID:"upMonitorTaskTimeTip",
                onShow:"",
@@ -1218,7 +1408,29 @@
        		})
         })
         
-
+		// 下刊任务报告时间的校验
+        $('.downMonitor-Wdate').formValidator({
+         	   empty:true,
+               validatorGroup: '2',
+               tipID:"downMonitorTaskTimeTip",
+               onShow:"",
+               onFocus:"请选择下刊报告时间",
+               onCorrect:""
+           }).regexValidator({
+               regExp:"^\\S+$",
+               onError:"请输入下刊报告时间"
+           }).functionValidator({
+	           	fun: function(val, ele){
+	           		// 必须是活动开始时间
+	           		if(!$('#dts').val() || !$('#dt').val()){
+	           			return '请先选择活动时间'
+	           		}else if($('#dt').val() != val) {
+	           			return '出报告时间必须是活动结束时间'
+	           		}else{
+	           			return true
+	           		}
+	           	}
+          })
         
         //上刊任务积分值
 	    $("#upTaskPoint").formValidator({
@@ -1676,6 +1888,7 @@
 		}
 	}
 	
+	// 新建活动时广告位数据  列表渲染
 	function getCheckboxData(isEdit) {
 		var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>操作</th> </tr></thead><tbody>'
 		console.log('save', checkArr)
@@ -1714,12 +1927,70 @@
 	
 	ModCheckboxData()
 	
+	$('#clear-adseat').click(function(){
+		$('#as-container-question').html('')
+		$('#clear-adseat').hide();
+       	$('#problem-table').hide();
+	})
+	
+	// 导入最近一次广告位数据 列表渲染
+	function ImportLastData(data){
+        var adSeatInfoVos = data.adSeatInfoVos;
+        var problemAdSeatInfos = data.problemAdSeatInfos;
+        
+        var len = adSeatInfoVos.length;
+        var problemLen = problemAdSeatInfos.length;
+        if(problemLen > 0){
+        	
+        	// 显示清除按钮和表格
+        	$('#clear-adseat').show();
+        	$('#problem-table').show();
+        	
+        	var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>状态</th><th>操作</th> </tr></thead><tbody>'
+   			for(var i = 0; i < problemLen; i++){
+   				var str = '<tr class="problemTr"><td>' + problemAdSeatInfos[i].name + '</td><td>' + problemAdSeatInfos[i].provinceName + (problemAdSeatInfos[i].cityName ? problemAdSeatInfos[i].cityName : "") + '</td><td>' + problemAdSeatInfos[i].road + '</td><td>' + problemAdSeatInfos[i].location + '</td><td>' + problemAdSeatInfos[i].mediaName + '</td> <td>' + problemAdSeatInfos[i].parentName + '</td><td>' + problemAdSeatInfos[i].secondName + '</td><td style="color:red">已占用</td><td><a style="cursor:pointer" class="deleteQuesBtn" data-id='+ problemAdSeatInfos[i].id + '>删除</a></td></td> </tr>'
+   				html += str
+   			}
+   			html += '</thbody>'
+   			$('#as-container-question').html(html)
+   			$('.deleteQuesBtn').unbind()
+   			$('.deleteQuesBtn').click(function(){
+   				$(this).parents('tr.problemTr').remove()
+   				if($('#as-container-question tr.problemTr').length <= 0){
+   					$('#clear-adseat').hide();
+   		        	$('#problem-table').hide();
+   				}
+   			})
+        }
+        
+        if(len >0){
+        	var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>操作</th> </tr></thead><tbody>'
+   			for(var i = 0; i < len; i++){
+   				var str = '<tr><td>' + adSeatInfoVos[i].name + '</td><td>' + adSeatInfoVos[i].provinceName + (adSeatInfoVos[i].cityName ? adSeatInfoVos[i].cityName : "") + '</td><td>' + adSeatInfoVos[i].road + '</td><td>' + adSeatInfoVos[i].location + '</td><td>' + adSeatInfoVos[i].mediaName + '</td> <td>' + adSeatInfoVos[i].parentName + '</td><td>' + adSeatInfoVos[i].secondName + '</td><td><a style="cursor:pointer" class="deleteCheckBtn" data-id='+ adSeatInfoVos[i].id + '>删除</a></td></td> </tr>'
+   				addCheck({
+   					id: adSeatInfoVos[i].id,
+   					html: str
+   				})
+   				html += str
+   			}
+   			html += '</thbody>'
+   			getCheckboxData(false)
+   			/*$('.deleteCheckBtn').unbind()
+   			$('.deleteCheckBtn').click(function(){
+   				removeCheck($(this).data('id'))
+   				getCheckboxData(true)
+   			})*/
+        }
+	
+	}
+	
+	// 编辑状态下广告位数据 列表渲染
 	function ModCheckboxData() {
 		var len = activity_seats.length
 		if(len > 0){
-			var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><th>操作</th> </tr></thead><tbody>'
+			var html = '<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan"> <thead><tr><th>广告位名称</th><th>区域</th><th>主要路段</th><th>详细位置</th><th>媒体主</th> <th>媒体大类</th><th>媒体小类</th><#if user.usertype !=6><th>操作</th></#if> </tr></thead><tbody>'
 			for(var i = 0; i < len; i++){
-				var str = '<tr><td>' + activity_seats[i].seatName + '</td><td>' + activity_seats[i].area + '</td><td>' + activity_seats[i].road + '</td><td>' + activity_seats[i].location + '</td><td>' + activity_seats[i].mediaName + '</td> <td>' + activity_seats[i].parentName + '</td><td>' + activity_seats[i].secondName + '</td><td><#if (activity?exists&&activity.status?exists&&activity.status==1)><a style="cursor:pointer" class="deleteCheckBtn" data-id='+ activity_seats[i].seatId + '>删除</a></#if> <#if usertype?exists && usertype != 2><#if (activity?exists&&activity.status?exists&&activity.status==2)><a style="cursor:pointer" class="addMonitorTask" data-id='+ activity_seats[i].seatId + '>追加监测</a></#if></#if></td></td> </tr>'
+				var str = '<tr><td>' + activity_seats[i].seatName + '</td><td>' + activity_seats[i].area + '</td><td>' + activity_seats[i].road + '</td><td>' + activity_seats[i].location + '</td><td>' + activity_seats[i].mediaName + '</td> <td>' + activity_seats[i].parentName + '</td><td>' + activity_seats[i].secondName + '</td><td><#if user.usertype !=6><#if (activity?exists&&activity.status?exists&&activity.status==1)><a style="cursor:pointer" class="deleteCheckBtn" data-id='+ activity_seats[i].seatId + '>删除</a></#if> <#if usertype?exists && usertype != 2><#if (activity?exists&&activity.status?exists&&activity.status==2)><a style="cursor:pointer" class="addMonitorTask" data-id='+ activity_seats[i].seatId + '>追加监测</a></#if></#if></#if></td></td> </tr>'
 				checkArr.push({
 					id: activity_seats[i].seatId,
 					html: str
@@ -1760,46 +2031,74 @@
 		}
 		return seatIds.join(',')
 	}
-	
-	
-        //上刊监测持续天数
-        $("#upMonitorLastDays").formValidator({
-            validatorGroup: "2",
-            onShow: "　",
-            onCorrect: "",
-            onFocus:"请填写1-2的数字"
-        }).functionValidator({
-            fun:function(val){
-                return ($("#durationMonitor:checked").length<1) || /^[1-2]$/.test(val);
-            },
-            onError: "只允许填写1-2的数字"
-        });
-
-        //投放期间监测持续天数
-        $("#durationMonitorLastDays").formValidator({
-            validatorGroup: "2",
-            onShow: "　",
-            onCorrect: "",
-            onFocus:"请填写1-2的数字"
-        }).functionValidator({
-            fun:function(val){
-                return ($("#durationMonitor:checked").length<1) || /^[1-2]$/.test(val);
-            },
-            onError: "只允许填写1-2的数字"
-        });
-
-        //下刊监测持续天数
-        $("#downMonitorLastDays").formValidator({
-            validatorGroup: "2",
-            onShow: "　",
-            onCorrect: "",
-            onFocus:"请填写1-3的数字"
-        }).functionValidator({
-            fun:function(val){
-                return ($("#downMonitor:checked").length<1) || /^[1-3]$/.test(val);
-            },
-            onError: "只允许填写1-3的数字"
-        });
-        
-
+       
+       $('#change-adseat').on('click',function(){
+    	 layer.open({
+    		 type: 1,
+    		 title:"更换广告投放画面",
+             shift: 2,
+             shade: 0.8,
+             area: ['300px', '200px'], 
+             shadeClose: false,
+             content: $("#seatSelCV")
+    	 });
+       }); 
+       
+       function checkVal(that){
+    	var filepath = $("#filepath").val();
+  	    <#-- if(filepath == null || filepath == "" || filepath.length <= 0){
+	  	  	layer.confirm("请填写图片更换地址", {
+	  			icon: 2,
+	  			btn: ['确定'] //按钮
+	  			});
+	  	 	 	return false;
+	  	  	} -->
+  	  		$(that).next().click()
+		}  
+		//批量导入
+	   layui.use('upload', function(){
+		  var upload = layui.upload;
+		  var filepath = $("#filepath").val();
+		  
+		  //执行实例
+		  var uploadInst = upload.render({
+		    elem: '#insertBatchSubmit' //绑定元素 
+		    ,data: {
+		    	filepath:function(){
+		  		return $("#filepath").val();
+		  		}
+			}
+		    ,accept: 'file' //指定只允许上次文件
+		    ,exts: 'xlsx|xls' //指定只允许上次xlsx和xls格式的excel文件
+		    ,field: 'excelFile' //设置字段名
+		    ,url: '/excel/insertMemoByExcel' //上传接口
+		    ,before: function() {
+		    	layer.msg('正在努力上传中...', {
+		    		icon: 16,
+		    		shade: [0.5, '#f5f5f5'],
+		    		scrollbar: false,
+		    		time: 300000,
+		    		end: function(){
+		    			layer.alert('上传超时', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+		    		}
+		    	})
+		    }
+		    ,done: function(res){
+		    	layer.closeAll('msg')
+		    	if(res.ret.code == 100){
+		    		layer.alert('导入成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
+		    		window.open(res.ret.result);
+		    		window.location.reload();
+		    	} else if (res.ret.code == 101){
+		    		layer.alert(res.ret.resultDes, {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+		    	} else if (res.ret.code == 105){
+		    		layer.alert('没有导入权限', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+		    	}
+		    }
+		    ,error: function(res){
+		       layer.closeAll('msg')
+		       layer.alert('导入失败', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+		    }
+		  });
+		}); 
 </script>

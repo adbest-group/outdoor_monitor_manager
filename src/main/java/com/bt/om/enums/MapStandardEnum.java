@@ -1,7 +1,8 @@
 package com.bt.om.enums;
 
 /**
- * Created by jiayong.mao on 2018/4/2.
+ * 地图标准枚举
+ * 对应 ad_seat_info 的 map_standard
  */
 public enum MapStandardEnum {
     UNCONFIRM(1,"百度"),CONFIRMED(2,"谷歌"),COMPLETE(3,"高德");

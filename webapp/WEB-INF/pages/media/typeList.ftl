@@ -7,7 +7,9 @@
 <div class="main-container" style="height: auto;">
     <div class="main-box ott-market">
         <div class="title clearfix">
-            <a href="javascript:;" class="add-new-btn ll" id="add_media"><i></i> 新建媒体类型</a>
+        	<#if user.usertype !=6>
+            	<a href="javascript:;" class="add-new-btn ll" id="add_media"><i></i> 新建媒体类型</a>
+            </#if>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
             	<form id="form" method="get" action="/mediaType/list">
 	                
@@ -27,10 +29,11 @@
 	                    <input type="text" placeholder="请输入媒体类型名称" value="${searchMediaName?if_exists}" id="name" name="name">
 	                </div>
 	                <button type="button" class="btn btn-red" autocomplete="off" id="searchBtn">查询</button>
-	                
+	                <#if user.usertype !=6>
 	                <button style="margin-left: 10px" type="button" class="btn" id="insertBatchId" autocomplete="off">批量导入</button>
 	                
 	                <button style="margin-left: 10px" type="button" class="btn" id="downloadBatch" autocomplete="off" onclick="">模板下载</button>
+	                </#if>
                 </form>
             </div>
         </div>
@@ -44,9 +47,13 @@
                         <th>序号</th>
                         <th>媒体类型名称</th>
                         <th>类型</th>
+                        <th>是否允许同时有多个活动</th>
+                        <th>允许的活动数量</th>
                         <#-- <th>需要唯一标识</th> -->
                         <th>当前状态</th>
+                        <#if user.usertype !=6>
                         <th>操作</th>
+                        </#if>
                     </tr>
                     </thead>
                     <tbody>
@@ -66,13 +73,23 @@
                             </td>
                              -->
                             <td>
+                            	<#if type.mediaType?exists && type.mediaType == 2>
+	                            	<#if type.allowMulti?exists && type.allowMulti == 1>是</#if>
+	                            	<#if type.allowMulti?exists && type.allowMulti == 0>否</#if>
+                            	</#if>
+                            </td>
+                            <td>
+                            	<#if type.mediaType?exists && type.mediaType == 2>${type.multiNum?if_exists}</#if>
+                            </td>
+                            <td>
                             	<#if type.status?exists && type.status == 1>可用</#if>
                             	<#if type.status?exists && type.status == 2>不可用</#if>
                             </td>
+                            <#if user.usertype !=6>
                             <td>
-                            	<!--
-                                <a href="javascript:void(0);" onclick="edit('${type.id}');">编辑</a>
-                                -->
+                            	<#if type.mediaType?exists && type.mediaType == 2>
+                                <a href="javascript:void(0);" onclick="edit('${type.id}');">编辑</a>&nbsp&nbsp&nbsp&nbsp
+                               	</#if>
                                
                                 <!--只显示可用或者不可用 <#if type.status?exists && type.status == 1>
                                 	<a href="javascript:void(0);" onclick="updateStatus('${type.id}', 2, '${type.mediaType}');">不可用</a>
@@ -94,6 +111,7 @@
                                 </#if>
                                  -->
                             </td>
+                            </#if>
                         </tr>
                         </#list>
                     </#if>

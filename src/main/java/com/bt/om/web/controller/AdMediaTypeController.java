@@ -6,6 +6,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,9 +21,13 @@ import com.alibaba.druid.util.StringUtils;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdMediaType;
+import com.bt.om.entity.SysUser;
+import com.bt.om.enums.AllowMultiEnum;
+import com.bt.om.enums.MediaType;
 import com.bt.om.enums.ResultCode;
+import com.bt.om.enums.SessionKey;
+import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdMediaTypeService;
-import com.bt.om.service.IOperateLogService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.util.SearchUtil;
@@ -36,20 +42,20 @@ public class AdMediaTypeController {
 	@Autowired
 	private IAdMediaTypeService adMediaTypeService;
 	
-	@Autowired
-	private IOperateLogService operateLogService;
-	
+	private static final Logger logger = Logger.getLogger(AdMediaTypeController.class);
 	/**
      * 媒体大类, 媒体小类展示
      */
-    @RequiresRoles("superadmin")
+    @RequiresRoles(value = {"superadmin" , "phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/list")
     public String resourceDetailPage(Model model, HttpServletRequest request,
                                      @RequestParam(value = "name", required = false) String name,
                                      @RequestParam(value = "mediaType", required = false) Integer mediaType,
                                      @RequestParam(value = "parentId", required = false) Integer searchParentMediaId) {
         SearchDataVo vo = SearchUtil.getVo();
-
+        
+        //获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         if (!StringUtils.isEmpty(name)) {
         	model.addAttribute("searchMediaName", name);
         	name = "%" + name + "%";
@@ -67,7 +73,7 @@ public class AdMediaTypeController {
 
         adMediaTypeService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
-
+        model.addAttribute("user" , userObj);
         return PageConst.MEDIA_TYPE_LIST;
     }
 	
@@ -80,7 +86,7 @@ public class AdMediaTypeController {
     }
     
     /**
-     * 新增媒体大类或媒体小类
+     * 新增媒体大类或媒体小类（暂时没用）
      */
     @RequiresRoles("superadmin")
     @RequestMapping(value = "/addMediaType")
@@ -91,7 +97,7 @@ public class AdMediaTypeController {
             @RequestParam(value = "mediaType", required = false) Integer mediaType) {
 		Map<String, Object> modelMap = new HashMap<String, Object>();
         try {
-        	if(mediaType == 2 && parentId == null) {
+        	if(mediaType == MediaType.SECOND_TYPE.getId() && parentId == null) {
         		//添加媒体小类, 但是没有选择媒体大类
         		modelMap.put("success", false);
         		modelMap.put("errMsg", "请选择媒体大类!");
@@ -109,6 +115,7 @@ public class AdMediaTypeController {
                 modelMap.put("success", true);
         	}
         } catch (Exception e) {
+        	logger.error(e);
         	modelMap.put("success", false);
             modelMap.put("errMsg", "请重新输入!");
             e.printStackTrace();
@@ -143,12 +150,30 @@ public class AdMediaTypeController {
         result.setResultDes("保存成功");
         model = new ExtendedModelMap();
         Date now = new Date();
-        adMediaType.setStatus(1); //可用
-        if(adMediaType.getMediaType() == 1) {
-        	adMediaType.setParentId(null);
-        }
+//        adMediaType.setStatus(1); //可用
+//        if(adMediaType.getMediaType() == 1) {
+//        	adMediaType.setParentId(null);
+//        }
         if(adMediaType.getUniqueKeyNeed() == null) {
         	adMediaType.setUniqueKeyNeed(2);
+        }
+        
+        if(adMediaType.getMultiNum() == null) {
+        	//默认不支持多个活动, 并且活动数量为1
+        	adMediaType.setAllowMulti(AllowMultiEnum.NOT_ALLOW.getId());
+        	adMediaType.setMultiNum(1);
+        } else {
+        	if(adMediaType.getMultiNum().equals(1)) {
+        		//活动数量等于1, 设置不允许同时支持多个活动
+        		adMediaType.setAllowMulti(AllowMultiEnum.NOT_ALLOW.getId());
+        	} else if(adMediaType.getMultiNum() > 1) {
+        		//活动数量大于1, 设置允许同时支持多个活动
+        		adMediaType.setAllowMulti(AllowMultiEnum.ALLOW.getId());
+        	} else {
+        		//活动数量小于1, 设置默认不支持多个活动, 并且活动数量为1
+            	adMediaType.setAllowMulti(AllowMultiEnum.NOT_ALLOW.getId());
+            	adMediaType.setMultiNum(1);
+        	}
         }
         
         try {
@@ -161,6 +186,7 @@ public class AdMediaTypeController {
             	adMediaTypeService.save(adMediaType);
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -191,6 +217,7 @@ public class AdMediaTypeController {
         	adMediaType.setMediaType(mediaType);
         	adMediaTypeService.updateStatusById(adMediaType);
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -221,6 +248,7 @@ public class AdMediaTypeController {
         	adMediaTypeService.updateNeedById(adMediaType);
         	
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);

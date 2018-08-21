@@ -1,5 +1,10 @@
 package com.bt.om.web.controller;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -10,6 +15,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +34,15 @@ import com.bt.om.entity.SysResources;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserRes;
 import com.bt.om.entity.vo.UserRoleVo;
+import com.bt.om.enums.DepartmentTypeEnum;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.SessionKey;
+import com.bt.om.enums.UserRoleEnum;
+import com.bt.om.enums.UserTypeEnum;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
@@ -63,14 +74,18 @@ public class SysGroupController extends BasicController{
     private IAdJiucuoTaskService adJiucuoTaskService;
 	@Autowired
 	private IAdUserMessageService adUserMessageService;
+	private static final Logger logger = Logger.getLogger(LogFilter.class);
+	
 	/**
 	 * 部门管理员查询组列表
 	 */
-	@RequiresRoles(value = {"departmentadmin", "depactivityadmin", "deptaskadmin", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)
+	@RequiresRoles(value = {"departmentadmin", "depactivityadmin", "deptaskadmin", "depjiucuoadmin", "superadmin" ,"phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/groupList")
     public String customerList(Model model, HttpServletRequest request,
                                @RequestParam(value = "name", required = false) String name) {
         SearchDataVo vo = SearchUtil.getVo();
+        //获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         //查询小组名称
         if (name != null) {
         	name = "%" + name + "%";
@@ -82,15 +97,16 @@ public class SysGroupController extends BasicController{
         
         //获取当前登录的后台用户信息
         SysUser sysUser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-        if(sysUser.getUsertype() == 5) {
-        //部门领导登录, 查询部门领导账号一对一管理的部门信息
+        if(sysUser.getUsertype() == UserTypeEnum.DEPARTMENT_LEADER.getId()) {
+        	//部门领导登录, 查询部门领导账号一对一管理的部门信息
         	SysResources department = sysGroupService.getByUserId(sysUser.getId());
         	vo.putSearchParam("parentid", null, department.getId());
-        	
         }
         
         sysGroupService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
+        
+        model.addAttribute("user" , userObj);
         return PageConst.DEPARMENT_ADMIN_GROUP_LIST;
     }
 	
@@ -137,19 +153,20 @@ public class SysGroupController extends BasicController{
             	sysResources.setType("2"); //设置类型为组
             	//获取当前登录的后台用户id
                 SysUser sysUser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-                if(sysUser.getUsertype() == 5) {
+                if(sysUser.getUsertype() == UserTypeEnum.DEPARTMENT_LEADER.getId()) {
                 	if(sysResources.getParentid()==null) {
 	                	//部门领导登录, 查询部门领导账号一对一管理的部门信息
 	                	SysResources department = sysGroupService.getByUserId(sysUser.getId());
 	                	sysResources.setParentid(department.getId());
 	                	sysGroupService.insert(sysResources);
                 	}
-                }else if(sysUser.getUsertype() == 4 && sysResources.getParentid() != null) {
+                }else if(sysUser.getUsertype() == UserTypeEnum.SUPER_ADMIN.getId() && sysResources.getParentid() != null) {
                 	//超级管理员登录
                 	sysGroupService.insert(sysResources);
                 }
             } 
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -207,6 +224,7 @@ public class SysGroupController extends BasicController{
                 return model;
             }
         } catch (Exception e) {
+        	logger.error(e);
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("删除失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -258,7 +276,7 @@ public class SysGroupController extends BasicController{
             searchMap.put("groupIds", groupIds);
             
             List<SysUser> sysUserss = sysGroupService.selectNoCustomerName(searchMap); //查询出本部门所有组下的 广告商信息
-            List<SysUser> allCustomers = sysUserService.getIdNameByUserType(2); //查询出所有的广告商信息
+            List<SysUser> allCustomers = sysUserService.getIdNameByUserType(UserTypeEnum.CUSTOMER.getId()); //查询出所有的广告商信息
             allCustomers.removeAll(sysUserss);
             model.addAttribute("sysUserss", allCustomers);
             
@@ -315,18 +333,16 @@ public class SysGroupController extends BasicController{
             	Integer departmentType = department.getDepartmentType(
             			); //部门类型
             	
-            	Integer roleId = 100;
-            	if(departmentType == 1) {
+            	Integer roleId = UserRoleEnum.ADMIN.getId();
+            	if(departmentType == DepartmentTypeEnum.ACTIVITY.getId()) {
             		//活动审核部门
-            		roleId = 105;
-            	} else if(departmentType == 2) {
-            		
-            		
+            		roleId = UserRoleEnum.ACTIVITY_ADMIN.getId();
+            	} else if(departmentType == DepartmentTypeEnum.MONITOR_TASK.getId()) {
             		//任务审核、指派部门
-            		roleId = 106;
-            	} else if(departmentType == 3) {
+            		roleId = UserRoleEnum.TASK_ADMIN.getId();
+            	} else if(departmentType == DepartmentTypeEnum.JIUCUO_TASK.getId()) {
             		//纠错审核部门
-            		roleId = 107;
+            		roleId = UserRoleEnum.JIUCUO_ADMIN.getId();
             	}
             	
             	//[2] 更新还在组内的员工角色信息
@@ -338,7 +354,7 @@ public class SysGroupController extends BasicController{
             	//[3] 更新不在组内的员工角色信息
             	UserRoleVo userRoleVo2 = new UserRoleVo();
             	userRoleVo2.setUpdateTime(now);
-            	userRoleVo2.setRoleId(100); //100:admin
+            	userRoleVo2.setRoleId(UserRoleEnum.ADMIN.getId()); //100:admin
             	userRoleVo2.setUserIds(insideUserIds);
             	
             	//[4] 插入sys_user_res表
@@ -359,12 +375,13 @@ public class SysGroupController extends BasicController{
             	
             	UserRoleVo userRoleVo = new UserRoleVo();
             	userRoleVo.setUpdateTime(now);
-            	userRoleVo.setRoleId(100); //100:admin
+            	userRoleVo.setRoleId(UserRoleEnum.ADMIN.getId()); //100:admin
             	userRoleVo.setUserIds(insideUserIds);
             	
             	sysUserService.deleteUserRess(sysUserRes, userRoleVo);
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -414,6 +431,7 @@ public class SysGroupController extends BasicController{
             	sysUserService.deleteCustomerRess(sysUserRes);
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -427,7 +445,7 @@ public class SysGroupController extends BasicController{
     /**
      * 【活动审核部门】领导/【超级管理员】查看 所有活动页面
      */
-    @RequiresRoles(value = {"departmentadmin", "depactivityadmin", "superadmin"}, logical = Logical.OR)
+    @RequiresRoles(value = {"departmentadmin", "depactivityadmin", "superadmin", "phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/activity")
     public String customerList(Model model, HttpServletRequest request,
                                @RequestParam(value = "activityId", required = false) Integer activityId,
@@ -443,7 +461,8 @@ public class SysGroupController extends BasicController{
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
         SearchDataVo vo = SearchUtil.getVo();
-        
+        //获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         if(userId != null) {
         	vo.putSearchParam("userId", userId.toString(), userId);
         }
@@ -466,6 +485,7 @@ public class SysGroupController extends BasicController{
             try {
                 vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         //查询活动名称
@@ -491,13 +511,14 @@ public class SysGroupController extends BasicController{
         }
     	adActivityService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
+        model.addAttribute("user",userObj);
         return PageConst.RESOURCES_ACTIVITY;
     }
     
     /**
      * 【任务审核部门】领导/【超级管理员】查看 监测任务审核页面
      */
-    @RequiresRoles(value = {"departmentadmin", "deptaskadmin", "superadmin","jiucuoadmin"}, logical = Logical.OR)
+    @RequiresRoles(value = {"departmentadmin", "deptaskadmin", "superadmin","jiucuoadmin", "phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/taskList")
     public String getTaskList(Model model, HttpServletRequest request,
                               @RequestParam(value = "activityId", required = false) Integer activityId,
@@ -517,6 +538,8 @@ public class SysGroupController extends BasicController{
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
         
+     	//获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         if (activityId != null) {
             vo.putSearchParam("activityId", activityId.toString(), activityId);
         }
@@ -551,6 +574,7 @@ public class SysGroupController extends BasicController{
             try {
                 vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         if (endDate != null) {
@@ -587,14 +611,14 @@ public class SysGroupController extends BasicController{
     	adMonitorTaskService.getPageData(vo);
         // vo.putSearchParam("hasUserId","1","1");
         SearchUtil.putToModel(model, vo);
-
+        model.addAttribute("user",userObj);
         return PageConst.RESOURCES_TASK_LIST;
     }
 
     /**
      * 【任务审核部门】领导/【超级管理员】查看 监测任务指派页面
      */
-    @RequiresRoles(value = {"departmentadmin", "deptaskadmin", "superadmin"}, logical = Logical.OR)
+    @RequiresRoles(value = {"departmentadmin", "deptaskadmin", "superadmin", "phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/taskUnassign")
     public String getUnAssignList(Model model, HttpServletRequest request,
                                   @RequestParam(value = "activityId", required = false) Integer activityId,
@@ -610,6 +634,8 @@ public class SysGroupController extends BasicController{
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
 
+        //获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         if (status == null) {
             vo.putSearchParam("statuses", null,
                     new Integer[]{MonitorTaskStatus.UNASSIGN.getId(), MonitorTaskStatus.CAN_GRAB.getId(), MonitorTaskStatus.TO_CARRY_OUT.getId()});
@@ -631,12 +657,14 @@ public class SysGroupController extends BasicController{
             try {
                 vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         if (endDate != null) {
             try {
                 vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
        //查询媒体主
@@ -666,13 +694,14 @@ public class SysGroupController extends BasicController{
         }
     	adMonitorTaskService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
+        model.addAttribute("user",userObj);
         return PageConst.RESOURCES_TASK_UNASSIGN;
     }
     
     /**
      * 【任务审核部门】领导/【超级管理员】查看 上刊任务指派页面
      */
-    @RequiresRoles(value = {"departmentadmin", "deptaskadmin", "superadmin"}, logical = Logical.OR)
+    @RequiresRoles(value = {"departmentadmin", "deptaskadmin", "superadmin" , "phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/upTaskList")
     public String getUpTaskList(Model model, HttpServletRequest request,
                                   @RequestParam(value = "activityId", required = false) Integer activityId,
@@ -688,6 +717,8 @@ public class SysGroupController extends BasicController{
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
 
+        //获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         if (status == null) {
             vo.putSearchParam("statuses", null,
                     new Integer[]{MonitorTaskStatus.UNASSIGN.getId(), MonitorTaskStatus.TO_CARRY_OUT.getId(), MonitorTaskStatus.CAN_GRAB.getId()});
@@ -714,6 +745,7 @@ public class SysGroupController extends BasicController{
             try {
                 vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
        //查询媒体主
@@ -743,13 +775,14 @@ public class SysGroupController extends BasicController{
         }
     	adMonitorTaskService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
+        model.addAttribute("user",userObj);
         return PageConst.UP_TASK_UNASSIGN;
     }
     
     /**
      * 【纠错审核部门】领导/【超级管理员】查看 纠错任务页面
      */
-    @RequiresRoles(value = {"departmentadmin", "depjiucuoadmin", "superadmin"}, logical = Logical.OR)
+    @RequiresRoles(value = {"departmentadmin", "depjiucuoadmin", "superadmin", "phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/jiucuoList")
     public String joucuoList(Model model, HttpServletRequest request,
                              @RequestParam(value = "id", required = false) Integer id,
@@ -767,6 +800,8 @@ public class SysGroupController extends BasicController{
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         SearchDataVo vo = SearchUtil.getVo();
         
+        //获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         if (id != null) {
             vo.putSearchParam("id", id.toString(), id);
         }
@@ -784,12 +819,14 @@ public class SysGroupController extends BasicController{
             try {
                 vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         if (endDate != null) {
             try {
                 vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
       //查询媒体主
@@ -819,7 +856,7 @@ public class SysGroupController extends BasicController{
         }
     	adJiucuoTaskService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
-
+        model.addAttribute("user",userObj);
         return PageConst.RESOURCES_JIUCUO_LIST;
     }
     
@@ -838,6 +875,7 @@ public class SysGroupController extends BasicController{
     	 try {
 	         sysGroupService.deleteGroup(id);
     	}catch (Exception e) {
+    		logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("删除失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -874,5 +912,116 @@ public class SysGroupController extends BasicController{
         SearchUtil.putToModel(model, vo);
 
         return PageConst.RESOURCES_MESSAGE_LIST;
+    }
+    
+    //呼叫中心人员管理phoneoperatorList
+    @RequiresRoles(value={"superadmin"}, logical = Logical.OR)
+    @RequestMapping(value="/phoneoperatorList")
+    public String phoneoperatorList(Model model ,HttpServletRequest request,
+    		@RequestParam(value = "nameOrUsername", required = false) String nameOrUsername) {
+    	 SearchDataVo vo = SearchUtil.getVo();
+
+//         SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+         // 名称或登录账号
+         if (StringUtils.isNotBlank(nameOrUsername)) {
+             vo.putSearchParam("nameOrUsername", nameOrUsername, "%" + nameOrUsername + "%");
+         }
+         vo.putSearchParam("usertype", "usertype", UserTypeEnum.PHONE_OPERATOR.getId());
+         sysUserService.getPageData(vo);
+         SearchUtil.putToModel(model, vo);
+
+    	return PageConst.RESOURCES_PHONEOPERATOR_LIST;
+    }
+    
+    /**
+     * 编辑话务员
+     */
+    @RequestMapping(value = "/phoneoperatorEdit")
+    public String AddPhoneoperator(Model model,HttpServletRequest request,
+    		@RequestParam(value = "id", required = false) Integer id) {
+    	if (id != null) {
+    		SysUser sysUser = sysUserService.findUserinfoById(id);
+    		model.addAttribute("obj" ,sysUser);
+    	}
+        return PageConst.PHONEOPERATOR_EDIT;
+    }
+    
+    /***
+     * 保存话务员信息
+     * **/
+    @ResponseBody
+    @RequestMapping(value="/phoneoperatorSave")
+    @RequiresRoles("superadmin")
+    public Model savePhoneoperator(Model model, SysUser sysUser, HttpServletRequest request,
+    		@RequestParam(value = "telephone") String telephone) {
+    	ResultVo<String> result = new ResultVo<String>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("保存成功");
+        model = new ExtendedModelMap();
+        
+        if(sysUser.getStatus() == null) {
+        	sysUser.setStatus(1);	//可用
+        }
+        if(sysUser.getPlatform() == null) {
+        	sysUser.setPlatform(1); 
+        }
+        if(sysUser.getUsertype() == null) {
+        	sysUser.setUsertype(UserTypeEnum.PHONE_OPERATOR.getId()); //6：话务员 
+        }
+        sysUser.setMobile(telephone);
+        try {
+        	if(sysUser.getId() != null) {
+        		sysUserService.modify(sysUser);
+        	}else {
+        		sysUserService.addUser(sysUser, UserRoleEnum.PHONE_OPERATOR.getId());
+        	}
+        } catch (Exception e) {
+        	logger.error(e);
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("保存失败！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        model.addAttribute(SysConst.RESULT_KEY, result);
+		return model;
+    	
+    }
+    //保存文件，不改变文件名
+    public static String saveFileNoChangeName(String path,String filename,InputStream is){
+        FileOutputStream fos = null;
+        try {
+        	File file = new File(path);
+        	if(!file.exists()){
+                file.mkdirs();
+            }
+            fos = new FileOutputStream(path+filename);
+            int len = 0;
+            byte[] buff = new byte[1024];
+            while((len=is.read(buff))>0){
+                fos.write(buff);
+            }
+            return filename;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            if(fos!=null){
+                try {
+                    fos.flush();
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(is!=null){
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
     }
 }

@@ -153,6 +153,7 @@
     <result column="isSelect" jdbcType="BOOLEAN" property="isSelect" />
   </resultMap>
 
+  <!-- 通过用户id查询出角色信息 -->
   <select id="findRoleByUserId" parameterType="map" resultMap="ExtResultMap">
     select
     t1.id,
@@ -166,6 +167,7 @@
     order by t1.id desc
   </select>
 
+  <!-- 通过用户id查询出角色信息 -->
   <select id="selectByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select
     a.id, a.platform, a.role_name, a.desc, a.create_time, a.update_time

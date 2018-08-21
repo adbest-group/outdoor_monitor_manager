@@ -8,7 +8,9 @@
 <div class="main-container" style="height: auto;">
     <div class="main-box">
         <div class="title clearfix">
-        	<a href="/customer/activity/edit" class="btn btn-red mr-10 ll">创建活动</a>
+        	<#if user.usertype !=6>
+        		<a href="/customer/activity/edit" class="btn btn-red mr-10 ll">创建活动</a>
+        	</#if>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <form id="form" method="get" action="/sysResources/activity">
                     <!--活动搜索框-->
@@ -71,7 +73,10 @@
                     </div>
                      -->
                     <button type="button" class="btn btn-red" style="margin-left:10px;" autocomplete="off" id="searchBtn">查询</button>
+                    <#if user.usertype !=6>
                      <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">批量确认</button> 
+                     <button style="margin-left: 10px" type="button" class="btn" id="downloadBatch" autocomplete="off" onclick="">监测任务模板下载</button>
+                    </#if>
                 </form>
             </div>
         </div>
@@ -82,10 +87,10 @@
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan">
                     <thead>
                     <tr>
-                     <th width="30"><input type="checkbox" style="visibility: hidden" id='thead-checkbox' name="ck-alltask" value=""/></th>
+                     <th width="30"><#if user.usertype !=6><input type="checkbox" style="visibility: hidden" id='thead-checkbox' name="ck-alltask" value=""/></#if></th>
                         <th>序号</th>
                         <th>活动名称</th>
-                        <th>广告商</th>                        
+                        <th>广告主</th>                        
                         <th>投放周期</th>
                         <th>活动状态</th>
                         <th>审核人</th>
@@ -97,7 +102,9 @@
                     <#if (bizObj.list?exists && bizObj.list?size>0) >
                         <#list bizObj.list as activity>
                         <tr>
-                        	<td width="30"><#if (activity.status?exists&&activity.status == 1)><input type="checkbox"  name="ck-task" data-status='${activity.status}' value="${activity.id}"/></#if></td> 
+                        	<td width="30"><#if (activity.status?exists&&activity.status == 1)>
+                        		<#if user.usertype !=6><input type="checkbox"  name="ck-task" data-status='${activity.status}' value="${activity.id}"/></#if>
+                        	</#if></td> 
                             <td width="30">${(bizObj.page.currentPage-1)*20+activity_index+1}</td>
                             <td>
                                 <div class="data-title w200" data-title="${activity.activityName}" data-id="${activity.id}">${activity.activityName?if_exists}</div>
@@ -108,14 +115,22 @@
                             <td>${activity.realName?if_exists}</td>
                             <td>${activity.updateTime?string('yyyy-MM-dd HH:mm:ss')}</td>
                             <td>
-                            	<#if activity.status==1><a href="javascript:queren('${activity.id}','${activity.userId}')">确认</a></#if>
+                                <#if user.usertype !=6>
+                            		<#if activity.status==1><a href="javascript:queren('${activity.id}','${activity.userId}')">确认</a></#if>
+                            	</#if>
                                 <#if activity.status gt 0 ><a href="/activity/edit?id=${activity.id}">详情</a></#if>
-                                <#if activity.status==1><a href="javascript:del('${activity.id}')">删除</a></#if>
-                               
-                                 <#if activity.status!=1&&activity.status!=4><a id="openActivityExcel" href="javascript:openActivityExcel('${activity.id}')">导出excel</a></#if>
-                                 <#if activity.status!=1&&activity.status!=4><a id="openActivityPdf" href="javascript:openActivityPdf('${activity.id}')">导出pdf</a></#if>
+                                <#if user.usertype !=6>
+                                	<#if activity.status==1><a href="javascript:del('${activity.id}')">删除</a></#if>
+                                </#if>
+                                <#if activity.status!=1&&activity.status!=4><a id="openActivityExcel" href="javascript:openActivityExcel('${activity.id}')">导出excel</a></#if>
+                                <#if activity.status!=1&&activity.status!=4><a id="openActivityPdf" href="javascript:openActivityPdf('${activity.id}')">导出pdf</a></#if>
+                                <#if user.usertype !=6>
+                                	<#if activity.status==2>
+                                		<button style="margin-left: 10px" type="button" class="btn batchInsert" autocomplete="off" ai=${activity.id}>导入监测任务</button>
+                                	</#if>
+                                </#if>
                                  <#-- <#if activity.status!=1&&activity.status!=4><a id="exportExcel" href="javascript:exportExcel('${activity.id}')">导出excel</a></#if> -->
-                                <#-- <#if activity.status!=1&&activity.status!=4><a id="exportPdf" href="javascript:exportPdf('${activity.id}')">导出pdf</a></#if> --> 
+                                <#-- <#if activity.status!=1&&activity.status!=4><a id="exportPdf" href="javascript:exportPdf('${activity.id}')">导出pdf</a></#if> -->
                             </td>
                         </tr>
                         </#list>
@@ -123,6 +138,7 @@
                     <tr><td colspan="20">没有相应结果。</td> </tr>
                     </#if>
                     </tbody>
+                    <input id="upload_file" type="hidden"/>
                     <!-- 翻页 -->
                 <@model.showPage url=vm.getUrlByRemoveKey(thisUrl, ["start", "size"]) p=bizObj.page parEnd="" colsnum=9 />
                 </table>
@@ -206,8 +222,7 @@ function changeMediaTypeId() {
         $town.hide().empty();
         if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
             $.ajax({
-                url : 'http://passer-by.com/data_location/town/' + info['code']
-                + '.json',
+                url : '/api/city?provinceId=' + info['code'],
                 dataType : 'json',
                 success : function(town) {
                     $town.show();
@@ -636,7 +651,74 @@ function changeMediaTypeId() {
             }
         });
 	}
+	// 下载模板
+    $('#downloadBatch').click(function(){
+    	$.get('/excel/downMonitorBatch', function(data){
+    		if(data.ret.code === 100) {
+    			window.open(data.ret.result)
+    		}else{
+    			layer.confirm("下载失败", {
+                    icon: 5,
+                    btn: ['确定'] //按钮
+                });
+    		}
+    	})
+    })
 
+    // 批量导入监听
+    $(".batchInsert").on("click", function (e) {
+        $("#upload_file").val($(this).attr("ai"));
+        $("#upload_file").click();
+    });
+
+    // 批量导入执行
+	layui.use('upload', function(){
+	  var upload = layui.upload;
+	  //执行实例
+	  var uploadInst = upload.render({
+	    elem: '#upload_file' //绑定元素
+	    ,data: {
+	    	activityId: function () {
+	    	    return $("#upload_file").val()
+            }
+		}
+	    ,accept: 'file' //指定只允许上次文件
+	    ,exts: 'xlsx|xls' //指定只允许上次xlsx和xls格式的excel文件
+	    ,field: 'excelFile' //设置字段名
+	    ,url: '/excel/insertTaskBatchByExcel' //上传接口
+	    ,before: function() {
+	    	isLoading = true;
+	    	layer.msg('正在努力上传中...', {
+	    		icon: 16,
+	    		shade: [0.5, '#f5f5f5'],
+	    		scrollbar: false,
+	    		time: 300000
+	    	}, function(){
+	    		if(isLoading){
+	    			layer.alert('上传超时', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    		}
+    		})
+	    }
+	    ,done: function(res){
+	    	isLoading = false;
+	    	layer.closeAll('msg')
+	    	if(res.ret.code == 100){
+	    	layer.alert('导入成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
+	    	window.open(res.ret.result);
+	    	window.location.reload();
+	    	} else if (res.ret.code == 101){
+	    	layer.alert(res.ret.resultDes, {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	} else if (res.ret.code == 105){
+	    	layer.alert('没有导入权限', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    	}
+	    }
+	    ,error: function(res){
+	    	isLoading = false
+	       layer.closeAll('msg')
+	       layer.alert('导入失败', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+	    }
+	  });
+	});
 </script>
 <!-- 特色内容 -->
 

@@ -12,6 +12,9 @@ import com.bt.om.mapper.AdSystemPushMapper;
 import com.bt.om.service.IAdSystemPushService;
 import com.bt.om.vo.web.SearchDataVo;
 
+/**
+ * 消息推送相关事务层
+ */
 @Service
 public class AdSystemPushService implements IAdSystemPushService {
 	
@@ -33,6 +36,11 @@ public class AdSystemPushService implements IAdSystemPushService {
 	@Transactional
 	public void save(AdSystemPush adSystemPush) {
 		adSystemPushMapper.insert(adSystemPush);
+	}
+
+	@Override
+	public void add(AdSystemPush push) {
+		adSystemPushMapper.insertSelective(push);
 	}
 
 }

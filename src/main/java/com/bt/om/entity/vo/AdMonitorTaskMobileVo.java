@@ -51,8 +51,44 @@ public class AdMonitorTaskMobileVo extends AdMonitorTask {
     private String noQualifiedText3;
     private String notification;
     
+    private Integer picUrl1Status;
+    private Integer picUrl2Status;
+    private Integer picUrl3Status;
+    private Integer picUrl4Status;
     
-    public String getQualifiedPicUrl() {
+    public Integer getPicUrl1Status() {
+		return picUrl1Status;
+	}
+
+	public void setPicUrl1Status(Integer picUrl1Status) {
+		this.picUrl1Status = picUrl1Status;
+	}
+
+	public Integer getPicUrl2Status() {
+		return picUrl2Status;
+	}
+
+	public void setPicUrl2Status(Integer picUrl2Status) {
+		this.picUrl2Status = picUrl2Status;
+	}
+
+	public Integer getPicUrl3Status() {
+		return picUrl3Status;
+	}
+
+	public void setPicUrl3Status(Integer picUrl3Status) {
+		this.picUrl3Status = picUrl3Status;
+	}
+
+	public Integer getPicUrl4Status() {
+		return picUrl4Status;
+	}
+
+	public void setPicUrl4Status(Integer picUrl4Status) {
+		this.picUrl4Status = picUrl4Status;
+	}
+
+	public String getQualifiedPicUrl() {
 		return qualifiedPicUrl;
 	}
 

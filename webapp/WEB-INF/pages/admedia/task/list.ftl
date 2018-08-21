@@ -77,6 +77,7 @@
                         <th>媒体大类</th>
 					    <th>媒体小类</th>
                         <th>广告位</th>
+                        <th>执行公司</th>
                         <th>执行人员</th>
                         <th>监测类型</th>
                         <th>状态</th>
@@ -100,13 +101,14 @@
                             <td>${task.parentName!""}</td>
                             <td>${task.secondName!""}</td>
                             <td>${task.adSeatName!""}</td>
+                            <td>${task.companyName!""}</td>
                             <td>${task.realname!""}</td>
                             <td>${vm.getMonitorTaskTypeText(task.taskType)!""}</td>
                             <td>${vm.getMonitorTaskStatusText(task.status)!""}</td>
                             <td>${task.assignorName!""}</td>
                             <td>${(task.assignorTime?string('yyyy-MM-dd HH:mm:ss'))!""}</td>
                             <td>
-                            	<#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status==1 || task.status==8 || task.status==2)><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if></#if>
+                            	<#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status==1 || task.status==8 || task.status==2)><#if task.companyId?exists><#else><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if></#if></#if>
                                <#--   <#if task.status==1><a href="javascript:assign('${task.id}')">指派</a></#if>
                                 <#--<#if task.status==2><a href="javascript:assign('${task.id}')">重新指派</a></#if>-->
                                <#--   <#if task.status==3><a href="javascript:pass('${task.id}')">通过</a></#if>
@@ -153,7 +155,6 @@
 			}
 		}
 	})
-	
 	$('#mediaTypeParentId').next().find('.searchable-select-input').css('display', 'block')
 
 	function changeMediaTypeId(mediaTypeParentId) {	
@@ -217,8 +218,7 @@
         $town.hide().empty();
         if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
             $.ajax({
-                url : 'http://passer-by.com/data_location/town/' + info['code']
-                + '.json',
+                url : '/api/city?provinceId=' + info['code'],
                 dataType : 'json',
                 success : function(town) {
                     $town.show();
@@ -334,28 +334,41 @@
                     type: 2,
                     title: '选择监测人员',
                     shade: 0.8,
-                    area: ['400px', '220px'],
+                    area: ['400px', '320px'],
                     content: '/platmedia/selectUserExecute' //iframe的url
                 });
             }
             //选择执行人后的回调
-            selectUserExecuteHandle = function (userId) {
+            selectUserExecuteHandle = function (userId,mediaId) {
+           		isLoading = true;
                 layer.closeAll();
                 if(!userId){
                     layer.alert("并没有指定执行人员");
                     return;
                 }
-
+				layer.msg('正在操作中...', {
+		    		icon: 16,
+		    		shade: [0.5, '#f5f5f5'],
+		    		scrollbar: false,
+		    		time: 150000
+		    	}, function(){
+		    		if(isLoading){
+		    			layer.alert('操作超时', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+		    		}
+		    	})
                 $.ajax({
                     url: "/task/assign",
                     type: "post",
                     data: {
                         "ids": assign_ids,
-                        "userId":userId
+                        "userId":userId,
+                        "mediaId":mediaId
                     },
                     cache: false,
                     dataType: "json",
                     success: function(datas) {
+                    	isLoading = false;
+                		layer.closeAll('msg');
                         var resultRet = datas.ret;
                         if (resultRet.code == 100) {
                             layer.confirm("指派成功", {

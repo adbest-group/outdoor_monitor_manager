@@ -10,8 +10,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.subject.Subject;
@@ -60,10 +63,13 @@ import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.AdPoint;
 import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.AdSystemPush;
+import com.bt.om.entity.AdUserMoney;
 import com.bt.om.entity.AdUserPoint;
 import com.bt.om.entity.AdVersion;
 import com.bt.om.entity.City;
 import com.bt.om.entity.LoginLog;
+import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AbandonTaskVo;
 import com.bt.om.entity.vo.ActivityMobileReportVo;
@@ -77,13 +83,22 @@ import com.bt.om.entity.vo.ParentMediaType;
 import com.bt.om.entity.vo.PictureVo;
 import com.bt.om.entity.vo.ProvinceAndCity;
 import com.bt.om.entity.vo.SysUserVo;
+import com.bt.om.enums.AdCodeFlagEnum;
 import com.bt.om.enums.AdMediaInfoStatus;
+import com.bt.om.enums.AdPointEnum;
+import com.bt.om.enums.AppTaskEnum;
+import com.bt.om.enums.AppUpdateTypeEnum;
+import com.bt.om.enums.AppUserTaskEnum;
+import com.bt.om.enums.AppUserTypeEnum;
 import com.bt.om.enums.JiucuoTaskStatus;
+import com.bt.om.enums.LoginLogTypeEnum;
 import com.bt.om.enums.MonitorTaskStatus;
+import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
-import com.bt.om.enums.UserExecuteType;
+import com.bt.om.enums.VerifyType;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.service.IAdActivityService;
 import com.bt.om.service.IAdJiucuoTaskService;
@@ -91,17 +106,21 @@ import com.bt.om.service.IAdMediaTypeService;
 import com.bt.om.service.IAdMonitorRewardService;
 import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.service.IAdSeatService;
+import com.bt.om.service.IAdSystemPushService;
 import com.bt.om.service.IAdUserMessageService;
 import com.bt.om.service.IAppService;
-import com.bt.om.service.IMediaService;
 import com.bt.om.service.ILoginLogService;
+import com.bt.om.service.IMediaService;
 import com.bt.om.service.IPointService;
 import com.bt.om.service.ISendSmsService;
 import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.service.ISysUserService;
+import com.bt.om.service.IUserMoneyService;
 import com.bt.om.service.IUserPointService;
+import com.bt.om.util.AddressUtils;
 import com.bt.om.util.CityUtil;
+import com.bt.om.util.ConfigUtil;
 import com.bt.om.util.GeoUtil;
 import com.bt.om.util.MarkLogoUtil;
 import com.bt.om.util.QRcodeUtil;
@@ -179,13 +198,23 @@ public class ApiController extends BasicController {
 	private IMediaService mediaService;
 	@Autowired
 	private ILoginLogService loginLogService;
+    @Autowired
+    private IUserMoneyService userMoneyService;
+    @Autowired
+	private IAdSystemPushService adSystemPushService;
     
     @Value("${sms.checkcode.content.template}")
     private String SMS_CHECKCODE_CONTENT_TEMPLATE;
     @Value("${mobile.number.regex}")
     private String MOBILE_NUMBER_REGEX;
+    
+    private String file_upload_path = ConfigUtil.getString("file.upload.path");
+	
+	private String file_upload_ip = ConfigUtil.getString("file.upload.ip");
 
     private static ThreadLocal<Boolean> useSession = new ThreadLocal<>();
+    
+    private static final Logger logger = Logger.getLogger(ApiController.class);
 
     static {
         useSession.set(true);
@@ -271,7 +300,7 @@ public class ApiController extends BasicController {
         model = new ExtendedModelMap();
 
         InputStream is = null;
-
+        saveLog(request, "");
         try {
             file = file.replaceAll("data:image/jpeg;base64,", "");
             is = new ByteArrayInputStream(Base64.getDecoder().decode(file));
@@ -294,11 +323,13 @@ public class ApiController extends BasicController {
 
         } catch (IOException e) {
             e.printStackTrace();
+            logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("二维码解析失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         } catch (Exception e) {
+        	logger.error(e);
             e.printStackTrace();
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("二维码解析失败！");
@@ -309,6 +340,7 @@ public class ApiController extends BasicController {
                 try {
                     is.close();
                 } catch (IOException e) {
+                	logger.error(e);
                     e.printStackTrace();
                 }
             }
@@ -327,6 +359,7 @@ public class ApiController extends BasicController {
         result.setResultDes("获取成功");
         result.setResult("");
         model = new ExtendedModelMap();
+        saveLog(request, "");
 
         InputStream is = null;
         String seatCode = null;
@@ -347,6 +380,7 @@ public class ApiController extends BasicController {
             title = obj==null||obj.get("title") == null ? null : obj.get("title").getAsString(); //[2] 通过经纬度调取接口
             memo = obj==null||obj.get("memo") == null ? null : obj.get("memo").getAsString();//[3] 通过memo调取接口
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -356,6 +390,7 @@ public class ApiController extends BasicController {
                 try {
                     is.close();
                 } catch (IOException e) {
+                	logger.error(e);
                     e.printStackTrace();
                 }
             }
@@ -500,6 +535,7 @@ public class ApiController extends BasicController {
             }
             result.setResult(qr);
         } catch (Exception e) {
+        	logger.error(e);
             e.printStackTrace();
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("获取失败！");
@@ -514,7 +550,7 @@ public class ApiController extends BasicController {
     //登录
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     @ResponseBody
-    public Model login(Model model, HttpServletRequest request, HttpServletResponse response) {
+    public Model login(Model model, HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
         ResultVo<SysUserExecuteVo> result = new ResultVo<>();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("登录成功");
@@ -544,6 +580,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -637,13 +674,16 @@ public class ApiController extends BasicController {
         	sysUserExecute.setSystemVersion(systemVersion);
         	sysUserExecuteService.updatePhoneModel(sysUserExecute);
         }
+        saveLog(request, username);
         //登录日志
+        AddressUtils addressUtils = new AddressUtils();
+        String  address = addressUtils.getAddressesByBaidu( getIp(), "utf-8");
         Date now = new Date();	           
         LoginLog loginlog=new LoginLog();   
         loginlog.setUserId(userExecute.getId());
-        loginlog.setType(1);
+        loginlog.setType(LoginLogTypeEnum.APP.getId());
         loginlog.setIp(getIp());
-        loginlog.setLocation(null);
+        loginlog.setLocation(address);
         loginlog.setCreateTime(now);
 		loginLogService.save(loginlog);   
         
@@ -696,18 +736,23 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
+        SysUserExecute user = getLoginUser(request, token);
+        saveLog(request, user==null?"":user.getUsername());
         if (useSession.get()) {
             HttpSession session = request.getSession();
+            
             session.removeAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         } else {
             this.sessionByRedis.remove();
         }
 
+        model.addAttribute(SysConst.RESULT_KEY, result);
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");
         return model;
@@ -717,6 +762,7 @@ public class ApiController extends BasicController {
     @RequestMapping(value = "/getCodeBase64")
     @ResponseBody
     public Model getCode(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	saveLog(request, "");
         ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("获取验证码成功");
@@ -756,6 +802,7 @@ public class ApiController extends BasicController {
             result.setResult(res);
             model.addAttribute(SysConst.RESULT_KEY, result);
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -765,6 +812,7 @@ public class ApiController extends BasicController {
                 baos.flush();
                 baos.close();
             } catch (IOException e) {
+            	logger.error(e);
             }
         }
 
@@ -808,12 +856,14 @@ public class ApiController extends BasicController {
                 pageSize = obj.get("page_size").getAsInt();
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
         
+        saveLog(request, userId+"");
         SearchDataVo vo = new SearchDataVo(null,null,(page-1)*pageSize,pageSize);
         vo.putSearchParam("userId",null,userId);
         vo.putSearchParam("updateTime", null, updateTime);
@@ -837,6 +887,144 @@ public class ApiController extends BasicController {
         result.setResult(userpointlist);
         model.addAttribute(SysConst.RESULT_KEY, result);
         model.addAttribute("totalPoint", totalPoint);
+        model.addAttribute("totalCount", totalCount);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+    
+    //请求金额明细列表
+    @RequestMapping(value = "/getmoneylist")
+    @ResponseBody
+    public Model moneyList(Model model, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    	ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("获取成功");
+        model = new ExtendedModelMap();
+    	
+        Integer userId = null;
+        String token = null;
+        Integer page = 1;
+        Integer pageSize = 10;
+        String updateTime = null;
+        
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            userId = obj.get("userId").getAsInt();
+            updateTime = obj.get("updateTime") == null ? null : obj.get("updateTime").getAsString();
+            if (token != null) {
+                useSession.set(Boolean.FALSE);
+                this.sessionByRedis.setToken(token);
+            } else {
+                useSession.set(Boolean.TRUE);
+            }
+            if(obj.get("page") != null){
+                page = obj.get("page").getAsInt();
+            }
+            if(obj.get("page_size") != null){
+                pageSize = obj.get("page_size").getAsInt();
+            }
+        } catch (IOException e) {
+        	logger.error(e);
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        
+        saveLog(request, userId+"");
+        SearchDataVo vo = new SearchDataVo(null,null,(page-1)*pageSize,pageSize);
+        vo.putSearchParam("userId",null,userId);
+        vo.putSearchParam("updateTime", null, updateTime);
+        //通过用户id查找该用户的所有金额数据
+        userMoneyService.getPageData(vo);
+        List<?> list = vo.getList();
+        Double totalMoney = userMoneyService.getMoneyCountById(userId);
+        if(totalMoney == null) {
+        	totalMoney = 0.00;
+        }
+        List<AdUserMoney> usermoneylist = new ArrayList<>();
+        
+        for(Object obj : list) {
+        	AdUserMoney userMoney = (AdUserMoney) obj;
+        	userMoney.setCreateTimeStr(DateUtil.dateFormate(userMoney.getCreateTime(), "MM-dd HH:mm"));
+        	userMoney.setUpdateTimeStr(DateUtil.dateFormate(userMoney.getUpdateTime(), "MM-dd HH:mm"));
+        	usermoneylist.add(userMoney);
+        }
+        //设置总页数
+        int totalCount = (int) ((vo.getCount() + pageSize - 1) / pageSize);
+        result.setResult(usermoneylist);
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        model.addAttribute("totalMoney", totalMoney);
+        model.addAttribute("totalCount", totalCount);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
+    
+    //请求推送消息列表
+    @RequestMapping(value = "/getpushlist")
+    @ResponseBody
+    public Model pushList(Model model, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    	ResultVo result = new ResultVo();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        result.setResultDes("获取成功");
+        model = new ExtendedModelMap();
+    	
+        Integer userId = null;
+        String token = null;
+        Integer page = 1;
+        Integer pageSize = 10;
+        String createTime = null;
+        
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            token = obj.get("token") == null ? null : obj.get("token").getAsString();
+            userId = obj.get("userId").getAsInt();
+            createTime = obj.get("createTime") == null ? null : obj.get("createTime").getAsString();
+            if (token != null) {
+                useSession.set(Boolean.FALSE);
+                this.sessionByRedis.setToken(token);
+            } else {
+                useSession.set(Boolean.TRUE);
+            }
+            if(obj.get("page") != null){
+                page = obj.get("page").getAsInt();
+            }
+            if(obj.get("page_size") != null){
+                pageSize = obj.get("page_size").getAsInt();
+            }
+        } catch (IOException e) {
+        	logger.error(e);
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        
+        saveLog(request, userId+"");
+        SearchDataVo vo = new SearchDataVo(null,null,(page-1)*pageSize,pageSize);
+        vo.putSearchParam("userId",null,userId);
+        vo.putSearchParam("createTime", null, createTime);
+        //通过用户id查找该用户的所有推送数据
+        adSystemPushService.getPageData(vo);
+        List<?> list = vo.getList();
+     
+        List<AdSystemPush> pushlist = new ArrayList<>();
+        for(Object obj : list) {
+        	AdSystemPush userPush = (AdSystemPush) obj;
+        	userPush.setCreateTimeStr(DateUtil.dateFormate(userPush.getCreateTime(), "MM-dd HH:mm"));
+        	pushlist.add(userPush);
+        }
+        //设置总页数
+        int totalCount = (int) ((vo.getCount() + pageSize - 1) / pageSize);
+        result.setResult(pushlist);
+        model.addAttribute(SysConst.RESULT_KEY, result);
         model.addAttribute("totalCount", totalCount);
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");
@@ -881,6 +1069,7 @@ public class ApiController extends BasicController {
                 pageSize = obj.get("page_size").getAsInt();
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -899,11 +1088,12 @@ public class ApiController extends BasicController {
         }
 
         SysUserExecute user = getLoginUser(request, token);
+        saveLog(request, user.getUsername());
         SearchDataVo datavo = new SearchDataVo(null,null,(page-1)*pageSize,pageSize);
         datavo.putSearchParam("userId",null,user.getId());
         
         //监测任务列表(已修改：添加了province, city, region, street, startTime, endTime, assignType)
-        if (type == 1) {
+        if (type == AppTaskEnum.MONITOR_TASK.getId()) {
         	if(status == MonitorTaskStatus.VERIFY.getId()) {
             	//9：已审核 包括 审核通过 和 审核未通过
             	List<Integer> statuses = new ArrayList<>();
@@ -915,7 +1105,7 @@ public class ApiController extends BasicController {
             }
             datavo.putSearchParam("updateTime", null, updateTime);
             //List<AdMonitorTaskMobileVo> tasks = adMonitorTaskService.getByUserIdForMobile(user.getId());
-            Integer userTaskStatus = 1; //状态：1.正常 2.主动放弃 3.超时回收
+            Integer userTaskStatus = AppUserTaskEnum.NORMAL.getId(); //状态：1.正常 2.主动放弃 3.超时回收 4.修改指派
             datavo.putSearchParam("userTaskStatus", null, userTaskStatus);
             adMonitorTaskService.getTaskPageData(datavo);
             List<AdMonitorTaskMobileVo> list = (List<AdMonitorTaskMobileVo>) datavo.getList();
@@ -929,7 +1119,7 @@ public class ApiController extends BasicController {
                     vo.setRegion(cityCache.getCityName(task.getRegion()));
                     vo.setStreet(cityCache.getCityName(task.getStreet()));
                     //若没有贴上二维码, 清空二维码信息
-                    if(vo.getAdCodeFlag() == 0) {
+                    if(vo.getAdCodeFlag() == AdCodeFlagEnum.NO.getId()) {
                     	vo.setAd_seat_code(null);
                     	vo.setAdCode(null);
                     }
@@ -942,7 +1132,7 @@ public class ApiController extends BasicController {
                     vo.setStreet(cityCache.getCityName(task.getStreet()));
                     
                     //若没有贴上二维码, 清空二维码信息
-                    if(vo.getAdCodeFlag() == 0) {
+                    if(vo.getAdCodeFlag() == AdCodeFlagEnum.NO.getId()) {
                     	vo.setAdCode(null);
                     }
                     resultVo.getExecuting().add(vo);
@@ -953,9 +1143,16 @@ public class ApiController extends BasicController {
                     vo.setRegion(cityCache.getCityName(task.getRegion()));
                     vo.setStreet(cityCache.getCityName(task.getStreet()));
                     //若没有贴上二维码, 清空二维码信息
-                    if(vo.getAdCodeFlag() == 0) {
+                    if(vo.getAdCodeFlag() == AdCodeFlagEnum.NO.getId()) {
                     	vo.setAd_seat_code(null);
                     	vo.setAdCode(null);
+                    }
+                    
+                    if(task.getStatus() == MonitorTaskStatus.VERIFY_FAILURE.getId()) {
+                    	vo.setPicUrl1Status(task.getPicUrl1Status());
+                    	vo.setPicUrl2Status(task.getPicUrl2Status());
+                    	vo.setPicUrl3Status(task.getPicUrl3Status());
+                    	vo.setPicUrl4Status(task.getPicUrl4Status());
                     }
                     resultVo.getChecked().add(vo);
                 } else if (task.getStatus() == MonitorTaskStatus.UN_FINISHED.getId()) {
@@ -965,7 +1162,7 @@ public class ApiController extends BasicController {
                 	vo.setRegion(cityCache.getCityName(task.getRegion()));
                     vo.setStreet(cityCache.getCityName(task.getStreet()));
                     //若没有贴上二维码, 清空二维码信息
-                    if(vo.getAdCodeFlag() == 0) {
+                    if(vo.getAdCodeFlag() == AdCodeFlagEnum.NO.getId()) {
                     	vo.setAd_seat_code(null);
                     	vo.setAdCode(null);
                     }
@@ -974,7 +1171,7 @@ public class ApiController extends BasicController {
             }
             
             result.setResult(resultVo);
-        } else if (type == 2) {
+        } else if (type == AppTaskEnum.JIUCUO_TASK.getId()) {
         	if(status == JiucuoTaskStatus.VERIFY.getId()) {
             	//4：纠错审核已结束 包括 审核通过 和 审核未通过
             	List<Integer> statuses = new ArrayList<>();
@@ -1002,7 +1199,6 @@ public class ApiController extends BasicController {
         }
         //设置总页数
         int totalCount = (int) ((datavo.getCount() + pageSize - 1) / pageSize);
-
         model.addAttribute("totalCount", totalCount);
         model.addAttribute(SysConst.RESULT_KEY, result);
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
@@ -1061,7 +1257,7 @@ public class ApiController extends BasicController {
         }
         String path = request.getRealPath("/");
         path = path + (path.endsWith(File.separator) ? "" : File.separatorChar) + "static" + File.separatorChar + "upload" + File.separatorChar;
-        if (type == 1) {
+        if (type == AppTaskEnum.MONITOR_TASK.getId()) {
             //参数不对
             if (type == null || taskId == null || file1 == null || file2 == null || file3 == null || file4 == null) {
                 result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
@@ -1107,18 +1303,20 @@ public class ApiController extends BasicController {
                 try {
                     adMonitorTaskService.feedback(taskId, feedback,adSeatCode, user);
                 } catch (Exception e) {
+                	logger.error(e);
                     result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
                     result.setResultDes("保存出错！");
                     model.addAttribute(SysConst.RESULT_KEY, result);
                     return model;
                 }
             } catch (IOException e) {
+            	logger.error(e);
                 result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
                 result.setResultDes("上传出错！");
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
             }
-        } else if (type == 2) {
+        } else if (type == AppTaskEnum.JIUCUO_TASK.getId()) {
             //参数不对
             if (type == null || adActivitySeatId == null || file1 == null) {
                 result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
@@ -1162,12 +1360,14 @@ public class ApiController extends BasicController {
                 try {
                     adJiucuoTaskService.feedback(task, feedback);
                 } catch (Exception e) {
+                	logger.error(e);
                     result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
                     result.setResultDes("保存出错！");
                     model.addAttribute(SysConst.RESULT_KEY, result);
                     return model;
                 }
             } catch (IOException e) {
+            	logger.error(e);
                 result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
                 result.setResultDes("上传出错！");
                 model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1227,7 +1427,7 @@ public class ApiController extends BasicController {
                 return model;
             }
         }
-
+        saveLog(request, user.getUsername());
         //参数不对
         if (type == null) {
             result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
@@ -1235,27 +1435,41 @@ public class ApiController extends BasicController {
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
-        String path = request.getRealPath("/");
-        path = path + (path.endsWith(File.separator) ? "" : File.separatorChar) + "static" + File.separatorChar + "upload" + File.separatorChar;
-        if (type == 1) {
+        
+        String path = file_upload_path;
+        Calendar date = Calendar.getInstance();
+        String timePath = date.get(Calendar.YEAR)+ File.separator + (date.get(Calendar.MONTH)+1) + File.separator+ date.get(Calendar.DAY_OF_MONTH) + File.separator;
+        path = path + (path.endsWith(File.separator) ? "" : File.separatorChar) + "activity" + File.separatorChar;
+        
+        if (type == AppTaskEnum.MONITOR_TASK.getId()) {
+        	AdMonitorTask adMonitorTask = adMonitorTaskService.selectByPrimaryKey(taskId);
+        	path = path + adMonitorTask.getActivityId() + File.separatorChar + "monitor" + File.separator + timePath;
+        	String servicePath = path.substring(path.indexOf(":")+1, path.length()).replaceAll("\\\\", "/");
+        	servicePath = servicePath.replaceFirst("/opt/", "/");
             //参数不对
             if (type == null || taskId == null || (file1 == null && file2 == null && file3 == null && file4 == null)) {
                 result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
-                result.setResultDes("参数有误！");
+                result.setResultDes("参数有误！");                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
             }
+            
             //不是以data:image/jpeg;base64,开头的说明并没有重新拍照
-            if (file1!=null&&!file1.startsWith("data:image/jpeg;base64,")) {
+            /**
+             * 审核不通过重新执行的任务反馈中: 
+             * 1、base64串 → 代表审核不通过的图片重新拍照执行
+             * 2、null → 代表审核不通过但是照片没替换  或者  审核通过的图片
+             */
+            if (StringUtil.isNotBlank(file1) && !file1.startsWith("data:image/jpeg;base64,")) {
                 file1 = null;
             }
-            if (file2!=null&&!file2.startsWith("data:image/jpeg;base64,")) {
+            if (StringUtil.isNotBlank(file2) && !file2.startsWith("data:image/jpeg;base64,")) {
                 file2 = null;
             }
-            if (file3!=null&&!file3.startsWith("data:image/jpeg;base64,")) {
+            if (StringUtil.isNotBlank(file3) && !file3.startsWith("data:image/jpeg;base64,")) {
                 file3 = null;
             }
-            if (file4!=null&&!file4.startsWith("data:image/jpeg;base64,")) {
+            if (StringUtil.isNotBlank(file4) && !file4.startsWith("data:image/jpeg;base64,")) {
                 file4 = null;
             }
 
@@ -1297,7 +1511,7 @@ public class ApiController extends BasicController {
                 }
                 if (filename1 == null && filename2 == null && filename3 == null && filename4 == null) {
                     result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
-                    result.setResultDes("上传出错！");
+                    result.setResultDes("上传图片失败，请稍后再试！");
                     model.addAttribute(SysConst.RESULT_KEY, result);
                     return model;
                 }
@@ -1306,25 +1520,26 @@ public class ApiController extends BasicController {
                 feedback.setSeatLon(seatLon);
                 feedback.setLat(lat);
                 feedback.setLon(lon);
+                //path = path.substring(path.indexOf(":")+1, path.length()).replaceAll("\\\\", "/");
                 if (filename1 != null) {
                 	int index = filename1.indexOf('.');
                     MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename1, path, filename1.substring(0, index), "jpg", null);
-                    feedback.setPicUrl1("/static/upload/" + filename1);    
+                    feedback.setPicUrl1(file_upload_ip + servicePath + filename1);    
                 }
                 if (filename2 != null) {
                 	int index = filename2.indexOf('.');
                     MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename2, path, filename2.substring(0, index), "jpg", null);
-                    feedback.setPicUrl2("/static/upload/" + filename2);
+                    feedback.setPicUrl2(file_upload_ip + servicePath + filename2);
                 }
                 if (file3 != null) {
                 	int index = filename3.indexOf('.');
                     MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename3, path, filename3.substring(0, index), "jpg", null);
-                    feedback.setPicUrl3("/static/upload/" + filename3);
+                    feedback.setPicUrl3(file_upload_ip + servicePath + filename3);
                 }
                 if (file4 != null) {
                 	int index = filename4.indexOf('.');
                     MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename4, path, filename4.substring(0, index), "jpg", null);
-                    feedback.setPicUrl4("/static/upload/" + filename4);
+                    feedback.setPicUrl4(file_upload_ip + servicePath + filename4);
                 }
                 feedback.setProblem(problem);
                 feedback.setProblemOther(other);
@@ -1333,19 +1548,21 @@ public class ApiController extends BasicController {
                 try {
                     adMonitorTaskService.feedback(taskId, feedback,adSeatCode, user);
                 } catch (Exception e) {
+                	logger.error(e);
                     result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
                     result.setResultDes("保存出错！");
                     model.addAttribute(SysConst.RESULT_KEY, result);
                     return model;
                 }
             } catch (Exception e) {
+            	logger.error(e);
                 e.printStackTrace();
                 result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
                 result.setResultDes("上传出错！");
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
             }
-        } else if (type == 2) {
+        } else if (type == AppTaskEnum.JIUCUO_TASK.getId()) {
             //参数不对
             if (type == null || adActivitySeatId == null || file1 == null) {
                 result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
@@ -1360,12 +1577,15 @@ public class ApiController extends BasicController {
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
             }
-            
+            path = path + seat.getActivityId() + File.separator + "jiucuo" + File.separator + timePath;
+        	String servicePath = path.substring(path.indexOf(":")+1, path.length()).replaceAll("\\\\", "/");
+        	servicePath = servicePath.replaceFirst("/opt/", "/");
+        	
             //查询是否有人正在做这个广告位这个活动的纠错任务(即待审核的纠错任务)
             Map<String, Object> searchMap = new HashMap<>();
             searchMap.put("activityId", seat.getActivityId()); //活动id
             searchMap.put("adSeatId", seat.getAdSeatId()); //广告位id
-            searchMap.put("status", 1); //纠错任务待审核
+            searchMap.put("status", JiucuoTaskStatus.UNVERIFY.getId()); //纠错任务待审核
             int count = adJiucuoTaskService.selectCountByActivityAndSeat(searchMap);
             if(count > 0) {
             	result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -1399,19 +1619,24 @@ public class ApiController extends BasicController {
                 feedback.setSeatLon(seatLon);
                 feedback.setLat(lat);
                 feedback.setLon(lon);
-                feedback.setPicUrl1("/static/upload/" + filename1);
+                int index = filename1.indexOf('.');
+                MarkLogoUtil.markImageBySingleIcon(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogomin.png", path+filename1, path, filename1.substring(0, index), "jpg", null);      
+                //feedback.setPicUrl1("/static/upload/" + filename1);
+                feedback.setPicUrl1(file_upload_ip + servicePath + filename1);
                 feedback.setProblem(problem);
                 feedback.setProblemOther(other);
                 
                 try {
                     adJiucuoTaskService.feedback(task, feedback);
                 } catch (Exception e) {
+                	logger.error(e);
                     result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
                     result.setResultDes("保存出错！");
                     model.addAttribute(SysConst.RESULT_KEY, result);
                     return model;
                 }
             } catch (Exception e) {
+            	logger.error(e);
                 result.setCode(ResultCode.RESULT_PARAM_ERROR.getCode());
                 result.setResultDes("上传出错！");
                 model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1453,6 +1678,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1471,7 +1697,7 @@ public class ApiController extends BasicController {
         }
 
         SysUserExecute user = getLoginUser(request, token);
-
+        saveLog(request, user.getUsername());
         List<ActivityMobileReportVo> list = adActivityService.getMobileReport(user);
         List<ActivityReportVo> apiVoList = Lists.newArrayList();
         for (ActivityMobileReportVo vo : list) {
@@ -1516,6 +1742,7 @@ public class ApiController extends BasicController {
                 pageSize = obj.get("page_size").getAsInt();
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1534,7 +1761,7 @@ public class ApiController extends BasicController {
         }
 
         SysUserExecute user = getLoginUser(request, token);
-
+        saveLog(request, user.getUsername());
         List<AdMonitorReward> rewards = adMonitorRewardService.getByUserId(user.getId());
         RewardResultVo resultVo = new RewardResultVo();
         resultVo.setTotal_reward(adMonitorRewardService.getTotalRewardByUserId(user.getId()));
@@ -1553,6 +1780,7 @@ public class ApiController extends BasicController {
     @RequestMapping(value = "/getProvince")
     @ResponseBody
     public Model getProvince(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	saveLog(request, "");
         ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("获取成功");
@@ -1570,6 +1798,7 @@ public class ApiController extends BasicController {
     @RequestMapping(value = "/getCity")
     @ResponseBody
     public Model getCity(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	saveLog(request, "");
         ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("获取成功");
@@ -1583,6 +1812,7 @@ public class ApiController extends BasicController {
             JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
             provinceId = obj.get("provinceId") == null ? null : obj.get("provinceId").getAsLong();
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1612,6 +1842,7 @@ public class ApiController extends BasicController {
     @RequestMapping(value = "/getProvinceRegion")
     @ResponseBody
     public Model getProvinceRegion(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	saveLog(request, "");
         ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("获取成功");
@@ -1625,6 +1856,7 @@ public class ApiController extends BasicController {
             JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
             provinceId = obj.get("provinceId") == null ? null : obj.get("provinceId").getAsLong();
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1643,6 +1875,7 @@ public class ApiController extends BasicController {
     @RequestMapping(value = "/getRegion")
     @ResponseBody
     public Model getRegion(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	saveLog(request, "");
         ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("获取成功");
@@ -1656,6 +1889,7 @@ public class ApiController extends BasicController {
             JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
             cityId = obj.get("cityId") == null ? null : obj.get("cityId").getAsLong();
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1678,6 +1912,7 @@ public class ApiController extends BasicController {
     @RequestMapping(value = "/getStreet")
     @ResponseBody
     public Model getStreet(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	saveLog(request, "");
         ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("获取成功");
@@ -1691,6 +1926,7 @@ public class ApiController extends BasicController {
             JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
             regionId = obj.get("regionId") == null ? null : obj.get("regionId").getAsLong();
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1738,6 +1974,7 @@ public class ApiController extends BasicController {
                 pageSize = obj.get("page_size").getAsInt();
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1756,8 +1993,8 @@ public class ApiController extends BasicController {
         }
 
         SysUserExecute user = getLoginUser(request, token);
-
-        if(user.getUsertype()==3){
+        saveLog(request, user.getUsername());
+        if(user.getUsertype()==AppUserTypeEnum.MEDIA.getId()){
             result.setResult(adSeatService.getByStreetAndMediaUserId(street,user.getOperateId()));
         }else{
             result.setResult(Lists.newArrayList());
@@ -1794,6 +2031,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1819,7 +2057,7 @@ public class ApiController extends BasicController {
         }
 
         SysUserExecute user = getLoginUser(request, token);
-
+        saveLog(request, user.getUsername());
         SysUserVo operate = sysUserService.findUserinfoById(user.getOperateId());
         AdSeatCodeCheckInfo checkInfo = new AdSeatCodeCheckInfo();
 
@@ -1842,20 +2080,18 @@ public class ApiController extends BasicController {
     }
 
     /**
-     * APP一打开调用
-     * @param model
-     * @param request
-     * @param response
+     * APP一打开调用 检查版本号是否要更新
      */
     @RequestMapping(value = "/checkVersion")
     @ResponseBody
     public Model getLatestForceUpdateVersion(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	saveLog(request, "");
     	ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("操作成功");
         model = new ExtendedModelMap();
         
-        Integer needForceUpdate = 3; // 0: 有新版本,需要强制更新; 1: 有新版本,可去更新; 2: 最新版本; 3: 版本号有误
+        Integer needForceUpdate = AppUpdateTypeEnum.VERSION_ERROR.getId(); // 0: 有新版本,需要强制更新; 1: 有新版本,可去更新; 2: 最新版本; 3: 版本号有误
         String appVersion;
         
         // 查询最新的需要强制更新的版本号
@@ -1868,7 +2104,7 @@ public class ApiController extends BasicController {
             JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
             appVersion = obj.get("appVersion") == null ? null : obj.get("appVersion").getAsString();
             
-            //判断版本号比较, 提示是否需要强制更新
+            //【1】判断版本号比较, 提示是否需要强制更新
             if(version != null) {
             	String[] versionSplit = version.getAppVersion().split("\\.");
             	String[] appVersionSplit = appVersion.split("\\.");
@@ -1877,52 +2113,61 @@ public class ApiController extends BasicController {
         			Integer appVersionInt = Integer.parseInt(appVersionSplit[i]);
         			if(appVersionInt < versionInt) {
         				//需要强制更新
-        				needForceUpdate = 0;
+        				needForceUpdate = AppUpdateTypeEnum.FORCE_UPDATE.getId();
+        				model.addAttribute("apkUrl", version.getApkUrl());
+                    	model.addAttribute("iosUrl", version.getIosUrl());
         				break;
         			} else if(appVersionInt > versionInt) {
         				//不需要强制更新
-        				needForceUpdate = 1;
+        				needForceUpdate = AppUpdateTypeEnum.CAN_UPDATE.getId();
         				break;
         			}
         		}
             	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
             }
             
-            //判断版本号比较, 提示是否更新
+            //【2】判断版本号比较, 提示是否更新
             if(nowVersion == null) {
             	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
                 result.setResultDes("版本号有误！");
-                needForceUpdate = 3;
+                needForceUpdate = AppUpdateTypeEnum.VERSION_ERROR.getId();
                 result.setResult(needForceUpdate);
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
             } else {
-            	if(needForceUpdate != 0) {
+            	if(needForceUpdate != AppUpdateTypeEnum.FORCE_UPDATE.getId()) {
+            		//不需要强制更新
             		String[] versionSplit = nowVersion.getAppVersion().split("\\.");
                 	String[] appVersionSplit = appVersion.split("\\.");
                 	for (int i = 0; i < appVersionSplit.length; i++) {
             			Integer versionInt = Integer.parseInt(versionSplit[i]);
             			Integer appVersionInt = Integer.parseInt(appVersionSplit[i]);
             			if(appVersionInt < versionInt) {
-            				needForceUpdate = 1;
+            				//有新版本,可去更新
+            				needForceUpdate = AppUpdateTypeEnum.CAN_UPDATE.getId();
+            				model.addAttribute("apkUrl", nowVersion.getApkUrl());
+                        	model.addAttribute("iosUrl", nowVersion.getIosUrl());
             				break;
             			} else if(appVersionInt == versionInt) {
-            				needForceUpdate = 2;
+            				needForceUpdate = AppUpdateTypeEnum.LATEEST_VERSION.getId();
             			}
             		}
             	}
             	result.setCode(ResultCode.RESULT_SUCCESS.getCode());
 			}
             
-            if(needForceUpdate == 1) {
-        		result.setResultDes("有新版本，可去更新！");
-        	} else if(needForceUpdate == 0) {
-        		result.setResultDes("有新版本，需要强制更新！");
+            if(needForceUpdate == AppUpdateTypeEnum.LATEEST_VERSION.getId()) {
+        		result.setResultDes("最新版本");
+        	} else if(needForceUpdate == AppUpdateTypeEnum.FORCE_UPDATE.getId()) {
+        		result.setResultDes("有新版本，需要强制更新！新版本号：" + version.getAppVersion());
+        	} else if(needForceUpdate == AppUpdateTypeEnum.CAN_UPDATE.getId()) {
+        		result.setResultDes("有新版本，可以更新！新版本号：" + version.getAppVersion());
         	} else {
         		result.setResultDes("最新版本！");
         	}
             result.setResult(needForceUpdate);
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1972,6 +2217,7 @@ public class ApiController extends BasicController {
                 pageSize = obj.get("page_size").getAsInt();
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -1995,7 +2241,8 @@ public class ApiController extends BasicController {
                 return model;
             }
         }
-
+        SysUserExecute user = getLoginUser(request, token);
+        saveLog(request, user.getUsername());
         SearchDataVo vo = new SearchDataVo(null,null,(page-1)*pageSize,pageSize);
         vo.putSearchParam("lat",null,lat);
         vo.putSearchParam("lon",null,lon);
@@ -2058,6 +2305,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2081,7 +2329,6 @@ public class ApiController extends BasicController {
                 return model;
             }
         }
-        
         List<MonitorTaskArroundVo> list = Lists.newArrayList();
         SearchDataVo vo = new SearchDataVo(null,null,(page-1)*pageSize,pageSize);
         vo.putSearchParam("lon",null,lon);
@@ -2099,22 +2346,25 @@ public class ApiController extends BasicController {
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
-        
-        Integer status = 8;
-        if(user.getUsertype().equals(4)) {
+        saveLog(request, user.getUsername());
+        Integer status = MonitorTaskStatus.CAN_GRAB.getId();
+        if(user.getUsertype().equals(AppUserTypeEnum.SOCIAL.getId())) {
         	//[1] 社会人员抢单
-        	status = 8; //8：可抢单
+        	status = MonitorTaskStatus.CAN_GRAB.getId(); //8：可抢单
         	vo.putSearchParam("status", null, status);
-        } else if(user.getUsertype().equals(3)) {
-        	//[2] 媒体监测人员抢单(自己媒体公司下的任务)
-        	Integer mediaSysUserId = user.getOperateId();
-        	AdMedia adMedia = mediaService.getMediaByUserId(mediaSysUserId);
-        	vo.putSearchParam("mediaId", null, adMedia.getId());
+        }  else {
+        	if(user.getUsertype().equals(AppUserTypeEnum.MEDIA.getId())) {
+            	//[2] 媒体公司员工抢单  
+        		AdMedia media = mediaService.getMediaByUserId(user.getOperateId());
+        		vo.putSearchParam("mediaId", null, media.getId());
+            }
+
+        	//[3] 媒体公司/第三方监测公司人员抢单（只抢属于自己公司下的任务）
+        	vo.putSearchParam("companyId", null, user.getOperateId());
         	
-        	status = 1; //1：待指派
+        	status = MonitorTaskStatus.UNASSIGN.getId(); //1：待指派
         	vo.putSearchParam("status", null, status);
         }
-        
         adMonitorTaskService.getByPointAroundPageData(vo);
         
         for(Object obj : vo.getList()){
@@ -2127,6 +2377,16 @@ public class ApiController extends BasicController {
         	arroundVo.setStartTime(DateUtil.dateFormate(task.getMonitorDate(), "yyyy-MM-dd"));
         	Long timestamp = task.getMonitorDate().getTime() + (task.getMonitorLastDays() - 1)*24*60*60*1000;
         	arroundVo.setEndTime(DateUtil.dateFormate(new Date(timestamp), "yyyy-MM-dd"));
+        	arroundVo.setTask_point(task.getTaskPoint());
+        	arroundVo.setTask_money(task.getTaskMoney());
+        	arroundVo.setQualifiedPicUrl(task.getQualifiedPicUrl());
+        	arroundVo.setNoQualifiedPicUrl1(task.getNoQualifiedPicUrl1());
+        	arroundVo.setNoQualifiedPicUrl2(task.getNoQualifiedPicUrl2());
+        	arroundVo.setNoQualifiedPicUrl3(task.getNoQualifiedPicUrl2());
+        	arroundVo.setNoQualifiedText1(task.getNoQualifiedText1());
+        	arroundVo.setNoQualifiedText2(task.getNoQualifiedText2());
+        	arroundVo.setNoQualifiedText3(task.getNoQualifiedText3());
+        	arroundVo.setNotification(task.getNotification());
         	list.add(arroundVo);
         }
 
@@ -2184,6 +2444,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2241,19 +2502,27 @@ public class ApiController extends BasicController {
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
+        saveLog(request, user.getUsername());
         
         Integer status = null;
-        if(user.getUsertype().equals(4)) {
+        if(user.getUsertype().equals(AppUserTypeEnum.SOCIAL.getId())) {
         	//[1] 社会人员抢单
-        	status = 8; //8：可抢单
+        	status = MonitorTaskStatus.CAN_GRAB.getId(); //8：可抢单
         	vo.putSearchParam("status", null, status);
-        } else if(user.getUsertype().equals(3)) {
+        } else if(user.getUsertype().equals(AppUserTypeEnum.MEDIA.getId())) {
         	//[2] 媒体监测人员抢单(自己媒体公司下的任务)
         	Integer mediaSysUserId = user.getOperateId();
         	AdMedia adMedia = mediaService.getMediaByUserId(mediaSysUserId);
         	vo.putSearchParam("mediaId", null, adMedia.getId());
         	
-        	status = 1; //1：待指派
+        	status = MonitorTaskStatus.UNASSIGN.getId(); //1：待指派
+        	vo.putSearchParam("status", null, status);
+        } else if(user.getUsertype().equals(AppUserTypeEnum.THIRD_COMPANY.getId())) {
+        	//[3] 第三方监测公司人员抢单（只抢属于自己公司下的任务）
+        	Integer companyId = user.getOperateId();
+        	vo.putSearchParam("companyId", null, companyId);
+        	
+        	status = MonitorTaskStatus.UNASSIGN.getId(); //1：待指派
         	vo.putSearchParam("status", null, status);
         }
         
@@ -2270,6 +2539,16 @@ public class ApiController extends BasicController {
         	arroundVo.setStartTime(DateUtil.dateFormate(task.getMonitorDate(), "yyyy-MM-dd"));
         	Long timestamp = task.getMonitorDate().getTime() + (task.getMonitorLastDays() - 1)*24*60*60*1000;
         	arroundVo.setEndTime(DateUtil.dateFormate(new Date(timestamp), "yyyy-MM-dd"));
+        	arroundVo.setTask_point(task.getTaskPoint());
+        	arroundVo.setTask_money(task.getTaskMoney());
+         	arroundVo.setQualifiedPicUrl(task.getQualifiedPicUrl());
+        	arroundVo.setNoQualifiedPicUrl1(task.getNoQualifiedPicUrl1());
+        	arroundVo.setNoQualifiedPicUrl2(task.getNoQualifiedPicUrl2());
+        	arroundVo.setNoQualifiedPicUrl3(task.getNoQualifiedPicUrl2());
+        	arroundVo.setNoQualifiedText1(task.getNoQualifiedText1());
+        	arroundVo.setNoQualifiedText2(task.getNoQualifiedText2());
+        	arroundVo.setNoQualifiedText3(task.getNoQualifiedText3());
+        	arroundVo.setNotification(task.getNotification());
         	list.add(arroundVo);
         }
 
@@ -2288,6 +2567,7 @@ public class ApiController extends BasicController {
     @RequestMapping(value = "/getSMSCode")
     @ResponseBody
     public Model getSMSCode(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	saveLog(request, "");
         ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("获取成功");
@@ -2311,6 +2591,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2359,6 +2640,7 @@ public class ApiController extends BasicController {
         	//发送短信
             sendSmsService.sendSms(mobile, SMS_CHECKCODE_CONTENT_TEMPLATE.replaceAll("\\{\\{code\\}\\}",num));
         }catch (Exception e){
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2400,6 +2682,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2445,7 +2728,7 @@ public class ApiController extends BasicController {
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
-
+        saveLog(request, userExecute.getUsername());
         model.addAttribute(SysConst.RESULT_KEY, result);
 //        response.getHeaders().add("Access-Control-Allow-Credentials","true");
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
@@ -2469,7 +2752,7 @@ public class ApiController extends BasicController {
         String inviteAcc = null;
         String deviceId = null;
         String systemVersion = null;
-        
+        String isJoin = null;
         Date now = new Date();
         try {
             InputStream is = request.getInputStream();
@@ -2483,6 +2766,7 @@ public class ApiController extends BasicController {
             inviteAcc = obj.get("inviteAcc") == null ? null : obj.get("inviteAcc").getAsString();
             deviceId = obj.get("deviceId") == null ? null : obj.get("deviceId").getAsString();
             systemVersion = obj.get("systemVersion") == null ? null : obj.get("systemVersion").getAsString();
+            isJoin = obj.get("isJoin") == null ? null : obj.get("isJoin").getAsString();
             if (token != null) {
                 useSession.set(Boolean.FALSE);
                 this.sessionByRedis.setToken(token);
@@ -2490,6 +2774,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2546,22 +2831,23 @@ public class ApiController extends BasicController {
         
         //邀请码验证(注册的人添加的积分是"正常注册"+"邀请码注册", 邀请方添加的积分是"邀请码注册")
         if(!StringUtils.isEmpty(inviteAcc)) {
-        	//有邀请码的情况
-        	SysUserExecute sysUserExecute = sysUserExecuteService.getMobile(inviteAcc);
+        	//有邀请码的情况 
+        	//[1] 输入的是手机号
+         	SysUserExecute sysUserExecute = sysUserExecuteService.getMobile(inviteAcc);
+         	//[2] 输入的是公司邮箱
+         	SysUser sysUser = sysUserService.getUserName(inviteAcc);
         	if(sysUserExecute!=null) {
-        		//邀请码输入正确   ,获得邀请注册默认积分
-        		AdPoint adpoint = pointService.findPointValue(1);
+        	    //邀请码输入正确   ,获得邀请注册默认积分
+        		AdPoint	adpoint = pointService.findPointValue(AdPointEnum.INVITE_REGIST.getId());
         		//正常注册，获得默认注册积分
-        		AdPoint adpointreg = pointService.findPointValue(9);
-        		
+        		AdPoint adpointreg = pointService.findPointValue(AdPointEnum.NORMAL_REGIST.getId());
         		//正常注册
             	String md5Pwd = new Md5Hash(password, username).toString();
-
                 userExecute = new SysUserExecute();
                 userExecute.setUsername(username);
                 userExecute.setRealname(username);
                 userExecute.setPassword(md5Pwd);
-                userExecute.setUsertype(UserExecuteType.Social.getId());
+                userExecute.setUsertype(AppUserTypeEnum.SOCIAL.getId());
                 userExecute.setStatus(1);
                 userExecute.setMobile(username);
                 userExecute.setMac(mac);
@@ -2571,10 +2857,41 @@ public class ApiController extends BasicController {
                 userExecute.setSystemVersion(systemVersion);
                 try{
                 	sysUserExecuteService.add(userExecute);
-            		SysUserExecute sysUser = sysUserExecuteService.getByUsername(username);
+            		SysUserExecute sysUserExe = sysUserExecuteService.getByUsername(username);
             		//注册人积分增加（正常注册+邀请码积分） 邀请方积分增加
-            		userPointService.addByInvite(sysUser,adpoint,adpointreg,username,sysUserExecute);
+            		userPointService.addByInvite(sysUserExe,adpoint,adpointreg,username,sysUserExecute);
                 }catch (Exception e){
+                	logger.error(e);
+                    result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                    result.setResultDes("注册失败！");
+                    model.addAttribute(SysConst.RESULT_KEY, result);
+                    return model;
+                }
+        	} else if(isJoin.equals("true")) {
+        		//正常注册，获得默认注册积分
+        		AdPoint adpointreg = pointService.findPointValue(AdPointEnum.NORMAL_REGIST.getId());
+        		//正常注册
+            	String md5Pwd = new Md5Hash(password, username).toString();
+                userExecute = new SysUserExecute();
+                userExecute.setUsername(username);
+                userExecute.setRealname(username);
+                userExecute.setPassword(md5Pwd);
+                userExecute.setUsertype(AppUserTypeEnum.THIRD_COMPANY.getId());
+                userExecute.setStatus(1);
+                userExecute.setMobile(username);
+                userExecute.setMac(mac);
+                userExecute.setCreateTime(now);
+                userExecute.setUpdateTime(now);
+                userExecute.setDeviceId(deviceId);
+                userExecute.setSystemVersion(systemVersion);
+                userExecute.setOperateId(sysUser.getId());
+                try{
+                	sysUserExecuteService.add(userExecute);
+            		SysUserExecute sysUserExe = sysUserExecuteService.getByUsername(username);
+            		//注册人积分增加（正常注册） 
+            		userPointService.addByInvite(sysUserExe,null,adpointreg,username,sysUserExecute);
+                }catch (Exception e){
+                	logger.error(e);
                     result.setCode(ResultCode.RESULT_FAILURE.getCode());
                     result.setResultDes("注册失败！");
                     model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2587,16 +2904,16 @@ public class ApiController extends BasicController {
                 model.addAttribute(SysConst.RESULT_KEY, result);
                 return model;
         	}
-        }else {
+        } else {
 	        //正常注册(注册的人添加的积分是"正常注册")
-        	AdPoint adpointreg = pointService.findPointValue(9); //正常注册
+        	AdPoint adpointreg = pointService.findPointValue(AdPointEnum.NORMAL_REGIST.getId()); //正常注册
 	    	String md5Pwd = new Md5Hash(password, username).toString();
 	
 	        userExecute = new SysUserExecute();
 	        userExecute.setUsername(username);
 	        userExecute.setRealname(username);
 	        userExecute.setPassword(md5Pwd);
-	        userExecute.setUsertype(UserExecuteType.Social.getId());
+	        userExecute.setUsertype(AppUserTypeEnum.SOCIAL.getId());
 	        userExecute.setStatus(1);
 	        userExecute.setMobile(username);
 	        userExecute.setMac(mac);
@@ -2610,6 +2927,7 @@ public class ApiController extends BasicController {
 	        	//正常注册积分增加
 	        	userPointService.addByReg(sysUser,adpointreg);
 	        }catch (Exception e){
+	        	logger.error(e);
 	            result.setCode(ResultCode.RESULT_FAILURE.getCode());
 	            result.setResultDes("注册失败！");
 	            model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2629,7 +2947,7 @@ public class ApiController extends BasicController {
         } else {
             sessionByRedis.setAttribute(SessionKey.SESSION_LOGIN_USER.toString(), userExecute);
         }
-
+        saveLog(request, username);
         result.setResult(new SysUserExecuteVo(userExecute));
         model.addAttribute(SysConst.RESULT_KEY, result);
 //        response.getHeaders().add("Access-Control-Allow-Credentials","true");
@@ -2638,6 +2956,44 @@ public class ApiController extends BasicController {
         return model;
     }
 
+    //邀请码为公司邮箱时 返回公司名
+    @RequestMapping(value = "/getCompanyName", method = RequestMethod.POST)
+    @ResponseBody
+    public Model getCompanyName(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	ResultVo<SysUser> result = new ResultVo<>();
+        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+        model = new ExtendedModelMap();
+        String inviteAcc = null;
+        try {
+            InputStream is = request.getInputStream();
+            Gson gson = new Gson();
+            JsonObject obj = gson.fromJson(new InputStreamReader(is), JsonObject.class);
+            inviteAcc = obj.get("inviteAcc") == null ? null : obj.get("inviteAcc").getAsString();
+        } catch (IOException e) {
+        	logger.error(e);
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes("系统繁忙，请稍后再试！");
+            model.addAttribute(SysConst.RESULT_KEY, result);
+            return model;
+        }
+        SysUser sysUser = null;
+        if(!StringUtils.isEmpty(inviteAcc)) {
+        	//输入的是公司邮箱
+         	sysUser = sysUserService.getUserName(inviteAcc);
+        }
+        //未查询到该公司
+        if(sysUser == null) {
+        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+        	result.setResultDes("未查询到该公司,请输入正确的公司邮箱！");
+        }else {
+        	model.addAttribute("companyName" , sysUser.getRealname());
+        }
+        
+        model.addAttribute(SysConst.RESULT_KEY, result);
+        response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        return model;
+    }
     //app端手机号验证码登录
     @RequestMapping(value = "/smsLogin", method = RequestMethod.POST)
     @ResponseBody
@@ -2668,6 +3024,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2750,6 +3107,7 @@ public class ApiController extends BasicController {
             sessionByRedis.setAttribute(SessionKey.SESSION_LOGIN_USER.toString(), userExecute);
         }
 
+        saveLog(request, username);
         result.setResult(new SysUserExecuteVo(userExecute));
         model.addAttribute(SysConst.RESULT_KEY, result);
 //        response.getHeaders().add("Access-Control-Allow-Credentials","true");
@@ -2786,6 +3144,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2846,6 +3205,7 @@ public class ApiController extends BasicController {
             userExecute.setUpdateTime(new Date());
             sysUserExecuteService.modify(userExecute);
         }catch (Exception e){
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("账户已停用！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2857,7 +3217,7 @@ public class ApiController extends BasicController {
         } else {
             sessionByRedis.setAttribute(SessionKey.SESSION_LOGIN_USER.toString(), userExecute);
         }
-
+        saveLog(request, username);
         result.setResult(new SysUserExecuteVo(userExecute));
         model.addAttribute(SysConst.RESULT_KEY, result);
 //        response.getHeaders().add("Access-Control-Allow-Credentials","true");
@@ -2891,6 +3251,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2909,12 +3270,13 @@ public class ApiController extends BasicController {
         }
 
         SysUserExecute user = getLoginUser(request, token);
-
+        saveLog(request, user.getUsername());
         try{
             boolean flag = adMonitorTaskService.grabTask(user.getId(),taskId);
             //flag 即表示任务接取成功或失败，直接赋予 result
             result.setResult(flag);
         }catch (Exception e){
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -2986,6 +3348,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -3005,6 +3368,7 @@ public class ApiController extends BasicController {
 
         SysUserExecute user = getLoginUser(request, token); //APP登录的广告商
         SysUserVo sysUserVo = sysUserService.findByUsername(user.getUsername()); //通过APP和后台用户同一个用户名的关系去查后台customer用户的信息
+        saveLog(request, user.getUsername());
         List<Integer> activityIds = new ArrayList<>();
         //首先查询时间段以外的活动信息
         if(startDate != null && endDate != null) {
@@ -3104,6 +3468,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -3124,7 +3489,7 @@ public class ApiController extends BasicController {
         SysUserExecute user = getLoginUser(request, token);
         user = sysUserExecuteService.getById(user.getId());
         result.setResult(user);
-
+        saveLog(request, user.getUsername());
         model.addAttribute(SysConst.RESULT_KEY, result);
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");
@@ -3157,6 +3522,7 @@ public class ApiController extends BasicController {
                 useSession.set(Boolean.TRUE);
             }
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -3189,7 +3555,7 @@ public class ApiController extends BasicController {
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
-        
+        saveLog(request, user.getUsername());
         //[1] 获取该条任务信息
         AdMonitorTask adMonitorTask = adMonitorTaskService.selectByPrimaryKey(monitorTaskId);
         
@@ -3197,11 +3563,11 @@ public class ApiController extends BasicController {
         vo.setId(monitorTaskId);
         vo.setAbandonTime(now);
         vo.setUpdateTime(now);
-        vo.setUserTaskStatus(2); //1.正常 2.主动放弃 3.超时回收
+        vo.setUserTaskStatus(AppUserTaskEnum.ABANDON.getId()); //1.正常 2.主动放弃 3.超时回收
         
-        if(user.getUsertype().equals(4)) {
+        if(user.getUsertype().equals(AppUserTypeEnum.SOCIAL.getId())) {
         	//[1] 社会人员抢单 放弃任务
-        	if(adMonitorTask.getStatus() == 2 || adMonitorTask.getStatus() == 6) {
+        	if(adMonitorTask.getStatus() == MonitorTaskStatus.TO_CARRY_OUT.getId() || adMonitorTask.getStatus() == MonitorTaskStatus.UN_FINISHED.getId()) {
             	//[2] 判断24+12小时的逻辑, 将状态改成 1：待指派 或 8：可抢单
                 /**
                  * monitor_date + monitor_last_days - 2天 + 12小时 < now
@@ -3210,14 +3576,14 @@ public class ApiController extends BasicController {
                 Date monitorDate = adMonitorTask.getMonitorDate();
                 Integer monitorLastDays = adMonitorTask.getMonitorLastDays();
                 if(monitorDate.getTime() <= now.getTime() - monitorLastDays*24*60*60*1000 + 2*24*60*60*1000 - 12*60*60*1000) {
-                	vo.setTaskStatus(1); //1：待指派
+                	vo.setTaskStatus(MonitorTaskStatus.UNASSIGN.getId()); //1：待指派
                 } else {
-                	vo.setTaskStatus(8); //8：可抢单
+                	vo.setTaskStatus(MonitorTaskStatus.CAN_GRAB.getId()); //8：可抢单
                 }
             }
-        } else if(user.getUsertype().equals(3)) {
+        } else if(user.getUsertype().equals(AppUserTypeEnum.MEDIA.getId())) {
         	//[1] 媒体监测人员抢单(自己媒体公司下的任务) 放弃任务直接改回待指派
-        	vo.setTaskStatus(1); //1：待指派
+        	vo.setTaskStatus(MonitorTaskStatus.UNASSIGN.getId()); //1：待指派
         }
         
         //[3] 联表更新
@@ -3243,6 +3609,7 @@ public class ApiController extends BasicController {
         String token = null;
         Date now = new Date();
         Integer activityId = null; //活动id
+        Integer provinceId = null; //省份id
         Integer cityId = null; //城市id
         Integer mediaTypeParentId = null; //媒体大类id
         String updateTime = null; //app提交的时间, 防止分页数据可能造成的重复问题
@@ -3253,6 +3620,7 @@ public class ApiController extends BasicController {
             activityId = obj.get("activityId").getAsInt();
             token = obj.get("token") == null ? null : obj.get("token").getAsString();
             cityId = obj.get("cityId") == null ? null : obj.get("cityId").getAsInt();
+            provinceId = obj.get("provinceId") == null ? null : obj.get("provinceId").getAsInt();
             mediaTypeParentId = obj.get("mediaTypeParentId") == null ? null : obj.get("mediaTypeParentId").getAsInt();
             updateTime = obj.get("updateTime") == null ? null : obj.get("updateTime").getAsString();
             if(obj.get("page") != null){
@@ -3280,7 +3648,8 @@ public class ApiController extends BasicController {
             }
 
             //获取登录的当前用户
-//            SysUserExecute user = getLoginUser(request, token);
+            SysUserExecute user = getLoginUser(request, token);
+            saveLog(request, user==null?"":user.getUsername());
             //查询媒体类型包括媒体大类媒体小类
     		List<AdMediaType> allAdMediaType = adMediaTypeService.getAll();
     		Map<Integer, String> mediaTypeMap = new HashMap<>();
@@ -3296,6 +3665,7 @@ public class ApiController extends BasicController {
             SearchDataVo searchDataVo = new SearchDataVo(null, null, (page-1)*pageSize, pageSize);
             searchDataVo.putSearchParam("activityId", null, activityId);
             searchDataVo.putSearchParam("cityId", null, cityId);
+            searchDataVo.putSearchParam("provinceId", null, provinceId);
             searchDataVo.putSearchParam("mediaTypeParentId", null, mediaTypeParentId);
     		searchDataVo.putSearchParam("updateTime", null, updateTime);
         	
@@ -3361,23 +3731,23 @@ public class ApiController extends BasicController {
 					if(pictureVo.getDate() != null) {
 						//代表有人做过该任务
 						pictureVo.setTime(DateUtil.dateFormate(pictureVo.getDate(), "yyyy-MM-dd HH:mm:ss"));
-						if(StringUtil.equals(pictureVo.getTaskType(), "1")) {
+						if(StringUtil.equals(pictureVo.getTaskType(), MonitorTaskType.UP_MONITOR.getId() + "")) {
 							//1：上刊监测
 							pictureVo.setTaskType("上刊监测");
 							upPics.add(pictureVo);
-						} else if(StringUtil.equals(pictureVo.getTaskType(), "2")) {
+						} else if(StringUtil.equals(pictureVo.getTaskType(), MonitorTaskType.DURATION_MONITOR.getId() + "")) {
 							//2：投放期间监测
 							pictureVo.setTaskType("投放期间监测");
 							durationPics.add(pictureVo);
-						} else if(StringUtil.equals(pictureVo.getTaskType(), "3")) {
+						} else if(StringUtil.equals(pictureVo.getTaskType(), MonitorTaskType.DOWNMONITOR.getId() + "")) {
 							//3：下刊监测
 							pictureVo.setTaskType("下刊监测");
 							downPics.add(pictureVo);
-						} else if(StringUtil.equals(pictureVo.getTaskType(), "5")) {
+						} else if(StringUtil.equals(pictureVo.getTaskType(), MonitorTaskType.UP_TASK.getId() + "")) {
 							//5：上刊任务
 							pictureVo.setTaskType("上刊任务");
 							upTaskPics.add(pictureVo);
-						} else if(StringUtil.equals(pictureVo.getTaskType(), "6")) {
+						} else if(StringUtil.equals(pictureVo.getTaskType(), MonitorTaskType.ZHUIJIA_MONITOR.getId() + "")) {
 							//6：追加监测任务
 							pictureVo.setTaskType("追加监测");
 							zhuijiaPics.add(pictureVo);
@@ -3425,6 +3795,7 @@ public class ApiController extends BasicController {
         	
         	model.addAttribute("totalCount", totalCount); //当次查询总页数
         } catch (IOException e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -3471,7 +3842,8 @@ public class ApiController extends BasicController {
                     return model;
                 }
             }
-
+            SysUserExecute user = getLoginUser(request, token);
+            saveLog(request, user.getUsername());
             //查询媒体类型包括媒体大类媒体小类
     		List<AdMediaType> allAdMediaType = adMediaTypeService.getAll();
     		Map<Integer, String> mediaTypeMap = new HashMap<>();
@@ -3543,6 +3915,7 @@ public class ApiController extends BasicController {
         	model.addAttribute("provinceAndCities", provinceAndCities); //该活动下所有广告位的省市关联集合
         	model.addAttribute("parentMediaTypes", parentMediaTypes); //该活动下所有广告位的媒体大类集合
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -3559,6 +3932,7 @@ public class ApiController extends BasicController {
     @RequestMapping(value = "/getBranch")
     @ResponseBody
     public Model getBranch(Model model, HttpServletRequest request, HttpServletResponse response) {
+    	saveLog(request, "");
     	ResultVo result = new ResultVo();
         result.setCode(ResultCode.RESULT_SUCCESS.getCode());
         result.setResultDes("调用成功");
@@ -3581,6 +3955,7 @@ public class ApiController extends BasicController {
             AdApp adApp = appService.selectAppPicUrlAndTitleBySid(sid);
             result.setResult(adApp);
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("系统繁忙，请稍后再试！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -3654,5 +4029,18 @@ public class ApiController extends BasicController {
         System.out.println(new Md5Hash("admin123", "superadmin").toString());
 //        System.out.println("【浙江百泰】您的验证码为${code}".replaceAll("\\$\\{code\\}","122321"));
     }
-    
+    /**
+     * 保存日志信息
+     * 
+     * @param request
+     * @param userName 当前登录用户
+     */
+    private void saveLog(HttpServletRequest request,String userName) {
+    	String url = request.getRequestURI();
+    	String method = request.getMethod();
+    	if (!StringUtils.isEmpty(userName)) {
+			userName = "  userName:" + userName;
+		}
+    	logger.info(method + "  " + url + "  " + userName);
+    }
 }

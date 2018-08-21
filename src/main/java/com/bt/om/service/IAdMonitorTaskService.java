@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdMonitorTaskFeedback;
 import com.bt.om.entity.AdMonitorUserTask;
@@ -115,4 +117,19 @@ public interface IAdMonitorTaskService {
 	public List<AdMonitorTask> newSelectLatestMonitorTaskIds(Map<String, Object> searchMap);
 	List<String> selectUserNameByTaskIdBatch(Map<String, Object> searchMap);
 	void recycleMediaMonitorTask();
+	public void changeStatus();
+	public AdMonitorTask geAdMonitorTaskByFeedbackId(Integer adMonitorTaskFeedbackId);
+	//更新图片状态（通过 /驳回）
+	public Integer updatePicStatus(AdMonitorTaskFeedback feedback, Integer status);
+	public String selectUserNameByTaskId(Integer id);
+	public void assign(String[] taskIds, Integer mediaId, Integer companyId, Integer mediaUser, Integer companyUser,Integer id);
+
+	public List<AdMonitorTaskVo> selectMonitorTaskIdsByActicityId(Integer acticityId);
+
+	/**
+	 *获取监测任务
+	 */
+	public List<AdMonitorTaskVo> findAllMemo(Integer activityId,List<AdMonitorTaskVo> memos);
+	public void updateBatch(List<AdMonitorTaskVo> tasks);
+
 }

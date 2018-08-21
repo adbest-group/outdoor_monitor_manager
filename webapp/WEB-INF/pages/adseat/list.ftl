@@ -16,7 +16,9 @@
 					<#--autocomplete="off" onclick="">批量导入</button>-->
 	                <#--<div style="border-bottom: 1px solid black; margin:10px auto"></div>-->
                 <form id="form" method="get" action="/adseat/list" style="display: inline-block;">
+                	<#if user.usertype !=6>
               		<button type="button" style="float:left;margin-right:30px" class="btn btn-red" autocomplete="off" onclick="window.location.href='/platmedia/adseat/edit'">新增广告位</button>
+              		</#if>
                 	<!--活动搜索框-->
                      <div class="inp">
                     	<input type="text" placeholder="请输入广告位名称" value="${name?if_exists}" id="searchName" name="name">
@@ -37,32 +39,38 @@
                             <select style="height: 30px" id="adSeatInfo-street" name="street"></select> -->
                         </p>
                     </div>
+                    <#if user.usertype !=6>
                        	<button style="margin-left: 10px" type="button" class="btn" id="batchInsert" autocomplete="off">批量导入</button>
 						<button style="margin-left: 10px" type="button" class="btn" id="downloadBatch" autocomplete="off" onclick="">模板下载</button>
+					</#if>
                     <br/><br/>
 
-                    <div style="float: left;  font-size: 12px">
-                        	媒体: <select style="height: 30px" name="mediaId" onchange="importEnabled()" id="selectMediaId">
+                    <div style="float: left;  font-size: 12px" class="select-box select-box-100 un-inp-select ll">
+                        <select style="height: 30px;" name="mediaId" onchange="importEnabled()" id="selectMediaId">
                         			<option value="">所有媒体</option> 
                         			<@model.showAllMediaOps value="${bizObj.queryMap.mediaId?if_exists}" />
                     			</select>
                     </div>
                     
-                    <div style="float: left;margin-left: 40px; font-size: 12px">
-                    		  媒体大类: <select style="height: 30px" name="mediaTypeParentId" id="mediaTypeParentId" onchange="changeMediaTypeId();">
-                        <option value="">请选择媒体大类</option>
-						<@model.showAllAdMediaTypeAvailableOps value="${bizObj.queryMap.mediaTypeParentId?if_exists}"/>
-                    </select>
-                    </div>        
-                    <div style="float: left; margin-left: 40px; font-size: 12px">
-                 		       媒体小类: <select style="height: 30px" name="mediaTypeId" id="mediaTypeId">
-                        <option value="">请选择媒体小类</option>
-                    </select>
+                    <div style="float:left;height:30px;line-height:30px;" class="mr-10">
+                       	 媒体类型: 
                     </div>
-						<button type="button" class="btn btn-red" style="margin-left: 10px;" autocomplete="off" id="searchBtn">查询</button>
-                    	<button type="button" class="btn btn-primary" style="margin-left: 10px;" autocomplete="off" id="clear">清除条件</button>
-                    	
-                 
+                    <div class="select-box select-box-100 un-inp-select ll">
+	                    <select style="width: 120px;height:31px;" name="mediaTypeParentId" id="mediaTypeParentId" onchange="changeMediaTypeId();">
+	                    <option value="">所有媒体大类</option>
+	                    <@model.showAllAdMediaTypeAvailableOps value="${bizObj.queryMap.mediaTypeParentId?if_exists}"/>
+	                     </select>
+                	</div>
+                    <div class="select-box select-box-100 un-inp-select ll" id="mediaTypeSelect">
+	                    <select style="width: 120px;height:31px;display: none" name="mediaTypeId" id="mediaTypeId">
+	                    	<option value="">所有媒体小类</option>
+	                    </select>
+	                </div>
+                    
+					<button type="button" class="btn btn-red" style="margin-left: 10px;" autocomplete="off" id="searchBtn">查询</button>
+					<#-- 
+                	<button type="button" class="btn btn-primary" style="margin-left: 10px;" autocomplete="off" id="clear">清除条件</button>
+                	 -->
                 </form>
             </div>
         </div>
@@ -80,8 +88,6 @@
 					   <th>媒体小类</th>
 					   <th>媒体主</th>
 					   <th>广告位编号</th>
-					   <th>媒体大类</th>
-					   <th>媒体小类</th> 
 					   <th>区域</th>
 					   <th>主要路段</th>
 					   <th>广告位具体位置</th>
@@ -101,8 +107,6 @@
 							<td>${adseat.secondName!""}</td>
 							<td>${adseat.mediaName!""}</td>
 							<td>${adseat.memo!""}</td>
-							<td>${adseat.parentName}</td>
-							<td>${adseat.secondName}</td> 
 							<td>${vm.getCityName(adseat.province)!""} ${vm.getCityName(adseat.city!"")}</td>
 							<td>${adseat.road!""}</td>
 							<td>${adseat.location!""}</td>
@@ -115,12 +119,18 @@
 	                        <td style="width: 80px">
 							<#--<a href="#" style="margin-right: 5px">数据上传</a> -->
 	                            <a href="/adseat/edit?id=${adseat.id}" style="margin-right: 5px">编辑</a>
+	                            <#if user.usertype !=6>
 	                            <a href="javascript:deleteSeat('${adseat.id}');" style="margin-right: 5px">删除</a>
-	                            <#if adseat.codeFlag?exists && adseat.codeFlag == 1>
-		                             <a href="javascript:void(0);" onclick="updateStatus('${adseat.id}', 0);">未贴</a>
+	                            <#if adseat.adCodeUrl?exists && adseat.adCode?exists>
+	                            	<#if adseat.codeFlag?exists && adseat.codeFlag == 1>
+			                             <a href="javascript:void(0);" onclick="updateStatus('${adseat.id}', 0);">未贴</a>
+			                        </#if>
+			                        <#if adseat.codeFlag?exists && adseat.codeFlag == 0>
+			                            <a href="javascript:void(0);" onclick="updateStatus('${adseat.id}', 1);">已贴</a>
+			                        </#if>
+		                        <#else>
+		                        	<a href="javascript:void(0);" onclick="generateAdCode('${adseat.id}');">生成二维码</a>
 		                        </#if>
-		                        <#if adseat.codeFlag?exists && adseat.codeFlag == 0>
-		                            <a href="javascript:void(0);" onclick="updateStatus('${adseat.id}', 1);">已贴</a>
 		                        </#if>
 	                    </tr>
 					</#list> <#else>
@@ -136,6 +146,7 @@
             </div>
         </div>
         
+        <#-- 
         <div id="mediaSelCV" style="display:none">
         	<div class="layui-row">
            		<div class="layui-col-md2">
@@ -143,7 +154,6 @@
            		</div>
            		<div class="layui-col-md7">
            			<span class="layui-col-md3" style="margin-top: 20px;height:30px;line-height:30px;">媒体:</span><select class="layui-col-md7" style="margin-top: 20px;height: 30px" name="mediaId" onchange="importEnabled()" id="importMediaId">
-           			<#-- <option value="">所有媒体</option>  -->
            			<@model.showAllMediaOps value="${bizObj.queryMap.mediaId?if_exists}" />
        			</select>
            		</div>
@@ -158,6 +168,8 @@
 				</div>
            	</div>     	
         </div>
+         -->
+         
     </div>
 </div>
 </div>
@@ -176,40 +188,59 @@
 
 
 <script type="text/javascript">
-
-	changeMediaTypeId();
-
-function changeMediaTypeId() {
-	var mediaTypeParentId = $("#mediaTypeParentId").val();
-	if(mediaTypeParentId == "" || mediaTypeParentId.length <= 0) {
-		var option = '<option value="">请选择媒体小类</option>';
-		$("#mediaTypeId").html(option);
-		return ;
-	}
-	$.ajax({
-		url : '/platmedia/adseat/searchMediaType',
-		type : 'POST',
-		data : {"parentId":mediaTypeParentId},
-		dataType : "json",
-		traditional : true,
-		success : function(data) {
-			var result = data.ret;
-			if (result.code == 100) {
-				var adMediaTypes = result.result;
-				var htmlOption = '<option value="">请选择媒体小类</option>';
-				for (var i=0; i < adMediaTypes.length;i++) { 
-					var type = adMediaTypes[i];
-					htmlOption = htmlOption + '<option value="' + type.id + '">' + type.name + '</option>';
-				}
+	$('#mediaTypeParentId').searchableSelect({
+		afterSelectItem: function(){
+			if(this.holder.data("value")){
 				
-				$("#mediaTypeId").html(htmlOption);
-				$("#mediaTypeId").val($("#mediaTypeIdHidden").val());
-			} else {
-				alert('修改失败!');
+				changeMediaTypeId(this.holder.data("value"))
+				$('#mediaTypeId').css('display', 'inline-block')
+			}else{
+				$('#mediaTypeId').parent().html('<select style="width: 120px;height:31px;display:none" name="mediaTypeId" id="mediaTypeId"><option value="">请选择媒体小类</option></select>')
 			}
 		}
-	});
-}
+	})
+	
+	$('#mediaTypeParentId').next().find('.searchable-select-input').css('display', 'block')
+
+	function changeMediaTypeId(mediaTypeParentId) {	
+		// var mediaTypeParentId = $("#mediaTypeParentId").val();
+		if(!mediaTypeParentId) {
+			var option = '<option value="">请选择媒体小类</option>';
+			$("#mediaTypeId").html(option);
+			return ;
+		}
+		$.ajax({
+			url : '/platmedia/adseat/searchMediaType',
+			type : 'POST',
+			data : {"parentId":mediaTypeParentId},
+			dataType : "json",
+			traditional : true,
+			success : function(data) {
+				var mediaTypeIdSelect = ""
+				<#if mediaTypeId?exists && mediaTypeId != ""> mediaTypeIdSelect = ${mediaTypeId!""} </#if>
+				var isSelect = false;
+				var result = data.ret;
+				if (result.code == 100) {
+					var adMediaTypes = result.result;
+					var htmlOption = '<select style="width: 120px;height:31px;" name="mediaTypeId" id="mediaTypeId"><option value="">请选择媒体小类</option>';
+					for (var i=0; i < adMediaTypes.length;i++) { 
+						var type = adMediaTypes[i];
+						htmlOption = htmlOption + '<option value="' + type.id + '">' + type.name + '</option>';
+						if(mediaTypeIdSelect === type.id){
+							isSelect = true
+						}
+					}
+					htmlOption += '</select>'
+					$("#mediaTypeSelect").html(htmlOption);
+					$("#mediaTypeId").val(isSelect ? mediaTypeIdSelect : "");
+					$("#mediaTypeId").searchableSelect()
+					$('#mediaTypeId').next().find('.searchable-select-input').css('display', 'block')
+				} else {
+					alert('修改失败!');
+				}
+			}
+		});
+	}
 
     var deleteSeat = function(id){
         layer.confirm("确认删除？", {
@@ -286,52 +317,18 @@ function changeMediaTypeId() {
     	})
     })
 
-    
-    /*获取城市  */
-    var $town = $('#demo3 select[name="street"]');
-    var townFormat = function(info) {
-        $town.hide().empty();
-        if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
-            $.ajax({
-                url : 'http://passer-by.com/data_location/town/' + info['code']
-                + '.json',
-                dataType : 'json',
-                success : function(town) {
-                    $town.show();
-                    $town.append('<option value> - 请选择 - </option>');
-                    for (i in town) {
-                        $town.append('<option value="'+i+'" <#if (street?exists&&street?length>0)>'+(i==${street!0}?"selected":"")+'</#if>>' + town[i]
-                                + '</option>');
-                    }
-                }
-            });
-        }
-    };
-    $('#demo3').citys({
-        required:false,
-        province : '${province!"所有城市"}',
-        city : '${city!""}',
-        region : '${region!""}',
-        onChange : function(info) {
-            townFormat(info);
-        }
-    }, function(api) {
-        var info = api.getInfo();
-        townFormat(info);
-        console.log(info)
-        if(!info.province){
-        	$("#adSeatInfo-province option:first").prop("selected", 'selected');  
-        }
-    });
     var assign_ids;
     $(function() {
+    	//$('#selectMediaId,#mediaTypeId,#mediaTypeParentId').searchableSelect();
         $(window).resize(function() {
             var h = $(document.body).height() - 115;
             $('.main-container').css('height', h);
         });
         $(window).resize();
+        $('#selectMediaId').searchableSelect();
         $('.select').searchableSelect();
         
+        <#-- 
         //批量导入打开媒体界面
         $('#batchInsert').on('click',function(){
         	 var layMediaSel=layer.open({
@@ -345,6 +342,7 @@ function changeMediaTypeId() {
                  content: $("#mediaSelCV")
         	 });
         });
+         -->
         
         $('#batchCancel').on('click',function(){
         	layer.closeAll();
@@ -365,8 +363,8 @@ function changeMediaTypeId() {
     		$('#insertBatchId').attr("disabled","disabled");
     	} */
     }
-   var isLoading = true;
     
+   var isLoading = true;
     
     //批量导入
 	layui.use('upload', function(){
@@ -374,11 +372,8 @@ function changeMediaTypeId() {
 	  
 	  //执行实例
 	  var uploadInst = upload.render({
-	    elem: '#insertBatchId' //绑定元素 
+	    elem: '#batchInsert' //绑定元素 
 	    ,data: {
-		  mediaId: function() {
-		  	return $('#importMediaId').val()
-		  }
 		}
 	    ,accept: 'file' //指定只允许上次文件
 	    ,exts: 'xlsx|xls' //指定只允许上次xlsx和xls格式的excel文件
@@ -417,6 +412,46 @@ function changeMediaTypeId() {
 	    }
 	  });
 	}); 
+	
+	// 生成二维码图片
+	function generateAdCode(adSeatId){
+		layer.confirm("确认生成二维码？", {
+            icon: 3,
+            btn: ['确定', '取消'] //按钮
+        }, function(){
+            $.ajax({
+                url: "/adseat/generateAdCode",
+                type: "post",
+                data: {
+                    "adSeatId": adSeatId,
+                },
+                cache: false,
+                dataType: "json",
+                success: function(datas) {
+                    var resultRet = datas.ret;
+                    if (resultRet.code == 101) {
+                        layer.confirm(resultRet.resultDes, {
+                            icon: 2,
+                            btn: ['确定'] //按钮
+                        });
+                    } else {
+                        layer.confirm("操作成功", {
+                            icon: 1,
+                            btn: ['确定'] //按钮
+                        }, function () {
+                            window.location.reload();
+                        });
+                    }
+                },
+                error: function(e) {
+                    layer.confirm("服务忙，请稍后再试", {
+                        icon: 5,
+                        btn: ['确定'] //按钮
+                    });
+                }
+            });
+        });
+	}
     
 	// 更新二维码状态
     function updateStatus(id, codeFlag) {
@@ -471,8 +506,62 @@ function changeMediaTypeId() {
                 });
             }
         });   
-
     }
+    
+    /*获取城市  */
+    var $town = $('#demo3 select[name="street"]');
+    var townFormat = function(info) {
+        $town.hide().empty();
+        if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
+            $.ajax({
+                url : '/api/city?provinceId=' + info['code'],
+                dataType : 'json',
+                success : function(town) {
+                    $town.show();
+                    $town.append('<option value> - 请选择 - </option>');
+                    for (i in town) {
+                        $town.append('<option value="'+i+'" <#if (street?exists&&street?length>0)>'+(i==${street!0}?"selected":"")+'</#if>>' + town[i]
+                                + '</option>');
+                    }
+                }
+            });
+        }
+    };
+    
+    var currentCity = ""
+	<#if city?exists && city != ""> currentCity = ${city!""} </#if>
+	var currentProvince = ""
+	<#if province?exists && province != ""> currentProvince = ${province!""} </#if>
+    $('#demo3').citys({
+        required:false,
+        province : '${province!"所有城市"}',
+        city : '${city!""}',
+        onChange : function(info) {
+            townFormat(info);
+            var str = '110000,120000,310000,500000,810000,820000'
+            if(str.indexOf(info.code) === -1){
+            	$('#adSeatInfo-city').val(currentCity)
+	            $('#adSeatInfo-city').searchableSelect()
+	            $('#adSeatInfo-city').next().css('width', '130px')
+            }
+        }
+    }, function(api) {
+        var info = api.getInfo();
+        townFormat(info);
+        $('#adSeatInfo-province').val(currentProvince)
+        $('#adSeatInfo-province').searchableSelect({
+			afterSelectItem: function(){
+				
+				$('#adSeatInfo-city').next().remove()
+				if(this.holder.data("value")){
+					$('#adSeatInfo-province').val(this.holder.data("value")).trigger("change");
+					currentCity = ""
+				}
+			}
+		})
+        $('#adSeatInfo-province').next().css('width', '130px')
+    });
+    
 </script>
 <!-- 特色内容 -->
 <@model.webend />

@@ -350,6 +350,7 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
 
+  <!-- 通过用户名查询APP用户信息 -->
   <select id="selectByUsername" parameterType="java.lang.String" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
@@ -357,6 +358,7 @@
     where username = #{username,jdbcType=VARCHAR}
   </select>
 
+  <!-- 通过后台用户id和用户类型查询APP用户信息 -->
   <select id="selectByConditionMap" parameterType="map" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
@@ -372,8 +374,10 @@
 
   <resultMap id="ExtResultMap" extends="BaseResultMap" type="com.bt.om.entity.vo.SysUserExecuteVo">
         <result column="media_name" jdbcType="VARCHAR" property="mediaName"/>
+        <result column="companyName" jdbcType="VARCHAR" property="companyName"/>
   </resultMap>
 
+  <!-- 查询媒体监测人员信息 -->
   <select id="selectByIdAndMedia" parameterType="java.lang.Integer" resultMap="ExtResultMap">
     select
 	    a.id, a.username, a.password, a.realname, a.mobile, a.company, a.head_img_url, a.usertype, a.operate_id, a.status,
@@ -386,7 +390,7 @@
     and a.id = #{id,jdbcType=INTEGER}
   </select>
   
-	<!-- 查询媒体执行人员 -->
+  <!-- 查询媒体执行人员 -->
   <select id="selectMediaNameByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
      a.id,a.realname
@@ -395,36 +399,16 @@
      where b.id = #{id,jdbcType=INTEGER}
   </select>
   
+  <!-- 分页查询APP用户信息 -->
   <select id="getPageCount" parameterType="map" resultType="int">
     select
     count(1)
-    from sys_user_execute
+    from sys_user_execute a 
+    left join sys_user b on a.operate_id = b.id
     where 1=1
-    <if test="operateId != null" >
-      and operate_id = #{operateId,jdbcType=INTEGER}
+    <if test="id != null">
+      and a.id = #{id,jdbcType=INTEGER}
     </if>
-    <if test="usertype != null" >
-      and usertype = #{usertype,jdbcType=INTEGER}
-    </if>
-    <if test="usertypes != null">
-      and usertype in
-      <foreach collection="usertypes" separator="," open="(" close=")" item="usertype">#{usertype,jdbcType=INTEGER}
-      </foreach>
-    </if>
-    <if test="nameOrUsername != null" >
-      and (username like #{nameOrUsername,jdbcType=VARCHAR} or realname like #{nameOrUsername,jdbcType=VARCHAR})
-    </if>
-  </select>
-
-  <select id="getPageData" parameterType="map" resultMap="ExtResultMap">
-    select
-	    a.id, a.username, a.password, a.realname, a.mobile, a.company, a.head_img_url, a.usertype, a.operate_id, a.status,
-	    a.province, a.city, a.region, a.street, a.remark, a.login_ip, a.login_time, a.default_page, a.create_time, a.update_time,
-    	b.media_name,a.device_id,a.system_version
-    from sys_user_execute a
-    left join sys_user c on a.operate_id = c.id
-    left join ad_media b on b.user_id = c.id
-    where 1=1
     <if test="operateId != null" >
       and a.operate_id = #{operateId,jdbcType=INTEGER}
     </if>
@@ -439,9 +423,45 @@
     <if test="nameOrUsername != null" >
       and (a.username like #{nameOrUsername,jdbcType=VARCHAR} or a.realname like #{nameOrUsername,jdbcType=VARCHAR})
     </if>
+    <if test="firmId != null" >
+      and b.id = #{firmId,jdbcType=INTEGER}
+    </if>
+  </select>
+
+  <!-- 分页查询APP用户信息 -->
+  <select id="getPageData" parameterType="map" resultMap="ExtResultMap">
+    select
+	    a.id, a.username, a.password, a.realname, a.mobile, a.company, a.head_img_url, a.usertype, a.operate_id, a.status,
+	    a.province, a.city, a.region, a.street, a.remark, a.login_ip, a.login_time, a.default_page, a.create_time, a.update_time,
+    	b.media_name,a.device_id,a.system_version, c.realname companyName
+    from sys_user_execute a
+    left join sys_user c on a.operate_id = c.id
+    left join ad_media b on b.user_id = c.id
+    where 1=1
+    <if test="id != null">
+      and a.id = #{id,jdbcType=INTEGER}
+    </if>
+    <if test="operateId != null" >
+      and a.operate_id = #{operateId,jdbcType=INTEGER}
+    </if>
+    <if test="usertype != null" >
+      and a.usertype = #{usertype,jdbcType=INTEGER}
+    </if>
+    <if test="usertypes != null">
+      and a.usertype in
+      <foreach collection="usertypes" separator="," open="(" close=")" item="usertype">#{usertype,jdbcType=INTEGER}
+      </foreach>
+    </if>
+    <if test="nameOrUsername != null" >
+      and (a.username like #{nameOrUsername,jdbcType=VARCHAR} or a.realname like #{nameOrUsername,jdbcType=VARCHAR})
+    </if>
+    <if test="firmId != null" >
+      and c.id = #{firmId,jdbcType=INTEGER}
+    </if>
     order by a.id desc
   </select>
 
+  <!-- 检查用户名是否重复 -->
   <select id="isExistsName" parameterType="map" resultMap="BaseResultMap">
     select
     id
@@ -462,6 +482,7 @@
   	where mobile = #{mobile ,jdbcType=VARCHAR}
   </select>
   
+  <!-- 更新用户的手机型号和手机系统版本 -->
   <update id="updatePhoneModel" parameterType="com.bt.om.entity.SysUserExecute"> 
 	update 
 		sys_user_execute
@@ -478,7 +499,7 @@
   	from sys_user_execute
   </select>
   
-  <!-- 批量导入媒体监测人员 -->
+  <!-- 批量导入APP人员 -->
   <insert id="insertBatch" parameterType="com.bt.om.entity.SysUserExecute">
   	insert into sys_user_execute(
         	username,
@@ -534,5 +555,4 @@
         )
         </foreach>
   </insert>
-  
 </mapper>

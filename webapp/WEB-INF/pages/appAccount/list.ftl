@@ -11,11 +11,17 @@
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
             	<form id="form" method="get" action="/appAccount/list">
 	            	<div class="select-box select-box-100 un-inp-select ll">
-	                    <select name="searchUserType" class="select" id="searchUserType">
+	                    <select name="searchUserType" class="select" id="searchUserType" onchange="changeUserTypeId()">
 	            			<option value="">所有类型</option>
 	                        <option value="2" <#if (bizObj.queryMap.usertype?exists&&bizObj.queryMap.usertype == '2')>selected</#if>>客户人员</option>
 	                    	<option value="3" <#if (bizObj.queryMap.usertype?exists&&bizObj.queryMap.usertype == '3')>selected</#if>>媒体人员</option>
 	                    	<option value="4" <#if (bizObj.queryMap.usertype?exists&&bizObj.queryMap.usertype == '4')>selected</#if>>社会人员</option>
+	                    	<option value="5" <#if (bizObj.queryMap.usertype?exists&&bizObj.queryMap.usertype == '5')>selected</#if>>第三方监测人员</option>
+	                    </select>
+	                </div>
+                    <div class="select-box select-box-100 un-inp-select ll" id="firmSelect">
+	                    <select style="width: 120px;height:31px;display: none" name="firmId" id="firmId">
+	                    	<option value="">所属公司</option>
 	                    </select>
 	                </div>
 	                <div class="inp">
@@ -39,7 +45,7 @@
                         <th>序号</th>
                         <th>App账户</th>
                         <th>账户类型</th>
-                        <th>所属媒体主</th>
+                        <th>所属公司</th>
                         <th>姓名</th>
                         <th>联系电话</th>
                         <th>状态</th>
@@ -53,7 +59,10 @@
                             <td width="30">${(bizObj.page.currentPage-1)*20+user_index+1}</td>
                             <td>${user.username?if_exists}</td>
                             <td>${vm.getUserExecuteTypeText(user.usertype)?if_exists}</td>
-                            <td>${user.mediaName?if_exists}</td>
+                            <td>
+                            	<#if user.usertype?exists&&user.usertype==3>${user.mediaName?if_exists}</#if>
+                            	<#if user.usertype?exists&&user.usertype==5>${user.companyName?if_exists}</#if>
+                            </td>
                             <td>${user.realname?if_exists}</td>
                             <td>${user.mobile?if_exists}</td>
                             <td><span onclick="updStatus('${user.id}', '${user.status}');"
@@ -61,7 +70,7 @@
                             </td>
                             <td>
                                 <a href="javascript:void(0);" onclick="edit('${user.id}');">编辑</a>
-                                <#if user.usertype==3 || user.usertype==4>
+                                <#if user.usertype==3 || user.usertype==4 || user.usertype==5>
                                 	<a href="javascript:void(0);" onclick="details('${user.id}');">详情</a>
                                 </#if>
                                 <#--<a href="javascript:void(0);" onclick="deleteAccount('${partnerUser.id}');">删除</a>-->
@@ -79,7 +88,87 @@
         <div id="mediaSelCV" style="display:none">
         	<table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter">
 				<tbody>
-					<tr>
+					<tr style="margin-bottom:20px">
+						<td class="a-title">用户类型：</td>
+						<td style="padding-bottom:20px;">
+						<#if (obj?exists&&obj.id?exists)>
+						   <#if (obj.usertype?exists&&obj.usertype==2)>客户人员</#if>
+						   <#if (obj.usertype?exists&&obj.usertype==3 || obj.usertype?exists&&obj.usertype==4 || obj.usertype?exists&&obj.usertype==5)>
+						   <div class="select-box select-box-100 un-inp-select ll">
+	                            <select class="select" name="usertype" id="usertype">
+	                            	<#-- <@model.showUserExecuteTypeList value="${(obj.usertype)?if_exists}" /> -->
+	                            	<#-- <option value="2" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==2)>selected</#if> >客户人员</option> -->
+	                            	<option value="3" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==3)>selected</#if> >媒体人员</option>
+	                            	<option value="4" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==4)>selected</#if> >社会人员</option>
+	                            	<option value="5" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==5)>selected</#if> >第三方监测人员</option>
+	                            </select>
+	                        </div>
+	                        </#if>
+						   <#-- <#if (obj.usertype?exists&&obj.usertype==3)>媒体人员</#if>
+						   <#if (obj.usertype?exists&&obj.usertype==4)>社会人员</#if> -->
+						   <input type="hidden" id="usertype" name="usertype" value="${(obj.usertype)?if_exists}"/>
+						<#else>
+						   <div class="select-box select-box-110 un-inp-select ll">
+	                            <select class="select" name="usertype" id="usertype">
+	                            	<#-- <@model.showUserExecuteTypeList value="${(obj.usertype)?if_exists}" /> -->
+	                            	<#-- <option value="2" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==2)>selected</#if> >客户人员</option> -->
+	                            	<option value="3" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==3)>selected</#if> >媒体人员</option>
+	                            	<option value="4" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==4)>selected</#if> >社会人员</option>
+	                            	<option value="5" <#if (obj?exists&&obj.usertype?exists&&obj.usertype==5)>selected</#if> >第三方监测人员</option>
+	                            </select>
+	                        </div>
+							<br/>
+							<span id="usertypeTip">&nbsp;</span>
+						</td>
+						</#if>
+					</tr>
+					
+					<#-- 选择添加媒体人员, 所属媒体 -->
+					<tr id="mediaTr" style="<#if (obj?exists)>
+												<#if (obj?exists&&obj.usertype?exists&&obj.usertype==3)>
+													display:auto;
+												<#else>
+													display:none;
+												</#if>
+											<#else>
+												display:auto;
+											</#if>">
+											
+						<td class="a-title">所属媒体：</td>
+						<td style="padding-bottom:20px;">
+							<div class="select-box select-box-110 un-inp-select ll">
+		                        <select class="select" name="mediaId" id="mediaId">
+									<@model.showAllMediaOps value="${mediaId?if_exists}" />
+		                        </select>
+		                    </div>
+							<br/>
+							<span id="mediaIdTip">&nbsp;</span>
+						</td>
+					</tr>
+					
+					<#-- 选择添加第三方监测人员, 所属公司 -->
+					<tr id="companyTr" style="<#if (obj?exists)>
+												<#if (obj?exists&&obj.usertype?exists&&obj.usertype==5)>
+													display:auto;
+												<#else>
+													display:none;
+												</#if>
+											<#else>
+												display:none;
+											</#if>">
+						<td class="a-title">所属公司：</td>
+						<td style="padding-bottom:20px;">
+							<div class="select-box select-box-110 un-inp-select ll">
+		                        <select class="select" name="companyId" id="companyId">
+									<@model.showAllThirdCompanyOps value="${operateId?if_exists}" />
+		                        </select>
+		                    </div>
+							<br/>
+							<span id="companyIdTip">&nbsp;</span>
+						</td>
+					</tr>
+				
+					<#-- <tr>
 						<td class="a-title">媒体：</td>
 						<td>
 						    <div class="select-box select-box-100 un-inp-select ll">
@@ -90,7 +179,7 @@
 							<br/>
 							<span id="importMediaIdTip">&nbsp;</span>
 	                    </td>
-					</tr>
+					</tr> -->
 					<tr>
 						<td class="a-title">登录密码：</td>
 						<td>
@@ -133,6 +222,7 @@
 <script type="text/javascript">
 $(function(){
     $(window).resize();
+    $('#firmId').next().find('.searchable-select-input').css('display', 'block');
 });
 
 $(window).resize(function() {
@@ -140,8 +230,23 @@ $(window).resize(function() {
     $('.main-container').css('height', h);
 });
 
-	$('.select').searchableSelect();
+	$('#usertype,#mediaId,#companyId,#firmId').searchableSelect();
 	$('#importMediaId').next().find('.searchable-select-input').css('display', 'block');
+	$('#mediaId').next().find('.searchable-select-input').css('display', 'block');
+	$('#companyId').next().find('.searchable-select-input').css('display', 'block');
+	
+	 $("#usertype").siblings().find(".searchable-select-item").click(function(){
+        if($("#usertype").val()==3){
+            $("#mediaTr").show();
+            $("#companyTr").hide();
+		} else if($("#usertype").val()==5) {
+			$("#mediaTr").hide();
+            $("#companyTr").show();
+		} else {
+            $("#mediaTr").hide();
+            $("#companyTr").hide();
+		}
+    });
 
     $("#add_media").on("click", function () {
         //iframe层
@@ -297,16 +402,26 @@ $(window).resize(function() {
     }
     
     function checkVal(that){
-	   var mediaId = $('#importMediaId').val();
+    	var usertype = $("#usertype").val();
+        var mediaId = $("#mediaId").val();
+        var companyId = $("#companyId").val();
+	   <#-- var mediaId = $('#importMediaId').val(); -->
   	   var password = $('#password').val();
-  	  
-  	   if(mediaId == null || mediaId == "" || mediaId.length <= 0){
+  	   
+  	   if(usertype==3 && (mediaId == null || mediaId == "" || mediaId.length <= 0)){
   	  	layer.confirm("请选择媒体", {
   			icon: 2,
   			btn: ['确定'] //按钮
   		});
   	  	return false;
   	   }
+  	  if(usertype==5 && (companyId == null || companyId == "" || companyId.length <= 0) ){
+  	    layer.confirm("请选择第三方监测公司", {
+  			icon: 2,
+  			btn: ['确定'] //按钮
+  		});
+  	  	return false;
+  	  }
   	  
   	  if(password == null || password == "" || password.length <= 0){
   	  	layer.confirm("请填写密码", {
@@ -337,11 +452,20 @@ $(window).resize(function() {
 	  var uploadInst = upload.render({
 	    elem: '#insertBatchSubmit' //绑定元素 
 	    ,data: {
-		  mediaId: function() {
+		  <#-- mediaId: function() {
 		  	return $('#importMediaId').val()
+		  }, -->
+		  mediaId:function(){
+		  	return $("#mediaId").val();
+		  },
+		  companyId:function(){
+		  	return $("#companyId").val();
+		  },
+		  usertype:function(){
+		  	return $("#usertype").val();
 		  },
 		  password: function() {
-		  	return $('#password').val()
+		  	return $('#password').val();
 		  }
 		}
 	    ,accept: 'file' //指定只允许上次文件
@@ -391,6 +515,51 @@ $(window).resize(function() {
     		}
     	})
     })
+    
+    $('#searchUserType').searchableSelect({
+		afterSelectItem: function(){
+			if(this.holder.data("value") == 3 || this.holder.data("value") == 5){
+				changeUserTypeId(this.holder.data("value"))
+				$('#firmId').css('display', 'inline-block')
+			}else{
+				$('#firmId').parent().html('<select style="width: 120px;height:31px;display:none" name="firmId" id="firmId"><option value="">请选择所属公司</option></select>')
+			}
+		}
+	})
+
+	function changeUserTypeId(userTypeId){
+		if(!userTypeId) {
+			var option = '<option value="">请选择所属公司</option>';
+			$("#firmSelect").html(option);
+			return ;
+		}
+		$.ajax({
+			url : '/sysUser/searchFirmUser',
+			type : 'POST',
+			data : {"userType":userTypeId},
+			dataType : "json",
+			traditional : true,
+			success : function(data) {
+				var result = data.ret;
+				if (result.code == 100) {
+					var firms = result.result;
+					var htmlOption = '<select style="width: 120px;height:31px;" name="firmId" id="firmId"><option value="">请选择所属公司</option>';
+					for (var i=0; i < firms.length;i++) { 
+						var firm = firms[i];
+						htmlOption = htmlOption + '<option value="' + firm.id + '">' + firm.realname + '</option>';
+					}
+					htmlOption += '</select>'
+					$("#firmSelect").html(htmlOption);
+					$("#firmId").searchableSelect()
+					$('#firmId').next().find('.searchable-select-input').css('display', 'block');
+				} else {
+					alert('修改失败!');
+				}
+			}
+		});
+		
 	
+		// /sysUser/searchFirmUser
+	};
 </script>
 <@model.webend />

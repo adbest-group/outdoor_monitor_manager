@@ -1,5 +1,6 @@
 package com.bt.om.mapper;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -83,5 +84,15 @@ public interface AdSeatInfoMapper {
 	
 	List<AdSeatInfo> selectInfoByIds(Map<String, Object> searchMap);
 
-	AdSeatInfo searchLocation(Map<String, Object> searchMap);
+	List<AdSeatInfo> searchLocation(Map<String, Object> searchMap);
+	
+	List<AdSeatInfo> selectAllSeats();
+	
+	List<Integer> selectNewSeatIds(Date createTime);
+	
+	List<AdSeatInfoVo> selectSeatByIds(Map<String, Object> searchMap);
+
+	List<Integer> selectAdSeatIdsByMedia(Map<String, Object> searchMap);
+	
+	List<String> selectAllSeatMemoByActivityId(@Param("activityId")Integer activityId);
 }

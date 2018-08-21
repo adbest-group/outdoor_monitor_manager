@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -26,6 +28,7 @@ import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AdSeatInfoVo;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAppService;
 import com.bt.om.service.ISysUserService;
@@ -42,7 +45,9 @@ public class AppController {
 	@Autowired
 	private ISysUserService sysUserService;
 	
-	@RequiresRoles("superadmin")
+	private static final Logger logger = Logger.getLogger(AppController.class);
+	
+	@RequiresRoles(value = {"superadmin" , "phoneoperator"}, logical = Logical.OR)
 	@RequestMapping(value = "/list")
 	public String getList(Model model, HttpServletRequest request,
 			@RequestParam(value = "id", required = false) Integer id,
@@ -54,6 +59,8 @@ public class AppController {
             @RequestParam(value = "updateDate", required = false) String updateDate) {
 		
 		SearchDataVo vo = SearchUtil.getVo();
+		//获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		Integer page = 1;
         Integer pageSize = 10;
@@ -77,17 +84,20 @@ public class AppController {
 	        try {
 	            vo.putSearchParam("createDate", createDate, sdf.parse(createDate));
 	        } catch (ParseException e) {
+	        	logger.error(e);
 	        }
 	    }
 	    if (updateDate != null) {
 	        try {
 	           vo.putSearchParam("updateDate", updateDate, sdf.parse(updateDate));
 	        } catch (ParseException e) {
+	        	logger.error(e);
 	        }
 	    }
 	    
 	    appService.getPageData(vo);
 	    SearchUtil.putToModel(model, vo);
+	    model.addAttribute("user" , userObj);
 	    return PageConst.SUPER_ADMIN_APP_LIST;
 	}
 	
@@ -118,10 +128,10 @@ public class AppController {
             model.addAttribute(SysConst.RESULT_KEY, result);
             return model;
         }
-        if(adapp.getAppPictureUrl()!=null && adapp.getAppPictureUrl()!="") {
-        	String picUrl = adapp.getAppPictureUrl().substring(adapp.getAppPictureUrl().indexOf("/static"), adapp.getAppPictureUrl().length());
-        	adapp.setAppPictureUrl(picUrl);
-        }
+//        if(adapp.getAppPictureUrl()!=null && adapp.getAppPictureUrl()!="") {
+//        	String picUrl = adapp.getAppPictureUrl().substring(adapp.getAppPictureUrl().indexOf("/static"), adapp.getAppPictureUrl().length());
+//        	adapp.setAppPictureUrl(picUrl);
+//        }
         try {
             if (adapp.getId() != null) {
             	adapp.setUpdateTime(now);
@@ -135,6 +145,7 @@ public class AppController {
         		appService.save(adapp);
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -167,6 +178,7 @@ public class AppController {
             	sysUserService.changeAppType(id);
             }
         } catch (Exception e) {
+        	logger.error(e);
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("删除失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);

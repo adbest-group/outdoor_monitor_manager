@@ -1,16 +1,15 @@
 package com.bt.om.web.controller;
 
-import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.crypto.hash.Md5Hash;
@@ -23,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.adtime.common.lang.StringUtil;
+import com.bt.om.cache.CityCache;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdActivity;
@@ -39,12 +40,20 @@ import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.entity.vo.AdSeatInfoVo;
 import com.bt.om.entity.vo.SysUserVo;
+import com.bt.om.enums.AdCodeFlagEnum;
+import com.bt.om.enums.AllowMultiEnum;
+import com.bt.om.enums.AppUserTypeEnum;
 import com.bt.om.enums.JiucuoTaskStatus;
+import com.bt.om.enums.MapStandardEnum;
+import com.bt.om.enums.MediaImportAdSeatEnum;
 import com.bt.om.enums.MonitorTaskStatus;
+import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.SessionKey;
 import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.enums.UserTypeEnum;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.mapper.AdMediaMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
@@ -55,7 +64,8 @@ import com.bt.om.service.IAdSeatService;
 import com.bt.om.service.IResourceService;
 import com.bt.om.service.ISysUserExecuteService;
 import com.bt.om.service.ISysUserService;
-import com.bt.om.util.QRcodeUtil;
+import com.bt.om.util.AddressUtils;
+import com.bt.om.util.NumberUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
 import com.bt.om.web.util.SearchUtil;
@@ -85,6 +95,9 @@ public class MediaManagerController {
 	private AdMediaMapper adMediaMapper;
 	@Autowired
 	private IAdMediaTypeService adMediaTypeService;
+	@Autowired
+	private CityCache cityCache;
+	private static final Logger logger = Logger.getLogger(MediaManagerController.class);
 
     /**
      * 媒体端任务管理，主要分配任务
@@ -124,12 +137,14 @@ public class MediaManagerController {
             try {
                 vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         if (endDate != null) {
             try {
                 vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         //查询活动名称
@@ -194,12 +209,14 @@ public class MediaManagerController {
             try {
                 vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         if (endDate != null) {
             try {
                 vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         //查询活动名称
@@ -216,6 +233,81 @@ public class MediaManagerController {
     }
 
     /**
+     * 查看 被指派任务管理页面
+     */
+    @RequiresRoles("media")
+    @RequestMapping(value = "/task/assignList")
+    public String getUpTaskList(Model model, HttpServletRequest request,
+              @RequestParam(value = "activityId", required = false) Integer activityId,
+              @RequestParam(value = "startDate", required = false) String startDate,
+              @RequestParam(value = "status", required = false) Integer status,
+              @RequestParam(value = "endDate", required = false) String endDate,
+              @RequestParam(value = "mediaId", required = false) Integer mediaId,
+              @RequestParam(value = "name", required = false) String name,
+              @RequestParam(value = "mediaTypeId", required = false) Integer mediaTypeId,
+              @RequestParam(value = "mediaTypeParentId", required = false) Integer mediaTypeParentId,
+              @RequestParam(value = "province", required = false) Long province,
+              @RequestParam(value = "city", required = false) Long city) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        SearchDataVo vo = SearchUtil.getVo();
+
+        //获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+        if (status == null) {
+            vo.putSearchParam("statuses", null,
+                    new Integer[]{MonitorTaskStatus.UNASSIGN.getId(), MonitorTaskStatus.TO_CARRY_OUT.getId(), MonitorTaskStatus.CAN_GRAB.getId()});
+        } else {
+            vo.putSearchParam("status", String.valueOf(status), String.valueOf(status));
+        }
+
+        if (activityId != null) {
+            vo.putSearchParam("activityId", activityId.toString(), activityId);
+        }
+        if (startDate != null) {
+            try {
+                vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
+            } catch (ParseException e) {
+            }
+        }
+        if (endDate != null) {
+            try {
+                vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
+            } catch (ParseException e) {
+            	logger.error(e);
+            }
+        }
+       //查询媒体主
+        if (mediaId != null) {
+            vo.putSearchParam("mediaId", mediaId.toString(), mediaId);
+        }
+        //查询活动名称
+        if (name != null) {
+        	name = "%" + name + "%";
+            vo.putSearchParam("activityName", name, name);
+        }
+        //媒体大类
+        if (mediaTypeParentId != null) {
+            vo.putSearchParam("mediaTypeParentId", mediaTypeParentId.toString(), mediaTypeParentId);
+        }
+        //媒体小类
+        if (mediaTypeId != null) {
+        	vo.putSearchParam("mediaTypeId", mediaTypeId.toString(), mediaTypeId);
+        }
+        //省
+        if (province != null) {
+        	vo.putSearchParam("province", province.toString(), province);
+        }
+        //城市
+        if (city != null) {
+            vo.putSearchParam("city", city.toString(), city);
+        }
+        vo.putSearchParam("companyId", userObj.getId().toString(), userObj.getId());
+    	adMonitorTaskService.getPageData(vo);
+        SearchUtil.putToModel(model, vo);
+        model.addAttribute("user",userObj);
+        return PageConst.MEDIA_TASK_ASSIGN;
+    }
+    /**
      * 选择监测人员页面
      **/
     @RequiresRoles("media")
@@ -229,8 +321,8 @@ public class MediaManagerController {
 
         List<SysUserExecute> ues = sysUserExecuteService.getByConditionMap(condition);
         model.addAttribute("userList", ues);
-
-        return PageConst.SELECT_USER_EXECUTE;
+        model.addAttribute("mediaId",user.getId());
+        return PageConst.MEDIA_USER_EXECUTE;
     }
 
     //处理问题，只是标示该任务的问题已被处理
@@ -250,6 +342,7 @@ public class MediaManagerController {
         try {
             adMonitorTaskService.update(task);
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("处理失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -293,12 +386,14 @@ public class MediaManagerController {
             try {
                 vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
         if (endDate != null) {
             try {
                 vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
             } catch (ParseException e) {
+            	logger.error(e);
             }
         }
 
@@ -369,6 +464,7 @@ public class MediaManagerController {
         try {
             adJiucuoTaskService.update(task);
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("处理失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -415,7 +511,7 @@ public class MediaManagerController {
     }
 
     /**
-     * 广告位编辑
+     * 广告位编辑 前往编辑页面
      **/
     @RequiresRoles(value = {"superadmin", "media"}, logical = Logical.OR)
     @RequestMapping(value = "/adseat/edit")
@@ -441,7 +537,7 @@ public class MediaManagerController {
     }
 
     /**
-     * 保存广告位
+     * 保存广告位(媒体主 和 超级管理员创建广告位共用)
      **/
     @RequiresRoles(value = {"superadmin", "media"}, logical = Logical.OR)
     @RequestMapping(value = "/adseat/save")
@@ -471,18 +567,38 @@ public class MediaManagerController {
         		searchMap.put("city", city);
         	}
         	
-        	if(adSeatInfo.getLon() != null && adSeatInfo.getLat() == null) {
-        		result.setCode(ResultCode.RESULT_FAILURE.getCode());
-                result.setResultDes("经纬度填写不完整！");
-                model.addAttribute(SysConst.RESULT_KEY, result);
-                return model;
-        	}
-        	
-        	if(adSeatInfo.getLat() != null && adSeatInfo.getLon() == null) {
-        		result.setCode(ResultCode.RESULT_FAILURE.getCode());
-                result.setResultDes("经纬度填写不完整！");
-                model.addAttribute(SysConst.RESULT_KEY, result);
-                return model;
+//        	if(adSeatInfo.getLon() != null && adSeatInfo.getLat() == null) {
+//        		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+//                result.setResultDes("经纬度填写不完整！");
+//                model.addAttribute(SysConst.RESULT_KEY, result);
+//                return model;
+//        	}
+//        	
+//        	if(adSeatInfo.getLat() != null && adSeatInfo.getLon() == null) {
+//        		result.setCode(ResultCode.RESULT_FAILURE.getCode());
+//                result.setResultDes("经纬度填写不完整！");
+//                model.addAttribute(SysConst.RESULT_KEY, result);
+//                return model;
+//        	}
+        	if(adSeatInfo.getLon() == null || adSeatInfo.getLat() == null) {
+        		String cityName = "";
+        		if (city==null) {
+        			cityName = cityCache.getCityName(province);
+				}else {
+					cityName = cityCache.getCityName(city);
+				}
+        		List<Double> lonLatByAddress = AddressUtils.getLonLatByAddress(road+location, cityName);
+        		if (lonLatByAddress.size()<=0) {
+        			lonLatByAddress = AddressUtils.getLonLatByAddress(road, cityName);
+        			if (lonLatByAddress.size()<=0) {
+        				lonLatByAddress = AddressUtils.getLonLatByAddress(cityName, cityName);
+					}
+				}
+        		if (lonLatByAddress.size()>=2) {
+        			adSeatInfo.setLon(lonLatByAddress.get(0));
+        			adSeatInfo.setLat(lonLatByAddress.get(1));
+        			adSeatInfo.setMapStandard(MapStandardEnum.getId("百度"));
+				}
         	}
         	
 //        	searchMap.put("region", region);
@@ -506,40 +622,71 @@ public class MediaManagerController {
         	
         	if(adSeatInfo.getMultiNum() == 0) {
         		adSeatInfo.setMultiNum(1);
+        		adSeatInfo.setAllowMulti(AllowMultiEnum.NOT_ALLOW.getId());
         	}
-        	if(adSeatInfo.getAllowMulti() == 0) {
+        	if(adSeatInfo.getAllowMulti() == AllowMultiEnum.NOT_ALLOW.getId()) {
         		adSeatInfo.setMultiNum(1); //0代表不允许同时有多个活动, 设置活动数量为1
         	}
+        	
             if (adSeatInfo.getId() != null) {
-            	//修改时检验广告位位置唯一，忽略自身，先查后校验
-            	//【芙蓉不改就遭天谴】
-            	//【芙蓉不改就遭天谴】
-            	//【芙蓉不改就遭天谴】
-            	AdSeatInfo adSeatInfo2 = adSeatService.searchLocation(searchMap);
-            	if(adSeatInfo2!=null) {
-            		if(!adSeatInfo.getId().equals(adSeatInfo2.getId())) {
-            			result.setCode(ResultCode.RESULT_FAILURE.getCode());
-                        result.setResultDes("广告位位置重复！");
-                        model.addAttribute(SysConst.RESULT_KEY, result);
-                        return model;
+            	//修改时检验广告位位置唯一，忽略自身，先查校验后再修改
+            	List<AdSeatInfo> adSeatInfos = adSeatService.searchLocation(searchMap);
+            	if(adSeatInfos != null && adSeatInfos.size() > 0) {
+            		for (AdSeatInfo adSeatInfo2 : adSeatInfos) {
+            			if(!adSeatInfo.getId().equals(adSeatInfo2.getId())) {
+                			result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                            result.setResultDes("广告位位置已存在！");
+                            model.addAttribute(SysConst.RESULT_KEY, result);
+                            return model;
+                		}
+					}
+            	}
+            	
+            	//修改时校验广告位编号唯一, 忽略自身
+            	if(StringUtil.isNotBlank(adSeatInfo.getMemo())) {
+            		Map<String, Object> map = new HashMap<>();
+            		map.put("memo", adSeatInfo.getMemo());
+            		List<AdSeatInfo> adSeatInfosForMemo = adSeatService.searchLocation(map);
+            		if(adSeatInfosForMemo != null && adSeatInfosForMemo.size() > 0) {
+            			for (AdSeatInfo adSeatInfo3 : adSeatInfosForMemo) {
+                    		if(!adSeatInfo.getId().equals(adSeatInfo3.getId())) {
+                    			result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                                result.setResultDes("广告位编号已存在！");
+                                model.addAttribute(SysConst.RESULT_KEY, result);
+                                return model;
+                    		}
+    					}
             		}
             	}
-//            	int count = adSeatService.selectByLocation(searchMap);
-//            	if(count > 0) {
-//            		result.setCode(ResultCode.RESULT_FAILURE.getCode());
-//                    result.setResultDes("广告位位置重复！");
-//                    model.addAttribute(SysConst.RESULT_KEY, result);
-//                    return model;
-//            	}
+            	
+            	if (NumberUtil.parseDouble(adSeatInfo.getWidth())!=0&&NumberUtil.parseDouble(adSeatInfo.getHeight())!=0) {
+            		double area = NumberUtil.divideInHalfUp(NumberUtil.multiply(adSeatInfo.getWidth(), adSeatInfo.getHeight()).toString(),"10000" , 3).doubleValue();
+					adSeatInfo.setAdArea(area + "");
+				}else {
+					adSeatInfo.setAdArea("");
+				}
             	//修改
                 adSeatService.modify(adSeatInfo);
             } else {
             	int count = adSeatService.selectByLocation(searchMap);
             	if(count > 0) {
             		result.setCode(ResultCode.RESULT_FAILURE.getCode());
-                    result.setResultDes("广告位位置重复！");
+                    result.setResultDes("广告位位置已存在！");
                     model.addAttribute(SysConst.RESULT_KEY, result);
                     return model;
+            	}
+            	
+            	//添加时校验广告位编号唯一
+            	if(StringUtil.isNotBlank(adSeatInfo.getMemo())) {
+            		Map<String, Object> map = new HashMap<>();
+            		map.put("memo", adSeatInfo.getMemo());
+            		List<AdSeatInfo> adSeatInfosForMemo = adSeatService.searchLocation(map);
+            		if(adSeatInfosForMemo != null && adSeatInfosForMemo.size() > 0) {
+            			result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                        result.setResultDes("广告位编号已存在！");
+                        model.addAttribute(SysConst.RESULT_KEY, result);
+                        return model;
+            		}
             	}
             	
             	if(adSeatInfo.getMediaTypeParentId() == null || adSeatInfo.getMediaTypeId() == null) {
@@ -551,11 +698,10 @@ public class MediaManagerController {
             	
             	//添加
                 SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
-                //生成二维码
                 AdMedia media = new AdMedia();
             	SysUserVo mediaUser = new SysUserVo();
         		Integer usertype = user.getUsertype();
-        		if (usertype == 3) {
+        		if (usertype == UserTypeEnum.MEDIA.getId()) {
         			//媒体人员自行添加 3：媒体账户
         			media = adMediaMapper.selectByUserId(user.getId()); //通过登录后台用户id查询AdMedia信息
         			mediaUser = sysUserService.findUserinfoById(media.getUserId()); //通过登录后台用户id查询媒体信息(比如二维码前缀)
@@ -565,18 +711,26 @@ public class MediaManagerController {
         			mediaUser = sysUserService.findUserinfoById(media.getUserId()); //通过媒体的后台用户id查询媒体信息(比如二维码前缀)
         		}
         		
-        		//生成广告位对应的二维码
-        		String adCodeInfo = mediaUser.getPrefix() + UUID.randomUUID(); //二维码存的值（媒体前缀比如media3- 加上UUID随机数）
-        		String path = request.getSession().getServletContext().getRealPath("/");
-        		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"qrcode"+File.separatorChar+adCodeInfo + ".jpg";
-        		QRcodeUtil.encode(adCodeInfo, path);
-        		adSeatInfo.setAdCode(adCodeInfo);
-        		adSeatInfo.setAdCodeUrl("/static/qrcode/" + adCodeInfo + ".jpg");
-        		//默认贴上二维码
-        		adSeatInfo.setCodeFlag(1);
-        		adSeatService.save(adSeatInfo, user.getId());
+//        		//生成广告位对应的二维码
+//        		String adCodeInfo = mediaUser.getPrefix() + UUID.randomUUID(); //二维码存的值（媒体前缀比如media3- 加上UUID随机数）
+//        		String path = request.getSession().getServletContext().getRealPath("/");
+//        		path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"qrcode"+File.separatorChar+adCodeInfo + ".jpg";
+//        		QRcodeUtil.encode(adCodeInfo, path);
+//        		adSeatInfo.setAdCode(adCodeInfo);
+//        		adSeatInfo.setAdCodeUrl("/static/qrcode/" + adCodeInfo + ".jpg");
+        		if (NumberUtil.parseDouble(adSeatInfo.getWidth())!=0&&NumberUtil.parseDouble(adSeatInfo.getHeight())!=0) {
+            		double area = NumberUtil.divideInHalfUp(NumberUtil.multiply(adSeatInfo.getWidth(), adSeatInfo.getHeight()).toString(),"10000" , 3).doubleValue();
+					adSeatInfo.setAdArea(area + "");
+				}else {
+					adSeatInfo.setAdArea("");
+				}
+        		
+        		//默认没有贴上二维码
+        		adSeatInfo.setCodeFlag(AdCodeFlagEnum.NO.getId());
+        		adSeatService.save(adSeatInfo, mediaUser.getId());
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -621,6 +775,7 @@ public class MediaManagerController {
                 result.setResultDes("已存在该编号，请修改！");
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("判断失败！");
             return model;
@@ -652,6 +807,7 @@ public class MediaManagerController {
                 return model;
             }
         } catch (Exception e) {
+        	logger.error(e);
         	result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("删除失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -685,11 +841,12 @@ public class MediaManagerController {
                 model.addAttribute("pjTask",adJiucuoTaskService.getVoById(vo.getParentId()));
             }
         }
-
+        SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         if (vo != null && list != null) {
             model.addAttribute("vo", vo);
             model.addAttribute("list", list);
             model.addAttribute("taskId", taskId);
+            model.addAttribute("usertype", user.getUsertype());
         }
         return PageConst.MEDIA_TASK_DETAIL;
     }
@@ -703,7 +860,7 @@ public class MediaManagerController {
                           @RequestParam(value = "name", required = false) String name) {
         SearchDataVo vo = SearchUtil.getVo();
 
-        vo.putSearchParam("usertype", null, 3);
+        vo.putSearchParam("usertype", null, AppUserTypeEnum.MEDIA.getId());
         SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         vo.putSearchParam("operateId",null,user.getId());
         // 名称或登录账号
@@ -752,6 +909,7 @@ public class MediaManagerController {
                 resultVo.setResultDes("已存在该登录账户，请修改");
             }
         } catch (Exception ex) {
+        	logger.error(ex);
             ex.printStackTrace();
             resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
             resultVo.setResultDes("服务忙，请稍后再试");
@@ -783,7 +941,7 @@ public class MediaManagerController {
                 user.setPassword(new Md5Hash(password, username).toString());
                 user.setRealname(name);
                 user.setMobile(username);
-                user.setUsertype(3);
+                user.setUsertype(AppUserTypeEnum.MEDIA.getId());
                 user.setStatus(1);
                 user.setOperateId(loginuser.getId());
                 user.setCompany(loginuser.getRealname());
@@ -800,6 +958,7 @@ public class MediaManagerController {
                 sysUserExecuteService.modify(user);
             }
         } catch (Exception ex) {
+        	logger.error(ex);
             ex.printStackTrace();
             resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
             resultVo.setResultDes("服务忙，请稍后再试");
@@ -822,6 +981,7 @@ public class MediaManagerController {
             user.setStatus(status);
             sysUserExecuteService.modify(user);
         } catch (Exception ex) {
+        	logger.error(ex);
             ex.printStackTrace();
             resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
             resultVo.setResultDes("服务忙，请稍后再试");
@@ -846,9 +1006,10 @@ public class MediaManagerController {
         try {
         	AdSeatInfoVo seatInfo = new AdSeatInfoVo();
         	seatInfo.setId(id);
-        	seatInfo.setCodeFlag(1);
+        	//seatInfo.setCodeFlag(1);
         	adSeatService.updateFlag(codeFlag.getCodeFlag(),id);
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -856,7 +1017,7 @@ public class MediaManagerController {
         }
 
         model.addAttribute(SysConst.RESULT_KEY, result);
-	return model;
+        return model;
     }
   
     /**
@@ -871,6 +1032,7 @@ public class MediaManagerController {
         	resultVo.setResult(adMediaTypes);
         	resultVo.setCode(ResultCode.RESULT_SUCCESS.getCode());
         } catch (Exception ex) {
+        	logger.error(ex);
             ex.printStackTrace();
             resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
             resultVo.setResultDes("服务忙，请稍后再试");

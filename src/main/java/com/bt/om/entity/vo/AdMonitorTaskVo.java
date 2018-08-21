@@ -46,6 +46,80 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 	private String assignorName;
 	private String parentName;
 	private String secondName;
+	private Integer picUrl1Status;
+    private Integer picUrl2Status;
+    private Integer picUrl3Status;
+    private Integer picUrl4Status;
+    private String companyName;
+
+   private Integer activityAdseatId;
+  private String memo;
+    private Integer mediaUserId;
+    private String mobile;
+	public Integer getActivityAdseatId() {
+		return activityAdseatId;
+	}
+
+	public void setActivityAdseatId(Integer activityAdseatId) {
+		this.activityAdseatId = activityAdseatId;
+  }
+    
+
+	public String getMobile() {
+		return mobile;
+	}
+
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
+	}
+
+	public Integer getMediaUserId() {
+		return mediaUserId;
+	}
+
+	public void setMediaUserId(Integer mediaUserId) {
+		this.mediaUserId = mediaUserId;
+	}
+
+	public String getCompanyName() {
+		return companyName;
+	}
+
+	public void setCompanyName(String companyName) {
+		this.companyName = companyName;
+	}
+
+	public Integer getPicUrl1Status() {
+		return picUrl1Status;
+	}
+
+	public void setPicUrl1Status(Integer picUrl1Status) {
+		this.picUrl1Status = picUrl1Status;
+	}
+
+	public Integer getPicUrl2Status() {
+		return picUrl2Status;
+	}
+
+	public void setPicUrl2Status(Integer picUrl2Status) {
+		this.picUrl2Status = picUrl2Status;
+	}
+
+	public Integer getPicUrl3Status() {
+		return picUrl3Status;
+	}
+
+	public void setPicUrl3Status(Integer picUrl3Status) {
+		this.picUrl3Status = picUrl3Status;
+	}
+
+	public Integer getPicUrl4Status() {
+		return picUrl4Status;
+	}
+
+	public void setPicUrl4Status(Integer picUrl4Status) {
+		this.picUrl4Status = picUrl4Status;
+	}
 	
 	public String getParentName() {
 		return parentName;
@@ -368,5 +442,13 @@ public class AdMonitorTaskVo extends AdMonitorTask {
 
 	public void setAssignorName(String assignorName) {
 		this.assignorName = assignorName;
+	}
+
+	public String getMemo() {
+		return memo;
+	}
+
+	public void setMemo(String memo) {
+		this.memo = memo;
 	}
 }

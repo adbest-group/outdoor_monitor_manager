@@ -18,13 +18,13 @@ import com.github.qcloudsms.SmsSingleSender;
 import com.github.qcloudsms.SmsSingleSenderResult;
 
 /**
- * Created by jiayong.mao on 2018/4/8.
+ * 发送短信 相关业务层
  */
 @Service
 public class SendSmsService implements ISendSmsService {
 	protected Logger logger = LoggerFactory.getLogger(getClass());
-	private Integer appId;
-	private String appKey;
+	private Integer appId; //腾讯云短信appId
+	private String appKey; //腾讯云短信appKey
 	
 	@Autowired
 	private AdSmsMapper	adSmsMapper;
@@ -33,6 +33,7 @@ public class SendSmsService implements ISendSmsService {
 	 * 按内容发送短信
 	 * cell：手机号
 	 * smsContent：内容
+	 * 有异常直接处理, 不抛给上层
 	 */
 	@Override
 	public String sendSms(String cell, String smsContent) {

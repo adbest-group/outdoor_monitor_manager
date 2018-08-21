@@ -1,12 +1,14 @@
 package com.bt.om.service;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.bt.om.entity.AdActivity;
 import com.bt.om.entity.AdActivityAdseat;
 import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.HistoryAdActivity;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.ActivityMobileReportVo;
 import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
@@ -87,7 +89,8 @@ public interface IAdActivityService {
 	List<AdSeatInfo> selectSeatInfoByActivityId(Integer activityId);
 
 	public List<AdActivityAdseatVo> getActivitySeatByMemo(String memo);
-	List<Integer> getEndActivityList(Date nowDate);
+	
+	List<AdActivity> getEndActivityList(Date nowDate);
 
 	void deadLineAuditActivity(Date endDate);
 
@@ -96,5 +99,11 @@ public interface IAdActivityService {
 	public AdActivity getUserId(Integer activityId);
 
 	List<AdActivityAdseatTaskVo> newSelectAdActivityAdseatTaskReport(Map<String, Object> searchMap);
+
+	public List<HistoryAdActivity> selectActivityAllByEndTime(HashMap<String, Object> searchMap);
+
+	public List<AdActivityAdseatVo> findAllMemo(List<String> memoList);
+
+	public void deleteSeats(Map<String, Object> searchMap, List<AdActivityAdseatVo> adSeat, Map<String, String> memoMap, String filepath, List<List<Object>> listob);
 
 }

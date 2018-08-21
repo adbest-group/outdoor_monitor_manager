@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,11 +24,18 @@ import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdApp;
 import com.bt.om.entity.AdPoint;
 import com.bt.om.entity.SysResources;
+import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.UserRoleVo;
+import com.bt.om.enums.DepartmentTypeEnum;
 import com.bt.om.enums.ResultCode;
+import com.bt.om.enums.SessionKey;
+import com.bt.om.enums.UserRoleEnum;
+import com.bt.om.filter.LogFilter;
+import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IPointService;
 import com.bt.om.service.ISysResourcesService;
 import com.bt.om.service.ISysUserService;
+import com.bt.om.service.IUserMoneyService;
 import com.bt.om.service.IUserPointService;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -49,14 +58,21 @@ public class SysResourcesController extends BasicController {
 	@Autowired
 	private IUserPointService userpointService;
 	
+	@Autowired
+	private IUserMoneyService usermoneyService;
+	
+	private static final Logger logger = Logger.getLogger(LogFilter.class);
+	
 	/**
 	 * 超级管理员查询部门列表
 	 */
-	@RequiresRoles("superadmin")
+	@RequiresRoles(value = {"superadmin" ,"phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/departmentList")
     public String customerList(Model model, HttpServletRequest request,
                                @RequestParam(value = "name", required = false) String name) {
         SearchDataVo vo = SearchUtil.getVo();
+        //获取登录用户信息
+        SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         //查询部门名称
         if (name != null) {
         	name = "%" + name + "%";
@@ -67,6 +83,7 @@ public class SysResourcesController extends BasicController {
         vo.putSearchParam("type", type, type);
         sysResourcesService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
+        model.addAttribute("user",userObj);
         return PageConst.SUPER_ADMIN_DEPT_LIST;
     }
 
@@ -113,16 +130,16 @@ public class SysResourcesController extends BasicController {
                         	sysResourcesService.modify(sysResources);
                         	
                         	//修改领导的role从104：departmentadmin到
-                        	Integer roleId = 104;
-                        	if(department.getDepartmentType() == 1) {
+                        	Integer roleId = UserRoleEnum.DEPARTMENT_LEADER.getId();
+                        	if(department.getDepartmentType() == DepartmentTypeEnum.ACTIVITY.getId()) {
                         		//活动审核部门 depactivityadmin
-                        		roleId = 108;
-                        	} else if(department.getDepartmentType() == 2) {
+                        		roleId = UserRoleEnum.ACTIVITY_LEADER.getId();
+                        	} else if(department.getDepartmentType() == DepartmentTypeEnum.MONITOR_TASK.getId()) {
                         		//任务审核、指派部门 deptaskadmin 
-                        		roleId = 109;
-                        	} else if(department.getDepartmentType() == 3) {
+                        		roleId = UserRoleEnum.TASK_LEADER.getId();
+                        	} else if(department.getDepartmentType() == DepartmentTypeEnum.JIUCUO_TASK.getId()) {
                         		//纠错审核部门 depjiucuoadmin
-                        		roleId = 110;
+                        		roleId = UserRoleEnum.JIUCUO_LEADER.getId();
                         	}
                         	
                         	UserRoleVo userRoleVo = new UserRoleVo();
@@ -149,7 +166,7 @@ public class SysResourcesController extends BasicController {
                 	UserRoleVo userRoleVo = new UserRoleVo();
                 	List<Integer> userIds = new ArrayList<Integer>();
                 	userIds.add(department.getUserId());
-                	userRoleVo.setRoleId(104);
+                	userRoleVo.setRoleId(UserRoleEnum.DEPARTMENT_LEADER.getId());
                 	userRoleVo.setUserIds(userIds);
                 	userRoleVo.setUpdateTime(now);
                 	sysUserService.updateListUserRes(userRoleVo);
@@ -162,6 +179,7 @@ public class SysResourcesController extends BasicController {
             	sysResourcesService.save(sysResources);
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -186,11 +204,13 @@ public class SysResourcesController extends BasicController {
         return PageConst.SUPER_ADMIN_DEPT_EDIT;
     }
     
-    @RequiresRoles("superadmin")
+    @RequiresRoles(value = {"superadmin" ,"phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/pointList")
     public String pointList(Model model, HttpServletRequest request,
             @RequestParam(value = "name", required = false) String name) {
     	SearchDataVo vo = SearchUtil.getVo();
+    	//获取登录用户信息
+        SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         //查询积分明细名称
         if (name != null) {
         	name = "%" + name + "%";
@@ -199,6 +219,7 @@ public class SysResourcesController extends BasicController {
         //查询积分列表
         pointService.getPageData(vo);
         SearchUtil.putToModel(model, vo);
+        model.addAttribute("user" , user);
         return PageConst.SUPER_ADMIN_POINT_LIST;
     }
     
@@ -245,6 +266,7 @@ public class SysResourcesController extends BasicController {
             	pointService.save(adpoint);
             }
         } catch (Exception e) {
+        	logger.error(e);
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes("保存失败！");
             model.addAttribute(SysConst.RESULT_KEY, result);
@@ -255,7 +277,7 @@ public class SysResourcesController extends BasicController {
         return model;
     }
 	
-	 @RequiresRoles("superadmin")
+	 @RequiresRoles(value = {"superadmin" ,"phoneoperator"}, logical = Logical.OR)
 	 @RequestMapping(value = "/user/pointList")
 	 public String userPointList(Model model, HttpServletRequest request,
 	         @RequestParam(value = "username", required = false) String username) {
@@ -269,5 +291,21 @@ public class SysResourcesController extends BasicController {
 	    userpointService.getPageData(vo);
 	    SearchUtil.putToModel(model, vo);
 	    return PageConst.SUPER_ADMIN_USERPOINT_LIST;
+	}
+	 
+	 @RequiresRoles(value = {"superadmin" ,"phoneoperator"}, logical = Logical.OR)
+	 @RequestMapping(value = "/moneyList")
+	 public String userMoneyList(Model model, HttpServletRequest request,
+	         @RequestParam(value = "username", required = false) String username) {
+	    SearchDataVo vo = SearchUtil.getVo();
+	    //查询指定用户金额明细
+	    if (username != null) {
+	    	username = "%" + username + "%";
+	        vo.putSearchParam("username", username, username);
+	    }
+	    //查询用户金额列表
+	    usermoneyService.getPageData(vo);
+	    SearchUtil.putToModel(model, vo);
+	    return PageConst.SUPER_ADMIN_USERMONEY_LIST;
 	}
 }

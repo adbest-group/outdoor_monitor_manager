@@ -9,29 +9,48 @@
         <div class="title clearfix" style="display: block;">
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <form id="form" method="get" action="/adseat/list">
-                    <!--所有活动下拉框-->
                     <div>
                         <div style="float:left;height:30px;line-height:30px;" class="mr-10">
-                            活动名称:
+                           	 活动名称:
                         </div>
                         <div class="select-box select-box-140 un-inp-select ll">
                             <select name="activityId" class="select" id="activityId">
-                                <option value="">所有活动</option>
-                            <@model.showOwnActivityOps value=""/>
+                            	<option>全部活动</option>
+                            	<@model.showOwnActivityOps value=""/>
                             </select>
                         </div>
-                        <div style="float: left; font-size: 12px;">
-                            媒体: <select style="height: 30px" name="mediaId" id="mediaId">
-                            <option value="">所有媒体</option> <@model.showAllAvailableMediaOps value="" />
-                        </select>
+                        
+                        <div style="float:left;height:30px;line-height:30px;" class="mr-10">
+                           	 城市: 
+                        </div>
+                        <div id="demo3" class="citys" style="float: left; font-size: 12px">
+	                        <p>
+	                        <select style="height: 30px" id="adSeatInfo-province" name="province">
+	                            <option value=""></option>
+	                        </select> <select style="height: 30px" id="adSeatInfo-city" name="city"></select>
+	                        </p>
+	                    </div>
+                        
+                        &nbsp;
+                        <div style="float:left;height:30px;line-height:30px;" class="mr-10">
+                           	 &nbsp;&nbsp;媒体主: 
+                        </div>
+                        <div class="select-box select-box-140 un-inp-select ll">
+                        	<select class="select" name="mediaId" id="mediaId">
+	                            <option value="">所有媒体</option> 
+	                            <@model.showAllMediaOps value="" />
+	                        </select>
                         </div>
 
                         <button type="button" class="btn btn-red"
                                 style="margin-left: 10px;" autocomplete="off" id="searchBtn">筛选
                         </button>
+                        
+                        <#-- 
                         <button type="button" class="btn btn-primary"
                                 style="margin-left: 10px;" autocomplete="off" id="clear">清除条件
                         </button>
+                         -->
                     </div>
                		<!--
                     <div style="clear:both;padding-top:10px;">
@@ -74,7 +93,11 @@
 <script type="text/javascript" src="${model.static_domain}/js/walden.js"></script>
 
 <script type="text/javascript" src="/static/js/jquery.citys.js"></script>
+
 <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=T8nSZc6XXTiu1vm5pCwdYu1D5AIb2F1w"></script>
+<script type="text/javascript" src="http://api.map.baidu.com/library/TextIconOverlay/1.2/src/TextIconOverlay_min.js"></script>    
+<script type="text/javascript" src="/static/js/MarkerClusterer.js"></script>  
+
 
 <script type="text/javascript">
     $(function () {
@@ -85,6 +108,9 @@
         $(window).resize();
 
         $('.select').searchableSelect();
+        $('#activityId').next().find('.searchable-select-input').css('display', 'block');
+        $('#mediaId').next().find('.searchable-select-input').css('display', 'block');
+        
         $("#searchBtn").click(function () {
             loadBarData();
         });
@@ -94,39 +120,60 @@
         });
 
         /*获取城市  */
-        var $town = $('#demo3 select[name="street"]');
-        var townFormat = function (info) {
-            $town.hide().empty();
-            if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
-                $.ajax({
-                    url: 'http://passer-by.com/data_location/town/' + info['code']
-                    + '.json',
-                    dataType: 'json',
-                    success: function (town) {
-                        $town.show();
-                        $town.append('<option value> - 请选择 - </option>');
-                        for (i in town) {
-                            $town.append('<option value="' + i + '" <#if (street?exists&&street?length>0)>'+ (i ==${street!0} ? "selected" : "")+'</#if>>' + town[i]
-                                    + '</option>');
-                        }
-                    }
-                });
-            }
-        };
-        $('#demo3').citys({
-            required: false,
-            province: '${province!"所有城市"}',
-            city: '${city!""}',
-            region: '${region!""}',
-            onChange: function (info) {
-                townFormat(info);
-            }
-        }, function (api) {
-            var info = api.getInfo();
-            townFormat(info);
-        });
+	    var $town = $('#demo3 select[name="street"]');
+	    var townFormat = function(info) {
+	        $town.hide().empty();
+	        if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
+	            $.ajax({
+	                url : '/api/city?provinceId=' + info['code'],
+	                dataType : 'json',
+	                success : function(town) {
+	                    $town.show();
+	                    $town.append('<option value> - 请选择 - </option>');
+	                    for (i in town) {
+	                        $town.append('<option value="'+i+'" <#if (street?exists&&street?length>0)>'+(i==${street!0}?"selected":"")+'</#if>>' + town[i]
+	                                + '</option>');
+	                    }
+	                }
+	            });
+	        }
+	    };
+	    
+        var currentCity = ""
+		<#if city?exists && city != ""> currentCity = ${city!""} </#if>
+		var currentProvince = ""
+		<#if province?exists && province != ""> currentProvince = ${province!""} </#if>
+	    $('#demo3').citys({
+	        required:false,
+	        province : '${province!"所有城市"}',
+	        city : '${city!""}',
+	        onChange : function(info) {
+	            townFormat(info);
+	            var str = '110000,120000,310000,500000,810000,820000'
+	            if(str.indexOf(info.code) === -1){
+	            	$('#adSeatInfo-city').val(currentCity)
+		            $('#adSeatInfo-city').searchableSelect()
+		            $('#adSeatInfo-city').next().css('width', '130px')
+	            }
+	        }
+	    }, function(api) {
+	        var info = api.getInfo();
+	        townFormat(info);
+	        $('#adSeatInfo-province').val(currentProvince)
+	        $('#adSeatInfo-province').searchableSelect({
+				afterSelectItem: function(){
+					
+					$('#adSeatInfo-city').next().remove()
+					if(this.holder.data("value")){
+						$('#adSeatInfo-province').val(this.holder.data("value")).trigger("change");
+						currentCity = ""
+					}
+				}
+			})
+	        $('#adSeatInfo-province').next().css('width', '130px')
+	    });
 
-		// 百度地图API功能
+	 	// 百度地图API功能
         var map = new BMap.Map("map");    // 创建Map实例
         map.centerAndZoom(new BMap.Point(116.413624, 39.910837), 5);  // 初始化地图,设置中心点坐标和地图级别
         //添加地图类型控件
@@ -136,6 +183,8 @@
             ]}));
         map.setCurrentCity("杭州市");		 //设置地图显示的城市 此项是必须设置的
         map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
+        var markers = [];
+        var markerClusterer = new BMapLib.MarkerClusterer(map, {markers:markers});
 		
         var loadBarData = function () {
             $.ajax({
@@ -147,7 +196,9 @@
                     province:$("#province").val(),
                     city:$("#city").val(),
                     region:$("#region").val(),
-                    street:$("#street").val()
+                    street:$("#street").val(),
+                    mediaTypeParentId:$("#mediaTypeParentId").val(),
+                    mediaTypeId:$("#mediaTypeId").val()
                 },
                 cache: false,
                 dataType: "json",
@@ -156,8 +207,11 @@
                     if (resultRet.code == 100) {
                     	//先清空坐标点
                     	map.clearOverlays();
+                    	markerClusterer.clearMarkers(markers);
                     	//再设置坐标点
                     	var groupByCity = resultRet.result;
+                    	
+                    	markers = [];
                     	groupByCity.forEach((i)=>{
                     		if(i.lon != null && i.lat != null) {
                     			var lon = i.lon;
@@ -166,15 +220,17 @@
 	                    		//添加广告位坐标点
 	                    		var point = new BMap.Point(lon, lat);
 	                    		var marker = new BMap.Marker(point, {});
-	                    		map.addOverlay(marker);
+	                    		markers.push(marker)
+	                    		// map.addOverlay(marker);
 	                    		//设置打开窗口的信息，其中point也可以写成marker.getPosition()
 	                    		var info = new BMap.InfoWindow("经度：" + lon + "，纬度："+ lat + "，名称：" + name);
 	                    		marker.addEventListener("click", function() {
-	                    			map.centerAndZoom(point, 15);  //修改设置新的中心点坐标和地图级别
+	                    			map.centerAndZoom(point, 20);  //修改设置新的中心点坐标和地图级别
 									map.openInfoWindow(info, this.getPosition());
 								});
                     		}
                     	})
+                    	markerClusterer.addMarkers(markers)
                     }
                 },
                 error: function (e) {

@@ -15,7 +15,7 @@ import com.bt.om.service.IAdCustomerTypeService;
 import com.bt.om.vo.web.SearchDataVo;
 
 /**
- * Created by jiayong.mao on 2018/4/25.
+ * 客户类型/行业类型 相关事务层
  */
 @Service
 public class AdCustomerTypeService implements IAdCustomerTypeService {
@@ -23,6 +23,9 @@ public class AdCustomerTypeService implements IAdCustomerTypeService {
 	@Autowired
 	private AdCustomerTypeMapper adCustomerTypeMapper;
 	
+	/**
+	 * 分页查询行业类型
+	 */
 	@Override
 	public void getPageData(SearchDataVo vo) {
 		int count = adCustomerTypeMapper.getPageCount(vo.getSearchMap());
@@ -34,17 +37,26 @@ public class AdCustomerTypeService implements IAdCustomerTypeService {
         }
 	}
 
+	/**
+	 * 通过id查询行业类型
+	 */
 	@Override
 	public AdCustomerType getById(Integer id) {
 		return adCustomerTypeMapper.selectByPrimaryKey(id);
 	}
 
+	/**
+	 * 插入一条行业类型
+	 */
 	@Override
 	@Transactional
 	public void save(AdCustomerType adCustomerType) {
 		adCustomerTypeMapper.insert(adCustomerType);
 	}
 
+	/**
+	 * 修改行业类型
+	 */
 	@Override
 	@Transactional
 	public void modify(AdCustomerType adCustomerType) {
@@ -53,6 +65,9 @@ public class AdCustomerTypeService implements IAdCustomerTypeService {
 		adCustomerTypeMapper.updateByPrimaryKeySelective(adCustomerType);
 	}
 
+	/**
+	 * 查询全部的行业类型
+	 */
 	@Override
 	public List<AdCustomerType> getAll() {
 		return adCustomerTypeMapper.getAll();

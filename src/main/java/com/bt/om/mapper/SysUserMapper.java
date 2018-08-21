@@ -89,8 +89,14 @@ public interface SysUserMapper {
 
 	int updateUserPwd(SysUser u);
 
-	List<Integer> getUserId(int i);
+	List<Integer> getUserId(int userType);
 
 	void changeAppTypeById(@Param("appTypeId") Integer id);
+
+	SysUser getUserName(@Param("username") String inviteAcc);
+
+	List<Integer> getAllByUserTypeId(@Param("usertype") Integer id);
+
+	List<SysUserVo> selectUserVoByActivityId(@Param("activityId")Integer activityId);
 	 
 }

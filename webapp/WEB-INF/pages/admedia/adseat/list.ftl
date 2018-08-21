@@ -1,7 +1,7 @@
-<#assign webTitle="资源管理" in model> <#assign webHead in model> </#assign>
+<#assign webTitle="广告位管理" in model> <#assign webHead in model> </#assign>
 <@model.webhead />
 <!-- 头部 -->
-<@model.webMenu current="广告位管理" child="" />
+<@model.webMenu current="广告位管理" child="广告位管理" />
 <!-- 特色内容 -->
 <div class="main-container" style="height: auto;">
 	<div class="main-box">
@@ -83,12 +83,16 @@
 								<#--<a href="#" style="margin-right: 5px">数据上传</a> -->
 								<a href="/platmedia/adseat/edit?id=${adseat.id}" style="margin-right: 5px">编辑</a>
                                 <a href="javascript:deleteSeat('${adseat.id}');" style="margin-right: 5px">删除</a>
-                                <#if adseat.codeFlag?exists && adseat.codeFlag == 1>
+                                <#if adseat.adCodeUrl?exists && adseat.adCode?exists>
+	                            	<#if adseat.codeFlag?exists && adseat.codeFlag == 1>
 	                                	<a href="javascript:void(0);" onclick="updateStatus('${adseat.id}', 0);">未贴</a>
-	                        	</#if>
-	                        	<#if adseat.codeFlag?exists && adseat.codeFlag == 0>
-	                            	<a href="javascript:void(0);" onclick="updateStatus('${adseat.id}', 1);">已贴</a>
-	                        	</#if>
+		                        	</#if>
+		                        	<#if adseat.codeFlag?exists && adseat.codeFlag == 0>
+		                            	<a href="javascript:void(0);" onclick="updateStatus('${adseat.id}', 1);">已贴</a>
+		                        	</#if>
+		                        <#else>
+		                        	<a href="javascript:void(0);" onclick="generateAdCode('${adseat.id}');">生成二维码</a>
+		                        </#if>
 	                        </td>
 						</tr>
 						</#list> <#else>
@@ -170,7 +174,7 @@
     
     // 下载模板
     $('#downloadBatch').click(function(){
-    	$.get('/excel/downloadBatch', function(data){
+    	$.get('/excel/downloadBatchMedia', function(data){
     		if(data.ret.code === 100) {
     			window.open(data.ret.result)
     		}else{
@@ -188,8 +192,7 @@
 		$town.hide().empty();
 		if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
 			$.ajax({
-				url : 'http://passer-by.com/data_location/town/' + info['code']
-						+ '.json',
+				url : '/api/city?provinceId=' + info['code'],
 				dataType : 'json',
 				success : function(town) {
 					$town.show();
@@ -275,7 +278,7 @@
 	    ,accept: 'file' //指定只允许上次文件
 	    ,exts: 'xlsx|xls' //指定只允许上次xlsx和xls格式的excel文件
 	    ,field: 'excelFile' //设置字段名
-	    ,url: '/excel/insertBatch' //上传接口
+	    ,url: '/excel/insertBatchMedia' //上传接口
     	,before: function() {
 	    	isLoading = true;
 	    	layer.msg('正在努力上传中...', {
@@ -309,6 +312,46 @@
 	    }
 	  });
 	}); 
+	
+	// 生成二维码图片
+	function generateAdCode(adSeatId){
+		layer.confirm("确认生成二维码？", {
+            icon: 3,
+            btn: ['确定', '取消'] //按钮
+        }, function(){
+            $.ajax({
+                url: "/adseat/generateAdCode",
+                type: "post",
+                data: {
+                    "adSeatId": adSeatId,
+                },
+                cache: false,
+                dataType: "json",
+                success: function(datas) {
+                    var resultRet = datas.ret;
+                    if (resultRet.code == 101) {
+                        layer.confirm(resultRet.resultDes, {
+                            icon: 2,
+                            btn: ['确定'] //按钮
+                        });
+                    } else {
+                        layer.confirm("操作成功", {
+                            icon: 1,
+                            btn: ['确定'] //按钮
+                        }, function () {
+                            window.location.reload();
+                        });
+                    }
+                },
+                error: function(e) {
+                    layer.confirm("服务忙，请稍后再试", {
+                        icon: 5,
+                        btn: ['确定'] //按钮
+                    });
+                }
+            });
+        });
+	}
 
 	// 更新二维码状态
     function updateStatus(id, codeFlag) {

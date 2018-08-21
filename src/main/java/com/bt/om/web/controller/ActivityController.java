@@ -1,9 +1,11 @@
 package com.bt.om.web.controller;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,23 +32,25 @@ import com.adtime.common.lang.StringUtil;
 import com.bt.om.common.SysConst;
 import com.bt.om.common.web.PageConst;
 import com.bt.om.entity.AdActivity;
+import com.bt.om.entity.AdActivityAdseat;
 import com.bt.om.entity.AdMonitorTask;
-import com.bt.om.entity.AdUserMessage;
+import com.bt.om.entity.AdSystemPush;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.TaskDownload;
 import com.bt.om.entity.vo.AdActivityAdseatVo;
 import com.bt.om.entity.vo.AdActivityVo;
+import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
+import com.bt.om.enums.UserTypeEnum;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.mapper.SysUserResMapper;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IAdActivityService;
-
-import com.bt.om.service.IAdUserMessageService;
-
 import com.bt.om.service.IAdMonitorTaskService;
-
+import com.bt.om.service.IAdSystemPushService;
+import com.bt.om.service.IAdUserMessageService;
 import com.bt.om.service.IOperateLogService;
 import com.bt.om.service.ISysGroupService;
 import com.bt.om.service.ISysResourcesService;
@@ -86,9 +91,12 @@ public class ActivityController extends BasicController {
 	private IAdUserMessageService adUserMessageService;
 	@Autowired
 	private IAdMonitorTaskService adMonitorTaskService;
+    @Autowired
+    private IAdSystemPushService systemPushService;
 	@Autowired
 	protected RedisTemplate redisTemplate;
-
+	private static final Logger logger = Logger.getLogger(ActivityController.class);
+	private String file_upload_path = ConfigUtil.getString("file.upload.path");
 	// 活动审核人员查看活动列表
 	@RequiresRoles("activityadmin")
 	@RequestMapping(value = "/list")
@@ -130,12 +138,14 @@ public class ActivityController extends BasicController {
 			try {
 				vo.putSearchParam("startDate", startDate, sdf.parse(startDate));
 			} catch (ParseException e) {
+				logger.error(e);
 			}
 		}
 		if (endDate != null) {
 			try {
 				vo.putSearchParam("endDate", endDate, sdf.parse(endDate));
 			} catch (ParseException e) {
+				logger.error(e);
 			}
 		}
 		//查询活动名称
@@ -268,21 +278,24 @@ public class ActivityController extends BasicController {
 	}
 
 	// 前往编辑活动
-    @RequiresRoles(value = {"activityadmin", "depactivityadmin", "superadmin", "customer"}, logical = Logical.OR)
+    @RequiresRoles(value = {"activityadmin", "depactivityadmin", "superadmin", "customer" ,"phoneoperator"}, logical = Logical.OR)
     @RequestMapping(value = "/edit")
     public String customerEdit(Model model, HttpServletRequest request,
                                @RequestParam(value = "id", required = false) Integer id) {
     	AdActivityVo activity = adActivityService.getVoById(id);
 
-        if (activity != null) {
-            model.addAttribute("activity", activity);
-        }
-        
         //获取登录用户信息
         SysUser user = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         
         if(user != null) {
         	model.addAttribute("usertype", user.getUsertype());
+        	if (user.getUsertype() == UserTypeEnum.CUSTOMER.getId() && user.getId().intValue() != activity.getUserId().intValue()) {
+        		return PageConst.NO_AUTHORITY;
+			}
+        }
+        
+        if (activity != null) {
+            model.addAttribute("activity", activity);
         }
         
         Integer monitorTime = ConfigUtil.getInt("monitor_time"); //允许任务执行天数
@@ -290,7 +303,7 @@ public class ActivityController extends BasicController {
         
         model.addAttribute("monitorTime", monitorTime);
         model.addAttribute("auditTime", auditTime);
-
+        model.addAttribute("user" , user);
         return PageConst.ACTIVITY_EDIT;
     }
 
@@ -332,6 +345,7 @@ public class ActivityController extends BasicController {
  			//批量插入
 			adMonitorTaskService.insertMonitorTask(activityId, Arrays.asList(splitSeatIds), reportTime ,zhuijiaMonitorTaskPoint,zhuijiaMonitorTaskMoney);
  		} catch (Exception e) {
+ 			logger.error(e);
  			result.setCode(ResultCode.RESULT_FAILURE.getCode());
  			result.setResultDes("确认失败！");
  			model.addAttribute(SysConst.RESULT_KEY, result);
@@ -350,6 +364,7 @@ public class ActivityController extends BasicController {
 			@RequestParam(value = "ids", required = false) String ids,
 			@RequestParam(value = "userId", required = false) Integer userId) {
 		ResultVo<String> result = new ResultVo<String>();
+		Date now = new Date();
 		// [1] ids拆分成id集合
 		String[] activityIds = ids.split(",");
 		// [2] 循环判断每一个id是否已经在redis中. 存在一个即返回错误信息
@@ -405,8 +420,17 @@ public class ActivityController extends BasicController {
 				param.put("extras", extras);
 				String pushResult = JPushUtils.pushAllByAlias(param);
 				System.out.println("pushResult:: " + pushResult);
+				
+				AdSystemPush push = new AdSystemPush();
+				push.setUserId(adActivity.getUserId());
+				push.setActivityName(adActivity.getActivityName());
+				push.setTitle("活动确认");
+				push.setContent("您创建的【"+adActivity.getActivityName()+"】活动已被确认");
+				push.setCreateTime(now);
+				systemPushService.add(push);
 			}
 		} catch (Exception e) {
+			logger.error(e);
 			// [5] 异常情况, 循环删除redis
 			for (String actId : activityIds) {
 				String beginRedisStr = "activity_" + actId + "_begin";
@@ -464,6 +488,7 @@ public class ActivityController extends BasicController {
 				return model;
 			}
 		} catch (Exception e) {
+			logger.error(e);
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("撤销失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
@@ -493,6 +518,7 @@ public class ActivityController extends BasicController {
 			// 删除活动
 			adActivityService.delete(id, userObj.getId());
 		} catch (Exception e) {
+			logger.error(e);
 			result.setCode(ResultCode.RESULT_FAILURE.getCode());
 			result.setResultDes("删除失败！");
 			model.addAttribute(SysConst.RESULT_KEY, result);
@@ -579,7 +605,8 @@ public class ActivityController extends BasicController {
 				StringBuffer stringBuffer = new StringBuffer();
 				if(now.compareTo(task.getReportTime())>0) {	//当前时间大于出报告时间
 					String nowDate = sdf.format(task.getReportTime());
-					if((userObj.getUsertype()==2 && task.getStatus()==4) || (userObj.getUsertype()!=2)) {	//登录用户是广告主且通过审核  或者登录用户是群邑
+					if((userObj.getUsertype()==UserTypeEnum.CUSTOMER.getId() && task.getStatus()==MonitorTaskStatus.VERIFIED.getId()) || (userObj.getUsertype()!=UserTypeEnum.CUSTOMER.getId())) {
+						//登录用户是广告主且通过审核  或者登录用户是群邑
 						TaskDownload durationMonitor = new TaskDownload();
 						stringBuffer.append(nowDate);
 						stringBuffer.append("	");
@@ -601,7 +628,8 @@ public class ActivityController extends BasicController {
 				StringBuffer stringBuffer = new StringBuffer();
 				if(now.compareTo(task.getReportTime())>0) {	//当前时间大于出报告时间
 					String nowDate = sdf.format(task.getReportTime());
-					if((userObj.getUsertype()==2 && task.getStatus()==4) || (userObj.getUsertype()!=2)) {	//登录用户是广告主且通过审核  或者登录用户是群邑
+					if((userObj.getUsertype()==UserTypeEnum.CUSTOMER.getId() && task.getStatus()==MonitorTaskStatus.VERIFIED.getId()) || (userObj.getUsertype()!=UserTypeEnum.CUSTOMER.getId())) {
+						//登录用户是广告主且通过审核  或者登录用户是群邑
 						TaskDownload zhuijiaMonitor = new TaskDownload();
 						stringBuffer.append(nowDate);
 						stringBuffer.append("	");
@@ -616,6 +644,16 @@ public class ActivityController extends BasicController {
 			model.addAttribute("zhuijiaMonitor_show",zhuijiaExcel);
 		}
 		return PageConst.SELECT_ALL_TASKS;
+	}
+	
+	//输入品牌和PDF导出标题
+	@RequestMapping(value="/writeBrand")
+	public String writeBrand(Model model,HttpServletRequest request,
+			@RequestParam(value = "activityId", required = false) Integer activityId,
+			@RequestParam(value = "taskreport", required = false) String taskreport) {
+		model.addAttribute("activityId" ,activityId);
+		model.addAttribute("taskreport" , taskreport);
+		return PageConst.WRITE_BRAND_TITLE_PDF;
 	}
 	
 	//Pdf导出任务列表报告
@@ -636,7 +674,8 @@ public class ActivityController extends BasicController {
 			StringBuffer stringBuffer = new StringBuffer();
 			if(now.compareTo(task.getReportTime())>0) {	//当前时间大于出报告时间
 				String nowDate = sdf.format(task.getReportTime());
-				if((userObj.getUsertype()==2 && task.getStatus()==4) || (userObj.getUsertype()!=2)) {	//登录用户是广告主且通过审核  或者登录用户是群邑
+				if((userObj.getUsertype()==UserTypeEnum.CUSTOMER.getId() && task.getStatus()==MonitorTaskStatus.VERIFIED.getId()) || (userObj.getUsertype()!=UserTypeEnum.CUSTOMER.getId())) {
+					//登录用户是广告主且通过审核  或者登录用户是群邑
 					if(task.getTaskType()==MonitorTaskType.UP_TASK.getId()) {	//5 上刊任务
 						TaskDownload upTask = new TaskDownload();
 						stringBuffer.append(nowDate);
@@ -680,7 +719,8 @@ public class ActivityController extends BasicController {
 				StringBuffer stringBuffer = new StringBuffer();
 				if(now.compareTo(task.getReportTime())>0) {	//当前时间大于出报告时间
 					String nowDate = sdf.format(task.getReportTime());
-					if((userObj.getUsertype()==2 && task.getStatus()==4) || (userObj.getUsertype()!=2)) {	//登录用户是广告主且通过审核  或者登录用户是群邑
+					if((userObj.getUsertype()==UserTypeEnum.CUSTOMER.getId() && task.getStatus()==MonitorTaskStatus.VERIFIED.getId()) || (userObj.getUsertype()!=UserTypeEnum.CUSTOMER.getId())) {
+						//登录用户是广告主且通过审核  或者登录用户是群邑
 						TaskDownload durationMonitor = new TaskDownload();
 						stringBuffer.append(nowDate);
 						stringBuffer.append("	");
@@ -702,7 +742,8 @@ public class ActivityController extends BasicController {
 				StringBuffer stringBuffer = new StringBuffer();
 				if(now.compareTo(task.getReportTime())>0) {	//当前时间大于出报告时间
 					String nowDate = sdf.format(task.getReportTime());
-					if((userObj.getUsertype()==2 && task.getStatus()==4) || (userObj.getUsertype()!=2)) {	//登录用户是广告主且通过审核  或者登录用户是群邑
+					if((userObj.getUsertype()==UserTypeEnum.CUSTOMER.getId() && task.getStatus()==MonitorTaskStatus.VERIFIED.getId()) || (userObj.getUsertype()!=UserTypeEnum.CUSTOMER.getId())) {
+						//登录用户是广告主且通过审核  或者登录用户是群邑
 						TaskDownload zhuijiaMonitor = new TaskDownload();
 						stringBuffer.append(nowDate);
 						stringBuffer.append("	");
@@ -717,5 +758,11 @@ public class ActivityController extends BasicController {
 			model.addAttribute("zhuijiaMonitor_show",zhuijiaPdf);
 		}
 		return PageConst.SELECT_TASKPDF;
+	}
+	
+	@RequestMapping(value = "/changePic")
+	public String changePic(Model model,HttpServletRequest request, HttpServletResponse response) {
+		
+		return PageConst.CHANGE_ADSEAT_PIC;
 	}
 }

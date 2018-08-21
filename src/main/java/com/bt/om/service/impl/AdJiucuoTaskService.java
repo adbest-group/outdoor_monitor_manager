@@ -23,6 +23,7 @@ import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.vo.AdJiucuoTaskMobileVo;
 import com.bt.om.entity.vo.AdJiucuoTaskVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
+import com.bt.om.enums.DepartmentTypeEnum;
 import com.bt.om.enums.JiucuoTaskStatus;
 import com.bt.om.enums.MessageIsFinish;
 import com.bt.om.enums.MessageType;
@@ -30,6 +31,7 @@ import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.enums.RewardTaskType;
 import com.bt.om.enums.TaskProblemStatus;
+import com.bt.om.enums.UserTypeEnum;
 import com.bt.om.mapper.AdActivityAdseatMapper;
 import com.bt.om.mapper.AdActivityMapper;
 import com.bt.om.mapper.AdJiucuoTaskFeedbackMapper;
@@ -47,7 +49,7 @@ import com.bt.om.util.ConfigUtil;
 import com.bt.om.vo.web.SearchDataVo;
 
 /**
- * Created by caiting on 2018/1/21.
+ * 纠错任务 相关事务层
  */
 @Service
 public class AdJiucuoTaskService implements IAdJiucuoTaskService {
@@ -76,6 +78,9 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
     @Autowired
     private AdSeatInfoMapper adSeatInfoMapper;
 
+    /**
+     * 分页查询纠错信息
+     */
     @Override
     public void getPageData(SearchDataVo vo) {
         int count = adJiucuoTaskMapper.getPageCount(vo.getSearchMap());
@@ -87,26 +92,41 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
         }
     }
 
+    /**
+     * 通过纠错id查询纠错信息
+     */
     @Override
     public AdJiucuoTask getById(Integer id) {
         return adJiucuoTaskMapper.selectByPrimaryKey(id);
     }
 
+    /**
+     * 通过纠错id查询纠错详细信息
+     */
     @Override
     public AdJiucuoTaskVo getVoById(Integer id) {
         return adJiucuoTaskMapper.selectVoByPrimaryKey(id);
     }
 
+    /**
+     * 通过纠错反馈id查询反馈信息
+     */
     @Override
     public AdJiucuoTaskFeedback getFeadBackById(Integer id) {
         return adJiucuoTaskFeedbackMapper.selectByPrimaryKey(id);
     }
 
+    /**
+     * 通过纠错任务id查询反馈信息
+     */
     @Override
     public AdJiucuoTaskFeedback getFeadBackByTaskId(Integer id) {
         return adJiucuoTaskFeedbackMapper.selectByTaskId(id);
     }
 
+    /**
+     * 更新纠错任务
+     */
     @Override
     public void update(AdJiucuoTask task) {
         adJiucuoTaskMapper.updateByPrimaryKeySelective(task);
@@ -246,10 +266,19 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
         feedback.setUpdateTime(now);
         adJiucuoTaskFeedbackMapper.insert(feedback);
         
+        //每次更新广告位经纬度
+        if (feedback.getLat()!=null&feedback.getLon()!=null) {
+	        AdSeatInfo adSeat = new AdSeatInfo();
+	        adSeat.setId(task.getAdSeatId());
+	        adSeat.setLat(feedback.getLat());
+	        adSeat.setLon(feedback.getLon());
+	        adSeatInfoMapper.updateByPrimaryKeySelective(adSeat);
+        }
+        
         List<Integer> list = new ArrayList<>();
 		List<Integer> cuslist = new ArrayList<>();
-        list = sysUserMapper.getUserId(4);//4：超级管理员
-        Integer dep_id = sysResourcesMapper.getUserId(3);//3：纠错审核部门
+        list = sysUserMapper.getUserId(UserTypeEnum.SUPER_ADMIN.getId());//4：超级管理员
+        Integer dep_id = sysResourcesMapper.getUserId(DepartmentTypeEnum.JIUCUO_TASK.getId());//3：纠错审核部门
         List<AdUserMessage> message = new ArrayList<>();
 		
 		AdActivity adActivity = null;
@@ -268,12 +297,11 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
         }
         cuslist = sysUserResMapper.getAnotherUserId(resId, 1);//获取组下面的员工id集合
         List<Integer> userIdList = new ArrayList<>();
-        for(Integer i : list) {
-        	userIdList.add(i);
-        }
-        for(Integer i: cuslist) {
-        	userIdList.add(i);
-        }
+        userIdList.addAll(list);
+        userIdList.addAll(cuslist);
+        list.removeAll(list);
+        list = sysUserMapper.getUserId(UserTypeEnum.PHONE_OPERATOR.getId());//6:呼叫中心人员
+        userIdList.addAll(list);
         userIdList.add(dep_id);
         
         SysUserExecute sysUserExecute = sysUserExecuteMapper.selectByPrimaryKey(task.getUserId()); //获取app提交人员的信息
@@ -315,11 +343,17 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
         }
     }
 
+    /**
+     * 通过任务执行人id查询执行的所有纠错任务
+     */
     @Override
     public List<AdJiucuoTaskMobileVo> getByUserIdForMobile(Integer userId) {
         return adJiucuoTaskMapper.selectByUserId(userId);
     }
 
+    /**
+     * 创建纠错任务的子监测任务
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void createSubTask(Integer taskId) {
@@ -348,16 +382,25 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
         adJiucuoTaskMapper.updateByPrimaryKeySelective(task);
     }
 
+    /**
+     * 查询纠错任务的子监测任务
+     */
     @Override
     public List<AdMonitorTaskVo> getSubTask(Integer id) {
         return adMonitorTaskMapper.selectVoByParent(id,2);
     }
 
+    /**
+     * 获取后台审核admin捞取的纠错任务, 功能已废弃
+     */
 	@Override
 	public List<AdJiucuoTaskVo> selectAllByAssessorId(Map<String, Object> searchMap) {
 		return adJiucuoTaskMapper.selectAllByAssessorId(searchMap);
 	}
 
+	/**
+	 * 后台审核admin捞取纠错任务, 功能已废弃
+	 */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public List<AdJiucuoTaskVo> getTenAdMonitorTaskVo(Map<String, Object> searchMap) {
@@ -379,37 +422,58 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
 		return taskVos;
 	}
 	
+	/**
+	 * 查询某个广告位某个活动某个状态的纠错任务数量
+	 */
 	@Override
 	public int selectCountByActivityAndSeat(Map<String, Object> searchMap) {
 		return adJiucuoTaskMapper.selectCountByActivityAndSeat(searchMap);
 	}
 
+	/**
+	 * 撤销纠错任务, 功能已废弃
+	 */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public void offJiucuoTaskByAssessorId(Integer id) {
 		 adJiucuoTaskMapper.cancelJiucuoTaskByAssessorId(id);		
 	}
 
+	/**
+	 * 查询具体类型的纠错任务
+	 */
 	@Override
 	public List<AdJiucuoTaskVo> getAllByStatusUnCheck(Map<String, Object> searchMap) {
 		return adJiucuoTaskMapper.getAllByStatusUnCheck(searchMap);
 	}
 	
+	/**
+	 * 通过二维码查询纠错任务
+	 */
 	@Override
 	public List<AdJiucuoTask> selectInfoByQrCode(Map<String, Object> searchMap) {
 		return adJiucuoTaskMapper.selectInfoByQrCode(searchMap);
 	}
 	
+	/**
+	 * 通过经纬度和广告位名称查询纠错任务
+	 */
 	@Override
 	public List<AdJiucuoTask> selectInfoByLonLatTitle(Map<String, Object> searchMap) {
 		return adJiucuoTaskMapper.selectInfoByLonLatTitle(searchMap);
 	}
 	
+	/**
+	 * 通过广告位编号查询纠错任务
+	 */
 	@Override
 	public List<AdJiucuoTask> selectInfoByMemo(Map<String, Object> searchMap) {
 		return adJiucuoTaskMapper.selectInfoByMemo(searchMap);
 	}
 
+	/**
+	 * 分页查询纠错任务
+	 */
 	@Override
 	public void getJiucuoPageData(SearchDataVo datavo) {
 		int count = adJiucuoTaskMapper.getJiucuoPageCount(datavo.getSearchMap());
@@ -421,7 +485,6 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
         }
 		
 	}
-
 
 	/**
 	 * 替换任务反馈中的图片
@@ -446,6 +509,9 @@ public class AdJiucuoTaskService implements IAdJiucuoTaskService {
 		}
 	}
 
+	/**
+	 * 通过纠错id查询对应的纠错任务
+	 */
 	@Override
 	public AdJiucuoTask getActivityId(int id) {
 		return adJiucuoTaskMapper.selectByPrimaryKey(id);

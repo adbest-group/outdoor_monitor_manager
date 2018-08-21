@@ -13,14 +13,6 @@
                 	<div class="inp">
                     	<input type="text" placeholder="请输入活动名称" value="${name?if_exists}" id="searchName" name="name">
                 	</div>
-                    <#-- <!--活动下拉框
-                    <div class="select-box select-box-140 un-inp-select ll">
-                        <select name="activityId" class="select" id="activityId">
-                            <option value="">所有活动</option>
-                        <@model.showAllActivityOps value="${bizObj.queryMap.activityId?if_exists}"/>
-                        </select>
-                    </div>
-                     -->
                     <!--任务状态下拉框-->
                     <div class="select-box select-box-140 un-inp-select ll">
                         <select name="status" class="select" id="status">
@@ -67,7 +59,9 @@
                         </div>
                     </div> -->
                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="searchBtn">查询</button>
-                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">批量指派</button> 
+                    <#if user.usertype !=6>
+                     <button type="button" class="btn btn-red" style="margin-left:10px;" id="assignBtn">批量指派</button>
+                    </#if> 
                 </form>
             </div>
         </div>
@@ -78,7 +72,7 @@
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" class="tablesorter" id="plan">
                     <thead>
                     <tr>
-                     <th width="30"><input type="checkbox" style="visibility: hidden" id='thead-checkbox' name="ck-alltask" value=""/></th>
+                     <th width="30"><#if user.usertype !=6><input type="checkbox" style="visibility: hidden" id='thead-checkbox' name="ck-alltask" value=""/></#if></th>
                         <th width="30">序号</th>
                         <th>活动名称</th>
                         <th>上刊示例</th>
@@ -88,6 +82,7 @@
                         <th>媒体大类</th>
 					    <th>媒体小类</th>
                         <th>广告位</th>
+                        <th>执行公司</th>
                         <th>执行人员</th>
                         <th>任务类型</th>
                         <th>状态</th>
@@ -98,23 +93,27 @@
                     <#if (bizObj.list?exists && bizObj.list?size>0) >
                         <#list bizObj.list as task>
                         <tr>
-                        	<td width="30"><#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status?exists&&task.status == 1||task.status == 2)><input type="checkbox" data-status='${task.status}'  name="ck-task" value="${task.id}"/><div style='display:none;' data-id='${task.mediaId}'></div></#if></#if></td>
+                        	<td width="30"><#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status?exists&&task.status == 1||task.status == 2)>
+                        	<#if user.usertype !=6><input type="checkbox" data-status='${task.status}'  name="ck-task" value="${task.id}"/></#if><div style='display:none;' data-id='${task.mediaId!""}'></div></#if></#if></td>
                             <td width="30">${(bizObj.page.currentPage-1)*20+task_index+1}</td>
                             <td>
                                 <div class="data-title w200" data-title="${task.activityName!""}" data-id="${task.id}">${task.activityName?if_exists}</div>
                             </td>
                             <td><img width="50" src="${task.samplePicUrl!""}"/> </td>
                             <td>${task.startTime?string('yyyy-MM-dd')}<br/>${task.endTime?string('yyyy-MM-dd')}</td>
-                           <td>${vm.getCityName(task.province)!""} ${vm.getCityName(task.city!"")}</td>
+                           <td>${vm.getCityName(task.province!"")!""} ${vm.getCityName(task.city!"")}</td>
                             <td  id="media_${task.id}">${task.mediaName!""}</td>
                             <td>${task.parentName!""}</td>
                             <td>${task.secondName!""}</td>
                             <td>${task.adSeatName!""}</td>
+                            <td>${task.companyName!""}</td>
                             <td>${task.realname!""}</td>
                             <td>${vm.getMonitorTaskTypeText(task.taskType)!""}</td>
                             <td>${vm.getMonitorTaskStatusText(task.status)!""}</td>
                             <td>
-                            	<#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status==1 || task.status==8 || task.status==2)><a href="javascript:assign('${task.id}',${task.mediaId})">指派</a></#if></#if>
+                            <#if user.usertype !=6>
+                            	<#if vm.getUnassignTask(task.endTime)&lt;0><#if (task.status==1 || task.status==8 || task.status==2)><a href="javascript:assign('${task.id}',${task.mediaId!""})">指派</a></#if></#if>
+                             </#if>
                                 <a href="/task/details?task_Id=${task.id}">详情</a>
                             </td>
                         </tr>
@@ -221,8 +220,7 @@
         $town.hide().empty();
         if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
             $.ajax({
-                url : 'http://passer-by.com/data_location/town/' + info['code']
-                + '.json',
+                url : '/api/city?provinceId=' + info['code'],
                 dataType : 'json',
                 success : function(town) {
                     $town.show();
@@ -402,7 +400,7 @@
     }
 
     //打开选择执行者
-    openSelect = function(mediaId) {
+    <#-- openSelect = function(mediaId) {
         layer.open({
             type: 2,
             title: '选择监测人员',
@@ -410,19 +408,45 @@
             area: ['600px', '420px'],
             content: '/task/selectUserExecute?mediaId=' + mediaId //iframe的url
         });
+    } -->
+    //打开选择执行者
+    openSelect = function(mediaId) {
+        layer.open({
+            type: 2,
+            title: '选择监测人员',
+            shade: 0.8,
+            area: ['600px', '420px'],
+            content: '/task/selectUserMemberExecute' //iframe的url
+        });
     }
     //选择执行人后的回调
-    selectUserExecuteHandle = function (userId) {
+    selectUserExecuteHandle = function (mediaId,mediaUser,companyId,companyUser) {
+    	isLoading = true;
+    	layer.msg('正在操作中...', {
+    		icon: 16,
+    		shade: [0.5, '#f5f5f5'],
+    		scrollbar: false,
+    		time: 150000
+    	}, function(){
+    		if(isLoading){
+    			layer.alert('操作超时', {icon: 2, closeBtn: 0, btn: [], title: false, time: 3000, anim: 6});
+    		}
+    	})
         $.ajax({
             url: "/task/assign",
             type: "post",
             data: {
                 "ids": assign_ids,
-                "userId":userId
+                "mediaId":mediaId,
+                "companyId":companyId,
+                "mediaUser":mediaUser,
+                "companyUser":companyUser
             },
             cache: false,
             dataType: "json",
             success: function(datas) {
+            	isLoading = false;
+                layer.closeAll('msg');
                 var resultRet = datas.ret;
                 if (resultRet.code == 101) {
                     layer.confirm(resultRet.resultDes, {

@@ -1,5 +1,6 @@
 package com.bt.om.web.util;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -17,6 +18,10 @@ public class UploadFileUtil {
         filename = UUID.randomUUID().toString().toLowerCase()+"."+ext.toLowerCase();
         FileOutputStream fos = null;
         try {
+        	File file = new File(path);
+        	if(!file.exists()){
+                file.mkdirs();
+            }
             fos = new FileOutputStream(path+filename);
             int len = 0;
             byte[] buff = new byte[1024];

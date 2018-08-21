@@ -9,15 +9,24 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * Created by caiting on 2018/2/11.
+ * 省市区街道事务层
  */
 @Service
 public class CityService implements ICityService {
-    @Autowired
+    
+	@Autowired
     CityMapper cityMapper;
 
+	/**
+	 * 查询所有的省市区街道
+	 */
     @Override
     public List<City> getAll() {
         return cityMapper.selectAll();
     }
+
+	@Override
+	public City getName(Long id) {
+		return cityMapper.selectByPrimaryKey(id);
+	}
 }

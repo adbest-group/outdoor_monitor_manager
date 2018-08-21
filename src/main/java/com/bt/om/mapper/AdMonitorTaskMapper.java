@@ -10,10 +10,12 @@ import org.apache.ibatis.session.RowBounds;
 
 import com.bt.om.entity.AdMonitorTask;
 import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.HistoryAdMonitorTask;
 import com.bt.om.entity.vo.AdMonitorTaskMobileVo;
 import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.entity.vo.AllAdMonitorTaskVo;
 import com.bt.om.entity.vo.PictureVo;
+import com.bt.om.entity.vo.PushInfoVo;
 import com.bt.om.entity.vo.TaskAdSeat;
 
 public interface AdMonitorTaskMapper {
@@ -162,4 +164,22 @@ public interface AdMonitorTaskMapper {
 	List<String> selectUserNameByTaskIdBatch(Map<String, Object> searchMap);
 	
 	int recycleMediaTask(Map<String, Object> searchMap);
+
+	boolean updateTaskStatus(Date nowDate);
+
+	List<AdMonitorTask> selectOverTimeTasks(Date now);
+
+	List<HistoryAdMonitorTask> selectByActivityIds(@Param("activityId") Integer activityId);
+
+	String selectUserNameByTaskId(@Param("id") Integer id);
+	
+
+	List<AdMonitorTaskVo> selectMonitorTaskIdsByActicityId(@Param("acticityId")Integer acticityId);
+
+	List<AdMonitorTaskVo> findAllMemo(@Param("activityId") Integer activityId,@Param("tasks") List<AdMonitorTaskVo> memos);
+
+	int insertBatch(@Param("tasks")List<AdMonitorTaskVo> tasks);
+
+	int deleteBatch(@Param("tasks")List<AdMonitorTaskVo> tasks);
+
 }

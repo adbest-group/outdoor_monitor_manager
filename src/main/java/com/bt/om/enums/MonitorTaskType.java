@@ -1,11 +1,12 @@
 package com.bt.om.enums;
 
 /**
- * Created by caiting on 2018/1/20.
+ * 监测任务类型 枚举
+ * 对应 ad_monitor_task 的 task_type
  */
 public enum MonitorTaskType {
     //SET_UP_MONITOR(5,"上刊安装"),
-	UP_TASK(5,"上刊任务"),
+	UP_TASK(5,"上刊"),
     UP_MONITOR(1,"上刊监测"),
     DURATION_MONITOR(2,"投放期间监测"),
     DOWNMONITOR(3,"下刊监测"),

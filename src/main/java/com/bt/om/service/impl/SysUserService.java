@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.session.RowBounds;
+import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +26,7 @@ import com.bt.om.service.ISysUserService;
 import com.bt.om.vo.web.SearchDataVo;
 
 /**
- * OttvUser表数据服务层接口实现类
+ * sys_user表数据服务层接口实现类
  */
 @Service
 public class SysUserService implements ISysUserService {
@@ -91,9 +92,29 @@ public class SysUserService implements ISysUserService {
 		return sysUserDetailMapper.selectByUserId(userId);
 	}
 
+	/**
+	 * 新增后台用户
+	 */
 	@Override
-	public void addUser(SysUser sysUser) {
-		
+	public void addUser(SysUser sysUser, Integer roleId) {
+		Date now = new Date();
+		sysUser.setPassword(new Md5Hash(sysUser.getPassword(), sysUser.getUsername()).toString());
+		sysUser.setCreateTime(now);
+		sysUser.setUpdateTime(now);
+		sysUserMapper.insertSelective(sysUser);
+		SysUserDetail detail  = new SysUserDetail();
+		detail.setUserId(sysUser.getId());
+		detail.setTelephone(sysUser.getMobile());
+		detail.setCreateTime(now);
+		detail.setUpdateTime(now);
+		sysUserDetailMapper.insertSelective(detail);
+		SysUserRole userRole = new SysUserRole();
+        userRole.setPlatform(1);
+        userRole.setUserId(sysUser.getId());
+        userRole.setRoleId(roleId);
+        userRole.setCreateTime(now);
+        userRole.setUpdateTime(now);
+        sysUserRoleMapper.insertSelective(userRole);
 	}
 
 	@Override
@@ -111,6 +132,9 @@ public class SysUserService implements ISysUserService {
 		return sysUserMapper.getIdNameByUserType(userType);
 	}
 
+	/**
+	 * 新增部门领导
+	 */
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public int createDepartmentLeader(SysUser record, SysUserDetail sysUserDetail, SysUserRole sysUserRole) {
@@ -261,6 +285,42 @@ public class SysUserService implements ISysUserService {
 	@Override
 	public void changeAppType(Integer id) {
 		sysUserMapper.changeAppTypeById(id);
+	}
+
+	/**
+	 * 修改后台用户信息
+	 */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+	public void modify(SysUser sysUser) {
+		Date now = new Date();
+		SysUser user = sysUserMapper.findUserinfoById(sysUser.getId());
+		if(!sysUser.getPassword().equals("******")) {
+			sysUser.setPassword(new Md5Hash(sysUser.getPassword(), sysUser.getUsername()).toString());
+		}else {
+			sysUser.setPassword(user.getPassword());
+		}
+		sysUser.setUpdateTime(now);
+        sysUserMapper.updateByPrimaryKeySelective(sysUser);
+        SysUserDetail detail = sysUserDetailMapper.selectByUserId(sysUser.getId());
+	
+		if(!sysUser.getMobile().equals(detail.getTelephone())) {
+			detail.setTelephone(sysUser.getMobile());
+			detail.setUpdateTime(now);
+			sysUserDetailMapper.updateByPrimaryKeySelective(detail);
+		}
+	}
+
+	@Override
+	public SysUser getUserName(String inviteAcc) {
+		return sysUserMapper.getUserName(inviteAcc);
+	}
+	/**
+	 * 通过活动id获取所媒体用户及媒体监测人员
+	 */
+	@Override
+	public List<SysUserVo> selectUserVoByActivityId(Integer activityId) {
+		return sysUserMapper.selectUserVoByActivityId(activityId);
 	}
 
 }

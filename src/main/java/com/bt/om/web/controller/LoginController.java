@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -16,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -38,8 +40,11 @@ import com.bt.om.entity.SysResources;
 import com.bt.om.entity.SysRole;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserRole;
+import com.bt.om.enums.LoginLogTypeEnum;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
+import com.bt.om.enums.UserTypeEnum;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.log.SystemLogThread;
 import com.bt.om.mapper.SysRoleMapper;
 import com.bt.om.mapper.SysUserRoleMapper;
@@ -47,6 +52,8 @@ import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.ILoginLogService;
 import com.bt.om.service.ISysGroupService;
 import com.bt.om.service.impl.LoginLogService;
+import com.bt.om.util.AddressUtils;
+import com.bt.om.util.ConfigUtil;
 import com.bt.om.util.RequestUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.vo.web.SearchDataVo;
@@ -67,6 +74,8 @@ public class LoginController extends BasicController {
 	private SysRoleMapper sysRoleMapper;
 	@Autowired
 	private ILoginLogService loginLogService;
+	private String session_timeout = ConfigUtil.getString("session.timeout");
+	private static final Logger logger = Logger.getLogger(LoginController.class);
     /**
      * 跳转到登录页
      *
@@ -98,11 +107,12 @@ public class LoginController extends BasicController {
      *
      * @param model
      * @return
+     * @throws UnsupportedEncodingException 
      */
     @SuppressWarnings("unchecked")
     @RequestMapping(value = "/doLogin", method = {RequestMethod.POST, RequestMethod.GET})
     public String doLogin(Model model, SysUser user, HttpServletRequest request, HttpServletResponse response,
-    		@RequestParam(value = "username", required = false) String username) {
+    		@RequestParam(value = "username", required = false) String username) throws UnsupportedEncodingException {
         response.setHeader("Access-Control-Allow-Origin", request.getHeader("origin"));
         response.setHeader("Access-Control-Allow-Credentials", "true");
         // 获取页面输入验证码
@@ -159,7 +169,7 @@ public class LoginController extends BasicController {
             }
             
             //部门领导校验是否有管理部门
-            if(findUser.getUsertype() == 5) {
+            if(findUser.getUsertype() == UserTypeEnum.DEPARTMENT_LEADER.getId()) {
             	//部门领导登录, 查询部门领导账号一对一管理的部门信息
             	SysResources department = sysGroupService.getByUserId(findUser.getId());
             	if(department == null) {
@@ -184,22 +194,24 @@ public class LoginController extends BasicController {
             // ========记录日志===========
             
             new Thread(new SystemLogThread("系统首页", "登录", user.getUsername(), getIp(), "", "", 1)).start();
-           
+	        AddressUtils addressUtils = new AddressUtils();
+	        String  address = addressUtils.getAddressesByBaidu( getIp(), "utf-8");
              Date now = new Date();	           
              LoginLog loginlog=new LoginLog();   
              loginlog.setUserId(findUser.getId());
-             loginlog.setType(0);
+             loginlog.setType(LoginLogTypeEnum.PLATFORM.getId());
 	         loginlog.setIp(getIp());
-	         loginlog.setLocation(null);
+	         loginlog.setLocation(address);
 	         loginlog.setCreateTime(now);
     		 loginLogService.save(loginlog);                	
             
         } catch (AuthenticationException ae) {
+        	logger.error(ae);
             model.addAttribute(SysConst.RESULT_KEY, "用户名或密码错误");
             model.addAttribute("username", user.getUsername());
             return PageConst.LOGIN_PAGE;
         }
-
+        subject.getSession().setTimeout(Long.valueOf(session_timeout));
         List<SysMenu> menuList = (List<SysMenu>) ShiroUtils
                 .getSessionAttribute(SessionKey.SESSION_USER_MENU.toString());
         if (menuList != null && menuList.size() > 0) {

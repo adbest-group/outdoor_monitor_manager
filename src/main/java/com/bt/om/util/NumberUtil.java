@@ -584,4 +584,15 @@ public class NumberUtil {
     public static Integer parserInt(String number) {
         return Integer.valueOf(number);
     }
+    
+    /**
+     * 两数相乘
+     * 
+     * @param mul1
+     * @param mul2
+     * @return
+     */
+    public static BigDecimal multiply(String mul1, String mul2) {
+        return new BigDecimal(mul1).multiply(new BigDecimal(mul2));
+    }
 }

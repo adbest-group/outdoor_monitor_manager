@@ -20,7 +20,9 @@ public class AdSeatInfoVo extends AdSeatInfo {
 	private String provinceName;
 	
 	private String cityName;
-
+	
+	private String samplePicUrl;
+	
 	public Integer getMediaId() {
 		return mediaId;
 	}
@@ -91,5 +93,13 @@ public class AdSeatInfoVo extends AdSeatInfo {
 
 	public void setCityName(String cityName) {
 		this.cityName = cityName;
+	}
+	
+	public String getSamplePicUrl() {
+		return samplePicUrl;
+	}
+	
+	public void setSamplePicUrl(String samplePicUrl) {
+		this.samplePicUrl = samplePicUrl;
 	}
 }

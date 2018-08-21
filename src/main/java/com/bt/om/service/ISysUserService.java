@@ -91,7 +91,6 @@ public interface ISysUserService {
 //	 *
 //	 * @param ottvUser
 //	 */
-	void addUser(SysUser sysUser);
 	
 	List<SysUserVo> getAllByUserType(Integer userType);
 //
@@ -138,5 +137,13 @@ public interface ISysUserService {
 	SysUser getUserAppType(Integer userId);
 
 	void changeAppType(Integer id);
+
+	void modify(SysUser sysUser);
+
+	void addUser(SysUser sysUser, Integer roleId);
+
+	SysUser getUserName(String inviteAcc);
+
+	List<SysUserVo> selectUserVoByActivityId(Integer activityId);
 
 }

@@ -186,6 +186,7 @@
        <result column="mediaNameNew" jdbcType="VARCHAR" property="mediaNameNew"/>
   </resultMap>
   
+  <!-- 分页查询用户类型变更历史 -->
   <select id="getPageCount" parameterType="map" resultType="java.lang.Integer">
 		select count(a.id)
 		from sys_user_history a 
@@ -198,7 +199,8 @@
 		and a.user_id=#{userId,jdbcType=INTEGER} 
 		</if>
    </select>
-    
+   
+   <!-- 分页查询用户类型变更历史 -->
    <select id="getPageData" parameterType="map" resultMap="ExtResultMap">
    		select a.usertype_old,a.usertype_new,c.realname loginName,d.realname mediaNameOld,e.realname mediaNameNew,a.update_time
 		from sys_user_history a 

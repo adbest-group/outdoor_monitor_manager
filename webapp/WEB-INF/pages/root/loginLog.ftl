@@ -1,7 +1,7 @@
-<#assign webTitle="登录日志管理" in model> <#assign webHead in model> </#assign>
+<#assign webTitle="系统管理" in model> <#assign webHead in model> </#assign>
 <@model.webhead />
 <!-- 头部 -->
-<@model.webMenu current="登录日志管理" child="登录日志管理" />
+<@model.webMenu current="系统管理" child="登录日志管理" />
 <!-- 特色内容 -->
 <div class="main-container" style="height: auto;">
 	<div class="main-box">
@@ -44,7 +44,7 @@
 							<th>用户名</th>
 							<th>真实名字</th>
                         	<th>IP</th>
-                        	<!-- <th>位置</th> -->
+                        	 <th>地区</th>
                         	<th>创建时间</th>
                         	
 						</tr>
@@ -57,7 +57,7 @@
 							<td>${type.username!""}</td>
 							<td>${type.realname!""}</td> 
 							<td>${type.ip!""}</td>
-							<!-- <td>${type.location!""}</td> -->
+							<td>${type.location!""}</td> 
 							<td>${type.createTime?string('yyyy-MM-dd HH:mm:ss')}</td>
 							
 						</tr>

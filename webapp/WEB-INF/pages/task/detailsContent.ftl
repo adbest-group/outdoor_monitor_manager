@@ -157,22 +157,49 @@
                                 </p>
                                 <p>
                                     提交照片：</br>
+                                
                                 <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
+                                <input type="text" id="verifyPic1Result" disabled name="verifyPic1Result" style="width: 100px;" value="${vm.getVerifyTypeText(item.picUrl1Status!0)}" autocomplete="off" class="form-control" />
                                      <img style="vertical-align: top;width:350px" src="${item.picUrl1!""}"></img>
-                                     <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=7&&vo.status!=8)> <input type="button" id="changePic1" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if></#if>
+                                     <#if usertype?exists&&usertype==4>
+                                     	<#if (vo.status?exists&&vo.status!=7&&vo.status!=8)>
+                                      		<input type="button" id="changePic1" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/>
+                                      		<#if vo.status==3 || vo.status==5>
+                                      		<input type="button" id="verifyPic1" class="changePic btn btn-primary" value="　审核　" onclick="openverify1(${item.feedbackId!""})"/>
+                                      		</#if>
+                                      	</#if>
+                                     </#if>
                                 </div>
                                 <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
+                                <input type="text" id="verifyPic2Result" disabled name="verifyPic2Result" style="width: 100px;" value="${vm.getVerifyTypeText(item.picUrl2Status!0)}" autocomplete="off" class="form-control" />
                                     <img style="vertical-align: top;width:350px"" src="${item.picUrl2!""}"></img>
-                                    <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=7&&vo.status!=8)><input type="button" id="changePic2" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if></#if>
+                                    <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=7&&vo.status!=8)>
+                                    	<input type="button" id="changePic2" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if>
+                                    	<#if vo.status==3 || vo.status==5>
+                                      		<input type="button" id="verifyPic2" class="changePic btn btn-primary" value="　审核　" onclick="openverify2(${item.feedbackId!""})"/>
+                                      	</#if>
+                                    </#if>
                                 </div> 
                                 </br>
                                 <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
+                                <input type="text" id="verifyPic3Result" disabled name="verifyPic3Result" style="width: 100px;" value="${vm.getVerifyTypeText(item.picUrl3Status!0)}" autocomplete="off" class="form-control" />
                                     <img style="vertical-align: top;width:350px"" src="${item.picUrl3!""}"></img>
-                                    <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=7&&vo.status!=8)><input type="button" id="changePic3" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if></#if>
+                                    <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=7&&vo.status!=8)>
+                                    <input type="button" id="changePic3" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if>
+                                    	<#if vo.status==3 || vo.status==5>
+                                      		<input type="button" id="verifyPic3" class="changePic btn btn-primary" value="　审核　" onclick="openverify3(${item.feedbackId!""})"/>
+                                      	</#if>
+                                    </#if>
                                 </div> 
                                 <div style="width: 360px;margin-bottom: 10px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
+                                <input type="text" id="verifyPic4Result" disabled name="verifyPic4Result" style="width: 100px;" value="${vm.getVerifyTypeText(item.picUrl4Status!0)}" autocomplete="off" class="form-control" />
                                     <img style="vertical-align: top;width:350px"" src="${item.picUrl4!""}"></img>
-                                    <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=7&&vo.status!=8)><input type="button" id="changePic4" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if></#if>
+                                    <#if usertype?exists&&usertype==4><#if (vo.status?exists&&vo.status!=7&&vo.status!=8)>
+                                    <input type="button" id="changePic4" class="changePic btn btn-primary" value="　更换　" onclick="setFeedbackId(${item.feedbackId!""})"/></#if>
+                                      <#if vo.status==3 || vo.status==5>
+                                      	  <input type="button" id="verifyPic4" class="changePic btn btn-primary" value="　审核　" onclick="openverify4(${item.feedbackId!""})"/>
+                                      </#if>
+                                    </#if>
                                 </div> 
                                 </p>
                                 <p><br/>
@@ -210,7 +237,7 @@
     </div>
 </#if>
 
-<#if usertype?exists&&usertype==4>
+<#if usertype?exists&& usertype==4 || usertype==6>
 <#if vo.status?exists && vo.status==1 || vo.status==2>
     <div class="clearfix">
         <div class="main-box">
@@ -222,7 +249,7 @@
                     <div class="submitdetails-wrap" style="font-size: 15px">
                     	<input type="hidden" id="selectMonitorTaskId" value="${vo.id?if_exists}">
                     		<p>替换的执行人员：</p> <br>
-                    		<input type="hidden" id="selectMediaId" value="${vo.mediaId?if_exists}">
+                    		<input type="hidden" id="selectMediaId" value="${vo.mediaId?if_exists}" >
                     		<#--<div class="select-box select-box-100 un-inp-select ll">
 		                       	 <select class="select" name="selectMediaId" id="selectMediaId" onchange="changeMediaTypeId();">
 				                     <option value="">所有媒体</option>
@@ -230,7 +257,7 @@
 				                 </select>
 		                    </div>  -->						
 		                    <div class="select-box select-box-100 un-inp-select ll">
-		                       	 <select class="select" name="selectMediaName" id="selectMediaName">
+		                       	 <select class="select" name="selectMediaName" id="selectMediaName" <#if usertype==6>disabled</#if> >
 				                     <option value="">媒体成员</option>
 				                     <@model.showUserExecuteByMedia mediaId="${vo.mediaId?if_exists}"/>
 				                 </select>
@@ -241,7 +268,7 @@
                             <div style="vertical-align: middle;display: table-cell;text-align: center;">
 	                            <table id="formValid">
 	                            	<tr>
-	                            		<td>经度：<input type="text" id="lontitude" name="lontitude"/></td>
+	                            		<td>经度：<input type="text" id="lontitude" name="lontitude" <#if usertype ==6>disabled</#if>/></td>
 	                            		<td><span id="lontitudeTip"></span></td>
 	                            	<tr>
 	                            	<tr>
@@ -249,7 +276,7 @@
 	                            		<td>&nbsp;</td>
                             		</tr>
 	                            	<tr>
-	                            		<td>纬度：<input type="text" id="latitude" name="latitude"/></td>
+	                            		<td>纬度：<input type="text" id="latitude" name="latitude" <#if usertype ==6>disabled</#if> /></td>
 	                            		<td><span id="latitudeTip"></span></td>
 	                            	</tr>
 	                            </table>
@@ -259,24 +286,32 @@
                             <p>提交照片：</p>
                             <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
                                  <img style="vertical-align: top;width:350px" src=""></img>
+                                 <#if usertype !=6>
                                  <input type="button" class="changePic btn btn-primary" value="　更换　" onclick="checkVal(this);"/>
                                  <input type="button" id="changePic11" style="visibility: hidden" class="changePic btn btn-primary" value="　更换　"/>
+                                 </#if>
                             </div>
                             <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
                                 <img style="vertical-align: top;width:350px"" src=""></img>
+                                <#if usertype !=6>
                                 <input type="button" class="changePic btn btn-primary" value="　更换　" onclick="checkVal(this);"/>
                                 <input type="button" id="changePic22" style="visibility: hidden" class="changePic btn btn-primary" value="　更换　"/>
+                                </#if>
                             </div> 
                             </br>
                             <div style="width: 360px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
                                 <img style="vertical-align: top;width:350px"" src=""></img>
+                                <#if usertype !=6>
                                 <input type="button" class="changePic btn btn-primary" value="　更换　" onclick="checkVal(this);"/>
                                 <input type="button" id="changePic33" style="visibility: hidden" class="changePic btn btn-primary" value="　更换　"/>
+                                </#if>
                             </div> 
                             <div style="width: 360px;margin-bottom: 10px;height: 300px;vertical-align: middle;display: table-cell;text-align: center;">
                                 <img style="vertical-align: top;width:350px"" src=""></img>
+                                <#if usertype !=6>
                                 <input type="button" class="changePic btn btn-primary" value="　更换　" onclick="checkVal(this);"/>
                                 <input type="button" id="changePic44" style="visibility: hidden" class="changePic btn btn-primary" value="　更换　"/>
+                                </#if>
                             </div> 
                         
                             <div style="border-bottom: 1px solid #ddd;padding-top: 20px"></div>
@@ -307,7 +342,53 @@
 	function setFeedbackId(id){
 		$("#selectTaskFeedBackId").val(id);
 	}
+	//审核图片1
+	function openverify1(id){
+		layer.open({
+            type: 2,
+            title: '审核详情',
+            shadeClose: true,
+            shade: 0.8,
+            area: ['480px', '240px'],
+            content: '/task/verifyPic?id=' + id + '&index=1' //iframe的url
+        });
+	}
 	
+	//审核图片2
+	function openverify2(id){
+		layer.open({
+            type: 2,
+            title: '审核详情',
+            shadeClose: true,
+            shade: 0.8,
+            area: ['480px', '240px'],
+            content: '/task/verifyPic?id=' + id + '&index=2' //iframe的url
+        });
+	}
+	
+	//审核图片3
+	function openverify3(id){
+		layer.open({
+            type: 2,
+            title: '审核详情',
+            shadeClose: true,
+            shade: 0.8,
+            area: ['480px', '240px'],
+            content: '/task/verifyPic?id=' + id + '&index=3' //iframe的url
+        });
+	}
+	
+	//审核图片4
+	function openverify4(id){
+		layer.open({
+            type: 2,
+            title: '审核详情',
+            shadeClose: true,
+            shade: 0.8,
+            area: ['480px', '240px'],
+            content: '/task/verifyPic?id=' + id + '&index=4' //iframe的url
+        });
+	}
 	function checkVal(that){
 	   var lon = $('#lontitude').val();
   	   var lat = $('#latitude').val();
@@ -786,7 +867,7 @@
             map.addOverlay(seatMarker);
         });
         $("#btnBack").click(function(){history.back();});
-        changeMediaTypeId();
+        <#-- changeMediaTypeId(); -->
       <#--   $.formValidator.initConfig({ formID: "formValid", onError: function () { alert("校验没有通过，具体错误请看错误提示") } });
         inputValid();--> 
         
@@ -828,5 +909,5 @@
 		});
 	}
 	
-	changeMediaTypeId();
+	<#-- changeMediaTypeId(); -->
 </script>

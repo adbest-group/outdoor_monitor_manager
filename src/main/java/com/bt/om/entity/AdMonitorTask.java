@@ -275,7 +275,35 @@ public class AdMonitorTask extends ID{
     private Date reportTime;
     private Integer taskPoint;
     private Double taskMoney;
-    public Double getTaskMoney() {
+    private Integer companyId;
+    private Integer firstVerify;//初审
+    private Integer isAssign;//是否为群邑方指派给媒体公司人员/第三方监测公司人员
+    
+    public Integer getIsAssign() {
+		return isAssign;
+	}
+
+	public void setIsAssign(Integer isAssign) {
+		this.isAssign = isAssign;
+	}
+
+	public Integer getFirstVerify() {
+		return firstVerify;
+	}
+
+	public void setFirstVerify(Integer firstVerify) {
+		this.firstVerify = firstVerify;
+	}
+
+	public Integer getCompanyId() {
+		return companyId;
+	}
+
+	public void setCompanyId(Integer companyId) {
+		this.companyId = companyId;
+	}
+
+	public Double getTaskMoney() {
 		return taskMoney;
 	}
 

@@ -29,7 +29,7 @@
                         <tr>
                             <td class="a-title"><font class="s-red">*</font>广告位名称：</td>
                             <td>
-                                <input type="text" <#-- disabled --> value="<#if (adSeatInfo?exists)>${adSeatInfo.name!""}</#if>"
+                                <input type="text" <#if user.usertype ==6>disabled</#if> <#-- disabled --> value="<#if (adSeatInfo?exists)>${adSeatInfo.name!""}</#if>"
                                        style="width: 130px;" id="name" name="name" autocomplete="off"
                                        class="form-control">
                                 <span id="nameTip"></span>
@@ -93,7 +93,7 @@
                         </tr>
                         <tr>
 							<td class="a-title"><font class="s-red">*</font>主要路段：</td>
-							<td><input type="text" style="width: 130px;" id="road" name="road" value="<#if (adSeatInfo?exists)>${adSeatInfo.road!""}</#if>"
+							<td><input type="text" style="width: 130px;" id="road" name="road" <#if user.usertype ==6>disabled</#if> value="<#if (adSeatInfo?exists)>${adSeatInfo.road!""}</#if>"
 								autocomplete="off" class="form-control">
                                  <span id="roadTip"></span>
 							</td>
@@ -101,7 +101,7 @@
 						
 						<tr>
 							<td class="a-title"><font class="s-red">*</font>广告位详细位置：</td>
-							<td><input type="text" style="width: 130px;" id="location" name="location" value="<#if (adSeatInfo?exists)>${adSeatInfo.location!""}</#if>"
+							<td><input type="text" style="width: 130px;" id="location" name="location" <#if user.usertype ==6>disabled</#if> value="<#if (adSeatInfo?exists)>${adSeatInfo.location!""}</#if>"
 								autocomplete="off" class="form-control">
                                    <span id="locationTip"></span>
 							</td>
@@ -126,11 +126,11 @@
                         <tr>
                             <td class="a-title">广告位尺寸：</td>
                             <td>
-                                <input type="text" <#-- disabled --> style="width: 60px;"
+                                <input type="text" <#-- disabled --> style="width: 60px;" <#if user.usertype ==6>disabled</#if>
                                        value="<#if (adSeatInfo?exists)>${adSeatInfo.width!""}</#if>" id="width"
                                        name="width" autocomplete="off" class="form-control">
                                 *
-                                <input type="text" <#-- disabled --> style="width: 60px;"
+                                <input type="text" <#-- disabled --> style="width: 60px;" <#if user.usertype ==6>disabled</#if>
                                        value="<#if (adSeatInfo?exists)>${adSeatInfo.height!""}</#if>" id="height"
                                        name="height" autocomplete="off" class="form-control">
 
@@ -141,15 +141,15 @@
                         
                         <tr>
 							<td class="a-title">广告位面积：</td>
-							<td><input type="text" style="width: 130px;" id="adArea" name="adArea" value="<#if (adSeatInfo?exists)>${adSeatInfo.adArea!""}</#if>"
-								autocomplete="off" class="form-control">
+							<td><input type="text" style="width: 130px;" id="adArea" name="adArea" <#if user.usertype ==6>disabled</#if> value="<#if (adSeatInfo?exists)>${adSeatInfo.adArea!""}</#if>"
+								autocomplete="off" class="form-control" readonly="readonly">
                                 <span id="adAreaTip"></span>
 							</td>
 						</tr>
                         
                         <tr>
 							<td class="a-title">面数：</td>
-							<td><input type="text" style="width: 130px;" id="adNum" name="adNum" value="<#if (adSeatInfo?exists)>${adSeatInfo.adNum!""}</#if>"
+							<td><input type="text" style="width: 130px;" id="adNum" name="adNum" <#if user.usertype ==6>disabled</#if> value="<#if (adSeatInfo?exists)>${adSeatInfo.adNum!""}</#if>"
 								autocomplete="off" class="form-control">
                                    <span id="adNumTip"></span>
 							</td>
@@ -158,7 +158,7 @@
                         <tr>
                             <td class="a-title">广告位经度：</td>
                             <td>
-                                <input type="text" <#-- disabled --> style="width: 130px;" id="lon"
+                                <input type="text" <#-- disabled --> <#if user.usertype ==6>disabled</#if> style="width: 130px;" id="lon"
                                        value="<#if (adSeatInfo?exists)>${adSeatInfo.lon!""}</#if>" name="lon"
                                        autocomplete="off" class="form-control">
 
@@ -168,7 +168,7 @@
                         <tr>
                             <td class="a-title">广告位纬度：</td>
                             <td>
-                                <input type="text" <#-- disabled --> style="width: 130px;" id="lat"
+                                <input type="text" <#-- disabled --> <#if user.usertype ==6>disabled</#if> style="width: 130px;" id="lat"
                                        value="<#if (adSeatInfo?exists)>${adSeatInfo.lat!""}</#if>" name="lat"
                                        autocomplete="off" class="form-control">
 
@@ -191,7 +191,7 @@
 						</tr>
 						<tr>
 							<td class="a-title">广告位编号：</td>
-							<td><input type="text" style="width: 130px;" id="memo" name="memo" value="<#if (adSeatInfo?exists)>${adSeatInfo.memo!""}</#if>"
+							<td><input type="text" style="width: 130px;" id="memo" name="memo" <#if user.usertype ==6>disabled</#if> value="<#if (adSeatInfo?exists)>${adSeatInfo.memo!""}</#if>"
 								autocomplete="off" class="form-control">
                                   <span id="memoTip"></span>
 							</td>
@@ -199,7 +199,7 @@
 						<tr>
 							<td class="a-title">是否允许同时有多个活动：</td>
 							<td>
-								<select style="width: 156px;" name="allowMulti" id="allowMulti" class="form-control">
+								<select style="width: 156px;" name="allowMulti" id="allowMulti" <#if user.usertype ==6>disabled</#if> class="form-control">
 			                        <option value="0" <#if (adSeatInfo?exists&&((adSeatInfo.allowMulti)!0) == 0)>selected</#if>>否</option>
 			                        <option value="1" <#if (adSeatInfo?exists&&((adSeatInfo.allowMulti)!0) == 1)>selected</#if>>是</option>
 			                    </select>
@@ -210,7 +210,7 @@
 						
 						<tr>
 							<td class="a-title">允许的活动数量：</td>
-							<td><input type="text" style="width: 130px;" id="multiNum" name="multiNum" value="<#if (adSeatInfo?exists)>${adSeatInfo.multiNum!""} <#else>1</#if>"
+							<td><input type="text" style="width: 130px;" id="multiNum" name="multiNum" <#if user.usertype ==6>disabled</#if> value="<#if (adSeatInfo?exists)>${adSeatInfo.multiNum!""} <#else>1</#if>"
 								autocomplete="off" class="form-control">
                                 <span id="multiNumTip"></span>
 							</td>
@@ -218,7 +218,7 @@
 						
 						<tr>
 							<td class="a-title">联系人姓名：</td>
-								<td><input type="text" style="width: 130px;" id="contactName" name="contactName" value="<#if (adSeatInfo?exists)>${(adSeatInfo.contactName)!}</#if>"
+								<td><input type="text" style="width: 130px;" id="contactName" name="contactName" <#if user.usertype ==6>disabled</#if> value="<#if (adSeatInfo?exists)>${(adSeatInfo.contactName)!}</#if>"
 									autocomplete="off" class="form-control">
                                     <span id="contactNameTip"></span>
 								</td>
@@ -226,14 +226,14 @@
 						
 						<tr>
 							<td class="a-title">联系人电话：</td>
-							<td><input type="text" style="width: 130px;" id="contactCell" name="contactCell" value="<#if (adSeatInfo?exists)>${adSeatInfo.contactCell!""}</#if>"
+							<td><input type="text" style="width: 130px;" id="contactCell" name="contactCell" <#if user.usertype ==6>disabled</#if> value="<#if (adSeatInfo?exists)>${adSeatInfo.contactCell!""}</#if>"
 								autocomplete="off" class="form-control">
                                 <span id="contactCellTip"></span>
 							</td>
 						</tr>
 						
 						<tr>
-							<td class="a-title"><font class="s-red">*</font>二维码：</td>
+							<td class="a-title">二维码：</td>
 							<td>
 								<#if (adSeatInfo?exists && adSeatInfo.adCodeUrl?exists)>
 									<img src="<#if (adSeatInfo?exists)>${adSeatInfo.adCodeUrl!""}</#if>" height="200" width="200" />
@@ -312,8 +312,9 @@
 
                             <td rowspan="6" colspan="6">
                                 <div class="col-50">
+                                <#if user.usertype !=6>
                                     <button class="btn btn-red" id="submit">保存</button>
-
+								</#if>
                                     <button class="btn btn-primary ml-20" id="back">返回</button>
                                 </div>
                             </td>
@@ -609,7 +610,7 @@
         $("#adArea").formValidator({
             validatorGroup:"2",
             onShow: "　",
-            onFocus: "请输入面积(㎡)",
+            onFocus: "面积(㎡)",
             onCorrect: ""
        }).inputValidator({
             type:"number",
@@ -722,8 +723,7 @@
         $town.hide().empty();
         if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
             $.ajax({
-                url: 'http://passer-by.com/data_location/town/' + info['code']
-                + '.json',
+                url: '/api/city?provinceId=' + info['code'],
                 dataType: 'json',
                 success: function (town) {
                     $town.show();
@@ -755,5 +755,25 @@
         $(window).resize();
 
     });
+    /*动态计算广告面积*/
+	$("#width,#height").on("input",function(e){
+        //获取input输入的值
+        var width = $("#width").val();
+        var height = $("#height").val();
+        if(isNumber(width) && isNumber(height)){
+        	$("#adArea").val(parseFloat((width*height/10000).toFixed(3)));
+        }else{
+        	$("#adArea").val('');
+        }
+    });
+    function isNumber(val){
+	    var regPos = /^\d+(\.\d+)?$/; //非负浮点数
+	    var regNeg = /^(-(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*)))$/; //负浮点数
+	    if(regPos.test(val) || regNeg.test(val)){
+	        return true;
+	    }else{
+	        return false;
+	    }
+	}
 </script>
 <@model.webend />

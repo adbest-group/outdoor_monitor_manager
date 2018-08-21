@@ -26,8 +26,7 @@
         <!-- jdbc连接 -->
         <jdbcConnection driverClass="com.mysql.jdbc.Driver"
                         connectionURL="jdbc:mysql://10.2.30.36:3307/outdoor-monitor?jdbcCompliantTruncation=false&amp;characterEncoding=UTF-8&amp;allowMultiQueries=true"
-                        userId="admin" password="admin"/>
-
+                        userId="admin" password="admin"/> 
         <!-- 类型转换 -->
         <javaTypeResolver>
             <!-- 是否使用bigDecimal， false可自动转化以下类型（Long, Integer, Short, etc.） -->
@@ -193,12 +192,6 @@
                enableUpdateByExample="false">
         </table> -->
 
-		<!-- <table schema="outdoor-monitor" tableName="ad_version"
-               domainObjectName="AdVersion" enableCountByExample="false"
-               enableDeleteByExample="false" enableSelectByExample="false"
-               enableUpdateByExample="false">
-        </table> -->
-        
         <!-- 
         <table schema="outdoor-monitor" tableName="ad_sms"
                domainObjectName="AdSms" enableCountByExample="false"
@@ -255,15 +248,46 @@
                enableDeleteByExample="false" enableSelectByExample="false"
                enableUpdateByExample="false">
         </table> --> 
+
         <!-- <table schema="outdoor-monitor" tableName="sys_user_history"
                domainObjectName="SysUserHistory" enableCountByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false"
                enableUpdateByExample="false">
         </table>  -->
+
+		<!-- 
+         <table schema="outdoor-monitor" tableName="login_log"
+               domainObjectName="LoginLog" enableCountByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false"
+               enableUpdateByExample="false">
+        </table> 
+         -->
+
+		<!-- 
         <table schema="outdoor-monitor" tableName="ad_user_money"
                domainObjectName="AdUserMoney" enableCountByExample="false"
                enableDeleteByExample="false" enableSelectByExample="false"
                enableUpdateByExample="false">
         </table>
+         -->
+         
+        <!-- 
+        <table schema="outdoor-monitor" tableName="ad_seat_info_tmp"
+               domainObjectName="AdSeatInfoTmp" enableCountByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false"
+               enableUpdateByExample="false">
+        </table>
+         -->
+        
+        <!-- <table schema="outdoor-monitor" tableName="ad_version"
+               domainObjectName="AdVersion" enableCountByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false"
+               enableUpdateByExample="false">
+        </table> -->
+         <table schema="outdoor-monitor" tableName="ad_monitor_task_feedback_resources"
+               domainObjectName="AdMonitorTaskFeedbackResources" enableCountByExample="false"
+               enableDeleteByExample="false" enableSelectByExample="false"
+               enableUpdateByExample="false">
+        </table> 
     </context>
 </generatorConfiguration>

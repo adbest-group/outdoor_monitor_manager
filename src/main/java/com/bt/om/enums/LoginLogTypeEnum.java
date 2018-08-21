@@ -1,24 +1,23 @@
 package com.bt.om.enums;
 
 /**
- * Created by caiting on 2018/4/11.
+ * 登录日志类型 枚举 
+ * 对应 login_log 表的 type
  */
-public enum UserExecuteType {
-    MONITOR(1,"监测人员"),
-    CUSTOMER(2,"客户人员"),
-    MEDIA_WORKER(3,"媒体人员"),
-    Social(4,"社会人员");
+public enum LoginLogTypeEnum {
+    PLATFORM(0,"后台"),
+    APP(1,"APP");
 
     private Integer id;
     private String text;
 
-    UserExecuteType(int id, String text) {
+    LoginLogTypeEnum(int id,String text) {
         this.id = id;
         this.text = text;
     }
 
     public static String getText(int id){
-        for(UserExecuteType e : UserExecuteType.values()){
+        for(LoginLogTypeEnum e : LoginLogTypeEnum.values()){
             if(e.getId() == id){
                 return e.getText();
             }
@@ -27,7 +26,7 @@ public enum UserExecuteType {
     }
 
     public static Integer getId(String text){
-        for(UserExecuteType e : UserExecuteType.values()){
+        for(LoginLogTypeEnum e : LoginLogTypeEnum.values()){
             if(e.getText().equals(text)){
                 return e.getId();
             }

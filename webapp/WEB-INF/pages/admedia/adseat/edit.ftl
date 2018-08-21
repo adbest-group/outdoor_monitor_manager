@@ -81,23 +81,25 @@ img.demo {
 							<tr>
 								<td class="a-title"><font class="s-red">*</font>媒体大类：</td>
 								<td>
+								<div style="float: left; font-size: 12px" class="select-box select-box-100 un-inp-select ll">
 									<select style="width: 156px;" name="mediaTypeParentId" id="mediaTypeParentId" class="form-control" onchange="changeMediaTypeId();">
 										<option value="">请选择媒体大类</option>
 										<@model.showAllAdMediaTypeAvailableOps value="<#if (adSeatInfo?exists&&adSeatInfo.mediaTypeParentId?exists)>adSeatInfo.mediaTypeParentId</#if>"/>
 				                    </select>
-									
                                     <span id="mediaTypeParentIdIdTip"></span>
+                                </div>
 								</td>
 							</tr>
 							
 							<tr>
 								<td class="a-title"><font class="s-red">*</font>媒体小类：</td>
 								<td>
-									<select style="width: 156px;" name="mediaTypeId" id="mediaTypeId" class="form-control">
-										<option value="">请选择媒体小类</option>
-				                    </select>
-									
-                                    <span id="mediaTypeIdIdTip"></span>
+									<div style="float: left; font-size: 12px" class="select-box select-box-100 un-inp-select ll">
+										<select style="width: 156px;" name="mediaTypeId" id="mediaTypeId" class="form-control">
+											<option value="">请选择媒体小类</option>
+					                    </select>
+	                                    <span id="mediaTypeIdIdTip"></span>
+	                                </div>
 								</td>
 							</tr>
 							
@@ -160,7 +162,7 @@ img.demo {
 							<tr>
 								<td class="a-title">广告位面积：</td>
 								<td><input type="text" style="width: 130px;" id="adArea" name="adArea" value="<#if (adSeatInfo?exists)>${adSeatInfo.adArea!""}</#if>"
-									autocomplete="off" class="form-control">
+									autocomplete="off" class="form-control" readonly="readonly">
                                     <span id="adAreaTip"></span>
 								</td>
 							</tr>
@@ -247,7 +249,7 @@ img.demo {
 							</tr>
 							
 							<tr>
-								<td class="a-title"><font class="s-red">*</font>二维码：</td>
+								<td class="a-title">二维码：</td>
 								<td>
 									<#if (adSeatInfo?exists && adSeatInfo.adCodeUrl?exists)>
 										<img src="<#if (adSeatInfo?exists)>${(adSeatInfo.adCodeUrl)!}</#if>" height="200" width="200" />
@@ -304,9 +306,22 @@ img.demo {
 
 <script type="text/javascript" src="/static/js/jquery.citys.js"></script>
 <script type="text/javascript">
-	function changeMediaTypeId() {
-		var mediaTypeParentId = $("#mediaTypeParentId").val();
-		if(mediaTypeParentId == "" || mediaTypeParentId.length <= 0) {
+	$('#mediaTypeParentId').searchableSelect({
+		afterSelectItem: function(){
+			if(this.holder.data("value")){
+				
+				changeMediaTypeId(this.holder.data("value"))
+				$('#mediaTypeId').css('display', 'inline-block')
+			}else{
+				$('#mediaTypeId').parent().html('<select style="width: 120px;height:31px;display:none" name="mediaTypeId" id="mediaTypeId"><option value="">请选择媒体小类</option></select>')
+			}
+		}
+	})
+	
+	$('#mediaTypeParentId').next().find('.searchable-select-input').css('display', 'block')
+	function changeMediaTypeId(mediaTypeParentId) {	
+		// var mediaTypeParentId = $("#mediaTypeParentId").val();
+		if(!mediaTypeParentId) {
 			var option = '<option value="">请选择媒体小类</option>';
 			$("#mediaTypeId").html(option);
 			return ;
@@ -318,16 +333,27 @@ img.demo {
 			dataType : "json",
 			traditional : true,
 			success : function(data) {
+				var mediaTypeIdSelect = ""
+				<#if mediaTypeId?exists && mediaTypeId != ""> mediaTypeIdSelect = ${mediaTypeId!""} </#if>
+				var isSelect = false;
 				var result = data.ret;
 				if (result.code == 100) {
+				
 					var adMediaTypes = result.result;
-					var htmlOption = '<option value="">请选择媒体小类</option>';
+					var htmlOption = '<select style="width: 120px;height:31px;" name="mediaTypeId" id="mediaTypeId"><option value="">请选择媒体小类</option>';
 					for (var i=0; i < adMediaTypes.length;i++) { 
 						var type = adMediaTypes[i];
 						htmlOption = htmlOption + '<option value="' + type.id + '">' + type.name + '</option>';
+						if(mediaTypeIdSelect === type.id){
+							isSelect = true
+						}
 					}
-					
+					htmlOption += '</select>'
 					$("#mediaTypeId").html(htmlOption);
+					$("#mediaTypeId").next().remove()
+					$("#mediaTypeId").val(isSelect ? mediaTypeIdSelect : "");
+					$("#mediaTypeId").searchableSelect()
+					$('#mediaTypeId').next().find('.searchable-select-input').css('display', 'block')
 				} else {
 					alert('修改失败!');
 				}
@@ -352,7 +378,7 @@ img.demo {
 	};
 
 	$(function() {
-        $('.select').searchableSelect();
+        $('.select,#mapStandard,#allowMulti,#mediaTypeId').searchableSelect();
         $('#mediaId').next().find('.searchable-select-input').css('display', 'block');
         
 		$('#form').submit(function() {
@@ -365,7 +391,7 @@ img.demo {
             validatorGroup:"2",
             submitButtonID: "submit",
             debug: false,
-            submitOnce: true,
+            submitOnce: false,
             errorFocus: false,
             onSuccess: function(){
 				$.ajax({
@@ -518,7 +544,7 @@ img.demo {
         $("#adArea").formValidator({
             validatorGroup:"2",
             onShow: "　",
-            onFocus: "请输入面积(㎡)",
+            onFocus: "面积(㎡)",
             onCorrect: ""
        }).inputValidator({
             type:"number",
@@ -643,25 +669,6 @@ img.demo {
 	 });
 	 } */
 
-	/*获取城市  */
-	var $town = $('#demo3 select[name="street"]');
-	var townFormat = function(info) {
-		$town.hide().empty();
-		if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
-			$.ajax({
-				url : 'http://passer-by.com/data_location/town/' + info['code']
-						+ '.json',
-				dataType : 'json',
-				success : function(town) {
-					$town.show();
-					for (i in town) {
-						$town.append('<option value="'+i+'" <#if adSeatInfo?exists&&adSeatInfo.street?exists>'+(i==${adSeatInfo.street}?"selected":"")+'</#if>>' + town[i]
-								+ '</option>');
-					}
-				}
-			});
-		}
-	};
 	$('#demo3').citys({
         "province" : '<#if adSeatInfo?exists>${adSeatInfo.province!""}</#if>',
 		"city" : '<#if adSeatInfo?exists>${adSeatInfo.city!""}</#if>',
@@ -682,5 +689,79 @@ img.demo {
 		$(window).resize();
 
 	});
+	/*动态计算广告面积*/
+	$("#width,#height").on("input",function(e){
+        //获取input输入的值
+        var width = $("#width").val();
+        var height = $("#height").val();
+        if(isNumber(width) && isNumber(height)){
+        	$("#adArea").val(parseFloat((width*height/10000).toFixed(3)));
+        }else{
+        	$("#adArea").val('');
+        }
+    });
+    function isNumber(val){
+	    var regPos = /^\d+(\.\d+)?$/; //非负浮点数
+	    var regNeg = /^(-(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*)))$/; //负浮点数
+	    if(regPos.test(val) || regNeg.test(val)){
+	        return true;
+	    }else{
+	        return false;
+	    }
+	}
+	
+	/*获取城市  */
+    var $town = $('#demo3 select[name="street"]');
+    var townFormat = function(info) {
+        $town.hide().empty();
+        if (info['code'] % 1e4 && info['code'] < 7e5) { //是否为“区”且不是港澳台地区
+            $.ajax({
+                url : '/api/city?provinceId=' + info['code'],
+                dataType : 'json',
+                success : function(town) {
+                    $town.show();
+                    $town.append('<option value> - 请选择 - </option>');
+                    for (i in town) {
+                        $town.append('<option value="'+i+'" <#if (street?exists&&street?length>0)>'+(i==${street!0}?"selected":"")+'</#if>>' + town[i]
+                                + '</option>');
+                    }
+                }
+            });
+        }
+    };
+    
+    var currentCity = ""
+	<#if city?exists && city != ""> currentCity = ${city!""} </#if>
+	var currentProvince = ""
+	<#if province?exists && province != ""> currentProvince = ${province!""} </#if>
+    $('#demo3').citys({
+        required:false,
+        province : '${province!"所有城市"}',
+        city : '${city!""}',
+        onChange : function(info) {
+            townFormat(info);
+            var str = '110000,120000,310000,500000,810000,820000'
+            if(str.indexOf(info.code) === -1){
+            	$('#adSeatInfo-city').val(currentCity)
+	            $('#adSeatInfo-city').searchableSelect()
+	            $('#adSeatInfo-city').next().css('width', '130px')
+            }
+        }
+    }, function(api) {
+        var info = api.getInfo();
+        townFormat(info);
+        $('#adSeatInfo-province').val(currentProvince)
+        $('#adSeatInfo-province').searchableSelect({
+			afterSelectItem: function(){
+				
+				$('#adSeatInfo-city').next().remove()
+				if(this.holder.data("value")){
+					$('#adSeatInfo-province').val(this.holder.data("value")).trigger("change");
+					currentCity = ""
+				}
+			}
+		})
+        $('#adSeatInfo-province').next().css('width', '130px')
+    });
 </script>
 <@model.webend />

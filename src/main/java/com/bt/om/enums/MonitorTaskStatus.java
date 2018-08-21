@@ -1,7 +1,8 @@
 package com.bt.om.enums;
 
 /**
- * Created by caiting on 2018/1/20.
+ * 监测任务类型 枚举
+ * 对应 ad_monitor_task 的 status
  */
 public enum MonitorTaskStatus {
     UN_ACTIVE(7, "待激活"),
@@ -12,7 +13,8 @@ public enum MonitorTaskStatus {
     UNVERIFY(3, "待审核"),
     VERIFIED(4, "审核通过"),
     VERIFY_FAILURE(5, "审核未通过"),
-    VERIFY(9, "已审核");;
+    VERIFY(9, "已审核"),
+    TIME_OUT(10, "已超时");
 
     private Integer id;
     private String text;

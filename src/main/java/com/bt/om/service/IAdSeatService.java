@@ -1,14 +1,16 @@
 package com.bt.om.service;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import com.bt.om.entity.AdCrowd;
 import com.bt.om.entity.AdSeatInfo;
+import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AdSeatInfoVo;
 import com.bt.om.entity.vo.CountGroupByCityVo;
 import com.bt.om.entity.vo.HeatMapVo;
 import com.bt.om.vo.web.SearchDataVo;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by caiting on 2018/3/5.
@@ -25,7 +27,6 @@ public interface IAdSeatService {
     public void modify(AdSeatInfo adSeatInfo, List<AdCrowd> crowds);
     public void delete(Integer id);
     public List<AdCrowd> getCrowdsBySeatId(Integer adSeatId);
-	public int insertBatchByExcel(List<AdSeatInfo> adSeatInfos);
 	
 	/**
      * 查询给定坐标点，半径metre范围内（单位：米）所有的目前有活动的广告位
@@ -34,9 +35,14 @@ public interface IAdSeatService {
 	public List<AdSeatInfo> getAdSeatByMediaId(Integer mediaId);
 	
 	void modifyInfo(AdSeatInfo adSeatInfo);
-	List<CountGroupByCityVo> getCountGroupByCity(HeatMapVo heatMapVo, Integer userId);
-	List<AdSeatInfo> getAllLonLat(HeatMapVo heatMapVo, Integer userId);
 	int updateFlag(Integer codeFlag,Integer id);
 	int selectByLocation(Map<String, Object> searchMap);
-	public AdSeatInfo searchLocation(Map<String, Object> searchMap);
+	public List<AdSeatInfo> searchLocation(Map<String, Object> searchMap);
+	List<AdSeatInfo> selectAllSeats();
+	int insertBatchByExcel(List<AdSeatInfo> adSeatInfos, List<Integer> tmpSeatIds, Date nowDate);
+	List<Integer> selectSeatIds();
+	List<AdSeatInfoVo> selectSeatByIds(Map<String, Object> searchMap);
+	List<CountGroupByCityVo> getCountGroupByCity(HeatMapVo heatMapVo, SysUser user);
+	List<AdSeatInfo> getAllLonLat(HeatMapVo heatMapVo, SysUser user);
+	List<String> selectAllSeatMemoByActivityId(Integer activityId);
 }

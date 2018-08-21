@@ -6,6 +6,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +24,10 @@ import com.bt.om.entity.SysUser;
 import com.bt.om.entity.SysUserExecute;
 import com.bt.om.entity.SysUserHistory;
 import com.bt.om.entity.vo.SysUserExecuteVo;
+import com.bt.om.enums.AppUserTypeEnum;
 import com.bt.om.enums.ResultCode;
 import com.bt.om.enums.SessionKey;
-import com.bt.om.enums.UserExecuteType;
+import com.bt.om.filter.LogFilter;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.IMediaService;
 import com.bt.om.service.ISysUserExecuteService;
@@ -47,6 +49,9 @@ public class AppAccountController extends BasicController {
     private IMediaService mediaService;
     @Autowired
     private ISysUserHistoryService sysUserHistoryService;
+    
+    private static final Logger logger = Logger.getLogger(AppAccountController.class);
+    
     /**
      * 媒体安装人员管理列表
      **/
@@ -54,7 +59,8 @@ public class AppAccountController extends BasicController {
     @RequestMapping(value = "/list")
     public String getWorkerList(Model model, HttpServletRequest request,
                                 @RequestParam(value = "nameOrUsername", required = false) String name,
-                                @RequestParam(value = "searchUserType", required = false) String usertype) {
+                                @RequestParam(value = "searchUserType", required = false) String usertype,
+    	 						@RequestParam(value = "firmId", required = false) String firmId) {
         SearchDataVo vo = SearchUtil.getVo();
 
         //vo.putSearchParam("usertypes", null, new Integer[]{UserExecuteType.CUSTOMER.getId(), UserExecuteType.MONITOR.getId(),UserExecuteType.MEDIA_WORKER.getId(),UserExecuteType.Social.getId()});
@@ -66,6 +72,9 @@ public class AppAccountController extends BasicController {
         }
         if (StringUtils.isNotBlank(usertype)) {
         	vo.putSearchParam("usertype", usertype, usertype);
+        }
+        if (StringUtils.isNotBlank(firmId)) {
+        	vo.putSearchParam("firmId", firmId, firmId);
         }
         
         sysUserExecuteService.getPageData(vo);
@@ -87,7 +96,7 @@ public class AppAccountController extends BasicController {
             if (user != null) {
                 model.addAttribute("obj", user);
                 //如果是媒体安装人员，传所属媒体id
-                if(user.getUsertype()==UserExecuteType.MEDIA_WORKER.getId()){
+                if(user.getUsertype()==AppUserTypeEnum.MEDIA.getId()){
                     AdMedia media = mediaService.getMediaByUserId(user.getOperateId());
                     if(media!=null) {
                         model.addAttribute("mediaId", media.getId());
@@ -113,6 +122,7 @@ public class AppAccountController extends BasicController {
         SearchUtil.putToModel(model, vo);
 		return PageConst.APP_ACCOUNT_DETAILS;
     }
+    
     /**
      * 检查媒体工人账号是否重名
      **/
@@ -130,6 +140,7 @@ public class AppAccountController extends BasicController {
                 resultVo.setResultDes("已存在该登录账户，请修改");
             }
         } catch (Exception ex) {
+        	logger.error(ex);
             ex.printStackTrace();
             resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
             resultVo.setResultDes("服务忙，请稍后再试");
@@ -140,7 +151,7 @@ public class AppAccountController extends BasicController {
     }
 
     /**
-     * 保存工人
+     * 保存APP人员
      **/
     @RequiresRoles("superadmin")
     @RequestMapping(value = {"/save"}, method = {RequestMethod.POST})
@@ -151,8 +162,9 @@ public class AppAccountController extends BasicController {
                       @RequestParam(value = "password", required = true) String password,
                       @RequestParam(value = "name", required = true) String name,
                       @RequestParam(value = "usertype", required = true) Integer usertype,
-                      @RequestParam(value = "mediaId", required = true) Integer mediaId) {
-
+                      @RequestParam(value = "mediaId", required = true) Integer mediaId,
+                      @RequestParam(value = "companyId", required = true) Integer companyId) {
+    	Date now = new Date();
         ResultVo resultVo = new ResultVo();
         SysUser loginuser = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
         try {
@@ -165,14 +177,21 @@ public class AppAccountController extends BasicController {
                 user.setUsertype(usertype);
                 user.setStatus(1);
                 user.setCompany(loginuser.getRealname());
-                if(usertype==3){
+                user.setCreateTime(now);
+                user.setUpdateTime(now);
+                if(usertype == AppUserTypeEnum.MEDIA.getId()){
+                	//添加媒体监测人员
                     AdMedia media = mediaService.getById(mediaId);
                     user.setOperateId(media.getUserId());
-                }else if(usertype!=4){
+                } else if(usertype == AppUserTypeEnum.THIRD_COMPANY.getId()) {
+                	//添加第三方监测人员
+                	user.setOperateId(companyId);
+                } else if(usertype != AppUserTypeEnum.SOCIAL.getId()){
+                	//添加非社会人员
                     user.setOperateId(loginuser.getId());
                 }
+                
                 sysUserExecuteService.add(user);
-             
             } else {//修改
                 SysUserExecute user = sysUserExecuteService.getById(id);
                 SysUserHistory userHistory = new SysUserHistory(); //获取未修改前用户的信息
@@ -181,8 +200,8 @@ public class AppAccountController extends BasicController {
                 userHistory.setOperateIdOld(user.getOperateId());
                 userHistory.setUsertypeNew(usertype);
                 userHistory.setLoginId(loginuser.getId());
-                userHistory.setCreateTime(new Date());
-                userHistory.setUpdateTime(new Date());
+                userHistory.setCreateTime(now);
+                userHistory.setUpdateTime(now);
                 
 //                user.setId(id);
 //                user.setUsername(username);
@@ -192,24 +211,26 @@ public class AppAccountController extends BasicController {
                 user.setRealname(name);
                 user.setMobile(username);
                 user.setUsertype(usertype);
-                if(usertype==3){
+                user.setUpdateTime(now);
+                if(usertype == AppUserTypeEnum.MEDIA.getId()){
+                	//3：媒体监测人员
                     AdMedia media = mediaService.getById(mediaId);
                     user.setOperateId(media.getUserId());
                     userHistory.setOperateIdNew(media.getUserId());
-                }else if(usertype==4) {
+                }else if(usertype == AppUserTypeEnum.SOCIAL.getId()) {
+                	//4：社会人员
                 	user.setOperateId(null);
                 	userHistory.setOperateIdNew(null);
+                }else if(usertype == AppUserTypeEnum.THIRD_COMPANY.getId()) {
+                	//5：第三方监测人员
+                	user.setOperateId(companyId);
+                	userHistory.setOperateIdNew(companyId);
                 }
-//                if(usertype==3){
-//                    AdMedia media = mediaService.getById(mediaId);
-//                    user.setOperateId(media.getUserId());
-//                }else if(usertype!=4){
-//                    user.setOperateId(loginuser.getId());
-//                }
                 
                 sysUserExecuteService.modifyUser(user,userHistory);
             }
         } catch (Exception ex) {
+        	logger.error(ex);
             ex.printStackTrace();
             resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
             resultVo.setResultDes("服务忙，请稍后再试");
@@ -218,7 +239,6 @@ public class AppAccountController extends BasicController {
         model.addAttribute(SysConst.RESULT_KEY, resultVo);
         return model;
     }
-
 
     @RequiresRoles("superadmin")
     @RequestMapping(value = {"/updateAccountStatus"}, method = {RequestMethod.POST})
@@ -233,6 +253,7 @@ public class AppAccountController extends BasicController {
             user.setStatus(status);
             sysUserExecuteService.modify(user);
         } catch (Exception ex) {
+        	logger.error(ex);
             ex.printStackTrace();
             resultVo.setCode(ResultCode.RESULT_FAILURE.getCode());
             resultVo.setResultDes("服务忙，请稍后再试");

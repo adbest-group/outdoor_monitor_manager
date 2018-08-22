@@ -482,10 +482,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	        task.setUpdateTime(now);
 	        task.setId(id);
 	        task.setFirstVerify(VerifyType.REJECT_TYPE.getId());//2：初审驳回
-	        //当登录用户不是第三方监测公司时 初步审核和审核状态都改为不通过
-	        if(auditPerson.getUsertype()!=UserTypeEnum.THIRD_COMPANY.getId()) {
-	        	task.setStatus(status);
-	        }
+	        task.setStatus(status);
 	        task.setAssessorId(assessorId);
 	        adMonitorTaskMapper.updateByPrimaryKeySelective(task);
 	        List<AdMonitorTaskFeedback> feedbacks = adMonitorTaskFeedbackMapper.selectByTaskId(task.getId(), 1);

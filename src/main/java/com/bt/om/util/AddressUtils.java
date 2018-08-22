@@ -226,8 +226,8 @@ public class AddressUtils {
 		List<Double> lonlat = new ArrayList<>();
 		BufferedReader in = null;  
         try {  
-            address = URLEncoder.encode(address, "UTF-8");  
-            URL tirc = new URL("http://api.map.baidu.com/geocoder?address="+ address +"&city="+city+"&output=json&ak="+"urqnx4u977HclIGgSsvpBk9sjjXLCKdg");  
+//            address = URLEncoder.encode(city + address, "UTF-8");  
+            URL tirc = new URL("http://api.map.baidu.com/geocoder?address=" + city + address +"&city="+city+"&output=json&ak="+"urqnx4u977HclIGgSsvpBk9sjjXLCKdg");  
             in = new BufferedReader(new InputStreamReader(tirc.openStream(),"UTF-8"));  
             String res;  
             StringBuilder sb = new StringBuilder("");  

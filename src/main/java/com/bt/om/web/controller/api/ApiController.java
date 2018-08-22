@@ -3581,7 +3581,7 @@ public class ApiController extends BasicController {
                 	vo.setTaskStatus(MonitorTaskStatus.CAN_GRAB.getId()); //8：可抢单
                 }
             }
-        } else if(user.getUsertype().equals(AppUserTypeEnum.MEDIA.getId())) {
+        } else if(user.getUsertype().equals(AppUserTypeEnum.MEDIA.getId())||user.getUsertype().equals(AppUserTypeEnum.THIRD_COMPANY.getId())) {
         	//[1] 媒体监测人员抢单(自己媒体公司下的任务) 放弃任务直接改回待指派
         	vo.setTaskStatus(MonitorTaskStatus.UNASSIGN.getId()); //1：待指派
         }

@@ -53,19 +53,6 @@
 					</#if>
 				</tr>
 				 -->
-				<#-- 选择添加第三方监测人员, 所属公司 -->
-				<tr id="companyTr" style="">
-					<td class="a-title">所属公司：</td>
-					<td style="padding-bottom:20px;">
-						<div class="select-box select-box-110 un-inp-select ll">
-	                        <select class="select" name="companyId" id="companyId">
-								<@model.showAllThirdCompanyOps value="${operateId?if_exists}" />
-	                        </select>
-	                    </div>
-						<br/>
-						<span id="companyIdTip">&nbsp;</span>
-					</td>
-				</tr>
 				
                 <tr>
                      <td class="a-title">姓名：</td>

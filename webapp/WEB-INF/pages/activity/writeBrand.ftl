@@ -64,7 +64,7 @@
 		 var activityId = $("#activityId").val();
 		 var taskreport = $("#taskreport").val();
 		 $.ajax({
-            url: "/excel/exportAdMediaPdf",
+            url: "/pdf/exportAdMediaPdf",
             type: "post",
             data: {
                 "activityId" : activityId,

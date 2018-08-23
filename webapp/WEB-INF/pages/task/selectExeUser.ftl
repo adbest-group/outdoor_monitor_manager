@@ -123,7 +123,6 @@
 			$('#mediaUserSelect').hide()
 			$('#companyUserSelect').hide()
 			
-			console.log(change);
 			if(change==1 || change==3){
 				$("#mediaTr").show();
 			}else{

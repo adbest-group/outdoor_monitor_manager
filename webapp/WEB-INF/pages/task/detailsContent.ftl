@@ -1,4 +1,8 @@
-
+<style type="text/css">
+	#user,.searchable-select{
+		width:160px;
+	}
+</style>
 <!-- 特色内容 -->
 <div class="main-container">
     <div class="clearfix">
@@ -256,13 +260,50 @@
 				                     <@model.showAllMediaOps value="" />
 				                 </select>
 		                    </div>  -->						
-		                    <div class="select-box select-box-100 un-inp-select ll">
+		                    <#-- <div class="select-box select-box-100 un-inp-select ll">
 		                       	 <select class="select" name="selectMediaName" id="selectMediaName" <#if usertype==6>disabled</#if> >
 				                     <option value="">媒体成员</option>
 				                     <@model.showUserExecuteByMedia mediaId="${vo.mediaId?if_exists}"/>
 				                 </select>
-		                    </div> 
-		                    <br><br>
+		                    </div> -->
+		                    <div class="select-box select-box-140 un-inp-select ll">
+		                        <select name="change" class="select" id="change" >
+		                        	<option value="">请选择指派对象</option>
+		                        	<option value="1">指派给媒体公司</option>
+		                            <option value="2">指派给第三方监测公司</option>
+		                        </select>
+	                    	</div> 
+	                    	<#-- 媒体 -->
+	                    	<div id="mediaTr" style="display:none;">
+								<div class="select-box select-box-110 un-inp-select ll" >
+			                        <select class="select" name="mediaId" id="mediaId">
+			                        	<option value="">请选择媒体主</option>
+										<@model.showAllMediaOps value="${mediaId?if_exists}" />
+			                        </select>
+			                    </div>
+							</div>
+							<div id="mediaUserSelect" style="display:none;">
+								<div class="select-box select-box-140 un-inp-select" style="width: 100px">
+		                            <select name="mediaUser" class="select" id="mediaUser">
+		                            </select>
+		                        </div>
+							</div>
+	                    	<#-- 选择添加第三方监测人员, 所属公司 -->
+							<div id="companyTr" style="display:none;">
+								<div class="select-box select-box-110 un-inp-select ll" >
+			                        <select class="select" name="companyId" id="companyId">
+			                        	<option value="">请选择第三方监测公司</option>
+										<@model.showAllThirdCompanyOps value="${companyId?if_exists}" />
+			                        </select>
+			                    </div>
+							</div>
+							<div id="companyUserSelect" style="display:none;">
+								<div class="select-box select-box-140 un-inp-select" style="width: 100px">
+		                            <select name="user" class="select" id="user">
+		                            </select>
+		                        </div>
+							</div>
+		                    <br><br/>
 		                    
 		                    <p>执行人员做任务的经纬度：</p> <br>
                             <div style="vertical-align: middle;display: table-cell;text-align: center;">
@@ -336,8 +377,8 @@
 <script src="${model.static_domain}/js/select/jquery.searchableSelect.js"></script>
 <script type="text/javascript">
 
-	$('.select').searchableSelect();
-	$('#selectMediaName').next().find('.searchable-select-input').css('display', 'block');
+	<#-- $('.select').searchableSelect();
+	$('#selectMediaName').next().find('.searchable-select-input').css('display', 'block'); -->
 
 	function setFeedbackId(id){
 		$("#selectTaskFeedBackId").val(id);
@@ -392,8 +433,6 @@
 	function checkVal(that){
 	   var lon = $('#lontitude').val();
   	   var lat = $('#latitude').val();
-  	   var userId = $('#selectMediaName').val();
-  	   
   	  
   	   if(lon == null || lon == "" || lon.length <= 0){
   	  	layer.confirm("请填写经度", {
@@ -444,7 +483,7 @@
   	  	return false;
   	   }
   	  
-  	  if(userId == null || userId == "" || userId.length <= 0){
+  	  if(getUserId() == ""){
   	  	layer.confirm("请选择媒体执行人员", {
   			icon: 2,
   			btn: ['确定'] //按钮
@@ -654,11 +693,20 @@
 	});
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
+	var getUserId = function(){
+		var companyUserId = $("#companyUser").val();
+		var mediaUserId = $("#mediaUser").val();
+		if(companyUserId!=null && companyUserId != ''){
+			return companyUserId;
+		}
+		if(mediaUserId!=null && mediaUserId != ''){
+			return mediaUserId;
+		}
+		return "";
+	}
 	//更换详情图片1
 	layui.use('upload', function(){
 	  var upload = layui.upload;
-	  
 	  //执行实例
 	  var uploadInst = upload.render({
 	    elem: '#changePic11' //绑定元素
@@ -674,7 +722,7 @@
 		  	return $('#latitude').val()
 		  },
 		  userId: function() {
-		  	return $('#selectMediaName').val()
+		  	return getUserId()
 		  }
 		}
 	    ,accept: 'images' //指定只允许上次文件
@@ -717,7 +765,7 @@
 		  	return $('#latitude').val()
 		  },
 		  userId: function() {
-		  	return $('#selectMediaName').val()
+		  	return getUserId()
 		  }
 		}
 	    ,accept: 'images' //指定只允许上次文件
@@ -760,7 +808,7 @@
 		  	return $('#latitude').val()
 		  },
 		  userId: function() {
-		  	return $('#selectMediaName').val()
+		  	return getUserId()
 		  }
 		}
 	    ,accept: 'images' //指定只允许上次文件
@@ -803,7 +851,7 @@
 		  	return $('#latitude').val()
 		  },
 		  userId: function() {
-		  	return $('#selectMediaName').val()
+		  	return getUserId()
 		  }
 		}
 	    ,accept: 'images' //指定只允许上次文件
@@ -908,6 +956,148 @@
 			}
 		});
 	}
-	
+		function changeOption(){
+			//显示媒体公司/第三方监测公司
+			var change = $("#change").val();
+			$('#mediaUserSelect').hide()
+			$('#companyUserSelect').hide()
+			$('#companyUserSelect').html("");
+			$('#mediaUserSelect').html("");
+			if(change==1){
+				$("#mediaTr").show();
+			}else{
+				$("#mediaTr").hide();
+			}
+			if(change==2){
+				$("#companyTr").show();
+			}else{
+				$("#companyTr").hide();
+			}
+		}
+		
+		$('#change').searchableSelect({
+			afterSelectItem: function(){
+				changeOption()
+			}
+		})
+		$('#mediaId').searchableSelect({
+			afterSelectItem: function(){
+				/*if(this.holder.data("value")){
+					changeMediaId(this.holder.data("value"))
+					$('#mediaUser').css('display', 'inline-block')
+				}else{
+					$('#mediaUser').parent().html('<select style="width: 120px;height:31px;display:none" name="mediaUser" id="mediaUser"><option value="">请选择媒体监测人员</option></select>')
+				}*/
+				
+				var change = $("#change").val();
+				if(change === '1') {
+					var mediaId = $('#mediaId').val();
+					
+				console.log(mediaId, 'changemediaId')
+					$('#mediaUserSelect').show()
+					changeMediaId(mediaId)
+				}
+				
+			}
+		})
+		function changeMediaId(mediaId) {	
+			if(!mediaId) {
+				var option = '<option value="">请选择媒体监测人员</option>';
+				$("#mediaUser").html(option);
+				return ;
+			}
+			$.ajax({
+				url : '/task/selectUserExecute',
+				type : 'POST',
+				data : {"mediaId":mediaId},
+				dataType : "json",
+				traditional : true,
+				success : function(data) {
+					var result = data.ret;
+					if (result.code == 100) {
+						var adMediaTypes = result.result;
+						var htmlOption = '<select style="width: 120px;height:31px;" name="mediaUser" id="mediaUser"><option value="">请选择监测人员</option>';
+						for (var i=0; i < adMediaTypes.length;i++) { 
+							var type = adMediaTypes[i];
+							htmlOption = htmlOption + '<option value="' + type.id + '">' + type.realname + '</option>';
+						}
+						htmlOption += '</select>'
+						$("#mediaUserSelect").html(htmlOption);
+						$("#mediaUser").searchableSelect()
+						$('#mediaUser').next().find('.searchable-select-input').css('display', 'block')
+					} else {
+						alert('修改失败!');
+					}
+				}
+			});
+		}
+		$('#companyId').searchableSelect({
+			afterSelectItem: function(){
+				/*if(this.holder.data("value")){
+					changeCompanyId(this.holder.data("value"))
+					$('#companyUser').css('display', 'inline-block')
+				}else{
+					$('#companyUser').parent().html('<select style="width: 120px;height:31px;display:none" name="companyUser" id="companyUser"><option value="">请选择第三方监测人员</option></select>')
+				}*/
+				
+				var change = $("#change").val();
+				if(change === '2') {
+					var companyId = $('#companyId').val();
+					$('#companyUserSelect').show()
+					changeCompanyId(companyId)
+				}
+			}
+		})
+		function changeCompanyId(companyId) {	
+			if(!companyId) {
+				var option = '<option value="">请选择第三方监测人员</option>';
+				$("#companyUser").html(option);
+				return ;
+			}
+			$.ajax({
+				url : '/task/selectUserExecute',
+				type : 'POST',
+				data : {"companyId":companyId},
+				dataType : "json",
+				traditional : true,
+				success : function(data) {
+					var result = data.ret;
+					if (result.code == 100) {
+						var adMediaTypes = result.result;
+						var htmlOption = '<select style="width: 120px;height:31px;" name="companyUser" id="companyUser"><option value="">请选择第三方监测人员</option>';
+						for (var i=0; i < adMediaTypes.length;i++) { 
+							var type = adMediaTypes[i];
+							htmlOption = htmlOption + '<option value="' + type.id + '">' + type.realname + '</option>';
+						}
+						htmlOption += '</select>'
+						$("#companyUserSelect").html(htmlOption);
+						$("#companyUser").searchableSelect()
+						$('#companyUser').next().find('.searchable-select-input').css('display', 'block')
+					} else {
+						alert('修改失败!');
+					}
+				}
+			});
+		}
+		$(function(){
+            $("#btnSave").click(function () {
+            	var change = $("#change").val();
+            	console.log(change,'change');
+				if(change === '1'){
+					if($("#mediaId").val() && $("#mediaUser").val()){
+						parent.window.selectUserExecuteHandle($("#mediaId").val(),$("#mediaUser").val(),null,null);
+					}else{
+						 layer.alert('请选择媒体公司员工', {icon: 5, closeBtn: 0, btn: [], title: false, time: 3000});
+					}
+				}else if(change === '2'){
+					if($("#companyId").val() && $("#companyUser").val()){
+						parent.window.selectUserExecuteHandle(null,null,$("#companyId").val(),$("#companyUser").val());
+					}else{
+						 layer.alert('请选择第三方监测公司员工', {icon: 5, closeBtn: 0, btn: [], title: false, time: 3000});
+					}
+                	
+                }
+            });
+        });
 	<#-- changeMediaTypeId(); -->
 </script>

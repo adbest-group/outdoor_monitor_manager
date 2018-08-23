@@ -565,7 +565,11 @@ public class MediaManagerController {
         	}
         	if(city!=null && city!=0) {
         		searchMap.put("city", city);
-        	}
+        	}else if(adSeatInfo.getId() != null){
+        		AdSeatInfo seatInfo = adSeatService.getById(adSeatInfo.getId());
+        		province = seatInfo.getProvince();
+        		city = seatInfo.getCity();
+			}
         	
 //        	if(adSeatInfo.getLon() != null && adSeatInfo.getLat() == null) {
 //        		result.setCode(ResultCode.RESULT_FAILURE.getCode());
@@ -582,7 +586,7 @@ public class MediaManagerController {
 //        	}
         	if(adSeatInfo.getLon() == null || adSeatInfo.getLat() == null) {
         		String cityName = "";
-        		if (city==null) {
+        		if (city==null||city==0) {
         			cityName = cityCache.getCityName(province);
 				}else {
 					cityName = cityCache.getCityName(city);

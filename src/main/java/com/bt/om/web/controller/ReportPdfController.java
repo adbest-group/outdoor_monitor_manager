@@ -9,9 +9,12 @@ import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.enums.*;
 import com.bt.om.security.ShiroUtils;
 import com.bt.om.service.*;
+import com.bt.om.util.ConfigUtil;
+import com.bt.om.util.StringUtil;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.web.BasicController;
 import com.bt.om.web.util.PDFHelper;
+import com.sun.javafx.binding.StringFormatter;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +52,8 @@ public class ReportPdfController extends BasicController {
 
     @Autowired
     private CityCache cityCache;
+    private String file_upload_path = ConfigUtil.getString("file.upload.path");
+   private  String file_upload_ip=ConfigUtil.getString("file.upload.ip");
     /**
      * 具体活动的pdf导出
      *
@@ -82,20 +87,20 @@ public class ReportPdfController extends BasicController {
         }
         Date reportTime = null;
         Integer taskType = null;
-        if(taskreport!=null) {
+        if (taskreport != null) {
             //报告时间
             String reportTimeStr = taskreport.substring(0, 10);
             reportTime = sdf.parse(reportTimeStr);
-            type = taskreport.substring(10,taskreport.length()-2);
-            if(type.contains("上刊")) {
+            type = taskreport.substring(10, taskreport.length() - 2);
+            if (type.contains("上刊")) {
                 taskType = MonitorTaskType.UP_TASK.getId();
-            } else if(type.contains("上刊监测")) {
+            } else if (type.contains("上刊监测")) {
                 taskType = MonitorTaskType.UP_MONITOR.getId();
-            } else if(type.contains("投放期间监测")) {
+            } else if (type.contains("投放期间监测")) {
                 taskType = MonitorTaskType.DURATION_MONITOR.getId();
-            } else if(type.contains("下刊监测")) {
+            } else if (type.contains("下刊监测")) {
                 taskType = MonitorTaskType.DOWNMONITOR.getId();
-            } else if(type.contains("追加监测")) {
+            } else if (type.contains("追加监测")) {
                 taskType = MonitorTaskType.ZHUIJIA_MONITOR.getId();
             }
             searchMap.put("activityId", activityId);
@@ -105,8 +110,8 @@ public class ReportPdfController extends BasicController {
         //导出文件相关
         AdActivity adActivity = adActivityService.getById(activityId);
         //导出文件名
-        final String fileName = adActivity.getId() + "-" + System.currentTimeMillis() + ".pdf";
-        List<List<String>> listString = new ArrayList<>();
+        //final String fileName = adActivity.getId() + "-" + System.currentTimeMillis() + ".pdf";
+
         Map<Integer, List<String>> map = new HashMap<>();
         List<AdMonitorTaskVo> taskVos = adMonitorTaskService.selectMonitorTaskIdsByActicityId(adActivity.getId());
         Map<Integer, Integer> taskIds = new HashMap<>();
@@ -119,94 +124,148 @@ public class ReportPdfController extends BasicController {
         Integer appId = sysUser.getAppTypeId();
         AdApp adapp = adappService.selectById(appId);
 
-        try{
+        try {
             //指定文件保存位置
-            String path = request.getSession().getServletContext().getRealPath("/");
-            path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"pdf"+File.separatorChar+fileName;
+            String path = file_upload_path;//request.getSession().getServletContext().getRealPath("/");
+            //pdf存在路径，已活动ID为文件夹
+            String target=(path.endsWith(File.separator) ? "" : File.separatorChar) + activityId.toString() + File.separatorChar + "pdf" + File.separatorChar;
+            path = path + target;
             result.setCode(ResultCode.RESULT_SUCCESS.getCode());
-            result.setResult("/static/pdf/" + fileName);
+            //result.setResult("/static/pdf/" + fileName);
+            //返回pdf存储路径
+            String  _path = path.substring(path.indexOf(":")+1, path.length()).replaceAll("\\\\", "/");
+            _path = _path.replaceFirst("/opt/", "/");
+            result.setResult(file_upload_ip+_path);
             //拼接title
             StringBuffer stringBuffer = new StringBuffer();
             stringBuffer.append(taskreport.substring(10));
 
             List<AdActivityAdseatTaskVo> vos = adActivityService.newSelectAdActivityAdseatTaskReport(searchMap);
+            Map<String, Map<Integer, List<String>>> cityMap = new HashMap<>();
+            Map<String, String> cityFileNameMap = new HashMap<>();
             for (AdActivityAdseatTaskVo vo : vos) {
+                Map<Integer, List<String>> _tempMap = new HashMap<>();
+                Long provinceCode = vo.getInfo_province();
+                Long cityCode = vo.getInfo_city();
+                String provinceName = cityCache.getCityName(provinceCode);
+                String cityName = cityCache.getCityName(cityCode);
                 List<String> list = new ArrayList<>();
-                list.add(adActivity.getActivityName()); //活动名称 0
-                list.add(vo.getInfo_name()); //广告位名称 1
-                list.add(cityCache.getCityName(vo.getInfo_province())); //省 2
-                list.add(cityCache.getCityName(vo.getInfo_city())); //市 3
-                list.add(vo.getInfo_road());//主要路段 4
-                list.add(vo.getInfo_location()); //详细位置 5
-                list.add(vo.getInfo_memo()); //媒体方广告位编号 6
-                list.add(DateUtil.dateFormate(vo.getMonitorStart(), "yyyy-MM-dd")); //开始监测时间 7
-                list.add(DateUtil.dateFormate(vo.getMonitorEnd(), "yyyy-MM-dd")); //结束监测时间 8
-                Integer prostatus = vo.getProblemStatus();
+                //活动名称 0
+                list.add(adActivity.getActivityName());
+                //广告位名称 1
+                list.add(vo.getInfo_name());
+                //省 2
+                list.add(provinceName);
+                //市 3
+                list.add(cityName);
+                //主要路段 4
+                list.add(vo.getInfo_road());
+                //详细位置 5
+                list.add(vo.getInfo_location());
+                //媒体方广告位编号 6
+                list.add(vo.getInfo_memo());
+                /**开始监测时间 7*/
+                list.add(DateUtil.dateFormate(vo.getMonitorStart(), "yyyy-MM-dd"));
+                /**结束监测时间 8*/
+                list.add(DateUtil.dateFormate(vo.getMonitorEnd(), "yyyy-MM-dd"));
+                Integer proStatus = vo.getProblemStatus();
                 String problemStatus = null;
-                if(prostatus==TaskProblemStatus.CLOSED.getId()) {
+                if (proStatus.equals(TaskProblemStatus.CLOSED.getId())) {
                     problemStatus = TaskProblemStatus.CLOSED.getText();
-                }else if(prostatus==TaskProblemStatus.FIXED.getId()) {
+                } else if (proStatus.equals(TaskProblemStatus.FIXED.getId())) {
                     problemStatus = TaskProblemStatus.FIXED.getText();
-                }else if(prostatus==TaskProblemStatus.NO_PROBLEM.getId()) {
+                } else if (proStatus.equals(TaskProblemStatus.NO_PROBLEM.getId())) {
                     problemStatus = TaskProblemStatus.NO_PROBLEM.getText();
-                }
-                else if(prostatus==TaskProblemStatus.UNMONITOR.getId()) {
+                } else if (proStatus.equals(TaskProblemStatus.UNMONITOR.getId())) {
                     problemStatus = TaskProblemStatus.UNMONITOR.getText();
-                }
-                else if(prostatus==TaskProblemStatus.PROBLEM.getId()) {
+                } else if (proStatus.equals(TaskProblemStatus.PROBLEM.getId())) {
                     problemStatus = TaskProblemStatus.PROBLEM.getText();
                 }
                 list.add(problemStatus);
-                list.add(vo.getInfo_adSize()); //尺寸 10
-                list.add(vo.getInfo_adArea()); //面积 11
-                list.add(vo.getInfo_adNum()+"");//面数12
-                list.add(vo.getInfo_lon() + ""); //经度 13
-                list.add(vo.getInfo_lat() + ""); //纬度 14
-                if(vo.getInfo_mapStandard() != null) {
-                    list.add(MapStandardEnum.getText(vo.getInfo_mapStandard())); //地图标准 15
+                //尺寸 10
+                list.add(vo.getInfo_adSize());
+                //面积 11
+                list.add(vo.getInfo_adArea());
+                //面数12
+                list.add(vo.getInfo_adNum() + "");
+                //经度 13
+                list.add(vo.getInfo_lon() + "");
+                //纬度 14
+                list.add(vo.getInfo_lat() + "");
+                if (vo.getInfo_mapStandard() != null) {
+                    //地图标准 15
+                    list.add(MapStandardEnum.getText(vo.getInfo_mapStandard()));
                 } else {
                     list.add(null);
                 }
-                list.add(vo.getInfo_contactName()); //联系人姓名 16
-                list.add(vo.getInfo_contactCell()); //联系人电话 17
-                list.add(mediaTypeMap.get(vo.getInfo_mediaTypeParentId())); //媒体大类 18
-                list.add(mediaTypeMap.get(vo.getInfo_mediaTypeId())); //媒体小类 19
-                list.add(vo.getMediaName()); //媒体主20
-                list.add(type);//任务类型21
-                list.add(vo.getRealname());	//22 审核人员
+                //联系人姓名 16
+                list.add(vo.getInfo_contactName());
+                //联系人电话 17
+                list.add(vo.getInfo_contactCell());
+                //媒体大类 18
+                list.add(mediaTypeMap.get(vo.getInfo_mediaTypeParentId()));
+                //媒体小类 19
+                list.add(mediaTypeMap.get(vo.getInfo_mediaTypeId()));
+                //媒体主20
+                list.add(vo.getMediaName());
+                //任务类型21
+                list.add(type);
+                //22 审核人员
+                list.add(vo.getRealname());
                 Integer taskStatus = vo.getStatus();
-                String  status= null;
-                if(taskStatus== MonitorTaskStatus.UNASSIGN.getId()) {
+                String status = null;
+                if (taskStatus.equals(MonitorTaskStatus.UNASSIGN.getId())) {
                     status = MonitorTaskStatus.UNASSIGN.getText();
-                }else if(taskStatus == MonitorTaskStatus.TO_CARRY_OUT.getId()) {
+                } else if (taskStatus.equals(MonitorTaskStatus.TO_CARRY_OUT.getId())) {
                     status = MonitorTaskStatus.TO_CARRY_OUT.getText();
-                }else if(taskStatus == MonitorTaskStatus.UNVERIFY.getId()) {
+                } else if (taskStatus.equals(MonitorTaskStatus.UNVERIFY.getId())) {
                     status = MonitorTaskStatus.UNVERIFY.getText();
-                }else if(taskStatus == MonitorTaskStatus.VERIFIED.getId()) {
+                } else if (taskStatus.equals(MonitorTaskStatus.VERIFIED.getId())) {
                     status = MonitorTaskStatus.VERIFIED.getText();
-                }else if(taskStatus == MonitorTaskStatus.VERIFY_FAILURE.getId()) {
+                } else if (taskStatus.equals(MonitorTaskStatus.VERIFY_FAILURE.getId())) {
                     status = MonitorTaskStatus.VERIFY_FAILURE.getText();
-                }else if(taskStatus == MonitorTaskStatus.UN_FINISHED.getId()) {
+                } else if (taskStatus.equals(MonitorTaskStatus.UN_FINISHED.getId())) {
                     status = MonitorTaskStatus.UN_FINISHED.getText();
-                }else if(taskStatus == MonitorTaskStatus.UN_ACTIVE.getId()) {
+                } else if (taskStatus.equals(MonitorTaskStatus.UN_ACTIVE.getId())) {
                     status = MonitorTaskStatus.UN_ACTIVE.getText();
-                }else if(taskStatus == MonitorTaskStatus.CAN_GRAB.getId()) {
+                } else if (taskStatus.equals(MonitorTaskStatus.CAN_GRAB.getId())) {
                     status = MonitorTaskStatus.CAN_GRAB.getText();
-                }else if(taskStatus == MonitorTaskStatus.VERIFY.getId()) {
+                } else if (taskStatus.equals(MonitorTaskStatus.VERIFY.getId())) {
                     status = MonitorTaskStatus.VERIFY.getText();
                 }
-                list.add(status);//23 任务状态
-                list.add(vo.getExe_realname());//24 任务执行人
-                list.add(vo.getSamplePicUrl());//25 活动示例图
-                if(taskreport != null) {
+                //23 任务状态
+                list.add(status);
+                //24 任务执行人
+                list.add(vo.getExe_realname());
+                //25 活动示例图
+                list.add(vo.getSamplePicUrl());
+                if (taskreport != null) {
                     String reportTimeStr = taskreport.substring(0, 10);
                     reportTime = sdf.parse(reportTimeStr);
-                    list.add(reportTimeStr);//26 报告时间
+                    //26 报告时间
+                    list.add(reportTimeStr);
                 }
-                list.add(brandName);//27 品牌名
-                list.add(vo.getMapPic());//28 广告位点位图
-                map.put(vo.getId(), list); //ad_activity_adseat的id
-                listString.add(list);
+                //27 品牌名
+                list.add(brandName);
+                //28 广告位点位图
+                list.add(vo.getMapPic());
+                //ad_activity_adseat的id
+                map.put(vo.getId(), list);
+
+                //将数据根据城市进行区分
+                String key = provinceCode.toString() + (cityCode == null ? "" : cityCode.toString());
+                if (cityMap.containsKey(key)) {
+                    cityMap.get(key).put(vo.getId(), list);
+                } else {
+                    _tempMap.put(vo.getId(), list);
+                    cityMap.put(key, _tempMap);
+                }
+                //如果当前城市key不存在，则添加当前城市的pdf文件名记录
+                if (!cityFileNameMap.containsKey(key)) {
+                    String reportTimeStr = taskreport.substring(0, 10);
+                    reportTimeStr = reportTimeStr.replaceAll("-", "");
+                    cityFileNameMap.put(key, MessageFormat.format("/{0}{1}{2}{3}.pdf", provinceName, cityName == null ? "" : cityName, reportTimeStr, activityId));
+                }
             }
 
             //【3】生成pdf图片页
@@ -215,27 +274,33 @@ public class ReportPdfController extends BasicController {
             //查询每个广告位最新的一条监测任务
             List<AdMonitorTask> tasks = adMonitorTaskService.newSelectLatestMonitorTaskIds(searchMap);
             for (AdMonitorTask task : tasks) {
-                if((userObj.getUsertype()==UserTypeEnum.CUSTOMER.getId() && task.getStatus()==MonitorTaskStatus.VERIFIED.getId()) || (userObj.getUsertype()!=UserTypeEnum.CUSTOMER.getId())) {
-                    //登录方是广告主且任务当前状态是已审核  或者是群邑
+                //登录方是广告主且任务当前状态是已审核  或者是群邑
+                if ((userObj.getUsertype().equals(UserTypeEnum.CUSTOMER.getId()) && task.getStatus().equals(MonitorTaskStatus.VERIFIED.getId())) || (userObj.getUsertype() != UserTypeEnum.CUSTOMER.getId())) {
                     //ad_monitor_task的id
                     ids.add(task.getId());
                     //ad_activity_adseat的id
                     activityAdseatIds.add(task.getActivityAdseatId());
                 }
             }
-            if(ids.size()>0) {
+            if (ids.size() > 0) {
                 List<AdMonitorTaskFeedback> taskFeedbacks = adMonitorTaskService.selectByActivity(ids);
                 PDFHelper pdfHelper = new PDFHelper();
-                if (!pdfHelper.buildReport(request,taskFeedbacks, path, ids, activityAdseatIds, taskIds, map, adapp, titleName + stringBuffer.toString())) {
+
+                if (!pdfHelper.buildCityReport(request, taskFeedbacks, path, ids, activityAdseatIds, taskIds, cityFileNameMap, cityMap, adapp, titleName + stringBuffer.toString())) {
                     result.setCode(ResultCode.RESULT_FAILURE.getCode());
                     result.setResultDes("批量导出pdf失败");
                 } else {
                     result.setCode(ResultCode.RESULT_SUCCESS.getCode());
                 }
+//                if (!pdfHelper.buildReport(request, taskFeedbacks, path, ids, activityAdseatIds, taskIds, map, adapp, titleName + stringBuffer.toString())) {
+//                    result.setCode(ResultCode.RESULT_FAILURE.getCode());
+//                    result.setResultDes("批量导出pdf失败");
+//                } else {
+//                    result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+//                }
             }
-        }
-        catch (Exception e) {
-            logger.error(MessageFormat.format("批量导出pdf失败", new Object[] {}));
+        } catch (Exception e) {
+            logger.error(MessageFormat.format("批量导出pdf失败", new Object[]{}));
             result.setCode(ResultCode.RESULT_FAILURE.getCode());
             result.setResultDes(e.getMessage());
             e.printStackTrace();

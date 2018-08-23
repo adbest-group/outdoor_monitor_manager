@@ -94,9 +94,9 @@
 	
 	<servlet-mapping>
 		<servlet-name>default</servlet-name>
-		<url-pattern>nofind.htm</url-pattern>
-		<url-pattern>error.htm</url-pattern>
-		<url-pattern>static/*</url-pattern>
+		<url-pattern>/nofind.htm</url-pattern>
+		<url-pattern>/error.htm</url-pattern>
+		<url-pattern>/static/*</url-pattern>
 	</servlet-mapping>
 	
 	<!-- 配置session超时时间，单位分钟 -->

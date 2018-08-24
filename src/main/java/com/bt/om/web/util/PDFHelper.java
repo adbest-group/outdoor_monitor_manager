@@ -15,17 +15,14 @@ import com.itextpdf.text.Font;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.*;
-import javafx.print.Printer;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.awt.*;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -52,6 +49,12 @@ public class PDFHelper {
     private static final String GROUP_LOGO_PATH = "/static/images/grouplogo.png";
     private static final String JF_LOGO_PATH = "/static/images/jflogo.png";
     private static final String GONG_ZHANG_PATH = "/static/images/gongzhang.png";
+
+
+    private Image groupLogo = null;
+    private Image jfLogo = null;
+    private Image adLogo = null;
+    private Image gongZhangLogo=null;
 
 
     private void init(HttpServletRequest request) throws IOException, DocumentException {
@@ -83,7 +86,7 @@ public class PDFHelper {
      * @param map
      * @param adapp
      * @param title
-     * @param taskType  报告类型
+     * @param taskType          报告类型
      * @return boolean
      */
     public boolean buildReport(HttpServletRequest request,
@@ -105,7 +108,7 @@ public class PDFHelper {
                 document.open();
                 for (Integer monitorTaskId : ids) {
                     //生成第一页内容
-                    buildFirstPageContent(document, writer, cb, taskIds, map, monitorTaskId, adapp, title,taskType);
+                    buildFirstPageContent(document, writer, cb, taskIds, map, monitorTaskId, adapp, title, taskType);
                     //广告位信息
                     List<String> adList = map.get(activityAdseatIds.get(ids.indexOf(monitorTaskId)));
                     //生成第二页内容
@@ -150,7 +153,7 @@ public class PDFHelper {
                                    Map<String, String> cityFileNameMap,
                                    Map<String, Map<Integer, List<String>>> cityMap,
                                    AdApp adapp,
-                                   String title,Integer taskType) throws Exception {
+                                   String title, Integer taskType) throws Exception {
         init(request);
         if (cityMap != null && cityMap.size() > 0) {
             File dir = new File(path);
@@ -160,7 +163,7 @@ public class PDFHelper {
             }
             //循环
             for (Map.Entry<String, Map<Integer, List<String>>> entry : cityMap.entrySet()) {
-                build(path + cityFileNameMap.get(entry.getKey()), ids, entry.getValue(), taskFeedbacks, taskIds, activityAdseatIds, adapp, title,taskType);
+                build(path + cityFileNameMap.get(entry.getKey()), ids, entry.getValue(), taskFeedbacks, taskIds, activityAdseatIds, adapp, title, taskType);
             }
             return true;
         }
@@ -186,7 +189,7 @@ public class PDFHelper {
 
                 Integer monitorTaskId = ids.get(activityAdseatIds.indexOf(et.getKey()));
                 //生成第一页内容
-                buildFirstPageContent(document, writer, cb, taskIds, map, monitorTaskId, adapp, title,taskType);
+                buildFirstPageContent(document, writer, cb, taskIds, map, monitorTaskId, adapp, title, taskType);
                 //生成第二页内容
                 buildTwoPageContent(document, writer, cb, et.getValue(), monitorTaskId, taskFeedbacks, adapp);
             }
@@ -220,18 +223,18 @@ public class PDFHelper {
                                        AdApp adapp,
                                        String title,
                                        Integer taskType
-                                       ) throws DocumentException, IOException {
+    ) throws DocumentException, IOException {
         document.setMargins(122f, 100f, 300f, 50f);
         document.newPage();
         //设置标题位置及字体大小
-        Point point=new Point();
-        point.setLocation(120,860);
-        setFontAndSize(writer,cb,title,point,53);
+        Point point = new Point();
+        point.setLocation(120, 860);
+        setFontAndSize(writer, cb, title, point, 53);
 
         Integer backId = taskIds.get(monitorTaskId);
         List<String> data = map.get(backId);
         //创建第一页表格
-        PdfPTable firstPageTable = createFirstPageTable(data,taskType);
+        PdfPTable firstPageTable = createFirstPageTable(data, taskType);
         document.add(firstPageTable);
         //插入logo
         insertLogo(document, adapp);
@@ -259,9 +262,9 @@ public class PDFHelper {
         document.add(table);
 
         //广告位信息生成
-        Point point=new Point();
-        point.setLocation(120,860);
-        setFontAndSize(writer,cb,"广告位信息",point,53);
+        Point point = new Point();
+        point.setLocation(120, 860);
+        setFontAndSize(writer, cb, "广告位信息", point, 53);
 
         for (AdMonitorTaskFeedback feedback : taskFeedbacks) {
             if (feedback.getMonitorTaskId().equals(monitorTaskId)) {
@@ -272,30 +275,34 @@ public class PDFHelper {
         //插入logo
         insertLogo(document, adapp);
         //插入公章
-        Image gongZhangLogo = Image.getInstance(real_path + GONG_ZHANG_PATH);
-        gongZhangLogo.setAlignment(Image.ALIGN_CENTER);
-        //控制图片大小
-        gongZhangLogo.scaleAbsolute(250, 180);
-        //控制图片位置
-        gongZhangLogo.setAbsolutePosition(1150, 5);
+        if(gongZhangLogo==null) {
+            gongZhangLogo = Image.getInstance(real_path + GONG_ZHANG_PATH);
+            gongZhangLogo.setAlignment(Image.ALIGN_CENTER);
+            //控制图片大小
+            gongZhangLogo.scaleAbsolute(250, 180);
+            //控制图片位置
+            gongZhangLogo.setAbsolutePosition(1150, 5);
+        }
         document.add(gongZhangLogo);
     }
 
+
     /**
      * 设置字体大小
+     *
      * @param writer
      * @param cb
      * @param title
      * @param point
      * @param fontSize
      */
-    private  void  setFontAndSize(PdfWriter writer, PdfContentByte cb, String title, Point point,float fontSize){
+    private void setFontAndSize(PdfWriter writer, PdfContentByte cb, String title, Point point, float fontSize) {
         //广告位信息生成
         cb = writer.getDirectContent();
         cb.beginText();
         //设置字体和大小
         cb.setFontAndSize(secfont, fontSize);
-        cb.showTextAligned(PdfContentByte.ALIGN_LEFT, title,point.x, point.y, 0);
+        cb.showTextAligned(PdfContentByte.ALIGN_LEFT, title, point.x, point.y, 0);
         cb.endText();
     }
 
@@ -307,8 +314,8 @@ public class PDFHelper {
      * @return
      * @throws DocumentException
      */
-    private PdfPTable createFirstPageTable(List<String> list,Integer taskType) throws DocumentException {
-        String taskTypeName="上刊";
+    private PdfPTable createFirstPageTable(List<String> list, Integer taskType) throws DocumentException {
+        String taskTypeName = "上刊";
         if (taskType.equals(MonitorTaskType.UP_TASK.getId())) {
             taskTypeName = MonitorTaskType.UP_TASK.getText();
         } else if (taskType.equals(MonitorTaskType.UP_MONITOR.getId())) {
@@ -320,7 +327,7 @@ public class PDFHelper {
         } else if (taskType.equals(MonitorTaskType.ZHUIJIA_MONITOR.getId())) {
             taskTypeName = MonitorTaskType.ZHUIJIA_MONITOR.getText();
         }
-        taskTypeName+="日期";
+        taskTypeName += "日期";
         PdfPTable table = new PdfPTable(4);
         table.getDefaultCell().setBorder(PdfPCell.NO_BORDER);
         //1100f
@@ -330,11 +337,11 @@ public class PDFHelper {
         table.setSpacingAfter(20.0f);
         table.setSpacingBefore(20.0f);
         table.setWidths(new int[]{1, 1, 1, 1});
-        BaseColor baseColor=new BaseColor(211, 211, 211);
-        table.addCell(setCell("点位名称",baseColor));
-        table.addCell(setCell("城市",baseColor));
-        table.addCell(setCell(taskTypeName,baseColor));
-        table.addCell(setCell("广告位编号",baseColor));
+        BaseColor baseColor = new BaseColor(211, 211, 211);
+        table.addCell(setCell("点位名称", baseColor));
+        table.addCell(setCell("城市", baseColor));
+        table.addCell(setCell(taskTypeName, baseColor));
+        table.addCell(setCell("广告位编号", baseColor));
 
         //点位名称 现在取的是 详细位置
         table.addCell(setCell(list.get(5)));
@@ -349,12 +356,13 @@ public class PDFHelper {
 
     /**
      * 往table中添加cell
+     *
      * @param table
      * @param title
      */
-    private PdfPCell  setCell(String title, BaseColor baseColor){
+    private PdfPCell setCell(String title, BaseColor baseColor) {
         PdfPCell cell = new PdfPCell(new Paragraph(title, fontChinese));
-        if(baseColor!=null) {
+        if (baseColor != null) {
             cell.setBackgroundColor(baseColor);
         }
         cell.setHorizontalAlignment(1);
@@ -364,8 +372,8 @@ public class PDFHelper {
         return cell;
     }
 
-    private PdfPCell setCell(String title){
-        return setCell(title,null);
+    private PdfPCell setCell(String title) {
+        return setCell(title, null);
     }
 
     /**
@@ -526,26 +534,33 @@ public class PDFHelper {
      */
     private void insertLogo(Document document, AdApp adapp) throws IOException, DocumentException {
         //插入Group Logo
-        Image groupLogo = Image.getInstance(real_path + GROUP_LOGO_PATH);
-        groupLogo.setAlignment(Image.ALIGN_CENTER);
-        //控制图片大小和位置
-        groupLogo.scaleAbsolute(140, 50);
-        groupLogo.setAbsolutePosition(1620, 80);
+        if (groupLogo == null) {
+            groupLogo = Image.getInstance(real_path + GROUP_LOGO_PATH);
+            groupLogo.setAlignment(Image.ALIGN_CENTER);
+            //控制图片大小和位置
+            groupLogo.scaleAbsolute(140, 50);
+            groupLogo.setAbsolutePosition(1620, 80);
+        }
         document.add(groupLogo);
         //插入九凤logo
-        Image jfLogo = Image.getInstance(real_path + JF_LOGO_PATH);
-        jfLogo.setAlignment(Image.ALIGN_CENTER);
-        //控制图片大小和位置
-        jfLogo.scaleAbsolute(200, 50);
-        jfLogo.setAbsolutePosition(120, 80);
+        if (jfLogo == null) {
+            jfLogo = Image.getInstance(real_path + JF_LOGO_PATH);
+            jfLogo.setAlignment(Image.ALIGN_CENTER);
+            //控制图片大小和位置
+            jfLogo.scaleAbsolute(200, 50);
+            jfLogo.setAbsolutePosition(120, 80);
+        }
         document.add(jfLogo);
+
         //插入广告logo
-        Image adLogo = Image.getInstance(adapp.getAppPictureUrl());
-        adLogo.setAlignment(Image.ALIGN_CENTER);
-        //控制图片大小
-        adLogo.scaleAbsolute(125, 60);
-        //控制图片位置
-        adLogo.setAbsolutePosition(1650, 950);
+        if(adLogo==null) {
+            adLogo = Image.getInstance(adapp.getAppPictureUrl());
+            adLogo.setAlignment(Image.ALIGN_CENTER);
+            //控制图片大小
+            adLogo.scaleAbsolute(125, 60);
+            //控制图片位置
+            adLogo.setAbsolutePosition(1650, 950);
+        }
         document.add(adLogo);
     }
 

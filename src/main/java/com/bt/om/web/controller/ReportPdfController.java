@@ -311,6 +311,10 @@ public class ReportPdfController extends BasicController {
 //                    result.setCode(ResultCode.RESULT_SUCCESS.getCode());
 //                }
             }
+            else {
+                result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes(MessageFormat.format("未找到{0}数据",stringBuffer.toString()));
+            }
         } catch (Exception e) {
             logger.error(MessageFormat.format("批量导出pdf失败", new Object[]{}));
             result.setCode(ResultCode.RESULT_FAILURE.getCode());

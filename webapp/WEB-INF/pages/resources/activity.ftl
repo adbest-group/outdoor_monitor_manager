@@ -11,7 +11,7 @@
         <div class="title clearfix">
         	<#if user.usertype !=6>
         		<a href="/customer/activity/edit" class="btn btn-red mr-10 ll">创建活动</a>
-                <a id="test_upload">测试上传文件</a>
+                <a id="test_upload">测试上传文件</a><span></span>
         	</#if>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <form id="form" method="get" action="/sysResources/activity">
@@ -738,36 +738,19 @@ function changeMediaTypeId() {
                 }
             })
         },
-        beforeSendFile:function (file) {
+        beforeSendFile: function (file) {
             // var deferred = WebUploader.Deferred();
             // console.log("beforeSendFile", arguments);
         },
         beforeSend:function (block) {
             var deferred = WebUploader.Deferred();
             console.log("beforeSend", arguments);
-            var data = {
-                md5: fileMd5,
-                chunk: block.chunk,
-                chunkSize: block.blob.size
-            };
-            $.post("/file/checkChunk", data, function (res) {
-                console.log("res", res);
-                // console.log("deferred", deferred);
-                if(res){
-                    console.log("reject");
-                    deferred.reject();
-                } else {
-                    console.log("resolve");
-                    deferred.resolve();
-                }
-            })
-
-
+            this.owner.options.formData.chunkSize = block.blob.size;
         },
         afterSendFile:function (file) {
             // var deferred = WebUploader.Deferred();
             console.log("afterSendFile", arguments);
-            $.post("/file/mergeChunks", {md5: fileMd5}, function (res) {
+            $.post("/file/mergeChunks", {md5: fileMd5, fileSize: file.size}, function (res) {
                 console.log("res", res);
 
 
@@ -795,12 +778,23 @@ function changeMediaTypeId() {
     uploader.on("fileQueued",function(file){
         console.log("queued file", file);
         uploader.md5File(file, Math.round(file.size*0.2), Math.ceil(file.size*0.2)).progress(function (percentage) {
-            console.log("per", percentage);
+            // console.log("per", percentage);
         }).then(function (value) {
             console.log("md5", value);
             fileMd5 = value;
             uploader.options.formData.md5 = value;
-            uploader.upload();
+            $.ajax({
+                url: "/file/checkFile",
+                data: {md5: fileMd5, fileSize: file.size},
+                type: "POST",
+                async: false,
+                success: function (res) {
+                    console.log("checkFile", res);
+                    if(!res.name){
+                        uploader.upload();
+                    }
+                }
+            });
         });
     });
 
@@ -812,6 +806,7 @@ function changeMediaTypeId() {
     // 上传进度
     uploader.on("uploadProgress",function(file, percentage){
         // console.log("progress", arguments)
+        $("#test_upload").siblings("span").text(Math.round(percentage * 100) + "%");
     });
 
     // 上传成功

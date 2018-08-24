@@ -1,46 +1,77 @@
 package com.bt.om.web.util;
 
-import org.springframework.web.multipart.MultipartFile;
+import com.bt.om.entity.FileEntity;
+import eu.medsea.mimeutil.MimeUtil;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
+import javax.activation.FileTypeMap;
+import javax.activation.MimetypesFileTypeMap;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.FileNameMap;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * 常用文件方法工具类
  */
+@Component
 public class FileUtils {
 
+    @Value("${file.md5.salt}")
+    private String salt;
+    @Value("${file.directory.chunk}")
+    private String chunkBase;
+    @Value("${file.directory.upload}")
+    private String uploadBase;
+
+    static {
+        MimeUtil.registerMimeDetector("eu.medsea.mimeutil.detector.MagicMimeMimeDetector");
+    }
 
     /**
      * 保存文件
      *
      * @param inputStream
-     * @param directory
-     * @param fileName
-     * @param append    是否追加内容
+     * @param fullPath
+     * @param append      是否追加内容
      */
-    public static void save(InputStream inputStream, String directory, String fileName, boolean append) {
+    public void save(InputStream inputStream, String fullPath, boolean append) {
         // 检查路径是否存在，不存在则新建完整路径
-        File dir = new File(directory);
+        File targetFile = new File(fullPath);
+        File dir = new File(targetFile.getParent());
         if (!dir.exists()) {
             dir.mkdirs();
         }
         FileOutputStream outputStream = null;
         try {
-            outputStream = new FileOutputStream(directory + File.separator + fileName, append);
+            outputStream = new FileOutputStream(targetFile, append);
             // 每次写入 1024 字节
-            byte[] buffer = new byte[1024];
-            while (inputStream.read(buffer) > 0) {
-                outputStream.write(buffer);
+            byte[] buffer = new byte[1024 * 10];
+            int length;
+            while ((length = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
-            System.out.println("成功写入文件：" + directory + File.separator + fileName);
+            System.out.println("成功写入文件：" + targetFile.getAbsolutePath());
             // 关闭流
             try {
                 if (inputStream != null) {
@@ -61,11 +92,110 @@ public class FileUtils {
      * @param fullPath
      * @return
      */
-    public static FileInputStream readFile(String fullPath) {
+    public FileInputStream readFile(String fullPath) {
         try {
             return new FileInputStream(fullPath);
         } catch (FileNotFoundException e) {
             throw new RuntimeException("未找到指定的文件：" + fullPath, e);
+        }
+    }
+
+    /**
+     * 验证文件
+     * 文件存在并且长度吻合则返回文件信息
+     *
+     * @param fullPath
+     * @param size
+     * @return
+     */
+    public FileEntity validateFile(String fullPath, Long size) {
+        FileEntity fileEntity = new FileEntity();
+        File file = new File(fullPath);
+        if (file.isFile()) {
+            Assert.notNull(size, "文件大小为空");
+            if (file.length() != size) {
+                throw new RuntimeException("文件名重复：" + fullPath);
+            }
+            fileEntity.setName(file.getName());
+            fileEntity.setLength(file.length());
+            fileEntity.setUpdateTime(new Timestamp(file.lastModified()));
+            fileEntity.setMimeType(MimeUtil.getMimeTypes(file).toString());
+        }
+        return fileEntity;
+    }
+
+    /**
+     * 生成文件名
+     *
+     * @param md5
+     * @return
+     */
+    public String getFileName(String md5) {
+        Assert.hasText(md5, "md5 为空");
+        return DigestUtils.md5Hex(md5 + salt);
+    }
+
+    /**
+     * 获取文件全路径
+     *
+     * @param fileName
+     * @return
+     */
+    public String getFileFullPath(String fileName) {
+        return uploadBase + File.separator + fileName.substring(0, 2) + File.separator + fileName;
+    }
+
+    /**
+     * 获取文件分片的父级路径
+     *
+     * @param md5
+     * @return
+     */
+    public String getChunkDirectory(String md5) {
+        return chunkBase + File.separator + md5;
+    }
+
+    /**
+     * 获取文件分片全路径
+     *
+     * @param md5
+     * @param chunk
+     * @return
+     */
+    public String getChunkFullPath(String md5, String chunk) {
+        Assert.hasText(md5, "md5 为空");
+        Assert.hasText(chunk, "chunk 为空");
+        return chunkBase + File.separator + md5 + File.separator + chunk;
+    }
+
+    public void downLoad(String fullName, HttpServletResponse response, boolean isOnLine) {
+        String suffix = fullName.substring(fullName.lastIndexOf(".") + 1);
+        String fileName = fullName.substring(0, fullName.lastIndexOf("."));
+        String fileFullPath = getFileFullPath(fileName);
+        response.reset(); // 非常重要
+        try {
+            File file = new File(fileFullPath);
+            BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file), 1024 * 256);
+            byte[] buf = new byte[1024 * 16];
+            int len;
+            response.setHeader("Content-Length", "" + file.length());
+            if (isOnLine) { // 在线打开方式
+                response.setContentType(MimeUtil.getMimeTypes(new File(fileFullPath)).toString());
+                response.setHeader("Content-Disposition", "inline; filename=" + fullName);
+                // 文件名应该编码成UTF-8
+            } else { // 纯下载方式
+                response.setContentType("application/x-msdownload");
+                response.setHeader("Content-Disposition", "attachment; filename=" + fullName);
+            }
+            BufferedOutputStream outputStream = new BufferedOutputStream(response.getOutputStream(),1024 * 256);
+            while ((len = inputStream.read(buf)) > 0) {
+                outputStream.write(buf, 0, len);
+            }
+            inputStream.close();
+            outputStream.flush();
+            outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

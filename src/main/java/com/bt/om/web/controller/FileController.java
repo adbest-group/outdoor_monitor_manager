@@ -2,7 +2,7 @@ package com.bt.om.web.controller;
 
 import com.bt.om.entity.FileEntity;
 import com.bt.om.web.util.FileUtils;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -17,16 +17,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -37,12 +34,8 @@ import java.util.Map;
 @RequestMapping("/file")
 public class FileController {
 
-    @Value("${file.md5.salt}")
-    private String salt;
-    @Value("${file.directory.chunk}")
-    private String chunkDir;
-    @Value("${file.directory.upload}")
-    private String uploadDir;
+    @Autowired
+    FileUtils fileUtils;
 
     /**
      * 上传文件
@@ -56,19 +49,49 @@ public class FileController {
         Map<String, String[]> parameterMap = defaultRequest.getParameterMap();
         FileEntity fileEntity = new FileEntity();
         String md5 = parameterMap.get("md5")[0];
-        fileEntity.setName(md5);
+        String fileName = fileUtils.getFileName(md5);
+        String fullPath = fileUtils.getFileFullPath(fileName);
+        long fileSize = Long.parseLong(parameterMap.get("size")[0]);
+        // 完整文件检测
+        FileEntity validatedFile = fileUtils.validateFile(fullPath, fileSize);
+        if (StringUtils.hasText(validatedFile.getName())) {
+            return validatedFile;
+        }
         // 区分是单文件还是分片
         try {
             if (parameterMap.get("chunks") != null) { // 分片
                 String chunk = parameterMap.get("chunk")[0];
-                FileUtils.save(file.getInputStream(), chunkDir + File.separator + md5, chunk, false);
-            } else { // 单文件
-                FileUtils.save(file.getInputStream(), uploadDir + File.separator + md5.substring(0, 2), md5, false);
+                Assert.hasText(chunk, "分片下标为空");
+                fileSize = Long.parseLong(parameterMap.get("chunkSize")[0]);
+                fullPath = fileUtils.getChunkFullPath(md5, chunk);
+                // 若验证分片已存在且完整则直接返回分片文件信息
+                FileEntity validatedChunk = fileUtils.validateFile(fullPath, fileSize);
+                if (StringUtils.hasText(validatedFile.getName())) {
+                    return validatedChunk;
+                }
             }
+            fileUtils.save(file.getInputStream(), fullPath, false);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        fileEntity.setName(fileName);
+        fileEntity.setLength(fileSize);
         return fileEntity;
+    }
+
+    /**
+     * 验证完整文件
+     * 文件存在并且长度吻合则返回文件信息
+     *
+     * @param md5
+     * @param fileSize
+     * @return
+     */
+    @RequestMapping("/checkFile")
+    @ResponseBody
+    public FileEntity checkFile(String md5, Long fileSize) {
+        String fileName = fileUtils.getFileName(md5);
+        return fileUtils.validateFile(fileUtils.getFileFullPath(fileName), fileSize);
     }
 
     /**
@@ -82,15 +105,8 @@ public class FileController {
     @RequestMapping("/checkChunk")
     @ResponseBody
     public FileEntity checkChunk(String md5, String chunk, long chunkSize) {
-        Assert.isTrue(StringUtils.hasText(md5) && StringUtils.hasText(chunk) && chunkSize > 0, "参数无效");
-        File file = new File(chunkDir + File.separator + md5 + File.separator + chunk);
-        if (file.exists() && file.length() == chunkSize) {
-            FileEntity fileEntity = new FileEntity();
-            fileEntity.setName(file.getName());
-            fileEntity.setLength(file.length());
-            return fileEntity;
-        }
-        return null;
+        String chunkFullPath = fileUtils.getChunkFullPath(md5, chunk);
+        return fileUtils.validateFile(chunkFullPath, chunkSize);
     }
 
     /**
@@ -101,12 +117,19 @@ public class FileController {
      */
     @RequestMapping("/mergeChunks")
     @ResponseBody
-    public FileEntity mergeChunks(String md5) {
+    public FileEntity mergeChunks(String md5, long fileSize) {
         Assert.isTrue(StringUtils.hasText(md5), "参数无效");
         // 文件验证
-        File directory = new File(chunkDir + File.separator + md5);
-        Assert.isTrue(directory.isDirectory(), "找不到此目录: " + directory.getAbsolutePath());
-        List<File> fileList = Arrays.asList(directory.listFiles());
+        String fileFullPath = fileUtils.getFileFullPath(fileUtils.getFileName(md5));
+        FileEntity validateFile = fileUtils.validateFile(fileFullPath, fileSize);
+        if (StringUtils.hasText(validateFile.getName())) {
+            return validateFile;
+        }
+        File mergedFile = new File(fileFullPath);
+        // 文件分片所在文件夹路径
+        File chunkDirectory = new File(fileUtils.getChunkDirectory(md5));
+        Assert.isTrue(chunkDirectory.isDirectory(), "找不到此目录: " + chunkDirectory.getAbsolutePath());
+        List<File> fileList = Arrays.asList(chunkDirectory.listFiles());
         Assert.isTrue(fileList.size() > 0, "此目录是空的");
         // 分片升序排序
         fileList.sort((a, b) -> {
@@ -115,30 +138,16 @@ public class FileController {
             }
             return 1;
         });
-        // 准备合并的目录和文件
-        File dir = new File(uploadDir + File.separator + md5.substring(0, 2));
-        File mergedFile = new File(dir.getAbsolutePath() + File.separator + md5);
         try {
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-            FileChannel outChannel = null;
-            outChannel = new FileOutputStream(mergedFile).getChannel();
             // 合并分片
-//            FileChannel inChannel;
             for (File file : fileList) {
-                FileUtils.save(new FileInputStream(file), dir.getAbsolutePath(), md5, true);
-//                inChannel = new FileInputStream(file).getChannel();
-//                inChannel.transferTo(0, inChannel.size(), outChannel);
-//                inChannel.close();
+                fileUtils.save(new FileInputStream(file), mergedFile.getAbsolutePath(), true);
                 // 删除分片
                 file.delete();
             }
-            // 关闭流
-            outChannel.close();
-            // 删除文件夹
-            if (directory.isDirectory()) {
-                directory.delete();
+            // 删除分片所在文件夹
+            if (chunkDirectory.isDirectory()) {
+                chunkDirectory.delete();
             }
             FileEntity fileEntity = new FileEntity();
             fileEntity.setName(md5);
@@ -153,21 +162,26 @@ public class FileController {
 
     /**
      * 下载文件
-     *
+     * @param fullName
+     * @param response
      * @return
      */
-    public HttpServletResponse downloadFile(String fileName) {
-
-        return null;
+    @RequestMapping("/downloadFile")
+    @ResponseBody
+    public void downloadFile(String fullName, HttpServletResponse response) {
+        fileUtils.downLoad(fullName, response, false);
     }
 
     /**
      * 预览文件
      *
-     * @param fileName
+     * @param fullName
+     * @param response
      */
-    public void viewFile(String fileName) {
-
+    @RequestMapping("/viewFile")
+    @ResponseBody
+    public void viewFile(String fullName, HttpServletResponse response) {
+        fileUtils.downLoad(fullName, response, true);
     }
 
 

@@ -117,7 +117,7 @@ public class PDFHelper {
     }
 
     /**
-     * 生产多城市pdf报表
+     * 生成多城市pdf报表
      *
      * @param request
      * @param taskFeedbacks
@@ -529,7 +529,7 @@ public class PDFHelper {
         Image adLogo = Image.getInstance(adapp.getAppPictureUrl());
         adLogo.setAlignment(Image.ALIGN_CENTER);
         //控制图片大小
-        adLogo.scaleAbsolute(200, 60);
+        adLogo.scaleAbsolute(125, adLogo.getWidth()/(adLogo.getWidth()/125));
         //控制图片位置
         adLogo.setAbsolutePosition(1650, 950);
         document.add(adLogo);

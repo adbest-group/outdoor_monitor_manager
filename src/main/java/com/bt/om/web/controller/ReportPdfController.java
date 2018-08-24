@@ -53,7 +53,8 @@ public class ReportPdfController extends BasicController {
     @Autowired
     private CityCache cityCache;
     private String file_upload_path = ConfigUtil.getString("file.upload.path");
-   private  String file_upload_ip=ConfigUtil.getString("file.upload.ip");
+    private String file_upload_ip = ConfigUtil.getString("file.upload.ip");
+
     /**
      * 具体活动的pdf导出
      *
@@ -128,14 +129,14 @@ public class ReportPdfController extends BasicController {
             //指定文件保存位置
             String path = file_upload_path;//request.getSession().getServletContext().getRealPath("/");
             //pdf存在路径，已活动ID为文件夹
-            String target=(path.endsWith(File.separator) ? "" : File.separatorChar) + activityId.toString() + File.separatorChar + "pdf" + File.separatorChar;
+            String target = (path.endsWith(File.separator) ? "" : File.separatorChar) + activityId.toString() + File.separatorChar + "pdf" + File.separatorChar;
             path = path + target;
             result.setCode(ResultCode.RESULT_SUCCESS.getCode());
             //result.setResult("/static/pdf/" + fileName);
             //返回pdf存储路径
-            String  _path = path.substring(path.indexOf(":")+1, path.length()).replaceAll("\\\\", "/");
+            String _path = path.substring(path.indexOf(":") + 1, path.length()).replaceAll("\\\\", "/");
             _path = _path.replaceFirst("/opt/", "/");
-            result.setResult(file_upload_ip+_path);
+            result.setResult(file_upload_ip + _path);
             //拼接title
             StringBuffer stringBuffer = new StringBuffer();
             stringBuffer.append(taskreport.substring(10));
@@ -264,8 +265,19 @@ public class ReportPdfController extends BasicController {
                 if (!cityFileNameMap.containsKey(key)) {
                     String reportTimeStr = taskreport.substring(0, 10);
                     reportTimeStr = reportTimeStr.replaceAll("-", "");
-                    cityFileNameMap.put(key, MessageFormat.format("/{0}{1}{2}{3}.pdf", provinceName, cityName == null ? "" : cityName, reportTimeStr, activityId));
+                    cityFileNameMap.put(key, MessageFormat.format("{0}{1}{2}{3}.pdf", provinceName, cityName == null ? "" : cityName, reportTimeStr, activityId));
                 }
+            }
+
+            if (cityFileNameMap.size() >0) {
+                Map<String,Object> files=new HashMap<>();
+                List<String> listFiles=new ArrayList<>();
+                for (Map.Entry<String,String> entry:cityFileNameMap.entrySet()){
+                    listFiles.add(entry.getValue());
+                }
+                files.put("files",listFiles);
+                files.put("domainPath",file_upload_ip + _path);
+                result.setResult(files);
             }
 
             //【3】生成pdf图片页

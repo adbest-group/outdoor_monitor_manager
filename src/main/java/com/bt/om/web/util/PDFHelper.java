@@ -4,17 +4,23 @@ import com.adtime.common.lang.StringUtil;
 import com.alibaba.druid.util.StringUtils;
 import com.bt.om.entity.AdApp;
 import com.bt.om.entity.AdMonitorTaskFeedback;
+import com.bt.om.enums.MonitorTaskType;
 import com.bt.om.service.IAdMonitorTaskService;
 import com.bt.om.util.ConfigUtil;
 import com.bt.om.util.MapUtil;
 import com.bt.om.util.pdf.AlternatingBackground;
 import com.bt.om.web.controller.ExcelController;
 import com.itextpdf.text.*;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.*;
+import javafx.print.Printer;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -77,6 +83,7 @@ public class PDFHelper {
      * @param map
      * @param adapp
      * @param title
+     * @param taskType  报告类型
      * @return boolean
      */
     public boolean buildReport(HttpServletRequest request,
@@ -87,7 +94,8 @@ public class PDFHelper {
                                Map<Integer, Integer> taskIds,
                                Map<Integer, List<String>> map,
                                AdApp adapp,
-                               String title) throws Exception {
+                               String title,
+                               Integer taskType) throws Exception {
         if (ids != null && ids.size() > 0) {
             init(request);
             Document document = new Document(pageSize);
@@ -97,7 +105,7 @@ public class PDFHelper {
                 document.open();
                 for (Integer monitorTaskId : ids) {
                     //生成第一页内容
-                    buildFirstPageContent(document, writer, cb, taskIds, map, monitorTaskId, adapp, title);
+                    buildFirstPageContent(document, writer, cb, taskIds, map, monitorTaskId, adapp, title,taskType);
                     //广告位信息
                     List<String> adList = map.get(activityAdseatIds.get(ids.indexOf(monitorTaskId)));
                     //生成第二页内容
@@ -129,6 +137,7 @@ public class PDFHelper {
      * @param cityMap           每个城市的数据
      * @param adapp             广告主数据
      * @param title             标题
+     * @param taskType          报告类型
      * @return
      * @throws Exception
      */
@@ -141,7 +150,7 @@ public class PDFHelper {
                                    Map<String, String> cityFileNameMap,
                                    Map<String, Map<Integer, List<String>>> cityMap,
                                    AdApp adapp,
-                                   String title) throws Exception {
+                                   String title,Integer taskType) throws Exception {
         init(request);
         if (cityMap != null && cityMap.size() > 0) {
             File dir = new File(path);
@@ -151,7 +160,7 @@ public class PDFHelper {
             }
             //循环
             for (Map.Entry<String, Map<Integer, List<String>>> entry : cityMap.entrySet()) {
-                build(path + cityFileNameMap.get(entry.getKey()), ids, entry.getValue(), taskFeedbacks, taskIds, activityAdseatIds, adapp, title);
+                build(path + cityFileNameMap.get(entry.getKey()), ids, entry.getValue(), taskFeedbacks, taskIds, activityAdseatIds, adapp, title,taskType);
             }
             return true;
         }
@@ -165,7 +174,8 @@ public class PDFHelper {
                        Map<Integer, Integer> taskIds,
                        List<Integer> activityAdseatIds,
                        AdApp adapp,
-                       String title
+                       String title,
+                       Integer taskType
     ) throws Exception {
         PdfContentByte cb = null;
         Document document = new Document(pageSize);
@@ -176,7 +186,7 @@ public class PDFHelper {
 
                 Integer monitorTaskId = ids.get(activityAdseatIds.indexOf(et.getKey()));
                 //生成第一页内容
-                buildFirstPageContent(document, writer, cb, taskIds, map, monitorTaskId, adapp, title);
+                buildFirstPageContent(document, writer, cb, taskIds, map, monitorTaskId, adapp, title,taskType);
                 //生成第二页内容
                 buildTwoPageContent(document, writer, cb, et.getValue(), monitorTaskId, taskFeedbacks, adapp);
             }
@@ -208,20 +218,20 @@ public class PDFHelper {
                                        Map<Integer, List<String>> map,
                                        Integer monitorTaskId,
                                        AdApp adapp,
-                                       String title) throws DocumentException, IOException {
+                                       String title,
+                                       Integer taskType
+                                       ) throws DocumentException, IOException {
         document.setMargins(122f, 100f, 300f, 50f);
         document.newPage();
-        cb = writer.getDirectContent();
-        cb.beginText();
         //设置标题位置及字体大小
-        cb.setFontAndSize(secfont, 53);
-        cb.showTextAligned(PdfContentByte.ALIGN_LEFT, title, 120, 860, 0);
-        cb.endText();
+        Point point=new Point();
+        point.setLocation(120,860);
+        setFontAndSize(writer,cb,title,point,53);
 
         Integer backId = taskIds.get(monitorTaskId);
         List<String> data = map.get(backId);
         //创建第一页表格
-        PdfPTable firstPageTable = createFirstPageTable(data);
+        PdfPTable firstPageTable = createFirstPageTable(data,taskType);
         document.add(firstPageTable);
         //插入logo
         insertLogo(document, adapp);
@@ -249,12 +259,9 @@ public class PDFHelper {
         document.add(table);
 
         //广告位信息生成
-        cb = writer.getDirectContent();
-        cb.beginText();
-        //设置字体和大小
-        cb.setFontAndSize(secfont, 53);
-        cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "广告位信息 ", 120, 860, 0);
-        cb.endText();
+        Point point=new Point();
+        point.setLocation(120,860);
+        setFontAndSize(writer,cb,"广告位信息",point,53);
 
         for (AdMonitorTaskFeedback feedback : taskFeedbacks) {
             if (feedback.getMonitorTaskId().equals(monitorTaskId)) {
@@ -274,6 +281,24 @@ public class PDFHelper {
         document.add(gongZhangLogo);
     }
 
+    /**
+     * 设置字体大小
+     * @param writer
+     * @param cb
+     * @param title
+     * @param point
+     * @param fontSize
+     */
+    private  void  setFontAndSize(PdfWriter writer, PdfContentByte cb, String title, Point point,float fontSize){
+        //广告位信息生成
+        cb = writer.getDirectContent();
+        cb.beginText();
+        //设置字体和大小
+        cb.setFontAndSize(secfont, fontSize);
+        cb.showTextAligned(PdfContentByte.ALIGN_LEFT, title,point.x, point.y, 0);
+        cb.endText();
+    }
+
 
     /**
      * 创建第一页表格
@@ -282,9 +307,21 @@ public class PDFHelper {
      * @return
      * @throws DocumentException
      */
-    private PdfPTable createFirstPageTable(List<String> list) throws DocumentException {
+    private PdfPTable createFirstPageTable(List<String> list,Integer taskType) throws DocumentException {
+        String taskTypeName="上刊";
+        if (taskType.equals(MonitorTaskType.UP_TASK.getId())) {
+            taskTypeName = MonitorTaskType.UP_TASK.getText();
+        } else if (taskType.equals(MonitorTaskType.UP_MONITOR.getId())) {
+            taskTypeName = MonitorTaskType.UP_MONITOR.getText();
+        } else if (taskType.equals(MonitorTaskType.DURATION_MONITOR.getId())) {
+            taskTypeName = MonitorTaskType.DURATION_MONITOR.getText();
+        } else if (taskType.equals(MonitorTaskType.DOWNMONITOR.getId())) {
+            taskTypeName = MonitorTaskType.DOWNMONITOR.getText();
+        } else if (taskType.equals(MonitorTaskType.ZHUIJIA_MONITOR.getId())) {
+            taskTypeName = MonitorTaskType.ZHUIJIA_MONITOR.getText();
+        }
+        taskTypeName+="日期";
         PdfPTable table = new PdfPTable(4);
-
         table.getDefaultCell().setBorder(PdfPCell.NO_BORDER);
         //1100f
         table.setTotalWidth(1620f);
@@ -293,65 +330,42 @@ public class PDFHelper {
         table.setSpacingAfter(20.0f);
         table.setSpacingBefore(20.0f);
         table.setWidths(new int[]{1, 1, 1, 1});
+        BaseColor baseColor=new BaseColor(211, 211, 211);
+        table.addCell(setCell("点位名称",baseColor));
+        table.addCell(setCell("城市",baseColor));
+        table.addCell(setCell(taskTypeName,baseColor));
+        table.addCell(setCell("广告位编号",baseColor));
 
-        PdfPCell cell = new PdfPCell(new Paragraph("点位名称", fontChinese));
-        cell.setBackgroundColor(new BaseColor(211, 211, 211));
-        cell.setBorder(0);
-        cell.setHorizontalAlignment(1);
-        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-        cell.setMinimumHeight(50f);
-        table.addCell(cell);
-//		cell = new PdfPCell(new Paragraph("媒体主", fontChinese));
-        cell = new PdfPCell(new Paragraph("城市", fontChinese));
-        cell.setBackgroundColor(new BaseColor(211, 211, 211));
-        cell.setBorder(0);
-        cell.setHorizontalAlignment(1);
-        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-        table.addCell(cell);
-//		cell = new PdfPCell(new Paragraph("广告位编号", fontChinese));
-        cell = new PdfPCell(new Paragraph("上刊日期", fontChinese));
-        cell.setBackgroundColor(new BaseColor(211, 211, 211));
-        cell.setBorder(0);
-        cell.setHorizontalAlignment(1);
-        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-        table.addCell(cell);
-        cell = new PdfPCell(new Paragraph("广告位编号", fontChinese));
-//		cell = new PdfPCell(new Paragraph("投放日期", fontChinese));
-        cell.setBackgroundColor(new BaseColor(211, 211, 211));
-        cell.setBorder(0);
-        cell.setHorizontalAlignment(1);
-        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-        table.addCell(cell);
         //点位名称 现在取的是 详细位置
-        cell = new PdfPCell(new Paragraph(list.get(5), fontChinese));
-        cell.setHorizontalAlignment(1);
-        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-        cell.setMinimumHeight(30f);
-        cell.setBorder(0);
-        table.addCell(cell);
-        //媒体主
-        //cell = new PdfPCell(new Paragraph(list.get(20), fontChinese));
+        table.addCell(setCell(list.get(5)));
         //城市
-        cell = new PdfPCell(new Paragraph(list.get(3), fontChinese));
-        cell.setHorizontalAlignment(1);
-        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-        cell.setBorder(0);
-        table.addCell(cell);
-        //投放日期
-        //cell = new PdfPCell(new Paragraph(list.get(7)+" - "+list.get(8), fontChinese));
+        table.addCell(setCell(list.get(3)));
         // 报告日期
-        cell = new PdfPCell(new Paragraph(list.get(26), fontChinese));
-        cell.setHorizontalAlignment(1);
-        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-        cell.setBorder(0);
-        table.addCell(cell);
+        table.addCell(setCell(list.get(26)));
         //广告位编号
-        cell = new PdfPCell(new Paragraph(list.get(6), fontChinese));
+        table.addCell(setCell(list.get(6)));
+        return table;
+    }
+
+    /**
+     * 往table中添加cell
+     * @param table
+     * @param title
+     */
+    private PdfPCell  setCell(String title, BaseColor baseColor){
+        PdfPCell cell = new PdfPCell(new Paragraph(title, fontChinese));
+        if(baseColor!=null) {
+            cell.setBackgroundColor(baseColor);
+        }
         cell.setHorizontalAlignment(1);
         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         cell.setBorder(0);
-        table.addCell(cell);
-        return table;
+        cell.setMinimumHeight(50f);
+        return cell;
+    }
+
+    private PdfPCell setCell(String title){
+        return setCell(title,null);
     }
 
     /**
@@ -529,7 +543,7 @@ public class PDFHelper {
         Image adLogo = Image.getInstance(adapp.getAppPictureUrl());
         adLogo.setAlignment(Image.ALIGN_CENTER);
         //控制图片大小
-        adLogo.scaleAbsolute(125, adLogo.getWidth()/(adLogo.getWidth()/125));
+        adLogo.scaleAbsolute(125, 60);
         //控制图片位置
         adLogo.setAbsolutePosition(1650, 950);
         document.add(adLogo);

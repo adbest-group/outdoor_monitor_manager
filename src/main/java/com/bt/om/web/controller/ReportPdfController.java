@@ -265,7 +265,7 @@ public class ReportPdfController extends BasicController {
                 if (!cityFileNameMap.containsKey(key)) {
                     String reportTimeStr = taskreport.substring(0, 10);
                     reportTimeStr = reportTimeStr.replaceAll("-", "");
-                    cityFileNameMap.put(key, MessageFormat.format("{0}{1}{2}{3}.pdf", provinceName, cityName == null ? "" : cityName, reportTimeStr, activityId));
+                    cityFileNameMap.put(key, MessageFormat.format("{0}{1}{2}_{3}报告.pdf", cityName==null?provinceName:cityName, reportTimeStr, activityId,type));
                 }
             }
 
@@ -298,7 +298,7 @@ public class ReportPdfController extends BasicController {
                 List<AdMonitorTaskFeedback> taskFeedbacks = adMonitorTaskService.selectByActivity(ids);
                 PDFHelper pdfHelper = new PDFHelper();
 
-                if (!pdfHelper.buildCityReport(request, taskFeedbacks, path, ids, activityAdseatIds, taskIds, cityFileNameMap, cityMap, adapp, titleName + stringBuffer.toString())) {
+                if (!pdfHelper.buildCityReport(request, taskFeedbacks, path, ids, activityAdseatIds, taskIds, cityFileNameMap, cityMap, adapp, titleName + stringBuffer.toString(),taskType)) {
                     result.setCode(ResultCode.RESULT_FAILURE.getCode());
                     result.setResultDes("批量导出pdf失败");
                 } else {

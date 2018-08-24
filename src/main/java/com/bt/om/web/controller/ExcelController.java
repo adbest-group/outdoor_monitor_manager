@@ -2672,8 +2672,10 @@ public class ExcelController extends BasicController {
 	        		AdMonitorTaskVo taskVo = TaskVos.get(j);
 	        	if (taskVo.getStatus()==MonitorTaskStatus.VERIFIED.getId()) {
 	        		Integer index = tableData.get(taskVo.getMemo(),MonitorTaskType.getText(taskVo.getTaskType()));
-	        		excelInfo.put(index, ExcelImportFailEnum.TASK_VERIFY.getText());
-					continue;
+	        		if (index!=null) {
+		        		excelInfo.put(index, ExcelImportFailEnum.TASK_VERIFY.getText());
+						continue;
+					}
 				}
 				AdMonitorTaskVo adMonitorTaskVo = table.get(taskVo.getMemo(), taskVo.getTaskType());
 				if (adMonitorTaskVo!=null) {
@@ -2683,8 +2685,10 @@ public class ExcelController extends BasicController {
 					SysUserExecute userExecute = sysUserExecuteService.getByUsername(adMonitorTaskVo.getMobile());
 					if (userExecute==null) {
 						Integer index = tableData.get(taskVo.getMemo(),MonitorTaskType.getText(taskVo.getTaskType()));
-		        		excelInfo.put(index, ExcelImportFailEnum.TASK_USER_INVALID.getText());
-						continue;
+						if (index!=null) {
+			        		excelInfo.put(index, ExcelImportFailEnum.TASK_USER_INVALID.getText());
+							continue;
+						}
 					}
 					taskVo.setUserId(userExecute.getId());
 					Tasks.add(taskVo);

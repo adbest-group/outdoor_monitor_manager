@@ -31,6 +31,9 @@
      
      <!-- 活动旧数据移动 -->
      <bean id="activateDataTransferTask" class="com.bt.om.web.quartz.ActivateDataTransferTask" />
+     
+     <!-- 定时清理服务器文件  -->
+     <bean id="clearFilesTask" class="com.bt.om.web.quartz.ClearFilesTask" />
       
      <!-- 开启任务调度: -->
      <task:scheduled-tasks>
@@ -39,6 +42,7 @@
      	<task:scheduled ref="activityTimeOutTask" method="execute" cron="0 1 0 * * ?" /> <!-- 每日00:01分跑一次 -->
      	<task:scheduled ref="recycleTaskTask" method="execute" cron="0 0/5 * * * ?" /> <!-- 每5分钟跑一次 -->
      	<!-- <task:scheduled ref="forceAssignTask" method="execute" cron="0 0/5 * * * ?" /> --> <!-- 每5分钟跑一次 -->
-     	<task:scheduled ref="activateDataTransferTask" method="execute" cron="0 0 1 ? * 1" /> <!-- 每周一凌晨1点跑一次 -->
+     	<task:scheduled ref="activateDataTransferTask" method="execute" cron="0 0 1 ? * 1" /> <!-- 每周一凌晨1点跑一次-->
+     	<task:scheduled ref="clearFilesTask" method="execute" cron="0 0 3 ? * 1" /> <!-- 每周一凌晨3点跑一次-->
      </task:scheduled-tasks>
 </beans>

@@ -1759,5 +1759,12 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	public List<AdMonitorTaskVo> selectMonitorTaskIdsByActicityId(Integer acticityId) {
 		return adMonitorTaskMapper.selectMonitorTaskIdsByActicityId(acticityId);
 	}
+	/**
+	 * 查询可以导出报告的任务类型
+	 */
+	@Override
+	public List<AdMonitorTask> getAllTaskTypesByActivityIdReportTime(Map<String, Object> searchMap) {
+		return adMonitorTaskMapper.getAllTaskTypesByActivityIdReportTime(searchMap);
+	}
 
 }

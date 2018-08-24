@@ -182,4 +182,6 @@ public interface AdMonitorTaskMapper {
 
 	int deleteBatch(@Param("tasks")List<AdMonitorTaskVo> tasks);
 
+	List<AdMonitorTask> getAllTaskTypesByActivityIdReportTime(Map<String, Object> searchMap);
+
 }

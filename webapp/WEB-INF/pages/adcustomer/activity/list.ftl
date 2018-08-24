@@ -182,7 +182,7 @@
             title: '导出pdf报表',
             shade: 0.8,
             area: ['600px', '420px'],
-            content: '/activity/selectTasksToPdf?activityId=' + activityId //iframe的url
+            content: '/activity/selectTasksToPdfs?activityId=' + activityId //iframe的url
         });
     }
     

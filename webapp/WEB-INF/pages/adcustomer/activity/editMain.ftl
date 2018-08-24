@@ -302,7 +302,7 @@
 						<tr>
                     		<td class="a-title">&nbsp;</td>
                     		<td colspan="2">
-                    			<img src="" id="img-demo-img" width="280" alt="请上传图片"/>
+                    			<img src="/static/images/pass.jpg" id="img-demo-img" width="280" alt="请上传图片"/>
                     			<#-- <#if (editMode && activity.status==1)!false>
 									<a class="addBtn" href="javascript:;" id="change-adseat">替换广告位活动画面</a>
 								</#if> -->

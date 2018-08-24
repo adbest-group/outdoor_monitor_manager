@@ -99,12 +99,22 @@
                 } else {
                     layer.alert('导出成功', {icon: 1, closeBtn: 0, btn: [], title: false, time: 3000});
 		    		//window.open(resultRet.result);
-		    		var newA = document.createElement("a");
-			        newA.id = 'gg'
-			        newA.target = '_blank';
-			        newA.href = resultRet.result;
-			        document.body.appendChild(newA);
-			        newA.click();
+		    		if(resultRet.result.files.length <= 1){
+			    		var newA = document.createElement("a");
+				        newA.id = 'gg'
+				        newA.target = '_blank';
+				        newA.href = resultRet.result.domainPath + resultRet.result.files[0];
+				        document.body.appendChild(newA);
+				        newA.click();
+		    		}else{
+		    		    var newdiv = '<div>';
+		    			for (var i=0;i<resultRet.result.files.length;i++){
+		    				newdiv += "<a target='_blank' href='" + resultRet.result.domainPath + resultRet.result.files[i] + "'>" + resultRet.result.files[i] + "</a><br>"
+						}
+						newdiv += '</div>';
+						$(".basic-info").html(newdiv);
+		    		}
+		    		
                 }
             },
             error: function(e) {

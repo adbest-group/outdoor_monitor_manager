@@ -158,7 +158,7 @@ public class ReportPdfController extends BasicController {
                 //省 2
                 list.add(provinceName);
                 //市 3
-                list.add(cityName);
+                list.add(cityName==null?provinceName:cityName);
                 //主要路段 4
                 list.add(vo.getInfo_road());
                 //详细位置 5

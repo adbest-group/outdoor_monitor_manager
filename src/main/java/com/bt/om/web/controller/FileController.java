@@ -1,6 +1,7 @@
 package com.bt.om.web.controller;
 
 import com.bt.om.entity.FileEntity;
+import com.bt.om.util.FileUtil;
 import com.bt.om.web.util.FileUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -142,13 +143,11 @@ public class FileController {
             // 合并分片
             for (File file : fileList) {
                 fileUtils.save(new FileInputStream(file), mergedFile.getAbsolutePath(), true);
-                // 删除分片
-                file.delete();
+//                // 删除分片
+//                file.delete();
             }
             // 删除分片所在文件夹
-            if (chunkDirectory.isDirectory()) {
-                chunkDirectory.delete();
-            }
+            org.apache.commons.io.FileUtils.deleteDirectory(chunkDirectory);
             FileEntity fileEntity = new FileEntity();
             fileEntity.setName(md5);
             fileEntity.setMimeType(Files.probeContentType(mergedFile.toPath()));

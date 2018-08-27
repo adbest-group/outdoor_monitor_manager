@@ -197,12 +197,14 @@ public class FileUtils {
                 response.setHeader("Content-Disposition", "inline; filename=" + fullName);
             } else { // 纯下载方式
                 String range = request.getHeader("Range");
-                HttpRange httpRange = getHttpRange(range);
                 response.setContentType("application/x-msdownload");
                 response.setHeader("Content-Disposition", "attachment; filename=" + fullName);
-                response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
-                response.setHeader("Content-Range", getHttpRangeResponse(httpRange, file.length()));
-                inputStream.skip(httpRange.getRangeStart(file.length()));
+                HttpRange httpRange = getHttpRange(range);
+                if(httpRange.getRangeStart(file.length()) > 0){
+                    response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+                    response.setHeader("Content-Range", getHttpRangeResponse(httpRange, file.length()));
+                    inputStream.skip(httpRange.getRangeStart(file.length()));
+                }
             }
 //            javax.servlet.http.HttpServletResponse.SC_PARTIAL_CONTENT
             BufferedOutputStream outputStream = new BufferedOutputStream(response.getOutputStream(), 1024 * 256);

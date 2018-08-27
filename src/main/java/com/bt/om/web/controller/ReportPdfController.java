@@ -93,11 +93,11 @@ public class ReportPdfController extends BasicController {
             String reportTimeStr = taskreport.substring(0, 10);
             reportTime = sdf.parse(reportTimeStr);
             type = taskreport.substring(10, taskreport.length() - 2);
-            if (type.contains("上刊")) {
-                taskType = MonitorTaskType.UP_TASK.getId();
-            } else if (type.contains("上刊监测")) {
+            if (type.contains("上刊监测")) {
                 taskType = MonitorTaskType.UP_MONITOR.getId();
-            } else if (type.contains("投放期间监测")) {
+            } else if (type.contains("上刊")) {
+                taskType = MonitorTaskType.UP_TASK.getId();
+            }else if (type.contains("投放期间监测")) {
                 taskType = MonitorTaskType.DURATION_MONITOR.getId();
             } else if (type.contains("下刊监测")) {
                 taskType = MonitorTaskType.DOWNMONITOR.getId();

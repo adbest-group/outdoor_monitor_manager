@@ -3,13 +3,17 @@ package com.bt.om.web.util;
 import com.bt.om.entity.FileEntity;
 import eu.medsea.mimeutil.MimeUtil;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpRange;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import javax.activation.FileTypeMap;
 import javax.activation.MimetypesFileTypeMap;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -27,6 +31,7 @@ import java.net.URLConnection;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * 常用文件方法工具类
@@ -168,7 +173,15 @@ public class FileUtils {
         return chunkBase + File.separator + md5 + File.separator + chunk;
     }
 
-    public void downLoad(String fullName, HttpServletResponse response, boolean isOnLine) {
+    /**
+     * 下载
+     *
+     * @param fullName
+     * @param request
+     * @param response
+     * @param isOnLine
+     */
+    public void downLoad(String fullName, HttpServletRequest request, HttpServletResponse response, boolean isOnLine) {
         String suffix = fullName.substring(fullName.lastIndexOf(".") + 1);
         String fileName = fullName.substring(0, fullName.lastIndexOf("."));
         String fileFullPath = getFileFullPath(fileName);
@@ -182,12 +195,17 @@ public class FileUtils {
             if (isOnLine) { // 在线打开方式
                 response.setContentType(MimeUtil.getMimeTypes(new File(fileFullPath)).toString());
                 response.setHeader("Content-Disposition", "inline; filename=" + fullName);
-                // 文件名应该编码成UTF-8
             } else { // 纯下载方式
+                String range = request.getHeader("Range");
+                HttpRange httpRange = getHttpRange(range);
                 response.setContentType("application/x-msdownload");
                 response.setHeader("Content-Disposition", "attachment; filename=" + fullName);
+                response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+                response.setHeader("Content-Range", getHttpRangeResponse(httpRange, file.length()));
+                inputStream.skip(httpRange.getRangeStart(file.length()));
             }
-            BufferedOutputStream outputStream = new BufferedOutputStream(response.getOutputStream(),1024 * 256);
+//            javax.servlet.http.HttpServletResponse.SC_PARTIAL_CONTENT
+            BufferedOutputStream outputStream = new BufferedOutputStream(response.getOutputStream(), 1024 * 256);
             while ((len = inputStream.read(buf)) > 0) {
                 outputStream.write(buf, 0, len);
             }
@@ -197,6 +215,31 @@ public class FileUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 封装 HttpRange
+     * @param range
+     * @return
+     */
+    public HttpRange getHttpRange(String range) {
+        List<HttpRange> rangeList = HttpRange.parseRanges(range);
+        if (rangeList.size() > 0) {
+            return rangeList.get(0);
+        }
+        return HttpRange.createByteRange(0);
+    }
+
+    /**
+     * 组装 HttpRange 返回头
+     * @param range
+     * @param totalLength
+     * @return
+     */
+    public String getHttpRangeResponse(HttpRange range, long totalLength){
+        // bytes 500-1233/1234
+        String rangeStr = "bytes " + range.getRangeStart(totalLength) + "-" + range.getRangeEnd(totalLength) + "/" + totalLength;
+        return rangeStr;
     }
 
 }

@@ -777,7 +777,7 @@ function changeMediaTypeId() {
     // 文件加入队列
     uploader.on("fileQueued",function(file){
         console.log("queued file", file);
-        uploader.md5File(file, Math.round(file.size*0.2), Math.ceil(file.size*0.2)).progress(function (percentage) {
+        uploader.md5File(file, Math.round(file.size*0.2), Math.ceil(file.size*0.4)).progress(function (percentage) {
             // console.log("per", percentage);
         }).then(function (value) {
             console.log("md5", value);

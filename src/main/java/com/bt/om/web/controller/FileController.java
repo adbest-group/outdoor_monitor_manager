@@ -167,8 +167,8 @@ public class FileController {
      */
     @RequestMapping("/downloadFile")
     @ResponseBody
-    public void downloadFile(String fullName, HttpServletResponse response) {
-        fileUtils.downLoad(fullName, response, false);
+    public void downloadFile(String fullName, HttpServletRequest request, HttpServletResponse response) {
+        fileUtils.downLoad(fullName, request, response, false);
     }
 
     /**
@@ -179,8 +179,8 @@ public class FileController {
      */
     @RequestMapping("/viewFile")
     @ResponseBody
-    public void viewFile(String fullName, HttpServletResponse response) {
-        fileUtils.downLoad(fullName, response, true);
+    public void viewFile(String fullName,HttpServletRequest request, HttpServletResponse response) {
+        fileUtils.downLoad(fullName, request, response, true);
     }
 
 

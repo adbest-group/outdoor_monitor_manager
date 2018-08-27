@@ -3,16 +3,21 @@ package com.bt.om.util;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.adtime.common.lang.StringUtil;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import com.adtime.common.lang.StringUtil;
 public class AddressUtils {
 	/**
 	 *
@@ -221,8 +226,8 @@ public class AddressUtils {
 		List<Double> lonlat = new ArrayList<>();
 		BufferedReader in = null;  
         try {  
-            address = URLEncoder.encode(address, "UTF-8");  
-            URL tirc = new URL("http://api.map.baidu.com/geocoder?address="+ address +"&city="+city+"&output=json&ak="+"urqnx4u977HclIGgSsvpBk9sjjXLCKdg");  
+//            address = URLEncoder.encode(city + address, "UTF-8");  
+            URL tirc = new URL("http://api.map.baidu.com/geocoder?address=" + city + address +"&city="+city+"&output=json&ak="+"urqnx4u977HclIGgSsvpBk9sjjXLCKdg");  
             in = new BufferedReader(new InputStreamReader(tirc.openStream(),"UTF-8"));  
             String res;  
             StringBuilder sb = new StringBuilder("");  
@@ -251,5 +256,37 @@ public class AddressUtils {
             }  
         }
         return lonlat;
+	}
+	private static String readAll(Reader rd) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        int cp;
+        while ((cp = rd.read()) != -1) {
+            sb.append((char) cp);
+        }
+        return sb.toString();
+    }
+	public static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
+        InputStream is = new URL(url).openStream();
+        try {
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+            String jsonText = readAll(rd);
+            JSONObject json = new JSONObject(jsonText);
+            return json;
+        } finally {
+            is.close();
+        }
+    }
+	public String getAddressesByBaidu(String content, String encodingString){
+		String address = "";
+		JSONObject json;
+		try {
+			json = readJsonFromUrl("http://api.map.baidu.com/location/ip?ak=ePVbxHN4BEtaDqvezgBGlNEnz5AKWyZ8&ip=" + content);
+			if (json!=null&&(Integer) json.get("status")==0) {
+				address = (String) ((JSONObject) json.get("content")).get("address");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return address;
 	}
 }

@@ -195,7 +195,7 @@ public class LoginController extends BasicController {
             
             new Thread(new SystemLogThread("系统首页", "登录", user.getUsername(), getIp(), "", "", 1)).start();
 	        AddressUtils addressUtils = new AddressUtils();
-	        String  address = addressUtils.getAddresses( getIp(), "utf-8");
+	        String  address = addressUtils.getAddressesByBaidu( getIp(), "utf-8");
              Date now = new Date();	           
              LoginLog loginlog=new LoginLog();   
              loginlog.setUserId(findUser.getId());

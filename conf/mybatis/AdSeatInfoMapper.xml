@@ -543,14 +543,12 @@
 			b.media_name,
 			c.name as parentName,
 			d.name as secondName,
-			a.ad_code_flag,
-			e.sample_pic_url
+			a.ad_code_flag
 		from
 			ad_seat_info as a
 		left join ad_media as b on a.media_id=b.id
 		left join ad_media_type c on a.media_type_parent_id=c.id
 		left join ad_media_type d on a.media_type_id=d.id
-		left join ad_activity_adseat e on a.id = e.ad_seat_id
 		 where 1=1
 		<if test="activityName != null">
 			and a.name like #{activityName,jdbcType=VARCHAR}

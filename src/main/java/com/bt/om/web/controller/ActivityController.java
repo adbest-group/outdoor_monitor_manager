@@ -656,7 +656,7 @@ public class ActivityController extends BasicController {
 		return PageConst.WRITE_BRAND_TITLE_PDF;
 	}
 	
-	//Pdf导出任务列表报告
+	//Pdf导出任务列表报告,淘汰接口
 	@RequestMapping(value="/selectTasksToPdf")
 	public String selectTasksToPdf(Model model,HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(value = "activityId", required = false) Integer activityId) {
@@ -764,5 +764,39 @@ public class ActivityController extends BasicController {
 	public String changePic(Model model,HttpServletRequest request, HttpServletResponse response) {
 		
 		return PageConst.CHANGE_ADSEAT_PIC;
+	}
+	/**
+	 * pdf导出报告列表
+	 * @param activityId 活动id
+	 * @return
+	 */
+	@RequestMapping(value="/selectTasksToPdfs")
+	public String selectTasksToPdfs(Model model,HttpServletRequest request, HttpServletResponse response,
+			@RequestParam(value = "activityId", required = false) Integer activityId) {
+		SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+		Date now = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		Map<String, Object> searchMap = new HashMap<>();;
+		searchMap.put("activityId", activityId);
+		searchMap.put("reportTime", now);
+		//查询所有任务列表
+		List<AdMonitorTask> list = null;
+		if (userObj.getUsertype()==UserTypeEnum.CUSTOMER.getId()) {
+			searchMap.put("status", MonitorTaskStatus.VERIFIED.getId());
+			list = adMonitorTaskService.getAllTaskTypesByActivityIdReportTime(searchMap);
+		}else if (userObj.getUsertype()==UserTypeEnum.SUPER_ADMIN.getId()) {
+			list = adMonitorTaskService.getAllTaskTypesByActivityIdReportTime(searchMap);
+		}
+		List<String> reportList = new ArrayList<>();
+		for(AdMonitorTask task : list) {
+			StringBuffer stringBuffer = new StringBuffer();
+			String nowDate = sdf.format(task.getReportTime());
+			stringBuffer.append(nowDate).append("	");
+			stringBuffer.append(MonitorTaskType.getText(task.getTaskType())).append("报告");
+			reportList.add(stringBuffer.toString());
+		}
+		model.addAttribute("activityId",activityId);
+		model.addAttribute("reportList",reportList);
+		return PageConst.SELECT_TASKPDF;
 	}
 }

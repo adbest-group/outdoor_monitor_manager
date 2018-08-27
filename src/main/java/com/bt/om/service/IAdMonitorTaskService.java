@@ -131,5 +131,6 @@ public interface IAdMonitorTaskService {
 	 */
 	public List<AdMonitorTaskVo> findAllMemo(Integer activityId,List<AdMonitorTaskVo> memos);
 	public void updateBatch(List<AdMonitorTaskVo> tasks);
+	public List<AdMonitorTask> getAllTaskTypesByActivityIdReportTime(Map<String, Object> searchMap);
 
 }

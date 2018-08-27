@@ -482,10 +482,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	        task.setUpdateTime(now);
 	        task.setId(id);
 	        task.setFirstVerify(VerifyType.REJECT_TYPE.getId());//2：初审驳回
-	        //当登录用户不是第三方监测公司时 初步审核和审核状态都改为不通过
-	        if(auditPerson.getUsertype()!=UserTypeEnum.THIRD_COMPANY.getId()) {
-	        	task.setStatus(status);
-	        }
+	        task.setStatus(status);
 	        task.setAssessorId(assessorId);
 	        adMonitorTaskMapper.updateByPrimaryKeySelective(task);
 	        List<AdMonitorTaskFeedback> feedbacks = adMonitorTaskFeedbackMapper.selectByTaskId(task.getId(), 1);
@@ -897,7 +894,7 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
             if(sysUserExecute.getUsertype().equals(4)) {
             	//[1] 社会人员抢单
             	userTask.setAssignType(2); //2.自助抢单（社会人员）
-            } else if(sysUserExecute.getUsertype().equals(3)) {
+            } else if(sysUserExecute.getUsertype().equals(3)||sysUserExecute.getUsertype().equals(5)) {
             	//[2] 媒体监测人员抢单
             	userTask.setAssignType(3); //3.自助接取（媒体监测人员）
             }
@@ -1761,6 +1758,13 @@ public class AdMonitorTaskService implements IAdMonitorTaskService {
 	@Override
 	public List<AdMonitorTaskVo> selectMonitorTaskIdsByActicityId(Integer acticityId) {
 		return adMonitorTaskMapper.selectMonitorTaskIdsByActicityId(acticityId);
+	}
+	/**
+	 * 查询可以导出报告的任务类型
+	 */
+	@Override
+	public List<AdMonitorTask> getAllTaskTypesByActivityIdReportTime(Map<String, Object> searchMap) {
+		return adMonitorTaskMapper.getAllTaskTypesByActivityIdReportTime(searchMap);
 	}
 
 }

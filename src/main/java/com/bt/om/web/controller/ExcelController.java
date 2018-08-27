@@ -2626,7 +2626,7 @@ public class ExcelController extends BasicController {
 	            tableData.put(seatName, task_type, i);
 	            imgs = pics.get(id.toString());
 	            if (imgs!=null&&imgs.size()>0) {
-					List<FileInfoVo> list = imgs.get(seatName);
+					List<FileInfoVo> list = imgs.get(seatName.trim());
 					if (list!=null&&list.size()>0) {
 						AdMonitorTaskVo adMonitorTaskVo = new AdMonitorTaskVo();
 						adMonitorTaskVo.setMemo(seatName);
@@ -2651,11 +2651,15 @@ public class ExcelController extends BasicController {
 						lo.set(AdminImportMonitorEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
 		            	lo.set(AdminImportMonitorEnum.IMPORT_DES.getId(), ExcelImportFailEnum.PIC_INVALID.getText());
 					}
+					
 				}else {
 					lo.set(AdminImportMonitorEnum.IMPORT_RESULT.getId(), IMPORT_FAIL);
 	            	lo.set(AdminImportMonitorEnum.IMPORT_DES.getId(), ExcelImportFailEnum.PIC_INVALID.getText());
 				}
 	        }
+	        if (imgs.size()>0) {
+		        imgs.clear();
+			}
 	        Table<String, Integer, AdMonitorTaskVo> table = HashBasedTable.create();
 	        table = getTaskTable(tasks);
 	        List<AdMonitorTaskVo> TaskVos = new ArrayList<>();
@@ -2668,8 +2672,10 @@ public class ExcelController extends BasicController {
 	        		AdMonitorTaskVo taskVo = TaskVos.get(j);
 	        	if (taskVo.getStatus()==MonitorTaskStatus.VERIFIED.getId()) {
 	        		Integer index = tableData.get(taskVo.getMemo(),MonitorTaskType.getText(taskVo.getTaskType()));
-	        		excelInfo.put(index, ExcelImportFailEnum.TASK_VERIFY.getText());
-					continue;
+	        		if (index!=null) {
+		        		excelInfo.put(index, ExcelImportFailEnum.TASK_VERIFY.getText());
+						continue;
+					}
 				}
 				AdMonitorTaskVo adMonitorTaskVo = table.get(taskVo.getMemo(), taskVo.getTaskType());
 				if (adMonitorTaskVo!=null) {
@@ -2679,8 +2685,10 @@ public class ExcelController extends BasicController {
 					SysUserExecute userExecute = sysUserExecuteService.getByUsername(adMonitorTaskVo.getMobile());
 					if (userExecute==null) {
 						Integer index = tableData.get(taskVo.getMemo(),MonitorTaskType.getText(taskVo.getTaskType()));
-		        		excelInfo.put(index, ExcelImportFailEnum.TASK_USER_INVALID.getText());
-						continue;
+						if (index!=null) {
+			        		excelInfo.put(index, ExcelImportFailEnum.TASK_USER_INVALID.getText());
+							continue;
+						}
 					}
 					taskVo.setUserId(userExecute.getId());
 					Tasks.add(taskVo);
@@ -2724,7 +2732,6 @@ public class ExcelController extends BasicController {
 	        listob.clear();
 	        pics.clear();
 	        tasks.clear();
-	        imgs.clear();
 	        TaskVos.clear();
 	        Tasks.clear();
 	        table.clear();
@@ -2740,7 +2747,7 @@ public class ExcelController extends BasicController {
 	 * 读取文件夹图片
 	 */
     private Map<String, Map<String, List<FileInfoVo>>> getPics(Integer activityId){
-    	File file=new File(fileUploadPath + "\\activity\\" + activityId + "\\temporary");
+    	File file=new File(fileUploadPath + File.separator +"activity" + File.separator + activityId + File.separator + "temporary");
     	if(!file.exists()){
             file.mkdirs();
         }

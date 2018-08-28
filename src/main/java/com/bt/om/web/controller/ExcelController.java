@@ -1271,23 +1271,23 @@ public class ExcelController extends BasicController {
     						String address = String.valueOf(lo.get(AdminImportAdSeatEnum.LOCATION.getId())).trim().replaceAll("\n", ""); //详细位置
                     		String street = String.valueOf(lo.get(AdminImportAdSeatEnum.ROAD.getId())).trim(); //街道
                     		String city = String.valueOf(lo.get(AdminImportAdSeatEnum.CITY.getId()));
-//                    		try {
-//                    			List<Double> lonLatByAddress = AddressUtils.getLonLatByAddress(street+address, city);
-//                        		if (lonLatByAddress.size()<=0) {
-//                        			lonLatByAddress = AddressUtils.getLonLatByAddress(street, city);
-//                        			if (lonLatByAddress.size()<=0) {
-//                        				lonLatByAddress = AddressUtils.getLonLatByAddress(city, city);
-//    								}
-//        						}
-//                        		if (lonLatByAddress.size()>=2) {
-//                        			lo.set(AdminImportAdSeatEnum.LON.getId(), lonLatByAddress.get(0));
-//                            		lo.set(AdminImportAdSeatEnum.LAT.getId(), lonLatByAddress.get(1));
-//                            		info.setLon(lonLatByAddress.get(0)); //经度
-//            	                	info.setLat(lonLatByAddress.get(1)); //纬度
-//            	                	info.setMapStandard(MapStandardEnum.getId("百度"));
-//    							}
-//							} catch (Exception e) {
-//							}
+                    		try {
+                    			List<Double> lonLatByAddress = AddressUtils.getLonLatByAddress(street+address, city);
+                        		if (lonLatByAddress.size()<=0) {
+                        			lonLatByAddress = AddressUtils.getLonLatByAddress(street, city);
+                        			if (lonLatByAddress.size()<=0) {
+                        				lonLatByAddress = AddressUtils.getLonLatByAddress(city, city);
+    								}
+        						}
+                        		if (lonLatByAddress.size()>=2) {
+                        			lo.set(AdminImportAdSeatEnum.LON.getId(), lonLatByAddress.get(0));
+                            		lo.set(AdminImportAdSeatEnum.LAT.getId(), lonLatByAddress.get(1));
+                            		info.setLon(lonLatByAddress.get(0)); //经度
+            	                	info.setLat(lonLatByAddress.get(1)); //纬度
+            	                	info.setMapStandard(MapStandardEnum.getId("百度"));
+    							}
+							} catch (Exception e) {
+							}
     					} else {
     						//判断经度在-180-180之间
     						double lon = Double.parseDouble(String.valueOf(lo.get(AdminImportAdSeatEnum.LON.getId())).trim());

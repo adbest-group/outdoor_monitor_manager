@@ -74,7 +74,7 @@ public class SysGroupController extends BasicController{
     private IAdJiucuoTaskService adJiucuoTaskService;
 	@Autowired
 	private IAdUserMessageService adUserMessageService;
-	private static final Logger logger = Logger.getLogger(LogFilter.class);
+	private static final Logger logger = Logger.getLogger(SysGroupController.class);
 	
 	/**
 	 * 部门管理员查询组列表

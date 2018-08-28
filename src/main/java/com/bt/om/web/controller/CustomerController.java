@@ -47,7 +47,7 @@ public class CustomerController {
     private ICustomerService customerService;
     @Autowired
     private IAppService appService;
-    private static final Logger logger = Logger.getLogger(LogFilter.class);
+    private static final Logger logger = Logger.getLogger(CustomerController.class);
     
     /**
      * 客户管理列表

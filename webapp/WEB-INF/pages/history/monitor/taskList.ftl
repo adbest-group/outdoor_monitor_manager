@@ -129,6 +129,7 @@
                         <th>媒体大类</th>
 					    <th>媒体小类</th>
                         <th>广告位</th>
+                        <th>执行公司</th>
                         <th>执行人员</th>
                         <th>任务类型</th>
                         <th>状态</th>
@@ -157,6 +158,7 @@
                             <td>${task.parentName!""}</td>
                             <td>${task.secondName!""}</td>
                             <td>${task.adSeatName!""}</td>
+                            <td>${task.companyName!""}</td>
                             <td>${task.realname!""}</td>
                             <td>${vm.getMonitorTaskTypeText(task.taskType)!""}</td>
                             <td>${vm.getMonitorTaskStatusText(task.status)!""}</td>
@@ -166,21 +168,9 @@
                             <td>${task.assignorName!""}</td>
                             <td>${(task.assignorTime?string('yyyy-MM-dd HH:mm:ss'))!""}</td>
                             <td>
-                            <#--<#if task.status==1><a href="javascript:assign('${task.id}')">指派</a></#if>-->
-                            <#--<#if task.status==2><a href="javascript:assign('${task.id}')">重新指派</a></#if>-->
-                                <#-- 
-                                <#if (task.parentId?exists&&task.parentType=1)>
-                                    <a href="/task/list?pid=${task.parentId}&ptype=1">复查配对</a></#if> -->
                                 <#if (task.parentId?exists&&task.parentType=2)>
                                     <a href="/jiucuo/list?id=${task.parentId}">查看纠错</a></#if>
-                                <#-- 
-                                <#if (task.status==4&&task.problemStatus?exists&&task.problemStatus==4&&task.subCreated?exists&&task.subCreated==1)>
-                                    <a href="/task/list?pid=${task.id}&ptype=1">复查配对</a></#if> -->
-                                <#-- 
-                                <#if (task.status==4 && task.problemStatus?exists&&task.problemStatus==4)><a
-                                        href="javascript:close('${task.id}')">关闭</a></#if> -->
                                 <a href="/history/monitor/details?task_Id=${task.id}">详情</a>
-                            <#--<#if task.status==1><a href="javascript:del('${task.id}')">删除</a></#if>-->
                             </td>
                         </tr>
                         </#list>
@@ -412,106 +402,7 @@
         })
         
               
-    //批量审核任务
-       $("#assignBtn").click(function(){
-            if($("input[name='ck-task']:checked").length<1){
-                layer.confirm('请选择需要审核的任务', {
-                    icon: 0,
-                    btn: ['确定'] //按钮
-                });
-            }else{
-           		var ids = [];
-                $("input[name='ck-task']:checked").each(function(i,ck){
-                    if(ck.value) ids.push(ck.value);
-                });
-                id_sel = ids.join(",");
-	             $.ajax({
-			            url: "/task/verify",
-			            type: "post",
-			            data: {
-			                "ids": id_sel,
-			                "status": 4
-			            },
-			            cache: false,
-			            dataType: "json",
-			            success: function(datas) {
-			                var resultRet = datas.ret;
-			                if (resultRet.code == 101) {
-			                    layer.confirm(resultRet.resultDes, {
-			                        icon: 2,
-			                        btn: ['确定'] //按钮
-			                    }, function(){
-			                        window.location.reload();
-			                    });
-			                } else {
-			                    layer.confirm("确认成功", {
-			                        icon: 1,
-			                        btn: ['确定'] //按钮
-			                    },function () {
-			                        window.location.reload();
-			                    });
-			                }
-			            },
-			            error: function(e) {
-			                layer.confirm("服务忙，请稍后再试", {
-			                    icon: 5,
-			                    btn: ['确定'] //按钮
-			                });
-			            }
-			        });
-            }
-        });
-          
-        //批量拒绝通过任务
-        $("#batchRefuse").click(function(){
-        	var id_sel;
-            if($("input[name='ck-task']:checked").length<1){
-                layer.confirm('请选择需要拒绝的活动', {
-                    icon: 0,
-                    btn: ['确定'] //按钮
-                });
-            }else{
-                var ids = [];
-                $("input[name='ck-task']:checked").each(function(i,ck){
-                    if(ck.value) ids.push(ck.value);
-                });
-                id_sel = ids.join(",");
-	             $.ajax({
-			            url: "/task/verify",
-			            type: "post",
-			            data: {
-			                "ids": id_sel,
-			                "status": 5
-			            },
-			            cache: false,
-			            dataType: "json",
-			            success: function(datas) {
-			                var resultRet = datas.ret;
-			                if (resultRet.code == 101) {
-			                    layer.confirm(resultRet.resultDes, {
-			                        icon: 2,
-			                        btn: ['确定'] //按钮
-			                    }, function(){
-			                        window.location.reload();
-			                    });
-			                } else {
-			                    layer.confirm("拒绝成功", {
-			                        icon: 1,
-			                        btn: ['确定'] //按钮
-			                    },function () {
-			                        window.location.reload();
-			                    });
-			                }
-			            },
-			            error: function(e) {
-			                layer.confirm("服务忙，请稍后再试", {
-			                    icon: 5,
-			                    btn: ['确定'] //按钮
-			                });
-			            }
-			        });
-            }
-        });
+    
          $("input[name='ck-alltask']").change(function(){
             if(!this.value){
                 if($(this).is(":checked")){
@@ -522,11 +413,6 @@
             }
         });
     });
-    //指派
-    assign = function (id) {
-        assign_ids = id;
-        openSelect();
-    }
 
     //打开选择执行者
     openSelect = function () {
@@ -579,157 +465,6 @@
             }
         });
     }
-
-    //审核通过
-    pass = function (id) {
-        layer.confirm("确认审核通过？", {
-            icon: 3,
-            btn: ['确定', '取消'] //按钮
-        }, function () {
-            verify(id, 4);
-        });
-    }
-
-    //审核不通过
-    reject = function (id) {
-        layer.confirm("确认审核不通过？", {
-            icon: 3,
-            btn: ['确定', '取消'] //按钮
-        }, function (index) {
-            layer.close(index);
-            layer.prompt({title: '请填写审核意见', formType: 2}, function (val, index) {
-                if (val.trim().length < 1 || val.trim().length > 33) {
-                    layer.alert("请填写30字以内！", {icon: 2});
-                    return;
-                }
-                layer.close(index);
-                verify(id, 5, val);
-            });
-
-        });
-    }
-
-    //发起审核请求
-    verify = function (id, status, reason) {
-        $.ajax({
-            url: "/task/verify",
-            type: "post",
-            data: {
-                "ids": id,
-                "status": status,
-                "reason": reason
-            },
-            cache: false,
-            dataType: "json",
-            success: function (datas) {
-                var resultRet = datas.ret;
-                if (resultRet.code == 101) {
-                    layer.confirm(resultRet.resultDes, {
-                        icon: 2,
-                        btn: ['确定'] //按钮
-                    }, function(){
-                        window.location.reload();
-                    });
-                } else {
-                    layer.confirm("审核成功", {
-                        icon: 1,
-                        btn: ['确定'] //按钮
-                    }, function () {
-                        window.location.reload();
-                    });
-                }
-            },
-            error: function (e) {
-                layer.confirm("服务忙，请稍后再试", {
-                    icon: 5,
-                    btn: ['确定'] //按钮
-                });
-            }
-        });
-    }
-
-    //处理问题
-    close = function (id) {
-        layer.confirm("确认关闭问题任务？", {
-            icon: 3,
-            btn: ['确定', '取消'] //按钮
-        }, function () {
-            $.ajax({
-                url: "/task/close",
-                type: "post",
-                data: {
-                    "id": id
-                },
-                cache: false,
-                dataType: "json",
-                success: function (datas) {
-                    var resultRet = datas.ret;
-                    if (resultRet.code == 101) {
-                        layer.confirm(resultRet.resultDes, {
-                            icon: 2,
-                            btn: ['确定'] //按钮
-                        });
-                    } else {
-                        layer.confirm("关闭成功", {
-                            icon: 1,
-                            btn: ['确定'] //按钮
-                        }, function () {
-                            window.location.reload();
-                        });
-                    }
-                },
-                error: function (e) {
-                    layer.confirm("服务忙，请稍后再试", {
-                        icon: 5,
-                        btn: ['确定'] //按钮
-                    });
-                }
-            });
-        });
-    }
-
-    //创建子任务
-    createTask = function (id) {
-//                layer.alert("暂未开放！谢谢！");
-//                return;
-        layer.confirm("确认创建监测任务？", {
-            icon: 3,
-            btn: ['确定', '取消'] //按钮
-        }, function () {
-            $.ajax({
-                url: "/task/createTask",
-                type: "post",
-                data: {
-                    "id": id
-                },
-                cache: false,
-                dataType: "json",
-                success: function (datas) {
-                    var resultRet = datas.ret;
-                    if (resultRet.code == 101) {
-                        layer.confirm(resultRet.resultDes, {
-                            icon: 2,
-                            btn: ['确定'] //按钮
-                        });
-                    } else {
-                        layer.confirm("创建成功，请及时指派检测人员执行！", {
-                            icon: 1,
-                            btn: ['确定'] //按钮
-                        }, function () {
-                            window.location.reload();
-                        });
-                    }
-                },
-                error: function (e) {
-                    layer.confirm("服务忙，请稍后再试", {
-                        icon: 5,
-                        btn: ['确定'] //按钮
-                    });
-                }
-            });
-        });
-    }
-    
 </script>
 <!-- 特色内容 -->
 

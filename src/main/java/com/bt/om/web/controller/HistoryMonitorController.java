@@ -81,7 +81,7 @@ public class HistoryMonitorController extends BasicController{
 	private ICreateHistoryTableRecordService createHistoryTableRecordService;
 	@Autowired
 	private IHistoryAdJiucuoTaskService historyAdJiucuoTaskService;
-	private static final Logger logger = Logger.getLogger(LogFilter.class);
+	private static final Logger logger = Logger.getLogger(HistoryMonitorController.class);
 	
     /**
      * 【任务审核部门】领导/【超级管理员】查看 监测任务审核页面

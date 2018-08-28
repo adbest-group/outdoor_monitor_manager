@@ -61,7 +61,7 @@ public class SysResourcesController extends BasicController {
 	@Autowired
 	private IUserMoneyService usermoneyService;
 	
-	private static final Logger logger = Logger.getLogger(LogFilter.class);
+	private static final Logger logger = Logger.getLogger(SysResourcesController.class);
 	
 	/**
 	 * 超级管理员查询部门列表

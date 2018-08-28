@@ -86,7 +86,7 @@
 		<dependency org="org.freemarker" name="freemarker" rev="2.3.22" conf="compile,test->default(*)"/>
 		<!--文件上传-->
 		<dependency org="commons-fileupload" name="commons-fileupload" rev="1.2.2" conf="compile,test->default(*)"/>
-		<dependency org="commons-io" name="commons-io" rev="2.4" conf="compile,test->default(*)"/>
+		<dependency org="eu.medsea.mimeutil" name="mime-util" rev="2.1.3" conf="compile,test->default(*)"/>
 		<!--jackson-->
 		<dependency org="com.fasterxml.jackson.core" name="jackson-core" rev="2.5.2" conf="compile,test->default(*)"/>
 		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.5.2" conf="compile,test->default(*)"/>

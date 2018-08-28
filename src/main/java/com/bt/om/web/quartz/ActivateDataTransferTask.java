@@ -39,6 +39,7 @@ public class ActivateDataTransferTask extends AbstractTask{
     		try {
     			historyAdActivityService.batchDataTransfer(adActivity);
 			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 	}

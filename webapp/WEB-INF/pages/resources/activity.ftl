@@ -11,7 +11,7 @@
         <div class="title clearfix">
         	<#if user.usertype !=6>
         		<a href="/customer/activity/edit" class="btn btn-red mr-10 ll">创建活动</a>
-                <a id="test_upload">测试上传文件</a><span></span>
+                <#-- <a id="test_upload">测试上传文件</a><span></span> -->
         	</#if>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <form id="form" method="get" action="/sysResources/activity">

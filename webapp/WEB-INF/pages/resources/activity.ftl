@@ -1,5 +1,6 @@
 <#assign webTitle="活动管理" in model>
 <#assign webHead in model>
+<link rel="stylesheet" href="/static/upload/webuploader.css" />
 </#assign>
 <@model.webhead />
     <!-- 头部 -->
@@ -10,6 +11,7 @@
         <div class="title clearfix">
         	<#if user.usertype !=6>
         		<a href="/customer/activity/edit" class="btn btn-red mr-10 ll">创建活动</a>
+                <a id="test_upload">测试上传文件</a><span></span>
         	</#if>
             <div class="search-box search-ll" style="margin: 0 0 0 20px">
                 <form id="form" method="get" action="/sysResources/activity">
@@ -36,7 +38,7 @@
                         </select>
                     </div>
 
-                    <#-- 
+                    <#--
                      <div class="select-box select-box-100 un-inp-select ll">
 	                    <select style="width: 120px;height:31px;" name="mediaTypeParentId" id="mediaTypeParentId" onchange="changeMediaTypeId();">
 	                    <option value="">所有媒体大类</option>
@@ -50,22 +52,22 @@
 	                </div>
 	                 -->
 	                <#-- 城市 -->
-	                <#-- 
+	                <#--
 					<div id="demo3" class="citys" style="float: left; font-size: 12px">
                         <p>
                                                城市： <select style="height: 30px" id="adSeatInfo-province" name="province">
                             <option value=""></option>
                         </select> <select style="height: 30px" id="adSeatInfo-city" name="city"></select>
-    
+
                         </p>
                     </div>
                      -->
-                     <#-- 
+                     <#--
                     <div class="ll inputs-date"> -->
                         <#--<input class="ui-date-button" type="button" value="昨天" alt="-1" name="">-->
                         <#--<input class="ui-date-button" type="button" value="近7天" alt="-6" name="">-->
                         <#--<input class="ui-date-button on" type="button" value="近30天" alt="-29" name="">-->
-                    <#-- 
+                    <#--
                         <div class="date">
                             <input id="dts" class="Wdate" type="text" name="startDate" value="${bizObj.queryMap.startDate?if_exists}"> -
                             <input id="dt" class="Wdate" type="text" name="endDate" value="${bizObj.queryMap.endDate?if_exists}">
@@ -90,7 +92,7 @@
                      <th width="30"><#if user.usertype !=6><input type="checkbox" style="visibility: hidden" id='thead-checkbox' name="ck-alltask" value=""/></#if></th>
                         <th>序号</th>
                         <th>活动名称</th>
-                        <th>广告主</th>                        
+                        <th>广告主</th>
                         <th>投放周期</th>
                         <th>活动状态</th>
                         <th>审核人</th>
@@ -104,7 +106,7 @@
                         <tr>
                         	<td width="30"><#if (activity.status?exists&&activity.status == 1)>
                         		<#if user.usertype !=6><input type="checkbox"  name="ck-task" data-status='${activity.status}' value="${activity.id}"/></#if>
-                        	</#if></td> 
+                        	</#if></td>
                             <td width="30">${(bizObj.page.currentPage-1)*20+activity_index+1}</td>
                             <td>
                                 <div class="data-title w200" data-title="${activity.activityName}" data-id="${activity.id}">${activity.activityName?if_exists}</div>
@@ -159,12 +161,12 @@
 <script type="text/javascript" src="${model.static_domain}/js/date/moment.min.js"></script>
 <script type="text/javascript" src="${model.static_domain}/js/date/jquery.daterangepicker.js"></script>
 <script type="text/javascript" src="${model.static_domain}/js/date.js"></script>
-
+<script type="text/javascript" src="/static/upload/webuploader.js"></script>
 <script type="text/javascript">
 
 	$('.select').searchableSelect();
 	$('#userId').next().find('.searchable-select-input').css('display', 'block');
-	<#-- 
+	<#--
 	changeMediaTypeId();
             $(function(){
                 $(".nav-sidebar>ul>li").on("click",function(){
@@ -181,7 +183,7 @@
         var h = $(document.body).height() - 115;
         $('.main-container').css('height', h);
     });
-    
+
     <#-- 
 function changeMediaTypeId() {	
 		var mediaTypeParentId = $("#mediaTypeParentId").val();
@@ -214,8 +216,8 @@ function changeMediaTypeId() {
 		});
 	}
 	 -->
-	 
-	 <#-- 
+
+	 <#--
 	/*获取城市  */
     var $town = $('#demo3 select[name="street"]');
     var townFormat = function(info) {
@@ -236,7 +238,7 @@ function changeMediaTypeId() {
         }
     };
      -->
-     <#-- 
+     <#--
     $('#demo3').citys({
         required:false,
         province : '${province!"所有城市"}',
@@ -253,14 +255,14 @@ function changeMediaTypeId() {
     $("#searchBtn").on("click", function () {
         var strParam = "";
         var name = $("#searchName").val();
-        
+
         if (name != null && $.trim(name).length) {
             strParam = strParam + "?name=" + name;
         }
 
         window.location.href = "/sysResources/activity" + strParam;
     });
-    
+
             function createDateStr(alt){
                 var today =  new Date();
                 var t=today.getTime()+1000*60*60*24*alt;
@@ -271,7 +273,7 @@ function changeMediaTypeId() {
             }
 
     $(function(){
-/* 
+/*
         $('.inputs-date').dateRangePicker({
             separator : ' 至 ',
             showShortcuts:false,
@@ -309,7 +311,7 @@ function changeMediaTypeId() {
         	}
         })
 
-		var isLoading = true;        
+		var isLoading = true;
 	   //批量审核
        $("#assignBtn").click(function(){
         if($("input[name='ck-task']:checked").length<1){
@@ -324,7 +326,7 @@ function changeMediaTypeId() {
                 if(ck.value) ids.push(ck.value);
             });
             id_sel = ids.join(",");
-            
+
             layer.msg('正在操作中...', {
 	    		icon: 16,
 	    		shade: [0.5, '#f5f5f5'],
@@ -374,7 +376,7 @@ function changeMediaTypeId() {
 		        });
         	}
        	});
- 
+
         $("input[name='ck-alltask']").change(function(){
             if($(this).is(":checked")){
                 $("input[name='ck-task']").prop("checked",true)
@@ -397,14 +399,14 @@ function changeMediaTypeId() {
         return newDate + " 至 " + newDate;
     }
 
-        
+
 //        var newDate=new Date().Format("yyyy-MM-dd");
 //        $('.inputs-date').data('dateRangePicker').setDateRange(newDate,newDate, true);
 
     $("#searchBtn").on("click", function () {
         $("#form").submit();
     });
-    
+
     //活动确认
     queren = function(activityId,userId){
     	isLoading = true;
@@ -557,7 +559,7 @@ function changeMediaTypeId() {
             doUpdate(id, status);
         }
     }
-    
+
     function exportPdf(activityId) {
     	$.ajax({
             url: "/excel/exportAdMediaPdf",
@@ -594,7 +596,7 @@ function changeMediaTypeId() {
             }
         });
     }
-    
+
     function openActivityExcel(activityId){
     	layer.open({
             type: 2,
@@ -604,7 +606,7 @@ function changeMediaTypeId() {
             content: '/activity/selectTaskToExcel?activityId=' + activityId //iframe的url
         });
     }
-    
+
     function openActivityPdf(activityId){
     	layer.open({
             type: 2,
@@ -614,7 +616,7 @@ function changeMediaTypeId() {
             content: '/activity/selectTasksToPdfs?activityId=' + activityId //iframe的url
         });
     }
-    
+
     function exportExcel(activityId) {
 		$.ajax({
             url: "/excel/exportAdMediaInfo",
@@ -719,6 +721,110 @@ function changeMediaTypeId() {
 	    }
 	  });
 	});
+
+    // 测试上传文件
+    var fileMd5 = "";
+    WebUploader.Uploader.register({
+        "add-file": "addFile",
+        "before-send-file": "beforeSendFile",
+        "before-send": "beforeSend",
+        "after-send-file": "afterSendFile"
+    }, {
+        addFile: function(files){
+            console.log("addFile", arguments);
+            files.forEach(function (file, index) {
+                if(file.size == 0){
+                    files.splice(index, 1);
+                }
+            })
+        },
+        beforeSendFile: function (file) {
+            // var deferred = WebUploader.Deferred();
+            // console.log("beforeSendFile", arguments);
+        },
+        beforeSend:function (block) {
+            var deferred = WebUploader.Deferred();
+            console.log("beforeSend", arguments);
+            this.owner.options.formData.chunkSize = block.blob.size;
+        },
+        afterSendFile:function (file) {
+            // var deferred = WebUploader.Deferred();
+            console.log("afterSendFile", arguments);
+            $.post("/file/mergeChunks", {md5: fileMd5, fileSize: file.size}, function (res) {
+                console.log("res", res);
+
+
+            })
+        }
+    });
+
+    var uploader = WebUploader.create({
+        pick: '#test_upload',  // 文件按钮选择器或者dom节点
+        swf: "static/upload/Uploader.swf", // swf文件路径
+        server: "/file/upload",  // 上传地址
+        auto: false, // 是否自动上传
+        disableGlobalDnd: true, // 是否禁止页面其他地方拖拽功能
+        chunked: true, // 是否分片上传
+        prepareNextFile: true, // 是否允许文件传输时准备下一个文件
+        chunkRetry: 3, // 分片上传失败重试次数
+        threads: 5, // 上传并发数
+        formData: {}, // 请求时参数表(此处留空，上传时uploader会附加参数)
+        fileVal: "file", // 文件上传域的name
+        method: "POST", // 请求方式
+        fileSingleSizeLimit: 2147483648 // 单个文件最大允许大小（2G）
+    });
+
+    // 文件加入队列
+    uploader.on("fileQueued",function(file){
+        console.log("queued file", file);
+        uploader.md5File(file, Math.round(file.size*0.2), Math.ceil(file.size*0.4)).progress(function (percentage) {
+            // console.log("per", percentage);
+        }).then(function (value) {
+            console.log("md5", value);
+            fileMd5 = value;
+            uploader.options.formData.md5 = value;
+            $.ajax({
+                url: "/file/checkFile",
+                data: {md5: fileMd5, fileSize: file.size},
+                type: "POST",
+                async: false,
+                success: function (res) {
+                    console.log("checkFile", res);
+                    if(!res.name){
+                        uploader.upload();
+                    }
+                }
+            });
+        });
+    });
+
+    // 文件的分块在发送前触发
+    uploader.on("uploadBeforeSend",function(object, data, headers){
+        // console.log("beforeSend", arguments);
+    });
+
+    // 上传进度
+    uploader.on("uploadProgress",function(file, percentage){
+        // console.log("progress", arguments)
+        $("#test_upload").siblings("span").text(Math.round(percentage * 100) + "%");
+    });
+
+    // 上传成功
+    uploader.on("uploadSuccess",function(file, response){
+        console.log("success", arguments)
+
+    });
+    // 上传失败
+    uploader.on("uploadError", function(file, reason){
+        console.log("error", arguments)
+
+    });
+    // 上传结束
+    uploader.on("uploadFinished", function(){
+        // console.log("finished", arguments)
+
+    });
+
 </script>
 <!-- 特色内容 -->
 

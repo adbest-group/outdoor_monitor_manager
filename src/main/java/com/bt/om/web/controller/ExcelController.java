@@ -1017,7 +1017,7 @@ public class ExcelController extends BasicController {
                 List<Object> lo = listob.get(i);
                 //广告位名称, 所属媒体主, 媒体大类, 媒体小类, 省（直辖市）, 市,  主要路段, 
                 //详细位置, 媒体方广告位编号, 广告位长度, 广告位宽度, 经度, 纬度,面数, 地图标准（如百度，谷歌，高德）, 联系人姓名, 联系人电话, 导入结果, 导入错误信息
-                if(lo.size() <= 19){
+                if(lo.size() == 19){
                 	AdSeatInfo info = new AdSeatInfo();
                 	Long provinceId = 0L;
                 	Long cityId = 0L;
@@ -1371,12 +1371,13 @@ public class ExcelController extends BasicController {
                 		
                 		insertAdSeatInfos.add(info);
                 	}
-                } else {
-                	logger.error(MessageFormat.format("批量导入文件有误, 导入失败", new Object[] {}));
-                	result.setCode(ResultCode.RESULT_FAILURE.getCode());
-                	result.setResultDes("批量导入文件有误, 导入失败");
-                    throw new ExcelException("批量导入文件有误, 导入失败");
-                }
+                } 
+//                else {
+//                	logger.error(MessageFormat.format("批量导入文件有误, 导入失败", new Object[] {}));
+//                	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+//                	result.setResultDes("批量导入文件有误, 导入失败");
+//                    throw new ExcelException("批量导入文件有误, 导入失败");
+//                }
             }
             
             //正常数据插入到数据库中

@@ -2774,9 +2774,10 @@ public class ExcelController extends BasicController {
 						String path = "/opt/uploadfile/activity/310/temporary/3/深广B0100-001";
 						file3 = new File(path);
 						System.out.println(file3.getName());
-						System.out.println(new String(file3.getName().getBytes("GBK"),"GBK"));
-						System.out.println(new String(file3.getName().getBytes("GBK"),"UTF-8"));
-						System.out.println(new String(file3.getName().getBytes("GBK"),"GB2312"));
+						System.out.println(new String(file3.getName().getBytes("UTF-8"),"GBK"));
+						System.out.println(new String(path.getBytes("UTF-8"),"GBK"));
+						System.out.println(new String(path.getBytes("UTF-8")));
+						System.out.println(new String(path.getBytes("GBK"),"UTF-8"));
 						System.out.println("是否是文件夹"+file3.isDirectory());
 					} catch (UnsupportedEncodingException e1) {
 						e1.printStackTrace();

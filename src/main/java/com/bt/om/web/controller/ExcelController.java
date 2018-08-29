@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -2752,6 +2753,8 @@ public class ExcelController extends BasicController {
 	 * 读取文件夹图片
 	 */
     private Map<String, Map<String, List<FileInfoVo>>> getPics(Integer activityId){
+    	String encoding = System.getProperty("file.encoding"); 
+    	System.out.println("系统编码" + encoding);
     	File file=new File(fileUploadPath + File.separator +"activity" + File.separator + activityId + File.separator + "temporary");
     	if(!file.exists()){
             file.mkdirs();
@@ -2767,6 +2770,12 @@ public class ExcelController extends BasicController {
 				for (int k = 0; k < fileList.length; k++) {
 					File file3 = fileList[k];
 					System.out.println(file3.getName());
+					try {
+						System.out.println("转换"+new String(file3.getName().getBytes(encoding),"UTF-8"));
+					} catch (UnsupportedEncodingException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					if (file3.isDirectory()) {
 						File[] listFiles = file3.listFiles();
 						List<FileInfoVo> names = new ArrayList<>();

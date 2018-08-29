@@ -2766,6 +2766,7 @@ public class ExcelController extends BasicController {
 				Map<String, List<FileInfoVo>> fileNames = new HashMap<>();
 				for (int k = 0; k < fileList.length; k++) {
 					File file3 = fileList[k];
+					System.out.println(file3.getName());
 					if (file3.isDirectory()) {
 						File[] listFiles = file3.listFiles();
 						List<FileInfoVo> names = new ArrayList<>();

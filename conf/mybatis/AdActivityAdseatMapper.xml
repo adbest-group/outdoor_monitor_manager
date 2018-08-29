@@ -586,6 +586,7 @@
 	LEFT JOIN sys_user e ON b.assessor_id = e.id 
 	LEFT JOIN sys_user_execute h ON b.user_id = h.id
 	WHERE a.activity_id = #{activityId,jdbcType=INTEGER}
+		and b.status in (3,4)
 		and b.task_type = #{taskType,jdbcType=INTEGER}
 		and b.report_time = DATE_FORMAT(#{reportTime,jdbcType=TIMESTAMP},'%Y-%m-%d')
   </select>

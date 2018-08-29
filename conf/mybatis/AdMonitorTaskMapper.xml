@@ -1764,6 +1764,7 @@
 			<if test="status != null">
 				and status = #{status,jdbcType=INTEGER}
 			</if>
+			AND STATUS in (3,4)
 		GROUP BY
 			task_type,report_time
 		ORDER by field(task_type,5,1,3,2,6),report_time

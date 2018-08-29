@@ -40,6 +40,7 @@ import com.bt.om.entity.City;
 import com.bt.om.entity.SysUser;
 import com.bt.om.entity.vo.AdActivityAdseatTaskVo;
 import com.bt.om.entity.vo.AdMediaTypeVo;
+import com.bt.om.entity.vo.AdMonitorTaskVo;
 import com.bt.om.enums.MapStandardEnum;
 import com.bt.om.enums.MonitorTaskStatus;
 import com.bt.om.enums.MonitorTaskType;
@@ -59,10 +60,12 @@ import com.bt.om.service.IHistoryAdActivityService;
 import com.bt.om.service.IHistoryAdMonitorTaskService;
 import com.bt.om.service.IMediaService;
 import com.bt.om.service.ISysUserService;
+import com.bt.om.util.ConfigUtil;
 import com.bt.om.util.ExcelTool;
 import com.bt.om.util.pdf.AlternatingBackground;
 import com.bt.om.vo.web.ResultVo;
 import com.bt.om.web.BasicController;
+import com.bt.om.web.util.HistoryPDFHelper;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.itextpdf.text.BaseColor;
@@ -126,6 +129,8 @@ public class HistoryExcelController extends BasicController {
 	private IHistoryAdMonitorTaskService historyAdMonitorTaskService;
 	
 	private static final Logger logger = Logger.getLogger(HistoryExcelController.class);
+    private String file_upload_path = ConfigUtil.getString("file.upload.path");
+    private String file_upload_ip = ConfigUtil.getString("file.upload.ip");
 	
 	/**
 	 * 具体活动的pdf导出
@@ -135,8 +140,10 @@ public class HistoryExcelController extends BasicController {
     @RequestMapping(value = "/exportAdMediaPdf")
 	@ResponseBody
 	public Model exportPdf(Model model, HttpServletRequest request, HttpServletResponse response,
-			@RequestParam(value = "activityId", required = false) Integer activityId,
-			@RequestParam(value = "taskreport", required = false) String taskreport) throws ParseException {
+            @RequestParam(value = "activityId", required = false) Integer activityId,
+            @RequestParam(value = "taskreport", required = false) String taskreport,
+            @RequestParam(value = "brandName", required = false) String brandName,
+            @RequestParam(value = "titleName", required = false) String titleName) throws ParseException {
 		System.setProperty("sun.jnu.encoding", "utf-8");
 		SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
     	String tableName = (String) ShiroUtils.getSessionAttribute("tableName");
@@ -164,17 +171,17 @@ public class HistoryExcelController extends BasicController {
 			String reportTimeStr = taskreport.substring(0, 10); //报告时间
 			reportTime = sdf.parse(reportTimeStr);
 			type = taskreport.substring(10,taskreport.length()-2);
-			if(type.contains("上刊任务")) {
-				taskType = MonitorTaskType.UP_TASK.getId();
-			} else if(type.contains("上刊监测")) {
-				taskType = MonitorTaskType.UP_MONITOR.getId();
-			} else if(type.contains("投放期间监测")) {
-				taskType = MonitorTaskType.DURATION_MONITOR.getId();
-			} else if(type.contains("下刊监测")) {
-				taskType = MonitorTaskType.DOWNMONITOR.getId();
-			} else if(type.contains("追加监测")) {
-				taskType = MonitorTaskType.ZHUIJIA_MONITOR.getId();
-			}
+			if (type.contains("上刊监测")) {
+                taskType = MonitorTaskType.UP_MONITOR.getId();
+            } else if (type.contains("上刊")) {
+                taskType = MonitorTaskType.UP_TASK.getId();
+            }else if (type.contains("投放期间监测")) {
+                taskType = MonitorTaskType.DURATION_MONITOR.getId();
+            } else if (type.contains("下刊监测")) {
+                taskType = MonitorTaskType.DOWNMONITOR.getId();
+            } else if (type.contains("追加监测")) {
+                taskType = MonitorTaskType.ZHUIJIA_MONITOR.getId();
+            }
 			
 			searchMap.put("activityId", activityId);
 			searchMap.put("reportTime", reportTime);
@@ -183,15 +190,15 @@ public class HistoryExcelController extends BasicController {
 		}
 		//导出文件相关
 		AdActivity adActivity = historyAdActivityService.getById(searchMap);
-//		AdCustomerType customerType = adCustomerTypeService.getById(adActivity.getCustomerTypeId()); //客户类型
-// 		final String fileName = adActivity.getActivityName() + "-广告位导出结果"+ ".pdf"; //导出文件名
-		final String fileName = adActivity.getId() + "-" + System.currentTimeMillis() + ".pdf"; //导出文件名
- 		List<List<String>> listString = new ArrayList<>();
-        Map<Integer, List<String>> map = new HashMap<>();
+
+		Map<Integer, List<String>> map = new HashMap<>();
+ 		List<AdMonitorTaskVo> taskVos = historyAdMonitorTaskService.selectMonitorTaskIdsByActicityId(searchMap);
+        Map<Integer, Integer> taskIds = new HashMap<>();
+        for (AdMonitorTaskVo adMonitorTaskVo : taskVos) {
+            taskIds.put(adMonitorTaskVo.getId(), adMonitorTaskVo.getActivityAdseatId());
+        }
         Rectangle pageSize = new Rectangle(1920, 1080);
-//        Document document = new Document(PageSize.LEDGER);
-        Document document = new Document(pageSize);
-        
+        //广告主id
         Integer userId = adActivity.getUserId();//广告主id
         SysUser sysUser = sysUserService.getUserAppType(userId);
         Integer appId = sysUser.getAppTypeId();
@@ -199,307 +206,204 @@ public class HistoryExcelController extends BasicController {
         
         try {
         	//指定文件保存位置
-	        String path = request.getSession().getServletContext().getRealPath("/");
-			path = path + (path.endsWith(File.separator)?"":File.separatorChar)+"static"+File.separatorChar+"pdf"+File.separatorChar+fileName;
-	        result.setCode(ResultCode.RESULT_SUCCESS.getCode());
-	        result.setResult("/static/pdf/" + fileName); //提供下载
-	        
-	        //生成pdf文件
-			PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(path));
-			document.open();
-			PdfContentByte cb = writer.getDirectContent();
-			
-			//[1] 生成pdf首页
-		    BaseFont bfChinese = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
-		    BaseFont secfont = BaseFont.createFont(request.getSession().getServletContext().getRealPath("/") + "/static/font/SIMKAI.TTF", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
-		    BaseFont thifont = BaseFont.createFont(request.getSession().getServletContext().getRealPath("/") + "/static/font/SIMFANG.TTF", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
-		    Font font = new Font(bfChinese,12, Font.BOLD);
-		    
-		    //拼接title
-		    StringBuffer stringBuffer = new StringBuffer();
-		    stringBuffer.append(adActivity.getActivityName());
-		    stringBuffer.append(taskreport.substring(10));
-		    
-		    Image image1 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/cover.jpg");
-			image1.setAlignment(Image.ALIGN_CENTER);
-			image1.scaleAbsolute(1920,1080);//控制图片大小
-			image1.setAbsolutePosition(0,0);//控制图片位置
-			document.add(image1);
-			
-		    //Header  
-	        float y = document.top(380); 
-			cb.beginText();  
-			cb.setFontAndSize(secfont, 53);  
-//			cb.showTextAligned(PdfContentByte.ALIGN_CENTER, stringBuffer.toString(), (document.right() + document.left())/2, y, 0);
-			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, stringBuffer.toString(), 180, y, 0);
-			cb.endText();
-			
-			cb = writer.getDirectContent();
-			cb.beginText();  
-			cb.setFontAndSize(secfont, 26);  
-			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "报告时间 "+taskreport.substring(0, 10), 1500, 200, 0);
-			cb.endText();
-			Image image = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/grouplogo.png");
-			image.setAlignment(Image.ALIGN_CENTER);
-			image.scaleAbsolute(140,50);//控制图片大小
-			image.setAbsolutePosition(1620,80);//控制图片位置
-			document.add(image);
-			
-			Image image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
-			image2.setAlignment(Image.ALIGN_CENTER);
-			image2.scaleAbsolute(200,50);//控制图片大小
-			image2.setAbsolutePosition(200,80);//控制图片位置
-			document.add(image2);
-			
-			Image image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
-			image3.setAlignment(Image.ALIGN_CENTER);
-			image3.scaleAbsolute(75,60);//控制图片大小
-			image3.setAbsolutePosition(1650,950);//控制图片位置
-			document.add(image3);
-			
-//        	List<AdActivityAdseatTaskVo> vos = adActivityService.selectAdActivityAdseatTaskReport(activityId);
-			List<AdActivityAdseatTaskVo> vos = historyAdActivityService.newSelectAdActivityAdseatTaskReport(searchMap);
-        	for (AdActivityAdseatTaskVo vo : vos) {
-				List<String> list = new ArrayList<>();
-				list.add(adActivity.getActivityName()); //活动名称 0
-				list.add(vo.getInfo_name()); //广告位名称 1
-				list.add(cityCache.getCityName(vo.getInfo_province())); //省 2
-				list.add(cityCache.getCityName(vo.getInfo_city())); //市 3
-//				list.add(cityCache.getCityName(vo.getInfo_region())); //区（县） 4
-//				list.add(cityCache.getCityName(vo.getInfo_street())); //街道 5  
-				list.add(vo.getInfo_road());//主要路段 4
-				list.add(vo.getInfo_location()); //详细位置 5
-				list.add(vo.getInfo_memo()); //媒体方广告位编号 6
-//				list.add(vo.getInfo_uniqueKey()); //唯一标识 7
-				list.add(DateUtil.dateFormate(vo.getMonitorStart(), "yyyy-MM-dd")); //开始监测时间 7
-				list.add(DateUtil.dateFormate(vo.getMonitorEnd(), "yyyy-MM-dd")); //结束监测时间 8
-//				String status = AdMediaInfoStatus.WATCHING.getText(); //当前状态 9
-//				if(vo.getProblem_count() > 0) {
-//					status = AdMediaInfoStatus.HAS_PROBLEM.getText();
-//				}
-//				if(vo.getMonitorStart().getTime() > now.getTime()) {
-//					status = AdMediaInfoStatus.NOT_BEGIN.getText();
-//				}
-//				if(vo.getMonitorEnd().getTime() < now.getTime()) {
-//					status = AdMediaInfoStatus.FINISHED.getText();
-//	        	}
-				Integer prostatus = vo.getProblemStatus();
-				String problemStatus = null;
-				if(prostatus==TaskProblemStatus.CLOSED.getId()) {
-					problemStatus = TaskProblemStatus.CLOSED.getText();
-				}else if(prostatus==TaskProblemStatus.FIXED.getId()) {
-					problemStatus = TaskProblemStatus.FIXED.getText();
-				}else if(prostatus==TaskProblemStatus.NO_PROBLEM.getId()) {
-					problemStatus = TaskProblemStatus.NO_PROBLEM.getText();
-				}
-				else if(prostatus==TaskProblemStatus.UNMONITOR.getId()) {
-					problemStatus = TaskProblemStatus.UNMONITOR.getText();
-				}
-				else if(prostatus==TaskProblemStatus.PROBLEM.getId()) {
-					problemStatus = TaskProblemStatus.PROBLEM.getText();
-				}
-				list.add(problemStatus);
-//				list.add(status); //当前状态
-				list.add(vo.getInfo_adSize()); //尺寸 10
-				list.add(vo.getInfo_adArea()); //面积 11
-				list.add(vo.getInfo_adNum()+"");//面数12
-				list.add(vo.getInfo_lon() + ""); //经度 13
-				list.add(vo.getInfo_lat() + ""); //纬度 14
-				if(vo.getInfo_mapStandard() != null) {
-					list.add(MapStandardEnum.getText(vo.getInfo_mapStandard())); //地图标准 15
-				} else {
-					list.add(null);
-				}
-				list.add(vo.getInfo_contactName()); //联系人姓名 16
-				list.add(vo.getInfo_contactCell()); //联系人电话 17
-				list.add(mediaTypeMap.get(vo.getInfo_mediaTypeParentId())); //媒体大类 18
-				list.add(mediaTypeMap.get(vo.getInfo_mediaTypeId())); //媒体小类 19
-				list.add(vo.getMediaName()); //媒体主20
-				list.add(type);//任务类型21
-//				if(customerType != null) {
-//					list.add(customerType.getName()); //客户类型22
-//				} else {
-//					list.add(null); //客户类型22
-//				}
-				list.add(vo.getRealname());	//22 审核人员
-				Integer taskStatus = vo.getStatus();
-				String  status= null;
-				if(taskStatus== MonitorTaskStatus.UNASSIGN.getId()) {
-					status = MonitorTaskStatus.UNASSIGN.getText();
-				}else if(taskStatus == MonitorTaskStatus.TO_CARRY_OUT.getId()) {
-					status = MonitorTaskStatus.TO_CARRY_OUT.getText();
-				}else if(taskStatus == MonitorTaskStatus.UNVERIFY.getId()) {
-					status = MonitorTaskStatus.UNVERIFY.getText();
-				}else if(taskStatus == MonitorTaskStatus.VERIFIED.getId()) {
-					status = MonitorTaskStatus.VERIFIED.getText();
-				}else if(taskStatus == MonitorTaskStatus.VERIFY_FAILURE.getId()) {
-					status = MonitorTaskStatus.VERIFY_FAILURE.getText();
-				}else if(taskStatus == MonitorTaskStatus.UN_FINISHED.getId()) {
-					status = MonitorTaskStatus.UN_FINISHED.getText();
-				}else if(taskStatus == MonitorTaskStatus.UN_ACTIVE.getId()) {
-					status = MonitorTaskStatus.UN_ACTIVE.getText();
-				}else if(taskStatus == MonitorTaskStatus.CAN_GRAB.getId()) {
-					status = MonitorTaskStatus.CAN_GRAB.getText();
-				}else if(taskStatus == MonitorTaskStatus.VERIFY.getId()) {
-					status = MonitorTaskStatus.VERIFY.getText();
-				}
-				list.add(status);//26 任务状态
-				list.add(vo.getExe_realname());//27 任务执行人
-				map.put(vo.getId(), list); //ad_activity_adseat的id
-				listString.add(list);
-			}
-        	
-        	document.setMargins(-70f, 100f, 250f, 50f);
-        	document.newPage();
-        	//[2] 点位信息生成
-        	cb = writer.getDirectContent();
-			cb.beginText();  
-			cb.setFontAndSize(secfont, 53);  
-			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "广告位信息 ", 120, 860, 0);
-			cb.endText();
-			
-			PdfPTable table1 = createTable2(listString);
-			document.add(table1);
-			image = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/grouplogo.png");
-			image.setAlignment(Image.ALIGN_CENTER);
-			image.scaleAbsolute(140,50);//控制图片大小
-			image.setAbsolutePosition(1620,80);//控制图片位置
-			document.add(image);
-			
-			image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
-			image2.setAlignment(Image.ALIGN_CENTER);
-			image2.scaleAbsolute(200,50);//控制图片大小
-			image2.setAbsolutePosition(200,80);//控制图片位置
-			document.add(image2);
-			
-			image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
-			image3.setAlignment(Image.ALIGN_CENTER);
-			image3.scaleAbsolute(75,60);//控制图片大小
-			image3.setAbsolutePosition(1650,950);//控制图片位置
-			document.add(image3);
-        	            
-			//生成pdf图片页
-			List<Integer> ids = new ArrayList<>();
-			List<Integer> activityAdseatIds = new ArrayList<>();
-			//查询每个广告位最新的一条监测任务
-//            List<AdMonitorTask> tasks = adMonitorTaskService.selectLatestMonitorTaskIds(activityId);
- 			List<AdMonitorTask> tasks = adMonitorTaskService.newSelectLatestMonitorTaskIds(searchMap);
-            for (AdMonitorTask task : tasks) {
-            	if((userObj.getUsertype()==UserTypeEnum.CUSTOMER.getId() && task.getStatus()==MonitorTaskStatus.VERIFIED.getId()) || (userObj.getUsertype()!=UserTypeEnum.CUSTOMER.getId())) {
-            		//登录方是广告主且任务当前状态是已审核  或者是群邑
-            		ids.add(task.getId()); //ad_monitor_task的id
-            		activityAdseatIds.add(task.getActivityAdseatId()); //ad_activity_adseat的id
-            	}
-			}
-            //查询上述监测任务有效的一条反馈
-            if(ids.size() > 0) {
-            	List<AdMonitorTaskFeedback> taskFeedbacks = adMonitorTaskService.selectByActivity(ids);
-            	for (Integer monitorTaskId : ids) {
-            		//广告位信息
-            		List<String> list = map.get(activityAdseatIds.get(ids.indexOf(monitorTaskId)));
-            		
-            		//生成广告位图片信息页, 每个广告位一页
-            		document.setMargins(-1020f, 100f, 300f, 50f);
-                	document.newPage();
-                	PdfPTable table = createTable1(list);
-        			document.add(table);
-                	
-                	//[3] 广告位信息生成
-                	cb = writer.getDirectContent();
-        			cb.beginText();  
-        			cb.setFontAndSize(secfont, 53);  
-        			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "广告位信息 ", 120, 860, 0);
-        			cb.endText(); 
-        			
-        			for (AdMonitorTaskFeedback feedback : taskFeedbacks) {
-    					if(feedback.getMonitorTaskId().equals(monitorTaskId)) {
-    						createPage(document, list, feedback, request);
-    						break;
-    					}
-    				}
-        			
-        			image = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/grouplogo.png");
-        			image.setAlignment(Image.ALIGN_CENTER);
-        			image.scaleAbsolute(140,50);//控制图片大小
-        			image.setAbsolutePosition(1620,80);//控制图片位置
-        			document.add(image);
-        			
-        			image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
-        			image2.setAlignment(Image.ALIGN_CENTER);
-        			image2.scaleAbsolute(200,50);//控制图片大小
-        			image2.setAbsolutePosition(200,80);//控制图片位置
-        			document.add(image2);
-        			
-        			image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
-        			image3.setAlignment(Image.ALIGN_CENTER);
-        			image3.scaleAbsolute(75,60);//控制图片大小
-        			image3.setAbsolutePosition(1650,950);//控制图片位置
-        			document.add(image3);
-				}
+            String path = file_upload_path;//request.getSession().getServletContext().getRealPath("/");
+            //pdf存在路径，已活动ID为文件夹
+            String target = (path.endsWith(File.separator) ? "" : File.separatorChar) + activityId.toString() + File.separatorChar + "pdf" + File.separatorChar;
+            path = path + target;
+            result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+            //result.setResult("/static/pdf/" + fileName);
+            //返回pdf存储路径
+            String _path = path.substring(path.indexOf(":") + 1, path.length()).replaceAll("\\\\", "/");
+            _path = _path.replaceFirst("/opt/", "/");
+            result.setResult(file_upload_ip + _path);
+            //拼接title
+            StringBuffer stringBuffer = new StringBuffer();
+            stringBuffer.append(taskreport.substring(10));
+
+            List<AdActivityAdseatTaskVo> vos = historyAdActivityService.newSelectAdActivityAdseatTaskReport(searchMap);
+            Map<String, Map<Integer, List<String>>> cityMap = new HashMap<>();
+            Map<String, String> cityFileNameMap = new HashMap<>();
+            for (AdActivityAdseatTaskVo vo : vos) {
+                Map<Integer, List<String>> _tempMap = new HashMap<>();
+                Long provinceCode = vo.getInfo_province();
+                Long cityCode = vo.getInfo_city();
+                String provinceName = cityCache.getCityName(provinceCode);
+                String cityName = cityCache.getCityName(cityCode);
+                List<String> list = new ArrayList<>();
+                //活动名称 0
+                list.add(adActivity.getActivityName());
+                //广告位名称 1
+                list.add(vo.getInfo_name());
+                //省 2
+                list.add(provinceName);
+                //市 3
+                list.add(cityName==null?provinceName:cityName);
+                //主要路段 4
+                list.add(vo.getInfo_road());
+                //详细位置 5
+                list.add(vo.getInfo_location());
+                //媒体方广告位编号 6
+                list.add(vo.getInfo_memo());
+                /**开始监测时间 7*/
+                list.add(DateUtil.dateFormate(vo.getMonitorStart(), "yyyy-MM-dd"));
+                /**结束监测时间 8*/
+                list.add(DateUtil.dateFormate(vo.getMonitorEnd(), "yyyy-MM-dd"));
+                Integer proStatus = vo.getProblemStatus();
+                String problemStatus = null;
+                if (proStatus.equals(TaskProblemStatus.CLOSED.getId())) {
+                    problemStatus = TaskProblemStatus.CLOSED.getText();
+                } else if (proStatus.equals(TaskProblemStatus.FIXED.getId())) {
+                    problemStatus = TaskProblemStatus.FIXED.getText();
+                } else if (proStatus.equals(TaskProblemStatus.NO_PROBLEM.getId())) {
+                    problemStatus = TaskProblemStatus.NO_PROBLEM.getText();
+                } else if (proStatus.equals(TaskProblemStatus.UNMONITOR.getId())) {
+                    problemStatus = TaskProblemStatus.UNMONITOR.getText();
+                } else if (proStatus.equals(TaskProblemStatus.PROBLEM.getId())) {
+                    problemStatus = TaskProblemStatus.PROBLEM.getText();
+                }
+                list.add(problemStatus);
+                //尺寸 10
+                list.add(vo.getInfo_adSize());
+                //面积 11
+                list.add(vo.getInfo_adArea());
+                //面数12
+                list.add(vo.getInfo_adNum() + "");
+                //经度 13
+                list.add(vo.getInfo_lon() + "");
+                //纬度 14
+                list.add(vo.getInfo_lat() + "");
+                if (vo.getInfo_mapStandard() != null) {
+                    //地图标准 15
+                    list.add(MapStandardEnum.getText(vo.getInfo_mapStandard()));
+                } else {
+                    list.add(null);
+                }
+                //联系人姓名 16
+                list.add(vo.getInfo_contactName());
+                //联系人电话 17
+                list.add(vo.getInfo_contactCell());
+                //媒体大类 18
+                list.add(mediaTypeMap.get(vo.getInfo_mediaTypeParentId()));
+                //媒体小类 19
+                list.add(mediaTypeMap.get(vo.getInfo_mediaTypeId()));
+                //媒体主20
+                list.add(vo.getMediaName());
+                //任务类型21
+                list.add(type);
+                //22 审核人员
+                list.add(vo.getRealname());
+                Integer taskStatus = vo.getStatus();
+                String status = null;
+                if (taskStatus.equals(MonitorTaskStatus.UNASSIGN.getId())) {
+                    status = MonitorTaskStatus.UNASSIGN.getText();
+                } else if (taskStatus.equals(MonitorTaskStatus.TO_CARRY_OUT.getId())) {
+                    status = MonitorTaskStatus.TO_CARRY_OUT.getText();
+                } else if (taskStatus.equals(MonitorTaskStatus.UNVERIFY.getId())) {
+                    status = MonitorTaskStatus.UNVERIFY.getText();
+                } else if (taskStatus.equals(MonitorTaskStatus.VERIFIED.getId())) {
+                    status = MonitorTaskStatus.VERIFIED.getText();
+                } else if (taskStatus.equals(MonitorTaskStatus.VERIFY_FAILURE.getId())) {
+                    status = MonitorTaskStatus.VERIFY_FAILURE.getText();
+                } else if (taskStatus.equals(MonitorTaskStatus.UN_FINISHED.getId())) {
+                    status = MonitorTaskStatus.UN_FINISHED.getText();
+                } else if (taskStatus.equals(MonitorTaskStatus.UN_ACTIVE.getId())) {
+                    status = MonitorTaskStatus.UN_ACTIVE.getText();
+                } else if (taskStatus.equals(MonitorTaskStatus.CAN_GRAB.getId())) {
+                    status = MonitorTaskStatus.CAN_GRAB.getText();
+                } else if (taskStatus.equals(MonitorTaskStatus.VERIFY.getId())) {
+                    status = MonitorTaskStatus.VERIFY.getText();
+                }
+                //23 任务状态
+                list.add(status);
+                //24 任务执行人
+                list.add(vo.getExe_realname());
+                //25 活动示例图
+                list.add(vo.getSamplePicUrl());
+                if (taskreport != null) {
+                    String reportTimeStr = taskreport.substring(0, 10);
+                    reportTime = sdf.parse(reportTimeStr);
+                    //26 报告时间
+                    list.add(reportTimeStr);
+                }
+                //27 品牌名
+                list.add(brandName);
+                //28 广告位点位图
+                list.add(vo.getMapPic());
+                //ad_activity_adseat的id
+                map.put(vo.getId(), list);
+
+                //将数据根据城市进行区分
+                String key = provinceCode.toString() + (cityCode == null ? "" : cityCode.toString());
+                if (cityMap.containsKey(key)) {
+                    cityMap.get(key).put(vo.getId(), list);
+                } else {
+                    _tempMap.put(vo.getId(), list);
+                    cityMap.put(key, _tempMap);
+                }
+                //如果当前城市key不存在，则添加当前城市的pdf文件名记录
+                if (!cityFileNameMap.containsKey(key)) {
+                    String reportTimeStr = taskreport.substring(0, 10);
+                    reportTimeStr = reportTimeStr.replaceAll("-", "");
+                    cityFileNameMap.put(key, MessageFormat.format("{0}{1}{2}_{3}报告.pdf", cityName==null?provinceName:cityName, reportTimeStr, activityId,type));
+                }
             }
-            
-            document.newPage();
-            cb = writer.getDirectContent();
-			cb.beginText();  
-			cb.setFontAndSize(secfont, 53);  
-			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "甲方： ",320, 560, 0);
-//			cb.endText(); 
-//			
-//			cb = writer.getDirectContent();
-//			cb.beginText();  
-			cb.setFontAndSize(secfont, 53);  
-			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "乙方： ", 1100, 560, 0);
-			cb.endText(); 
-            
-//			image = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/grouplogo.png");
-//			image.setAlignment(Image.ALIGN_CENTER);
-//			image.scaleAbsolute(140,50);//控制图片大小
-//			image.setAbsolutePosition(1250,470);//控制图片位置
-//			document.add(image);
-//			
-//			image2 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/jflogo.png");
-//			image2.setAlignment(Image.ALIGN_CENTER);
-//			image2.scaleAbsolute(250,55);//控制图片大小
-//			image2.setAbsolutePosition(1430,470);//控制图片位置
-//			document.add(image2);
-//			
-//			image3 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+adapp.getAppPictureUrl());
-//			image3.setAlignment(Image.ALIGN_CENTER);
-//			image3.scaleAbsolute(70,55);//控制图片大小
-//			image3.setAbsolutePosition(450,450);//控制图片位置
-//			document.add(image3);
-			
-//			cb = writer.getDirectContent();
-//			cb.beginText();  
-//			cb.setFontAndSize(secfont, 30);  
-//			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "群邑上海广告有限公司 ", 1300, 410, 0);
-//			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, "玖凤监测广告有限公司 ", 1300, 360, 0);
-			cb.showTextAligned(PdfContentByte.ALIGN_LEFT, sysUser.getRealname(), 450, 420, 0);
-//			cb.endText();
-			
-//			Image image4 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/gongsi.png");
-//			image4.setAlignment(Image.ALIGN_CENTER);
-//			image4.scaleAbsolute(360,150);//控制图片大小
-//			image4.setAbsolutePosition(1260,300);//控制图片位置
-//			document.add(image4);
-			
-			Image image5 = Image.getInstance(request.getSession().getServletContext().getRealPath("/")+"/static/images/gongzhang.png");
-			image5.setAlignment(Image.ALIGN_CENTER);
-			image5.scaleAbsolute(250,180);//控制图片大小
-			image5.setAbsolutePosition(1300,350);//控制图片位置
-			document.add(image5);
-		} catch (Exception e) {
-			logger.error(MessageFormat.format("批量导出pdf失败", new Object[] {}));
-        	result.setCode(ResultCode.RESULT_FAILURE.getCode());
-        	result.setResultDes(e.getMessage());
+
+            if (cityFileNameMap.size() >0) {
+                Map<String,Object> files=new HashMap<>();
+                List<String> listFiles=new ArrayList<>();
+                for (Map.Entry<String,String> entry:cityFileNameMap.entrySet()){
+                    listFiles.add(entry.getValue());
+                }
+                files.put("files",listFiles);
+                files.put("domainPath",file_upload_ip + _path);
+                result.setResult(files);
+            }
+
+            //【3】生成pdf图片页
+            List<Integer> ids = new ArrayList<>();
+            List<Integer> activityAdseatIds = new ArrayList<>();
+            //查询每个广告位最新的一条监测任务
+            List<AdMonitorTask> tasks = historyAdMonitorTaskService.newSelectLatestMonitorTaskIds(searchMap);
+            for (AdMonitorTask task : tasks) {
+                //登录方是广告主且任务当前状态是已审核  或者是群邑
+                if ((userObj.getUsertype().equals(UserTypeEnum.CUSTOMER.getId()) && task.getStatus().equals(MonitorTaskStatus.VERIFIED.getId())) || (userObj.getUsertype() != UserTypeEnum.CUSTOMER.getId())) {
+                    //ad_monitor_task的id
+                    ids.add(task.getId());
+                    //ad_activity_adseat的id
+                    activityAdseatIds.add(task.getActivityAdseatId());
+                }
+            }
+            if (ids.size() > 0) {
+                List<AdMonitorTaskFeedback> taskFeedbacks = historyAdMonitorTaskService.selectByActivity(tableName,ids);
+                HistoryPDFHelper pdfHelper = new HistoryPDFHelper();
+
+                if (!pdfHelper.buildCityReport(request, taskFeedbacks, path, ids, activityAdseatIds, taskIds, cityFileNameMap, cityMap, adapp, titleName + stringBuffer.toString(),taskType)) {
+                    result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                    result.setResultDes("批量导出pdf失败");
+                } else {
+                    result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+                }
+//                if (!pdfHelper.buildReport(request, taskFeedbacks, path, ids, activityAdseatIds, taskIds, map, adapp, titleName + stringBuffer.toString())) {
+//                    result.setCode(ResultCode.RESULT_FAILURE.getCode());
+//                    result.setResultDes("批量导出pdf失败");
+//                } else {
+//                    result.setCode(ResultCode.RESULT_SUCCESS.getCode());
+//                }
+            }
+            else {
+                result.setCode(ResultCode.RESULT_FAILURE.getCode());
+                result.setResultDes(MessageFormat.format("未找到{0}数据",stringBuffer.toString()));
+            }
+        } catch (Exception e) {
+            logger.error(MessageFormat.format("批量导出pdf失败", new Object[]{}));
+            result.setCode(ResultCode.RESULT_FAILURE.getCode());
+            result.setResultDes(e.getMessage());
             e.printStackTrace();
-		} finally {
-			document.close();
-		}
-        
+        }
+
         model.addAttribute(SysConst.RESULT_KEY, result);
         return model;
-	}
+    }
 	
 	/**
 	 * 具体活动的广告位excel导出报表

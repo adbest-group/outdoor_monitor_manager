@@ -1017,7 +1017,7 @@ public class ExcelController extends BasicController {
                 List<Object> lo = listob.get(i);
                 //广告位名称, 所属媒体主, 媒体大类, 媒体小类, 省（直辖市）, 市,  主要路段, 
                 //详细位置, 媒体方广告位编号, 广告位长度, 广告位宽度, 经度, 纬度,面数, 地图标准（如百度，谷歌，高德）, 联系人姓名, 联系人电话, 导入结果, 导入错误信息
-                if(lo.size() <= 19){
+                if(lo.size() == 19){
                 	AdSeatInfo info = new AdSeatInfo();
                 	Long provinceId = 0L;
                 	Long cityId = 0L;
@@ -1271,19 +1271,22 @@ public class ExcelController extends BasicController {
     						String address = String.valueOf(lo.get(AdminImportAdSeatEnum.LOCATION.getId())).trim().replaceAll("\n", ""); //详细位置
                     		String street = String.valueOf(lo.get(AdminImportAdSeatEnum.ROAD.getId())).trim(); //街道
                     		String city = String.valueOf(lo.get(AdminImportAdSeatEnum.CITY.getId()));
-                    		List<Double> lonLatByAddress = AddressUtils.getLonLatByAddress(street+address, city);
-                    		if (lonLatByAddress.size()<=0) {
-                    			lonLatByAddress = AddressUtils.getLonLatByAddress(street, city);
-                    			if (lonLatByAddress.size()<=0) {
-                    				lonLatByAddress = AddressUtils.getLonLatByAddress(city, city);
-								}
-    						}
-                    		if (lonLatByAddress.size()>=2) {
-                    			lo.set(AdminImportAdSeatEnum.LON.getId(), lonLatByAddress.get(0));
-                        		lo.set(AdminImportAdSeatEnum.LAT.getId(), lonLatByAddress.get(1));
-                        		info.setLon(lonLatByAddress.get(0)); //经度
-        	                	info.setLat(lonLatByAddress.get(1)); //纬度
-        	                	info.setMapStandard(MapStandardEnum.getId("百度"));
+                    		try {
+                    			List<Double> lonLatByAddress = AddressUtils.getLonLatByAddress(street+address, city);
+                        		if (lonLatByAddress.size()<=0) {
+                        			lonLatByAddress = AddressUtils.getLonLatByAddress(street, city);
+                        			if (lonLatByAddress.size()<=0) {
+                        				lonLatByAddress = AddressUtils.getLonLatByAddress(city, city);
+    								}
+        						}
+                        		if (lonLatByAddress.size()>=2) {
+                        			lo.set(AdminImportAdSeatEnum.LON.getId(), lonLatByAddress.get(0));
+                            		lo.set(AdminImportAdSeatEnum.LAT.getId(), lonLatByAddress.get(1));
+                            		info.setLon(lonLatByAddress.get(0)); //经度
+            	                	info.setLat(lonLatByAddress.get(1)); //纬度
+            	                	info.setMapStandard(MapStandardEnum.getId("百度"));
+    							}
+							} catch (Exception e) {
 							}
     					} else {
     						//判断经度在-180-180之间
@@ -1368,12 +1371,13 @@ public class ExcelController extends BasicController {
                 		
                 		insertAdSeatInfos.add(info);
                 	}
-                } else {
-                	logger.error(MessageFormat.format("批量导入文件有误, 导入失败", new Object[] {}));
-                	result.setCode(ResultCode.RESULT_FAILURE.getCode());
-                	result.setResultDes("批量导入文件有误, 导入失败");
-                    throw new ExcelException("批量导入文件有误, 导入失败");
-                }
+                } 
+//                else {
+//                	logger.error(MessageFormat.format("批量导入文件有误, 导入失败", new Object[] {}));
+//                	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+//                	result.setResultDes("批量导入文件有误, 导入失败");
+//                    throw new ExcelException("批量导入文件有误, 导入失败");
+//                }
             }
             
             //正常数据插入到数据库中
@@ -2672,8 +2676,10 @@ public class ExcelController extends BasicController {
 	        		AdMonitorTaskVo taskVo = TaskVos.get(j);
 	        	if (taskVo.getStatus()==MonitorTaskStatus.VERIFIED.getId()) {
 	        		Integer index = tableData.get(taskVo.getMemo(),MonitorTaskType.getText(taskVo.getTaskType()));
-	        		excelInfo.put(index, ExcelImportFailEnum.TASK_VERIFY.getText());
-					continue;
+	        		if (index!=null) {
+		        		excelInfo.put(index, ExcelImportFailEnum.TASK_VERIFY.getText());
+						continue;
+					}
 				}
 				AdMonitorTaskVo adMonitorTaskVo = table.get(taskVo.getMemo(), taskVo.getTaskType());
 				if (adMonitorTaskVo!=null) {
@@ -2683,8 +2689,10 @@ public class ExcelController extends BasicController {
 					SysUserExecute userExecute = sysUserExecuteService.getByUsername(adMonitorTaskVo.getMobile());
 					if (userExecute==null) {
 						Integer index = tableData.get(taskVo.getMemo(),MonitorTaskType.getText(taskVo.getTaskType()));
-		        		excelInfo.put(index, ExcelImportFailEnum.TASK_USER_INVALID.getText());
-						continue;
+						if (index!=null) {
+			        		excelInfo.put(index, ExcelImportFailEnum.TASK_USER_INVALID.getText());
+							continue;
+						}
 					}
 					taskVo.setUserId(userExecute.getId());
 					Tasks.add(taskVo);

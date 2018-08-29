@@ -1752,4 +1752,21 @@
         where id in 
         <foreach collection="tasks" separator="," open="(" close=")" item="task"> #{task.id,jdbcType=INTEGER}</foreach>
   </delete>
+  <select id="getAllTaskTypesByActivityIdReportTime" parameterType="map" resultMap="BaseResultMap">
+	  	SELECT
+			task_type,
+			report_time
+		FROM
+			ad_monitor_task
+		WHERE
+			activity_id = #{activityId,jdbcType=INTEGER}
+			and report_time &lt;= DATE_FORMAT(#{reportTime,jdbcType=TIMESTAMP},'%Y-%m-%d')
+			<if test="status != null">
+				and status = #{status,jdbcType=INTEGER}
+			</if>
+			AND STATUS in (3,4)
+		GROUP BY
+			task_type,report_time
+		ORDER by field(task_type,5,1,3,2,6),report_time
+  </select>
 </mapper>

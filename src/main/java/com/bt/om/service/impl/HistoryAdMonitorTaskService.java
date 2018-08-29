@@ -1528,4 +1528,14 @@ public class HistoryAdMonitorTaskService implements IHistoryAdMonitorTaskService
 		return adMonitorTaskMapper.selectUserNameByTaskId(monitorTaskId);
 	}
 
+	@Override
+	public List<AdMonitorTask> getAllTaskTypesByActivityIdReportTime(Map<String, Object> searchMap) {
+		return historyAdMonitorTaskMapper.getAllTaskTypesByActivityIdReportTime(searchMap);
+	}
+
+	@Override
+	public List<AdMonitorTaskVo> selectMonitorTaskIdsByActicityId(Map<String, Object> searchMap) {
+		return historyAdMonitorTaskMapper.selectMonitorTaskIdsByActicityId(searchMap);
+	}
+
 }

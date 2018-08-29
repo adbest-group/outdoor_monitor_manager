@@ -310,112 +310,39 @@ public class HistoryActivityController extends BasicController {
 		return PageConst.HISTORY_SELECT_ALL_TASKS;
 	}
 	
-	//Pdf导出任务列表报告
+	/**
+	 * pdf导出报告列表
+	 * @param activityId 活动id
+	 * @return
+	 */
 	@RequestMapping(value="/activity/selectTasksToPdf")
-	public String selectTasksToPdf(Model model,HttpServletRequest request, HttpServletResponse response,
+	@RequiresRoles(value = {"superadmin","phoneoperator"}, logical = Logical.OR)
+	public String selectTasksToPdfs(Model model,HttpServletRequest request, HttpServletResponse response,
 			@RequestParam(value = "activityId", required = false) Integer activityId) {
 		SysUser userObj = (SysUser) ShiroUtils.getSessionAttribute(SessionKey.SESSION_LOGIN_USER.toString());
+		String tableName = (String) ShiroUtils.getSessionAttribute("tableName");
 		Date now = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		
-		SearchDataVo vo = SearchUtil.getVo();
-    	String tableName = (String) ShiroUtils.getSessionAttribute("tableName");
-		vo.putSearchParam("tableName", null, tableName);
-		vo.putSearchParam("activityId", null, activityId);
-		
+		Map<String, Object> searchMap = new HashMap<>();;
+		searchMap.put("activityId", activityId);
+		searchMap.put("reportTime", now);
+		searchMap.put("tableName", tableName);
 		//查询所有任务列表
-		List<AdMonitorTask> list = historyAdMonitorTaskService.getAllTasksByActivityId(vo);
-		//所有投放期间监测任务列表
-		List<AdMonitorTask> durationList = new ArrayList<>();
-		//所有追加监测列表
-		List<AdMonitorTask> zhuijiaList = new ArrayList<>();
+		List<AdMonitorTask> list = null;
+		if (userObj.getUsertype()==UserTypeEnum.CUSTOMER.getId()) {
+			searchMap.put("status", MonitorTaskStatus.VERIFIED.getId());
+		}
+		list = historyAdMonitorTaskService.getAllTaskTypesByActivityIdReportTime(searchMap);
+		List<String> reportList = new ArrayList<>();
 		for(AdMonitorTask task : list) {
 			StringBuffer stringBuffer = new StringBuffer();
-			if(now.compareTo(task.getReportTime())>0) {	//当前时间大于出报告时间
-				String nowDate = sdf.format(task.getReportTime());
-				if((userObj.getUsertype()==UserTypeEnum.CUSTOMER.getId() && task.getStatus()==MonitorTaskStatus.VERIFIED.getId()) || (userObj.getUsertype()!=UserTypeEnum.CUSTOMER.getId())) {
-					//登录用户是广告主且通过审核  或者登录用户是群邑
-					if(task.getTaskType()==MonitorTaskType.UP_TASK.getId()) {	//5 上刊任务
-						TaskDownload upTask = new TaskDownload();
-						stringBuffer.append(nowDate);
-						stringBuffer.append("	");
-						stringBuffer.append(MonitorTaskType.UP_TASK.getText());
-						stringBuffer.append("报告");
-						upTask.setKey(stringBuffer.toString());
-						upTask.setValue(task.getActivityId());
-						model.addAttribute("upTask_show",upTask);
-					}else if(task.getTaskType()==MonitorTaskType.UP_MONITOR.getId()) {	//1 上刊监测
-						TaskDownload upMonitor = new TaskDownload();
-						stringBuffer.append(nowDate);
-						stringBuffer.append("	");
-						stringBuffer.append(MonitorTaskType.UP_MONITOR.getText());
-						stringBuffer.append("报告");
-						upMonitor.setKey(stringBuffer.toString());
-						upMonitor.setValue(task.getActivityId());
-						model.addAttribute("upMonitor_show",upMonitor);
-					}else if(task.getTaskType()==MonitorTaskType.DOWNMONITOR.getId()) {	//3 下刊监测
-						TaskDownload downMonitor = new TaskDownload();
-						stringBuffer.append(nowDate);
-						stringBuffer.append("	");
-						stringBuffer.append(MonitorTaskType.DOWNMONITOR.getText());
-						stringBuffer.append("报告");
-						downMonitor.setKey(stringBuffer.toString());
-						downMonitor.setValue(task.getActivityId());
-						model.addAttribute("downMonitor_show",downMonitor);
-					}else if(task.getTaskType()==MonitorTaskType.DURATION_MONITOR.getId()) {  //2 投放期间监测
-						durationList.add(task);
-					}else if(task.getTaskType()==MonitorTaskType.ZHUIJIA_MONITOR.getId()) {  //6 追加监测
-						zhuijiaList.add(task);
-					}
-				}
-			}
+			String nowDate = sdf.format(task.getReportTime());
+			stringBuffer.append(nowDate).append("	");
+			stringBuffer.append(MonitorTaskType.getText(task.getTaskType())).append("报告");
+			reportList.add(stringBuffer.toString());
 		}
-		
-		//遍历投放期间监测
-		if(durationList != null && durationList.size()>0) {
-			List<TaskDownload> taskDownloadsPdf = new ArrayList<>();
-			for(AdMonitorTask task : durationList) {
-				StringBuffer stringBuffer = new StringBuffer();
-				if(now.compareTo(task.getReportTime())>0) {	//当前时间大于出报告时间
-					String nowDate = sdf.format(task.getReportTime());
-					if((userObj.getUsertype()==UserTypeEnum.CUSTOMER.getId() && task.getStatus()==MonitorTaskStatus.VERIFIED.getId()) || (userObj.getUsertype()!=UserTypeEnum.CUSTOMER.getId())) {
-						//登录用户是广告主且通过审核  或者登录用户是群邑
-						TaskDownload durationMonitor = new TaskDownload();
-						stringBuffer.append(nowDate);
-						stringBuffer.append("	");
-						stringBuffer.append(MonitorTaskType.DURATION_MONITOR.getText());
-						stringBuffer.append("报告");
-						durationMonitor.setKey(stringBuffer.toString());
-						durationMonitor.setValue(task.getActivityId());
-						taskDownloadsPdf.add(durationMonitor);
-					}
-				}
-			}
-			model.addAttribute("durationMonitor_show",taskDownloadsPdf);
-		}
-		
-		//遍历追加监测
-		if(zhuijiaList!= null && zhuijiaList.size()>0) {
-			List<TaskDownload> zhuijiaPdf = new ArrayList<>();
-			for(AdMonitorTask task : zhuijiaList) {
-				StringBuffer stringBuffer = new StringBuffer();
-				if(now.compareTo(task.getReportTime())>0) {	//当前时间大于出报告时间
-					String nowDate = sdf.format(task.getReportTime());
-					if((userObj.getUsertype()==UserTypeEnum.CUSTOMER.getId() && task.getStatus()==MonitorTaskStatus.VERIFIED.getId()) || (userObj.getUsertype()!=UserTypeEnum.CUSTOMER.getId())) {
-						//登录用户是广告主且通过审核  或者登录用户是群邑
-						TaskDownload zhuijiaMonitor = new TaskDownload();
-						stringBuffer.append(nowDate);
-						stringBuffer.append("	");
-						stringBuffer.append(MonitorTaskType.ZHUIJIA_MONITOR.getText());
-						stringBuffer.append("报告");
-						zhuijiaMonitor.setKey(stringBuffer.toString());
-						zhuijiaMonitor.setValue(task.getActivityId());
-						zhuijiaPdf.add(zhuijiaMonitor);
-					}
-				}
-			}
-			model.addAttribute("zhuijiaMonitor_show",zhuijiaPdf);
-		}
+		model.addAttribute("activityId",activityId);
+		model.addAttribute("reportList",reportList);
 		return PageConst.HISTORY_SELECT_TASKPDF;
 	}
 }

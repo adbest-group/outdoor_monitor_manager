@@ -85,7 +85,7 @@ public class HistoryJiucuoController extends BasicController{
 	private ICreateHistoryTableRecordService createHistoryTableRecordService;
 	@Autowired
 	private IHistoryAdActivityService historyAdActivityService;
-	private static final Logger logger = Logger.getLogger(LogFilter.class);
+	private static final Logger logger = Logger.getLogger(HistoryJiucuoController.class);
     
     /**
      * 【纠错审核部门】领导/【超级管理员】查看 纠错任务页面

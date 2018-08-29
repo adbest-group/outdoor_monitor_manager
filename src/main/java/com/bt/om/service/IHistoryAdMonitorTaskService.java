@@ -120,4 +120,6 @@ public interface IHistoryAdMonitorTaskService {
 	//更新图片状态（通过 /驳回）
 	public boolean updatePicStatus(AdMonitorTaskFeedback feedback, Integer status);
 	public String selectUserNameByTaskId(Integer monitorTaskId);
+	public List<AdMonitorTask> getAllTaskTypesByActivityIdReportTime(Map<String, Object> searchMap);
+	public List<AdMonitorTaskVo> selectMonitorTaskIdsByActicityId(Map<String, Object> searchMap);
 }

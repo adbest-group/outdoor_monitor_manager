@@ -2775,6 +2775,7 @@ public class ExcelController extends BasicController {
 						System.out.println(new String(file3.getName().getBytes(),"GB18030"));
 						System.out.println(new String(file3.getName().getBytes(),"GB2312"));
 						System.out.println("是否是文件夹"+file3.isDirectory());
+						file3 = new File("/opt/uploadfile/activity/310/temporary/3/深广B0100-001");
 					} catch (UnsupportedEncodingException e1) {
 						e1.printStackTrace();
 					}

@@ -2771,7 +2771,7 @@ public class ExcelController extends BasicController {
 					File file3 = fileList[k];
 					System.out.println(file3.getName());
 					try {
-						System.out.println("转换"+new String(file3.getName().getBytes(encoding),"UTF-8"));
+						System.out.println("转换"+new String(file3.getName().getBytes(encoding),"GBK"));
 					} catch (UnsupportedEncodingException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -2781,6 +2781,7 @@ public class ExcelController extends BasicController {
 						List<FileInfoVo> names = new ArrayList<>();
 						for (int j = 0; j < listFiles.length; j++) {
 							if (!listFiles[j].isDirectory()) {
+								System.out.println("文件名称：" + listFiles[j].getName().toString());
 								if (Pattern.compile(regex).matcher(listFiles[j].getName().toString()).matches()) {
 									try {
 										FileInfoVo fileInfoVo = new FileInfoVo();

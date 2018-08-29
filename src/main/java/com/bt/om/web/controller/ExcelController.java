@@ -2586,6 +2586,7 @@ public class ExcelController extends BasicController {
 	        //文件夹图片
 	        Map<String, Map<String, List<FileInfoVo>>> pics = new HashMap<>();
 	        pics = getPics(activityId);
+	        System.out.println(pics.toString());
 	        List<AdMonitorTaskVo> tasks = new ArrayList<>();
 	        Map<String, List<FileInfoVo>> imgs = new HashMap<>();
 	        Table<String, String, Integer> tableData = HashBasedTable.create();
@@ -2661,7 +2662,7 @@ public class ExcelController extends BasicController {
 	            	lo.set(AdminImportMonitorEnum.IMPORT_DES.getId(), ExcelImportFailEnum.PIC_INVALID.getText());
 				}
 	        }
-	        if (imgs.size()>0) {
+	        if (imgs!=null&&imgs.size()>0) {
 		        imgs.clear();
 			}
 	        Table<String, Integer, AdMonitorTaskVo> table = HashBasedTable.create();

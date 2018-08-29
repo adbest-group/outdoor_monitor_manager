@@ -58,4 +58,8 @@ public interface HistoryAdMonitorTaskMapper {
 	List<AdMonitorTask> newSelectLatestMonitorTaskIds(Map<String, Object> searchMap);
 
 	int insertBatch(@Param("tableName") String tableName,@Param("adMonitorTasks")  List<HistoryAdMonitorTask> adMonitorTasks);
+
+	List<AdMonitorTask> getAllTaskTypesByActivityIdReportTime(Map<String, Object> searchMap);
+
+	List<AdMonitorTaskVo> selectMonitorTaskIdsByActicityId(Map<String, Object> searchMap);
 }

@@ -21,7 +21,7 @@
 				<tbody>
 					<#if (reportList?exists && reportList?size>0)>
 						<#list reportList as report>
-							<#if report?exists><a href="javascript:zhuijiaMonitorShow(${activityId},'${report}')">${report?if_exists}</a><br/></#if>
+							<#if report?exists><a href="javascript:monitorShow(${activityId},'${report}')">${report?if_exists}</a><br/></#if>
 						</#list>
 					<#else>当前时间暂无报告</#if>
 				</tbody>
@@ -36,44 +36,7 @@
 	<link type="text/css" rel="stylesheet" href="${model.static_domain}/js/formValidator/style/validator.css"></link>
 	
 <script type="text/javascript">
-	function upTaskShow(activityId,taskreport) { //上刊任务
-		layer.open({
-    		type : 2,
-    		title: '',
-    		shade: 0.8,
-            area: ['600px', '420px'],
-            content: '/activity/writeBrand?activityId=' + activityId +'&taskreport=' +taskreport
-    	});
-    }
-	
-	function upmonitorShow(activityId,taskreport) { //上刊监测
-    	layer.open({
-    		type : 2,
-    		title: '',
-    		shade: 0.8,
-            area: ['600px', '420px'],
-            content: '/activity/writeBrand?activityId=' + activityId +'&taskreport=' +taskreport
-    	});
-    }
-    function durationMonitorShow(activityId,taskreport) { //投放期间监测
-    	layer.open({
-    		type : 2,
-    		title: '',
-    		shade: 0.8,
-            area: ['600px', '420px'],
-            content: '/activity/writeBrand?activityId=' + activityId +'&taskreport=' +taskreport
-    	});
-    }
-    function zhuijiaMonitorShow(activityId,taskreport) { //追加监测
-    	layer.open({
-    		type : 2,
-    		title: '',
-    		shade: 0.8,
-            area: ['600px', '420px'],
-            content: '/activity/writeBrand?activityId=' + activityId +'&taskreport=' +taskreport
-    	});
-    }
-    function downMonitorShow(activityId,taskreport) { //下刊监测
+    function monitorShow(activityId,taskreport) { //投放期间监测
     	layer.open({
     		type : 2,
     		title: '',

@@ -2754,7 +2754,6 @@ public class ExcelController extends BasicController {
 	 */
     private Map<String, Map<String, List<FileInfoVo>>> getPics(Integer activityId){
     	String encoding = System.getProperty("file.encoding"); 
-    	System.out.println("系统编码" + encoding);
     	File file=new File(fileUploadPath + File.separator +"activity" + File.separator + activityId + File.separator + "temporary");
     	if(!file.exists()){
             file.mkdirs();
@@ -2769,25 +2768,11 @@ public class ExcelController extends BasicController {
 				Map<String, List<FileInfoVo>> fileNames = new HashMap<>();
 				for (int k = 0; k < fileList.length; k++) {
 					File file3 = fileList[k];
-					System.out.println(file3.getName());
-					try {
-						String path = "/opt/uploadfile/activity/310/temporary/3/深广B0100-001";
-						file3 = new File(path);
-						System.out.println(file3.getName());
-						System.out.println(new String(file3.getName().getBytes("UTF-8"),"GBK"));
-						System.out.println(new String(path.getBytes("UTF-8"),"GBK"));
-						System.out.println(new String(path.getBytes("UTF-8")));
-						System.out.println(new String(path.getBytes("GBK"),"UTF-8"));
-						System.out.println("是否是文件夹"+file3.isDirectory());
-					} catch (UnsupportedEncodingException e1) {
-						e1.printStackTrace();
-					}
 					if (file3.isDirectory()) {
 						File[] listFiles = file3.listFiles();
 						List<FileInfoVo> names = new ArrayList<>();
 						for (int j = 0; j < listFiles.length; j++) {
 							if (!listFiles[j].isDirectory()) {
-								System.out.println("文件名称：" + listFiles[j].getName().toString());
 								if (Pattern.compile(regex).matcher(listFiles[j].getName().toString()).matches()) {
 									try {
 										FileInfoVo fileInfoVo = new FileInfoVo();

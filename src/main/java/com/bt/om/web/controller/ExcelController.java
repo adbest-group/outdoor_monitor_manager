@@ -2771,8 +2771,9 @@ public class ExcelController extends BasicController {
 					File file3 = fileList[k];
 					System.out.println(file3.getName());
 					try {
-						System.out.println(new String(file3.getName().getBytes(),"gbk"));
-						System.out.println("转换1"+new String(file3.getName().getBytes("GB2312"),encoding));
+						System.out.println(new String(file3.getName().getBytes(),"GBK"));
+						System.out.println(new String(file3.getName().getBytes(),"GB18030"));
+						System.out.println(new String(file3.getName().getBytes(),"GB2312"));
 						System.out.println("是否是文件夹"+file3.isDirectory());
 					} catch (UnsupportedEncodingException e1) {
 						e1.printStackTrace();

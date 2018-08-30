@@ -3,7 +3,7 @@
 <style type="text/css">
 		html, body{ min-width: 100%;overflow:auto; }
 		.basic-info .bd .a-title{ width: 120px;font-size:14px; }
-		
+		.basic-info{padding-top: 0;}
 		.basic-info .bd td label{ margin-right:20px; display: inline-block; font-size:14px;}
 		.basic-info .bd td span{font-size:14px;}
 		.basic-info .bd .formZone li.city-item label{ margin-right: 0; }
@@ -185,4 +185,14 @@
     var search = function () {
 		searchTextChange();
     };
+    document.onkeydown = function (e) {
+		if (!e) e = window.event;
+		if ((e.keyCode || e.which) == 13) {
+			var obtnLogin = document.getElementById("searchBth");
+			if(obtnLogin != null){
+				obtnLogin.focus();
+				search();
+			}
+		}
+    }
 </script>

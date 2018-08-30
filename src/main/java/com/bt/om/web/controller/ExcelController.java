@@ -1575,7 +1575,7 @@ public class ExcelController extends BasicController {
                 List<Object> lo = listob.get(i);
                 //广告位名称, 媒体大类, 媒体小类, 省（直辖市）, 市, 主要路段, 
                 //详细位置, 广告位编号， 广告位长度, 广告位宽度, 经度, 纬度, 地图标准（如百度，谷歌，高德）, 联系人姓名, 联系人电话, 导入结果, 导入错误信息
-                if(lo.size() <= 18){
+                if(lo.size() == 18){
                 	AdSeatInfo info = new AdSeatInfo();
                 	Long provinceId = 0L;
                 	Long cityId = 0L;
@@ -2015,12 +2015,13 @@ public class ExcelController extends BasicController {
                 		
                 		insertAdSeatInfos.add(info);
                 	}
-                } else {
-                	logger.error(MessageFormat.format("批量导入文件有误, 导入失败", new Object[] {}));
-                	result.setCode(ResultCode.RESULT_FAILURE.getCode());
-                	result.setResultDes("批量导入文件有误, 导入失败");
-                    throw new ExcelException("批量导入文件有误, 导入失败");
-                }
+                } 
+//                else {
+//                	logger.error(MessageFormat.format("批量导入文件有误, 导入失败", new Object[] {}));
+//                	result.setCode(ResultCode.RESULT_FAILURE.getCode());
+//                	result.setResultDes("批量导入文件有误, 导入失败");
+//                    throw new ExcelException("批量导入文件有误, 导入失败");
+//                }
             }
             
             //正常数据插入到数据库中
@@ -2595,6 +2596,9 @@ public class ExcelController extends BasicController {
 	        //excel表格任务对应文件夹图片   
 	        for (int i = 1; i < listob.size(); i++) {
 	            List<Object> lo = listob.get(i);
+	            if(lo.size() != 5){
+	            	continue;
+	            }
 	            String seatName = (String) lo.get(AdminImportMonitorEnum.ADSEAT_MEMO.getId());
 	            String mobile = (String) lo.get(AdminImportMonitorEnum.TASK_USER.getId());
 	            String task_type = (String) lo.get(AdminImportMonitorEnum.TASK_TYPE.getId());
